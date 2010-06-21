@@ -64,8 +64,8 @@ LIB32=link.exe -lib
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
-# ADD CPP /nologo /MD /W3 /Gm /vmb /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ  /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MD /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FR /FD /GZ /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE RSC /l 0x804 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -108,6 +108,10 @@ SOURCE=..\..\..\include\che_base.h
 # Begin Source File
 
 SOURCE=..\..\..\include\che_bitmap.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\che_define.h
 # End Source File
 # Begin Source File
 

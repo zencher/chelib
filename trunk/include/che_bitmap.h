@@ -27,38 +27,38 @@ typedef struct tagHE_BITMAPINFOHEADER
 	HE_DWORD	biClrImportant;
 }HE_BITMAPINFOHEADER, *HE_LPBITMAPINFOHEADER;
 
-enum HE_BITMAP_TYPE
+enum HE_BITMAP_FORMAT
 {
-	HE_BITMAP_Invaild,
-	HE_BITMAP_1BPP,
-	HE_BITMAP_1BPPMask,
-	HE_BITMAP_4BPP,
-	HE_BITMAP_8BPP,
-	HE_BITMAP_8BPPMask,
-	HE_BITMAP_24BPP,
-	HE_BITMAP_32BPP
+	BITMAP_FORMAT_Invaild,
+	BITMAP_FORMAT_1BPP,
+	BITMAP_FORMAT_1BPPMask,
+	BITMAP_FORMAT_4BPP,
+	BITMAP_FORMAT_8BPP,
+	BITMAP_FORMAT_8BPPMask,
+	BITMAP_FORMAT_24BPP,
+	BITMAP_FORMAT_32BPP
 };
 
-enum HE_BITMAP_FLOWORIG
+enum HE_BITMAP_ORIG
 {
-	HE_BITMAP_FLOWORIG_BOTTOM,	//一般情况下，height为负时
-	HE_BITMAP_FLOWORIG_UP		
+	BITMAP_ORIG_BOTTOM,	//一般情况下，height为负时
+	BITMAP_ORIG_UP
 };
 
-enum HE_BITMAP_Channel
+enum HE_BITMAP_CHANNEL
 {
-	HE_BITMAP_Red = 1,
-	HE_BITMAP_Green,
-	HE_BITMAP_Blue,
-	HE_BITMAP_Alpha
+	BITMAP_CHANNEL_Red = 1,
+	BITMAP_CHANNEL_Green,
+	BITMAP_CHANNEL_Blue,
+	BITMAP_CHANNEL_Alpha
 };
 
-enum HE_BITMAP_Compression
+enum HE_BITMAP_COMPRESSION
 {
-	HE_BIBITMAP_RGB = 0,
-	HE_BITMAP_RLE8 = 1,
-	HE_BITMAP_RLE4 = 2,
-	HE_BITMAP_BITFIELDS =3
+	BITMAP_COMPRESSION_RGB = 0,
+	BITMAP_COMPRESSION_RLE8 = 1,
+	BITMAP_COMPRESSION_RLE4 = 2,
+	BITMAP_COMPRESSION_BITFIELDS =3
 };
 
 typedef HE_DWORD HE_ARGB;
@@ -83,7 +83,7 @@ public:
 
 	CHE_Palette & operator=( const CHE_Palette& palette );
 
-	HE_BITMAP_TYPE	Type() const;
+	HE_BITMAP_FORMAT	Format() const;
 
 	HE_DWORD	ColorCount() const;
 	HE_BOOL		GetColor( HE_BYTE index, HE_ARGB & colorRet ) const;
@@ -95,11 +95,11 @@ public:
 private:
 	friend class CHE_Bitmap;
 
-	CHE_Palette( HE_BITMAP_TYPE type, const HE_ARGB * const pPalette = NULL );
+	CHE_Palette( HE_BITMAP_FORMAT format, const HE_ARGB * const pPalette = NULL );
 	CHE_Palette( const CHE_Palette& palette );
 
 	HE_ARGB *		m_pPalette;
-	HE_BITMAP_TYPE	m_type;
+	HE_BITMAP_FORMAT m_format;
 	HE_DWORD		m_nPaletteSize;			
 };
 
@@ -112,7 +112,7 @@ public:
 
 	HE_BOOL		Load( HE_LPCSTR );
 	HE_BOOL		Save( HE_LPCSTR );
-	HE_BOOL		Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_TYPE type, HE_BITMAP_FLOWORIG flowOrig, HE_DWORD bufferSize = 0,
+	HE_BOOL		Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_DWORD bufferSize = 0,
 						HE_LPCBYTE buffer = NULL, const HE_ARGB* pPalette = NULL );
 
 	HE_VOID		Clean();
@@ -121,20 +121,13 @@ public:
 	HE_DWORD	Height() const { return ( m_InfoHeader.biHeight > 0 ) ? (m_InfoHeader.biHeight) : (-m_InfoHeader.biHeight); } ;
 	HE_WORD		Depth() const { return m_InfoHeader.biBitCount; } ;
 	HE_DWORD	Pitch() const { return ( ( ( m_InfoHeader.biWidth * m_InfoHeader.biBitCount ) + 31 ) & ~31 ) >> 3; } ;
-	HE_BITMAP_TYPE Type() const;
-	HE_BITMAP_FLOWORIG FlowOrig() const { return m_flowOrig; } ;
-
-	//const HE_ARGB*	GetPalette() const { return m_lpPalette; } ;
-	//HE_WORD		GetPaletteSize() const;
-	//HE_ARGB		GetPaletteArgb( HE_WORD index ) const;
-	//HE_SHORT	GetNearArgbInPalette( HE_ARGB color ) const;
-	//HE_VOID		SetPaletteArgb( HE_BYTE index, HE_ARGB argb );
-	//HE_BOOL		FindPaletteArgb( HE_ARGB argb, HE_LPBYTE pIndexRet ) const;
+	HE_BITMAP_FORMAT Format() const;
+	HE_BITMAP_ORIG Orig() const { return m_Orig; } ;
 
 	CHE_Palette*	GetPalette() const { return m_lpPalette; };
 
 	HE_BOOL		IsCompression() const { return m_InfoHeader.biCompression; } ;
-	HE_BITMAP_Compression	GetCompressionType() const { return (HE_BITMAP_Compression)(m_InfoHeader.biCompression); } ;
+	HE_BITMAP_COMPRESSION	GetCompressionType() const { return (HE_BITMAP_COMPRESSION)(m_InfoHeader.biCompression); } ;
 	
 	const HE_LPBITMAPINFOHEADER GetInfoHeader() { return &m_InfoHeader; } ;
 	HE_LPCBYTE	GetBuffer() const { return m_lpBits; } ;
@@ -152,7 +145,6 @@ public:
 	
 
 private:
-	/*HE_ARGB*/
 	HE_VOID		ChangePalette( const CHE_Palette & palette );
 
 	HE_DWORD	GetByteIndexB( HE_DWORD x, HE_DWORD y );
@@ -162,10 +154,9 @@ private:
 	HE_VOID		DrawLine( HE_DWORD nLine, HE_DWORD nStrat, HE_DWORD nLength, HE_LPBYTE lpDatabuf, HE_DWORD nBufSize );
 
 	HE_LPBYTE			m_lpBits;
-	//HE_ARGB*			m_lpPalette;
 	CHE_Palette*		m_lpPalette;
 	HE_BITMAPINFOHEADER	m_InfoHeader;
-	HE_BITMAP_FLOWORIG	m_flowOrig;
+	HE_BITMAP_ORIG		m_Orig;
 };
 
 
@@ -173,7 +164,7 @@ private:
 class CHE_FontBitmap : public CHE_Bitmap
 {
 public:
-	HE_BOOL		Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, HE_BITMAP_TYPE type, HE_BITMAP_FLOWORIG flowOrig, HE_LPBYTE buffer );
+	HE_BOOL		Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_LPBYTE buffer );
 };
 
 #endif

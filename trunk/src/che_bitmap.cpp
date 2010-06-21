@@ -1,67 +1,65 @@
-#include <memory.h>
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
+#include <memory.h>
+
 #include "../include/che_bitmap.h"
 
 
-CHE_Palette::CHE_Palette( HE_BITMAP_TYPE type, const HE_ARGB * const pPalette )
+CHE_Palette::CHE_Palette( HE_BITMAP_FORMAT format, const HE_ARGB * const pPalette )
 {
 	if (pPalette)
 	{
-		switch (type)
+		switch (format)
 		{
-		case HE_BITMAP_1BPPMask:
-		case HE_BITMAP_1BPP:
+		case BITMAP_FORMAT_1BPPMask:
+		case BITMAP_FORMAT_1BPP:
 			m_nPaletteSize = 2;
 			break;
-		case HE_BITMAP_4BPP:
+		case BITMAP_FORMAT_4BPP:
 			m_nPaletteSize = 16;
 			break;
-		case HE_BITMAP_8BPPMask:
-		case HE_BITMAP_8BPP:
+		case BITMAP_FORMAT_8BPPMask:
+		case BITMAP_FORMAT_8BPP:
 			m_nPaletteSize = 256;
 			break;
-		case HE_BITMAP_24BPP:
-		case HE_BITMAP_32BPP:
+		case BITMAP_FORMAT_24BPP:
+		case BITMAP_FORMAT_32BPP:
 		default:
 			m_pPalette		= NULL;
-			m_type			= HE_BITMAP_Invaild;
+			m_format		= BITMAP_FORMAT_Invaild;
 			m_nPaletteSize	= 0;
 			break;
 		}
 		if (m_nPaletteSize)
 		{
-			m_pPalette = (HE_ARGB*)pPalette;/*new HE_ARGB[m_nPaletteSize];*/
-			//memcpy( m_pPalette, pPalette, m_nPaletteSize );
-			m_type = type;
+			m_pPalette = (HE_ARGB *)pPalette;
+			m_format = format;
 		}
 	}else{
-		switch (type)
+		switch (format)
 		{
-		case HE_BITMAP_1BPPMask:
+		case BITMAP_FORMAT_1BPPMask:
 			{
-				m_type = type;
+				m_format = format;
 				m_nPaletteSize = 2;
 				m_pPalette = new HE_ARGB[2];
 				m_pPalette[0] = 0x00FFFFFF;
 				m_pPalette[1] = 0x00000000;
 				break;
 			}
-
-		case HE_BITMAP_1BPP:
+		case BITMAP_FORMAT_1BPP:
 			{
-				m_type = type;
+				m_format = format;
 				m_nPaletteSize = 2;
 				m_pPalette = new HE_ARGB[2];
 				m_pPalette[0] = 0x00000000;
 				m_pPalette[1] = 0x00FFFFFF;
 				break;
 			}
-
-		case HE_BITMAP_4BPP:
+		case BITMAP_FORMAT_4BPP:
 			{
-				m_type = type;
+				m_format = format;
 				m_nPaletteSize = 16;
 				m_pPalette = new HE_ARGB[16];
 				m_pPalette[15] = 0x00FFFFFF;
@@ -82,10 +80,9 @@ CHE_Palette::CHE_Palette( HE_BITMAP_TYPE type, const HE_ARGB * const pPalette )
 				m_pPalette[0] = 0x00000000;
 				break;
 			}
-
-		case HE_BITMAP_8BPPMask:
+		case BITMAP_FORMAT_8BPPMask:
 			{
-				m_type = type;
+				m_format = format;
 				m_nPaletteSize = 256;
 				m_pPalette = new HE_ARGB[256];
 				for ( HE_INT32 i = 0; i < 256; i++ )
@@ -94,9 +91,9 @@ CHE_Palette::CHE_Palette( HE_BITMAP_TYPE type, const HE_ARGB * const pPalette )
 				}
 				break;
 			}
-		case HE_BITMAP_8BPP:
+		case BITMAP_FORMAT_8BPP:
 			{
-				m_type = type;
+				m_format = format;
 				m_nPaletteSize = 256;
 				m_pPalette = new HE_ARGB[256];
 				static HE_ARGB tempPalette[256] = {	0x00000000, 0x00800000, 0x00008000, 0x00808000, 0x00000080, 0x00800080, 0x00008080, 0x00C0C0C0,
@@ -134,8 +131,8 @@ CHE_Palette::CHE_Palette( HE_BITMAP_TYPE type, const HE_ARGB * const pPalette )
 				memcpy( m_pPalette, pPalette, m_nPaletteSize );
 				break;
 			}
-		case HE_BITMAP_24BPP:
-		case HE_BITMAP_32BPP:
+		case BITMAP_FORMAT_24BPP:
+		case BITMAP_FORMAT_32BPP:
 		default:
 			{
 				m_pPalette = NULL;
@@ -148,7 +145,7 @@ CHE_Palette::CHE_Palette( HE_BITMAP_TYPE type, const HE_ARGB * const pPalette )
 
 CHE_Palette::CHE_Palette( const CHE_Palette& palette )
 {
-	m_type = palette.m_type;
+	m_format = palette.m_format;
 	m_nPaletteSize = palette.m_nPaletteSize;
 	if (m_nPaletteSize > 0 && palette.m_pPalette)
 	{
@@ -173,7 +170,7 @@ CHE_Palette::~CHE_Palette()
 
 CHE_Palette & CHE_Palette::operator=( const CHE_Palette& palette )
 {
-	m_type = palette.m_type;
+	m_format = palette.m_format;
 	m_nPaletteSize = palette.m_nPaletteSize;
 	if (m_pPalette)
 	{
@@ -272,12 +269,11 @@ HE_BOOL	CHE_Palette::IsColorExist( HE_ARGB color ) const
 	return FALSE;
 }
 
-
 CHE_Bitmap::CHE_Bitmap()
 {
 	m_lpBits = NULL;
 	m_lpPalette = NULL;
-	m_flowOrig = HE_BITMAP_FLOWORIG_BOTTOM;
+	m_Orig = BITMAP_ORIG_BOTTOM;
 	memset( &m_InfoHeader, 0, sizeof(HE_BITMAPINFOHEADER) );
 }
 
@@ -308,12 +304,37 @@ HE_BOOL CHE_Bitmap::Load( HE_LPCSTR filePath )
 		return FALSE;
 	}
 	HE_BITMAPFILEHEADER bfHeader;
-	size_t lBytesReaded = fread( &bfHeader, 1, 14/*sizeof(HE_BITMAPFILEHEADER)*/, pfile );
-	if ( lBytesReaded != 14/*sizeof(HE_BITMAPFILEHEADER)*/ )
+	size_t lBytesReaded = fread( &(bfHeader.bfType), 1, sizeof(bfHeader.bfType), pfile );
+	if ( lBytesReaded != sizeof(bfHeader.bfType) )
 	{
 		fclose( pfile );
 		return FALSE;
 	}
+	lBytesReaded = fread( &(bfHeader.bfSize), 1, sizeof(bfHeader.bfSize), pfile );
+	if ( lBytesReaded != sizeof(bfHeader.bfSize) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(bfHeader.bfReserved1), 1, sizeof(bfHeader.bfReserved1), pfile );
+	if ( lBytesReaded != sizeof(bfHeader.bfReserved1) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(bfHeader.bfReserved2), 1, sizeof(bfHeader.bfReserved2), pfile );
+	if ( lBytesReaded != sizeof(bfHeader.bfReserved2) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(bfHeader.bfOffBits), 1, sizeof(bfHeader.bfOffBits), pfile );
+	if ( lBytesReaded != sizeof(bfHeader.bfOffBits) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+
 	if( bfHeader.bfType != ( (HE_WORD)( 'M' << 8 ) | 'B' ) )
 	{   
 		fclose( pfile );
@@ -321,8 +342,68 @@ HE_BOOL CHE_Bitmap::Load( HE_LPCSTR filePath )
 	}
 
 	HE_BITMAPINFOHEADER biHeader;
-	lBytesReaded = fread( &biHeader, 1, 40/*sizeof(HE_BITMAPINFOHEADER)*/, pfile );
-	if ( lBytesReaded != 40/*sizeof(HE_BITMAPINFOHEADER)*/ )
+	lBytesReaded = fread( &(biHeader.biSize), 1, sizeof(biHeader.biSize), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biSize) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biWidth), 1, sizeof(biHeader.biWidth), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biWidth) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biHeight), 1, sizeof(biHeader.biHeight), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biHeight ) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biPlanes), 1, sizeof(biHeader.biPlanes), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biPlanes) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biBitCount), 1, sizeof(biHeader.biBitCount), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biBitCount) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biCompression), 1, sizeof(biHeader.biCompression), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biCompression) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biSizeImage), 1, sizeof(biHeader.biSizeImage), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biSizeImage) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biXPelsPerMeter), 1, sizeof(biHeader.biXPelsPerMeter), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biXPelsPerMeter) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biYPelsPerMeter), 1, sizeof(biHeader.biYPelsPerMeter), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biYPelsPerMeter) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biClrUsed), 1, sizeof(biHeader.biClrUsed), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biClrUsed) )
+	{
+		fclose( pfile );
+		return FALSE;
+	}
+	lBytesReaded = fread( &(biHeader.biClrImportant), 1, sizeof(biHeader.biClrImportant), pfile );
+	if ( lBytesReaded != sizeof(biHeader.biClrImportant) )
 	{
 		fclose( pfile );
 		return FALSE;
@@ -345,7 +426,7 @@ HE_BOOL CHE_Bitmap::Load( HE_LPCSTR filePath )
 		fclose( pfile );
 		return FALSE;
 	}
-	dwBitlen = biHeader.biSizeImage/*sizeof(HE_BITMAPINFOHEADER)+sizeof(HE_BITMAPFILEHEADER)*/;
+	dwBitlen = biHeader.biSizeImage;
 	if ( biHeader.biBitCount == 8 )
 	{
 		dwPlatteSize = 256*4;
@@ -360,7 +441,7 @@ HE_BOOL CHE_Bitmap::Load( HE_LPCSTR filePath )
 	if ( dwPlatteSize > 0 )
 	{
 		lpPalette = new HE_ARGB[dwPlatteSize];
-		fseek( pfile, 54, SEEK_SET ); /*sizeof(HE_BITMAPINFOHEADER)+sizeof(HE_BITMAPFILEHEADER)*/
+		fseek( pfile, 54, SEEK_SET );
 		lBytesReaded = fread( lpPalette, 1, dwPlatteSize, pfile );
 		if ( lBytesReaded != dwPlatteSize )
 		{
@@ -389,35 +470,35 @@ HE_BOOL CHE_Bitmap::Load( HE_LPCSTR filePath )
 	memcpy( &m_InfoHeader, &biHeader, 40 );
 	m_lpBits = lpBits;
 
-	HE_BITMAP_TYPE type;
+	HE_BITMAP_FORMAT format;
 	switch ( biHeader.biBitCount )
 	{
 	case 1:
-		type = HE_BITMAP_1BPP;
+		format = BITMAP_FORMAT_1BPP;
 		break;
 	case 4:
-		type = HE_BITMAP_4BPP;
+		format = BITMAP_FORMAT_4BPP;
 		break;
 	case 8:
-		type = HE_BITMAP_8BPP;
+		format = BITMAP_FORMAT_8BPP;
 		break;
 	case 24:
-		type = HE_BITMAP_24BPP;
+		format = BITMAP_FORMAT_24BPP;
 		break;
 	case 32:
-		type = HE_BITMAP_32BPP;
+		format = BITMAP_FORMAT_32BPP;
 		break;
 	default:
-		type = HE_BITMAP_Invaild;
+		format = BITMAP_FORMAT_Invaild;
 	}
-	m_lpPalette = new CHE_Palette( type, lpPalette );
+	m_lpPalette = new CHE_Palette( format, lpPalette );
 
 	if ( m_InfoHeader.biHeight > 0 )
 	{
-		m_flowOrig = HE_BITMAP_FLOWORIG_BOTTOM;
+		m_Orig = BITMAP_ORIG_BOTTOM;
 	}else
 	{
-		m_flowOrig = HE_BITMAP_FLOWORIG_UP;
+		m_Orig = BITMAP_ORIG_UP;
 	}
 
 	return TRUE;
@@ -446,18 +527,36 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 	bfHeader.bfReserved1 = 0;
 	bfHeader.bfOffBits = 54 + m_lpPalette->ColorCount() * 4;
 
-	HE_DWORD lBytesReaded = fwrite( &bfHeader, 1, 14/*sizeof(HE_BITMAPFILEHEADER)*/, pfile );
-	if ( lBytesReaded != 14/*sizeof(HE_BITMAPFILEHEADER)*/ )
-	{
-		fclose( pfile );
-		return FALSE;
-	}
-	lBytesReaded = fwrite( &m_InfoHeader, 1,40 /*sizeof(HE_BITMAPINFOHEADER)*/, pfile );
-	if ( lBytesReaded != 40/*sizeof(HE_BITMAPINFOHEADER)*/ )
-	{
-		fclose( pfile );
-		return FALSE;
-	}
+	size_t lBytesReaded = fwrite( &(bfHeader.bfType), 1, sizeof(bfHeader.bfType), pfile );
+	lBytesReaded += fwrite( &(bfHeader.bfSize), 1, sizeof(bfHeader.bfSize), pfile );
+	lBytesReaded += fwrite( &(bfHeader.bfReserved1), 1, sizeof(bfHeader.bfReserved1), pfile );
+	lBytesReaded += fwrite( &(bfHeader.bfReserved2), 1, sizeof(bfHeader.bfReserved2), pfile );
+	lBytesReaded += fwrite( &(bfHeader.bfOffBits), 1, sizeof(bfHeader.bfOffBits), pfile );
+	
+	// 	if ( lBytesReaded != 14 )
+	// 	{
+	// 		fclose( pfile );
+	// 		return FALSE;
+	// 	}
+	
+	lBytesReaded = fwrite( &(m_InfoHeader.biSize), 1, sizeof(m_InfoHeader.biSize), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biWidth), 1, sizeof(m_InfoHeader.biWidth), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biHeight), 1, sizeof(m_InfoHeader.biHeight), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biPlanes), 1, sizeof(m_InfoHeader.biPlanes), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biBitCount), 1, sizeof(m_InfoHeader.biBitCount), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biCompression), 1, sizeof(m_InfoHeader.biCompression), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biSizeImage), 1, sizeof(m_InfoHeader.biSizeImage), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biXPelsPerMeter), 1, sizeof(m_InfoHeader.biXPelsPerMeter), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biYPelsPerMeter), 1, sizeof(m_InfoHeader.biYPelsPerMeter), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biClrUsed), 1, sizeof(m_InfoHeader.biClrUsed), pfile );
+	lBytesReaded += fwrite( &(m_InfoHeader.biClrImportant), 1, sizeof(m_InfoHeader.biClrImportant), pfile );
+	
+	// 	if ( lBytesReaded != 40 )
+	// 	{
+	// 		fclose( pfile );
+	// 		return FALSE;
+	// 	}
+
 	if ( m_lpPalette->ColorCount() > 0 )
 	{
 		lBytesReaded = fwrite( m_lpPalette->m_pPalette, 1, m_lpPalette->ColorCount() * 4, pfile );
@@ -477,15 +576,15 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 	return TRUE;
 }
 
-HE_BOOL CHE_Bitmap::Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_TYPE type, HE_BITMAP_FLOWORIG flowOrig, HE_DWORD bufferSize, HE_LPCBYTE buffer, const HE_ARGB* Palette )
+HE_BOOL CHE_Bitmap::Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_DWORD bufferSize, HE_LPCBYTE buffer, const HE_ARGB* Palette )
 {
 	HE_BITMAPINFOHEADER biHeader;
-	biHeader.biSize = 40/*sizeof(HE_BITMAPINFOHEADER)*/;
+	biHeader.biSize = 40;
 	biHeader.biWidth = width;
 	HE_LONG lHeight = height;
-	biHeader.biHeight = ( flowOrig == HE_BITMAP_FLOWORIG_BOTTOM ) ? (height) : (-lHeight);
+	biHeader.biHeight = ( flowOrig == BITMAP_ORIG_BOTTOM ) ? (height) : (-lHeight);
 	biHeader.biPlanes = 1;
-	biHeader.biCompression = HE_BIBITMAP_RGB;
+	biHeader.biCompression = BITMAP_COMPRESSION_RGB;
 	biHeader.biClrImportant = 0;
 	biHeader.biClrUsed = 0;
 	biHeader.biXPelsPerMeter = 0;
@@ -496,9 +595,9 @@ HE_BOOL CHE_Bitmap::Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_TYPE type
 	HE_SHORT iPaletteSize = 0;
 	HE_ARGB* lpPalette = NULL;
 
-	switch ( type )
+	switch ( format )
 	{
-	case HE_BITMAP_1BPP:
+	case BITMAP_FORMAT_1BPP:
 		{
 			biHeader.biBitCount = 1;
 			biHeader.biSizeImage = ( ( ( width + 31 ) & ~31 ) >> 3 ) * height ;
@@ -514,7 +613,7 @@ HE_BOOL CHE_Bitmap::Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_TYPE type
 			}
 			break;
 		}
-	case HE_BITMAP_4BPP:
+	case BITMAP_FORMAT_4BPP:
 		{
 			biHeader.biBitCount = 4;
 			biHeader.biSizeImage = ( ( ( width * 4 + 31 ) & ~31 ) >> 3 ) * height;
@@ -546,7 +645,7 @@ HE_BOOL CHE_Bitmap::Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_TYPE type
 			}
 			break;
 		}
-	case HE_BITMAP_8BPP:
+	case BITMAP_FORMAT_8BPP:
 		{
 			biHeader.biBitCount = 8;
 			biHeader.biSizeImage = ( ( ( width * 8 + 31 ) & ~31 ) >> 3 ) * height;
@@ -600,13 +699,13 @@ HE_BOOL CHE_Bitmap::Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_TYPE type
 			}
 			break;
 		}
-	case HE_BITMAP_24BPP:
+	case BITMAP_FORMAT_24BPP:
 		{
 			biHeader.biBitCount = 24;
 			biHeader.biSizeImage = ( ( ( width * 24 + 31 ) & ~31 ) >> 3 ) * height;
 			break;
 		}
-	case HE_BITMAP_32BPP:
+	case BITMAP_FORMAT_32BPP:
 		{
 			biHeader.biBitCount = 32;
 			biHeader.biSizeImage = ( ( ( width * 32 + 31 ) & ~31 ) >> 3 ) * height;
@@ -636,32 +735,32 @@ HE_BOOL CHE_Bitmap::Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_TYPE type
 	Clean();
 	memcpy( &m_InfoHeader, &biHeader, 40 );
 	m_lpBits = lpBit;
-	m_lpPalette = new CHE_Palette( type, lpPalette );
+	m_lpPalette = new CHE_Palette( format, lpPalette );
 
 	return TRUE;
 }
 
-HE_BITMAP_TYPE CHE_Bitmap::Type() const
+HE_BITMAP_FORMAT CHE_Bitmap::Format() const
 {
 	if ( m_lpBits == NULL )
 	{
-		return HE_BITMAP_Invaild;
+		return BITMAP_FORMAT_Invaild;
 	}
 
 	switch ( m_InfoHeader.biBitCount )
 	{
 	case 1:
-		return HE_BITMAP_1BPP;
+		return BITMAP_FORMAT_1BPP;
 	case 4:
-		return HE_BITMAP_4BPP;
+		return BITMAP_FORMAT_4BPP;
 	case 8:
-		return HE_BITMAP_8BPP;
+		return BITMAP_FORMAT_8BPP;
 	case 24:
-		return HE_BITMAP_24BPP;
+		return BITMAP_FORMAT_24BPP;
 	case 32:
-		return HE_BITMAP_32BPP;
+		return BITMAP_FORMAT_32BPP;
 	default:
-		return HE_BITMAP_Invaild;
+		return BITMAP_FORMAT_Invaild;
 	}
 }
 
@@ -680,89 +779,6 @@ HE_VOID	CHE_Bitmap::Clean()
 	memset( &m_InfoHeader, 0, sizeof(HE_BITMAPINFOHEADER) );
 }
 
-// HE_WORD CHE_Bitmap::GetPaletteSize() const
-// {
-// 	if ( m_InfoHeader.biBitCount == 8 )
-// 	{
-// 		return 256;
-// 	}else if ( m_InfoHeader.biBitCount == 4 )
-// 	{
-// 		return 16;
-// 	}else if ( m_InfoHeader.biBitCount == 1 )
-// 	{
-// 		return 2;
-// 	}else{
-// 		return 0;
-// 	}
-// }
-
-// HE_ARGB	CHE_Bitmap::GetPaletteArgb( HE_WORD index ) const
-// {
-// 	HE_DWORD iPaletteSize = GetPaletteSize();
-// 	if ( ( index >= iPaletteSize ) || index < 0 )
-// 	{
-// 		return 0;
-// 	}
-// 	return m_lpPalette[index];
-// }
-
-// HE_SHORT CHE_Bitmap::GetNearArgbInPalette( HE_ARGB color ) const
-// {
-// 	if ( GetPaletteSize() == 0 )
-// 	{
-// 		return -1;
-// 	}
-// 	HE_SHORT index = 0;
-// 	HE_WORD lessCY = 0xFFFF;
-// 	HE_WORD tempLessCY = 0;
-// 	HE_ARGB srcColor;
-// 
-// 	for ( HE_SHORT i = 0; i < GetPaletteSize(); i++ )
-// 	{
-// 		srcColor = m_lpPalette[i];
-// 
-// 		tempLessCY = abs( ( color & 0x000000FF ) - ( srcColor & 0x000000FF ) );
-// 		tempLessCY += abs( ( color >> 8 & 0x000000FF ) - ( srcColor >> 8 & 0x000000FF ) );
-// 		tempLessCY += abs( ( color >> 16 & 0x000000FF ) - ( srcColor >> 16 & 0x000000FF ) );
-// 		tempLessCY += abs( ( color >> 24 & 0x000000FF ) - ( srcColor >> 24 & 0x000000FF ) );
-// 		if ( tempLessCY < lessCY )
-// 		{
-// 			lessCY = tempLessCY;
-// 			index = i;
-// 		}
-// 	}
-// 	return index;
-// }
-
-// HE_BOOL	CHE_Bitmap::FindPaletteArgb( HE_ARGB argb, HE_LPBYTE pIndexRet ) const
-// {
-// 	if ( GetPaletteSize() == 0 )
-// 	{
-// 		return FALSE;
-// 	}
-// 	for ( HE_BYTE i = 0; i < GetPaletteSize(); i++ )
-// 	{
-// 		if ( argb == m_lpPalette[i] )
-// 		{
-// 			if ( pIndexRet )
-// 			{
-// 				*pIndexRet = i;
-// 			}
-// 			return TRUE;
-// 		}
-// 	}
-// 	return FALSE;
-// }
-
-// HE_VOID CHE_Bitmap::SetPaletteArgb( HE_BYTE index, HE_ARGB argb )
-// {
-// 	if ( index >= GetPaletteSize() || index < 0 )
-// 	{
-// 		return;
-// 	}
-// 	m_lpPalette[index] = argb;
-// }
-
 HE_ARGB	CHE_Bitmap::GetPixel( HE_DWORD x, HE_DWORD y ) const
 {
 	if ( x >= Width() )
@@ -775,7 +791,7 @@ HE_ARGB	CHE_Bitmap::GetPixel( HE_DWORD x, HE_DWORD y ) const
 	}
 
 	HE_DWORD index = 0;
-	if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+	if ( Orig() == BITMAP_ORIG_BOTTOM )
 	{
 		index = ( Height() - y - 1 ) * Pitch();
 		index += ( x * Depth() ) >> 3;
@@ -856,7 +872,7 @@ HE_BOOL CHE_Bitmap::SetPixel( HE_DWORD x, HE_DWORD y, HE_ARGB color )
 	}
 
 	HE_DWORD index = 0;	
-	if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+	if ( Orig() == BITMAP_ORIG_BOTTOM )
 	{
 		index = ( Height() - 1 - y ) * Pitch();
 		index += ( x * Depth() ) >> 3;
@@ -901,39 +917,46 @@ HE_BOOL CHE_Bitmap::SetPixel( HE_DWORD x, HE_DWORD y, HE_ARGB color )
 	{
 		platteIndex = m_lpBits[index];
 		m_lpPalette->GetNearColorIndex( color, tempIndex );
-		//tempIndex = GetNearArgbInPalette( color );
 		switch ( x % 8 )
 		{
 		case 0:
 			platteIndex &= 0x7F;
 			tempIndex <<= 7;
+			tempIndex &= 0x80;
 			break;
 		case 1:
 			platteIndex &= 0xBF;
 			tempIndex <<= 6;
+			tempIndex &= 0x40;
 			break;
 		case 2:
 			platteIndex &= 0xDF;
 			tempIndex <<= 5;
+			tempIndex &= 0x20;
 			break;
 		case 3:
 			platteIndex &= 0xEF;
 			tempIndex <<= 4;
+			tempIndex &= 0x10;
 			break;
 		case 4:
 			platteIndex &= 0xF7;
 			tempIndex <<= 3;
+			tempIndex &= 0x08;
 			break;
 		case 5:
 			platteIndex &= 0xFB;
 			tempIndex <<= 2;
+			tempIndex &= 0x04;
 			break;
 		case 6:
 			platteIndex &= 0xFD;
 			tempIndex <<= 1;
+			tempIndex &= 0x02;
 			break;
 		case 7:
 			platteIndex &= 0xFE;
+			tempIndex &= 0x01;
 			break;
 		default:
 			break;
@@ -1053,7 +1076,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 	}
 	
 	HE_DWORD indexB = 0, indexE = 0;
-	if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+	if ( Orig() == BITMAP_ORIG_BOTTOM )
 	{
 		indexB = ( Height() - 1 - nLine ) * Pitch();
 		indexE = indexB;
@@ -1081,7 +1104,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 			HE_BYTE desByte = 0;
 			for ( HE_DWORD x = nStart; x < nStart + nLength; x++ )
 			{
-				if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+				if ( Orig() == BITMAP_ORIG_BOTTOM )
 				{
 					index = ( Height() - 1 - nLine ) * Pitch();
 					index += ( x * Depth() ) >> 3;
@@ -1097,33 +1120,41 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 				case 0:
 					oriByte &= 0x7F;
 					desByte <<= 7;
+					desByte &= 0x80;
 					break;
 				case 1:
 					oriByte &= 0xBF;
 					desByte <<= 6;
+					desByte &= 0x40;
 					break;
 				case 2:
 					oriByte &= 0xDF;
 					desByte <<= 5;
+					desByte &= 0x20;
 					break;
 				case 3:
 					oriByte &= 0xEF;
 					desByte <<= 4;
+					desByte &= 0x10;
 					break;
 				case 4:
 					oriByte &= 0xF7;
 					desByte <<= 3;
+					desByte &= 0x08;
 					break;
 				case 5:
 					oriByte &= 0xFB;
 					desByte <<= 2;
+					desByte &= 0x04;
 					break;
 				case 6:
 					oriByte &= 0xFD;
 					desByte <<= 1;
+					desByte &= 0x02;
 					break;
 				case 7:
 					oriByte &= 0xFE;
+					desByte &= 0x01;
 					break;
 				default:
 					break;
@@ -1140,7 +1171,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 			for ( HE_DWORD x = nStart; x < nStart + nLength; x++ )
 			{
 				
-				if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+				if ( Orig() == BITMAP_ORIG_BOTTOM )
 				{
 					index = ( Height() - 1 - nLine ) * Pitch();
 					index += ( x * Depth() ) >> 3;
@@ -1209,7 +1240,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 	}
 
 	HE_DWORD indexB = 0, indexE = 0;
-	if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+	if ( Orig() == BITMAP_ORIG_BOTTOM )
 	{
 		indexB = ( Height() - 1 - nLine ) * Pitch();
 		indexE = indexB;
@@ -1232,7 +1263,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 
 			for ( HE_DWORD x = nStart; x < nStart + nLength; x++ )
 			{
-				if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+				if ( Orig() == BITMAP_ORIG_BOTTOM )
 				{
 					index = ( Height() - 1 - nLine ) * Pitch();
 					index += ( x * Depth() ) >> 3;
@@ -1247,30 +1278,37 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 				{
 				case 0:
 					oriByte &= 0x7F;
+					desByte <<= 7;
 					desByte &= 0x80;
 					break;
 				case 1:
 					oriByte &= 0xBF;
+					desByte <<= 6;
 					desByte &= 0x40;
 					break;
 				case 2:
 					oriByte &= 0xDF;
+					desByte <<= 5;
 					desByte &= 0x20;
 					break;
 				case 3:
 					oriByte &= 0xEF;
+					desByte <<= 4;
 					desByte &= 0x10;
 					break;
 				case 4:
 					oriByte &= 0xF7;
+					desByte <<= 3;
 					desByte &= 0x08;
 					break;
 				case 5:
 					oriByte &= 0xFB;
+					desByte <<= 2;
 					desByte &= 0x04;
 					break;
 				case 6:
 					oriByte &= 0xFD;
+					desByte <<= 1;
 					desByte &= 0x02;
 					break;
 				case 7:
@@ -1292,7 +1330,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 			for ( HE_DWORD x = nStart; x < nStart + nLength; x++ )
 			{
 				
-				if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+				if ( Orig() == BITMAP_ORIG_BOTTOM )
 				{
 					index = ( Height() - 1 - nLine ) * Pitch();
 					index += ( x * Depth() ) >> 3;
@@ -1351,7 +1389,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 
 CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 {
-	if ( Type() == HE_BITMAP_Invaild || m_lpBits == NULL )
+	if ( Format() == BITMAP_FORMAT_Invaild || m_lpBits == NULL )
 	{
 		return NULL;
 	}
@@ -1359,7 +1397,7 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 	if ( pRect  == NULL )
 	{
 		CHE_Bitmap * pNewBitmap = new CHE_Bitmap;
-		pNewBitmap->Create( Width(), Height(), Type(), FlowOrig(), Pitch() * Height(), GetBuffer(), m_lpPalette->m_pPalette );
+		pNewBitmap->Create( Width(), Height(), Format(), Orig(), Pitch() * Height(), GetBuffer(), m_lpPalette->m_pPalette );
 		return pNewBitmap;
 	}else{
 		HE_RECT rect;
@@ -1388,7 +1426,7 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 		if ( rect.top == 0 && rect.width == Width() && rect.left == 0 && rect.height == Height() )
 		{
 			CHE_Bitmap * pNewBitmap = new CHE_Bitmap;
-			pNewBitmap->Create( Width(), Height(), Type(), FlowOrig(), Pitch() * Height(), GetBuffer(), m_lpPalette->m_pPalette );
+			pNewBitmap->Create( Width(), Height(), Format(), Orig(), Pitch() * Height(), GetBuffer(), m_lpPalette->m_pPalette );
 			return pNewBitmap;
 		}
 
@@ -1397,7 +1435,7 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 		case 1:
 			{
 				CHE_Bitmap * pNewBitmap = new CHE_Bitmap;
-				pNewBitmap->Create( rect.width, rect.height, Type(), FlowOrig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
+				pNewBitmap->Create( rect.width, rect.height, Format(), Orig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
 				HE_DWORD buffsize = ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3;
 				HE_LPBYTE lpLineData = new HE_BYTE[buffsize];
 				memset( lpLineData, 0, buffsize );
@@ -1405,7 +1443,7 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 				HE_DWORD indexB = 0, indexE = 0;
 				for ( HE_DWORD y = rect.top, desY = 0; y < rect.top + rect.height; y++, desY++ )
 				{
-					if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+					if ( Orig() == BITMAP_ORIG_BOTTOM )
 					{
 						indexB = ( Height() - 1 - y ) * Pitch();
 						indexE = indexB;
@@ -1438,7 +1476,7 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 		case 4:
 			{
 				CHE_Bitmap * pNewBitmap = new CHE_Bitmap;
-				pNewBitmap->Create( rect.width, rect.height, Type(), FlowOrig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
+				pNewBitmap->Create( rect.width, rect.height, Format(), Orig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
 				HE_DWORD buffsize = ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3;
 				HE_LPBYTE lpLineData = new HE_BYTE[buffsize];
 				memset( lpLineData, 0, buffsize );
@@ -1453,7 +1491,7 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 					for ( HE_DWORD x = rect.left; x <= rect.left + rect.width; x++ )
 					{
 						rset++;
-						if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+						if ( Orig() == BITMAP_ORIG_BOTTOM )
 						{
 							oriIndex = ( Height() - 1 - y ) * Pitch();
 							oriIndex += ( x * Depth() ) >> 3;
@@ -1489,13 +1527,13 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 		case 8:
 			{
 				CHE_Bitmap * pNewBitmap = new CHE_Bitmap;
-				pNewBitmap->Create( rect.width, rect.height, Type(), FlowOrig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
+				pNewBitmap->Create( rect.width, rect.height, Format(), Orig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
 				HE_LPBYTE lpLineData = new HE_BYTE[( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3];
 
 				HE_DWORD indexB = 0, indexE = 0;
 				for ( HE_DWORD y = rect.top, desY = 0; y < rect.top + rect.height; y++, desY++ )
 				{
-					if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+					if ( Orig() == BITMAP_ORIG_BOTTOM )
 					{
 						indexB = ( Height() - 1 - y ) * Pitch();
 						indexE = indexB;
@@ -1520,13 +1558,13 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 		case 24:
 			{
 				CHE_Bitmap * pNewBitmap = new CHE_Bitmap;
-				pNewBitmap->Create( rect.width, rect.height, Type(), FlowOrig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
+				pNewBitmap->Create( rect.width, rect.height, Format(), Orig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
 				HE_LPBYTE lpLineData = new HE_BYTE[( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3];
 				
 				HE_DWORD indexB = 0, indexE = 0;
 				for ( HE_DWORD y = rect.top, desY = 0; y < rect.top + rect.height; y++, desY++ )
 				{
-					if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+					if ( Orig() == BITMAP_ORIG_BOTTOM )
 					{
 						indexB = ( Height() - 1 - y ) * Pitch();
 						indexE = indexB;
@@ -1551,13 +1589,13 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 		case 32:
 			{
 				CHE_Bitmap * pNewBitmap = new CHE_Bitmap;
-				pNewBitmap->Create( rect.width, rect.height, Type(), FlowOrig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
+				pNewBitmap->Create( rect.width, rect.height, Format(), Orig(), ( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3 * rect.height, NULL, m_lpPalette->m_pPalette );
 				HE_LPBYTE lpLineData = new HE_BYTE[( ( ( rect.width * Depth() ) + 31 ) & ~31 ) >> 3];
 				
 				HE_DWORD indexB = 0, indexE = 0;
 				for ( HE_DWORD y = rect.top, desY = 0; y < rect.top + rect.height; y++, desY++ )
 				{
-					if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+					if ( Orig() == BITMAP_ORIG_BOTTOM )
 					{
 						indexB = ( Height() - 1 - y ) * Pitch();
 						indexE = indexB;
@@ -1586,7 +1624,53 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 	return NULL;
 }
 
-HE_BOOL CHE_FontBitmap::Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, HE_BITMAP_TYPE format, HE_BITMAP_FLOWORIG flowOrig, HE_LPBYTE buffer )
+//
+// 函数名：	Insert
+// 说  明：	将另一个位图插入到当前位图的某个位置。两个位图的格式（深度）必须相同。
+//			否则不能插入。
+//
+HE_BOOL	CHE_Bitmap::Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y )
+{
+	if ( this->Depth() != bitmap.Depth() )
+	{
+		return FALSE;
+	}
+	
+	if ( bitmap.m_lpBits == NULL || x >= this->Width() || y >= this->Height() )
+	{
+		return FALSE;
+	}
+	
+	HE_RECT rtSrcBitmap;
+	rtSrcBitmap.left = 0;
+	rtSrcBitmap.top = 0;
+	rtSrcBitmap.height = ((Height() - y - 1) > bitmap.Height()) ? (bitmap.Height()) : (Height() - y - 1);
+	rtSrcBitmap.width = ((Width() - x - 1) > bitmap.Width()) ? (bitmap.Width()) : (Width() - x - 1);
+	
+	CHE_Bitmap * tempBitmap = bitmap.Clone( &rtSrcBitmap );
+	if ( tempBitmap == NULL )
+	{
+		return FALSE;
+	}
+	
+	HE_DWORD index = 0, lineDataSize = ( ( ( rtSrcBitmap.width * tempBitmap->Depth() ) + 31 ) & ~31 ) >> 3 ;
+	for ( HE_DWORD nLine = 0; nLine < rtSrcBitmap.height; nLine++ )
+	{
+		if ( tempBitmap->Orig() == BITMAP_ORIG_BOTTOM )
+		{
+			index = ( tempBitmap->Height() - 1 - nLine ) * tempBitmap->Pitch();
+		}else{
+			index = nLine * tempBitmap->Pitch();
+		}
+		DrawLine( nLine + y, x, rtSrcBitmap.width, &(tempBitmap->m_lpBits[index]), lineDataSize );
+	}
+	
+	delete tempBitmap;
+	
+	return TRUE;
+}
+
+HE_BOOL CHE_FontBitmap::Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_LPBYTE buffer )
 {
 	if ( buffer == NULL || width <= 0 || height <= 0 )
 	{
@@ -1595,17 +1679,17 @@ HE_BOOL CHE_FontBitmap::Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, H
 
 	HE_DWORD TurePitch;
 	HE_BYTE depth;
-	HE_BITMAP_TYPE desFormat;
+	HE_BITMAP_FORMAT desFormat;
 	HE_DWORD bitStremSize = 0;
 	HE_ARGB* pPlatte = NULL;
 
-	if ( format == HE_BITMAP_1BPPMask )
+	if ( format == BITMAP_FORMAT_1BPPMask )
 	{
-		desFormat = HE_BITMAP_1BPP;
+		desFormat = BITMAP_FORMAT_1BPP;
 		depth = 1;
-	}else if ( format == HE_BITMAP_8BPPMask )
+	}else if ( format == BITMAP_FORMAT_8BPPMask )
 	{
-		desFormat = HE_BITMAP_8BPP;
+		desFormat = BITMAP_FORMAT_8BPP;
 		depth = 8;
 	}else{
 		return FALSE;
@@ -1615,7 +1699,7 @@ HE_BOOL CHE_FontBitmap::Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, H
 
 	HE_LPBYTE bitStrem = new unsigned char[bitStremSize];
 
-	if ( format == HE_BITMAP_1BPPMask )
+	if ( format == BITMAP_FORMAT_1BPPMask )
 	{
 		HE_DWORD irow = 0;
 		for ( HE_DWORD j = 0; j < bitStremSize; j++ )
@@ -1642,8 +1726,7 @@ HE_BOOL CHE_FontBitmap::Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, H
 		}
 	}
 
-	Create( width, height, desFormat, HE_BITMAP_FLOWORIG_BOTTOM, bitStremSize, bitStrem, pPlatte );
-
+	Create( width, height, desFormat, BITMAP_ORIG_BOTTOM, bitStremSize, bitStrem, pPlatte );
 
 	delete [] pPlatte;
 	pPlatte = NULL;
@@ -1651,52 +1734,6 @@ HE_BOOL CHE_FontBitmap::Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, H
 	return TRUE;
 }
 
-HE_BOOL	CHE_Bitmap::Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y )
-{
-	if ( bitmap.m_lpBits == NULL || x >= this->Width() || y >= this->Height() )
-	{
-		return FALSE;
-	}
-	
-	if ( this->Depth() != bitmap.Depth() )
-	{
-		//目前还没有不同深度的位图间的转换方法，所以暂时返回假，等待以后添加转换处理。
-		return FALSE;
-	}
-	
-	HE_RECT rtSrcBitmap;
-	rtSrcBitmap.left = 0;
-	rtSrcBitmap.top = 0;
-	rtSrcBitmap.height = ((Height() - y ) > bitmap.Height()) ? (bitmap.Height()) : (Height() - y );
-	rtSrcBitmap.width = ((Width() - x ) > bitmap.Width()) ? (bitmap.Width()) : (Width() - x );
-	
-	CHE_Bitmap * tempBitmap = bitmap.Clone( &rtSrcBitmap );
-	if ( tempBitmap == NULL )
-	{
-		return FALSE;
-	}
-
-	if ( Depth() <= 8 )
-	{
-		tempBitmap->ChangePalette( *m_lpPalette );
-	}
-	
-	HE_DWORD index = 0, lineDataSize = ( ( ( rtSrcBitmap.width * tempBitmap->Depth() ) + 31 ) & ~31 ) >> 3 ;
-	for ( HE_DWORD nLine = 0; nLine < rtSrcBitmap.height; nLine++ )
-	{
-		if ( tempBitmap->FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
-		{
-			index = ( tempBitmap->Height() - 1 - nLine ) * tempBitmap->Pitch();
-		}else{
-			index = nLine * tempBitmap->Pitch();
-		}
-		DrawLine( nLine + y, x, rtSrcBitmap.width, &(tempBitmap->m_lpBits[index]), lineDataSize );
-	}
-	
-	delete tempBitmap;
-	
-	return TRUE;
-}
 
 HE_VOID	CHE_Bitmap::ChangePalette( const CHE_Palette & palette )
 {
@@ -1737,11 +1774,11 @@ HE_VOID	CHE_Bitmap::ChangePalette( const CHE_Palette & palette )
 			if ( m_lpPalette->m_nPaletteSize == palette.m_nPaletteSize )
 			{
 				m_lpPalette->m_nPaletteSize = palette.m_nPaletteSize;
-				m_lpPalette->m_type = palette.m_type;
+				m_lpPalette->m_format = palette.m_format;
 				memcpy( m_lpPalette->m_pPalette, palette.m_pPalette, m_lpPalette->m_nPaletteSize );
 			}else{
 				m_lpPalette->m_nPaletteSize = palette.m_nPaletteSize;
-				m_lpPalette->m_type = palette.m_type;
+				m_lpPalette->m_format = palette.m_format;
 				if ( m_lpPalette->m_pPalette )
 				{
 					delete m_lpPalette->m_pPalette;
@@ -1759,7 +1796,7 @@ HE_VOID	CHE_Bitmap::ChangePalette( const CHE_Palette & palette )
 HE_DWORD CHE_Bitmap::GetByteIndexB( HE_DWORD x, HE_DWORD y )
 {
 	HE_DWORD index;
-	if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+	if ( Orig() == BITMAP_ORIG_BOTTOM )
 	{
 		index = ( Height() - 1 - y ) * Pitch();
 		index += ( x * Depth() ) >> 3;
@@ -1773,7 +1810,7 @@ HE_DWORD CHE_Bitmap::GetByteIndexB( HE_DWORD x, HE_DWORD y )
 HE_DWORD CHE_Bitmap::GetByteIndexE( HE_DWORD x, HE_DWORD y, HE_DWORD length )
 {
 	HE_DWORD index;
-	if ( FlowOrig() == HE_BITMAP_FLOWORIG_BOTTOM )
+	if ( Orig() == BITMAP_ORIG_BOTTOM )
 	{
 		index = ( Height() - 1 - y ) * Pitch();
 		index += ( ( x + length - 1 ) * Depth() ) >> 3;

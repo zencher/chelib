@@ -3,11 +3,7 @@
 
 CHE_ByteString::CHE_ByteString()
 {
-	m_lpData = new HE_StringData;
-
-	m_lpData->m_dwLength = 0;
-	m_lpData->m_dwRef = 1;
-	m_lpData->m_lpString = NULL;
+	m_lpData = NULL;
 }
 
 CHE_ByteString::~CHE_ByteString()
@@ -37,102 +33,124 @@ CHE_ByteString::CHE_ByteString( HE_CHAR ch )
 	m_lpData->m_lpString[1] = '\0';
 }
 
-CHE_ByteString::CHE_ByteString( HE_LPCSTR str, HE_LONG nStrSize /* = -1 */)
+CHE_ByteString::CHE_ByteString( HE_LPCSTR lpStr, HE_LONG nStrSize /* = -1 */)
 {
-	m_lpData = new HE_StringData;
-	m_lpData->m_dwRef = 1;
-
-	if ( str == NULL )
+	if ( lpStr == NULL )
 	{
-		m_lpData->m_dwLength = 0;
-		m_lpData->m_lpString = NULL;
+		m_lpData = NULL;
+		return;
 	}
 
 	HE_DWORD nStrlen = 0;
 	if ( nStrSize <= 0 )
 	{
-		nStrlen = strlen( str );
+		nStrlen = strlen( lpStr );
 	}else{
 		nStrlen = nStrSize;
 	}
 
 	if ( nStrlen > 0 )
 	{
+		m_lpData = new HE_StringData;
+		m_lpData->m_dwRef = 1;
 		m_lpData->m_dwLength = nStrlen;
 		m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
-		strcpy( m_lpData->m_lpString, str );
+		strcpy( m_lpData->m_lpString, lpStr );
 		m_lpData->m_lpString[nStrlen] = '\0';
 	}else{
-		m_lpData->m_dwLength = 0;
-		m_lpData->m_lpString = NULL;
+		m_lpData = NULL;
 	}
 }
 
 CHE_ByteString::CHE_ByteString( const CHE_ByteString& str )
 {
-	m_lpData = str.m_lpData;
-	str.m_lpData->m_dwRef++;
+	if ( str.m_lpData == NULL )
+	{
+		m_lpData = NULL;
+	}else{
+		m_lpData = str.m_lpData;
+		str.m_lpData->m_dwRef++;
+	}
 }
 
 CHE_ByteString& CHE_ByteString::operator=( HE_CHAR ch )
 {
-	if ( m_lpData->m_dwRef == 1 )
+	if ( ch = 0 )
 	{
-		if ( m_lpData->m_lpString )
-		{
-			delete[] m_lpData->m_lpString;
-		}
-		m_lpData->m_lpString = new HE_CHAR[2];
-		m_lpData->m_lpString[0] = ch;
-		m_lpData->m_lpString[1] = '\0';
-	}else if ( m_lpData->m_dwRef > 1 )
+		return *this;
+	}
+
+	if ( m_lpData == NULL )
 	{
-		m_lpData->m_dwRef--;
 		m_lpData = new HE_StringData;
-		m_lpData->m_dwLength = 1;
 		m_lpData->m_dwRef = 1;
+		m_lpData->m_dwLength = 1;
 		m_lpData->m_lpString = new HE_CHAR[2];
 		m_lpData->m_lpString[0] = ch;
 		m_lpData->m_lpString[1] = '\0';
+	}else{
+		m_lpData->m_dwRef--;
+		if ( m_lpData->m_dwRef == 0 )
+		{
+			if ( m_lpData->m_lpString )
+			{
+				delete[] m_lpData->m_lpString;
+			}
+			m_lpData->m_dwRef = 1;
+			m_lpData->m_dwLength = 1;
+			m_lpData->m_lpString = new HE_CHAR[2];
+			m_lpData->m_lpString[0] = ch;
+			m_lpData->m_lpString[1] = '\0';
+		}else{
+			m_lpData = new HE_StringData;
+			m_lpData->m_dwLength = 1;
+			m_lpData->m_dwRef = 1;
+			m_lpData->m_lpString = new HE_CHAR[2];
+			m_lpData->m_lpString[0] = ch;
+			m_lpData->m_lpString[1] = '\0';
+		}
 	}
 	return *this;
 }
 
-CHE_ByteString& CHE_ByteString::operator=( HE_LPCSTR str )
+CHE_ByteString& CHE_ByteString::operator=( HE_LPCSTR lpStr )
 {
-	HE_DWORD nStrlen = 0;
-	if ( m_lpData->m_dwRef == 1 )
+	if ( lpStr == NULL )
 	{
-		if ( m_lpData->m_lpString )
-		{
-			delete[] m_lpData->m_lpString;
-		}
-		if ( str == NULL )
-		{
-			m_lpData->m_dwLength = 0;
-			m_lpData->m_lpString = NULL;
-		}else{
-			nStrlen = strlen( str );
-			m_lpData->m_dwLength = nStrlen;
-			m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
-			strcpy( m_lpData->m_lpString, str );
-			m_lpData->m_lpString[nStrlen] = '\0';
-		}
-	}else if ( m_lpData->m_dwRef > 1 )
+		return *this;
+	}
+
+	HE_DWORD nStrlen = strlen( lpStr );
+	if ( nStrlen == 0 )
 	{
-		m_lpData->m_dwRef--;
+		return *this;
+	}
+
+	if ( m_lpData == NULL )
+	{
 		m_lpData = new HE_StringData;
-		if ( str == NULL )
+		m_lpData->m_dwRef = 1;
+		m_lpData->m_dwLength = nStrlen;
+		m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
+		strcpy( m_lpData->m_lpString, lpStr );
+	}else{
+		m_lpData->m_dwRef--;
+		if ( m_lpData->m_dwRef == 0 )
 		{
-			m_lpData->m_dwLength = 0;
-			m_lpData->m_lpString = NULL;
-		}else{
+			if ( m_lpData->m_lpString )
+			{
+				delete[] m_lpData->m_lpString;
+			}
 			m_lpData->m_dwRef = 1;
-			nStrlen = strlen( str );
 			m_lpData->m_dwLength = nStrlen;
 			m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
-			strcpy( m_lpData->m_lpString, str );
-			m_lpData->m_lpString[nStrlen] = '\0';
+			strcpy( m_lpData->m_lpString, lpStr );
+		}else {
+			m_lpData = new HE_StringData;
+			m_lpData->m_dwRef = 1;
+			m_lpData->m_dwLength = nStrlen;
+			m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
+			strcpy( m_lpData->m_lpString, lpStr );
 		}
 	}
 	return *this;
@@ -140,58 +158,90 @@ CHE_ByteString& CHE_ByteString::operator=( HE_LPCSTR str )
 
 CHE_ByteString& CHE_ByteString::operator=( const CHE_ByteString& str )
 {
-	if ( this == &str || m_lpData == str.m_lpData )
+	if ( this == &str )
+	{
+		return *this;
+	}
+	if ( m_lpData == str.m_lpData )
 	{
 		return *this;
 	}
 
-	if ( m_lpData->m_dwRef == 1 )
+	if ( m_lpData != NULL )
 	{
-		if ( m_lpData->m_lpString )
+		if ( str.m_lpData == NULL )
 		{
-			delete m_lpData->m_lpString;
+			return *this;
 		}
-		delete m_lpData;
-	}else{
 		m_lpData->m_dwRef--;
+		if ( m_lpData->m_dwRef == 0 )
+		{
+			if ( m_lpData->m_lpString )
+			{
+				delete [] m_lpData->m_lpString;
+			}
+			delete m_lpData;
+		}
 	}
+
 	m_lpData = str.m_lpData;
 	str.m_lpData->m_dwRef++;
+
 	return *this;
 }
 
 bool CHE_ByteString::operator==( HE_CHAR ch )
 {
-	if ( m_lpData->m_dwLength != 1 )
+	if ( m_lpData == NULL )
 	{
-		return false;
-	}else{
-		if ( m_lpData->m_lpString[0] == ch )
+		if ( ch = 0 )
 		{
 			return true;
 		}else{
 			return false;
+		}
+	}else{
+		if ( m_lpData->m_dwLength != 1 )
+		{
+			return false;
+		}else{
+			if ( m_lpData->m_lpString[0] == ch )
+			{
+				return true;
+			}else{
+				return false;
+			}
 		}
 	}
 }
 
-bool CHE_ByteString::operator==( HE_LPCSTR str )
+bool CHE_ByteString::operator==( HE_LPCSTR lpStr )
 {
-	if ( str == NULL )
+	if ( m_lpData == NULL )
 	{
-		if ( m_lpData->m_lpString == NULL )
+		if ( lpStr == NULL || strlen( lpStr ) == 0 )
 		{
 			return true;
 		}else{
 			return false;
 		}
 	}else{
-		if ( strcmp( m_lpData->m_lpString, str ) == 0 )
+		if ( lpStr == NULL )
 		{
-			return true;
+			if ( m_lpData->m_lpString == NULL )
+			{
+				return true;
+			}else{
+				return false;
+			}
 		}else{
-			return false;
-		}	
+			if ( strcmp( m_lpData->m_lpString, lpStr ) == 0 )
+			{
+				return true;
+			}else{
+				return false;
+			}	
+		}
 	}
 }
 
@@ -205,11 +255,16 @@ bool CHE_ByteString::operator==( const CHE_ByteString& str )
 		{
 			return true;
 		}else{
-			if ( strcmp( m_lpData->m_lpString, str.m_lpData->m_lpString ) == 0 )
+			if ( m_lpData == NULL )
 			{
-				return true;
-			}else{
 				return false;
+			}else{
+				if ( strcmp( m_lpData->m_lpString, str.m_lpData->m_lpString ) == 0 )
+				{
+					return true;
+				}else{
+					return false;
+				}
 			}
 		}
 	}
@@ -217,15 +272,81 @@ bool CHE_ByteString::operator==( const CHE_ByteString& str )
 
 HE_CHAR CHE_ByteString::operator[]( HE_INT32 index )
 {
-	if ( index >= m_lpData->m_dwLength )
+	if ( m_lpData != NULL )
 	{
-		return 0;
-	}else if ( m_lpData->m_lpString )
-	{
-		return m_lpData->m_lpString[index];
+		if ( index >= m_lpData->m_dwLength )
+		{
+			return 0;
+		}else if ( index < 0 )
+		{
+			return 0;
+		}else if ( m_lpData->m_lpString )
+		{
+			return m_lpData->m_lpString[index];
+		}else{
+			return 0;
+		}
 	}else{
 		return 0;
 	}
+}
+
+CHE_ByteString CHE_ByteString::operator+( HE_CHAR ch )
+{
+	if ( m_lpData == NULL || m_lpData->m_lpString == NULL )
+	{
+		return CHE_ByteString( ch );
+	}
+
+	HE_INT32 iStrlen = m_lpData->m_dwLength + 2;
+	HE_CHAR * pTempStr = new HE_CHAR[iStrlen];
+
+	strcpy( pTempStr, m_lpData->m_lpString );
+	pTempStr[iStrlen-2] = ch;
+	pTempStr[iStrlen-1] = '\0';
+	return CHE_ByteString(pTempStr);
+}
+
+CHE_ByteString CHE_ByteString::operator+( const HE_LPSTR lpStr )
+{
+	if ( lpStr == NULL )
+	{
+		return CHE_ByteString(*this);
+	}
+
+	if ( m_lpData == NULL || m_lpData->m_lpString == NULL )
+	{
+		return CHE_ByteString( lpStr );
+	}
+	
+	HE_INT32 iStrlen = m_lpData->m_dwLength + strlen(lpStr) + 1;
+	HE_CHAR * pTempStr = new HE_CHAR[iStrlen];
+	
+	strcpy( pTempStr, m_lpData->m_lpString );
+	strcat( pTempStr, lpStr );
+
+	return CHE_ByteString(pTempStr);
+}
+
+CHE_ByteString CHE_ByteString::operator+( const CHE_ByteString& str )
+{
+	if ( str.m_lpData == NULL )
+	{
+		return CHE_ByteString(*this);
+	}
+	
+	if ( m_lpData == NULL || m_lpData->m_lpString == NULL )
+	{
+		return CHE_ByteString( str );
+	}
+	
+	HE_INT32 iStrlen = m_lpData->m_dwLength + str.m_lpData->m_dwLength + 1;
+	HE_CHAR * pTempStr = new HE_CHAR[iStrlen];
+	
+	strcpy( pTempStr, m_lpData->m_lpString );
+	strcat( pTempStr, str.m_lpData->m_lpString );
+	
+	return CHE_ByteString(pTempStr);
 }
 
 CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
@@ -235,47 +356,56 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 		return *this;
 	}
 
-	if ( m_lpData->m_lpString == NULL )
+	if ( m_lpData == NULL )
 	{
-		m_lpData->m_dwLength = 1;
+		m_lpData = new HE_StringData;
 		m_lpData->m_dwRef = 1;
+		m_lpData->m_dwLength = 1;
 		m_lpData->m_lpString = new HE_CHAR[2];
 		m_lpData->m_lpString[0] = ch;
 		m_lpData->m_lpString[1] = '\0';
-
-		return *this;
-	}
-
-	HE_LPSTR pTempStr = new HE_CHAR[strlen(m_lpData->m_lpString)+1];
-	strcpy( pTempStr, m_lpData->m_lpString );
-
-	if ( m_lpData->m_dwRef == 1 )
-	{
-		if ( m_lpData->m_lpString )
+	}else{
+		if ( m_lpData->m_lpString == NULL )
 		{
-			delete m_lpData->m_lpString;
-			m_lpData->m_lpString = NULL;
+			m_lpData->m_dwLength = 1;
+			m_lpData->m_dwRef = 1;
+			m_lpData->m_lpString = new HE_CHAR[2];
+			m_lpData->m_lpString[0] = ch;
+			m_lpData->m_lpString[1] = '\0';
+			
+			return *this;
+		}
+		
+		HE_LPSTR pTempStr = new HE_CHAR[strlen(m_lpData->m_lpString)+1];
+		strcpy( pTempStr, m_lpData->m_lpString );
+		
+		m_lpData->m_dwRef--;
+		if ( m_lpData->m_dwRef == 0 )
+		{
+			if ( m_lpData->m_lpString )
+			{
+				delete [] m_lpData->m_lpString;
+				m_lpData->m_lpString = NULL;
+			}
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
+		}else{
+			m_lpData = new HE_StringData;
+			m_lpData->m_dwLength = 0;
+			m_lpData->m_dwRef = 1;
+			m_lpData->m_lpString = NULL;
 		}
-	}else{
-		m_lpData->m_dwRef--;
-		m_lpData = new HE_StringData;
-		m_lpData->m_dwLength = 0;
-		m_lpData->m_dwRef = 1;
-		m_lpData->m_lpString = NULL;
+		
+		HE_INT32 iBufferSize = strlen( pTempStr )+2;
+		m_lpData->m_lpString = new HE_CHAR[iBufferSize];
+		strcpy( m_lpData->m_lpString, pTempStr );
+		m_lpData->m_lpString[iBufferSize-2] = ch;
+		m_lpData->m_lpString[iBufferSize-1] = '\0';
+		m_lpData->m_dwLength = iBufferSize-1;
+		
+		delete [] pTempStr;
+		pTempStr = NULL;
 	}
-
-	HE_INT32 iBufferSize = strlen( pTempStr )+2;
-	m_lpData->m_lpString = new HE_CHAR[iBufferSize];
-	strcpy( m_lpData->m_lpString, pTempStr );
-	m_lpData->m_lpString[iBufferSize-2] = ch;
-	m_lpData->m_lpString[iBufferSize-1] = '\0';
-	m_lpData->m_dwLength = iBufferSize-1;
-
-	delete pTempStr;
-	pTempStr = NULL;
-
 	return *this;
 }
 
@@ -286,76 +416,86 @@ CHE_ByteString& CHE_ByteString::operator+=( const HE_LPSTR lpStr )
 		return *this;
 	}
 
-	if ( m_lpData->m_lpString == NULL )
+	if ( strlen( lpStr ) == 0 )
 	{
-		HE_INT32 iStrlen = strlen(lpStr);
-		m_lpData->m_lpString = new HE_CHAR[iStrlen+1];
-		strcpy( m_lpData->m_lpString, lpStr );
-		m_lpData->m_lpString[iStrlen] = '\0';
-		m_lpData->m_dwLength = iStrlen;
-		m_lpData->m_dwRef = 1;
-		
 		return *this;
 	}
 
-	HE_LPSTR pTempStr = new HE_CHAR[strlen(m_lpData->m_lpString)+1];
-	strcpy( pTempStr, m_lpData->m_lpString );
 
-	if ( m_lpData->m_dwRef == 1 )
+	if ( m_lpData == NULL )
 	{
-		if ( m_lpData->m_lpString )
+		HE_INT32 iStrlen = strlen(lpStr);
+		m_lpData = new HE_StringData;
+		m_lpData->m_dwRef = 1;
+		m_lpData->m_lpString = new HE_CHAR[iStrlen+1];
+		strcpy( m_lpData->m_lpString, lpStr );
+		m_lpData->m_dwLength = iStrlen;
+
+	}else{
+		if ( m_lpData->m_lpString == NULL )
 		{
-			delete m_lpData->m_lpString;
-			m_lpData->m_lpString = NULL;
+			HE_INT32 iStrlen = strlen(lpStr);
+			m_lpData->m_lpString = new HE_CHAR[iStrlen+1];
+			strcpy( m_lpData->m_lpString, lpStr );
+			m_lpData->m_dwLength = iStrlen;
+			m_lpData->m_dwRef = 1;
+			
+			return *this;
+		}
+		
+		HE_LPSTR pTempStr = new HE_CHAR[strlen(m_lpData->m_lpString)+1];
+		strcpy( pTempStr, m_lpData->m_lpString );
+		
+		m_lpData->m_dwRef--;
+		if ( m_lpData->m_dwRef == 0 )
+		{
+			if ( m_lpData->m_lpString )
+			{
+				delete [] m_lpData->m_lpString;
+				m_lpData->m_lpString = NULL;
+			}
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
+		}else{
+			m_lpData = new HE_StringData;
+			m_lpData->m_dwLength = 0;
+			m_lpData->m_dwRef = 1;
+			m_lpData->m_lpString = NULL;
 		}
-	}else{
-		m_lpData->m_dwRef--;
-		m_lpData = new HE_StringData;
-		m_lpData->m_dwLength = 0;
-		m_lpData->m_dwRef = 1;
-		m_lpData->m_lpString = NULL;
+		
+		HE_INT32 iStrlen = strlen(pTempStr) + strlen(lpStr);
+		m_lpData->m_lpString = new HE_CHAR[iStrlen+1];
+		strcpy( m_lpData->m_lpString, pTempStr );
+		strcat( m_lpData->m_lpString, lpStr );
+		m_lpData->m_dwLength = iStrlen;
 	}
-
-	HE_INT32 iStrlen = strlen(pTempStr) + strlen(lpStr);
-	m_lpData->m_lpString = new HE_CHAR[iStrlen+1];
-	strcpy( m_lpData->m_lpString, pTempStr );
-	strcat( m_lpData->m_lpString, lpStr );
-	m_lpData->m_lpString[iStrlen] = '\0';
-	m_lpData->m_dwLength = iStrlen;
 	
 	return *this;
 }
 
 CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 {
-	if ( str.m_lpData->m_lpString == NULL )
+	if ( str.m_lpData == NULL || str.m_lpData->m_lpString == NULL )
 	{
 		return *this;
 	}
 
 	if ( this == &str )
 	{
-		if ( m_lpData->m_lpString == NULL )
-		{
-			return *this;
-		}
-
 		HE_LPSTR pTempStr = new HE_CHAR[strlen(m_lpData->m_lpString)+1];
 		strcpy( pTempStr, m_lpData->m_lpString );
 
-		if ( m_lpData->m_dwRef == 1 )
+		m_lpData->m_dwRef--;
+		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
 			{
-				delete m_lpData->m_lpString;
+				delete [] m_lpData->m_lpString;
 				m_lpData->m_lpString = NULL;
-				m_lpData->m_dwLength = 0;
-				m_lpData->m_dwRef = 1;
 			}
+			m_lpData->m_dwLength = 0;
+			m_lpData->m_dwRef = 1;
 		}else{
-			m_lpData->m_dwRef--;
 			m_lpData = new HE_StringData;
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
@@ -366,11 +506,10 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 		m_lpData->m_lpString = new HE_CHAR[iBufferSize];
 		strcpy( m_lpData->m_lpString, pTempStr );
 		strcat( m_lpData->m_lpString, pTempStr );
-		pTempStr[iBufferSize-1] = '\0';
 
 		m_lpData->m_dwLength = iBufferSize-1;
 
-		delete pTempStr;
+		delete [] pTempStr;
 		pTempStr = NULL;
 		
 		return *this;
@@ -380,16 +519,17 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 			HE_LPSTR pTempStr = new HE_CHAR[strlen(m_lpData->m_lpString)+1];
 			strcpy( pTempStr, m_lpData->m_lpString );
 
-			if ( m_lpData->m_dwRef == 2 )
+			m_lpData->m_dwRef-=2;
+			if ( m_lpData->m_dwRef == 0 )
 			{
 				if ( m_lpData->m_lpString )
 				{
-					delete m_lpData->m_lpString;
+					delete [] m_lpData->m_lpString;
 					m_lpData->m_lpString = NULL;
-					m_lpData->m_dwLength = 0;
 				}
+				m_lpData->m_dwLength = 0;
+				m_lpData->m_dwRef = 2;
 			}else{
-				m_lpData->m_dwRef-=2;
 				m_lpData = new HE_StringData;
 				m_lpData->m_dwRef = 2;
 				m_lpData->m_lpString = NULL;
@@ -400,11 +540,10 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 			m_lpData->m_lpString = new HE_CHAR[iBufferSize];
 			strcpy( m_lpData->m_lpString, pTempStr );
 			strcat( m_lpData->m_lpString, pTempStr );
-			pTempStr[iBufferSize-1] = '\0';
 			
 			m_lpData->m_dwLength = iBufferSize-1;
 			
-			delete pTempStr;
+			delete [] pTempStr;
 			pTempStr = NULL;
 			
 			return *this;
@@ -424,7 +563,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 			{
 				if ( m_lpData->m_lpString )
 				{
-					delete m_lpData->m_lpString;
+					delete [] m_lpData->m_lpString;
 					m_lpData->m_lpString = NULL;
 					m_lpData->m_dwLength = 0;
 					m_lpData->m_dwRef = 1;
@@ -442,9 +581,8 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 			m_lpData->m_lpString = new HE_CHAR[iBufferSize];
 			strcpy( m_lpData->m_lpString, pTempStr );
 			strcat( m_lpData->m_lpString, str.m_lpData->m_lpString );
-			pTempStr[iBufferSize-1] = '\0';
 
-			delete pTempStr;
+			delete [] pTempStr;
 			pTempStr = NULL;
 			
 			m_lpData->m_dwLength = iBufferSize-1;

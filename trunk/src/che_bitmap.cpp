@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <memory.h>
 
 #include "../include/che_bitmap.h"
@@ -205,7 +204,7 @@ HE_BOOL		CHE_Palette::GetNearColorIndex( HE_ARGB color, HE_DWORD & indexRet ) co
 	{
 		srcColor = m_pPalette[i];
 		
-		tempLessCY = abs( ( color & 0x000000FF ) - ( srcColor & 0x000000FF ) );
+		tempLessCY = abs( ( color & 0x000000FF ) - ( srcColor & 0x000000FF )  );
 		tempLessCY += abs( ( color >> 8 & 0x000000FF ) - ( srcColor >> 8 & 0x000000FF ) );
 		tempLessCY += abs( ( color >> 16 & 0x000000FF ) - ( srcColor >> 16 & 0x000000FF ) );
 		tempLessCY += abs( ( color >> 24 & 0x000000FF ) - ( srcColor >> 24 & 0x000000FF ) );
@@ -1028,7 +1027,7 @@ HE_BOOL	CHE_Bitmap::Fill( HE_ARGB color )
 		{
 			for ( HE_DWORD i = 0; i < Pitch() * Height(); i+=4 )
 			{
-				((HE_LPDWORD)(m_lpBits))[i] = color;
+				*((HE_LPDWORD)(m_lpBits+i)) = color;
 			}
 			break;
 		}

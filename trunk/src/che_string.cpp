@@ -24,7 +24,7 @@ CHE_ByteString::~CHE_ByteString()
 
 CHE_ByteString::CHE_ByteString( HE_CHAR ch )
 {
-	m_lpData = new HE_StringData;
+	m_lpData = new HE_ByteStringData;
 	
 	m_lpData->m_dwLength = 1;
 	m_lpData->m_dwRef = 1;
@@ -51,7 +51,7 @@ CHE_ByteString::CHE_ByteString( HE_LPCSTR lpStr, HE_LONG nStrSize /* = -1 */)
 
 	if ( nStrlen > 0 )
 	{
-		m_lpData = new HE_StringData;
+		m_lpData = new HE_ByteStringData;
 		m_lpData->m_dwRef = 1;
 		m_lpData->m_dwLength = nStrlen;
 		m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
@@ -82,7 +82,7 @@ CHE_ByteString& CHE_ByteString::operator=( HE_CHAR ch )
 
 	if ( m_lpData == NULL )
 	{
-		m_lpData = new HE_StringData;
+		m_lpData = new HE_ByteStringData;
 		m_lpData->m_dwRef = 1;
 		m_lpData->m_dwLength = 1;
 		m_lpData->m_lpString = new HE_CHAR[2];
@@ -102,7 +102,7 @@ CHE_ByteString& CHE_ByteString::operator=( HE_CHAR ch )
 			m_lpData->m_lpString[0] = ch;
 			m_lpData->m_lpString[1] = '\0';
 		}else{
-			m_lpData = new HE_StringData;
+			m_lpData = new HE_ByteStringData;
 			m_lpData->m_dwLength = 1;
 			m_lpData->m_dwRef = 1;
 			m_lpData->m_lpString = new HE_CHAR[2];
@@ -128,7 +128,7 @@ CHE_ByteString& CHE_ByteString::operator=( HE_LPCSTR lpStr )
 
 	if ( m_lpData == NULL )
 	{
-		m_lpData = new HE_StringData;
+		m_lpData = new HE_ByteStringData;
 		m_lpData->m_dwRef = 1;
 		m_lpData->m_dwLength = nStrlen;
 		m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
@@ -146,7 +146,7 @@ CHE_ByteString& CHE_ByteString::operator=( HE_LPCSTR lpStr )
 			m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
 			strcpy( m_lpData->m_lpString, lpStr );
 		}else {
-			m_lpData = new HE_StringData;
+			m_lpData = new HE_ByteStringData;
 			m_lpData->m_dwRef = 1;
 			m_lpData->m_dwLength = nStrlen;
 			m_lpData->m_lpString = new HE_CHAR[nStrlen+1];
@@ -190,7 +190,7 @@ CHE_ByteString& CHE_ByteString::operator=( const CHE_ByteString& str )
 	return *this;
 }
 
-bool CHE_ByteString::operator==( HE_CHAR ch )
+bool CHE_ByteString::operator==( HE_CHAR ch )const
 {
 	if ( m_lpData == NULL )
 	{
@@ -215,7 +215,7 @@ bool CHE_ByteString::operator==( HE_CHAR ch )
 	}
 }
 
-bool CHE_ByteString::operator==( HE_LPCSTR lpStr )
+bool CHE_ByteString::operator==( HE_LPCSTR lpStr )const
 {
 	if ( m_lpData == NULL )
 	{
@@ -245,7 +245,7 @@ bool CHE_ByteString::operator==( HE_LPCSTR lpStr )
 	}
 }
 
-bool CHE_ByteString::operator==( const CHE_ByteString& str )
+bool CHE_ByteString::operator==( const CHE_ByteString& str )const
 {
 	if ( this == &str )
 	{
@@ -270,7 +270,7 @@ bool CHE_ByteString::operator==( const CHE_ByteString& str )
 	}
 }
 
-HE_CHAR CHE_ByteString::operator[]( HE_INT32 index )
+HE_CHAR CHE_ByteString::operator[]( HE_INT32 index )const
 {
 	if ( m_lpData != NULL )
 	{
@@ -358,7 +358,7 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 
 	if ( m_lpData == NULL )
 	{
-		m_lpData = new HE_StringData;
+		m_lpData = new HE_ByteStringData;
 		m_lpData->m_dwRef = 1;
 		m_lpData->m_dwLength = 1;
 		m_lpData->m_lpString = new HE_CHAR[2];
@@ -390,7 +390,7 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
 		}else{
-			m_lpData = new HE_StringData;
+			m_lpData = new HE_ByteStringData;
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
 			m_lpData->m_lpString = NULL;
@@ -425,7 +425,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const HE_LPSTR lpStr )
 	if ( m_lpData == NULL )
 	{
 		HE_INT32 iStrlen = strlen(lpStr);
-		m_lpData = new HE_StringData;
+		m_lpData = new HE_ByteStringData;
 		m_lpData->m_dwRef = 1;
 		m_lpData->m_lpString = new HE_CHAR[iStrlen+1];
 		strcpy( m_lpData->m_lpString, lpStr );
@@ -457,7 +457,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const HE_LPSTR lpStr )
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
 		}else{
-			m_lpData = new HE_StringData;
+			m_lpData = new HE_ByteStringData;
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
 			m_lpData->m_lpString = NULL;
@@ -496,7 +496,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
 		}else{
-			m_lpData = new HE_StringData;
+			m_lpData = new HE_ByteStringData;
 			m_lpData->m_dwLength = 0;
 			m_lpData->m_dwRef = 1;
 			m_lpData->m_lpString = NULL;
@@ -530,7 +530,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 				m_lpData->m_dwLength = 0;
 				m_lpData->m_dwRef = 2;
 			}else{
-				m_lpData = new HE_StringData;
+				m_lpData = new HE_ByteStringData;
 				m_lpData->m_dwRef = 2;
 				m_lpData->m_lpString = NULL;
 				m_lpData->m_dwLength = 0;
@@ -570,7 +570,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 				}
 			}else{
 				m_lpData->m_dwRef--;
-				m_lpData = new HE_StringData;
+				m_lpData = new HE_ByteStringData;
 				m_lpData->m_dwLength = 0;
 				m_lpData->m_dwRef = 1;
 				m_lpData->m_lpString = NULL;
@@ -592,3 +592,169 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 	}
 }
 
+bool CHE_ByteString::operator!=( HE_CHAR ch )const
+{
+	if ( m_lpData == NULL )
+	{
+		if ( ch = 0 )
+		{
+			return false;
+		}else{
+			return true;
+		}
+	}else{
+		if ( m_lpData->m_dwLength != 1 )
+		{
+			return true;
+		}else{
+			if ( m_lpData->m_lpString[0] == ch )
+			{
+				return false;
+			}else{
+				return true;
+			}
+		}
+	}
+}
+
+bool CHE_ByteString::operator!=( const HE_LPSTR lpStr )const
+{
+	if ( m_lpData == NULL )
+	{
+		if ( lpStr == NULL || strlen( lpStr ) == 0 )
+		{
+			return false;
+		}else{
+			return true;
+		}
+	}else{
+		if ( lpStr == NULL )
+		{
+			if ( m_lpData->m_lpString == NULL )
+			{
+				return false;
+			}else{
+				return true;
+			}
+		}else{
+			if ( strcmp( m_lpData->m_lpString, lpStr ) == 0 )
+			{
+				return false;
+			}else{
+				return true;
+			}	
+		}
+	}
+}
+
+bool CHE_ByteString::operator!=( const CHE_ByteString& str )const
+{
+	if ( this == &str )
+	{
+		return false;
+	}else{
+		if ( m_lpData == str.m_lpData )
+		{
+			return false;
+		}else{
+			if ( m_lpData == NULL )
+			{
+				return true;
+			}else{
+				if ( strcmp( m_lpData->m_lpString, str.m_lpData->m_lpString ) == 0 )
+				{
+					return false;
+				}else{
+					return true;
+				}
+			}
+		}
+	}	
+}
+
+bool operator==( HE_CHAR ch, CHE_ByteString& str )
+{
+	bool bRet = ( str.operator==(ch) );
+	return bRet;
+// 	if ( str.m_lpData == NULL )
+// 	{
+// 		if ( ch == '\0' )
+// 		{
+// 			return true;
+// 		}else{
+// 			return false;
+// 		}
+// 	}else{
+// 		if ( str.m_lpData->m_dwLength != 1 )
+// 		{
+// 			return false
+// 		}else{
+// 			if ( ch == str.m_lpData->m_lpString[0] )
+// 			{
+// 				return true;
+// 			}else{
+// 				return false;
+// 			}
+// 		}
+// 	}
+}
+
+bool operator==( HE_LPSTR lpStr, const CHE_ByteString& str )
+{
+	return ( str == lpStr );
+// 	if ( str.m_lpData == NULL )
+// 	{
+// 		if ( lpStr == NULL )
+// 		{
+// 			return true;
+// 		}else{
+// 			false
+// 		}
+// 	}else{
+// 		if ( str.m_lpData->m_lpString == NULL )
+// 		{
+// 			if ( lpStr == NULL )
+// 			{
+// 				return true;
+// 			}else{
+// 				return false;
+// 			}
+// 		}else{
+// 			if ( lpStr == NULL )
+// 			{
+// 				return false;
+// 			}else{
+// 				if ( 0 == strcmp( lpStr, str.m_lpData->m_lpString ) )
+// 				{
+// 					return true;
+// 				}else{
+// 					return false;
+// 				}	 
+// 			}
+// 		}
+// 	}
+}
+
+CHE_ByteString operator+( HE_CHAR ch, const CHE_ByteString& str )
+{
+	CHE_ByteString tempStr( ch );
+	tempStr+=str;
+	return tempStr;
+}
+
+CHE_ByteString operator+( const HE_LPSTR lpStr, const CHE_ByteString& str )
+{
+	CHE_ByteString tempStr( lpStr );
+	tempStr+= str;
+	return tempStr;
+}
+
+bool operator!=( HE_CHAR ch, const CHE_ByteString& str )
+{
+	return ( str != ch );
+}
+
+bool operator!=( const HE_LPSTR lpStr, const CHE_ByteString& str )
+{
+	return ( str != lpStr );
+}

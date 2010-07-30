@@ -1069,7 +1069,7 @@ HE_BOOL	CHE_Bitmap::Fill( HE_ARGB color, const HE_RECT* pRect )
 
 HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength, HE_ARGB color )
 { 
-	if ( m_lpBits == NULL )
+	if ( m_lpBits == NULL || nLine >= Height() || nStart >= Width() )
 	{
 		return;
 	}
@@ -1228,9 +1228,14 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 
 HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength, HE_LPBYTE lpDataBuf, HE_DWORD nBufSize )
 { 
-	if ( m_lpBits == NULL || lpDataBuf == NULL || nBufSize == 0 )
+	if ( m_lpBits == NULL || nLine >= Height() || nStart >= Width() || lpDataBuf == NULL || nBufSize == 0 )
 	{
 		return;
+	}
+
+	if ( nStart + nLength > Width() )
+	{
+		nLength = Width() - nStart;
 	}
 
 	if ( ( nLength * Depth()) > (nBufSize << 3) )

@@ -280,7 +280,7 @@ CHE_Bitmap::~CHE_Bitmap()
 {
 	if ( m_lpBits )
 	{
-		delete m_lpBits;
+		delete [] m_lpBits;
 		m_lpBits = NULL;
 	}
 	if ( m_lpPalette )
@@ -767,7 +767,7 @@ HE_VOID	CHE_Bitmap::Clean()
 {
 	if ( m_lpBits )
 	{
-		delete m_lpBits;
+		delete [] m_lpBits;
 		m_lpBits = NULL;
 	}
 	if ( m_lpPalette )
@@ -1072,6 +1072,11 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 	if ( m_lpBits == NULL || nLine >= Height() || nStart >= Width() )
 	{
 		return;
+	}
+
+	if ( nStart + nLength > Width() )
+	{
+		nLength = Width() - nStart;
 	}
 	
 	HE_DWORD indexB = 0, indexE = 0;

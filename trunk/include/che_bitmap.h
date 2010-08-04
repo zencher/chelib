@@ -42,7 +42,7 @@ enum HE_BITMAP_FORMAT
 enum HE_BITMAP_ORIG
 {
 	BITMAP_ORIG_BOTTOM,	//一般情况下，height为负时
-	BITMAP_ORIG_UP
+	BITMAP_ORIG_TOP
 };
 
 enum HE_BITMAP_CHANNEL
@@ -63,19 +63,6 @@ enum HE_BITMAP_COMPRESSION
 
 typedef HE_DWORD HE_ARGB;
 
-struct HE_BITMAP_PixelsDataMark
-{
-	HE_LPBYTE	pByte;
-	HE_DWORD	nBitCount;
-	HE_DWORD	nIndex;
-};
-
-struct HE_BITMAP_PixelsData
-{
-	HE_LPBYTE	pData;
-	HE_DWORD	nBitCount;
-};
-
 class CHE_Palette : public CHE_Object
 {
 public:
@@ -85,11 +72,11 @@ public:
 
 	HE_BITMAP_FORMAT	Format() const;
 
-	HE_DWORD	ColorCount() const;
-	HE_BOOL		GetColor( HE_BYTE index, HE_ARGB & colorRet ) const;
+	HE_DWORD	GetColorCount() const;
+	HE_BOOL		GetColor( HE_DWORD index, HE_ARGB & colorRet ) const;
 	HE_BOOL		GetColorIndex( HE_ARGB color, HE_DWORD & indexRet ) const;
 	HE_BOOL		GetNearColorIndex( HE_ARGB color, HE_DWORD & indexRet ) const;
-	HE_BOOL		SetColor( HE_BYTE index, HE_ARGB color );
+	HE_BOOL		SetColor( HE_DWORD index, HE_ARGB color );
 	HE_BOOL		IsColorExist( HE_ARGB color ) const;
 
 private:
@@ -112,46 +99,51 @@ public:
 
 	HE_BOOL		Load( HE_LPCSTR );
 	HE_BOOL		Save( HE_LPCSTR );
-	HE_BOOL		Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_DWORD bufferSize = 0,
-						HE_LPCBYTE buffer = NULL, const HE_ARGB* pPalette = NULL );
 
-	HE_VOID		Clean();
-
+	//bitmap basic information
 	HE_DWORD	Width() const { return m_InfoHeader.biWidth; } ;
 	HE_DWORD	Height() const { return ( m_InfoHeader.biHeight > 0 ) ? (m_InfoHeader.biHeight) : (-m_InfoHeader.biHeight); } ;
 	HE_WORD		Depth() const { return m_InfoHeader.biBitCount; } ;
 	HE_DWORD	Pitch() const { return ( ( ( m_InfoHeader.biWidth * m_InfoHeader.biBitCount ) + 31 ) & ~31 ) >> 3; } ;
-	HE_BITMAP_FORMAT Format() const;
-	HE_BITMAP_ORIG Orig() const { return m_Orig; } ;
+	HE_BITMAP_FORMAT		Format() const;
+	HE_BITMAP_ORIG			Orig() const { return m_Orig; } ;
+	HE_BOOL					IsCompression() const { return m_InfoHeader.biCompression; } ;
+	HE_BITMAP_COMPRESSION	GetCompressionType() const { return (HE_BITMAP_COMPRESSION)(m_InfoHeader.biCompression); } ;
 
+	//palette
 	CHE_Palette*	GetPalette() const { return m_lpPalette; };
 
-	HE_BOOL		IsCompression() const { return m_InfoHeader.biCompression; } ;
-	HE_BITMAP_COMPRESSION	GetCompressionType() const { return (HE_BITMAP_COMPRESSION)(m_InfoHeader.biCompression); } ;
+	//access data	
+	const HE_LPBITMAPINFOHEADER		GetInfoHeader() { return &m_InfoHeader; } ;
+	HE_LPCBYTE						GetBuffer() const { return m_lpBits; } ;
 	
-	const HE_LPBITMAPINFOHEADER GetInfoHeader() { return &m_InfoHeader; } ;
-	HE_LPCBYTE	GetBuffer() const { return m_lpBits; } ;
-	
+	//pixel operation
 	HE_ARGB		GetPixel( HE_DWORD x, HE_DWORD y ) const;
 	HE_BOOL		SetPixel( HE_DWORD x, HE_DWORD y, HE_ARGB color );
 
+	//channel operation
+	HE_BOOL			SetChannel( HE_BITMAP_CHANNEL channel, HE_BYTE vlaue );
+	HE_BOOL			SetChannelByAlpha( HE_BITMAP_CHANNEL channel, HE_BYTE alpha );
+	//CHE_Bitmap &	SaveChannelAsBitmap( HE_BITMAP_CHANNEL channel, HE_BOOL bMask = FALSE );
+	HE_BOOL			ExchangeChannel( HE_BITMAP_CHANNEL channel1, HE_BITMAP_CHANNEL channel2 );
+	HE_BOOL			CopyChannel( HE_BITMAP_CHANNEL channelDes, HE_BITMAP_CHANNEL channelSrc );
+
+	//area operation
 	HE_BOOL		Fill( HE_ARGB color );
 	HE_BOOL		Fill( HE_ARGB color, const HE_RECT* rect );
-
-	CHE_Bitmap* Clone( const HE_RECT* pRect = NULL ) const;
-
-	HE_BOOL		Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y );
-
-	
-
-private:
-	HE_VOID		ChangePalette( const CHE_Palette & palette );
-
-	HE_DWORD	GetByteIndexB( HE_DWORD x, HE_DWORD y );
-	HE_DWORD	GetByteIndexE( HE_DWORD x, HE_DWORD y, HE_DWORD length );
-
 	HE_VOID		DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength, HE_ARGB color );
 	HE_VOID		DrawLine( HE_DWORD nLine, HE_DWORD nStrat, HE_DWORD nLength, HE_LPBYTE lpDatabuf, HE_DWORD nBufSize );
+
+	//bitmap operation
+	HE_BOOL		Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_DWORD bufferSize = 0,
+						HE_LPCBYTE buffer = NULL, const HE_ARGB* pPalette = NULL );
+	CHE_Bitmap* Clone( const HE_RECT* pRect = NULL ) const;
+	HE_VOID		Clean();
+	HE_BOOL		Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y );
+
+private:
+
+	HE_DWORD	GetByteIndex( HE_DWORD x, HE_DWORD y );
 
 	HE_LPBYTE			m_lpBits;
 	CHE_Palette*		m_lpPalette;

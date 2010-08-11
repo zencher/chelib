@@ -66,6 +66,8 @@ typedef HE_DWORD HE_ARGB;
 class CHE_Palette : public CHE_Object
 {
 public:
+	CHE_Palette( const CHE_Palette& palette );
+	CHE_Palette( HE_BITMAP_FORMAT format, const HE_ARGB * const pPalette = NULL );
 	~CHE_Palette();
 
 	CHE_Palette & operator=( const CHE_Palette& palette );
@@ -78,12 +80,8 @@ public:
 	HE_BOOL		GetNearColorIndex( HE_ARGB color, HE_DWORD & indexRet ) const;
 	HE_BOOL		SetColor( HE_DWORD index, HE_ARGB color );
 	HE_BOOL		IsColorExist( HE_ARGB color ) const;
-
 private:
 	friend class CHE_Bitmap;
-
-	CHE_Palette( HE_BITMAP_FORMAT format, const HE_ARGB * const pPalette = NULL );
-	CHE_Palette( const CHE_Palette& palette );
 
 	HE_ARGB *		m_pPalette;
 	HE_BITMAP_FORMAT m_format;
@@ -97,6 +95,7 @@ public:
 	CHE_Bitmap();
 	~CHE_Bitmap();
 
+	//file Operation
 	HE_BOOL		Load( HE_LPCSTR );
 	HE_BOOL		Save( HE_LPCSTR );
 
@@ -136,27 +135,29 @@ public:
 
 	//bitmap operation
 	HE_BOOL		Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_DWORD bufferSize = 0,
-						HE_LPCBYTE buffer = NULL, const HE_ARGB* pPalette = NULL );
+						HE_LPCBYTE buffer = NULL, CHE_Palette* pPalette = NULL );
 	CHE_Bitmap* Clone( const HE_RECT* pRect = NULL ) const;
 	HE_VOID		Clean();
 	HE_BOOL		Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y );
 
 private:
 
-	HE_DWORD	GetByteIndex( HE_DWORD x, HE_DWORD y );
+	HE_DWORD	GetByteIndex( HE_DWORD x, HE_DWORD y ) const;
 
 	HE_LPBYTE			m_lpBits;
 	CHE_Palette*		m_lpPalette;
 	HE_BITMAPINFOHEADER	m_InfoHeader;
+	HE_BITMAP_FORMAT	m_format;
 	HE_BITMAP_ORIG		m_Orig;
+
 };
 
 
 
-class CHE_FontBitmap : public CHE_Bitmap
-{
-public:
-	HE_BOOL		Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_LPBYTE buffer );
-};
+// class CHE_FontBitmap : public CHE_Bitmap
+// {
+// public:
+// 	HE_BOOL		Load( HE_DWORD width, HE_DWORD height, HE_DWORD pitch, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_LPBYTE buffer );
+// };
 
 #endif

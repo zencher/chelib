@@ -27,22 +27,20 @@ typedef struct tagHE_BITMAPINFOHEADER
 	HE_DWORD	biClrImportant;
 }HE_BITMAPINFOHEADER, *HE_LPBITMAPINFOHEADER;
 
-enum HE_BITMAP_FORMAT
+enum HE_BITMAP_DEPTH
 {
-	BITMAP_FORMAT_Invaild,
-	BITMAP_FORMAT_1BPP,
-	BITMAP_FORMAT_1BPPMask,
-	BITMAP_FORMAT_4BPP,
-	BITMAP_FORMAT_8BPP,
-	BITMAP_FORMAT_8BPPMask,
-	BITMAP_FORMAT_24BPP,
-	BITMAP_FORMAT_32BPP
+	BITMAP_DEPTH_1BPP = 1,
+	BITMAP_DEPTH_4BPP = 4,
+	BITMAP_DEPTH_8BPP = 8,
+	//BITMAP_DEPTH_16BPP,
+	BITMAP_DEPTH_24BPP = 24,
+	BITMAP_DEPTH_32BPP = 32
 };
 
-enum HE_BITMAP_ORIG
+enum HE_BITMAP_DIRECTION
 {
-	BITMAP_ORIG_BOTTOM,	//一般情况下，height为负时
-	BITMAP_ORIG_TOP
+	BITMAP_DIRECTION_UP,
+	BITMAP_DIRECTION_DOWN
 };
 
 enum HE_BITMAP_CHANNEL
@@ -67,12 +65,10 @@ class CHE_Palette : public CHE_Object
 {
 public:
 	CHE_Palette( const CHE_Palette& palette );
-	CHE_Palette( HE_BITMAP_FORMAT format, const HE_ARGB * const pPalette = NULL );
+	CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette = NULL );
 	~CHE_Palette();
 
 	CHE_Palette & operator=( const CHE_Palette& palette );
-
-	HE_BITMAP_FORMAT	Format() const;
 
 	HE_DWORD	GetColorCount() const;
 	HE_BOOL		GetColor( HE_DWORD index, HE_ARGB & colorRet ) const;
@@ -84,7 +80,6 @@ private:
 	friend class CHE_Bitmap;
 
 	HE_ARGB *		m_pPalette;
-	HE_BITMAP_FORMAT m_format;
 	HE_DWORD		m_nPaletteSize;			
 };
 
@@ -100,12 +95,11 @@ public:
 	HE_BOOL		Save( HE_LPCSTR );
 
 	//bitmap basic information
-	HE_DWORD	Width() const { return m_InfoHeader.biWidth; } ;
-	HE_DWORD	Height() const { return ( m_InfoHeader.biHeight > 0 ) ? (m_InfoHeader.biHeight) : (-m_InfoHeader.biHeight); } ;
-	HE_WORD		Depth() const { return m_InfoHeader.biBitCount; } ;
-	HE_DWORD	Pitch() const { return ( ( ( m_InfoHeader.biWidth * m_InfoHeader.biBitCount ) + 31 ) & ~31 ) >> 3; } ;
-	HE_BITMAP_FORMAT		Format() const;
-	HE_BITMAP_ORIG			Orig() const { return m_Orig; } ;
+	HE_DWORD			Width() const { return m_InfoHeader.biWidth; } ;
+	HE_DWORD			Height() const { return ( m_InfoHeader.biHeight > 0 ) ? (m_InfoHeader.biHeight) : (-m_InfoHeader.biHeight); } ;
+	HE_DWORD			Pitch() const { return ( ( ( m_InfoHeader.biWidth * m_InfoHeader.biBitCount ) + 31 ) & ~31 ) >> 3; } ;
+	HE_BITMAP_DEPTH		Depth() const { return m_Depth; };
+	HE_BITMAP_DIRECTION		Direction() const { return m_Direction; } ;
 	HE_BOOL					IsCompression() const { return m_InfoHeader.biCompression; } ;
 	HE_BITMAP_COMPRESSION	GetCompressionType() const { return (HE_BITMAP_COMPRESSION)(m_InfoHeader.biCompression); } ;
 
@@ -117,8 +111,11 @@ public:
 	HE_LPCBYTE						GetBuffer() const { return m_lpBits; } ;
 	
 	//pixel operation
-	HE_ARGB		GetPixel( HE_DWORD x, HE_DWORD y ) const;
-	HE_BOOL		SetPixel( HE_DWORD x, HE_DWORD y, HE_ARGB color );
+	HE_BOOL		GetPixelColor( HE_DWORD x, HE_DWORD y, HE_ARGB & colorRet ) const;
+	HE_BOOL		SetPixelColor( HE_DWORD x, HE_DWORD y, HE_ARGB color );
+	
+	HE_BOOL		GetPixelIndex( HE_DWORD x, HE_DWORD y, HE_BYTE & indexRet ) const;
+	HE_BOOL		SetPixelIndex( HE_DWORD x, HE_DWORD y, HE_BYTE index );
 
 	//channel operation
 	HE_BOOL			SetChannel( HE_BITMAP_CHANNEL channel, HE_BYTE vlaue );
@@ -134,21 +131,25 @@ public:
 	HE_VOID		DrawLine( HE_DWORD nLine, HE_DWORD nStrat, HE_DWORD nLength, HE_LPBYTE lpDatabuf, HE_DWORD nBufSize );
 
 	//bitmap operation
-	HE_BOOL		Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_FORMAT format, HE_BITMAP_ORIG flowOrig, HE_DWORD bufferSize = 0,
+	HE_BOOL		Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_DEPTH depth, HE_BITMAP_DIRECTION direction, HE_DWORD bufferSize = 0,
 						HE_LPCBYTE buffer = NULL, CHE_Palette* pPalette = NULL );
 	CHE_Bitmap* Clone( const HE_RECT* pRect = NULL ) const;
 	HE_VOID		Clean();
+
+	//bitmap operation, for 24bit and 32bit only
+	HE_BOOL		CompositeMask( HE_ARGB color, HE_DWORD x, HE_DWORD y, CHE_Bitmap & maskBitmap );
 	HE_BOOL		Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y );
+	//HE_BOOL		Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y, CHE_Bitmap & maskBitmap );
 
 private:
 
 	HE_DWORD	GetByteIndex( HE_DWORD x, HE_DWORD y ) const;
 
-	HE_LPBYTE			m_lpBits;
-	CHE_Palette*		m_lpPalette;
-	HE_BITMAPINFOHEADER	m_InfoHeader;
-	HE_BITMAP_FORMAT	m_format;
-	HE_BITMAP_ORIG		m_Orig;
+	HE_LPBYTE				m_lpBits;
+	CHE_Palette*			m_lpPalette;
+	HE_BITMAPINFOHEADER		m_InfoHeader;
+	HE_BITMAP_DEPTH			m_Depth;
+	HE_BITMAP_DIRECTION		m_Direction;
 
 };
 

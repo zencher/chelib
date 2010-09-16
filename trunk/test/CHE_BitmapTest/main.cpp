@@ -4,21 +4,18 @@
 int main()
 {
 	CHE_Bitmap aBitmap;
-	aBitmap.Create( 25, 25, BITMAP_FORMAT_32BPP, BITMAP_ORIG_BOTTOM );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_32BPP, BITMAP_ORIG_TOP );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_24BPP, BITMAP_ORIG_BOTTOM );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_24BPP, BITMAP_ORIG_TOP );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_8BPP, BITMAP_ORIG_BOTTOM );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_8BPP, BITMAP_ORIG_TOP );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_4BPP, BITMAP_ORIG_BOTTOM );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_4BPP, BITMAP_ORIG_TOP );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_1BPP, BITMAP_ORIG_BOTTOM );
-	//aBitmap.Create( 25, 25, BITMAP_FORMAT_1BPP, BITMAP_ORIG_TOP );
+	aBitmap.Create( 500, 500, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
 	aBitmap.Fill( 0xFFFFFFFF );
 
-//	aBitmap.Save( "OriABitmap.bmp" );
-//	char tempFileName[1024];
+	CHE_Bitmap maskBitmap;
+	maskBitmap.Load( "c:\\15.bmp" );
 
+	aBitmap.CompositeMask( 0x00008800, 10, 10, maskBitmap );
+
+	aBitmap.Save( "OriABitmap.bmp" );
+
+
+//	char tempFileName[1024];
 //	int iPixelCount = aBitmap.Width() * aBitmap.Height();
 //	for ( int i = 0; i < aBitmap.Height() + 10; i++ )	//增加10，检查超过位图范围的情况
 //	{
@@ -29,7 +26,6 @@ int main()
 //			aBitmap.Save( tempFileName );
 //		}
 //	}
-
 // 	HE_RECT rt;
 // 	rt.top = 0;
 // 	rt.left = 0;

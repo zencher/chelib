@@ -4,15 +4,21 @@
 int main()
 {
 	CHE_Bitmap aBitmap;
-	aBitmap.Create( 500, 500, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
-	aBitmap.Fill( 0xFFFFFFFF );
+	//aBitmap.Create( 200, 200, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+	//aBitmap.Fill( 0xFFFFFFFF );
 
-	CHE_Bitmap maskBitmap;
-	maskBitmap.Load( "c:\\15.bmp" );
+ 	//CHE_Bitmap maskBitmap;
+ 	//maskBitmap.Load( "c:\\15.bmp" );
+ 	//aBitmap.CompositeMask( 0x00008800, 10, 10, maskBitmap );
 
-	aBitmap.CompositeMask( 0x00008800, 10, 10, maskBitmap );
+	//aBitmap.Save( "OriABitmap.bmp" );
 
-	aBitmap.Save( "OriABitmap.bmp" );
+	aBitmap.Load( "c:\\24.bmp" );
+
+	CHE_Bitmap * pTemp = aBitmap.StretchTo( aBitmap.Width()*0.95, aBitmap.Height()*0.95, 1, NULL );
+	pTemp->Save( "c:\\aadsf.bmp" );
+	delete pTemp;
+	pTemp = NULL;
 
 
 //	char tempFileName[1024];

@@ -679,18 +679,8 @@ HE_BOOL	CHE_Bitmap::GetPixelColor( HE_DWORD x, HE_DWORD y, HE_ARGB & clrRet ) co
 		return FALSE;
 	}
 
-	HE_DWORD index = GetByteIndex( x, y );
-// 	if ( Orig() == BITMAP_ORIG_BOTTOM )
-// 	{
-// 		index = ( Height() - y - 1 ) * Pitch();
-// 		index += ( x * Depth() ) >> 3;
-// 	}else{
-// 		index = y * Pitch();
-// 		index += ( x * Depth() ) >> 3;
-// 	}
-
+	HE_DWORD index = GetPixelByteIndex( x, y );
 	HE_BYTE platteIndex = 0;
-
 	if ( Depth() == 32 )
 	{
 		clrRet = m_lpBits[index] + ( m_lpBits[index+1] << 8 ) + ( m_lpBits[index+2] << 16 ) + ( m_lpBits[index+3] << 24 );
@@ -759,16 +749,7 @@ HE_BOOL CHE_Bitmap::SetPixelColor( HE_DWORD x, HE_DWORD y, HE_ARGB color )
 		return FALSE;
 	}
 
-	HE_DWORD index = GetByteIndex( x, y );
-// 	if ( Orig() == BITMAP_ORIG_BOTTOM )
-// 	{
-// 		index = ( Height() - 1 - y ) * Pitch();
-// 		index += ( x * Depth() ) >> 3;
-// 	}else{
-// 		index = y * Pitch();
-// 		index += ( x * Depth() ) >> 3;
-// 	}
-
+	HE_DWORD index = GetPixelByteIndex( x, y );
 	HE_BYTE platteIndex = 0;
 	HE_DWORD tempIndex = 0;;
 	if ( Depth() == 32 )
@@ -869,16 +850,7 @@ HE_BOOL	CHE_Bitmap::GetPixelIndex( HE_DWORD x, HE_DWORD y, HE_BYTE & indexRet ) 
 		return FALSE;
 	}
 	
-	HE_DWORD index = GetByteIndex( x, y );
-// 	if ( Orig() == BITMAP_ORIG_BOTTOM )
-// 	{
-// 		index = ( Height() - y - 1 ) * Pitch();
-// 		index += ( x * Depth() ) >> 3;
-// 	}else{
-// 		index = y * Pitch();
-// 		index += ( x * Depth() ) >> 3;
-// 	}
-	
+	HE_DWORD index = GetPixelByteIndex( x, y );
 	if ( Depth() == 8 )
 	{
 		indexRet = m_lpBits[index];
@@ -942,16 +914,7 @@ HE_BOOL	CHE_Bitmap::SetPixelIndex( HE_DWORD x, HE_DWORD y, HE_BYTE clrIndex )
 		return FALSE;
 	}
 
-	HE_DWORD index = GetByteIndex( x, y );
-// 	if ( Orig() == BITMAP_ORIG_BOTTOM )
-// 	{
-// 		index = ( Height() - 1 - y ) * Pitch();
-// 		index += ( x * Depth() ) >> 3;
-// 	}else{
-// 		index = y * Pitch();
-// 		index += ( x * Depth() ) >> 3;
-// 	}
-
+	HE_DWORD index = GetPixelByteIndex( x, y );
 	HE_BYTE platteIndex = 0;
 	if ( Depth() == 8 )
 	{
@@ -1134,8 +1097,8 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 	}
 	
 	HE_DWORD indexB = 0, indexE = 0;
-	indexB = GetByteIndex( nStart, nLine );
-	indexE = GetByteIndex( nStart + nLength, nLine );
+	indexB = GetPixelByteIndex( nStart, nLine );
+	indexE = GetPixelByteIndex( nStart + nLength, nLine );
 	
 	HE_DWORD indexColor;
 	if ( m_lpPalette->GetNearColorIndex( color, indexColor ) )
@@ -1152,7 +1115,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 			HE_BYTE newByte = 0;
 			for ( HE_DWORD x = nStart; x < nStart + nLength; x++ )
 			{
-				index = GetByteIndex( x, nLine );
+				index = GetPixelByteIndex( x, nLine );
 				oriByte = m_lpBits[index];
 				newByte = (HE_BYTE)indexColor;
 				switch ( x % 8 )
@@ -1203,7 +1166,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 			HE_BYTE desByte = 0;
 			for ( HE_DWORD x = nStart; x < nStart + nLength; x++ )
 			{
-				index = GetByteIndex( x, nLine );
+				index = GetPixelByteIndex( x, nLine );
 				oriByte = m_lpBits[index];
 				desByte = (HE_BYTE)indexColor;
 				if ( x % 2 == 0 )
@@ -1266,8 +1229,8 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 	}
 
 	HE_DWORD indexB = 0, indexE = 0;
-	indexB = GetByteIndex( nStart, nLine );
-	indexE = GetByteIndex( nStart + nLength, nLine );
+	indexB = GetPixelByteIndex( nStart, nLine );
+	indexE = GetPixelByteIndex( nStart + nLength, nLine );
 	
 	switch ( Depth() )
 	{
@@ -1279,7 +1242,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 
 			for ( HE_DWORD x = nStart; x < nStart + nLength; x++ )
 			{
-				index = GetByteIndex( x, nLine );
+				index = GetPixelByteIndex( x, nLine );
 				oriByte = m_lpBits[index];
 				newByte = lpDataBuf[index-indexB];
 				switch ( x % 8 )
@@ -1330,7 +1293,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 			HE_BYTE desByte = 0;
 			for ( HE_DWORD x = nStart; x < nStart + nLength; x++ )
 			{
-				index = GetByteIndex( x, nLine );
+				index = GetPixelByteIndex( x, nLine );
 				desByte = m_lpBits[index];
 				oriByte = lpDataBuf[index-indexB];
 				if ( x % 2 == 0 )
@@ -1411,7 +1374,7 @@ HE_BOOL CHE_Bitmap::SetChannel( HE_BITMAP_CHANNEL channel, HE_BYTE value )
 	HE_DWORD iPixelByteCount = Depth()>>3;
 	for ( HE_DWORD iY = 0; iY < Height(); iY++ )
 	{
-		iByteIndex = GetByteIndex( 0, iY );
+		iByteIndex = GetPixelByteIndex( 0, iY );
 		for ( HE_DWORD iX = 0; iX < Width(); iX++ )
 		{
 			m_lpBits[iByteIndex + ( iX * iPixelByteCount ) + iByteOffset] = value;
@@ -1457,7 +1420,7 @@ HE_BOOL CHE_Bitmap::SetChannelByAlpha( HE_BITMAP_CHANNEL channel, HE_BYTE alpha 
 	HE_FLOAT fAlpha = alpha;
 	for ( HE_DWORD iY = 0; iY < Height(); iY++ )
 	{
-		iByteIndex = GetByteIndex( 0, iY );
+		iByteIndex = GetPixelByteIndex( 0, iY );
 		for ( HE_DWORD iX = 0; iX < Width(); iX++ )
 		{
 			fTemp = m_lpBits[iByteIndex + ( iX * iPixelByteCount ) + iByteOffset];
@@ -1524,7 +1487,7 @@ HE_BOOL CHE_Bitmap::ExchangeChannel( HE_BITMAP_CHANNEL channel1, HE_BITMAP_CHANN
 	HE_BYTE iTemp = 0;
 	for ( HE_DWORD iY = 0; iY < Height(); iY++ )
 	{
-		iByteIndex = GetByteIndex( 0, iY );
+		iByteIndex = GetPixelByteIndex( 0, iY );
 		for ( HE_DWORD iX = 0; iX < Width(); iX++ )
 		{
 			iTemp = m_lpBits[iByteIndex + ( iX * iPixelByteCount ) + iByteOffset2];
@@ -1592,7 +1555,7 @@ HE_BOOL CHE_Bitmap::CopyChannel( HE_BITMAP_CHANNEL channelDes, HE_BITMAP_CHANNEL
 	HE_DWORD iPixelByteCount = Depth()>>3;
 	for ( HE_DWORD iY = 0; iY < Height(); iY++ )
 	{
-		iByteIndex = GetByteIndex( 0, iY );
+		iByteIndex = GetPixelByteIndex( 0, iY );
 		for ( HE_DWORD iX = 0; iX < Width(); iX++ )
 		{
 			m_lpBits[iByteIndex + ( iX * iPixelByteCount ) + iByteOffsetDes] \
@@ -1659,8 +1622,8 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 				HE_DWORD indexB = 0, indexE = 0;
 				for ( HE_DWORD y = rect.top, desY = 0; y < rect.top + rect.height; y++, desY++ )
 				{
-					indexB = GetByteIndex( rect.left, y );
-					indexE = GetByteIndex( rect.left + rect.width, y );
+					indexB = GetPixelByteIndex( rect.left, y );
+					indexE = GetPixelByteIndex( rect.left + rect.width, y );
 
 					HE_LONG nOffset = 8 - rect.left % 8;
 					HE_DWORD tempDByte = 0;
@@ -1700,7 +1663,7 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 
 					for ( HE_DWORD x = rect.left, desX = 0; x < rect.left + rect.width; x++, desX++ )
 					{
-						oriIndex = GetByteIndex( x, y );
+						oriIndex = GetPixelByteIndex( x, y );
 						desIndex = desX/2;
 						
 						oriByte = m_lpBits[oriIndex];
@@ -1872,7 +1835,7 @@ HE_BOOL CHE_Bitmap::CompositeMask( HE_ARGB color, HE_DWORD x, HE_DWORD y, CHE_Bi
 						{
 							fTemp = nMaskValue;
 							fTemp /= 255;
-							byteIndex = GetByteIndex( x + nX, y + nY );
+							byteIndex = GetPixelByteIndex( x + nX, y + nY );
 							m_lpBits[byteIndex] = (HE_BYTE)( (1-fTemp)*m_lpBits[byteIndex] + fTemp* (color&0xFF) );
 							m_lpBits[byteIndex+1] = (HE_BYTE)( (1-fTemp)*m_lpBits[byteIndex+1] + fTemp* ((color>>8)&0xFF) );
 							m_lpBits[byteIndex+2] = (HE_BYTE)( (1-fTemp)*m_lpBits[byteIndex+2] + fTemp* ((color>>16)&0xFF) );
@@ -1886,7 +1849,7 @@ HE_BOOL CHE_Bitmap::CompositeMask( HE_ARGB color, HE_DWORD x, HE_DWORD y, CHE_Bi
 					{
 						if ( maskBitmap.GetPixelIndex( nX, nY, nMaskValue ) )
 						{
-							byteIndex = GetByteIndex( x + nX, y + nY );
+							byteIndex = GetPixelByteIndex( x + nX, y + nY );
 							if ( nMaskValue == 0 )
 							{
 								m_lpBits[byteIndex] = (HE_BYTE)( color & 0xFF );
@@ -1914,7 +1877,7 @@ HE_BOOL CHE_Bitmap::CompositeMask( HE_ARGB color, HE_DWORD x, HE_DWORD y, CHE_Bi
 						{
 							fTemp = nMaskValue;
 							fTemp /= 255;
-							byteIndex = GetByteIndex( x + nX, y + nY );
+							byteIndex = GetPixelByteIndex( x + nX, y + nY );
 							m_lpBits[byteIndex] = (HE_BYTE)( (1-fTemp)*m_lpBits[byteIndex] + fTemp* (color&0xFF) );
 							m_lpBits[byteIndex+1] = (HE_BYTE)( (1-fTemp)*m_lpBits[byteIndex+1] + fTemp* ((color>>8)&0xFF) );
 							m_lpBits[byteIndex+2] = (HE_BYTE)( (1-fTemp)*m_lpBits[byteIndex+2] + fTemp* ((color>>16)&0xFF) );
@@ -1929,7 +1892,7 @@ HE_BOOL CHE_Bitmap::CompositeMask( HE_ARGB color, HE_DWORD x, HE_DWORD y, CHE_Bi
 					{
 						if ( maskBitmap.GetPixelIndex( nX, nY, nMaskValue ) )
 						{
-							byteIndex = GetByteIndex( x + nX, y + nY );
+							byteIndex = GetPixelByteIndex( x + nX, y + nY );
 							if ( nMaskValue == 0 )
 							{
 								m_lpBits[byteIndex] = (HE_BYTE)( color & 0xFF );
@@ -1950,11 +1913,6 @@ HE_BOOL CHE_Bitmap::CompositeMask( HE_ARGB color, HE_DWORD x, HE_DWORD y, CHE_Bi
 		
 }
 
-//
-// 函数名：	Insert
-// 说  明：	将另一个位图插入到当前位图的某个位置。两个位图的格式（深度）必须相同。
-//			否则不能插入。
-//
 HE_BOOL	CHE_Bitmap::Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y )
 {
 	if ( this->Depth() != bitmap.Depth() )
@@ -1979,10 +1937,10 @@ HE_BOOL	CHE_Bitmap::Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y )
 		return FALSE;
 	}
 	
-	HE_DWORD index = 0, lineDataSize = tempBitmap->Pitch();	/*( ( rtSrcBitmap.width * tempBitmap->Depth() ) + 31 ) & ~31 ) >> 3  ;*/
+	HE_DWORD index = 0, lineDataSize = tempBitmap->Pitch();
 	for ( HE_DWORD nLine = 0; nLine < rtSrcBitmap.height; nLine++ )
 	{
-		index = tempBitmap->GetByteIndex( 0, nLine );
+		index = tempBitmap->GetPixelByteIndex( 0, nLine );
 		DrawLine( nLine + y, x, tempBitmap->Width(), &(tempBitmap->m_lpBits[index]), lineDataSize );
 	}
 	
@@ -2055,7 +2013,123 @@ HE_BOOL	CHE_Bitmap::Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y )
 // 	return TRUE;
 // }
 
-HE_DWORD CHE_Bitmap::GetByteIndex( HE_DWORD x, HE_DWORD y ) const
+CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWORD flag, HE_RECT * pRect )
+{
+	CHE_Bitmap * pBitmapRet = new CHE_Bitmap;
+	//ASSERT(pBitmapRet!=NULL);
+
+	if ( !pBitmapRet->Create( desWidth, desHeight, this->Depth(), this->Direction() ) )
+	{
+		return NULL;	
+	}
+
+	HE_DOUBLE fWidthScale = 0.0, fHeightScale = 0.0;
+	fWidthScale = ((HE_DOUBLE)desWidth) / this->Width();
+	fHeightScale = ((HE_DOUBLE)desHeight) / this->Height();
+
+	switch ( flag )
+	{
+	case 0:
+		{
+			HE_ARGB color = 0xFFFFFFFF;
+			for ( HE_DWORD iY = 0; iY < desHeight; iY++ )
+			{
+				for ( HE_DWORD iX = 0; iX < desWidth; iX++ )
+				{
+					if ( GetPixelColor( (HE_DWORD)(iX/fWidthScale+0.5), (HE_DWORD)(iY/fHeightScale+0.5), color ) )
+					{
+						pBitmapRet->SetPixelColor( iX, iY, color );
+					}
+				}
+			}
+			break;
+		}
+	case 1:
+		{
+			HE_ARGB color = 0x00000000;
+			HE_BYTE byteRed = 0x00;
+			HE_BYTE byteGreen = 0x00;
+			HE_BYTE byteBlue = 0x00;
+			HE_BYTE bytePixelCross = 0;
+			HE_BYTE bytePixelColorAlpha[4] = { 0, 0, 0, 0 };
+			HE_ARGB pixelColor[4] = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF };
+			HE_DWORD localX = 0, localY = 0;
+			HE_DOUBLE fX = 0, fY = 0, fWidth = 1/fWidthScale, fHeight = 1/fHeightScale; 
+			for ( HE_DWORD iY = 0; iY < desHeight; iY++ )
+			{
+				for ( HE_DWORD iX = 0; iX < desWidth; iX++ )
+				{
+					bytePixelCross = 0;
+
+					fX = iX/fWidthScale;
+					fY = iY/fHeightScale;
+
+					localX = (HE_DWORD)(fX)+1;
+					localY = (HE_DWORD)(fY)+1;
+
+					if ( fX + fWidth <= localX )
+					{
+						if ( fY + fHeight <= localY )
+						{
+							bytePixelCross = 1;
+							bytePixelColorAlpha[0] = 255;
+							GetPixelColor( localX - 1, localY - 1, pixelColor[0] );
+						}else{
+							bytePixelCross = 2;
+							bytePixelColorAlpha[0] = (fY+fHeight-localY) / (fHeight) * 255;
+							bytePixelColorAlpha[1] = 255 - bytePixelColorAlpha[0];
+							GetPixelColor( localX - 1, localY, pixelColor[0] );
+							GetPixelColor( localX - 1, localY - 1, pixelColor[1] );
+						}
+					}else{
+						if ( fY + fHeight <= localY )
+						{
+							bytePixelCross = 2;
+							bytePixelColorAlpha[0] = (fX+fWidth-localX) / (fWidth) * 255;
+							bytePixelColorAlpha[1] = 255 - bytePixelColorAlpha[0];
+							GetPixelColor( localX, localY - 1, pixelColor[0] );
+							GetPixelColor( localX - 1, localY - 1, pixelColor[1] );
+						}else{
+							bytePixelCross = 4;
+							bytePixelColorAlpha[0] = (localX-fX)*(localY-fY) / (fWidth*fHeight) * 255;
+							bytePixelColorAlpha[1] = (fX+fWidth-localX)*(localY-fY) / (fWidth*fHeight) * 255;
+							bytePixelColorAlpha[2] = (localX-fX)*(fY+fHeight-localY) / (fWidth*fHeight) * 255;
+							bytePixelColorAlpha[3] = (fX+fWidth-localX)*(fY+fHeight-localY) / (fWidth*fHeight) * 255;
+							GetPixelColor( localX - 1, localY - 1, pixelColor[0] );
+							GetPixelColor( localX, localY - 1, pixelColor[1] );
+							GetPixelColor( localX - 1, localY, pixelColor[2] );
+							GetPixelColor( localX, localY, pixelColor[3] );
+						}
+					}
+
+					color = 0x00000000;
+					byteRed = 0x00;
+					byteGreen = 0x00;
+					byteBlue = 0x00;
+					for ( HE_BYTE i = 0; i < bytePixelCross; i++ )
+					{
+						byteRed += ( ( pixelColor[i] & 0x00FF0000 ) >> 16 ) * (bytePixelColorAlpha[i]/255.0);
+						byteGreen += ( ( pixelColor[i] & 0x0000FF00 ) >> 8 ) * (bytePixelColorAlpha[i]/255.0);
+						byteBlue += ( ( pixelColor[i] & 0x000000FF ) ) * (bytePixelColorAlpha[i]/255.0);
+					}
+					color = (byteRed << 16) + (byteGreen << 8) + byteBlue;
+
+					pBitmapRet->SetPixelColor( iX, iY, color );
+				}
+			}
+			break;
+		}
+	default:
+		{
+			pBitmapRet->Clean();
+			delete pBitmapRet;
+			return NULL;
+		}
+	}
+	return pBitmapRet;
+}
+
+HE_DWORD CHE_Bitmap::GetPixelByteIndex( HE_DWORD x, HE_DWORD y ) const
 {
 	HE_DWORD index = 0;
 	if ( Direction() == BITMAP_DIRECTION_UP )
@@ -2068,3 +2142,5 @@ HE_DWORD CHE_Bitmap::GetByteIndex( HE_DWORD x, HE_DWORD y ) const
 	}
 	return index;
 }
+
+

@@ -2076,7 +2076,7 @@ CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWO
 							GetPixelColor( localX - 1, localY - 1, pixelColor[0] );
 						}else{
 							bytePixelCross = 2;
-							bytePixelColorAlpha[0] = (fY+fHeight-localY) / (fHeight) * 255;
+							bytePixelColorAlpha[0] = (fY+fHeight-localY) / (fHeight) * 255 + 0.5;
 							bytePixelColorAlpha[1] = 255 - bytePixelColorAlpha[0];
 							GetPixelColor( localX - 1, localY, pixelColor[0] );
 							GetPixelColor( localX - 1, localY - 1, pixelColor[1] );
@@ -2085,16 +2085,16 @@ CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWO
 						if ( fY + fHeight <= localY )
 						{
 							bytePixelCross = 2;
-							bytePixelColorAlpha[0] = (fX+fWidth-localX) / (fWidth) * 255;
+							bytePixelColorAlpha[0] = (fX+fWidth-localX) / (fWidth) * 255 + 0.5;
 							bytePixelColorAlpha[1] = 255 - bytePixelColorAlpha[0];
 							GetPixelColor( localX, localY - 1, pixelColor[0] );
 							GetPixelColor( localX - 1, localY - 1, pixelColor[1] );
 						}else{
 							bytePixelCross = 4;
-							bytePixelColorAlpha[0] = (localX-fX)*(localY-fY) / (fWidth*fHeight) * 255;
-							bytePixelColorAlpha[1] = (fX+fWidth-localX)*(localY-fY) / (fWidth*fHeight) * 255;
-							bytePixelColorAlpha[2] = (localX-fX)*(fY+fHeight-localY) / (fWidth*fHeight) * 255;
-							bytePixelColorAlpha[3] = (fX+fWidth-localX)*(fY+fHeight-localY) / (fWidth*fHeight) * 255;
+							bytePixelColorAlpha[0] = (localX-fX)*(localY-fY) / (fWidth*fHeight) * 255 + 0.5;
+							bytePixelColorAlpha[1] = (fX+fWidth-localX)*(localY-fY) / (fWidth*fHeight) * 255 + 0.5;
+							bytePixelColorAlpha[2] = (localX-fX)*(fY+fHeight-localY) / (fWidth*fHeight) * 255 +0.5;
+							bytePixelColorAlpha[3] = 255 - bytePixelColorAlpha[0] - bytePixelColorAlpha[1] - bytePixelColorAlpha[2];
 							GetPixelColor( localX - 1, localY - 1, pixelColor[0] );
 							GetPixelColor( localX, localY - 1, pixelColor[1] );
 							GetPixelColor( localX - 1, localY, pixelColor[2] );
@@ -2108,9 +2108,9 @@ CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWO
 					byteBlue = 0x00;
 					for ( HE_BYTE i = 0; i < bytePixelCross; i++ )
 					{
-						byteRed += ( ( pixelColor[i] & 0x00FF0000 ) >> 16 ) * (bytePixelColorAlpha[i]/255.0);
-						byteGreen += ( ( pixelColor[i] & 0x0000FF00 ) >> 8 ) * (bytePixelColorAlpha[i]/255.0);
-						byteBlue += ( ( pixelColor[i] & 0x000000FF ) ) * (bytePixelColorAlpha[i]/255.0);
+						byteRed += ( ( pixelColor[i] & 0x00FF0000 ) >> 16 ) * (bytePixelColorAlpha[i]/255.0) + 0.5;
+						byteGreen += ( ( pixelColor[i] & 0x0000FF00 ) >> 8 ) * (bytePixelColorAlpha[i]/255.0) + 0.5;
+						byteBlue += ( ( pixelColor[i] & 0x000000FF ) ) * (bytePixelColorAlpha[i]/255.0) + 0.5;
 					}
 					color = (byteRed << 16) + (byteGreen << 8) + byteBlue;
 

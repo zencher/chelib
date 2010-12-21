@@ -1,6 +1,24 @@
 #include "../../include/che_bitmap.h"
 #include <stdio.h>
 
+#include "windows.h"
+
+__inline LONGLONG GetSecondCount()
+{
+	static LARGE_INTEGER liCounter = {0};
+	if (0 == liCounter.QuadPart)
+		QueryPerformanceFrequency(&liCounter);
+	
+	return liCounter.QuadPart;
+}
+
+__inline DWORD highGetTime()
+{
+	LARGE_INTEGER liCurrent = {0};
+	QueryPerformanceCounter(&liCurrent);
+	return (DWORD)(liCurrent.QuadPart * 1000 / GetSecondCount());
+}
+
 int main()
 {
 	CHE_Bitmap aBitmap;
@@ -13,12 +31,26 @@ int main()
 
 	//aBitmap.Save( "OriABitmap.bmp" );
 
-	aBitmap.Load( "c:\\24.bmp" );
+	//LONGLONG iCurrentBegin = highGetTime();
+	//LONGLONG iCurrentEnd = 0;
 
-	CHE_Bitmap * pTemp = aBitmap.StretchTo( aBitmap.Width()*0.95, aBitmap.Height()*0.95, 1, NULL );
-	pTemp->Save( "c:\\aadsf.bmp" );
-	delete pTemp;
-	pTemp = NULL;
+	aBitmap.Load( "c:\\24.bmp" );
+	char tempStr[128];
+
+	for ( int i = 1; i <= 20; i++ )
+	{
+		CHE_Bitmap * pTemp = aBitmap.StretchTo( aBitmap.Width()*0.2*i, aBitmap.Height()*0.2*i, 1, NULL );
+		sprintf( tempStr, "c:\\bitmap1\\%d.bmp", i );
+		pTemp->Save( tempStr/*"c:\\aadsf.bmp"*/ );
+		delete pTemp;
+		pTemp = NULL;
+	}
+
+	//iCurrentEnd = highGetTime();
+
+	//char tempstr[1024];
+	//sprintf( tempstr, "time passed : %d ms", iCurrentEnd - iCurrentBegin );
+	//MessageBox( NULL, tempstr, "", 0 );
 
 
 //	char tempFileName[1024];

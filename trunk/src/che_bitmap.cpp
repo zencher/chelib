@@ -2015,6 +2015,11 @@ HE_BOOL	CHE_Bitmap::Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y )
 
 CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWORD flag, HE_RECT * pRect )
 {
+	if ( desWidth == 0 || desHeight == 0 )
+	{
+		return NULL;
+	}
+
 	CHE_Bitmap * pBitmapRet = new CHE_Bitmap;
 	//ASSERT(pBitmapRet!=NULL);
 
@@ -2092,8 +2097,8 @@ CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWO
 						}else{
 							bytePixelCross = 4;
 							bytePixelColorAlpha[0] = (localX-fX)*(localY-fY) / (fWidth*fHeight) * 255 + 0.5;
-							bytePixelColorAlpha[1] = (fX+fWidth-localX)*(localY-fY) / (fWidth*fHeight) * 255 + 0.5;
-							bytePixelColorAlpha[2] = (localX-fX)*(fY+fHeight-localY) / (fWidth*fHeight) * 255 +0.5;
+							bytePixelColorAlpha[1] = (fX+fWidth-localX)*(localY-fY) / (fWidth*fHeight) * 255;
+							bytePixelColorAlpha[2] = (localX-fX)*(fY+fHeight-localY) / (fWidth*fHeight) * 255;
 							bytePixelColorAlpha[3] = 255 - bytePixelColorAlpha[0] - bytePixelColorAlpha[1] - bytePixelColorAlpha[2];
 							GetPixelColor( localX - 1, localY - 1, pixelColor[0] );
 							GetPixelColor( localX, localY - 1, pixelColor[1] );

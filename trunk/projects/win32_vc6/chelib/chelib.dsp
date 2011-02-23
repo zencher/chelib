@@ -85,6 +85,22 @@ LIB32=link.exe -lib
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Group "pdf"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\src\pdf\che_pdf_objects.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\src\pdf\che_pdf_parser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\src\pdf\che_pdf_xref.cpp
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=..\..\..\src\che_base.cpp
@@ -101,6 +117,26 @@ SOURCE=..\..\..\src\che_string.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Group "pdf header"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_define.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_objects.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_xref.h
+# End Source File
+# End Group
 # Begin Source File
 
 SOURCE=..\..\..\include\che_base.h

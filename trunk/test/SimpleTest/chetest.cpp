@@ -1,29 +1,28 @@
-#include "../../include/che_base.h"
-#include "../../include/che_string.h"
+#include "../../include/pdf/che_pdf_parser.h"
 #include <stdio.h>
-#include <math.h>
 
 int main()
 {
-	CHE_ByteString str1 = "asdf";
-	CHE_ByteString str2 = 'a';
-	CHE_ByteString str3(str1);
+	IHE_FileRead * pFileRead = HE_CreateFileRead( "c:\\pdf.pdf" );
+	if ( pFileRead )
+	{
+		//CHE_PDF_Parser parser;
+		//parser.StartParse( pFileRead );
+		//HE_DWORD version = parser.GetPDFVersion();
+		//HE_DWORD xrefoffset = parser.GetStartxrefOffset( 4096 );
+		//parser.CloseParser();
 
-	//str1 = CHE_ByteString("1asdfasd") + "2sdfasdfasdfasdfasd" + '3' + "4gasdfda" ;
-	//str1+="3542342";
-	//str1+=str1;
+		CHE_PDF_SyntaxParser syntaxParser;
+		syntaxParser.InitParser( pFileRead );
+		CHE_ByteString str;
+		while ( syntaxParser.GetPos() < syntaxParser.GetFileSize() )
+		{
+			str = syntaxParser.GetWord();
+			//syntaxParser.NextLine();
+			//syntaxParser.NextLine();
+			int x = 0;
+		}
 
-// 	if ( operator==( "asdf", str1 ) )
-// 	{
-// 		int x = 3;
-// 	}
-	
-	CHE_ByteString temp = str1 + 'a';
-
-// 	if ( "asdf" == str1 )
-// 	{
-// 		int x =0;
-// 	}
-
+	}
 	return 0;
 }

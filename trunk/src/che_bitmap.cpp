@@ -4,8 +4,32 @@
 
 #include "../include/che_bitmap.h"
 
-typedef struct tagHE_BITMAPFILEHEADER{	HE_WORD		bfType;	HE_DWORD	bfSize;	HE_WORD		bfReserved1;	HE_WORD		bfReserved2;	HE_DWORD	bfOffBits;}HE_BITMAPFILEHEADER, * HE_LPBITMAPFILEHEADER;
-typedef struct tagHE_BITMAPINFOHEADER{	HE_DWORD	biSize; 	HE_LONG		biWidth; 	HE_LONG		biHeight; 	HE_WORD		biPlanes; 	HE_WORD 	biBitCount; 	HE_DWORD	biCompression; 	HE_DWORD	biSizeImage; 	HE_LONG		biXPelsPerMeter; 	HE_LONG		biYPelsPerMeter; 	HE_DWORD	biClrUsed; 	HE_DWORD	biClrImportant;}HE_BITMAPINFOHEADER, *HE_LPBITMAPINFOHEADER;CHE_Palette::CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette )
+typedef struct tagHE_BITMAPFILEHEADER
+{
+	HE_WORD		bfType;
+	HE_DWORD	bfSize;
+	HE_WORD		bfReserved1;
+	HE_WORD		bfReserved2;
+	HE_DWORD	bfOffBits;
+}HE_BITMAPFILEHEADER, * HE_LPBITMAPFILEHEADER;
+
+typedef struct tagHE_BITMAPINFOHEADER
+{	
+	HE_DWORD	biSize; 	
+	HE_LONG		biWidth; 	
+	HE_LONG		biHeight; 	
+	HE_WORD		biPlanes; 	
+	HE_WORD 	biBitCount; 	
+	HE_DWORD	biCompression; 	
+	HE_DWORD	biSizeImage; 	
+	HE_LONG		biXPelsPerMeter; 	
+	HE_LONG		biYPelsPerMeter; 	
+	HE_DWORD	biClrUsed; 	
+	HE_DWORD	biClrImportant;
+}HE_BITMAPINFOHEADER, *HE_LPBITMAPINFOHEADER;
+
+
+CHE_Palette::CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette )
 {
 	if (pPalette)
 	{
@@ -36,15 +60,6 @@ typedef struct tagHE_BITMAPINFOHEADER{	HE_DWORD	biSize; 	HE_LONG		biWidth; 	HE_L
 	}else{
 		switch (depth)
 		{
-// 		case BITMAP_FORMAT_1BPPMask:
-// 			{
-// 				m_format = format;
-// 				m_nPaletteSize = 2;
-// 				m_pPalette = new HE_ARGB[2];
-// 				m_pPalette[0] = 0x00FFFFFF;
-// 				m_pPalette[1] = 0x00000000;
-// 				break;
-// 			}
 		case BITMAP_DEPTH_1BPP:
 			{
 				m_nPaletteSize = 2;
@@ -75,17 +90,6 @@ typedef struct tagHE_BITMAPINFOHEADER{	HE_DWORD	biSize; 	HE_LONG		biWidth; 	HE_L
 				m_pPalette[15] = 0x00000000;
 				break;
 			}
-// 		case BITMAP_DEPTH_8BPPMask:
-// 			{
-// 				m_format = format;
-// 				m_nPaletteSize = 256;
-// 				m_pPalette = new HE_ARGB[256];
-// 				for ( HE_INT32 i = 0; i < 256; i++ )
-// 				{
-// 					m_pPalette[i] = i<<16 & i<<8 & i;
-// 				}
-// 				break;
-// 			}
 		case BITMAP_DEPTH_8BPP:
 			{
 				m_nPaletteSize = 256;
@@ -2023,52 +2027,52 @@ CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWO
 					fX = iX * fWidthScale;
 					fY = iY * fHeightScale;
 
-					dwXS = fX;
-					dwXB = fX + 1;
-					dwYS = fY;
-					dwYB = fY + 1;
+					dwXS = (HE_DWORD)fX;
+					dwXB = (HE_DWORD)(fX + 1);
+					dwYS = (HE_DWORD)fY;
+					dwYB = (HE_DWORD)(fY + 1);
 
 					GetPixelColor( dwXS, dwYS, tmpClr );
-					clrdwYS = tmpClr >> 16;
+					clrdwYS = (HE_BYTE)(tmpClr >> 16);
 					GetPixelColor( dwXS, dwYB, tmpClr );
-					clrdwYB = tmpClr >> 16;
-					clrTmp1 = clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS);
+					clrdwYB = (HE_BYTE)(tmpClr >> 16);
+					clrTmp1 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
 
 					GetPixelColor( dwXB, dwYS, tmpClr );
-					clrdwYS = tmpClr >> 16;
+					clrdwYS = (HE_BYTE)(tmpClr >> 16);
 					GetPixelColor( dwXB, dwYB, tmpClr );
-					clrdwYB = tmpClr >> 16;
-					clrTmp2 = clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS);
+					clrdwYB = (HE_BYTE)(tmpClr >> 16);
+					clrTmp2 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
 
-					red = clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS);
+					red = (HE_BYTE)(clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS));
 
 					GetPixelColor( dwXS, dwYS, tmpClr );
-					clrdwYS = tmpClr >> 8;
+					clrdwYS = (HE_BYTE)(tmpClr >> 8);
 					GetPixelColor( dwXS, dwYB, tmpClr );
-					clrdwYB = tmpClr >> 8;
-					clrTmp1 = clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS);
+					clrdwYB = (HE_BYTE)(tmpClr >> 8);
+					clrTmp1 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
 					
 					GetPixelColor( dwXB, dwYS, tmpClr );
-					clrdwYS = tmpClr >> 8;
+					clrdwYS = (HE_BYTE)(tmpClr >> 8);
 					GetPixelColor( dwXB, dwYB, tmpClr );
-					clrdwYB = tmpClr >> 8;
-					clrTmp2 = clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS);
+					clrdwYB = (HE_BYTE)(tmpClr >> 8);
+					clrTmp2 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
 					
-					green = clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS);
+					green = (HE_BYTE)(clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS));
 
 					GetPixelColor( dwXS, dwYS, tmpClr );
-					clrdwYS = tmpClr >> 0;
+					clrdwYS = (HE_BYTE)tmpClr;
 					GetPixelColor( dwXS, dwYB, tmpClr );
-					clrdwYB = tmpClr >> 0;
-					clrTmp1 = clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS);
+					clrdwYB = (HE_BYTE)tmpClr;
+					clrTmp1 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
 					
 					GetPixelColor( dwXB, dwYS, tmpClr );
-					clrdwYS = tmpClr >> 0;
+					clrdwYS = (HE_BYTE)tmpClr;
 					GetPixelColor( dwXB, dwYB, tmpClr );
-					clrdwYB = tmpClr >> 0;
-					clrTmp2 = clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS);
+					clrdwYB = (HE_BYTE)tmpClr;
+					clrTmp2 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
 					
-					blue = clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS);
+					blue = (HE_BYTE)(clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS));
 
 					color = (red << 16) + (green << 8) + blue;
 

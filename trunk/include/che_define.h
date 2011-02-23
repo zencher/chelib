@@ -50,13 +50,16 @@ typedef char *  HE_LPSTR;
 //Pointer to constant 8-bit Windows (ANSI) characters. 
 typedef char const *  HE_LPCSTR;
 
-//16-bit Unicode character. 
+//16-bit Unicode character.
+typedef unsigned short HE_WCHAR;
 //typedef wchar_t  HE_WCHAR;
 
 //Pointer to 16-bit Unicode characters.
+typedef unsigned short * HE_LPWSTR;
 //typedef wchar_t *  HE_LPWSTR;
  
 //Pointer to constant 16-bit Unicode characters.
+typedef unsigned short const *  HE_LPCWSTR;
 //typedef wchar_t const *  HE_LPCWSTR;
 
 typedef long HE_LONG;

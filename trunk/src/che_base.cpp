@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "../include/che_base.h"
 
 
@@ -22,3 +23,240 @@
 // {
 // 	free( p );
 // }
+
+class IHE_SysFileWrite: public IHE_FileWrite
+{
+public:
+	IHE_SysFileWrite( FILE * pfile );
+	IHE_SysFileWrite( HE_LPCSTR filename );
+	~IHE_SysFileWrite();
+
+	virtual HE_DWORD	GetSize();
+	virtual HE_DWORD	Flush();
+
+	virtual	HE_BOOL		WriteBlock( const void* pData, HE_DWORD offset, HE_DWORD size);
+
+	virtual void		Release();
+
+private:
+	FILE * m_pFile;
+};
+
+IHE_SysFileWrite::IHE_SysFileWrite( FILE * pfile )
+{
+	m_pFile = pfile;
+}
+
+IHE_SysFileWrite::IHE_SysFileWrite( HE_LPCSTR filename )
+{
+	if ( filename == NULL )
+	{
+		m_pFile = NULL;
+	}else{
+		m_pFile = fopen( filename, "wb+" );
+	}
+}
+
+IHE_SysFileWrite::~IHE_SysFileWrite()
+{
+	if ( m_pFile != NULL )
+	{
+		fclose( m_pFile );
+		m_pFile = NULL;
+	}
+}
+
+HE_DWORD IHE_SysFileWrite::GetSize()
+{
+	if( m_pFile )
+	{
+		fseek( m_pFile, 0, SEEK_END );
+		return ftell( m_pFile );
+	}else{
+		return 0;
+	}
+}
+
+HE_DWORD IHE_SysFileWrite::Flush()
+{
+	if ( m_pFile )
+	{
+		return fflush( m_pFile );
+	}else{
+		return 0;
+	}
+}
+
+void IHE_SysFileWrite::Release()
+{
+	if ( m_pFile )
+	{
+		fflush( m_pFile );
+		fclose( m_pFile );
+		m_pFile = NULL;
+	}
+}
+
+HE_BOOL IHE_SysFileWrite::WriteBlock( const void* pData, HE_DWORD offset, HE_DWORD size)
+{
+	if ( pData == NULL || size == 0 )
+	{
+		return FALSE;
+	}
+	if ( m_pFile )
+	{
+		fseek( m_pFile, offset, SEEK_SET );
+		HE_DWORD dwRet = fwrite( pData, 1, size, m_pFile );
+		if ( dwRet > 0 )
+		{
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}else{
+		return FALSE;
+	}
+}
+
+IHE_FileWrite* HE_CreateFileWrite( HE_LPCSTR filename )
+{
+	FILE * pFile = fopen( filename, "wb+" );
+	if ( pFile != NULL )
+	{
+		IHE_FileWrite * pTmp = new IHE_SysFileWrite( pFile );
+		return pTmp;
+	}else{
+		return NULL;
+	}
+}
+
+// IHE_FileWrite* HE_CreateFileWrite( HE_LPCWSTR filename )
+// {
+// 
+// }
+
+class IHE_SysFileRead: public IHE_FileRead
+{
+public:
+	IHE_SysFileRead( FILE * pfile );
+	IHE_SysFileRead( HE_LPCSTR filename );
+	~IHE_SysFileRead();
+
+	virtual HE_DWORD	GetSize();
+	
+	virtual HE_BOOL		ReadBlock( void* buffer, HE_DWORD offset, HE_DWORD size );
+
+	virtual HE_BYTE		ReadByte( HE_DWORD offset );
+
+	virtual void		Release();
+
+private:
+	FILE * m_pFile;
+};
+
+IHE_SysFileRead::IHE_SysFileRead( FILE * pfile )
+{
+	m_pFile = pfile;
+}
+
+IHE_SysFileRead::IHE_SysFileRead( HE_LPCSTR filename )
+{
+	if ( filename == NULL )
+	{
+		m_pFile = NULL;
+	}else{
+		m_pFile = fopen( filename, "rb" );
+	}
+}
+
+IHE_SysFileRead::~IHE_SysFileRead()
+{
+	if ( m_pFile )
+	{
+		fclose( m_pFile );
+		m_pFile = NULL;
+	}
+}
+
+HE_DWORD IHE_SysFileRead::GetSize()
+{
+	if( m_pFile )
+	{
+		fseek( m_pFile, 0, SEEK_END );
+		return ftell( m_pFile );
+	}else{
+		return 0;
+	}
+}
+
+HE_BOOL IHE_SysFileRead::ReadBlock(void* buffer, HE_DWORD offset, HE_DWORD size)
+{
+	if ( buffer == NULL )
+	{
+		return FALSE;
+	}
+	if ( m_pFile )
+	{
+		fseek( m_pFile, offset, SEEK_SET );
+		HE_DWORD dwRet = fread( buffer, 1, size, m_pFile  );
+		if ( dwRet > 0 )
+		{
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}else{
+		return FALSE;
+	}
+}
+
+HE_BYTE IHE_SysFileRead::ReadByte( HE_DWORD offset )
+{
+	if ( m_pFile )
+	{
+		if ( fseek( m_pFile, offset, SEEK_SET ) == -1 )
+		{
+			return 0;
+		}else{
+			HE_BYTE byte;
+			HE_DWORD dwRet = fread( &byte, 1, 1, m_pFile );
+			if ( dwRet == 1 )
+			{
+				return byte;
+			}else{
+				return 0;
+			}
+		}
+	}else{
+		return 0;
+	}
+}
+
+void IHE_SysFileRead::Release()
+{
+	if ( m_pFile )
+	{
+		fclose( m_pFile );
+		m_pFile = NULL;
+	}
+}
+
+IHE_FileRead* HE_CreateFileRead( HE_LPCSTR filename )
+{
+	FILE * pFile = fopen( filename, "rb+" );
+	if ( pFile != NULL )
+	{
+		IHE_FileRead * pTmp = new IHE_SysFileRead( pFile );
+		return pTmp;
+	}else{
+		return NULL;
+	}
+}
+
+// IHE_FileRead* HE_CreateFileRead(HE_LPCWSTR filename);
+// {
+// 
+// }
+	
+
+

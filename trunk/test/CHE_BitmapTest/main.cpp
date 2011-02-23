@@ -24,6 +24,14 @@ int main()
 	CHE_Bitmap aBitmap;
 	//aBitmap.Create( 200, 200, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
 	//aBitmap.Fill( 0xFFFFFFFF );
+	
+// 	HE_RECT rect;
+// 	rect.top = 0;
+// 	rect.left = 0;
+// 	rect.width = 100;
+// 	rect.height = 30;
+// 	aBitmap.Fill( 0xFFff0000, &rect );
+// 	aBitmap.Save( "c:\\2.bmp" );
 
  	//CHE_Bitmap maskBitmap;
  	//maskBitmap.Load( "c:\\15.bmp" );
@@ -34,17 +42,23 @@ int main()
 	//LONGLONG iCurrentBegin = highGetTime();
 	//LONGLONG iCurrentEnd = 0;
 
-	aBitmap.Load( "c:\\24.bmp" );
-	char tempStr[128];
+ 	aBitmap.Load( "c:\\render.bmp" );
 
-	for ( int i = 1; i <= 20; i++ )
-	{
-		CHE_Bitmap * pTemp = aBitmap.StretchTo( aBitmap.Width()*0.2*i, aBitmap.Height()*0.2*i, 1, NULL );
-		sprintf( tempStr, "c:\\bitmap1\\%d.bmp", i );
-		pTemp->Save( tempStr/*"c:\\aadsf.bmp"*/ );
-		delete pTemp;
-		pTemp = NULL;
-	}
+ 	CHE_Bitmap * pBitmap =  aBitmap.StretchTo( aBitmap.Width() * 2, aBitmap.Height() * 2, 1, NULL );
+ 	pBitmap->Save( "C:\\hh.bmp" );
+ 	delete pBitmap; 
+
+
+// 	char tempStr[128];
+// 
+// 	for ( int i = 1; i <= 20; i++ )
+// 	{
+// 		CHE_Bitmap * pTemp = aBitmap.StretchTo( aBitmap.Width()*0.2*i, aBitmap.Height()*0.2*i, 1, NULL );
+// 		sprintf( tempStr, "c:\\bitmap1\\%d.bmp", i );
+// 		pTemp->Save( tempStr/*"c:\\aadsf.bmp"*/ );
+// 		delete pTemp;
+// 		pTemp = NULL;
+// 	}
 
 	//iCurrentEnd = highGetTime();
 

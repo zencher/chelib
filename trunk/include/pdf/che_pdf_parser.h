@@ -4,7 +4,13 @@
 #include "../che_base.h"
 #include "../che_string.h"
 #include "che_pdf_define.h"
+#include "che_pdf_objects.h"
 #include "che_pdf_xref.h"
+
+#define PDFPARSER_WORD_UNKNOWN	0
+#define PDFPARSER_WORD_STRING	1
+#define PDFPARSER_WORD_NAME		2
+
 
 class CHE_PDF_SyntaxParser : public CHE_Object
 {
@@ -18,10 +24,13 @@ public:
 
 	HE_DWORD			GetPos() { return m_lFilePos; };
 	HE_VOID				SetPos( HE_DWORD pos) { m_lFilePos = pos; };
-	
+
 	HE_DWORD			Seek( HE_DWORD bytes );
 
 	CHE_ByteString		GetWord();
+	HE_BYTE				GetType() { m_byteType; };
+
+	CHE_PDF_Dictionary * GetDictionary();
 
 	HE_VOID				NextLine();
 	HE_VOID				NextWord();
@@ -30,6 +39,8 @@ private:
 	HE_DWORD			m_lFilePos;
 	HE_DWORD			m_lFileSize;
 	IHE_FileRead*		m_pFileAccess;
+
+	HE_BYTE				m_byteType;
 
 	HE_BYTE				m_WordBuffer[32769];
 	HE_DWORD			m_lBufferSize;
@@ -52,7 +63,7 @@ public:
 	HE_DWORD GetStartxrefOffset( HE_DWORD range );
 
 	//bool IsLinearized() const;
-	//HE_BOOL GetXRefTable();
+	HE_BOOL GetXRefTable();
 	//void GetObj( HE_DWORD objNum );
 	//CHE_PDF_Dictionary * GetTrailer();
 	//CHE_PDF_Dictionary * GetOtherTrailers();
@@ -61,7 +72,11 @@ private:
 
 	CHE_PDF_XREF_Table m_xrefTable;
 
+	CHE_PDF_Dictionary*	m_pTrailerDict;
+
 	CHE_PDF_SyntaxParser m_sParser;
+
+	HE_DWORD m_lstartxref;
 };
 
 #endif

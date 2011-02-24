@@ -1,4 +1,5 @@
 #include "../include/che_string.h"
+#include <memory.h>
 #include <string.h>
 
 CHE_ByteString::CHE_ByteString()
@@ -267,6 +268,16 @@ bool CHE_ByteString::operator==( const CHE_ByteString& str )const
 				}
 			}
 		}
+	}
+}
+
+HE_DWORD CHE_ByteString::GetLength()
+{
+	if ( m_lpData == NULL )
+	{
+		return 0;
+	}else{
+		return m_lpData->m_dwLength;
 	}
 }
 
@@ -758,3 +769,192 @@ bool operator!=( const HE_LPSTR lpStr, const CHE_ByteString& str )
 {
 	return ( str != lpStr );
 }
+
+CHE_ByteStringToPtrMap::CHE_ByteStringToPtrMap()
+{
+	m_pData = NULL;
+	m_pString = NULL;	
+	m_lSize = 0;
+	m_lCount = 0;
+}
+
+CHE_ByteStringToPtrMap::~CHE_ByteStringToPtrMap()
+{
+	if ( m_pData )
+	{
+		delete [] m_pData;
+		m_pData = NULL;
+		m_lSize = 0;
+	}
+	if ( m_pString && m_lCount > 0 )
+	{
+		for ( HE_DWORD i = 0; i < m_lCount; i++ )
+		{
+			delete m_pString[i];
+		}
+		delete [] m_pString;
+		m_lCount = 0;	
+	}
+}
+
+HE_BOOL	CHE_ByteStringToPtrMap::Append( CHE_ByteString & str, HE_LPVOID ptr )
+{
+	if ( m_lSize == 0 || m_lCount == 0 || m_pData == NULL || m_pString == NULL )
+	{
+		m_pData = new HE_LPVOID[128];
+		m_pString = new CHE_ByteString *[128];
+		m_lSize = 128;
+		m_lCount = 1;
+		m_pData[0] = ptr;
+		m_pString[0] = new CHE_ByteString( str );
+		return TRUE;
+	}
+	if ( m_lCount + 1 <= m_lSize )
+	{
+		m_pData[m_lCount] = ptr;
+		m_pString[m_lCount] = new CHE_ByteString( str );
+		m_lCount++;
+		return TRUE;
+	}else{
+		HE_LPVOID * pTmp = new HE_LPVOID[m_lSize];
+		CHE_ByteString ** pStrTmp = new CHE_ByteString*[m_lSize];
+		memcpy( pTmp, m_pData, m_lSize );
+		memcpy( pStrTmp, m_pString, m_lSize );
+		m_lSize *= 2;
+		delete [] m_pData;
+		delete [] m_pString;
+		m_pData = new HE_LPVOID[m_lSize];
+		m_pString = new CHE_ByteString*[m_lSize];
+		memcpy( m_pData, pTmp, m_lSize/2 );
+		memcpy( pStrTmp, m_pString, m_lSize/2 );
+		delete [] pTmp;
+		delete [] pStrTmp;
+		
+		m_pString[m_lCount] = new CHE_ByteString( str );
+		m_pData[m_lCount] = ptr;
+		m_lCount++;
+		return TRUE;
+	}
+}
+
+HE_LPVOID CHE_ByteStringToPtrMap::GetItem( CHE_ByteString & str ) const
+{
+	for ( HE_DWORD i = 0; i < m_lCount; i++ )
+	{
+		if ( *m_pString[i] == str )
+		{
+			return m_pData[i];
+		}
+	}
+	return NULL;
+}
+
+HE_VOID	CHE_ByteStringToPtrMap::Clear()
+{
+	if ( m_pData )
+	{
+		delete [] m_pData;
+		m_pData = NULL;
+		m_lSize = 0;
+	}
+	if ( m_pString && m_lCount > 0 )
+	{
+		for ( HE_DWORD i = 0; i < m_lCount; i++ )
+		{
+			delete m_pString[i];
+		}
+		delete [] m_pString;
+		m_lCount = 0;	
+	}
+}
+
+// CHE_ByteStringToPtrMap::CHE_ByteStringToPtrMap()
+// {
+// 	m_pData = NULL;
+// 	m_pString = NULL;	
+// 	m_lSize = 0;
+// 	m_lCount = 0;
+// }
+// 
+// CHE_ByteStringToPtrMap::~CHE_ByteStringToPtrMap()
+// {
+// 	if ( m_pData )
+// 	{
+// 		delete [] m_pData;
+// 		m_pData = NULL;
+// 		m_lSize = 0;
+// 	}
+// 	if ( m_pString && m_lCount > 0 )
+// 	{
+// 		for ( HE_DWORD i = 0; i < m_lCount; i++ )
+// 		{
+// 			delete m_pString[i];
+// 		}
+// 		delete [] m_pString;
+// 		m_lCount = 0;	
+// 	}
+// }
+// 
+// HE_BOOL	CHE_ByteStringToPtrMap::Append( CHE_ByteString & str, HE_LPVOID ptr )
+// {
+// 	if ( m_lSize == 0 || m_lCount == 0 || m_pData == NULL || m_pString == NULL )
+// 	{
+// 		m_pData = new HE_LPVOID[128];
+// 		m_pString = new CHE_ByteString *[128];
+// 		m_lSize = 128;
+// 		m_lCount = 1;
+// 		m_pData[0] = ptr;
+// 		m_pString[0] = new CHE_ByteString( str );
+// 		return TRUE;
+// 	}
+// 	if ( m_lCount + 1 <= m_lSize )
+// 	{
+// 		m_pData[m_lCount] = ptr;
+// 		m_pString[m_lCount] = new CHE_ByteString( str );
+// 		m_lCount++;
+// 		return TRUE;
+// 	}else{
+// 		HE_LPVOID * pTmp = new HE_LPVOID[m_lSize];
+// 		CHE_ByteString * pStrTmp = new CHE_ByteString*[m_lSize];
+// 		memcpy( pTmp, m_pData, m_lSize );
+// 		memcpy( pStrTmp, m_pString, m_lSize );
+// 		m_lSize *= 2;
+// 		delete [] m_pData;
+// 		delete [] m_pString;
+// 		m_pData = new HE_LPVOID[m_lSize];
+// 		m_pString = new CHE_ByteString*[m_lSize];
+// 		memcpy( m_pData, pTmp, m_lSize/2 );
+// 		memcpy( pStrTmp, m_pString, m_lSize/2 );
+// 		delete [] pTmp;
+// 		delete [] pStrTmp;
+// 		
+// 		m_pString[m_lCount] = new CHE_ByteString( str );
+// 		m_pData[m_lCount] = ptr;
+// 		m_lCount++;
+// 		return TRUE;
+// 	}
+// }
+// 
+// HE_LPVOID CHE_ByteStringToPtrMap::GetItem( HE_DWORD index )
+// {
+// 	return NULL;
+// }
+// 
+// HE_VOID	CHE_ByteStringToPtrMap::Clear()
+// {
+// 	if ( m_pData )
+// 	{
+// 		delete [] m_pData;
+// 		m_pData = NULL;
+// 		m_lSize = 0;
+// 	}
+// 	if ( m_pString && m_lCount > 0 )
+// 	{
+// 		for ( HE_DWORD i = 0; i < m_lCount; i++ )
+// 		{
+// 			delete m_pString[i];
+// 		}
+// 		delete [] m_pString;
+// 		m_lCount = 0;	
+// 	}
+// }

@@ -32,6 +32,8 @@ public:
 	friend bool operator==( HE_CHAR ch, CHE_ByteString& str );
 	friend bool operator==( HE_LPSTR lpStr, CHE_ByteString& str );
 
+	HE_DWORD GetLength();
+
 	HE_CHAR operator[]( HE_INT32 index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
 												//的值，实际上，临时变量是const，根本不能被赋值。
 	//HE_CHAR& operator[]( HE_INT32 index );		//函数返回了对象保存的字符串的一个字符的引用，任何操作都会互相影响。不好！！！
@@ -69,5 +71,24 @@ CHE_ByteString operator+( const HE_LPSTR lpStr, CHE_ByteString& str );
 
 bool operator!=( HE_CHAR ch, CHE_ByteString& str );
 bool operator!=( const HE_LPSTR lpStr, CHE_ByteString& str );
+
+class CHE_ByteStringToPtrMap : public CHE_Object
+{
+public:
+	CHE_ByteStringToPtrMap();
+	~CHE_ByteStringToPtrMap();
+	
+	HE_BOOL		Append( CHE_ByteString & str, HE_LPVOID ptr );
+	
+	HE_LPVOID	GetItem( CHE_ByteString & str ) const;
+	
+	HE_VOID		Clear();
+	
+private:
+	HE_LPVOID *			m_pData;
+	CHE_ByteString **	m_pString;	
+	HE_DWORD	m_lSize;
+	HE_DWORD	m_lCount;
+};
 
 #endif

@@ -1,6 +1,8 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include "../include/che_base.h"
+#include <stdio.h>
+#include <memory.h>
+
 
 
 // HE_VOID* CHE_Object::operator new( size_t size )
@@ -257,6 +259,80 @@ IHE_FileRead* HE_CreateFileRead( HE_LPCSTR filename )
 // {
 // 
 // }
+
+
+CHE_PtrArray::CHE_PtrArray()
+{
+	m_pData = NULL;
+	m_lSize = 0;
+	m_lCount = 0;
+}
+
+CHE_PtrArray::~CHE_PtrArray()
+{
+	if ( m_pData )
+	{
+		delete [] m_pData;
+		m_pData = NULL;
+		m_lSize = 0;
+		m_lCount = 0;
+	}
+}
+	
+HE_BOOL CHE_PtrArray::Append( HE_LPVOID ptr )
+{
+	if ( m_lSize == 0 || m_lCount == 0 || m_pData == NULL )
+	{
+		m_pData = new HE_LPVOID[128];
+		m_lSize = 128;
+		m_lCount = 1;
+		m_pData[0] = ptr;
+		return TRUE;
+	}
+	if ( m_lCount + 1 <= m_lSize )
+	{
+		m_pData[m_lCount] = ptr;
+		m_lCount++;
+		return TRUE;
+	}else{
+		HE_LPVOID * pTmp = new HE_LPVOID[m_lSize];
+		memcpy( pTmp, m_pData, m_lSize );
+		m_lSize *= 2;
+		delete [] m_pData;
+		m_pData = new HE_LPVOID[m_lSize];
+		memcpy( m_pData, pTmp, m_lSize/2 );
+		delete [] pTmp;
+		m_pData[m_lCount] = ptr;
+		m_lCount++;
+		return TRUE;
+	}
+}
+	
+HE_LPVOID CHE_PtrArray::GetItem( HE_DWORD index ) const
+{
+	if ( index >= m_lCount )
+	{
+		return NULL;
+	}else{
+		return m_pData[index];
+	}
+}
+	
+HE_VOID	CHE_PtrArray::Clear()
+{
+	if ( m_pData )
+	{
+		delete [] m_pData;
+		m_pData = NULL;
+		m_lSize = 0;
+		m_lCount = 0;
+	}	
+}
+
+
+
+
+
 	
 
 

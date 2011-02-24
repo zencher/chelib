@@ -1,6 +1,8 @@
 #ifndef _CHE_PDF_XREF_H_
 #define _CHE_PDF_XREF_H_
 
+#include "../che_base.h"
+
 #define PDF_XREF_ENTRY_INUSE	'n'
 #define PDF_XREF_ENTRY_FREE		'f'
 
@@ -59,8 +61,9 @@ public:
 	bool IsExist( unsigned int objNum );
 
 private:
-	PDF_XREF_ENTRY_NODE * m_pFirstEntry;
-	PDF_XREF_ENTRY_NODE * m_pLastEntry;
+	PDF_XREF_ENTRY_NODE *	m_pFirstEntry;
+	PDF_XREF_ENTRY_NODE *	m_pLastEntry;
+	HE_DWORD				m_lCount;
 };
 
 #endif

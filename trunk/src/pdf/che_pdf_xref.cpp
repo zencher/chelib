@@ -20,6 +20,7 @@ CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int offset, unsigned int objNum
 
 CHE_PDF_XREF_Table::CHE_PDF_XREF_Table()
 {
+	m_lCount = 0;
 	m_pFirstEntry = NULL;
 	m_pLastEntry = NULL;
 }
@@ -31,6 +32,7 @@ CHE_PDF_XREF_Table::CHE_PDF_XREF_Table()
 
 CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
 {
+	m_lCount = 0;
 	m_pFirstEntry = NULL;
 	m_pLastEntry = NULL;
 }
@@ -49,6 +51,7 @@ void CHE_PDF_XREF_Table::Clear()
 		delete pTmp;
 		pTmp = m_pFirstEntry;
 	}
+	m_lCount = 0;
 }
 
 // void CHE_PDF_XREF_Table::Clone( const CHE_PDF_XREF_Table & table )
@@ -81,7 +84,7 @@ bool CHE_PDF_XREF_Table::Append( unsigned int offset, unsigned int objNum, unsig
 		m_pLastEntry->entry.SetGenNum( genNum );
 		m_pLastEntry->entry.SetFlag( flag );
 	}
-
+	m_lCount++;
 	return true;
 }
 
@@ -99,7 +102,7 @@ bool CHE_PDF_XREF_Table::Append( CHE_PDF_XREF_Entry & entry )
 		m_pLastEntry = m_pLastEntry->pNext;
 		m_pLastEntry->entry = entry;
 	}
-
+	m_lCount++;
 	return true;
 }
 

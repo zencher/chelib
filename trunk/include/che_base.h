@@ -115,4 +115,25 @@ Using Unicode file name. Available only for platforms supporting CRT file access
 */
 IHE_FileRead* HE_CreateFileRead(HE_LPCWSTR filename);
 
+
+class CHE_PtrArray : public CHE_Object
+{
+public:
+	CHE_PtrArray();
+	~CHE_PtrArray();
+
+	HE_BOOL		Append( HE_LPVOID ptr );
+
+	HE_LPVOID	GetItem( HE_DWORD index ) const;
+
+	HE_VOID		Clear();
+
+	HE_DWORD	GetCount() const { return m_lCount; }
+ 
+private:
+	HE_LPVOID *	m_pData;
+	HE_DWORD	m_lSize;
+	HE_DWORD	m_lCount;
+};
+
 #endif

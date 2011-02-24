@@ -28,7 +28,7 @@ public:
 	HE_DWORD			Seek( HE_DWORD bytes );
 
 	CHE_ByteString		GetWord();
-	HE_BYTE				GetType() { m_byteType; };
+	HE_BYTE				GetType() { return m_byteType; };
 
 	CHE_PDF_Dictionary * GetDictionary();
 

@@ -431,6 +431,7 @@ CHE_ByteString CHE_PDF_SyntaxParser::GetWord()
 {
 	if ( m_pFileAccess )
 	{
+		m_byteType = PDFPARSER_WORD_UNKNOWN;
 		CHE_ByteString strTmp;
 		while ( m_lFilePos < m_lFileSize )
 		{
@@ -458,8 +459,9 @@ CHE_ByteString CHE_PDF_SyntaxParser::GetWord()
 							return "<<";
 						}else{
 							//×Ö·û´®´¦Àí
+							m_byteType = PDFPARSER_WORD_STRING;
 							m_lFilePos++;
-							m_WordBuffer[m_lBufferPos++] = '(';
+							//m_WordBuffer[m_lBufferPos++] = '(';
 
 							HE_DWORD tmpValue = 0;
 							HE_BYTE	tmpCount = 0;
@@ -520,7 +522,7 @@ CHE_ByteString CHE_PDF_SyntaxParser::GetWord()
 										tmpValue = tmpValue * 16;
 										m_WordBuffer[m_lBufferPos++] = (HE_BYTE)tmpValue;
 									}
-									m_WordBuffer[m_lBufferPos++] = ')';
+									//m_WordBuffer[m_lBufferPos++] = ')';
 									break;
 								}
 							}
@@ -574,8 +576,9 @@ CHE_ByteString CHE_PDF_SyntaxParser::GetWord()
 						m_WordBuffer[++m_lBufferPos=0] = '\0';
 						return strTmp;
 					}else{
-						m_WordBuffer[m_lBufferPos=0] = '/';
-						m_lBufferPos++;
+						m_byteType = PDFPARSER_WORD_NAME;
+						//m_WordBuffer[m_lBufferPos=0] = '/';
+						//m_lBufferPos++;
 						m_lFilePos++;
 						while ( m_lFilePos < m_lFileSize )
 						{
@@ -709,7 +712,8 @@ CHE_ByteString CHE_PDF_SyntaxParser::GetWord()
 						m_WordBuffer[m_lBufferPos=0] = '\0';
 						return strTmp;
 					}else{
-						m_WordBuffer[m_lBufferPos++] = '(';
+						m_byteType = PDFPARSER_WORD_STRING;
+						//m_WordBuffer[m_lBufferPos++] = '(';
 						HE_DWORD lCount = 1;
 						m_lFilePos++;
 						while ( m_lFilePos < m_lFileSize )
@@ -803,9 +807,6 @@ CHE_ByteString CHE_PDF_SyntaxParser::GetWord()
 									continue;
 								}
 							}
-
-							m_WordBuffer[m_lBufferPos++] = byte;
-							m_lFilePos++;
 							if ( byte == ')' )
 							{
 								lCount--;
@@ -816,6 +817,9 @@ CHE_ByteString CHE_PDF_SyntaxParser::GetWord()
 							if ( lCount == 0 )
 							{
 								break;
+							}else{
+								m_WordBuffer[m_lBufferPos++] = byte;
+								m_lFilePos++;
 							}
 						}
 						m_WordBuffer[m_lBufferPos] = '\0';
@@ -869,7 +873,8 @@ CHE_ByteString CHE_PDF_SyntaxParser::GetWord()
 
 CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 {
-	CHE_ByteString str;
+	CHE_ByteString	str;
+	HE_BYTE			type = PDFPARSER_WORD_UNKNOWN;
 	str = GetWord();
 	if ( str != "<<" )
 	{
@@ -887,6 +892,7 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 		if ( bKey )
 		{
 			key = GetWord();
+			//type = GetType();
 			if ( key == ">>" )
 			{
 				bOver = TRUE;
@@ -897,9 +903,9 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 		if ( bKey == FALSE )
 		{
 			str = GetWord();
-			switch ( str[0] )
+			type = GetType();
+			if ( type == PDFPARSER_WORD_STRING )
 			{
-			case '(':
 				if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 				{
 					((CHE_PDF_Dictionary*)pCurObj)->SetAtString( key, str );
@@ -907,8 +913,9 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 					CHE_PDF_String * pTmp = CHE_PDF_String::Create( str );
 					((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 				}
-				break;
-			case '/':
+				continue;
+			}else if ( type == PDFPARSER_WORD_NAME ){
+
 				if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 				{
 					((CHE_PDF_Dictionary*)pCurObj)->SetAtName( key, str );
@@ -916,7 +923,28 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 					CHE_PDF_Name * pTmp = CHE_PDF_Name::Create( str );
 					((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 				}
-				break;
+				continue;
+			}
+			switch ( str[0] )
+			{
+// 			case '(':
+// 				if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
+// 				{
+// 					((CHE_PDF_Dictionary*)pCurObj)->SetAtString( key, str );
+// 				}else{
+// 					CHE_PDF_String * pTmp = CHE_PDF_String::Create( str );
+// 					((CHE_PDF_Array*)pCurObj)->Append( pTmp );
+// 				}
+// 				break;
+// 			case '/':
+// 				if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
+// 				{
+// 					((CHE_PDF_Dictionary*)pCurObj)->SetAtName( key, str );
+// 				}else{
+// 					CHE_PDF_Name * pTmp = CHE_PDF_Name::Create( str );
+// 					((CHE_PDF_Array*)pCurObj)->Append( pTmp );
+// 				}
+// 				break;
 			case '[':
 				{
 					stack.Push( pCurObj );
@@ -994,7 +1022,8 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 					}
 					HE_DWORD lPos = GetPos();
 					str = GetWord();
-					if ( str[0] == '/' || str[0] == '>' )
+					type = GetType();
+					if ( type == PDFPARSER_WORD_NAME || str[0] == '>' )
 					{
 						SetPos( lPos );
 						if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
@@ -1185,7 +1214,7 @@ HE_BOOL CHE_PDF_Parser::GetXRefTable()
 				str = m_sParser.GetWord();
 				if ( str == "trailer" )
 				{
-					CHE_PDF_Dictionary * m_pTrailerDict = m_sParser.GetDictionary();
+					m_pTrailerDict = m_sParser.GetDictionary();
 					return TRUE;
 				}
 				if( HE_PDF_StringCheck( str ) == HE_PDF_INTEGER_STR )

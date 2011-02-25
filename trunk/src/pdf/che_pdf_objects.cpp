@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_objects.h"
+#include <memory.h>
 
 HE_VOID CHE_PDF_Array::Append( CHE_PDF_Object * pObj )
 {
@@ -86,4 +87,79 @@ HE_VOID	CHE_PDF_Dictionary::SetAtReference( CHE_ByteString & key, HE_DWORD objnu
 		CHE_PDF_Reference * pObj = CHE_PDF_Reference::Create( objnum );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
+}
+
+CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict )
+{
+	m_pDataBuf = NULL;
+	m_dwSize = 0;
+	m_bMem = TRUE;
+	m_FileOffset = 0;
+	m_pFile = NULL;
+	if ( pData != NULL && size != 0 )
+	{
+		m_pDataBuf = new HE_BYTE[size];
+		memcpy( m_pDataBuf, pData, size );
+	}
+	if ( pDict )
+	{
+		m_pDict = pDict;
+	}
+}
+	
+CHE_PDF_Stream::CHE_PDF_Stream( IHE_FileRead* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict )
+{
+	m_pDataBuf = NULL;
+	m_dwSize = 0;
+	m_bMem = FALSE;
+	m_FileOffset = 0;
+	m_pFile = NULL;
+	if ( pFile != NULL )
+	{
+		m_pFile = pFile;
+		m_FileOffset = offset;
+		m_dwSize = size;
+	}
+	if ( pDict )
+	{
+		m_pDict = pDict;
+	}
+}
+
+CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, CHE_PDF_Object * pObj )
+{
+	m_ObjNum = objNum;
+	m_pObj = pObj;
+}
+
+CHE_PDF_Dictionary* CHE_PDF_IndirectObject::GetDict() const
+{
+	if ( m_pObj )
+	{
+		if ( m_pObj->GetType() == PDFOBJ_DICTIONARY  )
+		{
+			return (CHE_PDF_Dictionary*)m_pObj;
+		}else if ( m_pObj->GetType() == PDFOBJ_STREAM )
+		{
+			return ((CHE_PDF_Stream*)m_pObj)->GetDict();
+		}	 
+	}
+	return NULL;
+}
+
+CHE_PDF_Stream*	CHE_PDF_IndirectObject::GetStream() const
+{
+	if ( m_pObj )
+	{
+		 if ( m_pObj->GetType() == PDFOBJ_STREAM )
+		{
+			return (CHE_PDF_Stream*)m_pObj;
+		}	 
+	}
+	return NULL;
+}
+
+CHE_PDF_Object* CHE_PDF_IndirectObject::GetObject() const
+{
+	return m_pObj;
 }

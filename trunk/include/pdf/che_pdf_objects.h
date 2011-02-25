@@ -14,7 +14,7 @@
 #define PDFOBJ_STREAM		7
 #define PDFOBJ_NULL			8
 #define PDFOBJ_REFERENCE	9
-
+#define PDFOBJ_INDIRECTOBJ	10
 
 class CHE_PDF_Object;
 class CHE_PDF_Boolean;
@@ -23,14 +23,13 @@ class CHE_PDF_String;
 class CHE_PDF_Name;
 class CHE_PDF_Dictionary;
 class CHE_PDF_Stream;
-class CHE_PDF_IndirectObjects;
+class CHE_PDF_IndirectObject;
 
 class CHE_PDF_Object : public CHE_Object
 {
 
 public:
 	HE_BYTE		GetType() const { return m_Type; }
-
 	HE_DWORD	GetObjNum() const { return m_ObjNum; }
 
 	//HE_BOOL		IsIdentical( CHE_PDF_Object& pObj ) const;
@@ -54,16 +53,13 @@ public:
 	//CHE_PDF_Array*		GetArray() const;
 
 protected:
-
 	CHE_PDF_Object() { m_ObjNum = 0; m_Type = 0; }
-
-	HE_BYTE 				m_Type;
-
-	HE_DWORD 				m_ObjNum;
-
-	void					Destroy() {};
-	
 	~CHE_PDF_Object() {}
+
+	void		Destroy() {};
+	
+	HE_BYTE 	m_Type;
+	HE_DWORD 	m_ObjNum;
 
 private:
 	CHE_PDF_Object(const CHE_PDF_Object& src) {}
@@ -72,7 +68,6 @@ private:
 class CHE_PDF_Boolean : public CHE_PDF_Object
 {
 public:
-
 	static CHE_PDF_Boolean*	Create( HE_BOOL value ) { return new CHE_PDF_Boolean( value ); }
 
 	CHE_PDF_Boolean()  { m_Type = PDFOBJ_BOOLEAN; }
@@ -193,49 +188,52 @@ public:
 	HE_VOID					SetAtReference( CHE_ByteString & key, HE_DWORD objnum );
 
 protected:
-	~CHE_PDF_Dictionary();
+	~CHE_PDF_Dictionary() {};
 
 	CHE_ByteStringToPtrMap m_Map;
 };
 
-// class CHE_PDF_Stream : public CHE_PDF_Object
-// {
-// public:
-// 
-// 	static CHE_PDF_Stream*		Create( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary& dict ) 
-// 		{ return new CHE_PDF_Stream( pData, size, dict ); }
-// 
-// 	CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary& dict );
-// 
-// 	CHE_PDF_Stream( IHE_FileRead* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary& dict );
-// 
-// 	CHE_PDF_Dictionary*		GetDict() const { return m_pDict; }
-// 
-// 	HE_VOID					SetData( HE_LPBYTE pData, HE_DWORD size, HE_BOOL bCompressed );
-// 
-// 	HE_VOID					InitStream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary& dict );
-// 
-// 	HE_BOOL					Identical( CHE_PDF_Stream & obj ) const;
-// 
-// 	//CPDF_StreamFilter*		GetStreamFilter(FX_BOOL bRaw = FALSE) const;
-// 
-// 	HE_DWORD				GetRawSize() const { return m_dwSize; }
-// 
-// 	HE_BOOL					ReadRawData( HE_DWORD start_pos, HE_LPBYTE pBuf, HE_DWORD buf_size ) const;
-// 
-// protected:
-// 
-// 	~CHE_PDF_Stream();
-// 
-// 	CHE_PDF_Dictionary*		m_pDict;
-// 	HE_DWORD				m_dwSize;
-// 	HE_DWORD				m_GenNum;
-// 	union {
-// 		HE_LPBYTE			m_pDataBuf;
-// 		IHE_FileRead*		m_pFile;	
-// 	};
-// 	HE_DWORD				m_FileOffset;
-// };
+class CHE_PDF_Stream : public CHE_PDF_Object
+{
+public:
+
+	static CHE_PDF_Stream*		Create( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary* pDict ) 
+									{ return new CHE_PDF_Stream( pData, size, pDict ); }
+
+	static CHE_PDF_Stream*		Create( IHE_FileRead* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict ) 
+									{ return new CHE_PDF_Stream( pFile, offset, size, pDict ); }
+
+	CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict );
+
+	CHE_PDF_Stream( IHE_FileRead* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict );
+
+	CHE_PDF_Dictionary*		GetDict() const { return m_pDict; }
+
+	//HE_VOID					SetData( HE_LPBYTE pData, HE_DWORD size, HE_BOOL bCompressed );
+
+	//HE_VOID					InitStream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary& dict );
+
+	//HE_BOOL					Identical( CHE_PDF_Stream & obj ) const;
+
+	//CPDF_StreamFilter*		GetStreamFilter(FX_BOOL bRaw = FALSE) const;
+
+	HE_DWORD				GetRawSize() const { return m_dwSize; }
+
+	//HE_BOOL					ReadRawData( HE_DWORD start_pos, HE_LPBYTE pBuf, HE_DWORD buf_size ) const;
+
+protected:
+
+	~CHE_PDF_Stream() {};
+
+	CHE_PDF_Dictionary*		m_pDict;
+	HE_DWORD				m_dwSize;
+	HE_BOOL					m_bMem;
+	union {
+		HE_LPBYTE			m_pDataBuf;
+		IHE_FileRead*		m_pFile;	
+	};
+	HE_DWORD				m_FileOffset;
+};
 
 // class CHE_PDF_StreamAcc : public CHE_PDF_Object
 // {
@@ -294,13 +292,32 @@ public:
 class CHE_PDF_Reference : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_Reference*	Create( int objnum ) { return new CHE_PDF_Reference( objnum ); }
+	static CHE_PDF_Reference*	Create( HE_DWORD objnum ) { return new CHE_PDF_Reference( objnum ); }
 
-	CHE_PDF_Reference( int objnum ) { m_Type = PDFOBJ_REFERENCE; m_RefObjNum = objnum; }
+	CHE_PDF_Reference( HE_DWORD objnum ) { m_Type = PDFOBJ_REFERENCE; m_RefObjNum = objnum; }
 
 protected:
 
 	HE_DWORD m_RefObjNum;
+};
+
+class CHE_PDF_IndirectObject : public CHE_PDF_Object
+{
+public:
+	static CHE_PDF_IndirectObject*	Create( HE_DWORD objNum, CHE_PDF_Object * pObj )
+										{ return new CHE_PDF_IndirectObject( objNum, pObj ); }
+										
+	CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, CHE_PDF_Object * pObj );
+
+	CHE_PDF_Dictionary	*	GetDict() const;
+
+	CHE_PDF_Stream *		GetStream() const;
+
+	CHE_PDF_Object *		GetObject() const;
+
+private:
+	CHE_PDF_Object *	m_pObj;
+	HE_DWORD			m_ObjNum;
 };
 
 #endif

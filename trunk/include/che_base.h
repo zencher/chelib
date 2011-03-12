@@ -97,7 +97,7 @@ public:
 	* size			Number of bytes for the block.
 	* TRUE for success, FALSE for failure.
 	*/
-	virtual HE_BOOL		ReadBlock(void* buffer, HE_DWORD offset, HE_DWORD size) = 0;
+	virtual HE_DWORD	ReadBlock(void* buffer, HE_DWORD offset, HE_DWORD size) = 0;
 
 	virtual HE_BYTE		ReadByte( HE_DWORD offset ) = 0;
 	
@@ -127,7 +127,7 @@ public:
 	HE_LPVOID	GetItem( HE_DWORD index ) const;
 
 	HE_VOID		Clear();
-
+	
 	HE_DWORD	GetCount() const { return m_lCount; }
  
 private:

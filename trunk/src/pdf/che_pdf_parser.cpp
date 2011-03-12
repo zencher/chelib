@@ -1312,11 +1312,11 @@ HE_BOOL CHE_PDF_Parser::StartParse( IHE_FileRead * file )
 {
 	if ( file == NULL )
 	{
-		return TRUE;
+		return FALSE;
 	}else{
 		m_pIHE_FileRead = file;
 		m_sParser.InitParser( file );
-		return FALSE;
+		return TRUE;
 	}
 }
 
@@ -1327,6 +1327,8 @@ HE_VOID CHE_PDF_Parser::CloseParser()
 		m_pIHE_FileRead->Release();
 		m_pIHE_FileRead = NULL;
 	}
+	m_objCollector.Release();
+	m_objCollector.Clear();
 }
 
 HE_DWORD CHE_PDF_Parser::GetFileSize()
@@ -1433,9 +1435,34 @@ HE_BOOL CHE_PDF_Parser::GetXRefTable()
 		HE_BYTE			type;
 		str = m_sParser.GetWord();
 		if ( str != "xref" )
-		{
+		{  
+			//处理交叉索引表流。待完善
+			m_sParser.SetPos( m_lstartxref );
+			HE_DWORD objNum = 0, genNum = 0;
+			while ( true )
+			{
+				CHE_PDF_IndirectObject * pIndObj = GetIndirectObject();
+				if ( pIndObj == NULL || pIndObj->GetType() != PDFOBJ_STREAM )
+				{
+					return FALSE;
+				}
+				CHE_PDF_StreamAcc streamAcc;
+				if ( streamAcc.Attach( pIndObj->GetStream() ) == FALSE )
+				{
+					return FALSE;
+				}
+				//streamAcc.
+				 
+				CHE_PDF_Dictionary * pDict = pIndObj->GetDict();
+				if ( pDict == NULL )
+				{
+					return FALSE;
+				}
+			}
 			return FALSE;
-		}else{
+
+		}else if ( str == "xref" )
+		{
 			//开始解析xref段头
 			while ( true )
 			{
@@ -1522,6 +1549,111 @@ HE_BOOL CHE_PDF_Parser::GetXRefTable()
 	return FALSE;
 }
 
+CHE_PDF_Dictionary* CHE_PDF_Parser::GetRootDict()
+{
+	if ( m_pTrailerDict )
+	{
+		CHE_PDF_Object * pObj = m_pTrailerDict->GetElement( CHE_ByteString("Root") );
+		if ( pObj == NULL )
+		{
+			return NULL;
+		}
+		if ( pObj->GetType() == PDFOBJ_DICTIONARY )
+		{
+			return (CHE_PDF_Dictionary*)pObj;
+		}else if ( pObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			CHE_PDF_IndirectObject * pIndirectObj = GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+			if ( pIndirectObj == NULL )
+			{
+				return NULL;
+			}
+			CHE_PDF_Object * pObj = pIndirectObj->GetObject();
+			if ( pObj == NULL )
+			{
+				return NULL;
+			}
+			if ( pObj->GetType() == PDFOBJ_DICTIONARY )
+			{
+				return (CHE_PDF_Dictionary*)pObj;
+			}else{
+				return NULL;
+			}
+		}
+	}
+	return NULL;
+}
+
+CHE_PDF_Dictionary* CHE_PDF_Parser::GetInfoDict()
+{
+	if ( m_pTrailerDict )
+	{
+		CHE_PDF_Object * pObj = m_pTrailerDict->GetElement( CHE_ByteString("Info") );
+		if ( pObj == NULL )
+		{
+			return NULL;
+		}
+		if ( pObj->GetType() == PDFOBJ_DICTIONARY )
+		{
+			return (CHE_PDF_Dictionary*)pObj;
+		}else if ( pObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			CHE_PDF_IndirectObject * pIndirectObj = GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetObjNum() );
+			if ( pIndirectObj->GetType() == PDFOBJ_DICTIONARY )
+			{
+				CHE_PDF_Dictionary * pDict = pIndirectObj->GetDict();
+				pIndirectObj->Release();
+				return pDict;
+			}else{
+				pIndirectObj->Release();
+				return NULL;
+			}
+		}
+	}
+	return NULL;
+}
+
+CHE_PDF_Array* CHE_PDF_Parser::GetIDArray()
+{
+	if ( m_pTrailerDict )
+	{
+		CHE_PDF_Array * pRootObj = (CHE_PDF_Array*)m_pTrailerDict->GetElement( CHE_ByteString("ID") );
+		return pRootObj;
+	}
+	return NULL;
+}
+
+HE_DWORD CHE_PDF_Parser::GetPageCount()
+{
+	CHE_PDF_Dictionary * pDict = GetRootDict();
+	if ( pDict == NULL )
+	{
+		return 0;
+	}
+
+	CHE_PDF_Object * pPagesRef = pDict->GetElement( CHE_ByteString("Pages") );
+	if ( pPagesRef->GetType() != PDFOBJ_REFERENCE )
+	{
+		return 0;
+	}
+	CHE_PDF_IndirectObject * pInObj = GetIndirectObject( ((CHE_PDF_Reference*)pPagesRef)->GetRefNuml() );
+	if ( pInObj == NULL )
+	{
+		return 0;
+	}
+	CHE_PDF_Dictionary * pDictInObj = pInObj->GetDict();
+	if ( pDictInObj == NULL )
+	{
+		return 0;
+	}
+	CHE_PDF_Object * pObj =  pDictInObj->GetElement( CHE_ByteString("Count") );
+	if ( pObj == NULL || pObj->GetType() != PDFOBJ_NUMBER )
+	{
+		return 0;
+	}
+	return ((CHE_PDF_Number*)pObj)->GetInteger();
+}
+
 CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 {
 	if ( m_pIHE_FileRead == NULL )
@@ -1568,7 +1700,6 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 		{
 			return NULL;
 		}
-
 		str = m_sParser.GetWord();
 		if ( str == "stream" )
 		{
@@ -1576,15 +1707,17 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 			if ( pObj == NULL )
 			{
 				//销毁之前已经建立的对象
-				//待添加
+				pCurObj->Release();
 				return NULL;
 			}else if ( pObj->GetType() != PDFOBJ_NUMBER )
 			{
+				pCurObj->Release();
 				return NULL;
 			}else{
 				HE_DWORD length = ((CHE_PDF_Number*)pObj)->GetInteger();
 				if ( length == 0 )
 				{
+					pCurObj->Release();
 					return NULL;
 				}else{
 					m_sParser.Seek( length );
@@ -1592,12 +1725,37 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 					if ( str == "endstream" )
 					{
 						CHE_PDF_Stream * pStream = CHE_PDF_Stream::Create( m_pIHE_FileRead, offset, length, (CHE_PDF_Dictionary*)pCurObj );
-						return CHE_PDF_IndirectObject::Create( objNum, pStream );
+						if ( pStream == NULL )
+						{
+							pCurObj->Release();
+							return NULL;
+						}
+						CHE_PDF_IndirectObject * pObj = CHE_PDF_IndirectObject::Create( objNum, pStream );
+						if ( pObj )
+						{
+							m_objCollector.Add( pObj );
+							return pObj;
+						}else{
+							pStream->Release();
+							return NULL;
+						}
 					}
 				}
 			}
-		}else if ( str != "endobj" )
+		}else if ( str == "endobj" )
 		{
+			//return dictionary obj
+			CHE_PDF_IndirectObject * pObj = CHE_PDF_IndirectObject::Create( objNum, pCurObj );
+			if ( pObj )
+			{
+				m_objCollector.Add( pObj );
+				return pObj;
+			}else{
+				pCurObj->Release();
+				return NULL;
+			}
+		}else{
+			pCurObj->Release();
 			return NULL;
 		}
 	}else if ( type == PDFPARSER_WORD_FLOAT )
@@ -1605,7 +1763,23 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 		pCurObj = CHE_PDF_Number::Create( HE_PDF_StringToFloat( str ) );
 	}else if ( type == PDFPARSER_WORD_INTEGER )
 	{
-		pCurObj = CHE_PDF_Number::Create( HE_PDF_StringToInteger( str ) );
+		HE_DWORD objNum = HE_PDF_StringToInteger( str );
+		HE_DWORD pos = m_sParser.GetPos();
+		str = m_sParser.GetWord();
+		type = m_sParser.GetType();
+		if ( type == PDFPARSER_WORD_INTEGER )
+		{
+			str = m_sParser.GetWord();
+			if ( str == "R" )
+			{
+				pCurObj = CHE_PDF_Reference::Create( objNum );
+			}else{
+				pCurObj = CHE_PDF_Number::Create( (HE_INT32)objNum );
+			}
+		}else{
+			pCurObj = CHE_PDF_Number::Create( (HE_INT32)objNum );
+		}
+		m_sParser.SetPos( pos );
 	}else if ( type == PDFPARSER_WORD_STRING )
 	{
 		pCurObj = CHE_PDF_String::Create( str );
@@ -1624,7 +1798,15 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 	}else{
 		return NULL;
 	}
-	return CHE_PDF_IndirectObject::Create( objNum, pCurObj );
+	CHE_PDF_IndirectObject * pObj = CHE_PDF_IndirectObject::Create( objNum, pCurObj );
+	if ( pObj )
+	{
+		m_objCollector.Add( pObj );
+		return pObj;
+	}else{
+		pCurObj->Release();
+		return NULL;
+	}
 }
 
 CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject( HE_DWORD objNum )
@@ -1633,7 +1815,6 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject( HE_DWORD objNum )
 	{
 		return NULL;
 	}
-
 	CHE_PDF_XREF_Entry entry;
 	if ( m_xrefTable.GetEntry( objNum, entry ) )
 	{

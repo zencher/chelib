@@ -131,7 +131,7 @@ bool CHE_PDF_XREF_Table::GetEntry( unsigned int objNum, CHE_PDF_XREF_Entry & ent
 			entryRet = pTmp->entry;
 			return true;
 		}
-		pTmp = m_pFirstEntry->pNext;
+		pTmp = pTmp->pNext;
 	}
 	return false;
 }

@@ -146,7 +146,7 @@ public:
 
 	virtual HE_DWORD	GetSize();
 	
-	virtual HE_BOOL		ReadBlock( void* buffer, HE_DWORD offset, HE_DWORD size );
+	virtual HE_DWORD	ReadBlock( void* buffer, HE_DWORD offset, HE_DWORD size );
 
 	virtual HE_BYTE		ReadByte( HE_DWORD offset );
 
@@ -191,24 +191,19 @@ HE_DWORD IHE_SysFileRead::GetSize()
 	}
 }
 
-HE_BOOL IHE_SysFileRead::ReadBlock(void* buffer, HE_DWORD offset, HE_DWORD size)
+HE_DWORD IHE_SysFileRead::ReadBlock(void* buffer, HE_DWORD offset, HE_DWORD size)
 {
 	if ( buffer == NULL )
 	{
-		return FALSE;
+		return 0;
 	}
 	if ( m_pFile )
 	{
 		fseek( m_pFile, offset, SEEK_SET );
 		HE_DWORD dwRet = fread( buffer, 1, size, m_pFile  );
-		if ( dwRet > 0 )
-		{
-			return TRUE;
-		}else{
-			return FALSE;
-		}
+		return dwRet;
 	}else{
-		return FALSE;
+		return 0;
 	}
 }
 

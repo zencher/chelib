@@ -40,12 +40,11 @@ public:
 	/*	返回最近一次返回的词的类型，目前只区分字符串，名称和未知三种类型，其余类型需要上一层参与运算	*/
 	HE_BYTE				GetType() { return m_byteType; };
 
+	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
 	CHE_PDF_Array *		GetArray();
 
 	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）	*/
 	CHE_PDF_Dictionary * GetDictionary();
-
-
 
 private:
 	CHE_ByteString		SubmitBufferStr() { 
@@ -78,34 +77,63 @@ class CHE_PDF_Parser : public CHE_Object
 public:
 	CHE_PDF_Parser();
 
-	HE_BOOL StartParse( IHE_FileRead * file );
+	HE_BOOL						StartParse( IHE_FileRead * file );
 
-	HE_VOID CloseParser();
+	HE_VOID						CloseParser();
 
-	HE_DWORD GetFileSize();
+	HE_DWORD					GetFileSize();
 
-	HE_PDF_VERSION GetPDFVersion();
+	HE_PDF_VERSION				GetPDFVersion();
 
-	HE_DWORD GetStartxrefOffset( HE_DWORD range );
-	HE_BOOL GetXRefTable();
+	HE_DWORD					GetStartxrefOffset( HE_DWORD range );
+
+	HE_BOOL						GetXRefTable();
+
+	CHE_PDF_Dictionary*			GetRootDict();
+
+	CHE_PDF_Dictionary*			GetInfoDict();
+
+	CHE_PDF_Array*				GetIDArray();
+
+	HE_DWORD					GetPageCount();
 
 	CHE_PDF_IndirectObject *	GetIndirectObject();
+
 	CHE_PDF_IndirectObject *	GetIndirectObject( HE_DWORD objNum );
 
 	//bool IsLinearized() const;
-	//void GetObj( HE_DWORD objNum );
-	//CHE_PDF_Dictionary * GetTrailer();
-	//CHE_PDF_Dictionary * GetOtherTrailers();
+
 private:
-	IHE_FileRead * m_pIHE_FileRead;
+	IHE_FileRead *				m_pIHE_FileRead;
 
-	CHE_PDF_XREF_Table m_xrefTable;
+	CHE_PDF_XREF_Table			m_xrefTable;
 
-	CHE_PDF_Dictionary*	m_pTrailerDict;
+	CHE_PDF_Dictionary*			m_pTrailerDict;
 
-	CHE_PDF_SyntaxParser m_sParser;
+	CHE_PDF_SyntaxParser		m_sParser;
 
-	HE_DWORD m_lstartxref;
+	HE_DWORD					m_lstartxref;
+
+	CHE_PDF_IndirectObjectCollector	m_objCollector;
 };
+
+// class CHE_PDF_Document : public CHE_Object
+// {
+// public:
+// 	CHE_PDF_Document( CHE_PDF_Parser * pParser );
+// 	~CHE_PDF_Document();
+// 	
+// 	CHE_PDF_Dictionary*		GetRoot() const;
+// 	
+// 	CHE_PDF_Dictionary*		GetInfo() const;
+// 	
+// 	HE_DWORD				GetPageCount() const;
+// 	
+// 	CHE_PDF_Dictionary*		GetPage( HE_DWORD lPage );
+// 	
+// private:
+// 	CHE_PDF_Parser *	m_pParser;
+// 	
+// };
 
 #endif

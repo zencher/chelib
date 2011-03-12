@@ -86,7 +86,30 @@ public:
 	
 private:
 	HE_LPVOID *			m_pData;
-	CHE_ByteString **	m_pString;	
+	CHE_ByteString **	m_pString;
+	HE_DWORD	m_lSize;
+	HE_DWORD	m_lCount;
+};
+
+class CHE_NumToPtrMap : public CHE_Object
+{
+public:
+	CHE_NumToPtrMap();
+	~CHE_NumToPtrMap();
+
+	HE_BOOL		Append( HE_DWORD num, HE_LPVOID ptr );
+	
+	HE_LPVOID	GetItem( HE_DWORD num ) const;
+
+	HE_LPVOID	GetItemByIndex( HE_DWORD index );
+
+	HE_DWORD	GetCount() { return m_lCount; }
+	
+	HE_VOID		Clear();
+
+private:
+	HE_DWORD *		m_pNum;
+	HE_LPVOID *		m_pData;
 	HE_DWORD	m_lSize;
 	HE_DWORD	m_lCount;
 };

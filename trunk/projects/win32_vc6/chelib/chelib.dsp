@@ -90,6 +90,10 @@ LIB32=link.exe -lib
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\..\src\pdf\che_pdf_filter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\src\pdf\che_pdf_objects.cpp
 # End Source File
 # Begin Source File
@@ -111,6 +115,10 @@ SOURCE=..\..\..\src\che_bitmap.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\src\che_dynbuffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\src\che_string.cpp
 # End Source File
 # End Group
@@ -123,6 +131,10 @@ SOURCE=..\..\..\src\che_string.cpp
 # Begin Source File
 
 SOURCE=..\..\..\include\pdf\che_pdf_define.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_filter.h
 # End Source File
 # Begin Source File
 
@@ -148,6 +160,10 @@ SOURCE=..\..\..\include\che_bitmap.h
 # Begin Source File
 
 SOURCE=..\..\..\include\che_define.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\che_dynBuffer.h
 # End Source File
 # Begin Source File
 

@@ -29,7 +29,25 @@ private:
 	CHE_PtrStackNode * m_pTop;
 };
 
-
+class CHE_PtrArray : public CHE_Object
+{
+public:
+	CHE_PtrArray();
+	~CHE_PtrArray();
+	
+	HE_BOOL		Append( HE_LPVOID ptr );
+	
+	HE_LPVOID	GetItem( HE_DWORD index ) const;
+	
+	HE_VOID		Clear();
+	
+	HE_DWORD	GetCount() const { return m_lCount; }
+	
+private:
+	HE_LPVOID *	m_pData;
+	HE_DWORD	m_lSize;
+	HE_DWORD	m_lCount;
+};
 
 class CHE_ByteStringToPtrMap : public CHE_Object
 {

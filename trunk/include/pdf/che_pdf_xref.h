@@ -1,4 +1,4 @@
-#ifndef _CHE_PDF_XREF_H_
+ #ifndef _CHE_PDF_XREF_H_
 #define _CHE_PDF_XREF_H_
 
 #include "../che_base.h"
@@ -58,10 +58,12 @@ public:
                                          
 	//void Clone( const CHE_PDF_XREF_Table & table );
 
-	bool Append( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
+	//bool Append( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
+	//bool Append( unsigned int objNum, unsigned int index );
 	bool Append( CHE_PDF_XREF_Entry & entry );
 
-	bool Update( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
+	//bool Update( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
+	//bool Update( unsigned int objNum, unsigned int index );
 	bool Update( CHE_PDF_XREF_Entry & entry );
 
 	bool Remove( unsigned int objNum );

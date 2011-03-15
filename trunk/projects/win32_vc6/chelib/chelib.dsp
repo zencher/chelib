@@ -115,6 +115,10 @@ SOURCE=..\..\..\src\che_bitmap.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\src\che_datastructure.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\src\che_dynbuffer.cpp
 # End Source File
 # Begin Source File
@@ -156,6 +160,10 @@ SOURCE=..\..\..\include\che_base.h
 # Begin Source File
 
 SOURCE=..\..\..\include\che_bitmap.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\che_datastructure.h
 # End Source File
 # Begin Source File
 

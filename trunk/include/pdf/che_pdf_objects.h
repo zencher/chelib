@@ -3,6 +3,7 @@
 
 #include "../che_base.h"
 #include "../che_string.h"
+#include "../che_datastructure.h"
 
 #define PDFOBJ_INVALID		0
 #define	PDFOBJ_BOOLEAN		1

@@ -6,27 +6,37 @@
 #define PDF_XREF_ENTRY_INUSE	'n'
 #define PDF_XREF_ENTRY_FREE		'f'
 
+#define OBJTYPE_COMMON			0
+#define OBJTYPE_COMPRESSED		1
+
 class CHE_PDF_XREF_Entry
 {
 public:
 	CHE_PDF_XREF_Entry();
 	CHE_PDF_XREF_Entry( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
+	CHE_PDF_XREF_Entry( unsigned int objNum, unsigned int index );
 
-	void SetOffset( unsigned int offset ) { m_iByteOffset = offset; };
-	void SetObjNum( unsigned int objNum ) { m_iObjNum = objNum; };
-	void SetGenNum( unsigned int genNum ) { m_iGenNum = genNum; };
-	void SetFlag( unsigned char flag ) { m_byteFlag = flag; };
+	void SetType( unsigned char type ) { m_type = type; }
+	void SetFlag( unsigned char flag ) { m_byteFlag = flag; }
+	void SetGenNum( unsigned int genNum ) { m_iGenNum = genNum; }
+	void SetOffset( unsigned int offset ) { m_iByteOffset = offset; }
+	void SetObjNum( unsigned int objNum ) { m_iObjNum = objNum; }
+	void SetIndex( unsigned int index ) { m_iIndex = index; }
 
-	unsigned int GetOffset() { return m_iByteOffset; };
-	unsigned int GetObjNum() { return m_iObjNum; };
-	unsigned int GetGenNum() { return m_iGenNum; };
-	unsigned char	GetFlag() { return m_byteFlag; };
+	unsigned char	GetType() { return m_type; }
+	unsigned char	GetFlag() { return m_byteFlag; }
+	unsigned short	GetGenNum() { return m_iGenNum; }
+	unsigned int	GetOffset() { return m_iByteOffset; }
+	unsigned int	GetObjNum() { return m_iObjNum; }
+	unsigned int	GetIndex() { return m_iIndex; }	
 
 private:
+	unsigned char	m_type;	// 0 - OBJTYPE_COMMON, 1 - OBJTYPE_COMPRESSED
+	unsigned char	m_byteFlag;
+	unsigned short	m_iGenNum;
 	unsigned int	m_iByteOffset;
 	unsigned int	m_iObjNum;
-	unsigned short	m_iGenNum;
-	unsigned char	m_byteFlag;
+	unsigned int	m_iIndex;
 };
 
 struct PDF_XREF_ENTRY_NODE
@@ -45,7 +55,7 @@ public:
 	//const CHE_PDF_XREF_Table & operator = ( const CHE_PDF_XREF_Table & table );
 
 	void Clear();
-
+                                         
 	//void Clone( const CHE_PDF_XREF_Table & table );
 
 	bool Append( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );

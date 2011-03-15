@@ -1,116 +1,6 @@
 #include "../../include/pdf/che_pdf_parser.h"
+#include "../../include/che_datastructure.h"
 #include <string.h>
-
-class CPtrStackNode
-{
-public:
-	CPtrStackNode();
-	~CPtrStackNode();
-	
-	CHE_PDF_Object * pObj;
-	CPtrStackNode * pNext;
-};
-
-class CPtrStack
-{
-public:
-	CPtrStack();
-	~CPtrStack();
-	
-	void Clear();
-	bool IsEmpty();
-	bool Pop( CHE_PDF_Object ** pObj );
-	bool Push( CHE_PDF_Object * pObjRet );
-
-private:
-	CPtrStackNode * m_pTop;
-};
-
-CPtrStackNode::CPtrStackNode()
-{
-	pObj = NULL;
-	pNext = NULL;
-}
-
-CPtrStackNode::~CPtrStackNode()
-{
-//这里不需要销毁子节点的对象，而是由Stack来负责释放
-}
-
-CPtrStack::CPtrStack()
-{
-	m_pTop = NULL;
-}
-
-CPtrStack::~CPtrStack()
-{
-	CPtrStackNode * pTmp = m_pTop;
-	while ( pTmp )
-	{
-		m_pTop = m_pTop->pNext;
-		delete pTmp;
-		pTmp = m_pTop;
-	}
-}
-
-bool CPtrStack::IsEmpty()
-{
-	if ( m_pTop == NULL )
-	{
-		return true;
-	}
-	return false;
-}
-
-bool CPtrStack::Pop( CHE_PDF_Object ** ppObjRet )
-{
-	if ( m_pTop == NULL )
-	{
-		return false;
-	}
-	if ( m_pTop->pObj == NULL )
-	{
-		return false;
-	}else{
-		*ppObjRet = m_pTop->pObj;
-		
-		CPtrStackNode * pTmp = m_pTop;
-		m_pTop = m_pTop->pNext;
-		delete pTmp;
-		pTmp = NULL;
-		return true;
-	}
-}
-
-bool CPtrStack::Push( CHE_PDF_Object * pObj )
-{
-	if ( m_pTop == NULL )
-	{
-		m_pTop = new CPtrStackNode;
-		m_pTop->pNext = NULL;
-		m_pTop->pObj = pObj;
-	}else{
-		CPtrStackNode * pTmp = new CPtrStackNode;
-		pTmp->pNext = m_pTop;
-		pTmp->pObj = pObj;
-		m_pTop = pTmp;
-	}
-	return true;
-}
-
-void CPtrStack::Clear()
-{
-	if ( m_pTop )
-	{
-		CPtrStackNode * pTmp = m_pTop;
-		while( pTmp )
-		{
-			m_pTop = m_pTop->pNext;
-			delete pTmp;
-			pTmp = m_pTop;
-		}
-	}
-}	
 
 #define HE_PDF_INTEGER_STR	0
 #define HE_PDF_FLOAT_STR	1
@@ -925,8 +815,8 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 	HE_BOOL bKey = FALSE;
 	HE_BOOL bOver = FALSE;
 	CHE_ByteString key;
-	CPtrStack stack;
-	CPtrStack stackName;
+	CHE_PtrStack stack;
+	CHE_PtrStack stackName;
 	CHE_PDF_Object * pCurObj = CHE_PDF_Array::Create();
 
 	while ( bOver == FALSE )
@@ -940,14 +830,14 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 				if ( stack.IsEmpty() == FALSE )
 				{
 					CHE_PDF_Dictionary * pDict = (CHE_PDF_Dictionary*)pCurObj;
-					stack.Pop( &pCurObj );
+					stack.Pop( (HE_VOID**)&pCurObj );
 					if ( pCurObj->GetType() == PDFOBJ_ARRAY )
 					{
 						((CHE_PDF_Array*)pCurObj)->Append( pDict );
 					}else if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 					{
 						CHE_ByteString * pTmpStr = NULL;
-						stackName.Pop(  (CHE_PDF_Object**)&pTmpStr );
+						stackName.Pop(  (HE_VOID**)&pTmpStr );
 						key = *pTmpStr;
 						delete pTmpStr;
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtDictionary( key, pDict );
@@ -1044,7 +934,7 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 				if ( stack.IsEmpty() == FALSE )
 				{
 					CHE_PDF_Object * pTmp = pCurObj;
-					stack.Pop( &pCurObj );
+					stack.Pop( (HE_VOID**)&pCurObj );
 					if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 					{
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtArray( key, (CHE_PDF_Array*)pTmp );
@@ -1066,7 +956,7 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 			}else if ( type == PDFPARSER_WORD_DICT_E )	//字典	只出现在array的情况
 			{
 				CHE_PDF_Object * pTmp = pCurObj;
-				stack.Pop( &pCurObj );
+				stack.Pop( (HE_VOID**)&pCurObj );
 				((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 			}else{	//布尔和其他
 				if ( str == "false" )
@@ -1121,8 +1011,8 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 	HE_BOOL bKey = TRUE;
 	HE_BOOL bOver = FALSE;
 	CHE_ByteString key;
-	CPtrStack stack;
-	CPtrStack stackName;
+	CHE_PtrStack stack;
+	CHE_PtrStack stackName;
 	CHE_PDF_Object * pCurObj = CHE_PDF_Dictionary::Create();
 
 	while ( bOver == FALSE )
@@ -1139,14 +1029,14 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 				if ( stack.IsEmpty() == FALSE )
 				{
 					CHE_PDF_Dictionary * pDict = (CHE_PDF_Dictionary*)pCurObj;
-					stack.Pop( &pCurObj );
+					stack.Pop( (HE_VOID**)&pCurObj );
 					if ( pCurObj->GetType() == PDFOBJ_ARRAY )
 					{
 						((CHE_PDF_Array*)pCurObj)->Append( pDict );
 					}else if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 					{
 						CHE_ByteString * pTmpStr = NULL;
-						stackName.Pop(  (CHE_PDF_Object**)&pTmpStr );
+						stackName.Pop(  (HE_VOID**)&pTmpStr );
 						key = *pTmpStr;
 						delete pTmpStr;
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtDictionary( key, pDict );
@@ -1245,7 +1135,7 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 				if ( stack.IsEmpty() == FALSE )
 				{
 					CHE_PDF_Object * pTmp = pCurObj;
-					stack.Pop( &pCurObj );
+					stack.Pop( (HE_VOID**)&pCurObj );
 					if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 					{
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtArray( key, (CHE_PDF_Array*)pTmp );
@@ -1265,7 +1155,7 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 			}else if ( type == PDFPARSER_WORD_DICT_E )	//字典	只出现在array的情况
 			{
 				CHE_PDF_Object * pTmp = pCurObj;
-				stack.Pop( &pCurObj );
+				stack.Pop( (HE_VOID**)&pCurObj );
 				((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 			}else{	//布尔和其他
 				if ( str == "false" )
@@ -1441,26 +1331,89 @@ HE_BOOL CHE_PDF_Parser::GetXRefTable()
 			HE_DWORD objNum = 0, genNum = 0;
 			while ( true )
 			{
+				HE_DWORD lBeginNum = 0, lCount = 0, lSize = 0, lW1 = 0, lW2 = 0, lW3 = 0;
+
 				CHE_PDF_IndirectObject * pIndObj = GetIndirectObject();
 				if ( pIndObj == NULL || pIndObj->GetType() != PDFOBJ_STREAM )
 				{
 					return FALSE;
 				}
-				CHE_PDF_StreamAcc streamAcc;
-				if ( streamAcc.Attach( pIndObj->GetStream() ) == FALSE )
-				{
-					return FALSE;
-				}
-				//streamAcc.
-				 
 				CHE_PDF_Dictionary * pDict = pIndObj->GetDict();
 				if ( pDict == NULL )
 				{
 					return FALSE;
 				}
-			}
-			return FALSE;
+				CHE_PDF_Object * pElement =  pDict->GetElement( CHE_ByteString("Type") );
+				if ( pElement == NULL || pElement->GetType() != PDFOBJ_NAME )
+				{
+					return FALSE;
+				}
+				if( ((CHE_PDF_Name*)pElement)->GetString() != "XRef" )
+				{
+					return FALSE;
+				}
+				pElement = pDict->GetElement( CHE_ByteString("Size") );
+				if ( pElement == NULL || pElement->GetType() != PDFOBJ_NUMBER )
+				{
+					return FALSE;
+				}
+				lSize = ((CHE_PDF_Number*)pElement)->GetInteger();
 
+				pElement = pDict->GetElement( CHE_ByteString("Index") );
+				if ( pElement != NULL && pElement->GetType() == PDFOBJ_ARRAY )
+				{
+					lBeginNum = 0;
+					lCount = lSize;
+				}else{
+					if ( ((CHE_PDF_Array*)pElement)->GetCount() < 2 )
+					{
+						return FALSE;
+					}
+					if ( ((CHE_PDF_Array*)pElement)->GetElement( 0 )->GetType() != PDFOBJ_NUMBER 
+						|| ((CHE_PDF_Array*)pElement)->GetElement( 1 )->GetType() != PDFOBJ_NUMBER )
+					{
+						return FALSE;
+					}
+					lBeginNum = ((CHE_PDF_Number*)((CHE_PDF_Array*)pElement)->GetElement( 0 ))->GetInteger();
+					lCount	= ((CHE_PDF_Number*)((CHE_PDF_Array*)pElement)->GetElement( 1 ))->GetInteger();
+				}
+
+				pElement = pDict->GetElement( CHE_ByteString("W") );
+				if ( pElement == NULL || pElement->GetType() != PDFOBJ_ARRAY )
+				{
+					return FALSE;
+				}
+				if ( ((CHE_PDF_Array*)pElement)->GetElement( 0 )->GetType() != PDFOBJ_NUMBER 
+					|| ((CHE_PDF_Array*)pElement)->GetElement( 1 )->GetType() != PDFOBJ_NUMBER
+					|| ((CHE_PDF_Array*)pElement)->GetElement( 2 )->GetType() != PDFOBJ_NUMBER )
+				{
+					return FALSE;
+				}
+				lW1 = ((CHE_PDF_Number*)((CHE_PDF_Array*)pElement)->GetElement( 0 ))->GetInteger();
+				lW2	= ((CHE_PDF_Number*)((CHE_PDF_Array*)pElement)->GetElement( 1 ))->GetInteger();
+				lW3	= ((CHE_PDF_Number*)((CHE_PDF_Array*)pElement)->GetElement( 2 ))->GetInteger();
+
+				CHE_PDF_StreamAcc streamAcc;
+				if ( streamAcc.Attach( pIndObj->GetStream() ) == FALSE )
+				{
+					return FALSE;
+				}
+
+				HE_DWORD lsize = streamAcc.GetSize();
+				HE_LPBYTE lpByte = streamAcc.GetData();
+
+
+
+				pElement = pDict->GetElement( CHE_ByteString("Prev") );
+				if ( pElement == NULL || pElement->GetType() != PDFOBJ_NUMBER )
+				{
+					break;
+				}else{
+					m_sParser.SetPos( ((CHE_PDF_Number*)pElement)->GetInteger() );
+				}
+			}
+			return TRUE;
+			
 		}else if ( str == "xref" )
 		{
 			//开始解析xref段头

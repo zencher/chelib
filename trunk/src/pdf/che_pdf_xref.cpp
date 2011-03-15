@@ -4,10 +4,12 @@
 
 CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry()
 {
+	m_type = OBJTYPE_COMMON;
 	m_iByteOffset = 0;
 	m_iObjNum = 0;
 	m_iGenNum = 0;
 	m_byteFlag = 0;
+	m_iIndex = 0;
 }
 
 CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag )
@@ -16,6 +18,18 @@ CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int offset, unsigned int objNum
 	m_iObjNum = objNum;
 	m_iGenNum = genNum;
 	m_byteFlag = flag;
+	m_type = OBJTYPE_COMMON;
+	m_iIndex = 0;
+}
+
+CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int objNum, unsigned int index )
+{
+	m_iObjNum = objNum;
+	m_iIndex = index;
+	m_type = OBJTYPE_COMPRESSED;
+	m_iByteOffset = 0;
+	m_iGenNum = 0;
+	m_byteFlag = 0;
 }
 
 CHE_PDF_XREF_Table::CHE_PDF_XREF_Table()

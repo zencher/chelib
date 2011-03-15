@@ -71,6 +71,73 @@ void CHE_PtrStack::Clear()
 	}
 }
 
+CHE_PtrArray::CHE_PtrArray()
+{
+	m_pData = NULL;
+	m_lSize = 0;
+	m_lCount = 0;
+}
+
+CHE_PtrArray::~CHE_PtrArray()
+{
+	if ( m_pData )
+	{
+		delete [] m_pData;
+		m_pData = NULL;
+		m_lSize = 0;
+		m_lCount = 0;
+	}
+}
+
+HE_BOOL CHE_PtrArray::Append( HE_LPVOID ptr )
+{
+	if ( m_lSize == 0 || m_lCount == 0 || m_pData == NULL )
+	{
+		m_pData = new HE_LPVOID[128];
+		m_lSize = 128;
+		m_lCount = 1;
+		m_pData[0] = ptr;
+		return TRUE;
+	}
+	if ( m_lCount + 1 <= m_lSize )
+	{
+		m_pData[m_lCount] = ptr;
+		m_lCount++;
+		return TRUE;
+	}else{
+		HE_LPVOID * pTmp = new HE_LPVOID[m_lSize];
+		memcpy( pTmp, m_pData, m_lSize * sizeof(HE_LPVOID) );
+		m_lSize *= 2;
+		delete [] m_pData;
+		m_pData = new HE_LPVOID[m_lSize];
+		memcpy( m_pData, pTmp, m_lSize/2 * sizeof(HE_LPVOID) );
+		delete [] pTmp;
+		m_pData[m_lCount] = ptr;
+		m_lCount++;
+		return TRUE;
+	}
+}
+
+HE_LPVOID CHE_PtrArray::GetItem( HE_DWORD index ) const
+{
+	if ( index >= m_lCount )
+	{
+		return NULL;
+	}else{
+		return m_pData[index];
+	}
+}
+	
+HE_VOID	CHE_PtrArray::Clear()
+{
+	if ( m_pData )
+	{
+		delete [] m_pData;
+		m_pData = NULL;
+		m_lSize = 0;
+		m_lCount = 0;
+	}	
+}
 
 CHE_ByteStringToPtrMap::CHE_ByteStringToPtrMap()
 {
@@ -117,15 +184,15 @@ HE_BOOL	CHE_ByteStringToPtrMap::Append( CHE_ByteString & str, HE_LPVOID ptr )
 	}else{
 		HE_LPVOID * pTmp = new HE_LPVOID[m_lSize];
 		CHE_ByteString ** pStrTmp = new CHE_ByteString*[m_lSize];
-		memcpy( pTmp, m_pData, m_lSize );
-		memcpy( pStrTmp, m_pString, m_lSize );
+		memcpy( pTmp, m_pData, m_lSize * sizeof(HE_LPVOID) );
+		memcpy( pStrTmp, m_pString, m_lSize * sizeof(HE_LPVOID) );
 		m_lSize *= 2;
 		delete [] m_pData;
 		delete [] m_pString;
 		m_pData = new HE_LPVOID[m_lSize];
 		m_pString = new CHE_ByteString*[m_lSize];
-		memcpy( m_pData, pTmp, m_lSize/2 );
-		memcpy( m_pString, pStrTmp, m_lSize/2 );
+		memcpy( m_pData, pTmp, m_lSize/2 * sizeof(HE_LPVOID) );
+		memcpy( m_pString, pStrTmp, m_lSize/2 * sizeof(HE_LPVOID) );
 		delete [] pTmp;
 		delete [] pStrTmp;
 		
@@ -208,15 +275,15 @@ HE_BOOL CHE_NumToPtrMap::Append( HE_DWORD num, HE_LPVOID ptr )
 	}else{
 		HE_LPVOID * pTmp = new HE_LPVOID[m_lSize];
 		HE_DWORD * pNumTmp = new HE_DWORD[m_lSize];
-		memcpy( pTmp, m_pData, m_lSize );
-		memcpy( pNumTmp, m_pNum, m_lSize );
+		memcpy( pTmp, m_pData, m_lSize * sizeof(HE_LPVOID) );
+		memcpy( pNumTmp, m_pNum, m_lSize * sizeof(HE_LPVOID) );
 		m_lSize *= 2;
 		delete [] m_pData;
 		delete [] m_pNum;
 		m_pData = new HE_LPVOID[m_lSize];
 		m_pNum = new HE_DWORD[m_lSize];
-		memcpy( m_pData, pTmp, m_lSize/2 );
-		memcpy( m_pNum, pNumTmp, m_lSize/2 );
+		memcpy( m_pData, pTmp, m_lSize/2 * sizeof(HE_LPVOID) );
+		memcpy( m_pNum, pNumTmp, m_lSize/2 * sizeof(HE_LPVOID) );
 		delete [] pTmp;
 		delete [] pNumTmp;
 		

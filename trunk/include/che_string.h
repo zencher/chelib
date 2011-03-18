@@ -6,8 +6,8 @@
 struct HE_ByteStringData
 {
 	HE_LPSTR m_lpString;
-	HE_LONG m_dwLength;
-	HE_LONG m_dwRef;
+	HE_DWORD m_dwLength;
+	HE_DWORD m_dwRef;
 };
 
 class CHE_ByteString : public CHE_Object
@@ -34,9 +34,8 @@ public:
 
 	HE_DWORD GetLength();
 
-	HE_CHAR operator[]( HE_INT32 index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
+	HE_CHAR operator[]( HE_DWORD index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
 												//的值，实际上，临时变量是const，根本不能被赋值。
-	//HE_CHAR& operator[]( HE_INT32 index );		//函数返回了对象保存的字符串的一个字符的引用，任何操作都会互相影响。不好！！！
 
 	//如下能够前后颠倒的操作，还需要在全局的空间里面定义全局的函数。
 	CHE_ByteString operator+( const CHE_ByteString& str );
@@ -60,6 +59,8 @@ public:
 	friend bool operator!=( const HE_LPSTR lpStr, CHE_ByteString& str );
 	
 private:
+	HE_VOID Clear();
+
 	HE_ByteStringData* m_lpData;
 };
 

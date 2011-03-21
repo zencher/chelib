@@ -215,12 +215,12 @@ public:
 	static CHE_PDF_Stream*		Create( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary* pDict ) 
 									{ return new CHE_PDF_Stream( pData, size, pDict ); }
 
-	static CHE_PDF_Stream*		Create( IHE_FileRead* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict ) 
+	static CHE_PDF_Stream*		Create( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict ) 
 									{ return new CHE_PDF_Stream( pFile, offset, size, pDict ); }
 
 	CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict );
 
-	CHE_PDF_Stream( IHE_FileRead* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict );
+	CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict );
 
 	CHE_PDF_Dictionary*		GetDict() const { return m_pDict; }
 
@@ -245,7 +245,7 @@ protected:
 	HE_BOOL					m_bMem;
 	union {
 		HE_LPBYTE			m_pDataBuf;
-		IHE_FileRead*		m_pFile;	
+		IHE_Read*		m_pFile;	
 	};
 	HE_DWORD				m_FileOffset;
 

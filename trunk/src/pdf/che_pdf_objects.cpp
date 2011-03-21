@@ -152,7 +152,7 @@ CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictiona
 	}
 }
 	
-CHE_PDF_Stream::CHE_PDF_Stream( IHE_FileRead* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict )
+CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict )
 {
 	m_pDataBuf = NULL;
 	m_dwSize = 0;

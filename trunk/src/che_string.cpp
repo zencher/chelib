@@ -191,7 +191,7 @@ CHE_ByteString& CHE_ByteString::operator=( const CHE_ByteString& str )
 
 bool CHE_ByteString::operator==( HE_CHAR ch )const
 {
-	if ( m_lpData == NULL )
+	if ( m_lpData == NULL || strlen( m_lpData->m_lpString ) == 0 )
 	{
 		if ( ch == '\0' )
 		{
@@ -216,7 +216,7 @@ bool CHE_ByteString::operator==( HE_CHAR ch )const
 
 bool CHE_ByteString::operator==( HE_LPCSTR lpStr )const
 {
-	if ( m_lpData == NULL )
+	if ( m_lpData == NULL || strlen( m_lpData->m_lpString ) == 0 )
 	{
 		if ( lpStr == NULL || strlen( lpStr ) == 0 )
 		{

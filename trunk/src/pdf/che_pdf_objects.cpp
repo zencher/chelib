@@ -64,6 +64,15 @@ CHE_PDF_Object*	CHE_PDF_Dictionary::GetElement( CHE_ByteString & key )const
 	return (CHE_PDF_Object*)m_Map.GetItem( key );
 }
 
+HE_VOID	CHE_PDF_Dictionary::SetAtNull( CHE_ByteString & key )
+{
+	if ( key.GetLength() > 0 )
+	{
+		CHE_PDF_Null * pNullOjb = CHE_PDF_Null::Create();
+		m_Map.Append( key, (HE_LPBYTE)pNullOjb );
+	}
+}
+
 HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( CHE_ByteString & key, bool value )
 {
 	if ( key.GetLength() > 0 )
@@ -136,6 +145,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtReference( CHE_ByteString & key, HE_DWORD objnu
 
 CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict )
 {
+	m_Type = PDFOBJ_STREAM;
 	m_pDataBuf = NULL;
 	m_dwSize = 0;
 	m_bMem = TRUE;
@@ -154,6 +164,7 @@ CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictiona
 	
 CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict )
 {
+	m_Type = PDFOBJ_STREAM;
 	m_pDataBuf = NULL;
 	m_dwSize = 0;
 	m_bMem = FALSE;
@@ -174,19 +185,19 @@ CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size,
 HE_DWORD CHE_PDF_Stream::ReadRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD buf_size ) const
 {
 	if ( pBuf == NULL || buf_size == 0 || offset >= m_dwSize )
+ 	{
+ 		return 0;
+ 	}
+	if ( m_bMem == FALSE )
 	{
-		return 0;
-	}
-	if ( m_bMem == TRUE )
-	{
-		if ( offset + buf_size > m_dwSize )
-		{
-			buf_size = m_dwSize - offset;
-		}
-		memcpy( m_pDataBuf + offset, pBuf, buf_size );
-		return buf_size;
+		return m_pFile->ReadBlock( pBuf, offset + m_FileOffset, buf_size );
 	}else{
-		return m_pFile->ReadBlock( pBuf, offset, buf_size );
+		if ( offset + buf_size > m_dwSize )
+ 		{
+			buf_size = m_dwSize - offset;
+ 		}
+		memcpy( m_pDataBuf + offset, pBuf, buf_size );
+ 		return buf_size;
 	}
 }
 
@@ -224,7 +235,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 				length = pNumObj->GetInteger();
 			}
 			CHE_PDF_Object * pObj = pDict->GetElement( CHE_ByteString("Filter") );
-			if ( pObj == NULL )
+			if ( pObj != NULL )
 			{
 				HE_DWORD bufSize = (length == 0) ? 1024 : length;
 				CHE_DynBuffer buffer( bufSize, bufSize );
@@ -313,7 +324,8 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 				}
 				return FALSE;
 			}else{
-				m_pData = new HE_BYTE[pStream->GetRawSize()];
+				m_dwSize = length;
+				m_pData = new HE_BYTE[length];
 				pStream->ReadRawData( 0, m_pData, pStream->GetRawSize() );
 				return TRUE;
 			}
@@ -337,6 +349,7 @@ CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, CHE_PDF_Object 
 {
 	m_ObjNum = objNum;
 	m_pObj = pObj;
+	m_Type = PDFOBJ_INDIRECTOBJ;
 }
 
 CHE_PDF_Dictionary* CHE_PDF_IndirectObject::GetDict() const

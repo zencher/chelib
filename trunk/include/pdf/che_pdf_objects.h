@@ -18,6 +18,7 @@
 #define PDFOBJ_INDIRECTOBJ	10
 
 class CHE_PDF_Object;
+class CHE_PDF_Null;
 class CHE_PDF_Boolean;
 class CHE_PDF_Number;
 class CHE_PDF_String;
@@ -183,6 +184,8 @@ public:
 	CHE_PDF_Dictionary()  { m_Type = PDFOBJ_DICTIONARY; }
 
 	CHE_PDF_Object*			GetElement( CHE_ByteString & key ) const;
+
+	HE_VOID					SetAtNull( CHE_ByteString & key );
 
 	HE_VOID					SetAtBoolean( CHE_ByteString & key, bool value );
 

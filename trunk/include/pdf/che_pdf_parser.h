@@ -83,7 +83,7 @@ public:
 
 	HE_DWORD					GetStartxrefOffset( HE_DWORD range );
 
-	HE_BOOL						GetXRefTable();
+	HE_DWORD					ParseXRef();
 
 	CHE_PDF_Dictionary*			GetRootDict();
 
@@ -98,6 +98,13 @@ public:
 	CHE_PDF_IndirectObject *	GetIndirectObject( HE_DWORD objNum );
 
 	//bool IsLinearized() const;
+
+private:
+	HE_DWORD					FullParseForXRef();
+	
+	HE_DWORD					ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
+	
+	HE_DWORD					ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
 
 private:
 	IHE_Read *					m_pIHE_FileRead;

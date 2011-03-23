@@ -1699,8 +1699,10 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 				if ( pObj != NULL && pObj->GetType() == PDFOBJ_NUMBER )
 				{
 					offset = ((CHE_PDF_Number*)pObj)->GetInteger();
+					pDict->Release();	//由于该对象没有被间接对象容器管理，所以必须手动释放
 					continue;
 				}
+				pDict->Release();	//由于该对象没有被间接对象容器管理，所以必须手动释放
 			}
 			entryCount = ParseXRefStream( offset, &pDict );
 			xrefEntryCount += entryCount;

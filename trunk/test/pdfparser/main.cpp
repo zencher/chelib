@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "../../include/pdf/che_pdf_parser.h"
 
+#include <windows.h>
+
 int main( int argc, char **argv )
 {
 	if ( argc < 2 )
@@ -9,7 +11,8 @@ int main( int argc, char **argv )
 		return 0;
 	}
 
-	IHE_FileRead * pFileRead = HE_CreateFileRead( argv[1] );
+	IHE_Read * pFileRead = HE_CreateFileRead( argv[1] );
+	//IHE_FileRead * pFileRead = HE_CreateFileMemRead( argv[1] );
 	if ( pFileRead == NULL )
 	{
 		printf( "no file!\n" );
@@ -24,8 +27,14 @@ int main( int argc, char **argv )
 
 	printf( "pdf version : %d\n", parser.GetPDFVersion() );
 	printf( "xref : %d\n", parser.GetStartxrefOffset( 1024 ) );
-	parser.GetXRefTable();
-	printf( "page count : %d\n", parser.GetPageCount() );
+	unsigned int tickBegin = GetTickCount();
+	unsigned int tickEnd = 0;
+	printf( "parse xref table start : %d\n", tickBegin );
+	parser.ParseXRef();
+	tickEnd = GetTickCount();
+	printf( "parse xref table stop : %d\n", tickEnd );
+	printf( "time spend : %d\n", tickEnd - tickBegin );
+	printf( "page count : %d\n\n", parser.GetPageCount() );
 
 	parser.CloseParser();
 	pFileRead->Release();

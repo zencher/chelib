@@ -10,6 +10,7 @@ CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry()
 	m_iGenNum = 0;
 	m_byteFlag = 0;
 	m_iIndex = 0;
+	m_iParentObjNum = 0;
 }
 
 CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag )
@@ -20,16 +21,35 @@ CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int offset, unsigned int objNum
 	m_byteFlag = flag;
 	m_type = OBJTYPE_COMMON;
 	m_iIndex = 0;
+	m_iParentObjNum = 0;
 }
 
-CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int objNum, unsigned int index )
+CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int objNum, unsigned int parentObjNum, unsigned int index )
 {
 	m_iObjNum = objNum;
 	m_iIndex = index;
 	m_type = OBJTYPE_COMPRESSED;
 	m_iByteOffset = 0;
 	m_iGenNum = 0;
-	m_byteFlag = 0;
+	m_byteFlag = 'n';
+	m_iParentObjNum = parentObjNum;
+}
+
+bool CHE_PDF_XREF_Entry::operator == ( const CHE_PDF_XREF_Entry & entry )
+{
+	if (  this == &entry )
+	{
+		return true;
+	}
+	if ( m_byteFlag != 'f' && m_byteFlag == entry.m_byteFlag && m_iByteOffset == entry.m_iByteOffset && m_iGenNum == entry.m_iGenNum
+		&& m_iIndex == entry.m_iIndex && /*m_iObjNum == entry.m_iObjNum &&*/ m_iParentObjNum == entry.m_iParentObjNum
+		&& m_type == entry.m_type )
+	{
+		return true;
+	}else{
+		return false;
+	}
+
 }
 
 CHE_PDF_XREF_Table::CHE_PDF_XREF_Table()
@@ -104,6 +124,16 @@ void CHE_PDF_XREF_Table::Clear()
 
 bool CHE_PDF_XREF_Table::Append( CHE_PDF_XREF_Entry & entry )
 {
+	PDF_XREF_ENTRY_NODE * pTmp = m_pFirstEntry;
+	while ( pTmp )
+	{
+		if ( entry == pTmp->entry )
+		{
+			return false;
+		}
+		pTmp = pTmp->pNext;
+	}
+
 	if ( m_pFirstEntry == NULL )
 	{
 		m_pFirstEntry = new PDF_XREF_ENTRY_NODE;
@@ -140,6 +170,10 @@ bool CHE_PDF_XREF_Table::GetEntry( unsigned int objNum, CHE_PDF_XREF_Entry & ent
 	PDF_XREF_ENTRY_NODE * pTmp = m_pFirstEntry;
 	while ( pTmp )
 	{
+// 		if ( pTmp->entry.GetObjNum() == 1536 )
+// 		{
+// 			int x = 0;
+// 		}
 		if ( objNum == pTmp->entry.GetObjNum() )
 		{
 			entryRet = pTmp->entry;

@@ -66,6 +66,8 @@ private:
 	HE_BYTE				m_WordBuffer[32770];
 	HE_DWORD			m_lBufferSize;
 	HE_DWORD			m_lBufferPos;
+
+	friend class CHE_PDF_Parser;
 };
 
 class CHE_PDF_Parser : public CHE_Object
@@ -94,8 +96,10 @@ public:
 	HE_DWORD					GetPageCount();
 
 	CHE_PDF_IndirectObject *	GetIndirectObject();
-
+	
 	CHE_PDF_IndirectObject *	GetIndirectObject( HE_DWORD objNum );
+
+	CHE_PDF_IndirectObject *	GetIndirectObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
 
 	//bool IsLinearized() const;
 

@@ -50,6 +50,8 @@ IHE_Write* HE_CreateFileWrite( HE_LPCSTR filename );
 class IHE_Read : public CHE_Object
 {
 public:
+	virtual ~IHE_Read() {};
+
 	virtual HE_DWORD	GetSize() = 0;
 	
 	virtual HE_DWORD	ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size ) = 0;
@@ -58,6 +60,8 @@ public:
 	
 	virtual HE_VOID		Release() = 0;
 };
+
+IHE_Read*	HE_CreateMemBufRead( HE_LPBYTE pBuf, HE_DWORD lSize );
 
 #define FILEREAD_MODE_DEFAULT		0
 #define FILEREAD_MODE_MEMCOPY		1

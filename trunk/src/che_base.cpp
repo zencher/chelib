@@ -125,6 +125,61 @@ IHE_Write* HE_CreateFileWrite( HE_LPCSTR filename )
 	}
 }
 
+class IHE_MemBufRead : public IHE_Read
+{
+public:
+	IHE_MemBufRead( HE_LPBYTE pBuf, HE_DWORD lSize ) { m_lSize = lSize; m_pBuf = pBuf; }
+	
+	~IHE_MemBufRead() {};
+	
+	virtual HE_DWORD	GetSize() { return m_lSize; }
+	
+	virtual HE_DWORD	ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size );
+	
+	virtual HE_BYTE		ReadByte( HE_DWORD offset );
+	
+	virtual void		Release() { m_pBuf = NULL; m_lSize = 0; }
+	
+private:
+	HE_LPBYTE	m_pBuf;
+	HE_DWORD	m_lSize;
+};
+
+HE_DWORD IHE_MemBufRead::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size )
+{
+	if ( buffer == NULL || m_pBuf == NULL || size == 0 )
+	{
+		return 0;
+	}
+	if ( offset >= m_lSize )
+	{
+		return 0;
+	}else{
+		size = m_lSize - offset;
+		memcpy( buffer, m_pBuf + offset, size );
+		return size;
+	}
+}
+
+HE_BYTE IHE_MemBufRead::ReadByte( HE_DWORD offset )
+{
+	if ( offset >= m_lSize )
+	{
+		return 0;
+	}else{
+		return m_pBuf[offset];
+	}
+}
+
+IHE_Read*	HE_CreateMemBufRead( HE_LPBYTE pBuf, HE_DWORD lSize )
+{
+	if ( pBuf == NULL || lSize == 0 )
+	{
+		return NULL;
+	}
+	return new IHE_MemBufRead( pBuf, lSize );
+}
+
 class IHE_CrtFileReadDefault: public IHE_Read
 {
 public:

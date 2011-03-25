@@ -75,6 +75,8 @@ public:
 	//bool Append( unsigned int objNum, unsigned int index );
 	bool Append( CHE_PDF_XREF_Entry & entry );
 
+	bool AppendWithCheck( CHE_PDF_XREF_Entry & entry );
+
 	//bool Update( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
 	//bool Update( unsigned int objNum, unsigned int index );
 	bool Update( CHE_PDF_XREF_Entry & entry );

@@ -2,6 +2,8 @@
 
 #define NULL 0
 
+
+
 CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry()
 {
 	m_type = OBJTYPE_COMMON;
@@ -56,7 +58,7 @@ CHE_PDF_XREF_Table::CHE_PDF_XREF_Table()
 {
 	m_lCount = 0;
 	m_pFirstEntry = NULL;
-	m_pLastEntry = NULL;
+	m_pFirstEntry = NULL;
 }
 
 // CHE_PDF_XREF_Table::CHE_PDF_XREF_Table( const CHE_PDF_XREF_Table & table )
@@ -68,7 +70,7 @@ CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
 {
 	m_lCount = 0;
 	m_pFirstEntry = NULL;
-	m_pLastEntry = NULL;
+	m_pFirstEntry = NULL;
 }
 
 // const CHE_PDF_XREF_Table & CHE_PDF_XREF_Table::operator = ( const CHE_PDF_XREF_Table & table )
@@ -123,6 +125,24 @@ void CHE_PDF_XREF_Table::Clear()
 // }
 
 bool CHE_PDF_XREF_Table::Append( CHE_PDF_XREF_Entry & entry )
+{
+	if ( m_pFirstEntry == NULL )
+	{
+		m_pFirstEntry = new PDF_XREF_ENTRY_NODE;
+		m_pFirstEntry->pNext = NULL;
+		m_pLastEntry = m_pFirstEntry;
+		m_pFirstEntry->entry = entry;
+	}else{
+		m_pLastEntry->pNext = new PDF_XREF_ENTRY_NODE;
+		m_pLastEntry->pNext->pNext = NULL;
+		m_pLastEntry = m_pLastEntry->pNext;
+		m_pLastEntry->entry = entry;
+	}
+	m_lCount++;
+	return true;
+}
+
+bool CHE_PDF_XREF_Table::AppendWithCheck( CHE_PDF_XREF_Entry & entry )
 {
 	PDF_XREF_ENTRY_NODE * pTmp = m_pFirstEntry;
 	while ( pTmp )

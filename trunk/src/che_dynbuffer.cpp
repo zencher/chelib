@@ -51,7 +51,7 @@ const CHE_DynBuffer & CHE_DynBuffer::operator = ( const CHE_DynBuffer & buf )
 	return *this;
 }
 
-HE_DWORD CHE_DynBuffer::Write( HE_LPBYTE pBuffer, HE_DWORD size )
+HE_DWORD CHE_DynBuffer::Write( HE_LPCBYTE pBuffer, HE_DWORD size )
 {
 	if ( pBuffer == NULL || size == 0 )
 	{

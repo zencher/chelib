@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../../include/pdf/che_pdf_parser.h"
+#include "../../include/pdf/CHE_PDF_Parser.h"
 
 #include <windows.h>
 
@@ -12,7 +12,7 @@ int main( int argc, char **argv )
 	}
 
 	IHE_Read * pFileRead = HE_CreateFileRead( argv[1] );
-	//IHE_FileRead * pFileRead = HE_CreateFileMemRead( argv[1] );
+	//IHE_Read * pFileRead = HE_CreateFileRead( argv[1], FILEREAD_MODE_MEMCOPY );
 	if ( pFileRead == NULL )
 	{
 		printf( "no file!\n" );
@@ -38,5 +38,6 @@ int main( int argc, char **argv )
 
 	parser.CloseParser();
 	pFileRead->Release();
+
 	return 0;
 }

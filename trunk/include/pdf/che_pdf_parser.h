@@ -37,9 +37,11 @@ public:
 	HE_DWORD			GetPos() { return m_lFilePos; };
 	HE_VOID				SetPos( HE_DWORD pos) { m_lFilePos = pos; };
 	HE_DWORD			Seek( HE_DWORD bytes );
+	HE_VOID				SeekToPrevLine();
 	HE_VOID				SeekToNextLine();
 	HE_VOID				SeekToPrevWord();
 	HE_VOID				SeekToNextWord();
+	HE_VOID				SeekToEndStream();
 	HE_VOID				SeekToEndobj();
 
 	HE_DWORD			ReadBytes( /*HE_DWORD offset,*/ HE_LPBYTE pBuffer, HE_DWORD length );
@@ -95,6 +97,8 @@ public:
 
 	HE_DWORD					GetPageCount();
 
+	HE_DWORD					GetPageObjList( HE_DWORD* pList );
+
 	CHE_PDF_IndirectObject *	GetIndirectObject();
 	
 	CHE_PDF_IndirectObject *	GetIndirectObject( HE_DWORD objNum );
@@ -120,27 +124,8 @@ private:
 	CHE_PDF_SyntaxParser		m_sParser;
 
 	HE_DWORD					m_lstartxref;
-
+	
 	CHE_PDF_IndirectObjectCollector	m_objCollector;
 };
-
-// class CHE_PDF_Document : public CHE_Object
-// {
-// public:
-// 	CHE_PDF_Document( CHE_PDF_Parser * pParser );
-// 	~CHE_PDF_Document();
-// 	
-// 	CHE_PDF_Dictionary*		GetRoot() const;
-// 	
-// 	CHE_PDF_Dictionary*		GetInfo() const;
-// 	
-// 	HE_DWORD				GetPageCount() const;
-// 	
-// 	CHE_PDF_Dictionary*		GetPage( HE_DWORD lPage );
-// 	
-// private:
-// 	CHE_PDF_Parser *	m_pParser;
-// 	
-// };
 
 #endif

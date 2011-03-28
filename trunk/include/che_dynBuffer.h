@@ -16,7 +16,7 @@ public:
 
 	HE_DWORD GetByteCount() { return m_lByteCount; }
 
-	HE_DWORD Write( HE_LPBYTE pBuffer, HE_DWORD size );
+	HE_DWORD Write( HE_LPCBYTE pBuffer, HE_DWORD size );
 
 	HE_DWORD Read( HE_LPBYTE pBuffer, HE_DWORD size );
 

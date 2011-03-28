@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FR /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x804 /d "NDEBUG"
 # ADD RSC /l 0x804 /d "NDEBUG"
@@ -98,7 +98,15 @@ SOURCE=..\..\..\src\pdf\che_pdf_objects.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\src\pdf\che_pdf_pages.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\src\pdf\che_pdf_parser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\src\pdf\che_pdf_renderer.cpp
 # End Source File
 # Begin Source File
 
@@ -146,7 +154,15 @@ SOURCE=..\..\..\include\pdf\che_pdf_objects.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\include\pdf\che_pdf_pages.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\include\pdf\che_pdf_parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_renderer.h
 # End Source File
 # Begin Source File
 
@@ -172,6 +188,10 @@ SOURCE=..\..\..\include\che_define.h
 # Begin Source File
 
 SOURCE=..\..\..\include\che_dynBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\che_graph.h
 # End Source File
 # Begin Source File
 

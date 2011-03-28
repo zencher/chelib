@@ -126,7 +126,7 @@ public:
 
 private:
 
-	HE_DWORD	GetPixelByteIndex( HE_DWORD x, HE_DWORD y ) const;
+	HE_DWORD				GetPixelByteIndex( HE_DWORD x, HE_DWORD y ) const;
 
 	HE_DWORD				m_lWidth;
 	HE_DWORD				m_lHeight;

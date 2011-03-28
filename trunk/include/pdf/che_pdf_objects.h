@@ -123,6 +123,8 @@ public:
 	CHE_PDF_String() { m_Type = PDFOBJ_STRING; }
 
 	CHE_PDF_String( const CHE_ByteString& str ) : m_String(str) { m_Type = PDFOBJ_STRING; }
+
+	CHE_ByteString				GetString() { return m_String; }
 	
 protected:
 	CHE_ByteString			m_String;

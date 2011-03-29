@@ -28,21 +28,41 @@ int main( int argc, char **argv )
 	printf( "page count : %d\n", lPageCount );
 	CHE_PDF_Page * pTmpPage = NULL;
 	CHE_PDF_Renderer renderer;
-	IHE_Write * pWrite = HE_CreateFileWrite( "c:\\contents.txt" );
-	for ( HE_DWORD i = 0; i < 1/*lPageCount*/; i++ )
+	//char tmpStr[1024];
+	//sprintf( tmpStr, "%s.txt", argv[1] );
+	//IHE_Write * pWrite = HE_CreateFileWrite( tmpStr );
+	HE_BOOL	bEncrypt = doc.IsEncrypted();
+	if ( bEncrypt )
 	{
+		//if ( pWrite )
+		//{
+		//	pWrite->WriteBlock( "Encrypted", 9 );
+		//	pWrite->Release();
+		//}
+		return 0;
+	}
+	for ( HE_DWORD i = 0; i < lPageCount; i++ )
+	{
+		if ( i == 228 )
+		{
+			int x = 0;
+		}
 		pTmpPage = doc.GetPage( i );
 		CHE_DynBuffer buffer;
 		renderer.GetPageContent( *pTmpPage, buffer );
-		HE_BYTE * pData = new HE_BYTE[buffer.GetSize()];
+		HE_BYTE * pData = new HE_BYTE[buffer.GetByteCount()];
 		buffer.Read( pData,  buffer.GetByteCount() );
-		pWrite->WriteBlock( pData, buffer.GetByteCount() );
-		if ( pTmpPage )
-		{
-			printf( "page index : %d ", i+1 );
-			printf( "page width : %.2f ", pTmpPage->GetPageWidth() );
-			printf( "page height : %.2f\n", pTmpPage->GetPageHeight() );
-		}
+		//if ( pWrite )
+		//{
+		//	pWrite->WriteBlock( pData, buffer.GetByteCount() );
+		//}
+// 		if ( pTmpPage )
+// 		{
+// 			printf( "page index : %d ", i+1 );
+// 			printf( "page width : %.2f ", pTmpPage->GetPageWidth() );
+// 			printf( "page height : %.2f\n", pTmpPage->GetPageHeight() );
+// 		}
 	}
+//	pWrite->Release();
 	return 0;
 }

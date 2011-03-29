@@ -31,6 +31,7 @@ int main( int argc, char **argv )
 	unsigned int tickEnd = 0;
 	printf( "parse xref table start : %d\n", tickBegin );
 	parser.ParseXRef();
+	parser.VerifyXRef();
 	tickEnd = GetTickCount();
 	printf( "parse xref table stop : %d\n", tickEnd );
 	printf( "time spend : %d\n", tickEnd - tickBegin );

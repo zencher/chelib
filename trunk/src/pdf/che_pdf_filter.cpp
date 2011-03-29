@@ -250,13 +250,12 @@ HE_VOID CHE_PDF_FlateFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBu
 				param = Z_FINISH;
 			}
 			break;
+		case Z_BUF_ERROR:
 		case Z_STREAM_END:
 			nWrittenData = 4096 - stream.avail_out;
 			buffer.Write( tmpBuffer, nWrittenData );
 			deflateEnd( &stream );
 			return;
-			break;
-		case Z_BUF_ERROR:
 			break;
 		default:
 			deflateEnd( &stream );
@@ -310,8 +309,8 @@ HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBu
 			inflateEnd( &stream );
 			return;
 			break;
-		case Z_BUF_ERROR:
-			break;
+		//case Z_BUF_ERROR:
+		//	break;
 		default:
 			inflateEnd( &stream );
 			return;

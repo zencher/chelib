@@ -30,6 +30,8 @@ public:
 	CHE_PDF_Page*			GetPage( HE_DWORD iPageIndex );
 
 	HE_DWORD				GetPageIndex( HE_DWORD objnum );
+
+	HE_BOOL					IsEncrypted();
 	/**
 	 * Enumerate pages with user-supplied page enumeration handler.
 	 *

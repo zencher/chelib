@@ -1,219 +1,147 @@
 #include "../../include/pdf/che_pdf_xref.h"
-
-#define NULL 0
-
-
+#include <memory.h>
 
 CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry()
 {
-	m_type = OBJTYPE_COMMON;
-	m_iByteOffset = 0;
-	m_iObjNum = 0;
-	m_iGenNum = 0;
-	m_byteFlag = 0;
-	m_iIndex = 0;
-	m_iParentObjNum = 0;
+	field1 = 0;
+	field2 = 0;
+	field3 = 0;
+	objNum = 0;
 }
 
-CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag )
+CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( HE_DWORD f1, HE_DWORD f2, HE_DWORD f3, HE_DWORD obj )
 {
-	m_iByteOffset = offset;
-	m_iObjNum = objNum;
-	m_iGenNum = genNum;
-	m_byteFlag = flag;
-	m_type = OBJTYPE_COMMON;
-	m_iIndex = 0;
-	m_iParentObjNum = 0;
-}
-
-CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( unsigned int objNum, unsigned int parentObjNum, unsigned int index )
-{
-	m_iObjNum = objNum;
-	m_iIndex = index;
-	m_type = OBJTYPE_COMPRESSED;
-	m_iByteOffset = 0;
-	m_iGenNum = 0;
-	m_byteFlag = 'n';
-	m_iParentObjNum = parentObjNum;
-}
-
-bool CHE_PDF_XREF_Entry::operator == ( const CHE_PDF_XREF_Entry & entry )
-{
-	if (  this == &entry )
-	{
-		return true;
-	}
-	if ( m_byteFlag != 'f' && m_byteFlag == entry.m_byteFlag && m_iByteOffset == entry.m_iByteOffset && m_iGenNum == entry.m_iGenNum
-		&& m_iIndex == entry.m_iIndex && /*m_iObjNum == entry.m_iObjNum &&*/ m_iParentObjNum == entry.m_iParentObjNum
-		&& m_type == entry.m_type )
-	{
-		return true;
-	}else{
-		return false;
-	}
-
+	field1 = f1;
+	field2 = f2;
+	field3 = f3;
+	objNum = obj;
 }
 
 CHE_PDF_XREF_Table::CHE_PDF_XREF_Table()
 {
+	m_pFirstSection = NULL;
+	m_pCurSection = NULL;
 	m_lCount = 0;
-	m_pFirstEntry = NULL;
-	m_pFirstEntry = NULL;
+	m_lMaxObjNum = 0;
+	m_pFastAccessArr = NULL;
 }
-
-// CHE_PDF_XREF_Table::CHE_PDF_XREF_Table( const CHE_PDF_XREF_Table & table )
-// {
-// 	
-// }
 
 CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
 {
-	m_lCount = 0;
-	m_pFirstEntry = NULL;
-	m_pFirstEntry = NULL;
+	//未完成
 }
 
-// const CHE_PDF_XREF_Table & CHE_PDF_XREF_Table::operator = ( const CHE_PDF_XREF_Table & table )
-// {
-// 
-// }
-
-void CHE_PDF_XREF_Table::Clear()
+HE_VOID CHE_PDF_XREF_Table::Clear()
 {
-	PDF_XREF_ENTRY_NODE * pTmp = m_pFirstEntry;
-	while ( pTmp )
-	{
-		m_pFirstEntry = m_pFirstEntry->pNext;
-		delete pTmp;
-		pTmp = m_pFirstEntry;
-	}
-	m_lCount = 0;
+	//未完成
 }
 
-// void CHE_PDF_XREF_Table::Clone( const CHE_PDF_XREF_Table & table )
-// {
-// 	if ( this == &table )
-// 	{
-// 		return;
-// 	}
-// 	Clear();
-// 
-// }
-
-// bool CHE_PDF_XREF_Table::Append( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag )
-// {
-// 	if ( m_pFirstEntry == NULL )
-// 	{
-// 		m_pFirstEntry = new PDF_XREF_ENTRY_NODE;
-// 		m_pFirstEntry->pNext = NULL;
-// 		m_pLastEntry = m_pFirstEntry;
-// 		m_pFirstEntry->entry.SetOffset( offset );
-// 		m_pFirstEntry->entry.SetObjNum( objNum );
-// 		m_pFirstEntry->entry.SetGenNum( genNum );
-// 		m_pFirstEntry->entry.SetFlag( flag );
-// 	}else{
-// 		m_pLastEntry->pNext = new PDF_XREF_ENTRY_NODE;
-// 		m_pLastEntry->pNext->pNext = NULL;
-// 		m_pLastEntry = m_pLastEntry->pNext;
-// 		m_pLastEntry->entry.SetOffset( offset );
-// 		m_pLastEntry->entry.SetObjNum( objNum );
-// 		m_pLastEntry->entry.SetGenNum( genNum );
-// 		m_pLastEntry->entry.SetFlag( flag );
-// 	}
-// 	m_lCount++;
-// 	return true;
-// }
-
-bool CHE_PDF_XREF_Table::Append( CHE_PDF_XREF_Entry & entry )
+HE_VOID	CHE_PDF_XREF_Table::NewSection( HE_DWORD lBegin )
 {
-	if ( m_pFirstEntry == NULL )
+	if ( m_pFirstSection == NULL )
 	{
-		m_pFirstEntry = new PDF_XREF_ENTRY_NODE;
-		m_pFirstEntry->pNext = NULL;
-		m_pLastEntry = m_pFirstEntry;
-		m_pFirstEntry->entry = entry;
+		m_pFirstSection = new PDF_XREF_SECTION;
+		m_pFirstSection->lBeginNum = lBegin;
+		m_pFirstSection->lCount = 0;
+		m_pFirstSection->pFirstEntry = NULL;
+		m_pFirstSection->pLastEntry = NULL;
+		m_pFirstSection->pNextSection = NULL;
+		m_pCurSection = m_pFirstSection;
 	}else{
-		m_pLastEntry->pNext = new PDF_XREF_ENTRY_NODE;
-		m_pLastEntry->pNext->pNext = NULL;
-		m_pLastEntry = m_pLastEntry->pNext;
-		m_pLastEntry->entry = entry;
+		m_pCurSection->pNextSection = new PDF_XREF_SECTION;
+		m_pCurSection = m_pCurSection->pNextSection;
+		m_pCurSection->lBeginNum = lBegin;
+		m_pCurSection->lCount = 0;
+		m_pCurSection->pFirstEntry = NULL;
+		m_pCurSection->pLastEntry = NULL;
+		m_pCurSection->pNextSection = NULL;
 	}
-	m_lCount++;
-	return true;
 }
 
-bool CHE_PDF_XREF_Table::AppendWithCheck( CHE_PDF_XREF_Entry & entry )
+HE_VOID CHE_PDF_XREF_Table::NewNode( CHE_PDF_XREF_Entry & entry )
 {
-	PDF_XREF_ENTRY_NODE * pTmp = m_pFirstEntry;
-	while ( pTmp )
+	if ( m_pCurSection == NULL ) return;
+	if ( m_pCurSection->pFirstEntry == NULL )
 	{
-		if ( entry == pTmp->entry )
-		{
-			return false;
-		}
-		pTmp = pTmp->pNext;
-	}
-
-	if ( m_pFirstEntry == NULL )
-	{
-		m_pFirstEntry = new PDF_XREF_ENTRY_NODE;
-		m_pFirstEntry->pNext = NULL;
-		m_pLastEntry = m_pFirstEntry;
-		m_pFirstEntry->entry = entry;
+		m_pCurSection->pFirstEntry = new PDF_XREF_ENTRY_NODE;
+		m_pCurSection->pFirstEntry->entry = entry;
+		m_pCurSection->pFirstEntry->pNext = NULL;
+		m_pCurSection->pFirstEntry->pPrv = NULL;
+		m_pCurSection->pLastEntry = m_pCurSection->pFirstEntry;
 	}else{
-		m_pLastEntry->pNext = new PDF_XREF_ENTRY_NODE;
-		m_pLastEntry->pNext->pNext = NULL;
-		m_pLastEntry = m_pLastEntry->pNext;
-		m_pLastEntry->entry = entry;
+		m_pCurSection->pLastEntry->pNext = new PDF_XREF_ENTRY_NODE;
+		m_pCurSection->pLastEntry->pNext->pPrv = m_pCurSection->pLastEntry;
+		m_pCurSection->pLastEntry = m_pCurSection->pLastEntry->pNext;
+		m_pCurSection->pLastEntry->pNext = NULL;
+		m_pCurSection->pLastEntry->entry = entry;
 	}
+	m_pCurSection->lCount++;
 	m_lCount++;
-	return true;
-}
-// 
-// bool CHE_PDF_XREF_Table::Update( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag )
-// {
-// 	return false;
-// }
-
-bool CHE_PDF_XREF_Table::Update( CHE_PDF_XREF_Entry & entry )
-{
-	return false;
-}
-
-bool CHE_PDF_XREF_Table::Remove( unsigned int objNum )
-{
-	return false;
-}
-
-bool CHE_PDF_XREF_Table::GetEntry( unsigned int objNum, CHE_PDF_XREF_Entry & entryRet )
-{
-	PDF_XREF_ENTRY_NODE * pTmp = m_pFirstEntry;
-	while ( pTmp )
+	if ( m_pCurSection->lCount + m_pCurSection->lBeginNum > m_lMaxObjNum )
 	{
-// 		if ( pTmp->entry.GetObjNum() == 1536 )
-// 		{
-// 			int x = 0;
-// 		}
-		if ( objNum == pTmp->entry.GetObjNum() )
-		{
-			entryRet = pTmp->entry;
-			return true;
-		}
-		pTmp = pTmp->pNext;
+		m_lMaxObjNum = m_pCurSection->lCount + m_pCurSection->lBeginNum;
 	}
-	return false;
 }
 
-bool CHE_PDF_XREF_Table::IsExist( unsigned int objNum )
+HE_VOID CHE_PDF_XREF_Table::BuildIndex()
 {
-	PDF_XREF_ENTRY_NODE * pTmp = m_pFirstEntry;
-	while ( pTmp )
+	if ( m_pFastAccessArr )
 	{
-		if ( objNum == pTmp->entry.GetObjNum() )
-		{
-			return true;
-		}
-		pTmp = m_pFirstEntry->pNext;
+		delete [] m_pFastAccessArr;
+		m_pFastAccessArr = NULL;
 	}
-	return false;
+	if ( m_lMaxObjNum == 0 )
+	{
+		return;
+	}
+	m_pFastAccessArr = new PDF_XREF_ENTRY_NODE*[m_lMaxObjNum+1];
+	memset( m_pFastAccessArr, 0, sizeof(CHE_PDF_XREF_Entry*)*(m_lMaxObjNum+1) );
+
+	PDF_XREF_SECTION * pTmpSection = m_pFirstSection;
+	while ( pTmpSection )
+	{
+		PDF_XREF_ENTRY_NODE * pTmpEntry = pTmpSection->pFirstEntry;
+		HE_DWORD lIndex = pTmpSection->lBeginNum;
+		while( pTmpEntry )
+		{
+			pTmpEntry->entry.objNum = lIndex;
+			m_pFastAccessArr[lIndex++] = pTmpEntry;
+			pTmpEntry = pTmpEntry->pNext;
+			if ( lIndex == 2179 )
+			{
+			}
+		}
+		pTmpSection = pTmpSection->pNextSection;
+	}
+}
+
+HE_BOOL CHE_PDF_XREF_Table::GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet )
+{
+	if ( m_pFastAccessArr == NULL )
+	{
+		return FALSE;
+	}
+	if ( objNum > m_lMaxObjNum  )
+	{
+		return FALSE;
+	}
+	entryRet = m_pFastAccessArr[objNum]->entry;
+	return TRUE;
+}
+
+HE_BOOL CHE_PDF_XREF_Table::IsExist( HE_DWORD objNum )
+{
+	if ( m_pFastAccessArr == NULL )
+	{
+		return FALSE;
+	}
+	if ( objNum > m_lMaxObjNum )
+	{
+		return FALSE;
+	}
+	if ( m_pFastAccessArr[m_lMaxObjNum] == NULL )
+	{
+		return FALSE;
+	}
+	return TRUE;
 }

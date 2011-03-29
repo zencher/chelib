@@ -24,6 +24,7 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
 		m_pParser->StartParse( pFileRead );
 		m_pParser->GetStartxrefOffset( 1024 );
 		m_pParser->ParseXRef();
+		m_pParser->VerifyXRef();
 		m_pRootDict = m_pParser->GetRootDict();
 		m_pInfoDict = m_pParser->GetInfoDict();
 		HE_DWORD pageCount = m_pParser->GetPageCount();
@@ -43,14 +44,14 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
 
 CHE_PDF_Document::~CHE_PDF_Document()
 {
+	if ( m_pPageObjNumList )
+	{
+		delete [] m_pPageObjNumList;
+	}
 	if ( m_pParser )
 	{
 		m_pParser->CloseParser();
 		delete m_pParser;
-	}
-	if ( m_pPageObjNumList )
-	{
-		delete [] m_pPageObjNumList;
 	}
 }
 
@@ -65,11 +66,12 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 	m_pParser->StartParse( pFileRead );
 	m_pParser->GetStartxrefOffset( 1024 );
 	m_pParser->ParseXRef();
+	m_pParser->VerifyXRef();
 	m_pRootDict = m_pParser->GetRootDict();
 	m_pInfoDict = m_pParser->GetInfoDict();
 	HE_DWORD pageCount = m_pParser->GetPageCount();
 	m_pPageObjNumList = new HE_DWORD[pageCount];
-	memset( m_pPageObjNumList, 0, pageCount * sizeof(HE_DWORD*) );
+	memset( m_pPageObjNumList, 0, pageCount * sizeof(HE_DWORD) );
 	m_pParser->GetPageObjList( m_pPageObjNumList );
 	CHE_PDF_Object * pIDArray = m_pParser->GetIDArray();
 	if ( pIDArray && pIDArray->GetType() == PDFOBJ_ARRAY )
@@ -112,6 +114,25 @@ CHE_PDF_Page* CHE_PDF_Document::GetPage( HE_DWORD iPageIndex )
 	pPageObj = ((CHE_PDF_IndirectObject*)pPageObj)->GetObject();
 	CHE_PDF_Page * pPage = new CHE_PDF_Page( (CHE_PDF_Dictionary*)pPageObj, this );
 	return pPage;
+}
+
+HE_BOOL CHE_PDF_Document::IsEncrypted()
+{
+	if ( m_pParser == NULL )
+	{
+		return FALSE;
+	}
+	if ( m_pParser->GetTrailerDict() == NULL )
+	{
+		return FALSE;
+	}
+	CHE_PDF_Object * pObj = m_pParser->GetTrailerDict()->GetElement( CHE_ByteString("Encrypt") );
+	if ( pObj == NULL )
+	{
+		return FALSE;
+	}else{
+		return TRUE;
+	}
 }
  
 // HE_DWORD CHE_PDF_Document::GetPageIndex( HE_DWORD objnum );

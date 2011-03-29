@@ -1,7 +1,9 @@
- #ifndef _CHE_PDF_XREF_H_
+#ifndef _CHE_PDF_XREF_H_
 #define _CHE_PDF_XREF_H_
 
 #include "../che_base.h"
+
+class CHE_PDF_Parser;
 
 #define PDF_XREF_ENTRY_INUSE	'n'
 #define PDF_XREF_ENTRY_FREE		'f'
@@ -13,84 +15,64 @@ class CHE_PDF_XREF_Entry
 {
 public:
 	CHE_PDF_XREF_Entry();
-	CHE_PDF_XREF_Entry( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
-	CHE_PDF_XREF_Entry( unsigned int objNum, unsigned int parentObjNum, unsigned int index );
+	CHE_PDF_XREF_Entry( HE_DWORD f1, HE_DWORD f2, HE_DWORD f3, HE_DWORD objNum );
 
-	bool operator == ( const CHE_PDF_XREF_Entry & entry );
+	HE_DWORD field1;
+	HE_DWORD field2;
+	HE_DWORD field3;
+	HE_DWORD objNum;
 
-	void SetType( unsigned char type ) { m_type = type; }
-	void SetFlag( unsigned char flag ) { m_byteFlag = flag; }
-	void SetGenNum( unsigned int genNum ) { m_iGenNum = genNum; }
-	void SetOffset( unsigned int offset ) { m_iByteOffset = offset; }
-	void SetObjNum( unsigned int objNum ) { m_iObjNum = objNum; }
-	void SetParentObjNum( unsigned int parentObjNum ) { m_iParentObjNum = parentObjNum; }
-	void SetIndex( unsigned int index ) { m_iIndex = index; }
-
-	unsigned char	GetType() { return m_type; }
-	unsigned char	GetFlag() { return m_byteFlag; }
-	unsigned short	GetGenNum() { return m_iGenNum; }
-	unsigned int	GetOffset() { return m_iByteOffset; }
-	unsigned int	GetObjNum() { return m_iObjNum; }
-	unsigned int	GetParentObjNum() { return m_iParentObjNum; }
-	unsigned int	GetIndex() { return m_iIndex; }	
-
-private:
-	unsigned char	m_type;	// 0 - OBJTYPE_COMMON, 1 - OBJTYPE_COMPRESSED
-	unsigned char	m_byteFlag;
-	unsigned short	m_iGenNum;
-	unsigned int	m_iByteOffset;
-	unsigned int	m_iObjNum;
-	unsigned int	m_iParentObjNum;
-	unsigned int	m_iIndex;
+	HE_DWORD GetType() { return ( field1 == 0 ) ? -1 : ( ( field1 == 2 ) ? OBJTYPE_COMPRESSED : OBJTYPE_COMMON ); }
+	HE_DWORD GetOffset() { return field2; }
+	HE_DWORD GetParentObjNum() { return field2; }
+	HE_DWORD GetObjNum() { return objNum; }
+	HE_DWORD GetIndex() { return field3; }
 };
 
 struct PDF_XREF_ENTRY_NODE
 {
 	CHE_PDF_XREF_Entry entry;
+	PDF_XREF_ENTRY_NODE * pPrv;
 	PDF_XREF_ENTRY_NODE * pNext;
 };
 
-struct PDF_XREF_TABLE_BLOCK
+struct PDF_XREF_SECTION
 {
+	PDF_XREF_ENTRY_NODE * pFirstEntry;
+	PDF_XREF_ENTRY_NODE * pLastEntry;
 	HE_DWORD lBeginNum;
-	PDF_XREF_ENTRY_NODE* pNodePtrArr[4096];
-	PDF_XREF_TABLE_BLOCK * pNext;
+	HE_DWORD lCount;
+	PDF_XREF_SECTION * pNextSection;
 };
-
 
 class CHE_PDF_XREF_Table
 {
 public:
 	CHE_PDF_XREF_Table();
-	//CHE_PDF_XREF_Table( const CHE_PDF_XREF_Table & table );
 	~CHE_PDF_XREF_Table();
-
-	//const CHE_PDF_XREF_Table & operator = ( const CHE_PDF_XREF_Table & table );
 	
-	void Clear();
-                                         
-	//void Clone( const CHE_PDF_XREF_Table & table );
+	HE_VOID Clear();
 
-	//bool Append( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
-	//bool Append( unsigned int objNum, unsigned int index );
-	bool Append( CHE_PDF_XREF_Entry & entry );
+	HE_VOID	NewSection( HE_DWORD lBegin );
 
-	bool AppendWithCheck( CHE_PDF_XREF_Entry & entry );
+	HE_VOID NewNode( CHE_PDF_XREF_Entry & entry );
 
-	//bool Update( unsigned int offset, unsigned int objNum, unsigned int genNum, unsigned char flag );
-	//bool Update( unsigned int objNum, unsigned int index );
-	bool Update( CHE_PDF_XREF_Entry & entry );
+	HE_VOID BuildIndex();
 
-	bool Remove( unsigned int objNum );
+	//HE_BOOL Remove( unsigned int objNum );
 
-	bool GetEntry( unsigned int objNum, CHE_PDF_XREF_Entry & entryRet );
+	HE_BOOL GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
 
-	bool IsExist( unsigned int objNum );
+	HE_BOOL IsExist( HE_DWORD objNum );
 
 private:
-	PDF_XREF_ENTRY_NODE *	m_pFirstEntry;
-	PDF_XREF_ENTRY_NODE *	m_pLastEntry;
+	PDF_XREF_SECTION *		m_pFirstSection;
+	PDF_XREF_SECTION *		m_pCurSection;
 	HE_DWORD				m_lCount;
+	HE_DWORD				m_lMaxObjNum;
+	PDF_XREF_ENTRY_NODE **	m_pFastAccessArr;
+
+	friend class CHE_PDF_Parser;
 };
 
 #endif

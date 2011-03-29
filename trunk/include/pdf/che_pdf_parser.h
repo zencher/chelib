@@ -76,6 +76,7 @@ class CHE_PDF_Parser : public CHE_Object
 {
 public:
 	CHE_PDF_Parser();
+	~CHE_PDF_Parser() {};
 
 	HE_BOOL						StartParse( IHE_Read * file );
 
@@ -89,9 +90,13 @@ public:
 
 	HE_DWORD					ParseXRef();
 
+	HE_VOID						VerifyXRef();
+
 	CHE_PDF_Dictionary*			GetRootDict();
 
 	CHE_PDF_Dictionary*			GetInfoDict();
+
+	CHE_PDF_Dictionary*			GetTrailerDict() { return m_pTrailerDict; }
 
 	CHE_PDF_Array*				GetIDArray();
 
@@ -124,6 +129,9 @@ private:
 	CHE_PDF_SyntaxParser		m_sParser;
 
 	HE_DWORD					m_lstartxref;
+
+	CHE_NumToPtrMap				m_XrefVerifyMap1;
+	CHE_NumToPtrMap				m_XrefVerifyMap2;
 	
 	CHE_PDF_IndirectObjectCollector	m_objCollector;
 };

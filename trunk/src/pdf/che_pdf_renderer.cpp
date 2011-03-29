@@ -35,7 +35,6 @@ HE_BOOL CHE_PDF_Renderer::GetPageContent( CHE_PDF_Page & page, CHE_DynBuffer & b
 			stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
 			buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 			stmAcc.Detach();
-			return TRUE;
 		}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
 		{
 			CHE_PDF_Object * pTmpObj = NULL;
@@ -68,8 +67,71 @@ HE_BOOL CHE_PDF_Renderer::GetPageContent( CHE_PDF_Page & page, CHE_DynBuffer & b
 					}
 				}
 			}
-			return TRUE;
 		}
+		return TRUE;
+	}else if ( pPageContent->GetType() == PDFOBJ_ARRAY )
+	{
+		HE_DWORD objCount = ((CHE_PDF_Array*)pPageContent)->GetCount();
+		for ( HE_DWORD i = 0; i < objCount; i++ )
+		{
+			CHE_PDF_Object * pObj = ((CHE_PDF_Array*)pPageContent)->GetElement( i );
+			if ( pObj == NULL )
+			{
+				continue;
+			}
+			if ( pObj->GetType() != PDFOBJ_REFERENCE )
+			{
+				continue;
+			}
+			HE_DWORD objNum = ((CHE_PDF_Reference*)pObj)->GetRefNuml();
+			CHE_PDF_IndirectObject * pInObj = page.GetDocument()->GetParser()->GetIndirectObject( objNum );
+			if ( pInObj == NULL )
+			{
+				continue;
+			}
+			CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+
+			if ( pContentObj->GetType() == PDFOBJ_STREAM )
+			{
+				CHE_PDF_StreamAcc stmAcc;
+				stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+				buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+				stmAcc.Detach();
+			}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
+			{
+				CHE_PDF_Object * pTmpObj = NULL;
+				for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
+				{
+					pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
+					if ( pTmpObj->GetType() == PDFOBJ_STREAM )
+					{
+						CHE_PDF_StreamAcc stmAcc;
+						stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
+						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+						stmAcc.Detach();
+						
+					}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+					{
+						HE_DWORD objNum = ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml();
+						CHE_PDF_IndirectObject * pInObj = page.GetDocument()->GetParser()->GetIndirectObject( objNum );
+						if ( pInObj == NULL )
+						{
+							continue;
+							//return FALSE;
+						}
+						CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+						if ( pContentObj->GetType() == PDFOBJ_STREAM )
+						{
+							CHE_PDF_StreamAcc stmAcc;
+							stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+							buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+							stmAcc.Detach();
+						}
+					}
+				}
+			}
+		}
+		return TRUE;
 	}
 	return FALSE;
 }

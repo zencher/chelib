@@ -228,46 +228,58 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 		CHE_PDF_Dictionary * pDict = pStream->GetDict();
 		if ( pDict )
 		{
+			
+			HE_DWORD lFilterCount = 0;
 			HE_DWORD length = pStream->GetRawSize();
-			CHE_PDF_Object * pObj = pDict->GetElement( CHE_ByteString("Filter") );
-			CHE_PDF_Object * pParam = pDict->GetElement( CHE_ByteString("DecodeParms") );
-			if ( pObj == NULL )
+			CHE_PDF_Object * pFilter = pDict->GetElement( CHE_ByteString("Filter") );
+			CHE_PDF_Object * pParms = pDict->GetElement( CHE_ByteString("DecodeParms") );
+			if ( pFilter == NULL )
 			{
 				m_dwSize = length;
 				m_pData = new HE_BYTE[length];
 				pStream->ReadRawData( 0, m_pData, length );
 				return TRUE;
+			}else{
+				if ( pFilter->GetType() == PDFOBJ_ARRAY )
+				{
+					lFilterCount = ((CHE_PDF_Array*)pFilter)->GetCount();
+				}else{
+					lFilterCount = 1;
+				}
 			}
-			HE_DWORD lFilterCount = 0;
-			CHE_PDF_Name ** pNameObj = NULL;
-			CHE_PDF_Dictionary ** pParamObj = NULL;
-			if ( pObj->GetType() == PDFOBJ_NAME )
+			CHE_PDF_Name ** pFilterNameArr = new CHE_PDF_Name*[lFilterCount];
+			CHE_PDF_Dictionary ** pParamDictArr = new CHE_PDF_Dictionary*[lFilterCount];
+			for ( HE_DWORD j = 0; j < lFilterCount; j++ )
 			{
-				lFilterCount = 1;
-				pNameObj = (CHE_PDF_Name**)&pObj;
-				pParamObj = NULL;
-			}else if ( pObj->GetType() == PDFOBJ_ARRAY )
+				pFilterNameArr[j] = NULL;
+				pParamDictArr[j] = NULL;
+			}
+			if ( pFilter->GetType() == PDFOBJ_NAME )
 			{
-				lFilterCount = ((CHE_PDF_Array*)pObj)->GetCount();
-				pNameObj = new CHE_PDF_Name*[lFilterCount];
-				pParamObj = new CHE_PDF_Dictionary*[lFilterCount];
+				pFilterNameArr[0] = (CHE_PDF_Name*)pFilter;
+			}else if ( pFilter->GetType() == PDFOBJ_ARRAY )
+			{
 				for ( HE_DWORD i = 0; i < lFilterCount; i++ )
 				{
-					pNameObj[i] = (CHE_PDF_Name*)(((CHE_PDF_Array*)pObj)->GetElement( i ));
-					pParamObj[i] = NULL;
+					pFilterNameArr[i] = (CHE_PDF_Name*)(((CHE_PDF_Array*)pFilter)->GetElement( i ));
 				}
 			}else{
 				return FALSE;
 			}
-			if ( pParam->GetType() == PDFOBJ_NAME )
+			if ( pParms == NULL )
 			{
-				pParamObj = (CHE_PDF_Dictionary**)&pParam;
-			}else if ( (*pParamObj)->GetType() == PDFOBJ_ARRAY )
+				for ( HE_DWORD i = 0; i < lFilterCount; i++ )
+				{
+					pParamDictArr[i] = NULL;
+				}
+			}else if ( pParms->GetType() == PDFOBJ_DICTIONARY )
 			{
-				HE_DWORD lParamCount = ((CHE_PDF_Array*)pParamObj)->GetCount();
+				pParamDictArr[0] = (CHE_PDF_Dictionary*)pParms;
+			}else if ( pParms->GetType() == PDFOBJ_ARRAY ){
+				HE_DWORD lParamCount = ((CHE_PDF_Array*)pParms)->GetCount();
 				for ( HE_DWORD i = 0; i < lParamCount; i++ )
 				{
-					pParamObj[i] = (CHE_PDF_Dictionary*)((CHE_PDF_Array*)pParamObj)->GetElement( i );
+					pParamDictArr[i] = (CHE_PDF_Dictionary*)((CHE_PDF_Array*)pParms)->GetElement( i );
 				}
 			}
 			HE_DWORD bufSize = (length == 0) ? 1024 : length;
@@ -278,7 +290,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 			CHE_ByteString str;
 			for ( HE_DWORD i = 0; i < lFilterCount; i++ )
 			{
-				str = pNameObj[i]->GetString();
+				str = pFilterNameArr[i]->GetString();
 				if ( str == "ASCIIHexDecode" )
 				{
 					CHE_PDF_HexFilter filter;
@@ -297,7 +309,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 					buffer.Read( pTmp, lSize );
 				}else if ( str == "LZWDecode" )
 				{
-					CHE_PDF_Dictionary * pDecodeParams = pParamObj[i];
+					CHE_PDF_Dictionary * pDecodeParams = pParamDictArr[i];
 					if ( pDecodeParams == NULL )
 					{
 						CHE_PDF_LZWFilter filter;
@@ -348,7 +360,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 					return TRUE;
 				}else if ( str == "FlateDecode" )
 				{
-					CHE_PDF_Dictionary * pDecodeParams = pParamObj[i];
+					CHE_PDF_Dictionary * pDecodeParams = pParamDictArr[i];
 					if ( pDecodeParams == NULL )
 					{
 						CHE_PDF_FlateFilter filter;
@@ -443,6 +455,8 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 			}
 			m_pData = pTmp;
 			m_dwSize = lSize;
+			delete [] pParamDictArr;
+			delete [] pFilterNameArr;
 			return TRUE;
 		}
 	}

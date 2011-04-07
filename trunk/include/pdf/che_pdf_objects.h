@@ -337,7 +337,7 @@ public:
 
 	CHE_PDF_Stream *		GetStream() const;
 
-	CHE_PDF_Object *		GetObject() const;
+	CHE_PDF_Object *		GetObject() const { return m_pObj; }
 
 private:
 	CHE_PDF_Object *	m_pObj;

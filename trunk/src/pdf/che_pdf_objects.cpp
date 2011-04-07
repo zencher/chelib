@@ -508,11 +508,6 @@ CHE_PDF_Stream*	CHE_PDF_IndirectObject::GetStream() const
 	return NULL;
 }
 
-CHE_PDF_Object* CHE_PDF_IndirectObject::GetObject() const
-{
-	return m_pObj;
-}
-
 HE_BOOL CHE_PDF_IndirectObjectCollector::Add( CHE_PDF_IndirectObject * pObj )
 {
 	if ( pObj == NULL )

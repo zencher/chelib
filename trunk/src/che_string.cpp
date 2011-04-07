@@ -269,6 +269,45 @@ bool CHE_ByteString::operator==( const CHE_ByteString& str )const
 	}
 }
 
+HE_BOOL	CHE_ByteString::SetBytes( HE_BYTE * pBytes, HE_DWORD size )
+{
+	if ( pBytes == NULL || size == 0 )
+	{
+		return FALSE;
+	}
+	if ( m_lpData == NULL )
+	{
+		m_lpData = new HE_ByteStringData;
+		m_lpData->m_dwRef = 1;
+		m_lpData->m_dwLength = size;
+		m_lpData->m_lpString = new HE_CHAR[size+1];
+		memcpy( m_lpData->m_lpString, pBytes, size );
+		m_lpData->m_lpString[size] = '\0';
+	}else{
+		m_lpData->m_dwRef--;
+		if ( m_lpData->m_dwRef == 0 )
+		{
+			if ( m_lpData->m_lpString )
+			{
+				delete[] m_lpData->m_lpString;
+			}
+			m_lpData->m_dwRef = 1;
+			m_lpData->m_dwLength = size;
+			m_lpData->m_lpString = new HE_CHAR[size+1];
+			memcpy( m_lpData->m_lpString, pBytes, size );
+			m_lpData->m_lpString[size] = '\0';
+		}else {
+			m_lpData = new HE_ByteStringData;
+			m_lpData->m_dwRef = 1;
+			m_lpData->m_dwLength = size;
+			m_lpData->m_lpString = new HE_CHAR[size+1];
+			memcpy( m_lpData->m_lpString, pBytes, size );
+			m_lpData->m_lpString[size] = '\0';
+		}
+	}
+	return TRUE;
+}
+
 HE_DWORD CHE_ByteString::GetLength()
 {
 	if ( m_lpData == NULL )

@@ -25,6 +25,8 @@ public:
 	CHE_ByteString& operator=( HE_LPCSTR lpStr );	//м╛ио
 	CHE_ByteString& operator=( const CHE_ByteString& str );
 
+	HE_BOOL	SetBytes( HE_BYTE * pBytes, HE_DWORD size );
+
 	bool operator==( HE_CHAR ch )const;
 	bool operator==( HE_LPCSTR lpStr )const;
 	bool operator==( const CHE_ByteString& str )const;

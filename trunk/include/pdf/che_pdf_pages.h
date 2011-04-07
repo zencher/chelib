@@ -3,6 +3,7 @@
 
 #include "../che_base.h"
 #include "che_pdf_parser.h"
+#include "../che_dynBuffer.h"
 
 class CHE_PDF_Page;
 
@@ -295,6 +296,8 @@ public:
 	HE_FLOAT	GetPageHeight() { return m_fPageHeight; }
 
 	CHE_PDF_Document *	GetDocument() { return m_pDoc; }
+	
+	HE_BOOL		GetPageContent( CHE_DynBuffer & buffer );
 
 	CHE_PDF_Dictionary* GetPageDictionary() { return m_pPageObj; }
 

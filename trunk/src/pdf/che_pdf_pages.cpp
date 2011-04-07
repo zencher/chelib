@@ -24,7 +24,7 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
 		m_pParser->StartParse( pFileRead );
 		m_pParser->GetStartxrefOffset( 1024 );
 		m_pParser->ParseXRef();
-		m_pParser->VerifyXRef();
+		//m_pParser->VerifyXRef();
 		m_pRootDict = m_pParser->GetRootDict();
 		m_pInfoDict = m_pParser->GetInfoDict();
 		HE_DWORD pageCount = m_pParser->GetPageCount();
@@ -66,7 +66,7 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 	m_pParser->StartParse( pFileRead );
 	m_pParser->GetStartxrefOffset( 1024 );
 	m_pParser->ParseXRef();
-	m_pParser->VerifyXRef();
+	//m_pParser->VerifyXRef();
 	m_pRootDict = m_pParser->GetRootDict();
 	m_pInfoDict = m_pParser->GetInfoDict();
 	HE_DWORD pageCount = m_pParser->GetPageCount();
@@ -165,4 +165,139 @@ CHE_PDF_Page::CHE_PDF_Page( CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc 
 CHE_PDF_Page::~CHE_PDF_Page()
 {
 
+}
+
+HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
+{
+	CHE_PDF_Dictionary * pPageDict = m_pPageObj;
+	if ( pPageDict == NULL )
+	{
+		return FALSE;
+	}
+	CHE_PDF_Object * pPageContent = pPageDict->GetElement( CHE_ByteString("Contents") );
+	if ( pPageContent == NULL )
+	{
+		return FALSE;
+	}
+	if ( m_pDoc == NULL )
+	{
+		return FALSE;
+	}
+	if (m_pDoc->GetParser() == NULL )
+	{
+		return FALSE;
+	}
+	if ( pPageContent->GetType() == PDFOBJ_REFERENCE )
+	{
+		HE_DWORD objNum = ((CHE_PDF_Reference*)pPageContent)->GetRefNuml();
+		CHE_PDF_IndirectObject * pInObj = m_pDoc->GetParser()->GetIndirectObject( objNum );
+		if ( pInObj == NULL )
+		{
+			return FALSE;
+		}
+		CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+		if ( pContentObj->GetType() == PDFOBJ_STREAM )
+		{
+			CHE_PDF_StreamAcc stmAcc;
+			stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+			buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+			stmAcc.Detach();
+		}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
+		{
+			CHE_PDF_Object * pTmpObj = NULL;
+			for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
+			{
+				pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
+				if ( pTmpObj->GetType() == PDFOBJ_STREAM )
+				{
+					CHE_PDF_StreamAcc stmAcc;
+					stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
+					buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+					stmAcc.Detach();
+					
+				}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+				{
+					HE_DWORD objNum = ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml();
+					CHE_PDF_IndirectObject * pInObj = m_pDoc->GetParser()->GetIndirectObject( objNum );
+					if ( pInObj == NULL )
+					{
+						continue;
+						//return FALSE;
+					}
+					CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+					if ( pContentObj->GetType() == PDFOBJ_STREAM )
+					{
+						CHE_PDF_StreamAcc stmAcc;
+						stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+						stmAcc.Detach();
+					}
+				}
+			}
+		}
+		return TRUE;
+	}else if ( pPageContent->GetType() == PDFOBJ_ARRAY )
+	{
+		HE_DWORD objCount = ((CHE_PDF_Array*)pPageContent)->GetCount();
+		for ( HE_DWORD i = 0; i < objCount; i++ )
+		{
+			CHE_PDF_Object * pObj = ((CHE_PDF_Array*)pPageContent)->GetElement( i );
+			if ( pObj == NULL )
+			{
+				continue;
+			}
+			if ( pObj->GetType() != PDFOBJ_REFERENCE )
+			{
+				continue;
+			}
+			HE_DWORD objNum = ((CHE_PDF_Reference*)pObj)->GetRefNuml();
+			CHE_PDF_IndirectObject * pInObj = m_pDoc->GetParser()->GetIndirectObject( objNum );
+			if ( pInObj == NULL )
+			{
+				continue;
+			}
+			CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+
+			if ( pContentObj->GetType() == PDFOBJ_STREAM )
+			{
+				CHE_PDF_StreamAcc stmAcc;
+				stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+				buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+				stmAcc.Detach();
+			}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
+			{
+				CHE_PDF_Object * pTmpObj = NULL;
+				for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
+				{
+					pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
+					if ( pTmpObj->GetType() == PDFOBJ_STREAM )
+					{
+						CHE_PDF_StreamAcc stmAcc;
+						stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
+						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+						stmAcc.Detach();
+						
+					}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+					{
+						HE_DWORD objNum = ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml();
+						CHE_PDF_IndirectObject * pInObj = m_pDoc->GetParser()->GetIndirectObject( objNum );
+						if ( pInObj == NULL )
+						{
+							continue;
+						}
+						CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+						if ( pContentObj->GetType() == PDFOBJ_STREAM )
+						{
+							CHE_PDF_StreamAcc stmAcc;
+							stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+							buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
+							stmAcc.Detach();
+						}
+					}
+				}
+			}
+		}
+		return TRUE;
+	}
+	return FALSE;
 }

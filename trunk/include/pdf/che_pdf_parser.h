@@ -24,6 +24,9 @@ struct PDFPARSER_WORD_DES
 	HE_DWORD		offset;
 };
 
+HE_INT32 HE_PDF_StringToInteger( CHE_ByteString & str );
+HE_FLOAT HE_PDF_StringToFloat( CHE_ByteString & str );
+
 class CHE_PDF_SyntaxParser : public CHE_Object
 {
 public:
@@ -129,6 +132,8 @@ private:
 	CHE_PDF_SyntaxParser		m_sParser;
 
 	HE_DWORD					m_lstartxref;
+
+	HE_DWORD					m_lPageCount;
 
 	CHE_NumToPtrMap				m_XrefVerifyMap1;
 	CHE_NumToPtrMap				m_XrefVerifyMap2;

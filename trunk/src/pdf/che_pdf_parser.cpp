@@ -446,7 +446,7 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
 								case 'E':
 								case 'F':
 									{
-										tmpValue = tmpValue * 16 + (byte - 0x31);
+										tmpValue = tmpValue * 16 + (byte - 0x37);
 										break;
 									}
 								case 'a':
@@ -456,7 +456,7 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
 								case 'e':
 								case 'f':
 									{
-										tmpValue = tmpValue * 16 + (byte - 0x51);
+										tmpValue = tmpValue * 16 + (byte - 0x57);
 										break;
 									}
 								default:
@@ -574,7 +574,7 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
 								case 'E':
 								case 'F':
 									{
-										tmpValue = tmpValue * 16 + (byte - 0x31);
+										tmpValue = tmpValue * 16 + (byte - 0x37);
 										break;
 									}
 								case 'a':
@@ -584,7 +584,7 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
 								case 'e':
 								case 'f':
 									{
-										tmpValue = tmpValue * 16 + (byte - 0x51);
+										tmpValue = tmpValue * 16 + (byte - 0x57);
 										break;
 									}
 								default:
@@ -614,7 +614,7 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
 								case 'E':
 								case 'F':
 									{
-										tmpValue = tmpValue * 16 + (byte - 0x31);
+										tmpValue = tmpValue * 16 + (byte - 0x37);
 										break;
 									}
 								case 'a':
@@ -1303,7 +1303,7 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 HE_VOID CHE_PDF_SyntaxParser::SubmitBufferStr( CHE_ByteString & str )
 {
 	m_WordBuffer[m_lBufferPos] = '\0';
-	str = (char const *)(&(m_WordBuffer[0]));
+	str.SetBytes( m_WordBuffer, m_lBufferPos );
 	m_WordBuffer[m_lBufferPos=0] = '\0';
 	m_bBegin = TRUE;
 	m_bPoint = FALSE;
@@ -1315,6 +1315,7 @@ CHE_PDF_Parser::CHE_PDF_Parser()
 	m_pTrailerDict = NULL;
 	m_pIHE_FileRead = NULL;
 	m_lstartxref = 0;
+	m_lPageCount = 0;
 }
 
 HE_BOOL CHE_PDF_Parser::StartParse( IHE_Read * file )
@@ -1473,10 +1474,9 @@ HE_DWORD CHE_PDF_Parser::FullParseForXRef()	//分析整个文件来获取对象信息 // 还需
 			}
 			m_xrefTable.NewSection( objNum );
 			m_xrefTable.NewNode( CHE_PDF_XREF_Entry( 1, objNumOffset, 0, objNum ) );
-			//m_xrefTable.Append( CHE_PDF_XREF_Entry( objNumOffset, objNum, 0, 'n' ) );
 			xrefEntryCount++;
-			m_sParser.SeekToEndobj();
-			m_sParser.Seek( 6 );
+			//m_sParser.SeekToEndobj();	//某些错误文件缺少endobj
+			m_sParser.Seek( 3 );
 		}
 	}
 	m_xrefTable.BuildIndex();
@@ -1877,7 +1877,7 @@ HE_VOID CHE_PDF_Parser::VerifyXRef()
 					if ( pTmpNode->pPrv )
 					{
 						pTmpNode->pPrv->pNext = pTmpNode->pNext;
-						m_xrefTable.m_lMaxObjNum--;
+						//m_xrefTable.m_lMaxObjNum;
 						m_xrefTable.m_lCount--;
 					}
 					delete pTmpNode;
@@ -1939,7 +1939,7 @@ CHE_PDF_Dictionary* CHE_PDF_Parser::GetInfoDict()
 			return (CHE_PDF_Dictionary*)pObj;
 		}else if ( pObj->GetType() == PDFOBJ_REFERENCE )
 		{
-			CHE_PDF_IndirectObject * pIndirectObj = GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetObjNum() );
+			CHE_PDF_IndirectObject * pIndirectObj = GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
 			if ( pIndirectObj == NULL )
 			{
 				return NULL;
@@ -1973,6 +1973,11 @@ CHE_PDF_Array* CHE_PDF_Parser::GetIDArray()
 
 HE_DWORD CHE_PDF_Parser::GetPageCount()
 {
+	if ( m_lPageCount != 0 )
+	{
+		return m_lPageCount;
+	}
+
 	CHE_PDF_Dictionary * pDict = GetRootDict();
 	if ( pDict == NULL )
 	{
@@ -1988,7 +1993,6 @@ HE_DWORD CHE_PDF_Parser::GetPageCount()
 	{
 		return 0;
 	}
-	HE_DWORD lPageCount = 0;
 	CHE_PDF_Dictionary * pDictInObj = NULL;
 
 	pDictInObj = pInObj->GetDict();
@@ -2002,9 +2006,9 @@ HE_DWORD CHE_PDF_Parser::GetPageCount()
 	{
 		return 0;
 	}
-	lPageCount = ((CHE_PDF_Number*)pObj)->GetInteger();
+	m_lPageCount = ((CHE_PDF_Number*)pObj)->GetInteger();
 
-	return lPageCount;
+	return m_lPageCount;
 }
 
 HE_DWORD CHE_PDF_Parser::GetPageObjList( HE_DWORD* pList )
@@ -2030,12 +2034,12 @@ HE_DWORD CHE_PDF_Parser::GetPageObjList( HE_DWORD* pList )
 	}
 
 	HE_DWORD lPageCount = 0;
-	CHE_PtrStack stack;
+	CHE_PtrQueue queue;
 	CHE_PDF_Dictionary * pDictInObj = NULL;
-	stack.Push( pInObj );
-	while ( stack.IsEmpty() == FALSE )
+	queue.Push( pInObj );
+	while ( queue.IsEmpty() == FALSE )
 	{
-		if ( stack.Pop( (HE_LPVOID*)&pInObj ) == false || pInObj == NULL )
+		if ( queue.Pop( (HE_LPVOID*)&pInObj ) == FALSE || pInObj == NULL )
 		{
 			return 0;
 		}
@@ -2045,15 +2049,32 @@ HE_DWORD CHE_PDF_Parser::GetPageObjList( HE_DWORD* pList )
 			return 0;
 		}
 
-		HE_DWORD lNodeCount = 0;
 		CHE_PDF_Object * pObj =  pDictInObj->GetElement( CHE_ByteString("Count") );
-		if ( pObj == NULL || pObj->GetType() != PDFOBJ_NUMBER )
+		if ( pObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			CHE_PDF_IndirectObject * pInObj = NULL;
+			pInObj = GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+			if ( pInObj == NULL )
+			{
+				return 0;
+			}
+			pObj = pInObj->GetObject();
+		}else if ( pObj == NULL || pObj->GetType() != PDFOBJ_NUMBER )
 		{
 			return 0;
 		}
 
 		pObj = pDictInObj->GetElement( CHE_ByteString("Kids") );
-		if ( pObj == NULL || pObj->GetType() != PDFOBJ_ARRAY )
+		if ( pObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			CHE_PDF_IndirectObject * pInObj = NULL;
+			pInObj = GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+			if ( pInObj == NULL )
+			{
+				return 0;
+			}
+			pObj = pInObj->GetObject();
+		}else if ( pObj == NULL || pObj->GetType() != PDFOBJ_ARRAY )
 		{
 			return 0;
 		}
@@ -2061,10 +2082,6 @@ HE_DWORD CHE_PDF_Parser::GetPageObjList( HE_DWORD* pList )
 		CHE_PDF_Object * pArrayElement = NULL;
 		for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pObj)->GetCount(); i++ )
 		{
-			if ( i == 227 )
-			{
-				int x = 0;
-			}
 			pArrayElement = ((CHE_PDF_Array*)pObj)->GetElement( i );
 			if ( pArrayElement == NULL || pArrayElement->GetType() != PDFOBJ_REFERENCE )
 			{
@@ -2088,7 +2105,7 @@ HE_DWORD CHE_PDF_Parser::GetPageObjList( HE_DWORD* pList )
 			CHE_ByteString str = ((CHE_PDF_Name*)pType)->GetString();
 			if ( str == "Pages" )
 			{
-				stack.Push( pInObj );
+				queue.Push( pInObj );
 			}else if ( str == "Page" )
 			{
 				pList[lPageCount] = ((CHE_PDF_Reference*)pArrayElement)->GetRefNuml();

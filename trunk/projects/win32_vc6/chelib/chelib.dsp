@@ -110,6 +110,14 @@ SOURCE=..\..\..\src\pdf\che_pdf_renderer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\src\pdf\che_pdf_resource.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\src\pdf\che_pdf_text.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\src\pdf\che_pdf_xref.cpp
 # End Source File
 # End Group
@@ -163,6 +171,14 @@ SOURCE=..\..\..\include\pdf\che_pdf_parser.h
 # Begin Source File
 
 SOURCE=..\..\..\include\pdf\che_pdf_renderer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_text.h
 # End Source File
 # Begin Source File
 

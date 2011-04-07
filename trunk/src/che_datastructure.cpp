@@ -3,7 +3,7 @@
 
 CHE_PtrStack::~CHE_PtrStack()
 {
-	CHE_PtrStackNode * pTmp = m_pTop;
+	CHE_PtrNode * pTmp = m_pTop;
 	while ( pTmp )
 	{
 		m_pTop = m_pTop->pNext;
@@ -12,56 +12,55 @@ CHE_PtrStack::~CHE_PtrStack()
 	}
 }
 
-bool CHE_PtrStack::IsEmpty()
+HE_BOOL CHE_PtrStack::IsEmpty()
 {
 	if ( m_pTop == NULL )
 	{
-		return true;
+		return TRUE;
 	}
-	return false;
+	return FALSE;
 }
 
-bool CHE_PtrStack::Pop( HE_VOID ** pptr )
+HE_BOOL CHE_PtrStack::Pop( HE_VOID ** pptr )
 {
+	if ( pptr == NULL )
+	{
+		return FALSE;
+	}
 	if ( m_pTop == NULL )
 	{
-		return false;
+		return FALSE;
 	}
-	if ( m_pTop->pObj == NULL )
-	{
-		return false;
-	}else{
-		*pptr = m_pTop->pObj;
-		
-		CHE_PtrStackNode * pTmp = m_pTop;
-		m_pTop = m_pTop->pNext;
-		delete pTmp;
-		pTmp = NULL;
-		return true;
-	}
+	*pptr = m_pTop->pObj;
+	
+	CHE_PtrNode * pTmp = m_pTop;
+	m_pTop = m_pTop->pNext;
+	delete pTmp;
+	pTmp = NULL;
+	return TRUE;
 }
 
-bool CHE_PtrStack::Push( HE_VOID * ptr )
+HE_BOOL CHE_PtrStack::Push( HE_VOID * ptr )
 {
 	if ( m_pTop == NULL )
 	{
-		m_pTop = new CHE_PtrStackNode;
+		m_pTop = new CHE_PtrNode;
 		m_pTop->pNext = NULL;
 		m_pTop->pObj = ptr;
 	}else{
-		CHE_PtrStackNode * pTmp = new CHE_PtrStackNode;
+		CHE_PtrNode * pTmp = new CHE_PtrNode;
 		pTmp->pNext = m_pTop;
 		pTmp->pObj = ptr;
 		m_pTop = pTmp;
 	}
-	return true;
+	return TRUE;
 }
 
-void CHE_PtrStack::Clear()
+HE_VOID CHE_PtrStack::Clear()
 {
 	if ( m_pTop )
 	{
-		CHE_PtrStackNode * pTmp = m_pTop;
+		CHE_PtrNode * pTmp = m_pTop;
 		while( pTmp )
 		{
 			m_pTop = m_pTop->pNext;
@@ -69,6 +68,81 @@ void CHE_PtrStack::Clear()
 			pTmp = m_pTop;
 		}
 	}
+}
+
+CHE_PtrQueue::CHE_PtrQueue()
+{
+	m_pHead = NULL;
+	m_pTail = NULL;
+}
+
+CHE_PtrQueue::~CHE_PtrQueue()
+{
+	Clear();
+}
+
+HE_VOID CHE_PtrQueue::Clear()
+{
+	CHE_PtrNode * pNode = m_pHead;
+	while ( pNode )
+	{
+		m_pHead = m_pHead->pNext;
+		delete pNode;
+		pNode = m_pHead;
+	}
+	m_pTail = NULL;
+}
+
+HE_BOOL CHE_PtrQueue::IsEmpty()
+{
+	if ( m_pHead == NULL && m_pTail == NULL )
+	{
+		return TRUE;
+	}else{
+		return FALSE;
+	}
+}
+
+HE_BOOL	CHE_PtrQueue::Pop( HE_VOID** pptr )
+{
+	if ( pptr == NULL )
+	{
+		return FALSE;
+	}
+	if ( m_pTail == NULL )
+	{
+		return FALSE;
+	}
+	*pptr = m_pHead->pObj;
+
+	if ( m_pHead == m_pTail )
+	{
+		delete m_pHead;
+		m_pHead = NULL;
+		m_pTail =  NULL;
+	}else{
+		CHE_PtrNode * pTmp = m_pHead;
+		m_pHead = m_pHead->pNext;
+		delete pTmp;
+	}
+	return TRUE;
+}
+
+HE_BOOL	CHE_PtrQueue::Push( HE_VOID* ptr )
+{
+	if ( m_pHead == NULL )
+	{
+		m_pHead = new CHE_PtrNode;
+		m_pHead->pObj = ptr;
+		m_pHead->pNext = NULL;
+		m_pTail = m_pHead;
+	}else{
+		m_pTail->pNext = new CHE_PtrNode;
+		m_pTail = m_pTail->pNext;
+		m_pTail->pNext = NULL;
+		m_pTail->pObj = ptr;
+	}
+	return TRUE;
 }
 
 CHE_PtrArray::CHE_PtrArray()

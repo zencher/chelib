@@ -4,14 +4,14 @@
 #include "che_base.h"
 #include "che_string.h"
 
-class CHE_PtrStackNode
+class CHE_PtrNode
 {
 public:
-	CHE_PtrStackNode() { pObj = NULL; pNext = NULL; }
-	~CHE_PtrStackNode() {}	//这里不需要销毁子节点的对象，而是由Stack来负责释放
+	CHE_PtrNode() { pObj = NULL; pNext = NULL; }
+	~CHE_PtrNode() {}	//这里不需要销毁子节点的对象，而是由Stack来负责释放
 
 	HE_VOID * pObj;
-	CHE_PtrStackNode * pNext;
+	CHE_PtrNode * pNext;
 };
 
 class CHE_PtrStack
@@ -20,13 +20,29 @@ public:
 	CHE_PtrStack() { m_pTop = NULL; }
 	~CHE_PtrStack();
 	
-	void Clear();
-	bool IsEmpty();
-	bool Pop( HE_VOID ** ptr );
-	bool Push( HE_VOID * ptr );
+	HE_VOID Clear();
+	HE_BOOL IsEmpty();
+	HE_BOOL Pop( HE_VOID ** ptr );
+	HE_BOOL Push( HE_VOID * ptr );
 
 private:
-	CHE_PtrStackNode * m_pTop;
+	CHE_PtrNode * m_pTop;
+};
+
+class CHE_PtrQueue : public CHE_Object
+{
+public:
+	CHE_PtrQueue();
+	~CHE_PtrQueue();
+
+	HE_VOID Clear();
+	HE_BOOL IsEmpty();
+	HE_BOOL	Pop( HE_VOID** pptr );
+	HE_BOOL	Push( HE_VOID* ptr );
+
+private:
+	CHE_PtrNode * m_pHead;
+	CHE_PtrNode * m_pTail;
 };
 
 class CHE_PtrArray : public CHE_Object

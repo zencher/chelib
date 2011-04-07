@@ -12,6 +12,8 @@ public:
 
 	const CHE_DynBuffer & operator = ( const CHE_DynBuffer & buf );
 
+	HE_LPBYTE GetData() { return m_lpData; }
+
 	HE_DWORD GetSize() { return m_lSize; }
 
 	HE_DWORD GetByteCount() { return m_lByteCount; }

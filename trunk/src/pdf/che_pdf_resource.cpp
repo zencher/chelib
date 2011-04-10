@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_resource.h"
+#include <memory.h>
 
 const HE_WCHAR	gPdfDocEncoding[256] = {
 	0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007, 0x0008, 0x0009,
@@ -4172,10 +4173,14 @@ HE_BOOL GetCodeFromName( CHE_ByteString & name, HE_BYTE encoding, HE_BYTE & ret 
 }
 
 
-CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( CHE_PDF_Dictionary * pFontDict )
+CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( CHE_PDF_Page * pPage, CHE_PDF_Dictionary * pFontDict )
 {
+	m_pPage = pPage;
 	m_pFontDict = pFontDict;
-	m_pUnicodeTable = gPdfDocEncoding;
+	m_pUnicodeTable = (HE_WCHAR*)gPdfDocEncoding;
+	m_bDefaultEncoding = TRUE;
+	m_Type = PDFENCODING_PDFDOC;
+
 	if ( m_pFontDict == NULL )
 	{	
 		return;
@@ -4199,24 +4204,135 @@ CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( CHE_PDF_Dictionary * pFontDict
 		return;
 	}
 
+	CHE_ByteString str;
 	if ( pTmpObj->GetType() == PDFOBJ_NAME )
 	{
-		CHE_ByteString str;
 		str = ((CHE_PDF_Name*)pTmpObj)->GetString();
 		if ( str == "MacRomanEncoding" )
 		{
-			m_pUnicodeTable = (const HE_WCHAR*)gMacRomanEncoding;
+			m_Type = PDFENCODING_MACROMAN;
+			m_pUnicodeTable = (HE_WCHAR*)gMacRomanEncoding;
 		}else if ( str == "MacExpertEncoding" )
 		{
-			m_pUnicodeTable = (const HE_WCHAR*)gMacExpertEncoding;
+			m_Type = PDFENCODING_MACEXPERT;
+			m_pUnicodeTable = (HE_WCHAR*)gMacExpertEncoding;
 		}else if ( str == "WinAnsiEncoding" )
 		{
-			m_pUnicodeTable = (const HE_WCHAR*)gWinAnsiEncoding;
+			m_Type = PDFENCODING_WINANSI;
+			m_pUnicodeTable = (HE_WCHAR*)gWinAnsiEncoding;
 		}else if ( str == "StandardEncoding" )
 		{
-			m_pUnicodeTable = (const HE_WCHAR*)gStandardEncoding;
+			m_Type = PDFENCODING_STANDARD;
+			m_pUnicodeTable = (HE_WCHAR*)gStandardEncoding;
 		}
-	}else{
+	}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+	{
+		m_bDefaultEncoding = FALSE;
+		if ( m_pPage == NULL )
+		{
+			return;
+		}
+		CHE_PDF_IndirectObject * pInObj = m_pPage->GetDocument()->GetParser()->GetIndirectObject( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
+		if ( pInObj == NULL )
+		{
+			return;
+		}
+		CHE_PDF_Dictionary * pEncodingDict = (CHE_PDF_Dictionary *)pInObj->GetObject();
+		if ( pEncodingDict == NULL )
+		{
+			return;
+		}else if ( pEncodingDict->GetType() != PDFOBJ_DICTIONARY )
+		{
+			return;
+		}
+
+		pTmpObj = pEncodingDict->GetElement( CHE_ByteString("Type") );
+		if ( pTmpObj != NULL )
+		{
+			if ( pTmpObj->GetType() != PDFOBJ_NAME )
+			{
+				return;
+			}
+			str = ((CHE_PDF_Name*)pTmpObj)->GetString();
+			if ( str != "Encoding" )
+			{
+				return;
+			}
+		}
+		pTmpObj = pEncodingDict->GetElement( CHE_ByteString("BaseEncoding") );
+		if ( pTmpObj != NULL )
+		{
+			if ( pTmpObj->GetType() == PDFOBJ_NAME )
+			{
+				str = ((CHE_PDF_Name*)pTmpObj)->GetString();
+				if ( str == "MacRomanEncoding" )
+				{
+					m_Type = PDFENCODING_MACROMAN;
+				}else if ( str == "MacExpertEncoding" )
+				{
+					m_Type = PDFENCODING_MACEXPERT;
+				}else if ( str == "WinAnsiEncoding" )
+				{
+					m_Type = PDFENCODING_WINANSI;
+				}else if ( str == "StandardEncoding" )
+				{
+					m_Type = PDFENCODING_STANDARD;
+				}
+			}
+		}
+
+		m_pUnicodeTable = new HE_WCHAR[256];
+		switch ( m_Type )
+		{
+		case PDFENCODING_PDFDOC:
+			memcpy( (HE_LPVOID)m_pUnicodeTable, gPdfDocEncoding, sizeof(HE_WCHAR) * 256 );
+			break;
+		case PDFENCODING_STANDARD:
+			memcpy( (HE_LPVOID)m_pUnicodeTable, gStandardEncoding, sizeof(HE_WCHAR) * 256 );
+			break;
+		case PDFENCODING_MACROMAN:
+			memcpy( (HE_LPVOID)m_pUnicodeTable, gMacRomanEncoding, sizeof(HE_WCHAR) * 256 );
+			break;
+		case PDFENCODING_MACEXPERT:
+			memcpy( (HE_LPVOID)m_pUnicodeTable, gMacExpertEncoding, sizeof(HE_WCHAR) * 256 );
+			break;
+		case PDFENCODING_WINANSI:
+			memcpy( (HE_LPVOID)m_pUnicodeTable, gWinAnsiEncoding, sizeof(HE_WCHAR) * 256 );
+			break;
+		default:
+			break;
+		}
+		CHE_PDF_Array * pDifArray = (CHE_PDF_Array *)pEncodingDict->GetElement( CHE_ByteString("Differences") );
+		if ( pDifArray == NULL )
+		{
+			return;
+		}else{
+			if ( pDifArray->GetType() == PDFOBJ_ARRAY )
+			{
+				HE_DWORD iCount = pDifArray->GetCount();
+				HE_DWORD iIndex = 0;
+				HE_BYTE tmpByte;
+				CHE_PDF_Object * pObj = NULL;
+				for ( HE_DWORD i = 0; i < iCount; i++ )
+				{
+					pObj = pDifArray->GetElement( i );
+					if ( pObj->GetType() == PDFOBJ_NUMBER )
+					{
+						iIndex = ((CHE_PDF_Number*)pObj)->GetInteger();
+					}else if ( pObj->GetType() == PDFOBJ_NAME )
+					{
+						
+						if ( GetCodeFromName( ((CHE_PDF_Name*)pObj)->GetString(), m_Type, tmpByte ) )
+						{
+							*(m_pUnicodeTable + iIndex) = tmpByte;
+							iIndex++;
+						}
+					}
+				}
+			}else{
+				return;
+			}
+		}
 	}
 }
 

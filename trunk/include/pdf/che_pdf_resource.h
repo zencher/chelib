@@ -3,6 +3,7 @@
 
 #include "../che_base.h"
 #include "che_pdf_objects.h"
+#include "che_pdf_pages.h"
 
 #define PDFFONT_TYPE0			1
 #define PDFFONT_TYPE1			2
@@ -18,7 +19,7 @@
 class CHE_PDF_FontCharCodeMgr : public CHE_Object
 {
 public:
-	CHE_PDF_FontCharCodeMgr( CHE_PDF_Dictionary * pFontDict );
+	CHE_PDF_FontCharCodeMgr( CHE_PDF_Page * pPage, CHE_PDF_Dictionary * pFontDict );
 	~CHE_PDF_FontCharCodeMgr();
 
 	HE_WCHAR GetUnicode( HE_BYTE ch );
@@ -26,14 +27,15 @@ public:
 	HE_WCHAR GetUnicodeW( HE_WCHAR wch );
 
 private:
+	CHE_PDF_Page *			m_pPage;
 	CHE_PDF_Dictionary *	m_pFontDict;
 	HE_BYTE					m_Type;
 	HE_BOOL					m_bDefaultEncoding;
-	const HE_WCHAR*			m_pUnicodeTable;
+	HE_WCHAR*			m_pUnicodeTable;
 };
 
 // #define PDFFONT_TYPE1			1
-// #define PDFFONT_TRUETYPE		2
+// #define PDFFONT_TRUETYPE			2
 // #define PDFFONT_TYPE3			3
 // #define PDFFONT_CIDFONT			4
 // 

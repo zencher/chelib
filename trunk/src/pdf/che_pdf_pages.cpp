@@ -84,6 +84,18 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 	return TRUE;
 }
 
+HE_VOID CHE_PDF_Document::Unload()
+{
+	m_pParser->CloseParser();
+	delete m_pParser;
+	m_pParser = NULL;
+	if ( m_pPageObjNumList )
+	{
+		delete [] m_pPageObjNumList;
+		m_pPageObjNumList = NULL;
+	}
+}
+
 //HE_BOOL CHE_PDF_Document::Save( IHE_Write * pFileRead );
 
 HE_DWORD CHE_PDF_Document::GetPageCount() const

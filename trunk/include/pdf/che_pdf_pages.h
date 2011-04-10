@@ -16,6 +16,8 @@ public:
 
 	HE_BOOL					Load( IHE_Read * pFileRead );
 
+	HE_VOID					Unload();
+
 	HE_BOOL					Save( IHE_Write * pFileRead );
 
 	CHE_PDF_Parser *		GetParser() const { return m_pParser; }

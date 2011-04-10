@@ -4,6 +4,17 @@
 #include "../che_base.h"
 #include "che_pdf_objects.h"
 
+#define PDFFONT_TYPE0			1
+#define PDFFONT_TYPE1			2
+#define PDFFONT_TRUETYPE		3
+#define PDFFONT_TYPE3			4
+
+#define PDFENCODING_STANDARD	1
+#define PDFENCODING_WINANSI		2
+#define	PDFENCODING_MACROMAN	3
+#define PDFENCODING_MACEXPERT	4
+#define PDFENCODING_PDFDOC		5	
+
 class CHE_PDF_FontCharCodeMgr : public CHE_Object
 {
 public:
@@ -16,7 +27,9 @@ public:
 
 private:
 	CHE_PDF_Dictionary *	m_pFontDict;
-	const HE_WCHAR*				m_pUnicodeTable;
+	HE_BYTE					m_Type;
+	HE_BOOL					m_bDefaultEncoding;
+	const HE_WCHAR*			m_pUnicodeTable;
 };
 
 // #define PDFFONT_TYPE1			1

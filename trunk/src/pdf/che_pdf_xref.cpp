@@ -28,12 +28,35 @@ CHE_PDF_XREF_Table::CHE_PDF_XREF_Table()
 
 CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
 {
-	//未完成
+	if ( m_pFirstSection )
+	{
+		Clear();
+	}
 }
 
 HE_VOID CHE_PDF_XREF_Table::Clear()
 {
-	//未完成
+	PDF_XREF_SECTION * pTmpSection = m_pFirstSection;
+	PDF_XREF_ENTRY_NODE * pTmpNode = NULL;
+	while ( pTmpSection )
+	{
+		pTmpNode = pTmpSection->pFirstEntry;
+		while ( pTmpNode )
+		{
+			pTmpSection->pFirstEntry = pTmpSection->pFirstEntry->pNext;
+			delete pTmpNode;
+			pTmpNode = pTmpSection->pFirstEntry;
+		}
+		m_pFirstSection = m_pFirstSection->pNextSection;
+		delete pTmpSection;
+		pTmpSection = m_pFirstSection;
+	}
+
+	if ( m_pFastAccessArr )
+	{
+		delete [] m_pFastAccessArr;
+		m_pFastAccessArr = NULL;
+	}
 }
 
 HE_VOID	CHE_PDF_XREF_Table::NewSection( HE_DWORD lBegin )
@@ -107,9 +130,6 @@ HE_VOID CHE_PDF_XREF_Table::BuildIndex()
 			pTmpEntry->entry.objNum = lIndex;
 			m_pFastAccessArr[lIndex++] = pTmpEntry;
 			pTmpEntry = pTmpEntry->pNext;
-			if ( lIndex == 2179 )
-			{
-			}
 		}
 		pTmpSection = pTmpSection->pNextSection;
 	}

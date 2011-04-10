@@ -35,7 +35,7 @@ HE_VOID CHE_PDF_Object::Release()
 		delete ((CHE_PDF_Null*)this);
 		break;
 	case PDFOBJ_REFERENCE:
-		delete ((CHE_PDF_Array*)this);
+		delete ((CHE_PDF_Reference*)this);
 		break;
 	case PDFOBJ_INDIRECTOBJ:
 		delete ((CHE_PDF_IndirectObject*)this);
@@ -44,6 +44,20 @@ HE_VOID CHE_PDF_Object::Release()
 		delete this;
 		break;
 	}
+}
+
+CHE_PDF_Array::~CHE_PDF_Array()
+{
+	CHE_PDF_Object * pTmpObj = NULL;
+	for ( HE_DWORD i = 0; i < m_array.GetCount(); i++ )
+	{
+		pTmpObj = (CHE_PDF_Object *)m_array.GetItem( i );
+		if ( pTmpObj )
+		{
+			pTmpObj->Release();
+		}
+	}
+	m_array.Clear();
 }
 
 HE_VOID CHE_PDF_Array::Append( CHE_PDF_Object * pObj )
@@ -57,6 +71,20 @@ HE_VOID CHE_PDF_Array::Append( CHE_PDF_Object * pObj )
 CHE_PDF_Object * CHE_PDF_Array::GetElement( HE_DWORD index ) const
 {
 	return (CHE_PDF_Object*)m_array.GetItem( index );
+}
+
+CHE_PDF_Dictionary::~CHE_PDF_Dictionary()
+{
+	CHE_PDF_Object * pTmpObj = NULL;
+	for ( HE_DWORD i = 0; i < m_Map.GetCount(); i++ )
+	{
+		pTmpObj = (CHE_PDF_Object *)m_Map.GetItemByIndex( i );
+		if ( pTmpObj )
+		{
+			pTmpObj->Release();
+		}
+	}
+	m_Map.Clear();
 }
 
 CHE_PDF_Object*	CHE_PDF_Dictionary::GetElement( CHE_ByteString & key )const
@@ -179,6 +207,14 @@ CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size,
 	if ( pDict )
 	{
 		m_pDict = pDict;
+	}
+}
+
+CHE_PDF_Stream::~CHE_PDF_Stream()
+{
+	if ( m_pDict )
+	{
+		m_pDict->Release();
 	}
 }
 
@@ -481,6 +517,14 @@ CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, CHE_PDF_Object 
 	m_Type = PDFOBJ_INDIRECTOBJ;
 }
 
+CHE_PDF_IndirectObject::~CHE_PDF_IndirectObject()
+{
+	if ( m_pObj )
+	{
+		m_pObj->Release();
+	}
+}
+
 CHE_PDF_Dictionary* CHE_PDF_IndirectObject::GetDict() const
 {
 	if ( m_pObj )
@@ -517,7 +561,7 @@ HE_BOOL CHE_PDF_IndirectObjectCollector::Add( CHE_PDF_IndirectObject * pObj )
 	return m_map.Append( pObj->GetObjNum(), (HE_LPVOID)pObj );
 }
 
-HE_VOID CHE_PDF_IndirectObjectCollector::Release()
+HE_VOID CHE_PDF_IndirectObjectCollector::ReleaseObj()
 {
 	HE_DWORD count = m_map.GetCount();
 	CHE_PDF_IndirectObject * pObj = NULL;
@@ -526,7 +570,8 @@ HE_VOID CHE_PDF_IndirectObjectCollector::Release()
 		pObj = (CHE_PDF_IndirectObject*)m_map.GetItemByIndex( i );
 		if ( pObj )
 		{
-			pObj->Release();
+			//pObj->Release();
+			delete pObj;
 		}
 	}
 }

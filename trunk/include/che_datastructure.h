@@ -74,6 +74,10 @@ public:
 	HE_BOOL		Append( CHE_ByteString & str, HE_LPVOID ptr );
 	
 	HE_LPVOID	GetItem( CHE_ByteString & str ) const;
+
+	HE_LPVOID	GetItemByIndex( HE_DWORD index );
+	
+	HE_DWORD	GetCount() { return m_lCount; }
 	
 	HE_VOID		Clear();
 	

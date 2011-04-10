@@ -289,6 +289,15 @@ HE_LPVOID CHE_ByteStringToPtrMap::GetItem( CHE_ByteString & str ) const
 	return NULL;
 }
 
+HE_LPVOID CHE_ByteStringToPtrMap::GetItemByIndex( HE_DWORD index )
+{
+	if ( index >= m_lCount )
+	{
+		return NULL;
+	}
+	return m_pData[index]; 
+}
+
 HE_VOID	CHE_ByteStringToPtrMap::Clear()
 {
 	if ( m_pData )

@@ -274,7 +274,7 @@ HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBu
 		return;
 	}
 
-	HE_BYTE * tmpBuffer = new HE_BYTE[4096];
+	HE_BYTE tmpBuffer[4096];
 	HE_DWORD nWrittenData = 0;
 	z_stream stream;
 	HE_INT32 param = Z_NO_FLUSH;

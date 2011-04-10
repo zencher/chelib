@@ -147,11 +147,6 @@ CHE_PDF_SyntaxParser::CHE_PDF_SyntaxParser()
 
 CHE_PDF_SyntaxParser::~CHE_PDF_SyntaxParser()
 {
-	if ( m_pFileAccess )
-	{
-		m_pFileAccess->Release();
-		m_pFileAccess = NULL;
-	}
 }
 
 HE_BOOL CHE_PDF_SyntaxParser::InitParser( IHE_Read* pFileAccess )
@@ -1332,13 +1327,18 @@ HE_BOOL CHE_PDF_Parser::StartParse( IHE_Read * file )
 
 HE_VOID CHE_PDF_Parser::CloseParser()
 {
+	m_objCollector.ReleaseObj();
+	m_objCollector.Clear();
 	if ( m_pIHE_FileRead )
 	{
 		m_pIHE_FileRead->Release();
 		m_pIHE_FileRead = NULL;
 	}
-	m_objCollector.Release();
-	m_objCollector.Clear();
+	
+ 	if ( m_pTrailerDict )
+ 	{
+ 		m_pTrailerDict->Release();
+ 	}
 }
 
 HE_DWORD CHE_PDF_Parser::GetFileSize()
@@ -1418,6 +1418,11 @@ HE_DWORD CHE_PDF_Parser::GetStartxrefOffset( HE_DWORD range )
 				}
 				break;
 			}
+		}
+		if ( pBuffer )
+		{
+			delete [] pBuffer;
+			pBuffer = NULL;
 		}
 		m_lstartxref = iStartXref;
 		return iStartXref;
@@ -1650,9 +1655,9 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 	}
 	HE_DWORD streamSize = streamAcc.GetSize();
 	HE_LPCBYTE lpByte = streamAcc.GetData();
-  	FILE * pFile = fopen( "c:\\11.txt", "wb+" );
-  	fwrite( lpByte, 1, streamSize, pFile );
-  	fclose( pFile );
+//   	FILE * pFile = fopen( "c:\\11.txt", "wb+" );
+//   	fwrite( lpByte, 1, streamSize, pFile );
+//   	fclose( pFile );
 	HE_DWORD field1 = 0, field2 = 0, field3 = 0;
 	HE_DWORD lcount = 0;
 	HE_DWORD lentrySize = lW1 + lW2 + lW3;

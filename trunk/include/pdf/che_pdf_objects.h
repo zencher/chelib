@@ -173,7 +173,7 @@ public:
 protected:
 	CHE_PtrArray m_array;
 
-	~CHE_PDF_Array() { m_array.Clear(); }
+	~CHE_PDF_Array();
 
 	friend class CHE_PDF_Object;
 };
@@ -206,7 +206,7 @@ public:
 	HE_VOID					SetAtReference( CHE_ByteString & key, HE_DWORD objnum );
 
 protected:
-	~CHE_PDF_Dictionary() { m_Map.Clear(); }
+	~CHE_PDF_Dictionary();
 
 	CHE_ByteStringToPtrMap m_Map;
 
@@ -243,7 +243,7 @@ public:
 
 protected:
 
-	~CHE_PDF_Stream() {};
+	~CHE_PDF_Stream();
 
 	CHE_PDF_Dictionary*		m_pDict;
 	HE_DWORD				m_dwSize;
@@ -339,9 +339,14 @@ public:
 
 	CHE_PDF_Object *		GetObject() const { return m_pObj; }
 
-private:
+protected:
+	~CHE_PDF_IndirectObject();
+
 	CHE_PDF_Object *	m_pObj;
 	HE_DWORD			m_ObjNum;
+
+	friend class CHE_PDF_Object;
+	friend class CHE_PDF_IndirectObjectCollector;
 };
 
 class CHE_PDF_IndirectObjectCollector : public CHE_Object
@@ -358,7 +363,7 @@ public:
 
 	HE_VOID Clear() { m_map.Clear(); }
 
-	HE_VOID Release();
+	HE_VOID ReleaseObj();
 
 private:
 	CHE_NumToPtrMap m_map;

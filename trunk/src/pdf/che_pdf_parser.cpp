@@ -734,16 +734,17 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
 										HE_BYTE tmpCount = 1;
 										while ( true )
 										{
-											tmpByte = m_pFileAccess->ReadByte( m_lFilePos+1 );
+											tmpByte = m_pFileAccess->ReadByte( ++m_lFilePos );
 											if ( tmpByte >= '0' && tmpByte <= '7' )
 											{
 												tmpValue = tmpValue * 8 + (tmpByte-'0');
-												m_lFilePos++;
 												tmpCount++;
 												if ( tmpCount == 3 )
 												{
 													m_WordBuffer[m_lBufferPos++] = (HE_BYTE)tmpValue;
 													tmpCount = 0;
+													++m_lFilePos;
+													break;
 												}
 											}else{
 												break;

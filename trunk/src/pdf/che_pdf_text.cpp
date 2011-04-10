@@ -144,15 +144,15 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 					CHE_PDF_Object *pTmpObj = pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
 					if ( pTmpObj == NULL )
 					{
-						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( NULL );
+						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( page, NULL );
 					}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
 					{
 						CHE_PDF_IndirectObject * pInObj = page->GetDocument()->GetParser()->GetIndirectObject( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
 						pTmpObj = pInObj->GetDict();
-						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( (CHE_PDF_Dictionary*)pTmpObj );
+						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( page, (CHE_PDF_Dictionary*)pTmpObj );
 					}else if ( pTmpObj->GetType() == PDFOBJ_DICTIONARY )
 					{
-						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( (CHE_PDF_Dictionary*)pTmpObj );
+						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( page, (CHE_PDF_Dictionary*)pTmpObj );
 					}
 					MapStrToFontCharMgr.Append( ((CHE_PDF_Name*)pTmpObj)->GetString(), (HE_LPVOID)pCurFontCharCodeMgr );
 				}

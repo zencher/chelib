@@ -124,7 +124,7 @@ CHE_PDF_Page* CHE_PDF_Document::GetPage( HE_DWORD iPageIndex )
 		return NULL;
 	}
 	pPageObj = ((CHE_PDF_IndirectObject*)pPageObj)->GetObject();
-	CHE_PDF_Page * pPage = new CHE_PDF_Page( (CHE_PDF_Dictionary*)pPageObj, this );
+	CHE_PDF_Page * pPage = new CHE_PDF_Page( iPageIndex, (CHE_PDF_Dictionary*)pPageObj, this );
 	return pPage;
 }
 
@@ -147,10 +147,133 @@ HE_BOOL CHE_PDF_Document::IsEncrypted()
 	}
 }
  
-// HE_DWORD CHE_PDF_Document::GetPageIndex( HE_DWORD objnum );
-
-CHE_PDF_Page::CHE_PDF_Page( CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc )
+CHE_PDF_Array * CHE_PDF_Document::GetPageMediaBox( CHE_PDF_Dictionary * pPageDict )
 {
+	if ( pPageDict == NULL )
+	{
+		return NULL;
+	}
+	CHE_PDF_Object * pObj = pPageDict->GetElement( CHE_ByteString("MediaBox") );
+	if ( pObj == NULL )
+	{
+		CHE_PDF_IndirectObject * pInObj = NULL;
+		CHE_PDF_Dictionary * pCurDict = pPageDict;
+		while ( pCurDict )
+		{
+			pObj = pCurDict->GetElement( CHE_ByteString("Parent") );
+			if ( pObj == NULL )
+			{
+				return NULL;
+			}
+			if ( pObj->GetType() != PDFOBJ_REFERENCE )
+			{
+				return NULL;
+			}else{
+				pInObj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+				if ( pInObj == NULL )
+				{
+					return NULL;
+				}
+				pObj = pInObj->GetDict();
+				if ( pObj == NULL || pObj->GetType() != PDFOBJ_DICTIONARY )
+				{
+					return NULL;
+				}
+				pObj = ((CHE_PDF_Dictionary*)pObj)->GetElement( CHE_ByteString("MediaBox") );
+				if ( pObj != NULL )
+				{
+					break;
+				}else{
+					pCurDict = (CHE_PDF_Dictionary *)pObj;
+				}
+			}
+		}
+	}
+	if ( pObj->GetType() == PDFOBJ_ARRAY )
+	{
+		return (CHE_PDF_Array*)pObj;
+	}else if ( pObj->GetType() == PDFOBJ_REFERENCE )
+	{
+		CHE_PDF_IndirectObject * pInOBj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+		if ( pInOBj == NULL )
+		{
+			return NULL;
+		}else if ( pInOBj->GetObject()->GetType() == PDFOBJ_ARRAY )
+		{
+			return (CHE_PDF_Array*)pInOBj->GetObject();
+		}else{
+			return NULL;
+		}
+	}else{
+		return NULL;
+	}
+}
+
+CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pPageDict )
+{
+	if ( pPageDict == NULL )
+	{
+		return NULL;
+	}
+	CHE_PDF_Object * pObj = pPageDict->GetElement( CHE_ByteString("Resources") );
+	if ( pObj == NULL )
+	{
+		CHE_PDF_IndirectObject * pInObj = NULL;
+		CHE_PDF_Dictionary * pCurDict = pPageDict;
+		while ( pCurDict )
+		{
+			pObj = pCurDict->GetElement( CHE_ByteString("Parent") );
+			if ( pObj == NULL )
+			{
+				return NULL;
+			}
+			if ( pObj->GetType() != PDFOBJ_REFERENCE )
+			{
+				return NULL;
+			}else{
+				pInObj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+				if ( pInObj == NULL )
+				{
+					return NULL;
+				}
+				pObj = pInObj->GetDict();
+				if ( pObj == NULL || pObj->GetType() != PDFOBJ_DICTIONARY )
+				{
+					return NULL;
+				}
+				pObj = ((CHE_PDF_Dictionary*)pObj)->GetElement( CHE_ByteString("Resources") );
+				if ( pObj != NULL )
+				{
+					break;
+				}else{
+					pCurDict = (CHE_PDF_Dictionary *)pObj;
+				}
+			}
+		}
+	}
+	if ( pObj->GetType() == PDFOBJ_DICTIONARY )
+	{
+		return (CHE_PDF_Dictionary*)pObj;
+	}else if ( pObj->GetType() == PDFOBJ_REFERENCE )
+	{
+		CHE_PDF_IndirectObject * pInOBj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+		if ( pInOBj == NULL )
+		{
+			return NULL;
+		}else if ( pInOBj->GetObject()->GetType() == PDFOBJ_DICTIONARY )
+		{
+			return (CHE_PDF_Dictionary*)pInOBj->GetObject();
+		}else{
+			return NULL;
+		}
+	}else{
+		return NULL;
+	}
+}
+
+CHE_PDF_Page::CHE_PDF_Page( HE_DWORD lPageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc )
+{
+	m_lPageIndex = lPageIndex;
 	m_pPageObj = NULL;
 	m_fPageHeight = 0.0;
 	m_fPageWidth = 0.0;
@@ -158,7 +281,11 @@ CHE_PDF_Page::CHE_PDF_Page( CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc 
 	if ( pDict )
 	{
 		m_pPageObj = pDict;
-		CHE_PDF_Object * pObj = m_pPageObj->GetElement( CHE_ByteString("MediaBox") );
+		CHE_PDF_Object * pObj = NULL;
+		if ( m_pDoc )
+		{
+			pObj = m_pDoc->GetPageMediaBox( m_pPageObj );
+		}
 		if ( pObj )
 		{
 			if ( pObj->GetType() == PDFOBJ_ARRAY )

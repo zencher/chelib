@@ -35,6 +35,13 @@ public:
 	HE_DWORD				GetPageIndex( HE_DWORD objnum );
 
 	HE_BOOL					IsEncrypted();
+
+private:
+
+	CHE_PDF_Array *			GetPageMediaBox( CHE_PDF_Dictionary * pPageDict );
+
+	CHE_PDF_Dictionary *	GetPageResources( CHE_PDF_Dictionary * pPageDict );
+
 	/**
 	 * Enumerate pages with user-supplied page enumeration handler.
 	 *
@@ -264,6 +271,8 @@ protected:
 	//CFX_DWordArray			m_PageList;
 	HE_DWORD*				m_pPageObjNumList;
 
+	CHE_NumToPtrMap			m_FontCodeMgr;
+
 	/** Get the page count. */
 // 	int						_GetPageCount() const;
 // 
@@ -274,6 +283,7 @@ protected:
 // 	void					GetCharStream(CFX_WideTextBuf& buf, CPDF_Dictionary* pFormDict, CPDF_Object* pContent);
 
 	friend class			CHE_PDF_Parser;
+	friend class			CHE_PDF_Page;
 
 	/**
 	 * @name Data pointers for extended modules. 
@@ -288,22 +298,28 @@ protected:
 	/*@}*/ 
 };
 
-class CHE_PDF_Page
+class CHE_PDF_Page : public CHE_Object
 {
 public:
-	CHE_PDF_Page( CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc );
+	CHE_PDF_Page( HE_DWORD pageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc );
 	~CHE_PDF_Page();
 
-	HE_FLOAT	GetPageWidth() { return m_fPageWidth; }
-	HE_FLOAT	GetPageHeight() { return m_fPageHeight; }
+	HE_FLOAT			GetPageWidth() { return m_fPageWidth; }
+	HE_FLOAT			GetPageHeight() { return m_fPageHeight; }
 
 	CHE_PDF_Document *	GetDocument() { return m_pDoc; }
 	
-	HE_BOOL		GetPageContent( CHE_DynBuffer & buffer );
+	HE_BOOL				GetPageContent( CHE_DynBuffer & buffer );
 
-	CHE_PDF_Dictionary* GetPageDictionary() { return m_pPageObj; }
+	CHE_PDF_Dictionary*	GetPageDictionary() { return m_pPageObj; }
+
+	CHE_PDF_Dictionary* GetPageResources() { return m_pDoc?m_pDoc->GetPageResources( m_pPageObj ) : NULL ; }
+
+	HE_DWORD			GetPageIndex() { return m_lPageIndex; }
 
 private:
+
+	HE_DWORD	m_lPageIndex;
 
 	HE_FLOAT	m_fPageWidth;
 	HE_FLOAT	m_fPageHeight;

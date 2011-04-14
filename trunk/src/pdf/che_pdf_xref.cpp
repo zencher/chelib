@@ -69,9 +69,11 @@ HE_VOID	CHE_PDF_XREF_Table::NewSection( HE_DWORD lBegin )
 		m_pFirstSection->pFirstEntry = NULL;
 		m_pFirstSection->pLastEntry = NULL;
 		m_pFirstSection->pNextSection = NULL;
+		m_pFirstSection->pPreSection = NULL;
 		m_pCurSection = m_pFirstSection;
 	}else{
 		m_pCurSection->pNextSection = new PDF_XREF_SECTION;
+		m_pCurSection->pNextSection->pPreSection = m_pCurSection;
 		m_pCurSection = m_pCurSection->pNextSection;
 		m_pCurSection->lBeginNum = lBegin;
 		m_pCurSection->lCount = 0;
@@ -120,7 +122,7 @@ HE_VOID CHE_PDF_XREF_Table::BuildIndex()
 	m_pFastAccessArr = new PDF_XREF_ENTRY_NODE*[m_lMaxObjNum+1];
 	memset( m_pFastAccessArr, 0, sizeof(CHE_PDF_XREF_Entry*)*(m_lMaxObjNum+1) );
 
-	PDF_XREF_SECTION * pTmpSection = m_pFirstSection;
+	PDF_XREF_SECTION * pTmpSection = m_pCurSection;
 	while ( pTmpSection )
 	{
 		PDF_XREF_ENTRY_NODE * pTmpEntry = pTmpSection->pFirstEntry;
@@ -131,7 +133,7 @@ HE_VOID CHE_PDF_XREF_Table::BuildIndex()
 			m_pFastAccessArr[lIndex++] = pTmpEntry;
 			pTmpEntry = pTmpEntry->pNext;
 		}
-		pTmpSection = pTmpSection->pNextSection;
+		pTmpSection = pTmpSection->pPreSection;
 	}
 }
 

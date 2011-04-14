@@ -47,6 +47,8 @@ public:
 	HE_VOID				SeekToEndStream();
 	HE_VOID				SeekToEndobj();
 
+	HE_VOID				SeekToMark( CHE_ByteString markStr );
+
 	HE_DWORD			ReadBytes( /*HE_DWORD offset,*/ HE_LPBYTE pBuffer, HE_DWORD length );
 
 	HE_BOOL				GetWord( PDFPARSER_WORD_DES & des );
@@ -100,7 +102,7 @@ public:
 	CHE_PDF_Dictionary*			GetInfoDict();
 
 	CHE_PDF_Dictionary*			GetTrailerDict() { return m_pTrailerDict; }
-
+	
 	CHE_PDF_Array*				GetIDArray();
 
 	HE_DWORD					GetPageCount();

@@ -367,6 +367,55 @@ HE_VOID CHE_PDF_SyntaxParser::SeekToEndobj()
 	}	
 }
 
+HE_VOID CHE_PDF_SyntaxParser::SeekToMark( CHE_ByteString markStr )
+{
+	if ( markStr.GetLength() == 0 )
+	{
+		return;
+	}else if ( markStr.GetLength() == 1 )
+	{
+		if ( m_pFileAccess )
+		{
+			HE_BYTE byteTmp = markStr[0], byte = 0;
+			while( m_lFilePos < m_lFileSize )
+			{
+				byte = m_pFileAccess->ReadByte( m_lFilePos++ );
+				if ( byte == byteTmp )
+				{
+					m_lFilePos--;
+					return;
+				}
+			}
+		}else{
+			return;
+		}
+	}else{
+		HE_CHAR * pTmpStr = new HE_CHAR[markStr.GetLength()+1];
+		pTmpStr[markStr.GetLength()] = 0;
+		if ( m_pFileAccess )
+		{
+			HE_BYTE byteTmp = markStr[0], byte = 0;
+			while( m_lFilePos < m_lFileSize )
+			{
+				byte = m_pFileAccess->ReadByte( m_lFilePos++ );
+				if ( byte == byteTmp )
+				{
+					if ( m_lFilePos + markStr.GetLength() - 1 < m_lFileSize )
+					{
+						m_pFileAccess->ReadBlock( pTmpStr, m_lFilePos-1, markStr.GetLength() );
+						pTmpStr[markStr.GetLength()] = 0;
+						if ( markStr == CHE_ByteString(pTmpStr) )
+						{
+							m_lFilePos--;
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 HE_DWORD CHE_PDF_SyntaxParser::ReadBytes( HE_LPBYTE pBuffer, HE_DWORD length )
 {
 	return m_pFileAccess->ReadBlock( pBuffer, m_lFilePos, length );
@@ -1541,19 +1590,17 @@ HE_DWORD CHE_PDF_Parser::ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** 
 		{
 			m_sParser.ReadBytes( tmpBytes, 20 );
 			m_sParser.Seek( 20 );
-			
+
 			objOffset =	  (tmpBytes[0] - 48) * 1000000000 + (tmpBytes[1] - 48) * 100000000 + (tmpBytes[2] - 48) * 10000000
 				+ (tmpBytes[3] - 48) * 1000000 + (tmpBytes[4] - 48) * 100000 + (tmpBytes[5] - 48) * 10000
 				+ (tmpBytes[6] - 48) * 1000 + (tmpBytes[7] - 48) * 100 + (tmpBytes[8] - 48) * 10 + (tmpBytes[9] - 48); 
 			objGenNum =	(tmpBytes[11] - 48) * 10000 + (tmpBytes[12] - 48) * 1000 + (tmpBytes[13] - 48) * 100 + (tmpBytes[14] - 48) * 10 + tmpBytes[15] - 48;
 			if ( tmpBytes[17] == 'f' )
 			{
-				//m_xrefTable.Append( CHE_PDF_XREF_Entry( objOffset, i, objGenNum, 'f' ) );
-				m_xrefTable.NewNode( CHE_PDF_XREF_Entry( 0, objOffset, objGenNum, lBeginNum + lCount ) );
+				m_xrefTable.NewNode( CHE_PDF_XREF_Entry( 0, objOffset, objGenNum, i ) );
 				xrefEntryCount++;
 			}else{
-				//m_xrefTable.Append( CHE_PDF_XREF_Entry( objOffset, i, objGenNum, 'n' ) );
-				m_xrefTable.NewNode( CHE_PDF_XREF_Entry( 1, objOffset, objGenNum, lBeginNum + lCount ) );
+				m_xrefTable.NewNode( CHE_PDF_XREF_Entry( 1, objOffset, objGenNum, i ) );
 				xrefEntryCount++;
 			}
 		}
@@ -2019,7 +2066,7 @@ HE_DWORD CHE_PDF_Parser::GetPageCount()
 
 HE_DWORD CHE_PDF_Parser::GetPageObjList( HE_DWORD* pList )
 {
-	if ( pList == NULL && *pList == NULL )
+	if ( pList == NULL )
 	{
 		return 0;
 	}

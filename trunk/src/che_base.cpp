@@ -155,7 +155,10 @@ HE_DWORD IHE_MemBufRead::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD 
 	{
 		return 0;
 	}else{
-		size = m_lSize - offset;
+		if ( offset + size > m_lSize )
+		{
+			size = m_lSize - offset;
+		}
 		memcpy( buffer, m_pBuf + offset, size );
 		return size;
 	}

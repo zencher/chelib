@@ -10703,9 +10703,9 @@ HE_BOOL GetCodeFromName( CHE_ByteString & name, HE_BYTE encoding, HE_BYTE & ret 
 }
 
 
-CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( CHE_PDF_Page * pPage, CHE_PDF_Dictionary * pFontDict )
+CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( IHE_GetPDFInObj * pIHE_GetPDFInObj, CHE_PDF_Dictionary * pFontDict )
 {
-	m_pPage = pPage;
+	m_pIHE_GetPDFInObj = pIHE_GetPDFInObj;
 	m_pFontDict = pFontDict;
 	m_pUnicodeTable = (HE_WCHAR*)gPdfDocEncoding;
 	m_bDefaultEncoding = TRUE;
@@ -10793,11 +10793,11 @@ CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( CHE_PDF_Page * pPage, CHE_PDF_
 	}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
 	{
 		m_bDefaultEncoding = FALSE;
-		if ( m_pPage == NULL )
+		if ( m_pIHE_GetPDFInObj == NULL )
 		{
 			return;
 		}
-		CHE_PDF_IndirectObject * pInObj = m_pPage->GetDocument()->GetParser()->GetIndirectObject( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
+		CHE_PDF_IndirectObject * pInObj = m_pIHE_GetPDFInObj->GetInObj( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
 		if ( pInObj == NULL )
 		{
 			return;

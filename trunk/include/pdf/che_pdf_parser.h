@@ -27,6 +27,14 @@ struct PDFPARSER_WORD_DES
 HE_INT32 HE_PDF_StringToInteger( CHE_ByteString & str );
 HE_FLOAT HE_PDF_StringToFloat( CHE_ByteString & str );
 
+class IHE_GetPDFInObj : public CHE_Object
+{
+public:
+	virtual ~IHE_GetPDFInObj() {};
+	
+	virtual CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum ) = 0;
+};
+
 class CHE_PDF_SyntaxParser : public CHE_Object
 {
 public:
@@ -115,6 +123,8 @@ public:
 
 	CHE_PDF_IndirectObject *	GetIndirectObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
 
+	IHE_GetPDFInObj	*			GetIHE_GetPDFInObj() { return m_pIHE_GetPDFInObj; }
+
 	//bool IsLinearized() const;
 
 private:
@@ -126,6 +136,7 @@ private:
 
 private:
 	IHE_Read *					m_pIHE_FileRead;
+	IHE_GetPDFInObj *			m_pIHE_GetPDFInObj;
 
 	CHE_PDF_XREF_Table			m_xrefTable;
 

@@ -130,6 +130,34 @@ HE_FLOAT HE_PDF_StringToFloat( CHE_ByteString & str )
 	}
 }
 
+class IHE_DefaultGetPDFInObj : public IHE_GetPDFInObj
+{
+public:
+	IHE_DefaultGetPDFInObj( CHE_PDF_Parser * pParser );
+	~IHE_DefaultGetPDFInObj() {};
+
+	CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum );
+
+private:
+	CHE_PDF_Parser * m_pParser;
+};
+
+IHE_DefaultGetPDFInObj::IHE_DefaultGetPDFInObj( CHE_PDF_Parser * pParser )
+{
+	m_pParser = pParser;
+}
+
+CHE_PDF_IndirectObject * IHE_DefaultGetPDFInObj::GetInObj( HE_DWORD objNum )
+{
+	if( m_pParser == NULL )
+	{
+		return NULL;
+	}else{
+		return m_pParser->GetIndirectObject( objNum );
+	}
+
+}
+
 CHE_PDF_SyntaxParser::CHE_PDF_SyntaxParser()
 {
 	m_lFilePos = 0;
@@ -1361,6 +1389,8 @@ CHE_PDF_Parser::CHE_PDF_Parser()
 	m_pIHE_FileRead = NULL;
 	m_lstartxref = 0;
 	m_lPageCount = 0;
+
+	m_pIHE_GetPDFInObj = new IHE_DefaultGetPDFInObj( this );
 }
 
 HE_BOOL CHE_PDF_Parser::StartParse( IHE_Read * file )
@@ -1384,7 +1414,10 @@ HE_VOID CHE_PDF_Parser::CloseParser()
 		m_pIHE_FileRead->Release();
 		m_pIHE_FileRead = NULL;
 	}
-	
+	if ( m_pIHE_GetPDFInObj )
+	{
+		delete m_pIHE_GetPDFInObj;
+	}
  	if ( m_pTrailerDict )
  	{
  		m_pTrailerDict->Release();

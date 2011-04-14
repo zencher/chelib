@@ -271,6 +271,28 @@ CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pP
 	}
 }
 
+CHE_PDF_FontCharCodeMgr *	CHE_PDF_Document::GetFontCodeMgr( HE_DWORD objNum )
+{
+	CHE_PDF_FontCharCodeMgr * pFontCodeMgr = (CHE_PDF_FontCharCodeMgr *)m_FontCodeMgr.GetItem( objNum );
+	if ( pFontCodeMgr == NULL )
+	{
+		CHE_PDF_IndirectObject * pInObj = m_pParser->GetIndirectObject( objNum );
+		if ( pInObj == NULL )
+		{
+			return NULL;
+		}
+		CHE_PDF_Dictionary * pDict =  pInObj->GetDict();
+		if ( pDict == NULL )
+		{
+			return NULL;
+		}
+		pFontCodeMgr = new CHE_PDF_FontCharCodeMgr( m_pParser->GetIHE_GetPDFInObj(), pDict );
+		m_FontCodeMgr.Append( objNum, pFontCodeMgr );
+		return pFontCodeMgr;
+	}
+	return pFontCodeMgr;
+}
+
 CHE_PDF_Page::CHE_PDF_Page( HE_DWORD lPageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc )
 {
 	m_lPageIndex = lPageIndex;

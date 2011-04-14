@@ -13,16 +13,12 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 	{
 		return 0;
 	}
-	if ( contentBuf.GetByteCount() < 2 )
+	if ( contentBuf.GetByteCount() < 4 )
 	{
 		return 0;
 	}
 
-	//用于维护页面的字体对应的文字编码器的MAP
-	CHE_ByteStringToPtrMap MapStrToFontCharMgr;
 	CHE_PDF_FontCharCodeMgr * pCurFontCharCodeMgr = NULL;
-
-	//获取页面的字体资源
 	CHE_PDF_Dictionary * pFontDict = page->GetPageDictionary();
 	if ( pFontDict == NULL )
 	{
@@ -51,7 +47,6 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 			return 0;
 		}
 	} 
-
 	IHE_Read* pContentRead = HE_CreateMemBufRead( contentBuf.GetData(), contentBuf.GetByteCount() );
 	if (  pContentRead == NULL )
 	{
@@ -148,23 +143,13 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 				pTmpNode->Release();
 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 
-				pCurFontCharCodeMgr = (CHE_PDF_FontCharCodeMgr*)MapStrToFontCharMgr.GetItem( ((CHE_PDF_Name*)pTmpNode)->GetString() );
-				if ( pCurFontCharCodeMgr == NULL )
+				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
+				if ( pFontRef == NULL || pFontRef->GetType() != PDFOBJ_REFERENCE )
 				{
-					CHE_PDF_Object *pTmpObj = pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
-					if ( pTmpObj == NULL )
-					{
-						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( page, NULL );
-					}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
-					{
-						CHE_PDF_IndirectObject * pInObj = page->GetDocument()->GetParser()->GetIndirectObject( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
-						pTmpObj = pInObj->GetDict();
-						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( page, (CHE_PDF_Dictionary*)pTmpObj );
-					}else if ( pTmpObj->GetType() == PDFOBJ_DICTIONARY )
-					{
-						pCurFontCharCodeMgr = new CHE_PDF_FontCharCodeMgr( page, (CHE_PDF_Dictionary*)pTmpObj );
-					}
-					MapStrToFontCharMgr.Append( ((CHE_PDF_Name*)pTmpObj)->GetString(), (HE_LPVOID)pCurFontCharCodeMgr );
+					pCurFontCharCodeMgr = NULL;
+				}else{
+					HE_DWORD x = pFontRef->GetRefNuml();
+					pCurFontCharCodeMgr = page->GetDocument()->GetFontCodeMgr( pFontRef->GetRefNuml() );
 				}
 				if ( pTmpNode )
 				{
@@ -175,6 +160,10 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 			{
 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 				CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetString();
+				if ( pCurFontCharCodeMgr == NULL )
+				{
+					continue;
+				}
 				if ( pCurFontCharCodeMgr->GetFontType() == PDFFONT_TYPE0 )
 				{
 					HE_WCHAR wch, wch1, wch2;
@@ -193,15 +182,6 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 								pTmpNode->Release();
 							}
 							//清除数据
-							CHE_PDF_FontCharCodeMgr * pTmpMgr = NULL;
-							for ( HE_DWORD i = 0; i < MapStrToFontCharMgr.GetCount(); i++ )
-							{
-								pTmpMgr = (CHE_PDF_FontCharCodeMgr *)MapStrToFontCharMgr.GetItemByIndex( i );
-								if ( pTmpMgr != NULL )
-								{
-									delete pTmpMgr;
-								}
-							}
 							CHE_PDF_Object * pTmpObj = NULL;
 							while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
 							{
@@ -227,15 +207,6 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 								pTmpNode->Release();
 							}
 							//清除数据
-							CHE_PDF_FontCharCodeMgr * pTmpMgr = NULL;
-							for ( HE_DWORD i = 0; i < MapStrToFontCharMgr.GetCount(); i++ )
-							{
-								pTmpMgr = (CHE_PDF_FontCharCodeMgr *)MapStrToFontCharMgr.GetItemByIndex( i );
-								if ( pTmpMgr != NULL )
-								{
-									delete pTmpMgr;
-								}
-							}
 							CHE_PDF_Object * pTmpObj = NULL;
 							while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
 							{
@@ -257,6 +228,10 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 			}else if ( wordDes.str == "TJ" )
 			{
 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+				if ( pCurFontCharCodeMgr == NULL )
+				{
+					continue;
+				}
 				CHE_PDF_Array * pArray = (CHE_PDF_Array*)pTmpNode;
 				for ( HE_DWORD i = 0; i < pArray->GetCount(); i++ )
 				{
@@ -284,15 +259,6 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 								{
 									pArray->Release();
 								}
-								CHE_PDF_FontCharCodeMgr * pTmpMgr = NULL;
-								for ( HE_DWORD i = 0; i < MapStrToFontCharMgr.GetCount(); i++ )
-								{
-									pTmpMgr = (CHE_PDF_FontCharCodeMgr *)MapStrToFontCharMgr.GetItemByIndex( i );
-									if ( pTmpMgr != NULL )
-									{
-										delete pTmpMgr;
-									}
-								}
 								CHE_PDF_Object * pTmpObj = NULL;
 								while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
 								{
@@ -317,15 +283,6 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 								if ( pArray )
 								{
 									pArray->Release();
-								}
-								CHE_PDF_FontCharCodeMgr * pTmpMgr = NULL;
-								for ( HE_DWORD i = 0; i < MapStrToFontCharMgr.GetCount(); i++ )
-								{
-									pTmpMgr = (CHE_PDF_FontCharCodeMgr *)MapStrToFontCharMgr.GetItemByIndex( i );
-									if ( pTmpMgr != NULL )
-									{
-										delete pTmpMgr;
-									}
 								}
 								CHE_PDF_Object * pTmpObj = NULL;
 								while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
@@ -362,15 +319,6 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 	pContentRead->Release();
 	delete pContentRead; 
 
-	CHE_PDF_FontCharCodeMgr * pTmpMgr = NULL;
-	for ( HE_DWORD i = 0; i < MapStrToFontCharMgr.GetCount(); i++ )
-	{
-		pTmpMgr = (CHE_PDF_FontCharCodeMgr *)MapStrToFontCharMgr.GetItemByIndex( i );
-		if ( pTmpMgr != NULL )
-		{
-			delete pTmpMgr;
-		}
-	}
 	CHE_PDF_Object * pTmpObj = NULL;
 	while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
 	{

@@ -5,6 +5,7 @@
 #include "che_pdf_objects.h"
 #include "che_pdf_pages.h"
 
+#define PDFFONT_UNKNOWN			0
 #define PDFFONT_TYPE0			1
 #define PDFFONT_TYPE1			2
 #define PDFFONT_TRUETYPE		3
@@ -14,7 +15,9 @@
 #define PDFENCODING_WINANSI		2
 #define	PDFENCODING_MACROMAN	3
 #define PDFENCODING_MACEXPERT	4
-#define PDFENCODING_PDFDOC		5	
+#define PDFENCODING_PDFDOC		5
+#define PDFENCODING_GBK			6
+#define PDFENCODING_OTHER		7
 
 class CHE_PDF_FontCharCodeMgr : public CHE_Object
 {
@@ -22,16 +25,20 @@ public:
 	CHE_PDF_FontCharCodeMgr( CHE_PDF_Page * pPage, CHE_PDF_Dictionary * pFontDict );
 	~CHE_PDF_FontCharCodeMgr();
 
-	HE_WCHAR GetUnicode( HE_BYTE ch );
+	HE_WCHAR	GetUnicode( HE_WCHAR wch );
 
-	HE_WCHAR GetUnicodeW( HE_WCHAR wch );
+	HE_BYTE		GetEncodingType() { return m_EncodingType; }
+	HE_BYTE		GetFontType() { return m_FontType; }
+	HE_BOOL		IsDefaultEncoding() { return m_bDefaultEncoding; }
 
 private:
 	CHE_PDF_Page *			m_pPage;
 	CHE_PDF_Dictionary *	m_pFontDict;
-	HE_BYTE					m_Type;
+	HE_WCHAR *				m_pUnicodeTable;
+
+	HE_BYTE					m_EncodingType;
+	HE_BYTE					m_FontType;
 	HE_BOOL					m_bDefaultEncoding;
-	HE_WCHAR*			m_pUnicodeTable;
 };
 
 // #define PDFFONT_TYPE1			1

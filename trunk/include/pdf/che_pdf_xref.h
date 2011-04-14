@@ -42,6 +42,7 @@ struct PDF_XREF_SECTION
 	PDF_XREF_ENTRY_NODE * pLastEntry;
 	HE_DWORD lBeginNum;
 	HE_DWORD lCount;
+	PDF_XREF_SECTION * pPreSection;
 	PDF_XREF_SECTION * pNextSection;
 };
 

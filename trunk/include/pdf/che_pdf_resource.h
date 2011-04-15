@@ -17,7 +17,8 @@
 #define PDFENCODING_MACEXPERT	4
 #define PDFENCODING_PDFDOC		5
 #define PDFENCODING_GBK			6
-#define PDFENCODING_OTHER		7
+#define PDFENCODING_SELFDEF		7
+#define PDFENCODING_OTHER		8
 
 class CHE_PDF_FontCharCodeMgr : public CHE_Object
 {
@@ -35,6 +36,7 @@ private:
 	IHE_GetPDFInObj *		m_pIHE_GetPDFInObj;
 	CHE_PDF_Dictionary *	m_pFontDict;
 	HE_WCHAR *				m_pUnicodeTable;
+	CHE_NumToPtrMap*		m_pMap;
 
 	HE_BYTE					m_EncodingType;
 	HE_BYTE					m_FontType;

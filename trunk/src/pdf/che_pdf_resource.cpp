@@ -10702,9 +10702,22 @@ HE_BOOL GetCodeFromName( CHE_ByteString & name, HE_BYTE encoding, HE_BYTE & ret 
 	return FALSE;
 }
 
+HE_DWORD HexStrToValue( CHE_ByteString & str )
+{
+	HE_DWORD valRet = 0;
+	HE_BYTE tmpByte = 0;
+	for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
+	{
+		tmpByte = str[i];
+		valRet = valRet << 8;
+		valRet += tmpByte;
+	}
+	return valRet;
+}
 
 CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( IHE_GetPDFInObj * pIHE_GetPDFInObj, CHE_PDF_Dictionary * pFontDict )
 {
+	m_pMap = NULL;
 	m_pIHE_GetPDFInObj = pIHE_GetPDFInObj;
 	m_pFontDict = pFontDict;
 	m_pUnicodeTable = (HE_WCHAR*)gPdfDocEncoding;
@@ -10786,6 +10799,117 @@ CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( IHE_GetPDFInObj * pIHE_GetPDFI
 		{
 			m_EncodingType = PDFENCODING_GBK;
 			m_pUnicodeTable = (HE_WCHAR*)gGBKToUnicode;
+		}else if ( str == "Identity-H" || str == "Identity-V" )
+		{
+			m_bDefaultEncoding = FALSE;
+			m_EncodingType = PDFENCODING_SELFDEF;
+			m_pUnicodeTable = NULL;
+			//获取ToUnicode中的数据
+			CHE_PDF_Object * pToUnicode = pFontDict->GetElement( CHE_ByteString("ToUnicode") );
+			if ( pToUnicode == NULL || pToUnicode->GetType() != PDFOBJ_REFERENCE || pIHE_GetPDFInObj == NULL )
+			{
+				return;
+			}
+			CHE_PDF_IndirectObject * pToUniStm = pIHE_GetPDFInObj->GetInObj( ((CHE_PDF_Reference*)pToUnicode)->GetRefNuml() );
+			if ( pToUniStm == NULL || pToUniStm->GetObject()->GetType() != PDFOBJ_STREAM )
+			{
+				return;
+			}
+			CHE_PDF_StreamAcc stmAcc;
+			stmAcc.Attach( pToUniStm->GetStream() );
+			if ( stmAcc.GetSize() == 0 )
+			{
+				stmAcc.Detach();
+				return;
+			}
+			CHE_NumToPtrMap * tmpMap = new CHE_NumToPtrMap;
+			IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize() );
+			CHE_PDF_SyntaxParser parser;
+			PDFPARSER_WORD_DES wordDes;
+			HE_DWORD lMaxIndex = 0;
+			HE_DWORD lCodeCount = 0;
+			parser.InitParser( pFileRead );
+			while ( parser.GetWord( wordDes ) )
+			{
+				if ( wordDes.type == PDFPARSER_WORD_INTEGER )
+				{
+					HE_DWORD lCount = HE_PDF_StringToInteger( wordDes.str );
+					if ( parser.GetWord( wordDes ) == FALSE )
+					{
+						break;
+					}
+					HE_DWORD lIndex = 0;
+					
+					if ( wordDes.str == "beginbfchar" )
+					{
+						for ( HE_DWORD i = 0; i < lCount; i++ )
+						{
+							parser.GetWord( wordDes );
+							lIndex = HexStrToValue( wordDes.str );
+							if ( lIndex > lMaxIndex )
+							{
+								lMaxIndex = lIndex;
+							}
+							parser.GetWord( wordDes );
+							tmpMap->Append( lIndex, (HE_LPVOID)HexStrToValue( wordDes.str ) );
+							//pCodeList_CIDToUnicode[lIndex] = HexStrToValue( wordDes.str );
+							lCodeCount++;
+						}
+					}else if ( wordDes.str == "beginbfrange" )
+					{
+						for ( HE_DWORD j = 0; j < lCount; j++ )
+						{
+							HE_DWORD lIndexEnd = 0;
+							HE_DWORD tmpValue = 0;
+							parser.GetWord( wordDes );
+							lIndex = HexStrToValue( wordDes.str );
+							parser.GetWord( wordDes );
+							lIndexEnd = HexStrToValue( wordDes.str );
+							parser.GetWord( wordDes );
+							if ( wordDes.type == PDFPARSER_WORD_ARRAY_B )
+							{
+								CHE_PDF_Array * pArray = parser.GetArray();
+								if ( pArray == NULL )
+								{
+									continue;
+								}
+								CHE_PDF_String * pStrObj = NULL;
+								if ( lIndexEnd > lMaxIndex )
+								{
+									lMaxIndex = lIndexEnd;
+								}
+								for ( HE_DWORD i = lIndex ; i <= lIndexEnd; i++ )
+								{
+									pStrObj = (CHE_PDF_String*)pArray->GetElement( i - lIndex );
+									if ( pStrObj == NULL || pStrObj->GetType() != PDFOBJ_STRING )
+									{
+										continue;
+									}
+									tmpValue = HexStrToValue( pStrObj->GetString() );
+									tmpMap->Append( i, (HE_LPVOID)tmpValue );
+									lCodeCount++;
+								}
+							}else if ( wordDes.type == PDFOBJ_STRING )
+							{
+								tmpValue = HexStrToValue( wordDes.str );
+								if ( lIndexEnd > lMaxIndex )
+								{
+									lMaxIndex = lIndexEnd;
+								}
+								for ( HE_DWORD i = lIndex ; i <= lIndexEnd; i++ )
+								{
+									tmpMap->Append( i, (HE_LPVOID)tmpValue );
+									lCodeCount++;
+								}
+							}
+						}
+					}
+				}
+			}
+			pFileRead->Release();
+			delete pFileRead;
+			stmAcc.Detach();
+			m_pMap = tmpMap;
 		}else{
 			m_EncodingType = PDFENCODING_OTHER;
 			m_pUnicodeTable = NULL;
@@ -10916,6 +11040,11 @@ HE_WCHAR CHE_PDF_FontCharCodeMgr::GetUnicode( HE_WCHAR  wch )
 {
 	if ( m_pUnicodeTable == NULL )
 	{
+		if ( m_pMap != NULL )
+		{
+			HE_LPVOID pValue = m_pMap->GetItem( wch);
+			return (HE_WCHAR)pValue;
+		}
 		return 0;
 	}
 	if ( m_FontType != PDFFONT_TYPE0 && wch > 255 )

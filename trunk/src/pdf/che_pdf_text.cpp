@@ -166,33 +166,74 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 				}
 				if ( pCurFontCharCodeMgr->GetFontType() == PDFFONT_TYPE0 )
 				{
-					HE_WCHAR wch, wch1, wch2;
-					for ( HE_DWORD i = 0; i < str.GetLength(); i+=2 )
+					if ( pCurFontCharCodeMgr->IsDefaultEncoding() == TRUE )
 					{
-						wch1 = str[i] & 0x00FF;
-						wch2 = str[i+1] & 0x00FF;
-						wch1 = wch1 << 8;
-						wch = wch1 + wch2;
-						buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
-						lCharCount++;
-						if ( lCharCount == size )
+						HE_WCHAR wch, wch1, wch2;
+						for ( HE_DWORD i = 0; i < str.GetLength(); i+=2 )
 						{
-							if ( pTmpNode )
+							if ( (HE_BYTE)(str[i]) < 0xA1 )
 							{
-								pTmpNode->Release();
+								buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i] );
+								lCharCount++;
+								buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i+1] );
+								lCharCount++;
+							}else{
+								wch1 = str[i] & 0x00FF;
+								wch2 = str[i+1] & 0x00FF;
+								wch1 = wch1 << 8;
+								wch = wch1 + wch2;
+								buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
+								lCharCount++;
 							}
-							//清除数据
-							CHE_PDF_Object * pTmpObj = NULL;
-							while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
+							if ( lCharCount >= size )
 							{
-								if ( pTmpObj != NULL )
+								if ( pTmpNode )
 								{
-									pTmpObj->Release();
+									pTmpNode->Release();
 								}
+								//清除数据
+								CHE_PDF_Object * pTmpObj = NULL;
+								while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
+								{
+									if ( pTmpObj != NULL )
+									{
+										pTmpObj->Release();
+									}
+								}
+								pContentRead->Release();
+								delete pContentRead; 
+								return lCharCount;
 							}
-							pContentRead->Release();
-							delete pContentRead; 
-							return lCharCount;
+						}
+					}else{
+						HE_WCHAR wch, wch1, wch2;
+						for ( HE_DWORD i = 0; i < str.GetLength(); i+=2 )
+						{
+							wch1 = str[i] & 0x00FF;
+							wch2 = str[i+1] & 0x00FF;
+							wch1 = wch1 << 8;
+							wch = wch1 + wch2;
+							buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
+							lCharCount++;
+							if ( lCharCount >= size )
+							{
+								if ( pTmpNode )
+								{
+									pTmpNode->Release();
+								}
+								//清除数据
+								CHE_PDF_Object * pTmpObj = NULL;
+								while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
+								{
+									if ( pTmpObj != NULL )
+									{
+										pTmpObj->Release();
+									}
+								}
+								pContentRead->Release();
+								delete pContentRead; 
+								return lCharCount;
+							}
 						}
 					}
 				}else{
@@ -200,7 +241,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 					{
 						buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i] );
 						lCharCount++;
-						if ( lCharCount == size )
+						if ( lCharCount >= size )
 						{
 							if ( pTmpNode )
 							{
@@ -243,33 +284,74 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 					CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetString();
 					if ( pCurFontCharCodeMgr->GetFontType() == PDFFONT_TYPE0 )
 					{
-						HE_WCHAR wch, wch1, wch2;
-						for ( HE_DWORD i = 0; i < str.GetLength(); i+= 2 )
+						if ( pCurFontCharCodeMgr->IsDefaultEncoding() == TRUE )
 						{
-							wch1 = str[i] & 0x00FF;
-							wch2 = str[i+1] & 0x00FF;
-							wch1 = wch1 << 8;
-							wch = wch1 + wch2;
-							buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
-							lCharCount++;
-							if ( lCharCount == size )
+							HE_WCHAR wch, wch1, wch2;
+							for ( HE_DWORD i = 0; i < str.GetLength(); i+= 2 )
 							{
-								//清除数据
-								if ( pArray )
+								if ( (HE_BYTE)(str[i]) < 0xA1 )
 								{
-									pArray->Release();
+									buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i] );
+									lCharCount++;
+									buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i+1] );
+									lCharCount++;
+								}else{
+									wch1 = str[i] & 0x00FF;
+									wch2 = str[i+1] & 0x00FF;
+									wch1 = wch1 << 8;
+									wch = wch1 + wch2;
+									buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
+									lCharCount++;
 								}
-								CHE_PDF_Object * pTmpObj = NULL;
-								while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
+								if ( lCharCount >= size )
 								{
-									if ( pTmpObj != NULL )
+									//清除数据
+									if ( pArray )
 									{
-										pTmpObj->Release();
+										pArray->Release();
 									}
+									CHE_PDF_Object * pTmpObj = NULL;
+									while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
+									{
+										if ( pTmpObj != NULL )
+										{
+											pTmpObj->Release();
+										}
+									}
+									pContentRead->Release();
+									delete pContentRead; 
+									return lCharCount;
 								}
-								pContentRead->Release();
-								delete pContentRead; 
-								return lCharCount;
+							}
+						}else{
+							HE_WCHAR wch, wch1, wch2;
+							for ( HE_DWORD i = 0; i < str.GetLength(); i+=2 )
+							{
+								wch1 = str[i] & 0x00FF;
+								wch2 = str[i+1] & 0x00FF;
+								wch1 = wch1 << 8;
+								wch = wch1 + wch2;
+								buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
+								lCharCount++;
+								if ( lCharCount >= size )
+								{
+									//清除数据
+									if ( pArray )
+									{
+										pArray->Release();
+									}
+									CHE_PDF_Object * pTmpObj = NULL;
+									while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
+									{
+										if ( pTmpObj != NULL )
+										{
+											pTmpObj->Release();
+										}
+									}
+									pContentRead->Release();
+									delete pContentRead; 
+									return lCharCount;
+								}
 							}
 						}
 					}else{
@@ -277,7 +359,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 						{
 							buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i] );
 							lCharCount++;
-							if ( lCharCount == size )
+							if ( lCharCount >= size )
 							{
 								//清除数据
 								if ( pArray )

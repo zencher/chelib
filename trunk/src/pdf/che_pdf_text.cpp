@@ -2,52 +2,171 @@
 #include "../../include/pdf/che_pdf_resource.h"
 #include "../../include/che_datastructure.h"
 
-HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, HE_DWORD size )
+HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, CHE_DynWideByteBuffer & buf )
 {
-	if ( page == NULL || buffer == NULL || size == 0 )
+	if ( page == NULL )
 	{
 		return 0;
 	}
-	CHE_DynBuffer contentBuf;
-	if ( !page->GetPageContent( contentBuf ) )
+	IHE_GetPDFInObj *			pIHE_GetInObj = page->GetDocument()->GetParser()->GetIHE_GetPDFInObj();
+	IHE_GetPDFFontCodeMgr *		pIHE_GetFontCodeMgr = page->GetDocument()->GetIHE_GetPDFFontCodeMgr();
+	CHE_PDF_Dictionary *		pPageDict = page->GetPageDictionary();
+	CHE_PDF_Dictionary *		pPageResourcDict = page->GetPageResources();
+	if ( pPageDict == NULL || pPageResourcDict == NULL || pIHE_GetFontCodeMgr == NULL || pIHE_GetInObj == NULL )
 	{
 		return 0;
 	}
-	if ( contentBuf.GetByteCount() < 4 )
+	CHE_DynBuffer tmpbuf( 4096, 4096 );
+	if ( !page->GetPageContent( tmpbuf ) )
+	{
+		return 0;
+	}
+	return Extract( tmpbuf, pPageResourcDict, pIHE_GetFontCodeMgr, pIHE_GetInObj, buf );
+// 
+// 	HE_DWORD lCharCount = 0;
+// 	IHE_GetPDFInObj *			pIHE_GetInObj = page->GetDocument()->GetParser()->GetIHE_GetPDFInObj();
+// 	IHE_GetPDFFontCodeMgr *		pIHE_GetFontCodeMgr = page->GetDocument()->GetIHE_GetPDFFontCodeMgr();
+// 	CHE_PDF_Dictionary *		pPageDict = page->GetPageDictionary();
+// 	CHE_PDF_Dictionary *		pPageResourcDict = page->GetPageResources();
+// 	if ( pPageDict == NULL || pPageResourcDict == NULL || pIHE_GetFontCodeMgr == NULL || pIHE_GetInObj == NULL )
+// 	{
+// 		return 0;
+// 	}
+// 	CHE_PDF_Object * pPageContent = pPageDict->GetElement( CHE_ByteString("Contents") );
+// 	if ( pPageContent == NULL )
+// 	{
+// 		return 0;
+// 	}
+// 	if ( pPageContent->GetType() == PDFOBJ_REFERENCE )
+// 	{
+// 		CHE_PDF_IndirectObject * pInObj = pIHE_GetInObj->GetInObj( ((CHE_PDF_Reference*)pPageContent)->GetRefNuml() );
+// 		if ( pInObj == NULL )
+// 		{
+// 			return 0;
+// 		}
+// 		CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+// 		if ( pContentObj->GetType() == PDFOBJ_STREAM )
+// 		{
+// 			lCharCount = Extract( (CHE_PDF_Stream*)pContentObj, pPageResourcDict, pIHE_GetFontCodeMgr, pIHE_GetInObj, buf );
+// 		}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
+// 		{
+// 			CHE_PDF_Object * pTmpObj = NULL;
+// 			for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
+// 			{
+// 				pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
+// 				if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+// 				{
+// 					CHE_PDF_IndirectObject * pInObj = pIHE_GetInObj->GetInObj( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
+// 					if ( pInObj == NULL )
+// 					{
+// 						continue;
+// 					}
+// 					CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+// 					if ( pContentObj->GetType() == PDFOBJ_STREAM )
+// 					{
+// 						lCharCount += Extract( (CHE_PDF_Stream*)pContentObj, pPageResourcDict, pIHE_GetFontCodeMgr, pIHE_GetInObj, buf );
+// 					}
+// 				}else{
+// 					continue;
+// 				}
+// 			}
+// 		}
+// 	}else if ( pPageContent->GetType() == PDFOBJ_ARRAY )
+// 	{
+// 		HE_DWORD objCount = ((CHE_PDF_Array*)pPageContent)->GetCount();
+// 		for ( HE_DWORD i = 0; i < objCount; i++ )
+// 		{
+// 			CHE_PDF_Object * pObj = ((CHE_PDF_Array*)pPageContent)->GetElement( i );
+// 			if ( pObj == NULL )
+// 			{
+// 				continue;
+// 			}
+// 			if ( pObj->GetType() != PDFOBJ_REFERENCE )
+// 			{
+// 				continue;
+// 			}
+// 			CHE_PDF_IndirectObject * pInObj = pIHE_GetInObj->GetInObj( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+// 			if ( pInObj == NULL )
+// 			{
+// 				continue;
+// 			}
+// 			CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+// 			if ( pContentObj->GetType() == PDFOBJ_STREAM )
+// 			{
+// 				lCharCount += Extract( (CHE_PDF_Stream*)pContentObj, pPageResourcDict, pIHE_GetFontCodeMgr, pIHE_GetInObj, buf );
+// 			}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
+// 			{
+// 				CHE_PDF_Object * pTmpObj = NULL;
+// 				for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
+// 				{
+// 					pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
+// 					if ( pTmpObj->GetType() == PDFOBJ_STREAM )
+// 					{
+// 						lCharCount += Extract( (CHE_PDF_Stream*)pTmpObj, pPageResourcDict, pIHE_GetFontCodeMgr, pIHE_GetInObj, buf );
+// 					}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+// 					{
+// 						HE_DWORD objNum = ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml();
+// 						CHE_PDF_IndirectObject * pInObj = pIHE_GetInObj->GetInObj( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
+// 						if ( pInObj == NULL )
+// 						{
+// 							continue;
+// 						}
+// 						CHE_PDF_Object *  pContentObj = pInObj->GetObject();
+// 						if ( pContentObj->GetType() == PDFOBJ_STREAM )
+// 						{
+// 							lCharCount += Extract( (CHE_PDF_Stream*)pTmpObj, pPageResourcDict, pIHE_GetFontCodeMgr, pIHE_GetInObj, buf );
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
+// 		return TRUE;
+// 	}
+// 	return lCharCount;
+}
+
+HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_PDF_Stream * pContent, CHE_PDF_Dictionary * pResourceDict,
+											IHE_GetPDFFontCodeMgr * pIHE_FontCodeMgr, IHE_GetPDFInObj * pIHE_InObj,
+											CHE_DynWideByteBuffer & buf )
+{
+	if ( pContent == NULL || pResourceDict == NULL || pIHE_FontCodeMgr == NULL || pIHE_InObj == NULL )
+	{
+		return 0;
+	}
+	CHE_PDF_StreamAcc stmAcc;
+	if ( !stmAcc.Attach( pContent ) )
+	{
+		return 0;
+	}
+	CHE_DynBuffer tmpbuf( stmAcc.GetSize() );
+	tmpbuf.Write( stmAcc.GetData(), stmAcc.GetSize() );
+	return Extract( tmpbuf, pResourceDict, pIHE_FontCodeMgr, pIHE_InObj, buf );
+}
+
+HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictionary * pResourceDict,
+											IHE_GetPDFFontCodeMgr * pIHE_FontCodeMgr, IHE_GetPDFInObj * pIHE_InObj,
+											CHE_DynWideByteBuffer & buf )
+{
+	if ( pResourceDict == NULL || pIHE_FontCodeMgr == NULL || pIHE_InObj == NULL )
 	{
 		return 0;
 	}
 
 	CHE_PDF_FontCharCodeMgr * pCurFontCharCodeMgr = NULL;
-	CHE_PDF_Dictionary * pFontDict = page->GetPageDictionary();
-	if ( pFontDict == NULL )
-	{
-		return 0;
-	}
-	pFontDict = page->GetPageResources();
-	if ( pFontDict == NULL || pFontDict->GetType() != PDFOBJ_DICTIONARY )
-	{
-		return 0;
-	}else if ( pFontDict->GetType() == PDFOBJ_REFERENCE )
-	{
-		CHE_PDF_IndirectObject * pInObj = page->GetDocument()->GetParser()->GetIndirectObject( ((CHE_PDF_Reference*)pFontDict)->GetRefNuml() );
-		pFontDict = pInObj->GetDict();
-	} 
-
-	pFontDict = (CHE_PDF_Dictionary*)pFontDict->GetElement( CHE_ByteString("Font") );
+	CHE_PDF_Dictionary * pFontDict = (CHE_PDF_Dictionary *)pResourceDict->GetElement( CHE_ByteString("Font") );
 	if ( pFontDict == NULL )
 	{
 		return 0;
 	}else if ( pFontDict->GetType() == PDFOBJ_REFERENCE )
 	{
-		CHE_PDF_IndirectObject * pInObj = page->GetDocument()->GetParser()->GetIndirectObject( ((CHE_PDF_Reference*)pFontDict)->GetRefNuml() );
+		CHE_PDF_IndirectObject * pInObj = pIHE_InObj->GetInObj( ((CHE_PDF_Reference*)pFontDict)->GetRefNuml() );
 		pFontDict = pInObj->GetDict();
 		if ( pFontDict == NULL )
 		{
 			return 0;
 		}
-	} 
-	IHE_Read* pContentRead = HE_CreateMemBufRead( contentBuf.GetData(), contentBuf.GetByteCount() );
+	}
+	IHE_Read* pContentRead = HE_CreateMemBufRead( content.GetData(), content.GetByteCount() );	//need to delete
 	if (  pContentRead == NULL )
 	{
 		return 0;
@@ -56,6 +175,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 	if ( sParser.InitParser( pContentRead ) == FALSE )
 	{
 		pContentRead->Release();
+		delete pContentRead;
 		return 0;
 	}
 
@@ -63,6 +183,8 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 	CHE_PtrStack OpdStack;
 	PDFPARSER_WORD_DES wordDes;
 	CHE_PDF_Object * pTmpNode = NULL;
+	HE_BOOL	bOpd = TRUE;
+	HE_WCHAR wch, wch1, wch2;
 	while( sParser.GetWord( wordDes ) == TRUE )
 	{
 		if ( wordDes.str == "BI" )
@@ -72,7 +194,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 		}
 		if ( wordDes.str != "BT" )
 			 continue;
-		HE_BOOL	bOpd = TRUE;
+		
 		while ( sParser.GetWord( wordDes ) == TRUE )
 		{
 			bOpd = TRUE;
@@ -135,21 +257,18 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 			{
 				continue;
 			}
-
 			//处理指令
 			if ( wordDes.str == "Tf" )
 			{
 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 				pTmpNode->Release();
 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
-
 				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
 				if ( pFontRef == NULL || pFontRef->GetType() != PDFOBJ_REFERENCE )
 				{
 					pCurFontCharCodeMgr = NULL;
 				}else{
-					HE_DWORD x = pFontRef->GetRefNuml();
-					pCurFontCharCodeMgr = page->GetDocument()->GetFontCodeMgr( pFontRef->GetRefNuml() );
+					pCurFontCharCodeMgr = pIHE_FontCodeMgr->GetFontCodeMgr( pFontRef->GetRefNuml() );
 				}
 				if ( pTmpNode )
 				{
@@ -168,98 +287,43 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 				{
 					if ( pCurFontCharCodeMgr->IsDefaultEncoding() == TRUE )
 					{
-						HE_WCHAR wch, wch1, wch2;
 						for ( HE_DWORD i = 0; i < str.GetLength(); i+=2 )
 						{
 							if ( (HE_BYTE)(str[i]) < 0xA1 )
 							{
-								buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i] );
-								lCharCount++;
-								buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i+1] );
-								lCharCount++;
+								wch1 = pCurFontCharCodeMgr->GetUnicode( str[i] );
+								wch2 = pCurFontCharCodeMgr->GetUnicode( str[i+1] );
+								buf.Write( &wch1, 1 );
+								buf.Write( &wch2, 1 );
+								lCharCount+=2;
 							}else{
 								wch1 = str[i] & 0x00FF;
 								wch2 = str[i+1] & 0x00FF;
 								wch1 = wch1 << 8;
 								wch = wch1 + wch2;
-								buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
+								wch = pCurFontCharCodeMgr->GetUnicode( wch );
+								buf.Write( &wch, 1 );
 								lCharCount++;
-							}
-							if ( lCharCount >= size )
-							{
-								if ( pTmpNode )
-								{
-									pTmpNode->Release();
-								}
-								//清除数据
-								CHE_PDF_Object * pTmpObj = NULL;
-								while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
-								{
-									if ( pTmpObj != NULL )
-									{
-										pTmpObj->Release();
-									}
-								}
-								pContentRead->Release();
-								delete pContentRead; 
-								return lCharCount;
 							}
 						}
 					}else{
-						HE_WCHAR wch, wch1, wch2;
 						for ( HE_DWORD i = 0; i < str.GetLength(); i+=2 )
 						{
 							wch1 = str[i] & 0x00FF;
 							wch2 = str[i+1] & 0x00FF;
 							wch1 = wch1 << 8;
 							wch = wch1 + wch2;
-							buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
+							wch = pCurFontCharCodeMgr->GetUnicode( wch );
+							buf.Write( &wch, 1 );
 							lCharCount++;
-							if ( lCharCount >= size )
-							{
-								if ( pTmpNode )
-								{
-									pTmpNode->Release();
-								}
-								//清除数据
-								CHE_PDF_Object * pTmpObj = NULL;
-								while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
-								{
-									if ( pTmpObj != NULL )
-									{
-										pTmpObj->Release();
-									}
-								}
-								pContentRead->Release();
-								delete pContentRead; 
-								return lCharCount;
-							}
 						}
 					}
 				}else{
 					for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
 					{
-						buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i] );
+						wch = pCurFontCharCodeMgr->GetUnicode( str[i] );
+						buf.Write( &wch, 1 );
 						lCharCount++;
-						if ( lCharCount >= size )
-						{
-							if ( pTmpNode )
-							{
-								pTmpNode->Release();
-							}
-							//清除数据
-							CHE_PDF_Object * pTmpObj = NULL;
-							while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
-							{
-								if ( pTmpObj != NULL )
-								{
-									pTmpObj->Release();
-								}
-							}
-							pContentRead->Release();
-							delete pContentRead; 
-							return lCharCount;
-						}
 					}
 				}
 				if ( pTmpNode )
@@ -286,98 +350,43 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 					{
 						if ( pCurFontCharCodeMgr->IsDefaultEncoding() == TRUE )
 						{
-							HE_WCHAR wch, wch1, wch2;
 							for ( HE_DWORD i = 0; i < str.GetLength(); i+= 2 )
 							{
 								if ( (HE_BYTE)(str[i]) < 0xA1 )
 								{
-									buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i] );
-									lCharCount++;
-									buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i+1] );
-									lCharCount++;
+									wch1 = pCurFontCharCodeMgr->GetUnicode( str[i] );
+									wch2 = pCurFontCharCodeMgr->GetUnicode( str[i+1] );
+									buf.Write( &wch1, 1 );
+									buf.Write( &wch2, 1 );
+									lCharCount+=2;
 								}else{
 									wch1 = str[i] & 0x00FF;
 									wch2 = str[i+1] & 0x00FF;
 									wch1 = wch1 << 8;
 									wch = wch1 + wch2;
-									buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
+									wch = pCurFontCharCodeMgr->GetUnicode( wch );
+									buf.Write( &wch, 1 );
 									lCharCount++;
-								}
-								if ( lCharCount >= size )
-								{
-									//清除数据
-									if ( pArray )
-									{
-										pArray->Release();
-									}
-									CHE_PDF_Object * pTmpObj = NULL;
-									while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
-									{
-										if ( pTmpObj != NULL )
-										{
-											pTmpObj->Release();
-										}
-									}
-									pContentRead->Release();
-									delete pContentRead; 
-									return lCharCount;
 								}
 							}
 						}else{
-							HE_WCHAR wch, wch1, wch2;
 							for ( HE_DWORD i = 0; i < str.GetLength(); i+=2 )
 							{
 								wch1 = str[i] & 0x00FF;
 								wch2 = str[i+1] & 0x00FF;
 								wch1 = wch1 << 8;
 								wch = wch1 + wch2;
-								buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( wch );
+								wch = pCurFontCharCodeMgr->GetUnicode( wch );
+								buf.Write( &wch, 1 );
 								lCharCount++;
-								if ( lCharCount >= size )
-								{
-									//清除数据
-									if ( pArray )
-									{
-										pArray->Release();
-									}
-									CHE_PDF_Object * pTmpObj = NULL;
-									while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
-									{
-										if ( pTmpObj != NULL )
-										{
-											pTmpObj->Release();
-										}
-									}
-									pContentRead->Release();
-									delete pContentRead; 
-									return lCharCount;
-								}
 							}
 						}
 					}else{
 						for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
 						{
-							buffer[lCharCount] = pCurFontCharCodeMgr->GetUnicode( str[i] );
+							wch = pCurFontCharCodeMgr->GetUnicode( str[i] );
+							buf.Write( &wch, 1 );
 							lCharCount++;
-							if ( lCharCount >= size )
-							{
-								//清除数据
-								if ( pArray )
-								{
-									pArray->Release();
-								}
-								CHE_PDF_Object * pTmpObj = NULL;
-								while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
-								{
-									if ( pTmpObj != NULL )
-									{
-										pTmpObj->Release();
-									}
-								}
-								pContentRead->Release();
-								delete pContentRead; 
-								return lCharCount;
-							}
 						}
 					}
 				}
@@ -387,26 +396,23 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, HE_WCHAR* buffer, 
 				}
 			}
 			//清除无用的操作数
-			CHE_PDF_Object * pTmpObj = NULL;
-			while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
+			while ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpObj != NULL )
+				if ( pTmpNode != NULL )
 				{
-					pTmpObj->Release();
+					pTmpNode->Release();
 				}
 			}
 		}
 	}
-
 	pContentRead->Release();
 	delete pContentRead; 
 
-	CHE_PDF_Object * pTmpObj = NULL;
-	while ( OpdStack.Pop( (HE_LPVOID*)&pTmpObj ) == TRUE )
+	while ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 	{
-		if ( pTmpObj != NULL )
+		if ( pTmpNode != NULL )
 		{
-			pTmpObj->Release();
+			pTmpNode->Release();
 		}
 	}
 	return lCharCount;

@@ -43,9 +43,9 @@ public:
 	virtual HE_VOID		Release() = 0;
 };
 
-IHE_Write* HE_CreateFileWrite( HE_LPCSTR filename );
+IHE_Write*	HE_CreateFileWrite( HE_LPCSTR filename );
 
-//IHE_Write* HE_CreateFileWrite( HE_LPCWSTR filename );
+HE_VOID		HE_DestoryIHEWrite( IHE_Write * pIHEWrite );
 
 class IHE_Read : public CHE_Object
 {
@@ -61,7 +61,9 @@ public:
 	virtual HE_VOID		Release() = 0;
 };
 
-IHE_Read*	HE_CreateMemBufRead( HE_LPBYTE pBuf, HE_DWORD lSize );
+IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize );
+
+HE_VOID		HE_DestoryIHERead( IHE_Read * pIHERead );
 
 #define FILEREAD_MODE_DEFAULT		0
 #define FILEREAD_MODE_MEMCOPY		1
@@ -69,7 +71,5 @@ IHE_Read*	HE_CreateMemBufRead( HE_LPBYTE pBuf, HE_DWORD lSize );
 #define FILEREAD_MODE_BLOCKLINK		3
 
 IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode = 0, HE_DWORD param = 4096 );
-
-//IHE_Read* HE_CreateFileRead( HE_LPCWSTR filename );
 
 #endif

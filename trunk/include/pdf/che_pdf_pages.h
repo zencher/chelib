@@ -8,6 +8,15 @@
 
 class CHE_PDF_Page;
 
+
+class IHE_GetPDFFontCodeMgr : public CHE_Object
+{
+public:
+	virtual ~IHE_GetPDFFontCodeMgr() {};
+	
+	virtual CHE_PDF_FontCharCodeMgr * GetFontCodeMgr( HE_DWORD objNum ) = 0;
+};
+
 class CHE_PDF_Document : public CHE_Object
 {
 public:
@@ -43,6 +52,8 @@ public:
 
 	CHE_PDF_FontCharCodeMgr *	GetFontCodeMgr( HE_DWORD objNum );
 
+	IHE_GetPDFFontCodeMgr *		GetIHE_GetPDFFontCodeMgr() { return m_pIHE_GetPDFFontCodeMgr; }
+
 protected:
 	CHE_PDF_Parser *			m_pParser;
 	CHE_PDF_Dictionary*			m_pRootDict;
@@ -51,6 +62,7 @@ protected:
 	CHE_ByteString				m_ID2;
 	HE_DWORD*					m_pPageObjNumList;
 	CHE_NumToPtrMap				m_FontCodeMgr;
+	IHE_GetPDFFontCodeMgr*		m_pIHE_GetPDFFontCodeMgr;
 };
 
 class CHE_PDF_Page : public CHE_Object

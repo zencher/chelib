@@ -133,30 +133,14 @@ HE_FLOAT HE_PDF_StringToFloat( CHE_ByteString & str )
 class IHE_DefaultGetPDFInObj : public IHE_GetPDFInObj
 {
 public:
-	IHE_DefaultGetPDFInObj( CHE_PDF_Parser * pParser );
+	IHE_DefaultGetPDFInObj( CHE_PDF_Parser * pParser ) { m_pParser = pParser; }
 	~IHE_DefaultGetPDFInObj() {};
 
-	CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum );
+	CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum ) { return ( m_pParser!= NULL) ? m_pParser->GetIndirectObject(objNum) : NULL; }
 
 private:
 	CHE_PDF_Parser * m_pParser;
 };
-
-IHE_DefaultGetPDFInObj::IHE_DefaultGetPDFInObj( CHE_PDF_Parser * pParser )
-{
-	m_pParser = pParser;
-}
-
-CHE_PDF_IndirectObject * IHE_DefaultGetPDFInObj::GetInObj( HE_DWORD objNum )
-{
-	if( m_pParser == NULL )
-	{
-		return NULL;
-	}else{
-		return m_pParser->GetIndirectObject( objNum );
-	}
-
-}
 
 CHE_PDF_SyntaxParser::CHE_PDF_SyntaxParser()
 {

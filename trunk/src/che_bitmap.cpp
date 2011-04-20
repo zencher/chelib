@@ -2091,6 +2091,136 @@ CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWO
 	return pBitmapRet;
 }
 
+CHE_Bitmap*	CHE_Bitmap::Translate( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT d, HE_FLOAT e, HE_FLOAT f )
+{
+	CHE_Bitmap * pBitmapRet = new CHE_Bitmap;
+	if ( !pBitmapRet->Create( m_lWidth, m_lHeight, this->Depth(), this->Direction() ) )
+	{
+		return NULL;	
+	}
+	pBitmapRet->Fill( 0xFF000000 );
+	HE_ARGB color = 0xFFFFFFFF;
+	HE_BYTE red = 0, green = 0, blue = 0;
+	HE_FLOAT fX = 0, fY = 0;
+	HE_LONG dwXS = 0, dwXB = 0, dwYS = 0, dwYB = 0;
+	HE_BYTE clrdwXB = 0, clrdwXS = 0, clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
+	HE_ARGB tmpClr = 0xFFFFFFFF;
+	for ( HE_DWORD iY = 0; iY < m_lHeight; iY++ )
+	{
+		for ( HE_DWORD iX = 0; iX < m_lWidth; iX++ )
+		{
+			fX = a * iX + c * iY - e;
+			fY = b * iX + d * iY - f;
+
+			dwXS = (HE_LONG)fX;
+			dwYS = (HE_LONG)fY;
+			dwXB = dwXS + 1;
+			dwYB = dwYS + 1;
+			
+			if ( GetPixelColor( dwXS, dwYS, tmpClr ) )
+			{
+				clrdwYS = (HE_BYTE)(tmpClr >> 16);
+			}else{
+				clrdwYS = 0x00;
+			}
+			if ( GetPixelColor( dwXS, dwYB, tmpClr ) )
+			{
+				clrdwYB = (HE_BYTE)(tmpClr >> 16);
+			}else{
+				clrdwYB = 0x00;
+			}
+			clrTmp1 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS)); 
+			
+			if( GetPixelColor( dwXB, dwYS, tmpClr ) )
+			{
+				clrdwYS = (HE_BYTE)(tmpClr >> 16);
+			}else{
+				clrdwYS = 0x00;
+			}
+			if( GetPixelColor( dwXB, dwYB, tmpClr ) )
+			{
+				clrdwYB = (HE_BYTE)(tmpClr >> 16);
+			}else{
+				clrdwYB = 0x00;
+			}
+			clrTmp2 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
+		
+			red = (HE_BYTE)(clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS));
+			
+			if ( GetPixelColor( dwXS, dwYS, tmpClr ) )
+			{
+				clrdwYS = (HE_BYTE)(tmpClr >> 8);
+			}else{
+				clrdwYS = 0x00;
+			}
+			if ( GetPixelColor( dwXS, dwYB, tmpClr ) )
+			{
+				clrdwYB = (HE_BYTE)(tmpClr >> 8);
+			}else{
+				clrdwYB = 0x00;
+			}
+			clrTmp1 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS)); 
+			
+			if( GetPixelColor( dwXB, dwYS, tmpClr ) )
+			{
+				clrdwYS = (HE_BYTE)(tmpClr >> 8);
+			}else{
+				clrdwYS = 0x00;
+			}
+			if( GetPixelColor( dwXB, dwYB, tmpClr ) )
+			{
+				clrdwYB = (HE_BYTE)(tmpClr >> 8);
+			}else{
+				clrdwYB = 0x00;
+			}
+			clrTmp2 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
+			
+			green = (HE_BYTE)(clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS));
+			
+			if ( GetPixelColor( dwXS, dwYS, tmpClr ) )
+			{
+				clrdwYS = (HE_BYTE)(tmpClr >> 8);
+			}else{
+				clrdwYS = 0x00;
+			}
+			if ( GetPixelColor( dwXS, dwYB, tmpClr ) )
+			{
+				clrdwYB = (HE_BYTE)(tmpClr);
+			}else{
+				clrdwYB = 0x00;
+			}
+			clrTmp1 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS)); 
+			
+			if( GetPixelColor( dwXB, dwYS, tmpClr ) )
+			{
+				clrdwYS = (HE_BYTE)(tmpClr);
+			}else{
+				clrdwYS = 0x00;
+			}
+			if( GetPixelColor( dwXB, dwYB, tmpClr ) )
+			{
+				clrdwYB = (HE_BYTE)(tmpClr);
+			}else{
+				clrdwYB = 0x00;
+			}
+			clrTmp2 = (HE_BYTE)(clrdwYB - (clrdwYB-clrdwYS)*(dwYB-fY)/(dwYB-dwYS));
+			
+			blue = (HE_BYTE)(clrTmp2 - (clrTmp2-clrTmp1)*(dwXB-fX)/(dwXB-dwXS));
+			
+			color = (red << 16) + (green << 8) + blue;
+			
+			pBitmapRet->SetPixelColor( iX, iY, color );
+			
+			//if ( GetPixelColor( (HE_DWORD)(fX), (HE_DWORD)(fY), color ) )
+			//{
+			//	pBitmapRet->SetPixelColor( iX, iY, color );
+			//}
+		}
+	}
+	return pBitmapRet;
+}
+
+
 HE_DWORD CHE_Bitmap::GetPixelByteIndex( HE_DWORD x, HE_DWORD y ) const
 {
 	HE_DWORD index = 0;

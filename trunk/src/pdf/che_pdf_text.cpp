@@ -8,8 +8,8 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, CHE_DynWideByteBuf
 	{
 		return 0;
 	}
-	IHE_GetPDFInObj *			pIHE_GetInObj = page->GetDocument()->GetParser()->GetIHE_GetPDFInObj();
-	IHE_GetPDFFontCodeMgr *		pIHE_GetFontCodeMgr = page->GetDocument()->GetIHE_GetPDFFontCodeMgr();
+	IHE_PDF_GetInObj *			pIHE_GetInObj = page->GetDocument()->GetParser()->GetIHE_GetPDFInObj();
+	IHE_PDF_GetFontCodeMgr *		pIHE_GetFontCodeMgr = page->GetDocument()->GetIHE_GetPDFFontCodeMgr();
 	CHE_PDF_Dictionary *		pPageDict = page->GetPageDictionary();
 	CHE_PDF_Dictionary *		pPageResourcDict = page->GetPageResources();
 	if ( pPageDict == NULL || pPageResourcDict == NULL || pIHE_GetFontCodeMgr == NULL || pIHE_GetInObj == NULL )
@@ -126,7 +126,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, CHE_DynWideByteBuf
 }
 
 HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_PDF_Stream * pContent, CHE_PDF_Dictionary * pResourceDict,
-											IHE_GetPDFFontCodeMgr * pIHE_FontCodeMgr, IHE_GetPDFInObj * pIHE_InObj,
+											IHE_PDF_GetFontCodeMgr * pIHE_FontCodeMgr, IHE_PDF_GetInObj * pIHE_InObj,
 											CHE_DynWideByteBuffer & buf )
 {
 	if ( pContent == NULL || pResourceDict == NULL || pIHE_FontCodeMgr == NULL || pIHE_InObj == NULL )
@@ -144,7 +144,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_PDF_Stream * pContent, CHE_PDF_Dict
 }
 
 HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictionary * pResourceDict,
-											IHE_GetPDFFontCodeMgr * pIHE_FontCodeMgr, IHE_GetPDFInObj * pIHE_InObj,
+											IHE_PDF_GetFontCodeMgr * pIHE_FontCodeMgr, IHE_PDF_GetInObj * pIHE_InObj,
 											CHE_DynWideByteBuffer & buf )
 {
 	if ( pResourceDict == NULL || pIHE_FontCodeMgr == NULL || pIHE_InObj == NULL )
@@ -321,7 +321,8 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				}else{
 					for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
 					{
-						wch = pCurFontCharCodeMgr->GetUnicode( str[i] );
+						wch = str[i] & 0xFF;
+						wch = pCurFontCharCodeMgr->GetUnicode( wch );
 						buf.Write( &wch, 1 );
 						lCharCount++;
 					}

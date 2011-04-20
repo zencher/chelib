@@ -1,7 +1,7 @@
 #include "../../include/pdf/che_pdf_pages.h"
 #include <memory.h>
 
-class IHE_DefaultGetPDFFontCodeMgr : public IHE_GetPDFFontCodeMgr
+class IHE_DefaultGetPDFFontCodeMgr : public IHE_PDF_GetFontCodeMgr
 {
 public:
 	IHE_DefaultGetPDFFontCodeMgr( CHE_PDF_Document * pDocument ) { m_pDoc = pDocument; }
@@ -143,6 +143,10 @@ CHE_PDF_Page* CHE_PDF_Document::GetPage( HE_DWORD iPageIndex )
 		return NULL;
 	}
 	HE_DWORD objNum = m_pPageObjNumList[iPageIndex];
+	if ( objNum == 0 )
+	{
+		return NULL;
+	}
 	CHE_PDF_Object * pPageObj =  m_pParser->GetIndirectObject( objNum );
 	if ( pPageObj == NULL )
 	{
@@ -209,7 +213,7 @@ CHE_PDF_Array * CHE_PDF_Document::GetPageMediaBox( CHE_PDF_Dictionary * pPageDic
 				{
 					break;
 				}else{
-					pCurDict = (CHE_PDF_Dictionary *)pObj;
+					pCurDict = pInObj->GetDict();
 				}
 			}
 		}
@@ -271,10 +275,14 @@ CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pP
 				{
 					break;
 				}else{
-					pCurDict = (CHE_PDF_Dictionary *)pObj;
+					pCurDict = pInObj->GetDict();
 				}
 			}
 		}
+	}
+	if ( pObj == NULL )
+	{
+		return NULL;
 	}
 	if ( pObj->GetType() == PDFOBJ_DICTIONARY )
 	{

@@ -122,6 +122,7 @@ public:
 
 	CHE_Bitmap*			StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWORD flag, HE_RECT * pRect = NULL );
 
+	CHE_Bitmap*			Translate( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT d, HE_FLOAT e, HE_FLOAT f );
 
 
 private:

@@ -27,10 +27,10 @@ struct PDFPARSER_WORD_DES
 HE_INT32 HE_PDF_StringToInteger( CHE_ByteString & str );
 HE_FLOAT HE_PDF_StringToFloat( CHE_ByteString & str );
 
-class IHE_GetPDFInObj : public CHE_Object
+class IHE_PDF_GetInObj : public CHE_Object
 {
 public:
-	virtual ~IHE_GetPDFInObj() {};
+	virtual ~IHE_PDF_GetInObj() {};
 	
 	virtual CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum ) = 0;
 };
@@ -52,8 +52,8 @@ public:
 	HE_VOID				SeekToNextLine();
 	HE_VOID				SeekToPrevWord();
 	HE_VOID				SeekToNextWord();
-	HE_VOID				SeekToEndStream();
-	HE_VOID				SeekToEndobj();
+ 	HE_VOID				SeekToEndStream();
+ 	HE_VOID				SeekToEndobj();
 
 	HE_VOID				SeekToMark( CHE_ByteString markStr );
 
@@ -105,6 +105,8 @@ public:
 
 	HE_VOID						VerifyXRef();
 
+	HE_VOID						VerifyObjInStm();
+
 	CHE_PDF_Dictionary*			GetRootDict();
 
 	CHE_PDF_Dictionary*			GetInfoDict();
@@ -123,7 +125,7 @@ public:
 
 	CHE_PDF_IndirectObject *	GetIndirectObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
 
-	IHE_GetPDFInObj	*			GetIHE_GetPDFInObj() { return m_pIHE_GetPDFInObj; }
+	IHE_PDF_GetInObj	*		GetIHE_GetPDFInObj() { return m_pIHE_GetPDFInObj; }
 
 	//bool IsLinearized() const;
 
@@ -136,21 +138,20 @@ private:
 
 private:
 	IHE_Read *					m_pIHE_FileRead;
-	IHE_GetPDFInObj *			m_pIHE_GetPDFInObj;
-
-	CHE_PDF_XREF_Table			m_xrefTable;
+	IHE_PDF_GetInObj *			m_pIHE_GetPDFInObj;
 
 	CHE_PDF_Dictionary*			m_pTrailerDict;
-
-	CHE_PDF_SyntaxParser		m_sParser;
+	HE_BOOL						m_bTrailerDictNeedDestory;
 
 	HE_DWORD					m_lstartxref;
-
 	HE_DWORD					m_lPageCount;
 
+	CHE_PtrArray				m_arrObjStm;
 	CHE_NumToPtrMap				m_XrefVerifyMap1;
 	CHE_NumToPtrMap				m_XrefVerifyMap2;
 	
+	CHE_PDF_SyntaxParser		m_sParser;
+	CHE_PDF_XREF_Table			m_xrefTable;
 	CHE_PDF_IndirectObjectCollector	m_objCollector;
 };
 

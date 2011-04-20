@@ -10,11 +10,11 @@ public:
 	HE_DWORD Extract( CHE_PDF_Page * page, CHE_DynWideByteBuffer & buf );
 
 	HE_DWORD Extract(	CHE_PDF_Stream * pContent, CHE_PDF_Dictionary * pResourceDict,
-						IHE_GetPDFFontCodeMgr * pIHE_FontCodeMgr, IHE_GetPDFInObj * pIHE_InObj,
+						IHE_PDF_GetFontCodeMgr * pIHE_FontCodeMgr, IHE_PDF_GetInObj * pIHE_InObj,
 						CHE_DynWideByteBuffer & buf );
 
 	HE_DWORD Extract(	CHE_DynBuffer & content, CHE_PDF_Dictionary * pResourceDict,
-						IHE_GetPDFFontCodeMgr * pIHE_FontCodeMgr, IHE_GetPDFInObj * pIHE_InObj,
+						IHE_PDF_GetFontCodeMgr * pIHE_FontCodeMgr, IHE_PDF_GetInObj * pIHE_InObj,
 						CHE_DynWideByteBuffer & buf );
 };
 

@@ -17,13 +17,14 @@
 #define PDFENCODING_MACEXPERT	4
 #define PDFENCODING_PDFDOC		5
 #define PDFENCODING_GBK			6
-#define PDFENCODING_SELFDEF		7
-#define PDFENCODING_OTHER		8
+#define PDFENCODING_GBK_UCS2	7
+#define PDFENCODING_SELFDEF		8
+#define PDFENCODING_OTHER		9
 
 class CHE_PDF_FontCharCodeMgr : public CHE_Object
 {
 public:
-	CHE_PDF_FontCharCodeMgr( IHE_GetPDFInObj * pIHE_GetPDFInObj, CHE_PDF_Dictionary * pFontDict );
+	CHE_PDF_FontCharCodeMgr( IHE_PDF_GetInObj * pIHE_GetPDFInObj, CHE_PDF_Dictionary * pFontDict );
 	~CHE_PDF_FontCharCodeMgr();
 
 	HE_WCHAR	GetUnicode( HE_WCHAR wch );
@@ -33,7 +34,7 @@ public:
 	HE_BOOL		IsDefaultEncoding() { return m_bDefaultEncoding; }
 
 private:
-	IHE_GetPDFInObj *		m_pIHE_GetPDFInObj;
+	IHE_PDF_GetInObj *		m_pIHE_GetPDFInObj;
 	CHE_PDF_Dictionary *	m_pFontDict;
 	HE_WCHAR *				m_pUnicodeTable;
 	CHE_NumToPtrMap*		m_pMap;

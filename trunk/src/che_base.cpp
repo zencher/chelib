@@ -476,7 +476,7 @@ IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode /*= 0*/, HE_DWORD 
 	}
 }
 
-HE_VOID HE_DestoryIHERead( IHE_Write * pIHERead )
+HE_VOID	HE_DestoryIHERead( IHE_Read * pIHERead )
 {
 	if ( pIHERead != NULL )
 	{

@@ -94,6 +94,10 @@ SOURCE=..\..\..\src\pdf\che_pdf_filter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\src\pdf\che_pdf_graphics.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\src\pdf\che_pdf_objects.cpp
 # End Source File
 # Begin Source File
@@ -158,6 +162,10 @@ SOURCE=..\..\..\include\pdf\che_pdf_filter.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\include\pdf\che_pdf_graphics.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\include\pdf\che_pdf_objects.h
 # End Source File
 # Begin Source File
@@ -207,7 +215,7 @@ SOURCE=..\..\..\include\che_dynBuffer.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\include\che_graph.h
+SOURCE=..\..\..\include\che_graphics.h
 # End Source File
 # Begin Source File
 

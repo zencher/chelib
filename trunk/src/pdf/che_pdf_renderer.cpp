@@ -1,137 +1,116 @@
 #include "../../include/pdf/che_pdf_renderer.h"
+#include "../../include/pdf/che_pdf_parser.h"
 
-HE_BOOL CHE_PDF_Renderer::GetPageContent( CHE_PDF_Page & page, CHE_DynBuffer & buffer )
+HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pIHE_draw )
 {
-	CHE_PDF_Dictionary * pPageDict = page.GetPageDictionary();
-	if ( pPageDict == NULL )
+	if ( page == NULL || pIHE_draw == NULL )
 	{
-		return FALSE;
+		return;
 	}
-	CHE_PDF_Object * pPageContent = pPageDict->GetElement( CHE_ByteString("Contents") );
-	if ( pPageContent == NULL )
-	{
-		return FALSE;
-	}
-	if ( page.GetDocument() == NULL )
-	{
-		return FALSE;
-	}
-	if ( page.GetDocument()->GetParser() == NULL )
-	{
-		return FALSE;
-	}
-	if ( pPageContent->GetType() == PDFOBJ_REFERENCE )
-	{
-		HE_DWORD objNum = ((CHE_PDF_Reference*)pPageContent)->GetRefNuml();
-		CHE_PDF_IndirectObject * pInObj = page.GetDocument()->GetParser()->GetIndirectObject( objNum );
-		if ( pInObj == NULL )
-		{
-			return FALSE;
-		}
-		CHE_PDF_Object *  pContentObj = pInObj->GetObject();
-		if ( pContentObj->GetType() == PDFOBJ_STREAM )
-		{
-			CHE_PDF_StreamAcc stmAcc;
-			stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
-			buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
-			stmAcc.Detach();
-		}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
-		{
-			CHE_PDF_Object * pTmpObj = NULL;
-			for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
-			{
-				pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
-				if ( pTmpObj->GetType() == PDFOBJ_STREAM )
-				{
-					CHE_PDF_StreamAcc stmAcc;
-					stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
-					buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
-					stmAcc.Detach();
-					
-				}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
-				{
-					HE_DWORD objNum = ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml();
-					CHE_PDF_IndirectObject * pInObj = page.GetDocument()->GetParser()->GetIndirectObject( objNum );
-					if ( pInObj == NULL )
-					{
-						continue;
-						//return FALSE;
-					}
-					CHE_PDF_Object *  pContentObj = pInObj->GetObject();
-					if ( pContentObj->GetType() == PDFOBJ_STREAM )
-					{
-						CHE_PDF_StreamAcc stmAcc;
-						stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
-						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
-						stmAcc.Detach();
-					}
-				}
-			}
-		}
-		return TRUE;
-	}else if ( pPageContent->GetType() == PDFOBJ_ARRAY )
-	{
-		HE_DWORD objCount = ((CHE_PDF_Array*)pPageContent)->GetCount();
-		for ( HE_DWORD i = 0; i < objCount; i++ )
-		{
-			CHE_PDF_Object * pObj = ((CHE_PDF_Array*)pPageContent)->GetElement( i );
-			if ( pObj == NULL )
-			{
-				continue;
-			}
-			if ( pObj->GetType() != PDFOBJ_REFERENCE )
-			{
-				continue;
-			}
-			HE_DWORD objNum = ((CHE_PDF_Reference*)pObj)->GetRefNuml();
-			CHE_PDF_IndirectObject * pInObj = page.GetDocument()->GetParser()->GetIndirectObject( objNum );
-			if ( pInObj == NULL )
-			{
-				continue;
-			}
-			CHE_PDF_Object *  pContentObj = pInObj->GetObject();
 
-			if ( pContentObj->GetType() == PDFOBJ_STREAM )
+	CHE_DynBuffer buf;
+	if ( page->GetPageContent( buf ) == FALSE )
+	{
+		return;
+	}
+	IHE_Read * pIHE_Read = HE_CreateMemBufRead( buf.GetData(), buf.GetByteCount() );
+	if ( pIHE_Read == NULL )
+	{
+		return;
+	}
+	CHE_PDF_SyntaxParser sParser;
+	sParser.InitParser( pIHE_Read );
+
+	CHE_PtrStack OpdStack;
+	PDFPARSER_WORD_DES wordDes;
+	HE_BOOL bOpd = TRUE;
+	CHE_PDF_Object * pTmpNode = NULL;
+
+	//graph state
+	HE_LONG cpx = 0, cpy = 0;
+	HE_LONG ctma = 1, ctmb = 0, ctmc = 0, ctmd = 1, ctme = 0, ctmf = 0;
+	HE_LONG tmda = 1, tmdb = 0, tmdc = 0, tmdd = -1, tmde = 0, tmdf = (HE_LONG)page->GetPageHeight();
+	CHE_Path * pPath = NULL;
+
+	while ( sParser.GetWord( wordDes ) == TRUE )
+	{
+		bOpd = TRUE;
+		switch ( wordDes.type )
+		{
+		case PDFPARSER_WORD_INTEGER:
+			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str) );
+			OpdStack.Push( pTmpNode );
+			break;
+		case PDFPARSER_WORD_FLOAT:
+			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str) );
+			OpdStack.Push( pTmpNode );
+			break;
+		case PDFPARSER_WORD_NAME:
+			pTmpNode = CHE_PDF_Name::Create( wordDes.str );
+			OpdStack.Push( pTmpNode );
+			break;
+		case PDFPARSER_WORD_ARRAY_B:
+			sParser.SetPos( wordDes.offset );
+			pTmpNode = sParser.GetArray();
+			OpdStack.Push( pTmpNode );
+			break;
+		case PDFPARSER_WORD_DICT_B:
+			sParser.SetPos( wordDes.offset );
+			pTmpNode = sParser.GetDictionary();
+			OpdStack.Push( pTmpNode );
+			break;
+		case PDFPARSER_WORD_STRING:
+			pTmpNode = CHE_PDF_String::Create( wordDes.str );
+			OpdStack.Push( pTmpNode );
+			break;
+		default:
+			bOpd = FALSE;
+			break;
+		}
+		if ( bOpd == TRUE )
+		{
+			continue;
+		}
+		if ( wordDes.str == "m" )
+		{
+			if ( pPath )
 			{
-				CHE_PDF_StreamAcc stmAcc;
-				stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
-				buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
-				stmAcc.Detach();
-			}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
+				delete pPath;
+			}
+			pPath = new CHE_Path;
+			OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+			cpy = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
+			pTmpNode->Release();
+			OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+			cpx = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
+			pTmpNode->Release();
+		}else if ( wordDes.str == "l" )
+		{
+			OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+			HE_LONG endY = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
+			pTmpNode->Release();
+			OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+			HE_LONG endX = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
+			pTmpNode->Release();
+			if ( pPath )
 			{
-				CHE_PDF_Object * pTmpObj = NULL;
-				for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
-				{
-					pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
-					if ( pTmpObj->GetType() == PDFOBJ_STREAM )
-					{
-						CHE_PDF_StreamAcc stmAcc;
-						stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
-						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
-						stmAcc.Detach();
-						
-					}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
-					{
-						HE_DWORD objNum = ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml();
-						CHE_PDF_IndirectObject * pInObj = page.GetDocument()->GetParser()->GetIndirectObject( objNum );
-						if ( pInObj == NULL )
-						{
-							continue;
-							//return FALSE;
-						}
-						CHE_PDF_Object *  pContentObj = pInObj->GetObject();
-						if ( pContentObj->GetType() == PDFOBJ_STREAM )
-						{
-							CHE_PDF_StreamAcc stmAcc;
-							stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
-							buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
-							stmAcc.Detach();
-						}
-					}
-				}
+				HE_LONG X1 = ctma * endX + ctmc * endY + ctme;
+				HE_LONG Y1 = ctmb * endX + ctmd * endY + ctmf;
+				X1 = tmda * X1 + tmdc * Y1 + tmde;
+				Y1 = tmdb * X1 + tmdd * Y1 + tmdf;
+				HE_LONG X0 = ctma * cpx + ctmc * cpy + ctme;
+				HE_LONG Y0 = ctmb * cpx + ctmd * cpy + ctmf;
+				X0 = tmda * X0 + tmdc * Y0 + tmde;
+				Y0 = tmdb * X0 + tmdd * Y0 + tmdf;
+				CHE_Line line( X0, Y0, X1, Y1 );
+				pPath->AddLine( line );
+			}
+		}else if ( wordDes.str == "s" )
+		{
+			if ( pPath )
+			{
+				pIHE_draw->StrokePath( *pPath );
 			}
 		}
-		return TRUE;
 	}
-	return FALSE;
 }

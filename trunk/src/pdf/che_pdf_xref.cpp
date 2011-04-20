@@ -147,7 +147,13 @@ HE_BOOL CHE_PDF_XREF_Table::GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entr
 	{
 		return FALSE;
 	}
-	entryRet = m_pFastAccessArr[objNum]->entry;
+	if ( m_pFastAccessArr[objNum] != NULL )
+	{
+		entryRet = m_pFastAccessArr[objNum]->entry;
+		return TRUE;
+	}else{
+		return FALSE;
+	}
 	return TRUE;
 }
 

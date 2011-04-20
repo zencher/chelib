@@ -10715,7 +10715,7 @@ HE_DWORD HexStrToValue( CHE_ByteString & str )
 	return valRet;
 }
 
-CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( IHE_GetPDFInObj * pIHE_GetPDFInObj, CHE_PDF_Dictionary * pFontDict )
+CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( IHE_PDF_GetInObj * pIHE_GetPDFInObj, CHE_PDF_Dictionary * pFontDict )
 {
 	m_pMap = NULL;
 	m_pIHE_GetPDFInObj = pIHE_GetPDFInObj;
@@ -10799,7 +10799,12 @@ CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( IHE_GetPDFInObj * pIHE_GetPDFI
 		{
 			m_EncodingType = PDFENCODING_GBK;
 			m_pUnicodeTable = (HE_WCHAR*)gGBKToUnicode;
-		}else if ( str == "Identity-H" || str == "Identity-V" )
+		}else if ( str == "UniGB-UCS2-H" || str == "UniGB-UCS2-V" )
+		{
+			m_EncodingType = PDFENCODING_GBK_UCS2;
+			m_pUnicodeTable = NULL;
+		}
+		else if ( str == "Identity-H" || str == "Identity-V" )
 		{
 			m_bDefaultEncoding = FALSE;
 			m_EncodingType = PDFENCODING_SELFDEF;
@@ -10900,6 +10905,7 @@ CHE_PDF_FontCharCodeMgr::CHE_PDF_FontCharCodeMgr( IHE_GetPDFInObj * pIHE_GetPDFI
 								{
 									tmpMap->Append( i, (HE_LPVOID)tmpValue );
 									lCodeCount++;
+									tmpValue++;
 								}
 							}
 						}
@@ -11044,12 +11050,17 @@ HE_WCHAR CHE_PDF_FontCharCodeMgr::GetUnicode( HE_WCHAR  wch )
 		{
 			HE_LPVOID pValue = m_pMap->GetItem( wch);
 			return (HE_WCHAR)pValue;
+		}else{
+			if ( m_EncodingType == PDFENCODING_GBK_UCS2 )
+			{
+				return wch;
+			}
 		}
 		return 0;
 	}
 	if ( m_FontType != PDFFONT_TYPE0 && wch > 255 )
 	{
-		return 0; 
+		wch = wch & 0xFF; 
 	}
 	return m_pUnicodeTable[wch];
 }

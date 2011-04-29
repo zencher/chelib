@@ -1777,12 +1777,11 @@ static void MD5Transform(unsigned int buf[4], unsigned int const in[16])
   buf[3] += d;
 }
 
-static unsigned char padding[] =
-"\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x56\xFF\xFA\x01\x08\x2E\x2E\x00\xB6\xD0\x68\x3E\x80\x2F\x0C\xA9\xFE\x64\x53\x69\x7A";
+static unsigned char padding[] ="\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x56\xFF\xFA\x01\x08\x2E\x2E\x00\xB6\xD0\x68\x3E\x80\x2F\x0C\xA9\xFE\x64\x53\x69\x7A";
 
 
 CHE_PDF_Encrypt::CHE_PDF_Encrypt(	CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm,
-									HE_BYTE keyLength, HE_BYTE revision,  HE_BYTE bMetaData, HE_DWORD pValue )
+									HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue )
 {
 	m_ID = id;
 	for ( HE_DWORD i = 0; i < 32; i++ )
@@ -1800,9 +1799,10 @@ CHE_PDF_Encrypt::CHE_PDF_Encrypt(	CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32
 	m_revision = revision;
 	m_bMetaData = bMetaData;
 	m_PValue = pValue;
+	m_bPasswordOk = FALSE;
 }
 
-void CHE_PDF_Encrypt::PadPassword( CHE_ByteString & password, unsigned char pswd[32])
+void CHE_PDF_Encrypt::PadPassword( CHE_ByteString & password, unsigned char pswd[32] )
 {
 	HE_DWORD m = password.GetLength();
 
@@ -1819,19 +1819,18 @@ void CHE_PDF_Encrypt::PadPassword( CHE_ByteString & password, unsigned char pswd
 	}
 }
 
-HE_VOID CHE_PDF_Encrypt::ComputeOwnerKey(	HE_BYTE userPad[32], HE_BYTE ownerPad[32], HE_BYTE revision,
-											HE_DWORD keylength, HE_BYTE ownerKey[32] )
+HE_VOID CHE_PDF_Encrypt::ComputeOwnerKey( HE_BYTE userPad[32], HE_BYTE ownerPad[32], HE_BYTE ownerKeyRet[32], HE_BOOL bAuth )
 {
 	HE_BYTE mkey[MD5_HASHBYTES];
 	HE_BYTE digest[MD5_HASHBYTES];
-	HE_DWORD lengthInByte = keylength / 8;
+	HE_DWORD lengthInByte = m_keyLength / 8;
 
 	MD5_CTX ctx;
 	MD5Init( &ctx );
 	MD5Update( &ctx, ownerPad, 32 );
 	MD5Final( digest,&ctx );
 	
-	if ( (revision == 3) || (revision == 4) )
+	if ( (m_revision == 3) || (m_revision == 4) )
 	{
 		for ( HE_DWORD i = 0; i < 50; i++ )
 		{
@@ -1839,31 +1838,36 @@ HE_VOID CHE_PDF_Encrypt::ComputeOwnerKey(	HE_BYTE userPad[32], HE_BYTE ownerPad[
 			MD5Update( &ctx, digest, lengthInByte );
 			MD5Final( digest, &ctx );
 		}
-		memcpy( ownerKey, userPad, 32 );
+		memcpy( ownerKeyRet, userPad, 32 );
 		
 		for ( HE_DWORD j = 0; j < 20; j++ )
 		{
 			for ( HE_DWORD k = 0; k < lengthInByte ; k++ )
 			{
+				if ( bAuth )
+				{
+					mkey[k] = (HE_BYTE)( digest[k] ^ (19-j) );
+				}else
+				{
 					mkey[k] = (HE_BYTE)( digest[k] ^ j );
+				}
 			}
-			RC4( mkey, lengthInByte, ownerKey, 32, ownerKey );
+			RC4( mkey, lengthInByte, ownerKeyRet, 32, ownerKeyRet );
 		}
 	}else{
-		RC4( digest, 5, userPad, 32, ownerKey );
+		RC4( digest, 5, userPad, 32, ownerKeyRet );
 	}
 }
 
-HE_VOID CHE_PDF_Encrypt::CreateObjKey(	HE_DWORD objNum, HE_DWORD genNum, HE_BYTE encryptionKey[16], HE_BYTE revision,
-										HE_DWORD keyLength, HE_BYTE objkey[16], HE_DWORD* pObjKeyLengthRet )
+HE_VOID CHE_PDF_Encrypt::CreateObjKey( HE_DWORD objNum, HE_DWORD genNum, HE_BYTE objkey[16], HE_DWORD* pObjKeyLengthRet )
 {
-	HE_DWORD keyLengthInByte = keyLength / 8;
+	HE_DWORD keyLengthInByte = m_keyLength / 8;
 	HE_DWORD objKeyLength = keyLengthInByte + 5;
 	HE_BYTE	tmpkey[MD5_HASHBYTES+5+4];
 
 	for ( HE_DWORD j = 0; j < keyLengthInByte; j++)
 	{
-		tmpkey[j] = encryptionKey[j];
+		tmpkey[j] = m_EncryptionKey[j];
 	}
 	tmpkey[keyLengthInByte+0] = (HE_BYTE)( 0xff &  objNum );
 	tmpkey[keyLengthInByte+1] = (HE_BYTE)( 0xff & (objNum >> 8) );
@@ -1871,7 +1875,7 @@ HE_VOID CHE_PDF_Encrypt::CreateObjKey(	HE_DWORD objNum, HE_DWORD genNum, HE_BYTE
 	tmpkey[keyLengthInByte+3] = (HE_BYTE)( 0xff &  genNum );
 	tmpkey[keyLengthInByte+4] = (HE_BYTE)( 0xff & (genNum >> 8) );
 
-	if ( revision == 4 )
+	if ( m_revision == 4 )
 	{
 		objKeyLength += 4;
 		tmpkey[keyLengthInByte+5] = 0x73;
@@ -1888,37 +1892,76 @@ HE_VOID CHE_PDF_Encrypt::CreateObjKey(	HE_DWORD objNum, HE_DWORD genNum, HE_BYTE
 	*pObjKeyLengthRet = ( keyLengthInByte < 11 ) ? keyLengthInByte + 5 : 16;  
 }
 
-HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey(	HE_BYTE userPad[32], HE_BYTE ownerKey[32], HE_UINT32 pValue,
-												CHE_ByteString & documentId, HE_BYTE revision, HE_DWORD KeyLength,
-												HE_BOOL bEncryptMetaData, HE_BYTE encryptionKeyRet[16] )
+HE_BOOL CHE_PDF_Encrypt::Authenticate( CHE_ByteString & password )
 {
-	HE_DWORD keyLengthInByte = KeyLength / 8;
+    HE_BOOL bRet = TRUE;
+    HE_BYTE padpswd[32];
+	HE_BYTE userKey[32];
+	HE_BYTE encrypt[16];
+
+    PadPassword( password, padpswd );
+    ComputeEncryptionKey( padpswd, encrypt );
+	ComputeUserKey( encrypt, userKey );
+
+	HE_DWORD kmax = ( m_revision == 3 ) ? 16 : 32;
+	for ( HE_DWORD k = 0; bRet && k < kmax; k++)
+	{
+		bRet = bRet && ( userKey[k] == m_UValue[k] );
+	}
+    if ( !bRet )
+    {
+		bRet = TRUE;
+        unsigned char userpswd[32];
+        ComputeOwnerKey( m_OValue, padpswd, userpswd, TRUE );
+        ComputeEncryptionKey( userpswd, encrypt );
+		ComputeUserKey( encrypt, userKey );
+
+		HE_DWORD kmax = ( m_revision == 3 ) ? 16 : 32;
+		for ( HE_DWORD k = 0; bRet && k < kmax; k++)
+		{
+			bRet = bRet && ( userKey[k] == m_UValue[k] );
+		}
+    }
+	if ( bRet == TRUE )
+	{
+		m_bPasswordOk = TRUE;
+		for ( HE_DWORD i = 0; i < 16; i++ )
+		{
+			m_EncryptionKey[i] = encrypt[i];
+		}
+	}
+    return bRet;
+}
+
+HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encryptionKeyRet[16] )
+{
+	HE_DWORD keyLengthInByte = m_keyLength / 8;
 	
 	MD5_CTX ctx;
 	MD5Init( &ctx );
 	MD5Update( &ctx, userPad, 32 );
-	MD5Update( &ctx, ownerKey, 32 );
+	MD5Update( &ctx, m_OValue, 32 );
 	
 	HE_BYTE ext[4];
-	ext[0] = (HE_BYTE)(  pValue        & 0xff );
-	ext[1] = (HE_BYTE)( (pValue >>  8) & 0xff );
-	ext[2] = (HE_BYTE)( (pValue >> 16) & 0xff );
-	ext[3] = (HE_BYTE)( (pValue >> 24) & 0xff );
+	ext[0] = (HE_BYTE)(  m_PValue        & 0xff );
+	ext[1] = (HE_BYTE)( (m_PValue >>  8) & 0xff );
+	ext[2] = (HE_BYTE)( (m_PValue >> 16) & 0xff );
+	ext[3] = (HE_BYTE)( (m_PValue >> 24) & 0xff );
 	MD5Update( &ctx, ext, 4 );
 	
 	HE_BYTE * docId = NULL;
-	if ( documentId.GetLength() > 0)
+	if ( m_ID.GetLength() > 0 )
 	{
-		docId = new HE_BYTE[documentId.GetLength()];
+		docId = new HE_BYTE[m_ID.GetLength()];
 		HE_DWORD j;
-		for ( j = 0; j < documentId.GetLength(); j++ )
+		for ( j = 0; j < m_ID.GetLength(); j++ )
 		{
-			docId[j] = static_cast<unsigned char>( documentId[j] );
+			docId[j] = static_cast<unsigned char>( m_ID[j] );
 		}
-		MD5Update( &ctx, docId, documentId.GetLength() );
+		MD5Update( &ctx, docId, m_ID.GetLength() );
 	}
 
-	if ( bEncryptMetaData == FALSE && revision >= 3 )
+	if ( m_bMetaData == FALSE && m_revision >= 3 )
 	{
 		HE_BYTE ext[4];
 		ext[0] = 0xFF;
@@ -1929,7 +1972,7 @@ HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey(	HE_BYTE userPad[32], HE_BYTE owne
 	}
 	MD5Final( encryptionKeyRet, &ctx );
 
-	if ( revision == 3 || revision == 4 )
+	if ( m_revision == 3 || m_revision == 4 )
 	{
 		for ( HE_DWORD k = 0; k < 50; k++ )
 		{
@@ -1940,30 +1983,33 @@ HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey(	HE_BYTE userPad[32], HE_BYTE owne
 	}
 }
 
-HE_VOID CHE_PDF_Encrypt::ComputeUserKey(	HE_BYTE encryptionKey[16], CHE_ByteString & documentId,
-											HE_BYTE revision, HE_DWORD keyLength, HE_BYTE userKeyRet[32] )
+HE_VOID CHE_PDF_Encrypt::ComputeUserKey( HE_BYTE encryptionKey[16], HE_BYTE userKeyRet[32] )
 {
-	HE_DWORD keyLengthInByte = keyLength / 8;
+	HE_DWORD keyLengthInByte = m_keyLength / 8;
 	MD5_CTX ctx;
 
-	if ( revision == 3 || revision == 4 )
+	if ( m_revision == 3 || m_revision == 4 )
 	{
 		MD5Init( &ctx );
 		MD5Update( &ctx, padding, 32 );
 
-		if ( documentId.GetLength() > 0)
+		if ( m_ID.GetLength() > 0)
 		{
-			HE_BYTE * docId = new HE_BYTE[documentId.GetLength()];
-			for ( HE_DWORD j = 0; j < documentId.GetLength(); j++ )
+			HE_BYTE * docId = new HE_BYTE[m_ID.GetLength()];
+			for ( HE_DWORD j = 0; j < m_ID.GetLength(); j++ )
 			{
-				docId[j] = static_cast<unsigned char>( documentId[j] );
+				docId[j] = static_cast<unsigned char>( m_ID[j] );
 			}
-			MD5Update( &ctx, docId, documentId.GetLength() );
+			MD5Update( &ctx, docId, m_ID.GetLength() );
 			delete [] docId;
 		}
 		HE_BYTE digest[MD5_HASHBYTES];
 		MD5Final( digest, &ctx );
 		HE_DWORD k;
+		for ( k = 0; k < 16; k++ )
+		{
+			userKeyRet[k] = digest[k];
+		}
 		for ( k = 16; k < 32; k++ )
 		{
 			userKeyRet[k] = 0;
@@ -1979,11 +2025,27 @@ HE_VOID CHE_PDF_Encrypt::ComputeUserKey(	HE_BYTE encryptionKey[16], CHE_ByteStri
 	}
 	else
 	{
-		RC4( encryptionKey, keyLengthInByte, padding, 32, userKeyRet);
+		RC4( encryptionKey, keyLengthInByte, padding, 32, userKeyRet );
 	}
 }
 
-HE_VOID CHE_PDF_Encrypt::Encrypt( HE_BYTE algorithm, CHE_ByteString & str, HE_BYTE objKey[16], HE_BYTE objKeyLen )
+HE_DWORD CHE_PDF_Encrypt::Encrypt( CHE_ByteString & str, HE_DWORD objNum, HE_DWORD genNum )
+{
+	HE_BYTE objKey[16];
+	HE_DWORD objKeyLength = 0;
+	CreateObjKey( objNum, genNum, objKey, &objKeyLength );
+	return Encrypt( str, objKey, objKeyLength );
+}
+
+HE_DWORD CHE_PDF_Encrypt::Encrypt( HE_LPBYTE pData, HE_DWORD length, HE_DWORD objNum, HE_DWORD genNum )
+{
+	HE_BYTE objKey[16];
+	HE_DWORD objKeyLength = 0;
+	CreateObjKey( objNum, genNum, objKey, &objKeyLength );
+	return Encrypt( pData, length, objKey, objKeyLength );
+}
+
+HE_DWORD CHE_PDF_Encrypt::Encrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_DWORD objKeyLen )
 {
 	HE_DWORD length = str.GetLength();
 	HE_BYTE * pData = new HE_BYTE[length+16];
@@ -1991,7 +2053,7 @@ HE_VOID CHE_PDF_Encrypt::Encrypt( HE_BYTE algorithm, CHE_ByteString & str, HE_BY
 	{
 		pData[i] = (HE_BYTE)( str[i] );
 	}
-	if ( algorithm == 1 )
+	if ( m_algorithm == PDFENCRYPT_ALGORITHM_RC4V1 || m_algorithm == PDFENCRYPT_ALGORITHM_RC4V2 )
 	{
 		RC4( objKey, objKeyLen, pData, length, pData );
 		str.SetBytes( pData, length );
@@ -2000,23 +2062,41 @@ HE_VOID CHE_PDF_Encrypt::Encrypt( HE_BYTE algorithm, CHE_ByteString & str, HE_BY
 		str.SetBytes( pData, length+16 );
 	}
 	delete [] pData;
+	return str.GetLength();
 }
 
-HE_VOID CHE_PDF_Encrypt::Encrypt( HE_BYTE algorithm, HE_LPBYTE pData, HE_DWORD length, HE_BYTE objKey[16], HE_BYTE objKeyLen )
+HE_DWORD CHE_PDF_Encrypt::Encrypt( HE_LPBYTE pData, HE_DWORD length, HE_BYTE objKey[16], HE_DWORD objKeyLen )
 {
 	if ( pData == NULL || length == 0 )
 	{
-		return;
+		return 0;
 	}
-	if ( algorithm == 1 )
+	if ( m_algorithm == PDFENCRYPT_ALGORITHM_RC4V1 || m_algorithm == PDFENCRYPT_ALGORITHM_RC4V2 )
 	{
 		RC4( objKey, objKeyLen, pData, length, pData );
 	}else{
-		AESEncrypt( objKey, objKeyLen, pData, length, pData );
+		length = AESEncrypt( objKey, objKeyLen, pData, length, pData );
 	}
+	return length;
 }
 
-HE_DWORD CHE_PDF_Encrypt::Decrypt( HE_BYTE algorithm, CHE_ByteString & str, HE_BYTE objKey[16], HE_BYTE objKeyLen )
+HE_DWORD CHE_PDF_Encrypt::Decrypt( CHE_ByteString & str, HE_DWORD objNum, HE_DWORD genNum )
+{
+	HE_BYTE objKey[16];
+	HE_DWORD objKeyLength = 0;
+	CreateObjKey( objNum, genNum, objKey, &objKeyLength );
+	return Decrypt( str, objKey, objKeyLength );
+}
+
+HE_DWORD CHE_PDF_Encrypt::Decrypt( HE_LPBYTE pData, HE_DWORD length, HE_DWORD objNum, HE_DWORD genNum )
+{
+	HE_BYTE objKey[16];
+	HE_DWORD objKeyLength = 0;
+	CreateObjKey( objNum, genNum, objKey, &objKeyLength );
+	return Decrypt( pData, length, objKey, objKeyLength );
+}
+
+HE_DWORD CHE_PDF_Encrypt::Decrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_DWORD objKeyLen )
 {
 	HE_DWORD length = str.GetLength();
 	HE_BYTE * pData = new HE_BYTE[length];
@@ -2024,7 +2104,7 @@ HE_DWORD CHE_PDF_Encrypt::Decrypt( HE_BYTE algorithm, CHE_ByteString & str, HE_B
 	{
 		pData[i] = (HE_BYTE)( str[i] );
 	}
-	if ( algorithm == 1 )
+	if ( m_algorithm == PDFENCRYPT_ALGORITHM_RC4V1 || m_algorithm == PDFENCRYPT_ALGORITHM_RC4V2 )
 	{
 		RC4( objKey, objKeyLen, pData, length, pData );
 		str.SetBytes( pData, length );
@@ -2039,13 +2119,13 @@ HE_DWORD CHE_PDF_Encrypt::Decrypt( HE_BYTE algorithm, CHE_ByteString & str, HE_B
 	return length;
 }
 
-HE_DWORD CHE_PDF_Encrypt::Decrypt( HE_BYTE algorithm, HE_LPBYTE pData, HE_DWORD length, HE_BYTE objKey[16], HE_BYTE objKeyLen )
+HE_DWORD CHE_PDF_Encrypt::Decrypt( HE_LPBYTE pData, HE_DWORD length, HE_BYTE objKey[16], HE_DWORD objKeyLen )
 {
 	if ( pData == NULL || length == 0 )
 	{
 		return 0;
 	}
-	if ( algorithm == 1 )
+	if ( m_algorithm == PDFENCRYPT_ALGORITHM_RC4V1 || m_algorithm == PDFENCRYPT_ALGORITHM_RC4V2 )
 	{
 		RC4( objKey, objKeyLen, pData, length, pData );
 	}else{

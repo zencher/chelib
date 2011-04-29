@@ -70,34 +70,40 @@ protected:
 class CHE_PDF_Encrypt : public CHE_Object
 {
 public:
-	//CHE_PDF_Encrypt(	CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm, HE_BYTE keyLength,
-	//					HE_BYTE revision,  HE_BYTE bMetaData, HE_DWORD pValue );
-	/*~CHE_PDF_Encrypt();*/
+	CHE_PDF_Encrypt(	CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm, HE_BYTE keyLength,
+						HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue );
 
-	HE_VOID ComputeEncryptionKey(	HE_BYTE userPad[32], HE_BYTE ownerKey[32], HE_UINT32 pValue,
-									CHE_ByteString & documentId, HE_BYTE revision, HE_DWORD KeyLength,
-									HE_BOOL bEncryptMetaData, HE_BYTE encryptionKeyRet[16] );
+	HE_BOOL Authenticate( CHE_ByteString & password );
 
-	HE_VOID ComputeOwnerKey(	HE_BYTE userPad[32], HE_BYTE ownerPad[32], HE_BYTE revision,
-								HE_DWORD keyLength, HE_BYTE ownerKeyRet[32] );
+	HE_BOOL	IsPasswordOK() { return m_bPasswordOk; }
 
-	HE_VOID ComputeUserKey(		HE_BYTE encryptionKeyRet[16], CHE_ByteString & documentId,
-								HE_BYTE revision, HE_DWORD keyLength, HE_BYTE userKeyRet[32] );
+	HE_DWORD Encrypt( CHE_ByteString & str, HE_DWORD objNum, HE_DWORD genNum );
 
-	HE_VOID CreateObjKey(		HE_DWORD objNum, HE_DWORD genNum, HE_BYTE encryptionKey[16], HE_BYTE revision,
-								HE_DWORD keyLength, HE_BYTE objkey[16], HE_DWORD* pObjKeyLengthRet );
-
-	HE_VOID PadPassword( CHE_ByteString & password, HE_BYTE pswd[32] );
+	HE_DWORD Encrypt( HE_LPBYTE pData, HE_DWORD length, HE_DWORD objNum, HE_DWORD genNum );
     
-	HE_VOID Encrypt( HE_BYTE algorithm, CHE_ByteString & str, HE_BYTE objKey[16], HE_BYTE objKeyLen );
+	HE_DWORD Encrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_DWORD objKeyLen );
 
-	HE_VOID Encrypt( HE_BYTE algorithm, HE_LPBYTE pData, HE_DWORD length, HE_BYTE objKey[16], HE_BYTE objKeyLen );
+	HE_DWORD Encrypt( HE_LPBYTE pData, HE_DWORD length, HE_BYTE objKey[16], HE_DWORD objKeyLen );
 
-	HE_DWORD Decrypt( HE_BYTE algorithm, CHE_ByteString & str, HE_BYTE objKey[16], HE_BYTE objKeyLen );
+	HE_DWORD Decrypt( CHE_ByteString & str, HE_DWORD objNum, HE_DWORD genNum );
+
+	HE_DWORD Decrypt( HE_LPBYTE pData, HE_DWORD length, HE_DWORD objNum, HE_DWORD genNum );
+
+	HE_DWORD Decrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_DWORD objKeyLen );
 	
-	HE_DWORD Decrypt( HE_BYTE algorithm, HE_LPBYTE pData, HE_DWORD length, HE_BYTE objKey[16], HE_BYTE objKeyLen );
+	HE_DWORD Decrypt( HE_LPBYTE pData, HE_DWORD length, HE_BYTE objKey[16], HE_DWORD objKeyLen );
 
 private:
+	HE_VOID ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encryptionKeyRet[16] );
+	
+	HE_VOID ComputeOwnerKey( HE_BYTE userPad[32], HE_BYTE ownerPad[32], HE_BYTE ownerKeyRet[32], HE_BOOL bAuth = FALSE );
+	
+	HE_VOID ComputeUserKey( HE_BYTE encryptionKey[16], HE_BYTE userKeyRet[32] );
+	
+	HE_VOID CreateObjKey( HE_DWORD objNum, HE_DWORD genNum, HE_BYTE objkey[16], HE_DWORD* pObjKeyLengthRet );
+	
+	HE_VOID PadPassword( CHE_ByteString & password, HE_BYTE pswd[32] );
+
 	HE_VOID RC4( HE_LPBYTE key, HE_DWORD keyLength, HE_LPBYTE data, HE_DWORD dataLength, HE_LPBYTE dataRet );
 	
 	HE_DWORD AESEncrypt( HE_LPBYTE key, HE_DWORD keyLength, HE_LPBYTE data, HE_DWORD dataLength, HE_LPBYTE dataRet );
@@ -105,16 +111,18 @@ private:
 	HE_DWORD AESDecrypt( HE_LPBYTE key, HE_DWORD keyLength, HE_LPBYTE data, HE_DWORD dataLength, HE_LPBYTE dataRet );
 
 private:
-// 	HE_BYTE				m_bMetaData;
-// 	HE_BYTE				m_algorithm;
-// 	HE_BYTE				m_revision;
-// 	HE_BYTE				m_keyLength;
-// 	HE_DWORD			m_PValue;
-// 	HE_BYTE				m_OValue[32];
-// 	HE_BYTE				m_UValue[32];
-// 	CHE_ByteString		m_ID;
-// 
-// 	HE_BYTE				m_EncryptionKey[16];
+	HE_BOOL				m_bPasswordOk;
+
+	HE_BOOL				m_bMetaData;
+	HE_BYTE				m_algorithm;
+	HE_BYTE				m_revision;
+	HE_BYTE				m_keyLength;
+	HE_DWORD			m_PValue;
+	HE_BYTE				m_OValue[32];
+	HE_BYTE				m_UValue[32];
+	CHE_ByteString		m_ID;
+
+	HE_BYTE				m_EncryptionKey[16];
 };
 
 #endif

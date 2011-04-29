@@ -1753,9 +1753,9 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 	}
 	HE_DWORD streamSize = streamAcc.GetSize();
 	HE_LPCBYTE lpByte = streamAcc.GetData();
-   	FILE * pFile = fopen( "c:\\11.txt", "wb+" );
-   	fwrite( lpByte, 1, streamSize, pFile );
-   	fclose( pFile );
+//    FILE * pFile = fopen( "c:\\11.txt", "wb+" );
+//    fwrite( lpByte, 1, streamSize, pFile );
+//	fclose( pFile );
 	HE_DWORD field1 = 0, field2 = 0, field3 = 0;
 	HE_DWORD lBlockCount = 0;
 	HE_DWORD lentrySize = lW1 + lW2 + lW3;
@@ -1766,7 +1766,12 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 		if ( pElement == NULL )
 		{
 			lBeginNum = 0;
-			lObjCount = lSize;
+			if ( streamSize / lentrySize > lSize )
+			{
+				lObjCount = streamSize / lentrySize;
+			}else{
+				lObjCount = lSize;
+			}
 		}else{
 			lBeginNum = ((CHE_PDF_Number*)((CHE_PDF_Array*)pElement)->GetElement( i * 2 ))->GetInteger();
 			lObjCount	= ((CHE_PDF_Number*)((CHE_PDF_Array*)pElement)->GetElement( i * 2 + 1 ))->GetInteger();
@@ -2353,22 +2358,22 @@ HE_DWORD CHE_PDF_Parser::GetPageObjList( HE_DWORD* pList )
 			pArrayElement = ((CHE_PDF_Array*)pObj)->GetElement( i );
 			if ( pArrayElement == NULL || pArrayElement->GetType() != PDFOBJ_REFERENCE )
 			{
-				return 0;
+				continue;
 			}
 			pInObj = GetIndirectObject( ((CHE_PDF_Reference*)pArrayElement)->GetRefNuml() );
 			if ( pInObj == NULL )
 			{
-				return 0;
+				continue;
 			}
 			pDictInObj = pInObj->GetDict();
 			if ( pDictInObj == NULL )
 			{
-				return 0;
+				continue;
 			}
 			CHE_PDF_Object * pType = pDictInObj->GetElement( CHE_ByteString("Type") );
 			if ( pType == NULL || pType->GetType() != PDFOBJ_NAME )
 			{
-				return 0;
+				continue;
 			}
 			CHE_ByteString str = ((CHE_PDF_Name*)pType)->GetString();
 			if ( str == "Pages" )
@@ -2507,8 +2512,15 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 				return NULL;
 			}
 		}else{
-			pCurObj->Release();
-			return NULL;
+			CHE_PDF_IndirectObject * pObj = CHE_PDF_IndirectObject::Create( objNum, pCurObj );
+			if ( pObj )
+			{
+				m_objCollector.Add( pObj );
+				return pObj;
+			}else{
+				pCurObj->Release();
+				return NULL;
+			}
 		}
 	}else if ( wordDes.type == PDFPARSER_WORD_FLOAT )
 	{

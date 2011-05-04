@@ -205,15 +205,15 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			switch ( wordDes.type )
 			{
 			case PDFPARSER_WORD_INTEGER:
-				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str) );
+				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0 );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_FLOAT:
-				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str) );
+				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0 );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_NAME:
-				pTmpNode = CHE_PDF_Name::Create( wordDes.str );
+				pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0 );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_ARRAY_B:
@@ -227,24 +227,24 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_STRING:
-				pTmpNode = CHE_PDF_String::Create( wordDes.str );
+				pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0 );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_UNKNOWN:
 				{
 					if ( wordDes.str == "null" )
 					{
-						pTmpNode = CHE_PDF_Null::Create();
+						pTmpNode = CHE_PDF_Null::Create( 0, 0 );
 						OpdStack.Push( pTmpNode );
 						break;
 					}else if ( wordDes.str == "false" )
 					{
-						pTmpNode = CHE_PDF_Boolean::Create( FALSE );
+						pTmpNode = CHE_PDF_Boolean::Create( FALSE, 0, 0 );
 						OpdStack.Push( pTmpNode );
 						break;
 					}else if ( wordDes.str == "true" )
 					{
-						pTmpNode = CHE_PDF_Boolean::Create( TRUE );
+						pTmpNode = CHE_PDF_Boolean::Create( TRUE, 0, 0 );
 						OpdStack.Push( pTmpNode );
 						break;
 					}

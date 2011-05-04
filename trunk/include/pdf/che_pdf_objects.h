@@ -34,6 +34,7 @@ class CHE_PDF_Object : public CHE_Object
 public:
 	HE_BYTE		GetType() const { return m_Type; }
 	HE_DWORD	GetObjNum() const { return m_ObjNum; }
+	HE_DWORD	GetGenNum() const { return m_GenNum; }
 
 	HE_VOID		Release();
 
@@ -58,13 +59,14 @@ public:
 	//CHE_PDF_Array*		GetArray() const;
 
 protected:
-	CHE_PDF_Object() { m_ObjNum = 0; m_Type = 0; }
+	CHE_PDF_Object() { m_Type = 0; m_ObjNum = 0; m_GenNum = 0; }
 	~CHE_PDF_Object() {}
 
 	void		Destroy() {};
 	
 	HE_BYTE 	m_Type;
 	HE_DWORD 	m_ObjNum;
+	HE_DWORD	m_GenNum;
 
 private:
 	CHE_PDF_Object(const CHE_PDF_Object& src) {}
@@ -73,11 +75,11 @@ private:
 class CHE_PDF_Boolean : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_Boolean*	Create( HE_BOOL value ) { return new CHE_PDF_Boolean( value ); }
+	static CHE_PDF_Boolean*	Create( HE_BOOL value, HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Boolean( value, objNum, genNum ); }
 
-	CHE_PDF_Boolean()  { m_Type = PDFOBJ_BOOLEAN; }
+	CHE_PDF_Boolean( HE_DWORD objNum, HE_DWORD genNum )  { m_Type = PDFOBJ_BOOLEAN; m_bValue = FALSE; m_ObjNum = objNum; m_GenNum = genNum; }
 
-	CHE_PDF_Boolean( HE_BOOL value )  { m_Type = PDFOBJ_BOOLEAN; m_bValue = value; }
+	CHE_PDF_Boolean( HE_BOOL value, HE_DWORD objNum, HE_DWORD genNum )  { m_Type = PDFOBJ_BOOLEAN;  m_bValue = value; m_ObjNum = objNum; m_GenNum = genNum; }
 
 	HE_BOOL	GetValue() { return m_bValue; }
 	
@@ -91,15 +93,15 @@ class CHE_PDF_Number : public CHE_PDF_Object
 {
 public:
 
-	static CHE_PDF_Number*		Create( HE_INT32 value ) { return new CHE_PDF_Number(value); }
+	static CHE_PDF_Number*		Create( HE_INT32 value, HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Number(value, objNum, genNum); }
 
-	static CHE_PDF_Number*		Create( HE_FLOAT value ) { return new CHE_PDF_Number(value); }
+	static CHE_PDF_Number*		Create( HE_FLOAT value, HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Number(value, objNum, genNum); }
 
-	CHE_PDF_Number()  { m_Type = PDFOBJ_NUMBER; }
+	//CHE_PDF_Number( HE_DWORD objNum, HE_DWORD genNum )  { m_Type = PDFOBJ_NUMBER; m_ObjNum = objNum; m_GenNum = genNum; }
 
-	CHE_PDF_Number( HE_INT32 value ) { m_bInteger = TRUE; m_Integer = value; m_Type = PDFOBJ_NUMBER; }
+	CHE_PDF_Number( HE_INT32 value, HE_DWORD objNum, HE_DWORD genNum ) { m_bInteger = TRUE; m_Integer = value; m_Type = PDFOBJ_NUMBER; m_ObjNum = objNum; m_GenNum = genNum; }
 
-	CHE_PDF_Number( HE_FLOAT value ) { m_bInteger = FALSE; m_Float = value; m_Type = PDFOBJ_NUMBER; }
+	CHE_PDF_Number( HE_FLOAT value, HE_DWORD objNum, HE_DWORD genNum ) { m_bInteger = FALSE; m_Float = value; m_Type = PDFOBJ_NUMBER; m_ObjNum = objNum; m_GenNum = genNum; }
 
 	HE_BOOL					IsInteger() const { return m_bInteger; }
 
@@ -121,11 +123,11 @@ protected:
 class CHE_PDF_String : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_String*		Create( const CHE_ByteString& str) { return new CHE_PDF_String(str); }
+	static CHE_PDF_String*		Create( const CHE_ByteString& str, HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_String(str, objNum, genNum); }
 	
-	CHE_PDF_String() { m_Type = PDFOBJ_STRING; }
+	CHE_PDF_String( HE_DWORD objNum, HE_DWORD genNum ) { m_Type = PDFOBJ_STRING; m_ObjNum = objNum; m_GenNum = genNum; }
 
-	CHE_PDF_String( const CHE_ByteString& str ) : m_String(str) { m_Type = PDFOBJ_STRING; }
+	CHE_PDF_String( const CHE_ByteString& str, HE_DWORD objNum, HE_DWORD genNum ) : m_String(str) { m_Type = PDFOBJ_STRING; m_ObjNum = objNum; m_GenNum = genNum; }
 
 	CHE_ByteString				GetString() { return m_String; }
 	
@@ -138,17 +140,17 @@ protected:
 class CHE_PDF_Name : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_Name*		Create( const CHE_ByteString& str ) { return new CHE_PDF_Name(str); }
+	static CHE_PDF_Name*		Create( const CHE_ByteString& str, HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Name(str, objNum, genNum); }
 
-	static CHE_PDF_Name*		Create( HE_LPCSTR str ) { return new CHE_PDF_Name(str); }
+	static CHE_PDF_Name*		Create( HE_LPCSTR str, HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Name(str, objNum, genNum); }
 
-	static CHE_PDF_Name*		Create( HE_LPSTR str) { return new CHE_PDF_Name(str); }
+	static CHE_PDF_Name*		Create( HE_LPSTR str, HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Name(str, objNum, genNum); }
 	
-	CHE_PDF_Name( const CHE_ByteString& str ) : m_Name(str) { m_Type = PDFOBJ_NAME; }
+	CHE_PDF_Name( const CHE_ByteString& str, HE_DWORD objNum, HE_DWORD genNum ) : m_Name(str) { m_Type = PDFOBJ_NAME; m_ObjNum = objNum; m_GenNum = genNum; }
 
-	CHE_PDF_Name( HE_LPCSTR str ) : m_Name(str) { m_Type = PDFOBJ_NAME; }
+	CHE_PDF_Name( HE_LPCSTR str, HE_DWORD objNum, HE_DWORD genNum ) : m_Name(str) { m_Type = PDFOBJ_NAME; m_ObjNum = objNum; m_GenNum = genNum; }
 
-	CHE_PDF_Name( HE_LPSTR str ) : m_Name(str) { m_Type = PDFOBJ_NAME; }
+	CHE_PDF_Name( HE_LPSTR str, HE_DWORD objNum, HE_DWORD genNum ) : m_Name(str) { m_Type = PDFOBJ_NAME; m_ObjNum = objNum; m_GenNum = genNum; }
 	
 	CHE_ByteString				GetString() { return m_Name; }
 	
@@ -163,9 +165,9 @@ class CHE_PDF_Array : public CHE_PDF_Object
 {
 public:
 
-	static CHE_PDF_Array*		Create() { return new CHE_PDF_Array(); }
+	static CHE_PDF_Array*		Create( HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Array( objNum, genNum ); }
 
-	CHE_PDF_Array()  { m_Type = PDFOBJ_ARRAY; }
+	CHE_PDF_Array( HE_DWORD objNum, HE_DWORD genNum )  { m_Type = PDFOBJ_ARRAY; m_ObjNum = objNum; m_GenNum = genNum; }
 
 	HE_VOID						Append( CHE_PDF_Object * pObj );
 
@@ -184,9 +186,9 @@ protected:
 class CHE_PDF_Dictionary : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_Dictionary*	Create() { return new CHE_PDF_Dictionary(); }
+	static CHE_PDF_Dictionary*	Create( HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Dictionary( objNum, genNum ); }
 
-	CHE_PDF_Dictionary()  { m_Type = PDFOBJ_DICTIONARY; }
+	CHE_PDF_Dictionary( HE_DWORD objNum, HE_DWORD genNum )  { m_Type = PDFOBJ_DICTIONARY; m_ObjNum = objNum; m_GenNum = genNum; }
 
 	CHE_PDF_Object*			GetElement( CHE_ByteString & key ) const;
 
@@ -220,15 +222,15 @@ class CHE_PDF_Stream : public CHE_PDF_Object
 {
 public:
 
-	static CHE_PDF_Stream*		Create( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum = 0, CHE_PDF_Encrypt * pEncrypt = NULL ) 
-									{ return new CHE_PDF_Stream( pData, size, pDict, objNum, pEncrypt ); }
+	static CHE_PDF_Stream*		Create( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt = NULL ) 
+									{ return new CHE_PDF_Stream( pData, size, pDict, objNum, genNum, pEncrypt ); }
 
-	static CHE_PDF_Stream*		Create( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum = 0, CHE_PDF_Encrypt * pEncrypt = NULL ) 
-									{ return new CHE_PDF_Stream( pFile, offset, size, pDict, objNum, pEncrypt ); }
+	static CHE_PDF_Stream*		Create( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt = NULL ) 
+									{ return new CHE_PDF_Stream( pFile, offset, size, pDict, objNum, genNum, pEncrypt ); }
 
-	CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum = 0, CHE_PDF_Encrypt * pEncrypt = NULL );
+	CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt = NULL );
 
-	CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum = 0, CHE_PDF_Encrypt * pEncrypt = NULL );
+	CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt = NULL );
 
 	CHE_PDF_Dictionary*		GetDict() const { return m_pDict; }
 
@@ -312,17 +314,17 @@ class CHE_PDF_Null	: public CHE_PDF_Object
 {
 public:
 
-	static CHE_PDF_Null*		Create() { return new CHE_PDF_Null(); }
+	static CHE_PDF_Null*		Create( HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Null( objNum, genNum ); }
 	
-	CHE_PDF_Null()  { m_Type = PDFOBJ_NULL; }
+	CHE_PDF_Null( HE_DWORD objNum, HE_DWORD genNum )  { m_Type = PDFOBJ_NULL; m_ObjNum = objNum; m_GenNum = genNum; }
 };
 
 class CHE_PDF_Reference : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_Reference*	Create( HE_DWORD objnum ) { return new CHE_PDF_Reference( objnum ); }
+	static CHE_PDF_Reference*	Create( HE_DWORD refNum, HE_DWORD objNum, HE_DWORD genNum ) { return new CHE_PDF_Reference( refNum, objNum, genNum ); }
 
-	CHE_PDF_Reference( HE_DWORD objnum ) { m_Type = PDFOBJ_REFERENCE; m_RefObjNum = objnum; }
+	CHE_PDF_Reference( HE_DWORD refNum, HE_DWORD objNum, HE_DWORD genNum ) { m_Type = PDFOBJ_REFERENCE; m_RefObjNum = refNum; m_ObjNum = objNum; m_GenNum = genNum; }
 
 	HE_DWORD	GetRefNuml() { return m_RefObjNum; }
 
@@ -334,10 +336,10 @@ protected:
 class CHE_PDF_IndirectObject : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_IndirectObject*	Create( HE_DWORD objNum, CHE_PDF_Object * pObj )
-										{ return new CHE_PDF_IndirectObject( objNum, pObj ); }
+	static CHE_PDF_IndirectObject*	Create( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj )
+										{ return new CHE_PDF_IndirectObject( objNum, genNum, pObj ); }
 										
-	CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, CHE_PDF_Object * pObj );
+	CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj );
 
 	CHE_PDF_Dictionary	*	GetDict() const;
 
@@ -349,7 +351,6 @@ protected:
 	~CHE_PDF_IndirectObject();
 
 	CHE_PDF_Object *	m_pObj;
-	HE_DWORD			m_ObjNum;
 
 	friend class CHE_PDF_Object;
 	friend class CHE_PDF_IndirectObjectCollector;

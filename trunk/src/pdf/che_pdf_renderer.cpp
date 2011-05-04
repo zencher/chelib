@@ -38,15 +38,15 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 		switch ( wordDes.type )
 		{
 		case PDFPARSER_WORD_INTEGER:
-			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str) );
+			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0 );
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_FLOAT:
-			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str) );
+			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0 );
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_NAME:
-			pTmpNode = CHE_PDF_Name::Create( wordDes.str );
+			pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0 );
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_ARRAY_B:
@@ -60,7 +60,7 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_STRING:
-			pTmpNode = CHE_PDF_String::Create( wordDes.str );
+			pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0 );
 			OpdStack.Push( pTmpNode );
 			break;
 		default:

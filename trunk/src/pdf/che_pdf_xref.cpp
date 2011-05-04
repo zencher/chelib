@@ -141,6 +141,21 @@ HE_BOOL CHE_PDF_XREF_Table::GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entr
 {
 	if ( m_pFastAccessArr == NULL )
 	{
+		PDF_XREF_SECTION * pTmpSection = m_pCurSection;
+		while ( pTmpSection )
+		{
+			PDF_XREF_ENTRY_NODE * pTmpEntry = pTmpSection->pFirstEntry;
+			while( pTmpEntry )
+			{
+				if ( objNum == pTmpEntry->entry.objNum )
+				{
+					entryRet = pTmpEntry->entry;
+					return TRUE;
+				}
+				pTmpEntry = pTmpEntry->pNext;
+			}
+			pTmpSection = pTmpSection->pPreSection;
+		}
 		return FALSE;
 	}
 	if ( objNum > m_lMaxObjNum  )

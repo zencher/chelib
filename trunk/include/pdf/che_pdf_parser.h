@@ -6,6 +6,7 @@
 #include "che_pdf_define.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_xref.h"
+#include "che_pdf_encrypt.h"
 
 #define PDFPARSER_WORD_UNKNOWN	0
 #define PDFPARSER_WORD_INTEGER	1
@@ -57,6 +58,14 @@ public:
 
 	HE_VOID				SeekToMark( CHE_ByteString markStr );
 
+	HE_VOID				SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { m_pStrEncrypt = pEncrypt; }
+
+	HE_VOID				SetCurObjNum( HE_DWORD objNum ) { m_dwCurObjNum = objNum; }
+
+	HE_VOID				SetCurGenNum( HE_DWORD genNum ) { m_dwCurGenNum = genNum; }
+
+	CHE_PDF_Encrypt *	GetEncrypt() { return m_pStrEncrypt; }
+
 	HE_DWORD			ReadBytes( /*HE_DWORD offset,*/ HE_LPBYTE pBuffer, HE_DWORD length );
 
 	HE_BOOL				GetWord( PDFPARSER_WORD_DES & des );
@@ -73,6 +82,10 @@ private:
 	HE_DWORD			m_lFilePos;
 	HE_DWORD			m_lFileSize;
 	IHE_Read*			m_pFileAccess;
+
+	CHE_PDF_Encrypt	*	m_pStrEncrypt;
+	HE_DWORD			m_dwCurObjNum;
+	HE_DWORD			m_dwCurGenNum;
 
 	HE_BOOL				m_bBegin;
 	HE_BOOL				m_bPoint;
@@ -119,6 +132,8 @@ public:
 
 	HE_DWORD					GetPageObjList( HE_DWORD* pList );
 
+	HE_BOOL						Authenticate( CHE_ByteString & password ) { return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): FALSE; }
+
 	CHE_PDF_IndirectObject *	GetIndirectObject();
 	
 	CHE_PDF_IndirectObject *	GetIndirectObject( HE_DWORD objNum );
@@ -145,6 +160,10 @@ private:
 
 	HE_DWORD					m_lstartxref;
 	HE_DWORD					m_lPageCount;
+
+	CHE_PDF_Encrypt	*			m_pStrEncrypt;
+	CHE_PDF_Encrypt	*			m_pStmEncrypt;
+	CHE_PDF_Encrypt	*			m_pEefEncrypt;
 
 	CHE_PtrArray				m_arrObjStm;
 	CHE_NumToPtrMap				m_XrefVerifyMap1;

@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_parser.h"
+#include "../../include/pdf/che_pdf_encrypt.h"
 #include "../../include/che_datastructure.h"
 #include <string.h>
 #include <stdio.h>
@@ -147,6 +148,10 @@ CHE_PDF_SyntaxParser::CHE_PDF_SyntaxParser()
 	m_lFilePos = 0;
 	m_pFileAccess = NULL;
 	m_lFileSize = 0;
+
+	m_pStrEncrypt = NULL;
+	m_dwCurObjNum = 0;
+	m_dwCurGenNum = 0;
 
 	m_bBegin = TRUE;
 	m_bPoint = FALSE;
@@ -536,6 +541,10 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
 								}
 							}
 							SubmitBufferStr( des.str );
+							if ( m_pStrEncrypt && m_pStrEncrypt->IsPasswordOK() == TRUE )
+							{
+								m_pStrEncrypt->Decrypt( des.str, m_dwCurObjNum, m_dwCurGenNum );
+							}
 							return TRUE;
 						}
 					}
@@ -838,6 +847,10 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
 						}
 						m_lFilePos++;
 						SubmitBufferStr( des.str );
+						if ( m_pStrEncrypt && m_pStrEncrypt->IsPasswordOK() == TRUE )
+						{
+							m_pStrEncrypt->Decrypt( des.str, m_dwCurObjNum, m_dwCurGenNum );
+						}
 						return TRUE;
 					}
 					break;
@@ -1371,6 +1384,9 @@ CHE_PDF_Parser::CHE_PDF_Parser()
 {
 	m_pTrailerDict = NULL;
 	m_pIHE_FileRead = NULL;
+	m_pStrEncrypt = NULL;
+	m_pStmEncrypt = NULL;
+	m_pEefEncrypt = NULL;
 	m_lstartxref = 0;
 	m_lPageCount = 0;
 	m_bTrailerDictNeedDestory = TRUE;
@@ -1907,10 +1923,118 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 			{
 				if ( m_pTrailerDict == NULL )
 				{
-
 					m_pTrailerDict = pDict;
 				}
-				CHE_PDF_Object * pObj = pDict->GetElement( CHE_ByteString("Prev") );
+				CHE_PDF_Dictionary * pEncryptDict = NULL;
+				CHE_PDF_Object * pObj = pDict->GetElement( CHE_ByteString("Encrypt") );
+				if ( pObj != NULL )
+				{
+					CHE_PDF_IndirectObject * pInEncryptObj = NULL;
+					pInEncryptObj = GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+					if ( pInEncryptObj != NULL )
+					{
+						pObj = pInEncryptObj->GetObject();
+						if ( pObj != NULL && pObj->GetType() == PDFOBJ_DICTIONARY )
+						{
+							pEncryptDict = (CHE_PDF_Dictionary*)pObj;						
+						}
+					}
+				}
+				if ( pEncryptDict != NULL )
+				{
+					pObj = pEncryptDict->GetElement( CHE_ByteString("Filter") );
+					if (	pObj != NULL 
+							&& pObj->GetType() == PDFOBJ_NAME 
+							&& ((CHE_PDF_Name*)pObj)->GetString() == "Standard" )
+					{
+						CHE_ByteString id1;
+						HE_BYTE O[32];
+						HE_BYTE U[32];
+						HE_BYTE keyLength = 40;
+						HE_BYTE revision = 2;
+						HE_BOOL bMetaData = TRUE;
+						HE_DWORD pValue = 0;
+						CHE_PDF_Array * pIDArray = GetIDArray();
+						if ( pIDArray != NULL )
+						{
+							pObj = pIDArray->GetElement( 0 );
+							if ( pObj != NULL && pObj->GetType() == PDFOBJ_STRING )
+							{
+								id1 = ((CHE_PDF_String*)pObj)->GetString();
+							}
+						}
+						//获取Length
+						pObj = pEncryptDict->GetElement( CHE_ByteString("Length") );
+						if (	pObj != NULL 
+							&& pObj->GetType() == PDFOBJ_NUMBER )
+						{
+							keyLength = ((CHE_PDF_Number*)pObj)->GetInteger();
+						}
+						//获取R
+						pObj = pEncryptDict->GetElement( CHE_ByteString("R") );
+						if (	pObj != NULL 
+							&& pObj->GetType() == PDFOBJ_NUMBER )
+						{
+							revision = ((CHE_PDF_Number*)pObj)->GetInteger();
+						}
+						//获取P
+						pObj = pEncryptDict->GetElement( CHE_ByteString("P") );
+						if (	pObj != NULL 
+							&& pObj->GetType() == PDFOBJ_NUMBER )
+						{
+							pValue = ((CHE_PDF_Number*)pObj)->GetInteger();
+						}
+						//获取EncryptMetadata
+						pObj = pEncryptDict->GetElement( CHE_ByteString("EncryptMetadata") );
+						if (	pObj != NULL 
+							&& pObj->GetType() == PDFOBJ_BOOLEAN )
+						{
+							bMetaData = ((CHE_PDF_Boolean*)pObj)->GetValue();
+						}
+						//获取U
+						pObj = pEncryptDict->GetElement( CHE_ByteString("U") );
+						if (	pObj != NULL 
+							&& pObj->GetType() == PDFOBJ_STRING )
+						{
+							CHE_ByteString str = ((CHE_PDF_String*)pObj)->GetString();
+							for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
+							{
+								U[i] = str[i];
+							}
+						}
+						//获取O
+						pObj = pEncryptDict->GetElement( CHE_ByteString("O") );
+						if (	pObj != NULL 
+							&& pObj->GetType() == PDFOBJ_STRING )
+						{
+							CHE_ByteString str = ((CHE_PDF_String*)pObj)->GetString();
+							for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
+							{
+								O[i] = str[i];
+							}
+						}
+						pObj = pEncryptDict->GetElement( CHE_ByteString("V") );
+						if (	pObj != NULL 
+								&& pObj->GetType() == PDFOBJ_NUMBER )
+						{
+							if ( ((CHE_PDF_Number*)pObj)->GetInteger() == 4 )
+							{
+								m_pStrEncrypt = new CHE_PDF_Encrypt( id1, O, U, PDFENCRYPT_ALGORITHM_AESV2, keyLength, revision, bMetaData, pValue );
+								m_pStrEncrypt->Authenticate( CHE_ByteString("") );
+							}else{
+								m_pStrEncrypt = new CHE_PDF_Encrypt( id1, O, U, PDFENCRYPT_ALGORITHM_RC4V1, keyLength, revision, bMetaData, pValue );
+								m_pStmEncrypt = m_pStrEncrypt;
+								m_pEefEncrypt = m_pStrEncrypt;
+								m_pStrEncrypt->Authenticate( CHE_ByteString("") );
+							}
+							m_sParser.SetEncrypt( m_pStrEncrypt );
+						}
+					}else{
+						//非标准的加密处理，未支持
+					}
+				}
+
+				pObj = pDict->GetElement( CHE_ByteString("Prev") );
 				if ( pObj != NULL && pObj->GetType() == PDFOBJ_NUMBER )
 				{
 					offset = ((CHE_PDF_Number*)pObj)->GetInteger();
@@ -1936,7 +2060,124 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 						m_pTrailerDict = pDict;
 						m_bTrailerDictNeedDestory = FALSE;
 					}
-					CHE_PDF_Object * pObj = pDict->GetElement( CHE_ByteString("Prev") );
+					CHE_PDF_Dictionary * pEncryptDict = NULL;
+					CHE_PDF_Object * pObj = pDict->GetElement( CHE_ByteString("Encrypt") );
+					if ( pObj != NULL )
+					{
+						CHE_PDF_IndirectObject * pInEncryptObj = NULL;
+						pInEncryptObj = GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+						if ( pInEncryptObj != NULL )
+						{
+							pObj = pInEncryptObj->GetObject();
+							if ( pObj != NULL && pObj->GetType() == PDFOBJ_DICTIONARY )
+							{
+								pEncryptDict = (CHE_PDF_Dictionary*)pObj;						
+							}
+						}
+					}
+					if ( pEncryptDict != NULL )
+					{
+						pObj = pEncryptDict->GetElement( CHE_ByteString("Filter") );
+						if (	pObj != NULL 
+								&& pObj->GetType() == PDFOBJ_NAME 
+								&& ((CHE_PDF_Name*)pObj)->GetString() == "Standard" )
+						{
+							CHE_ByteString id1;
+							HE_BYTE O[32];
+							HE_BYTE U[32];
+							HE_BYTE keyLength = 40;
+							HE_BYTE revision = 2;
+							HE_BOOL bMetaData = TRUE;
+							HE_DWORD pValue = 0;
+							CHE_PDF_Array * pIDArray = GetIDArray();
+							if ( pIDArray != NULL )
+							{
+								pObj = pIDArray->GetElement( 0 );
+								if ( pObj != NULL && pObj->GetType() == PDFOBJ_STRING )
+								{
+									id1 = ((CHE_PDF_String*)pObj)->GetString();
+								}
+							}
+							//获取Length
+							pObj = pEncryptDict->GetElement( CHE_ByteString("Length") );
+							if (	pObj != NULL 
+								&& pObj->GetType() == PDFOBJ_NUMBER )
+							{
+								keyLength = ((CHE_PDF_Number*)pObj)->GetInteger();
+							}
+							//获取R
+							pObj = pEncryptDict->GetElement( CHE_ByteString("R") );
+							if (	pObj != NULL 
+								&& pObj->GetType() == PDFOBJ_NUMBER )
+							{
+								revision = ((CHE_PDF_Number*)pObj)->GetInteger();
+							}
+							//获取P
+							pObj = pEncryptDict->GetElement( CHE_ByteString("P") );
+							if (	pObj != NULL 
+								&& pObj->GetType() == PDFOBJ_NUMBER )
+							{
+								pValue = ((CHE_PDF_Number*)pObj)->GetInteger();
+							}
+							//获取EncryptMetadata
+							pObj = pEncryptDict->GetElement( CHE_ByteString("EncryptMetadata") );
+							if (	pObj != NULL 
+								&& pObj->GetType() == PDFOBJ_BOOLEAN )
+							{
+								bMetaData = ((CHE_PDF_Boolean*)pObj)->GetValue();
+							}
+							//获取U
+							pObj = pEncryptDict->GetElement( CHE_ByteString("U") );
+							if (	pObj != NULL 
+								&& pObj->GetType() == PDFOBJ_STRING )
+							{
+								CHE_ByteString str = ((CHE_PDF_String*)pObj)->GetString();
+								for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
+								{
+									U[i] = str[i];
+								}
+							}
+							//获取O
+							pObj = pEncryptDict->GetElement( CHE_ByteString("O") );
+							if (	pObj != NULL 
+								&& pObj->GetType() == PDFOBJ_STRING )
+							{
+								CHE_ByteString str = ((CHE_PDF_String*)pObj)->GetString();
+								for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
+								{
+									O[i] = str[i];
+								}
+							}
+							pObj = pEncryptDict->GetElement( CHE_ByteString("V") );
+							if (	pObj != NULL 
+									&& pObj->GetType() == PDFOBJ_NUMBER )
+							{
+								if ( ((CHE_PDF_Number*)pObj)->GetInteger() == 4 )
+								{
+// 									CHE_PDF_Dictionary * pCFDict = (CHE_PDF_Dictionary*)(pEncryptDict->GetElement( CHE_ByteString("CF") ));
+// 									if ( pCFDict != NULL )
+// 									{
+// 										pObj = pEncryptDict->GetElement( CHE_ByteString("StrF") );
+// 										((CHE_PDF_Dictionary*)pObj)->GetElement(  )
+// 									}
+
+									m_pStrEncrypt = new CHE_PDF_Encrypt( id1, O, U, PDFENCRYPT_ALGORITHM_AESV2, keyLength, revision, bMetaData, pValue );
+									m_pStrEncrypt->Authenticate( CHE_ByteString("") );
+									m_pStmEncrypt = m_pStrEncrypt;
+									m_pEefEncrypt = m_pStrEncrypt;
+								}else{
+									m_pStrEncrypt = new CHE_PDF_Encrypt( id1, O, U, PDFENCRYPT_ALGORITHM_RC4V1, keyLength, revision, bMetaData, pValue );
+									m_pStmEncrypt = m_pStrEncrypt;
+									m_pEefEncrypt = m_pStrEncrypt;
+									m_pStrEncrypt->Authenticate( CHE_ByteString("") );
+								}
+								m_sParser.SetEncrypt( m_pStrEncrypt );
+							}
+						}else{
+							//非标准的加密处理，未支持
+						}
+					}
+					pObj = pDict->GetElement( CHE_ByteString("Prev") );
 					if ( pObj != NULL && pObj->GetType() == PDFOBJ_NUMBER )
 					{
 						offset = ((CHE_PDF_Number*)pObj)->GetInteger();
@@ -2419,6 +2660,9 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 		return NULL;
 	}
 
+	m_sParser.SetCurObjNum( objNum );
+	m_sParser.SetCurGenNum( genNum );
+
 	HE_DWORD pos = m_sParser.GetPos();
 	m_sParser.GetWord( wordDes );
 	CHE_PDF_Object * pCurObj = NULL;
@@ -2471,7 +2715,7 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 				m_sParser.GetWord( wordDes );
 				if ( wordDes.str == "endstream" )
 				{
-					CHE_PDF_Stream * pStream = CHE_PDF_Stream::Create( m_pIHE_FileRead, offset, length, (CHE_PDF_Dictionary*)pCurObj );
+					CHE_PDF_Stream * pStream = CHE_PDF_Stream::Create( m_pIHE_FileRead, offset, length, (CHE_PDF_Dictionary*)pCurObj, objNum, m_pStmEncrypt );
 					if ( pStream == NULL )
 					{
 						pCurObj->Release();
@@ -2653,6 +2897,8 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObjectInObjStm( HE_DWORD stm
 				}
 				CHE_PDF_SyntaxParser sParser;
 				sParser.InitParser( pIHE_Read );
+				sParser.SetCurObjNum( stmObjNum );
+				sParser.SetCurGenNum( 0 );
 				
 				HE_DWORD first = 0;
 				PDFPARSER_WORD_DES	wordDes;

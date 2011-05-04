@@ -4,6 +4,7 @@
 #include "../che_base.h"
 #include "../che_string.h"
 #include "../che_datastructure.h"
+#include "che_pdf_encrypt.h"
 
 #define PDFOBJ_INVALID		0
 #define	PDFOBJ_BOOLEAN		1
@@ -77,6 +78,8 @@ public:
 	CHE_PDF_Boolean()  { m_Type = PDFOBJ_BOOLEAN; }
 
 	CHE_PDF_Boolean( HE_BOOL value )  { m_Type = PDFOBJ_BOOLEAN; m_bValue = value; }
+
+	HE_BOOL	GetValue() { return m_bValue; }
 	
 protected:
 	HE_BOOL	m_bValue;
@@ -217,15 +220,15 @@ class CHE_PDF_Stream : public CHE_PDF_Object
 {
 public:
 
-	static CHE_PDF_Stream*		Create( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary* pDict ) 
-									{ return new CHE_PDF_Stream( pData, size, pDict ); }
+	static CHE_PDF_Stream*		Create( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum = 0, CHE_PDF_Encrypt * pEncrypt = NULL ) 
+									{ return new CHE_PDF_Stream( pData, size, pDict, objNum, pEncrypt ); }
 
-	static CHE_PDF_Stream*		Create( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict ) 
-									{ return new CHE_PDF_Stream( pFile, offset, size, pDict ); }
+	static CHE_PDF_Stream*		Create( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum = 0, CHE_PDF_Encrypt * pEncrypt = NULL ) 
+									{ return new CHE_PDF_Stream( pFile, offset, size, pDict, objNum, pEncrypt ); }
 
-	CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict );
+	CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum = 0, CHE_PDF_Encrypt * pEncrypt = NULL );
 
-	CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict );
+	CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum = 0, CHE_PDF_Encrypt * pEncrypt = NULL );
 
 	CHE_PDF_Dictionary*		GetDict() const { return m_pDict; }
 
@@ -245,16 +248,19 @@ protected:
 
 	~CHE_PDF_Stream();
 
+	CHE_PDF_Encrypt *		m_pEncrypt;
+
 	CHE_PDF_Dictionary*		m_pDict;
 	HE_DWORD				m_dwSize;
 	HE_BOOL					m_bMem;
 	union {
 		HE_LPBYTE			m_pDataBuf;
-		IHE_Read*		m_pFile;	
+		IHE_Read*			m_pFile;	
 	};
 	HE_DWORD				m_FileOffset;
 
 	friend class CHE_PDF_Object;
+	friend class CHE_PDF_StreamAcc;
 };
 
 class CHE_PDF_StreamAcc : public CHE_Object

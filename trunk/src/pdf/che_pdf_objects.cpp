@@ -171,8 +171,11 @@ HE_VOID	CHE_PDF_Dictionary::SetAtReference( CHE_ByteString & key, HE_DWORD objnu
 	}
 }
 
-CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict )
+CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum, CHE_PDF_Encrypt * pEncrypt )
+:CHE_PDF_Object( )
 {
+	m_pEncrypt = pEncrypt;
+	m_ObjNum = objNum;
 	m_Type = PDFOBJ_STREAM;
 	m_pDataBuf = NULL;
 	m_dwSize = 0;
@@ -190,8 +193,10 @@ CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictiona
 	}
 }
 	
-CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict )
+CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum, CHE_PDF_Encrypt * pEncrypt )
 {
+	m_pEncrypt = pEncrypt;
+	m_ObjNum = objNum;
 	m_Type = PDFOBJ_STREAM;
 	m_pDataBuf = NULL;
 	m_dwSize = 0;
@@ -274,6 +279,10 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 				m_dwSize = length;
 				m_pData = new HE_BYTE[length];
 				pStream->ReadRawData( 0, m_pData, length );
+				if ( pStream->m_pEncrypt && pStream->m_pEncrypt->IsPasswordOK() == TRUE )
+				{
+					pStream->m_pEncrypt->Decrypt( m_pData, length, pStream->GetObjNum(), 0 );
+				}
 				return TRUE;
 			}else{
 				if ( pFilter->GetType() == PDFOBJ_ARRAY )
@@ -323,6 +332,10 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 			HE_DWORD lSize = pStream->GetRawSize();
 			HE_LPBYTE pTmp = new HE_BYTE[lSize];
 			pStream->ReadRawData( 0, pTmp, lSize );
+			if ( pStream->m_pEncrypt && pStream->m_pEncrypt->IsPasswordOK() == TRUE )
+			{
+				pStream->m_pEncrypt->Decrypt( pTmp, lSize, pStream->GetObjNum(), 0 );
+			}
 			CHE_ByteString str;
 			for ( HE_DWORD i = 0; i < lFilterCount; i++ )
 			{

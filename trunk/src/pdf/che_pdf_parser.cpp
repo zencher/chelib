@@ -2,7 +2,7 @@
 #include "../../include/pdf/che_pdf_encrypt.h"
 #include "../../include/che_datastructure.h"
 #include <string.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 HE_INT32 HE_PDF_StringToInteger( CHE_ByteString & str )
 {
@@ -1373,7 +1373,7 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 HE_VOID CHE_PDF_SyntaxParser::SubmitBufferStr( CHE_ByteString & str )
 {
 	m_WordBuffer[m_lBufferPos] = '\0';
-	str.SetBytes( m_WordBuffer, m_lBufferPos );
+	str.SetData( m_WordBuffer, m_lBufferPos );
 	m_WordBuffer[m_lBufferPos=0] = '\0';
 	m_bBegin = TRUE;
 	m_bPoint = FALSE;
@@ -2249,19 +2249,19 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 		{
 			VerifyObjInStm();
 		}
-		FILE * pFile = fopen( "c:\\XRefIndex.txt", "wb+" );
-   		HE_CHAR tmpStr[128];
-		PDF_XREF_ENTRY_NODE * pTmpNode = NULL;
-		for ( HE_DWORD i = 0; i < m_xrefTable.m_lMaxObjNum; i++ )
-		{
-			pTmpNode = m_xrefTable.m_pFastAccessArr[i];
-			if ( pTmpNode )
-			{
-				sprintf( tmpStr, "obj:%04d - %d %08X %d\r\n", pTmpNode->entry.objNum, pTmpNode->entry.field1, pTmpNode->entry.GetParentObjNum(), pTmpNode->entry.GetIndex() );
-				fwrite( tmpStr, 1, strlen(tmpStr), pFile );
-			}
-		}
-		fclose( pFile );
+// 		FILE * pFile = fopen( "c:\\XRefIndex.txt", "wb+" );
+//    		HE_CHAR tmpStr[128];
+// 		PDF_XREF_ENTRY_NODE * pTmpNode = NULL;
+// 		for ( HE_DWORD i = 0; i < m_xrefTable.m_lMaxObjNum; i++ )
+// 		{
+// 			pTmpNode = m_xrefTable.m_pFastAccessArr[i];
+// 			if ( pTmpNode )
+// 			{
+// 				sprintf( tmpStr, "obj:%04d - %d %08X %d\r\n", pTmpNode->entry.objNum, pTmpNode->entry.field1, pTmpNode->entry.GetParentObjNum(), pTmpNode->entry.GetIndex() );
+// 				fwrite( tmpStr, 1, strlen(tmpStr), pFile );
+// 			}
+// 		}
+// 		fclose( pFile );
 		return xrefEntryCount;
 	}
 	return 0;
@@ -2988,7 +2988,8 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObjectInObjStm( HE_DWORD stm
 								pCurObj = CHE_PDF_Name::Create( wordDes.str, objNum, 0 );
 							}else if ( wordDes.type == PDFPARSER_WORD_ARRAY_B )
 							{
-								pCurObj = m_sParser.GetArray();
+								sParser.SetPos( pos );
+								pCurObj = sParser.GetArray();
 							}else if ( wordDes.str == "false" )
 							{
 								pCurObj = CHE_PDF_Boolean::Create( FALSE, objNum, 0 );

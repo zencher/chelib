@@ -1,13 +1,13 @@
 #include "../../include/pdf/che_pdf_pages.h"
 #include <memory.h>
 
-class IHE_DefaultGetPDFFontCodeMgr : public IHE_PDF_GetFontCodeMgr
+class IHE_DefaultGetPDFFont : public IHE_PDF_GetFont
 {
 public:
-	IHE_DefaultGetPDFFontCodeMgr( CHE_PDF_Document * pDocument ) { m_pDoc = pDocument; }
-	~IHE_DefaultGetPDFFontCodeMgr() {};
+	IHE_DefaultGetPDFFont( CHE_PDF_Document * pDocument ) { m_pDoc = pDocument; }
+	~IHE_DefaultGetPDFFont() {};
 	
-	CHE_PDF_FontCharCodeMgr * GetFontCodeMgr( HE_DWORD objNum ) { return (m_pDoc!= NULL)?m_pDoc->GetFontCodeMgr(objNum):NULL; }
+	CHE_PDF_Font * GetFont( HE_DWORD objNum ) { return (m_pDoc!= NULL)?m_pDoc->GetFont(objNum):NULL; }
 	
 private:
 	CHE_PDF_Document * m_pDoc;
@@ -19,8 +19,7 @@ CHE_PDF_Document::CHE_PDF_Document() : m_ID1(), m_ID2()
 	m_pRootDict = NULL;
 	m_pParser = NULL;
 	m_pPageObjNumList = NULL;
-	m_pIHE_GetPDFFontCodeMgr = NULL;
-	m_pIHE_GetPDFFontCodeMgr = new IHE_DefaultGetPDFFontCodeMgr( this );
+	m_pIHE_GetPDFFont = new IHE_DefaultGetPDFFont( this );
 }
 
 CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
@@ -33,7 +32,7 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
 		m_pRootDict = NULL;
 		m_pParser = NULL;
 		m_pPageObjNumList = NULL;
-		m_pIHE_GetPDFFontCodeMgr = new IHE_DefaultGetPDFFontCodeMgr( this );
+		m_pIHE_GetPDFFont = new IHE_DefaultGetPDFFont( this );
 	}else{
 		m_pParser = new CHE_PDF_Parser();
 		m_pParser->StartParse( pFileRead );
@@ -54,7 +53,7 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
 			pStrObj = (CHE_PDF_String*)((CHE_PDF_Array*)pIDArray)->GetElement( 1 );
 			m_ID2 = pStrObj->GetString();
 		}
-		m_pIHE_GetPDFFontCodeMgr = new IHE_DefaultGetPDFFontCodeMgr( this );
+		m_pIHE_GetPDFFont = new IHE_DefaultGetPDFFont( this );
 	}
 }
 
@@ -64,9 +63,9 @@ CHE_PDF_Document::~CHE_PDF_Document()
 	{
 		delete [] m_pPageObjNumList;
 	}
-	if ( m_pIHE_GetPDFFontCodeMgr )
+	if ( m_pIHE_GetPDFFont )
 	{
-		delete m_pIHE_GetPDFFontCodeMgr;
+		delete m_pIHE_GetPDFFont;
 	}
 	if ( m_pParser )
 	{
@@ -114,10 +113,10 @@ HE_VOID CHE_PDF_Document::Unload()
 		delete [] m_pPageObjNumList;
 		m_pPageObjNumList = NULL;
 	}
-	if ( m_pIHE_GetPDFFontCodeMgr )
+	if ( m_pIHE_GetPDFFont )
 	{
-		delete m_pIHE_GetPDFFontCodeMgr;
-		m_pIHE_GetPDFFontCodeMgr = NULL;
+		delete m_pIHE_GetPDFFont;
+		m_pIHE_GetPDFFont = NULL;
 	}
 }
 
@@ -304,10 +303,10 @@ CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pP
 	}
 }
 
-CHE_PDF_FontCharCodeMgr *	CHE_PDF_Document::GetFontCodeMgr( HE_DWORD objNum )
+CHE_PDF_Font *	CHE_PDF_Document::GetFont( HE_DWORD objNum )
 {
-	CHE_PDF_FontCharCodeMgr * pFontCodeMgr = (CHE_PDF_FontCharCodeMgr *)m_FontCodeMgr.GetItem( objNum );
-	if ( pFontCodeMgr == NULL )
+	CHE_PDF_Font * pFont = (CHE_PDF_Font *)m_FontMap.GetItem( objNum );
+	if ( pFont == NULL )
 	{
 		CHE_PDF_IndirectObject * pInObj = m_pParser->GetIndirectObject( objNum );
 		if ( pInObj == NULL )
@@ -319,11 +318,11 @@ CHE_PDF_FontCharCodeMgr *	CHE_PDF_Document::GetFontCodeMgr( HE_DWORD objNum )
 		{
 			return NULL;
 		}
-		pFontCodeMgr = new CHE_PDF_FontCharCodeMgr( m_pParser->GetIHE_GetPDFInObj(), pDict );
-		m_FontCodeMgr.Append( objNum, pFontCodeMgr );
-		return pFontCodeMgr;
+		pFont = new CHE_PDF_Font( pDict, m_pParser->GetIHE_GetPDFInObj() );
+		m_FontMap.Append( objNum, pFont );
+		return pFont;
 	}
-	return pFontCodeMgr;
+	return pFont;
 }
 
 CHE_PDF_Page::CHE_PDF_Page( HE_DWORD lPageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc )

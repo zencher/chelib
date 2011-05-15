@@ -4,17 +4,18 @@
 #include "../che_base.h"
 #include "../che_dynBuffer.h"
 #include "che_pdf_parser.h"
-#include "che_pdf_resource.h"
+//#include "che_pdf_resource.h"
+#include "che_pdf_font.h"
 
 class CHE_PDF_Page;
 
 
-class IHE_PDF_GetFontCodeMgr : public CHE_Object
+class IHE_PDF_GetFont : public CHE_Object
 {
 public:
-	virtual ~IHE_PDF_GetFontCodeMgr() {};
+	virtual ~IHE_PDF_GetFont() {};
 	
-	virtual CHE_PDF_FontCharCodeMgr * GetFontCodeMgr( HE_DWORD objNum ) = 0;
+	virtual CHE_PDF_Font * GetFont( HE_DWORD objNum ) = 0;
 };
 
 class CHE_PDF_Document : public CHE_Object
@@ -50,9 +51,9 @@ public:
 
 	CHE_PDF_Dictionary *		GetPageResources( CHE_PDF_Dictionary * pPageDict );
 
-	CHE_PDF_FontCharCodeMgr *	GetFontCodeMgr( HE_DWORD objNum );
+	CHE_PDF_Font *				GetFont( HE_DWORD objNum );
 
-	IHE_PDF_GetFontCodeMgr *	GetIHE_GetPDFFontCodeMgr() { return m_pIHE_GetPDFFontCodeMgr; }
+	IHE_PDF_GetFont *			GetIHE_GetPDFFont() { return m_pIHE_GetPDFFont; }
 
 protected:
 	CHE_PDF_Parser *			m_pParser;
@@ -61,8 +62,8 @@ protected:
 	CHE_ByteString				m_ID1;
 	CHE_ByteString				m_ID2;
 	HE_DWORD*					m_pPageObjNumList;
-	CHE_NumToPtrMap				m_FontCodeMgr;
-	IHE_PDF_GetFontCodeMgr*		m_pIHE_GetPDFFontCodeMgr;
+	CHE_NumToPtrMap				m_FontMap;
+	IHE_PDF_GetFont*			m_pIHE_GetPDFFont;
 };
 
 class CHE_PDF_Page : public CHE_Object

@@ -2056,10 +2056,10 @@ HE_DWORD CHE_PDF_Encrypt::Encrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_
 	if ( m_algorithm == PDFENCRYPT_ALGORITHM_RC4V1 || m_algorithm == PDFENCRYPT_ALGORITHM_RC4V2 )
 	{
 		RC4( objKey, objKeyLen, pData, length, pData );
-		str.SetBytes( pData, length );
+		str.SetData( pData, length );
 	}else{
 		AESEncrypt( objKey, objKeyLen, pData, length, pData );
-		str.SetBytes( pData, length+16 );
+		str.SetData( pData, length+16 );
 	}
 	delete [] pData;
 	return str.GetLength();
@@ -2107,12 +2107,12 @@ HE_DWORD CHE_PDF_Encrypt::Decrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_
 	if ( m_algorithm == PDFENCRYPT_ALGORITHM_RC4V1 || m_algorithm == PDFENCRYPT_ALGORITHM_RC4V2 )
 	{
 		RC4( objKey, objKeyLen, pData, length, pData );
-		str.SetBytes( pData, length );
+		str.SetData( pData, length );
 	}else{
 		length = AESDecrypt( objKey, objKeyLen, pData, length, pData );
 		if( length > 0 )
 		{
-			str.SetBytes( pData, length );
+			str.SetData( pData, length );
 		}
 	}
 	delete [] pData;

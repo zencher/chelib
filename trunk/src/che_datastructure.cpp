@@ -398,6 +398,15 @@ HE_LPVOID CHE_NumToPtrMap::GetItemByIndex( HE_DWORD index )
 	return m_pData[index]; 
 }
 
+HE_DWORD CHE_NumToPtrMap::GetNumByIndex( HE_DWORD index )
+{
+	if ( index >= m_lCount )
+	{
+		return NULL;
+	}
+	return m_pNum[index]; 
+}
+
 HE_VOID CHE_NumToPtrMap::Clear()
 {
 	m_lSize = 0;

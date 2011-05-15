@@ -99,6 +99,8 @@ public:
 	HE_LPVOID	GetItem( HE_DWORD num ) const;
 	
 	HE_LPVOID	GetItemByIndex( HE_DWORD index );
+
+	HE_DWORD	GetNumByIndex( HE_DWORD index );
 	
 	HE_DWORD	GetCount() { return m_lCount; }
 	

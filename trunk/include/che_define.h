@@ -83,8 +83,10 @@ typedef double HE_DOUBLE;
 
 #define FALSE 0
 #define TRUE 1
-#define NULL 0
 
+#ifndef NULL
+#define NULL 0
+#endif
 
 struct HE_RECT
 {

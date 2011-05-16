@@ -1,6 +1,6 @@
 #include "../include/che_string.h"
-#include <memory.h>
-#include <string.h>
+#include <memory>
+#include <cwctype>
 
 CHE_ByteString::CHE_ByteString()
 {

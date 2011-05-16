@@ -139,9 +139,100 @@ public:
 
 	CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum ) { return ( m_pParser!= NULL) ? m_pParser->GetIndirectObject(objNum) : NULL; }
 
+	CHE_PDF_Object * GetObj( HE_DWORD objNum, HE_BYTE objType = 0 );
+
 private:
 	CHE_PDF_Parser * m_pParser;
 };
+
+CHE_PDF_Object * IHE_DefaultGetPDFInObj::GetObj( HE_DWORD objNum, HE_BYTE objType /*= 0*/ )
+{
+	if ( objNum == 0 )
+	{
+		return NULL;
+	}
+	if ( m_pParser == NULL )
+	{
+		return NULL;
+	}
+
+	CHE_PDF_IndirectObject * pInObj = m_pParser->GetIndirectObject( objNum );
+	if ( pInObj == NULL )
+	{
+		return NULL;
+	}
+	if ( pInObj->GetObject == NULL )
+	{
+		return NULL;
+	}
+	CHE_PDF_Object * pCurObj = pInObj->GetObject();
+	if ( objType == PDFOBJ_INVALID )
+	{
+		return pCurObj;
+	}
+	if ( objType == pCurObj->GetType() )
+	{
+		return pCurObj;
+	}
+	if( pCurObj->GetType() != PDFOBJ_ARRAY && pCurObj->GetType() != PDFOBJ_REFERENCE )
+	{
+		return NULL;
+	}
+	while ( TRUE )
+	{
+		if ( pCurObj->GetType() == PDFOBJ_ARRAY )
+		{
+			//不处理数组下面的数组，只获取第一个可能，也即是可能忽略掉一些数组元素
+			CHE_PDF_Object * pTmpObj = NULL;
+			HE_BOOL	bContinue = FALSE;
+			for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pCurObj)->GetCount(); i++ )
+			{
+				pTmpObj = ((CHE_PDF_Array*)pCurObj)->GetElement( i );
+				if ( pTmpObj->GetType() == objType )
+				{
+					return pTmpObj;
+				}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+				{
+					pCurObj = pTmpObj;
+					bContinue = TRUE;
+				}
+			}
+			if ( bContinue == TRUE )
+			{
+				continue;
+			}else{
+				return NULL;
+			}
+		}else if ( pCurObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			pInObj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pCurObj)->GetRefNuml() );
+			if (pInObj == NULL )
+			{
+				return NULL;
+			}
+			pCurObj = pInObj->GetObject();
+			if ( pCurObj == NULL )
+			{
+				return NULL;
+			}
+			if ( pCurObj->GetType() == objType )
+			{
+				return pCurObj;
+			}
+			if ( pCurObj->GetType() == PDFOBJ_REFERENCE || pCurObj->GetType() == PDFOBJ_ARRAY )
+			{
+				continue;
+			}
+			return NULL;
+		}else if ( pCurObj->GetType() == objType )
+		{
+			return pCurObj;
+		}else{
+			return NULL;
+		}
+	}
+	return pCurObj;
+}
 
 CHE_PDF_SyntaxParser::CHE_PDF_SyntaxParser()
 {

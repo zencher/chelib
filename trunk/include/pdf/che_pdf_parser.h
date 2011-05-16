@@ -34,6 +34,8 @@ public:
 	virtual ~IHE_PDF_GetInObj() {};
 	
 	virtual CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum ) = 0;
+
+	virtual CHE_PDF_Object * GetObj( HE_DWORD objNum, HE_BYTE objType = 0 ) = 0;
 };
 
 class CHE_PDF_SyntaxParser : public CHE_Object

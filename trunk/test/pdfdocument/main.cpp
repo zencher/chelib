@@ -20,14 +20,14 @@ int main( int argc, char **argv )
 		return 0;
 	}else{
 		printf( "%s \n",argv[1] );
-		printf( "file size : %d\n", pFileRead->GetSize() );
+		printf( "file size : %ld\n", pFileRead->GetSize() );
 	}
 
 	try{
 		CHE_PDF_Document doc;
 		doc.Load( pFileRead );
 		HE_DWORD lPageCount = doc.GetPageCount();
-		printf( "page count : %d\n", lPageCount );
+		printf( "page count : %ld\n", lPageCount );
 		CHE_PDF_Page * pTmpPage = NULL;
 		char tmpStr[1024];
 		sprintf( tmpStr, "%s.text.txt", argv[1] );
@@ -44,17 +44,17 @@ int main( int argc, char **argv )
 			pTmpPage = doc.GetPage( i );
 			if ( pTmpPage == NULL )
 			{
-				printf( "page index : %d Error, Can not get the page!\n", i+1 );
+				printf( "page index : %ld Error, Can not get the page!\n", i+1 );
 				continue;
 			}
-
 			CHE_DynBuffer buffer;
 			pTmpPage->GetPageContent( buffer );
+			HE_BYTE * pData = new HE_BYTE[buffer.GetByteCount()];
+			buffer.Read( pData,  buffer.GetByteCount() );
 			if ( pWriteContent )
 			{
-				pWriteContent->WriteBlock( buffer.GetData(), buffer.GetByteCount() );
+				pWriteContent->WriteBlock( pData, buffer.GetByteCount() );
 			}
-
 			CHE_PDF_TextExtractor textExtractor;
 			CHE_DynWideByteBuffer buf(4096, 4096);
 			HE_DWORD lcount = textExtractor.Extract( pTmpPage, buf );
@@ -76,7 +76,7 @@ int main( int argc, char **argv )
 			}
 			if ( pTmpPage )
 			{
-				printf( "page index : %d ", i+1 );
+				printf( "page index : %ld ", i+1 );
 				printf( "page width : %.2f ", pTmpPage->GetPageWidth() );
 				printf( "page height : %.2f\n", pTmpPage->GetPageHeight() );
 				delete pTmpPage;

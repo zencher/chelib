@@ -151,6 +151,10 @@ SOURCE=..\..\..\src\che_dynbuffer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\src\pdf\che_pdf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\src\che_string.cpp
 # End Source File
 # End Group
@@ -160,6 +164,10 @@ SOURCE=..\..\..\src\che_string.cpp
 # Begin Group "pdf header"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\..\include\pdf\che_pdf_define.h

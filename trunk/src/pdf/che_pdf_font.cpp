@@ -11074,6 +11074,27 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 
 CHE_PDF_Font::~CHE_PDF_Font()
 {
+	if ( m_pUnicodeTable != gMacExpertEncoding && m_pUnicodeTable != gMacRomanEncoding 
+			&& m_pUnicodeTable != gPdfDocEncoding && m_pUnicodeTable != gStandardEncoding
+			&& m_pUnicodeTable != gWinAnsiEncoding )
+	{
+		delete [] m_pUnicodeTable;
+		m_pUnicodeTable = NULL;
+	}
+	if ( m_FontFace )
+	{
+		FT_Done_Face( m_FontFace );
+		m_FontFace = NULL;
+	}
+	if ( m_pFontProgramData )
+	{
+		delete [] m_pFontProgramData;
+	}
+	if ( m_pMap )
+	{
+		m_pMap->Clear();
+		delete m_pMap;
+	}
 }
 
 CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStream )

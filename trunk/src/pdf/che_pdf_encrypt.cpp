@@ -1,7 +1,7 @@
 #include "../../include/pdf/che_pdf_encrypt.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 static HE_BYTE S[256] =
 {
@@ -1780,7 +1780,7 @@ static void MD5Transform(unsigned int buf[4], unsigned int const in[16])
 static unsigned char padding[] ="\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x56\xFF\xFA\x01\x08\x2E\x2E\x00\xB6\xD0\x68\x3E\x80\x2F\x0C\xA9\xFE\x64\x53\x69\x7A";
 
 
-CHE_PDF_Encrypt::CHE_PDF_Encrypt(	CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm,
+CHE_PDF_Encrypt::CHE_PDF_Encrypt( const CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm,
 									HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue )
 {
 	m_ID = id;
@@ -1802,7 +1802,7 @@ CHE_PDF_Encrypt::CHE_PDF_Encrypt(	CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32
 	m_bPasswordOk = FALSE;
 }
 
-void CHE_PDF_Encrypt::PadPassword( CHE_ByteString & password, unsigned char pswd[32] )
+void CHE_PDF_Encrypt::PadPassword( const CHE_ByteString & password, unsigned char pswd[32] )
 {
 	HE_DWORD m = password.GetLength();
 
@@ -1892,7 +1892,7 @@ HE_VOID CHE_PDF_Encrypt::CreateObjKey( HE_DWORD objNum, HE_DWORD genNum, HE_BYTE
 	*pObjKeyLengthRet = ( keyLengthInByte < 11 ) ? keyLengthInByte + 5 : 16;  
 }
 
-HE_BOOL CHE_PDF_Encrypt::Authenticate( CHE_ByteString & password )
+HE_BOOL CHE_PDF_Encrypt::Authenticate( const CHE_ByteString & password )
 {
     HE_BOOL bRet = TRUE;
     HE_BYTE padpswd[32];

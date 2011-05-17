@@ -1,6 +1,7 @@
 #include "../include/che_string.h"
-#include <memory>
-#include <cwctype>
+#include <cstring>
+#include <cwchar>
+#include <memory.h>
 
 CHE_ByteString::CHE_ByteString()
 {
@@ -308,7 +309,7 @@ HE_BOOL	CHE_ByteString::SetData( HE_BYTE * pData, HE_DWORD size )
 	return TRUE;
 }
 
-HE_DWORD CHE_ByteString::GetLength()
+HE_DWORD CHE_ByteString::GetLength() const
 {
 	if ( m_lpData == NULL )
 	{
@@ -355,7 +356,7 @@ CHE_ByteString CHE_ByteString::operator+( HE_CHAR ch )
 	return tmpString;
 }
 
-CHE_ByteString CHE_ByteString::operator+( const HE_LPSTR lpStr )
+CHE_ByteString CHE_ByteString::operator+( HE_LPCSTR lpStr )
 {
 	if ( lpStr == NULL )
 	{
@@ -460,7 +461,7 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 	return *this;
 }
 
-CHE_ByteString& CHE_ByteString::operator+=( const HE_LPSTR lpStr )
+CHE_ByteString& CHE_ByteString::operator+=( HE_LPCSTR lpStr )
 {
 	if ( lpStr == NULL )
 	{
@@ -666,7 +667,7 @@ bool CHE_ByteString::operator!=( HE_CHAR ch )const
 	}
 }
 
-bool CHE_ByteString::operator!=( const HE_LPSTR lpStr )const
+bool CHE_ByteString::operator!=( HE_LPCSTR lpStr )const
 {
 	if ( m_lpData == NULL )
 	{
@@ -726,7 +727,7 @@ bool operator==( HE_CHAR ch, CHE_ByteString& str )
 	return ( str == ch );
 }
 
-bool operator==( HE_LPSTR lpStr, const CHE_ByteString& str )
+bool operator==( HE_LPCSTR lpStr, const CHE_ByteString& str )
 {
 	return ( str == lpStr );
 }
@@ -738,7 +739,7 @@ CHE_ByteString operator+( HE_CHAR ch, const CHE_ByteString& str )
 	return tempStr;
 }
 
-CHE_ByteString operator+( const HE_LPSTR lpStr, const CHE_ByteString& str )
+CHE_ByteString operator+( HE_LPCSTR lpStr, const CHE_ByteString& str )
 {
 	CHE_ByteString tempStr( lpStr );
 	tempStr+= str;
@@ -750,7 +751,7 @@ bool operator!=( HE_CHAR ch, const CHE_ByteString& str )
 	return ( str != ch );
 }
 
-bool operator!=( const HE_LPSTR lpStr, const CHE_ByteString& str )
+bool operator!=( HE_LPCSTR lpStr, const CHE_ByteString& str )
 {
 	return ( str != lpStr );
 }
@@ -1063,7 +1064,7 @@ HE_BOOL	CHE_WideString::SetData( HE_WCHAR * pData, HE_DWORD size )
 	return TRUE;
 }
 
-HE_DWORD CHE_WideString::GetLength()
+HE_DWORD CHE_WideString::GetLength() const
 {
 	if ( m_lpData == NULL )
 	{
@@ -1110,7 +1111,7 @@ CHE_WideString CHE_WideString::operator+( HE_WCHAR wch )
 	return tmpString;
 }
 
-CHE_WideString CHE_WideString::operator+( const HE_LPWSTR lpWstr )
+CHE_WideString CHE_WideString::operator+( HE_LPCWSTR lpWstr )
 {
 	if ( lpWstr == NULL )
 	{
@@ -1215,7 +1216,7 @@ CHE_WideString& CHE_WideString::operator+=( HE_WCHAR wch )
 	return *this;
 }
 
-CHE_WideString& CHE_WideString::operator+=( const HE_LPWSTR lpWstr )
+CHE_WideString& CHE_WideString::operator+=( HE_LPCWSTR lpWstr )
 {
 	if ( lpWstr == NULL )
 	{
@@ -1421,7 +1422,7 @@ bool CHE_WideString::operator!=( HE_WCHAR wch )const
 	}
 }
 
-bool CHE_WideString::operator!=( const HE_LPWSTR lpWstr )const
+bool CHE_WideString::operator!=( HE_LPCWSTR lpWstr )const
 {
 	if ( m_lpData == NULL )
 	{
@@ -1481,7 +1482,7 @@ bool operator==( HE_WCHAR wch, CHE_WideString& wstr )
 	return ( wstr == wch );
 }
 
-bool operator==( HE_LPWSTR lpWstr, const CHE_WideString& wstr )
+bool operator==( HE_LPCWSTR lpWstr, const CHE_WideString& wstr )
 {
 	return ( wstr == lpWstr );
 }
@@ -1493,7 +1494,7 @@ CHE_WideString operator+( HE_WCHAR wch, const CHE_WideString& wstr )
 	return tempStr;
 }
 
-CHE_WideString operator+( const HE_LPWSTR lpWstr, const CHE_WideString& wstr )
+CHE_WideString operator+( HE_LPCWSTR lpWstr, const CHE_WideString& wstr )
 {
 	CHE_WideString tempStr( lpWstr );
 	tempStr+= wstr;
@@ -1505,7 +1506,7 @@ bool operator!=( HE_WCHAR wch, const CHE_WideString& wstr )
 	return ( wstr != wch );
 }
 
-bool operator!=( const HE_LPWSTR lpWstr, const CHE_WideString& wstr )
+bool operator!=( HE_LPCWSTR lpWstr, const CHE_WideString& wstr )
 {
 	return ( wstr != lpWstr );
 }

@@ -1,7 +1,5 @@
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../extlib/zlib/zlib.h"
-#include <memory.h>
-
 
 HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
 {

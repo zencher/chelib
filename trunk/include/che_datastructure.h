@@ -71,9 +71,9 @@ public:
 	CHE_ByteStringToPtrMap();
 	~CHE_ByteStringToPtrMap();
 	
-	HE_BOOL		Append( CHE_ByteString & str, HE_LPVOID ptr );
+	HE_BOOL		Append( const CHE_ByteString & str, HE_LPVOID ptr );
 	
-	HE_LPVOID	GetItem( CHE_ByteString & str ) const;
+	HE_LPVOID	GetItem( const CHE_ByteString & str ) const;
 
 	HE_LPVOID	GetItemByIndex( HE_DWORD index );
 	

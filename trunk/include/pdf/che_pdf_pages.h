@@ -2,13 +2,11 @@
 #define _CHE_PDF_PAGES_H_
 
 #include "../che_base.h"
-#include "../che_dynBuffer.h"
+#include "../che_dynbuffer.h"
 #include "che_pdf_parser.h"
-//#include "che_pdf_resource.h"
 #include "che_pdf_font.h"
 
 class CHE_PDF_Page;
-
 
 class IHE_PDF_GetFont : public CHE_Object
 {

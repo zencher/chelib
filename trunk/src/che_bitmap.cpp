@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstdio>
 #include <memory.h>
 
 #include "../include/che_bitmap.h"

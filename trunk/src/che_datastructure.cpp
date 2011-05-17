@@ -237,7 +237,7 @@ CHE_ByteStringToPtrMap::~CHE_ByteStringToPtrMap()
 	}
 }
 
-HE_BOOL	CHE_ByteStringToPtrMap::Append( CHE_ByteString & str, HE_LPVOID ptr )
+HE_BOOL	CHE_ByteStringToPtrMap::Append( const CHE_ByteString & str, HE_LPVOID ptr )
 {
 	if ( m_lSize == 0 || m_lCount == 0 || m_pData == NULL || m_pString == NULL )
 	{
@@ -277,7 +277,7 @@ HE_BOOL	CHE_ByteStringToPtrMap::Append( CHE_ByteString & str, HE_LPVOID ptr )
 	}
 }
 
-HE_LPVOID CHE_ByteStringToPtrMap::GetItem( CHE_ByteString & str ) const
+HE_LPVOID CHE_ByteStringToPtrMap::GetItem( const CHE_ByteString & str ) const
 {
 	for ( HE_DWORD i = 0; i < m_lCount; i++ )
 	{

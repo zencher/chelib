@@ -2,8 +2,9 @@
 #define _CHE_PDF_FILTER_H_
 
 #include "../che_base.h"
-#include "../che_dynBuffer.h"
+#include "../che_dynbuffer.h"
 #include <vector>
+#include <memory.h>
 
 class CHE_PDF_Filter
 {

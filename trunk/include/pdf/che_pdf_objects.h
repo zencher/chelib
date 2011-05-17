@@ -190,25 +190,25 @@ public:
 
 	CHE_PDF_Dictionary( HE_DWORD objNum, HE_DWORD genNum )  { m_Type = PDFOBJ_DICTIONARY; m_ObjNum = objNum; m_GenNum = genNum; }
 
-	CHE_PDF_Object*			GetElement( CHE_ByteString & key ) const;
+	CHE_PDF_Object*			GetElement( const CHE_ByteString & key ) const;
 
-	HE_VOID					SetAtNull( CHE_ByteString & key );
+	HE_VOID					SetAtNull( const CHE_ByteString & key );
 
-	HE_VOID					SetAtBoolean( CHE_ByteString & key, bool value );
+	HE_VOID					SetAtBoolean( const CHE_ByteString & key, bool value );
 
-	HE_VOID					SetAtInteger( CHE_ByteString & key, HE_INT32 value );
+	HE_VOID					SetAtInteger( const CHE_ByteString & key, HE_INT32 value );
 	
-	HE_VOID					SetAtFloatNumber( CHE_ByteString & key, HE_FLOAT value );
+	HE_VOID					SetAtFloatNumber( const CHE_ByteString & key, HE_FLOAT value );
 
-	HE_VOID					SetAtString( CHE_ByteString & key, const CHE_ByteString& string );
+	HE_VOID					SetAtString( const CHE_ByteString & key, const CHE_ByteString& string );
 
-	HE_VOID					SetAtName( CHE_ByteString & key, const CHE_ByteString& name );
+	HE_VOID					SetAtName( const CHE_ByteString & key, const CHE_ByteString& name );
 
-	HE_VOID					SetAtArray( CHE_ByteString & key, CHE_PDF_Array * pArray );
+	HE_VOID					SetAtArray( const CHE_ByteString & key, CHE_PDF_Array * pArray );
 
-	HE_VOID					SetAtDictionary( CHE_ByteString & key, CHE_PDF_Dictionary * pDict );
+	HE_VOID					SetAtDictionary( const CHE_ByteString & key, CHE_PDF_Dictionary * pDict );
 
-	HE_VOID					SetAtReference( CHE_ByteString & key, HE_DWORD objnum );
+	HE_VOID					SetAtReference( const CHE_ByteString & key, HE_DWORD objnum );
 
 protected:
 	~CHE_PDF_Dictionary();
@@ -339,7 +339,7 @@ public:
 	static CHE_PDF_IndirectObject*	Create( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj )
 										{ return new CHE_PDF_IndirectObject( objNum, genNum, pObj ); }
 										
-	CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj );
+	CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj );
 
 	CHE_PDF_Dictionary	*	GetDict() const;
 

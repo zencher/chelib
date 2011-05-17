@@ -1,8 +1,7 @@
 #include "../../include/pdf/che_pdf_text.h"
 #include "../../include/pdf/che_pdf_resource.h"
 #include "../../include/che_datastructure.h"
-#include <string.h>
-#include <windows.h>
+#include <cstring>
 
 HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, CHE_DynWideByteBuffer & buf )
 {
@@ -54,7 +53,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 	}
 
 	CHE_PDF_Font * pCurFont = NULL;
-	CHE_PDF_Dictionary * pFontDict = (CHE_PDF_Dictionary *)pResourceDict->GetElement( CHE_ByteString("Font") );
+	CHE_PDF_Dictionary * pFontDict = (CHE_PDF_Dictionary *)pResourceDict->GetElement( "Font" );
 	if ( pFontDict == NULL )
 	{
 		return 0;
@@ -256,7 +255,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 // 	}
 // 
 // 	CHE_PDF_FontCharCodeMgr * pCurFontCharCodeMgr = NULL;
-// 	CHE_PDF_Dictionary * pFontDict = (CHE_PDF_Dictionary *)pResourceDict->GetElement( CHE_ByteString("Font") );
+// 	CHE_PDF_Dictionary * pFontDict = (CHE_PDF_Dictionary *)pResourceDict->GetElement( "Font" );
 // 	if ( pFontDict == NULL )
 // 	{
 // 		return 0;

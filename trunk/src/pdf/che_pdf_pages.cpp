@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_pages.h"
-#include <memory.h>
+#include <memory>
 
 class IHE_DefaultGetPDFFont : public IHE_PDF_GetFont
 {
@@ -166,7 +166,7 @@ HE_BOOL CHE_PDF_Document::IsEncrypted()
 	{
 		return FALSE;
 	}
-	CHE_PDF_Object * pObj = m_pParser->GetTrailerDict()->GetElement( CHE_ByteString("Encrypt") );
+	CHE_PDF_Object * pObj = m_pParser->GetTrailerDict()->GetElement( "Encrypt" );
 	if ( pObj == NULL )
 	{
 		return FALSE;
@@ -181,14 +181,14 @@ CHE_PDF_Array * CHE_PDF_Document::GetPageMediaBox( CHE_PDF_Dictionary * pPageDic
 	{
 		return NULL;
 	}
-	CHE_PDF_Object * pObj = pPageDict->GetElement( CHE_ByteString("MediaBox") );
+	CHE_PDF_Object * pObj = pPageDict->GetElement( "MediaBox" );
 	if ( pObj == NULL )
 	{
 		CHE_PDF_IndirectObject * pInObj = NULL;
 		CHE_PDF_Dictionary * pCurDict = pPageDict;
 		while ( pCurDict )
 		{
-			pObj = pCurDict->GetElement( CHE_ByteString("Parent") );
+			pObj = pCurDict->GetElement( "Parent" );
 			if ( pObj == NULL )
 			{
 				return NULL;
@@ -207,7 +207,7 @@ CHE_PDF_Array * CHE_PDF_Document::GetPageMediaBox( CHE_PDF_Dictionary * pPageDic
 				{
 					return NULL;
 				}
-				pObj = ((CHE_PDF_Dictionary*)pObj)->GetElement( CHE_ByteString("MediaBox") );
+				pObj = ((CHE_PDF_Dictionary*)pObj)->GetElement( "MediaBox" );
 				if ( pObj != NULL )
 				{
 					break;
@@ -243,14 +243,14 @@ CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pP
 	{
 		return NULL;
 	}
-	CHE_PDF_Object * pObj = pPageDict->GetElement( CHE_ByteString("Resources") );
+	CHE_PDF_Object * pObj = pPageDict->GetElement( "Resources" );
 	if ( pObj == NULL )
 	{
 		CHE_PDF_IndirectObject * pInObj = NULL;
 		CHE_PDF_Dictionary * pCurDict = pPageDict;
 		while ( pCurDict )
 		{
-			pObj = pCurDict->GetElement( CHE_ByteString("Parent") );
+			pObj = pCurDict->GetElement( "Parent" );
 			if ( pObj == NULL )
 			{
 				return NULL;
@@ -269,7 +269,7 @@ CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pP
 				{
 					return NULL;
 				}
-				pObj = ((CHE_PDF_Dictionary*)pObj)->GetElement( CHE_ByteString("Resources") );
+				pObj = ((CHE_PDF_Dictionary*)pObj)->GetElement( "Resources" );
 				if ( pObj != NULL )
 				{
 					break;
@@ -367,7 +367,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 	{
 		return FALSE;
 	}
-	CHE_PDF_Object * pPageContent = pPageDict->GetElement( CHE_ByteString("Contents") );
+	CHE_PDF_Object * pPageContent = pPageDict->GetElement( "Contents" );
 	if ( pPageContent == NULL )
 	{
 		return FALSE;

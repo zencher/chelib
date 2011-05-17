@@ -1,7 +1,8 @@
-#include <stdlib.h>
 #include "../include/che_base.h"
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <memory.h>
+
 
 // HE_VOID* CHE_Object::operator new( size_t size )
 // {

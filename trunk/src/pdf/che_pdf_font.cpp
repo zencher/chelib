@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_font.h"
-#include "../../include/che_dynBuffer.h"
+#include "../../include/che_dynbuffer.h"
 
 FT_Library gFTLibrary = NULL;
 
@@ -10755,7 +10755,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 	{	
 		return;
 	}
-	CHE_PDF_Object * pTmpObj = pFontDict->GetElement( CHE_ByteString("Type") );
+	CHE_PDF_Object * pTmpObj = pFontDict->GetElement( "Type" );
 	if ( pTmpObj == NULL || pTmpObj->GetType() != PDFOBJ_NAME )
 	{
 		return;
@@ -10766,7 +10766,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 	{
 		return;
 	}
-	pTmpObj = pFontDict->GetElement( CHE_ByteString("Subtype") );
+	pTmpObj = pFontDict->GetElement( "Subtype" );
 	if ( pTmpObj == NULL || pTmpObj->GetType() != PDFOBJ_NAME )
 	{
 		return;
@@ -10805,10 +10805,10 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 // 		return;
 // 	}
 
-	pTmpObj = pFontDict->GetElement( CHE_ByteString("Encoding") );
+	pTmpObj = pFontDict->GetElement( "Encoding" );
 	if ( pTmpObj == NULL )
 	{
-		CHE_PDF_Object * pToUnicode = pFontDict->GetElement( CHE_ByteString("ToUnicode") );
+		CHE_PDF_Object * pToUnicode = pFontDict->GetElement( "ToUnicode" );
 		if ( pToUnicode != NULL )
 		{
 			m_EncodingType = PDFENCODING_SELFDEF;
@@ -10827,7 +10827,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 		}else{
 			m_EncodingType = PDFENCODING_NONE;
 			//即不包含Encoding信息，也没有ToUnicode信息，则判断是不是嵌入字体，如果有嵌入字体，则使用FreeType库来获得Unicode
-			CHE_PDF_Object * pDesFontsRef = pFontDict->GetElement( CHE_ByteString("DescendantFonts") );
+			CHE_PDF_Object * pDesFontsRef = pFontDict->GetElement( "DescendantFonts" );
 			if ( pDesFontsRef != NULL && pDesFontsRef->GetType() == PDFOBJ_REFERENCE )
 			{
 				CHE_PDF_Dictionary * pDesFontDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pDesFontsRef)->GetRefNuml(), PDFOBJ_DICTIONARY );
@@ -10835,19 +10835,19 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 				{
 					return;
 				}
-				CHE_PDF_Object * pFontDesRef = pDesFontDict->GetElement( CHE_ByteString("FontDescriptor") );
+				CHE_PDF_Object * pFontDesRef = pDesFontDict->GetElement( "FontDescriptor" );
 				if ( pDesFontsRef != NULL && pDesFontsRef->GetType() == PDFOBJ_REFERENCE )
 				{
 					CHE_PDF_Dictionary * pFontDesDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontDesRef)->GetRefNuml(), PDFOBJ_REFERENCE );
 					if ( pFontDesDict != NULL )
 					{
-						CHE_PDF_Object * pFontFileRef = pFontDesDict->GetElement( CHE_ByteString("FontFile") );
+						CHE_PDF_Object * pFontFileRef = pFontDesDict->GetElement( "FontFile" );
 						if ( pFontFileRef == NULL )
 						{
-							pFontFileRef = pFontDesDict->GetElement( CHE_ByteString("FontFile2") );
+							pFontFileRef = pFontDesDict->GetElement( "FontFile2" );
 							if ( pFontFileRef == NULL )
 							{
-								pFontFileRef = pFontDesDict->GetElement( CHE_ByteString("FontFile3") );
+								pFontFileRef = pFontDesDict->GetElement( "FontFile3" );
 							}
 						}
 						if ( pFontFileRef != NULL && pFontFileRef->GetType() == PDFOBJ_REFERENCE )
@@ -10903,12 +10903,12 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 		{
 			m_EncodingType = PDFENCODING_SELFDEF;
 			m_pUnicodeTable = NULL;
-			CHE_PDF_Object * pToUnicode = pFontDict->GetElement( CHE_ByteString("ToUnicode") );
+			CHE_PDF_Object * pToUnicode = pFontDict->GetElement( "ToUnicode" );
 			if ( pToUnicode == NULL || pToUnicode->GetType() != PDFOBJ_REFERENCE )
 			{
 				m_EncodingType = PDFENCODING_NONE;
 				//即不包含Encoding信息，也没有ToUnicode信息，则判断是不是嵌入字体，如果有嵌入字体，则使用FreeType库来获得Unicode
-				CHE_PDF_Object * pDesFontsRef = pFontDict->GetElement( CHE_ByteString("DescendantFonts") );
+				CHE_PDF_Object * pDesFontsRef = pFontDict->GetElement( "DescendantFonts" );
 				if ( pDesFontsRef != NULL && pDesFontsRef->GetType() == PDFOBJ_REFERENCE )
 				{
 					CHE_PDF_Dictionary * pDesFontDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pDesFontsRef)->GetRefNuml(), PDFOBJ_DICTIONARY );
@@ -10916,19 +10916,19 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 					{
 						return;
 					}
-					CHE_PDF_Object * pFontDesRef = pDesFontDict->GetElement( CHE_ByteString("FontDescriptor") );
+					CHE_PDF_Object * pFontDesRef = pDesFontDict->GetElement( "FontDescriptor" );
 					if ( pDesFontsRef != NULL && pDesFontsRef->GetType() == PDFOBJ_REFERENCE )
 					{
 						CHE_PDF_Dictionary * pFontDesDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontDesRef)->GetRefNuml(), PDFOBJ_REFERENCE );
 						if ( pFontDesDict != NULL )
 						{
-							CHE_PDF_Object * pFontFileRef = pFontDesDict->GetElement( CHE_ByteString("FontFile") );
+							CHE_PDF_Object * pFontFileRef = pFontDesDict->GetElement( "FontFile" );
 							if ( pFontFileRef == NULL )
 							{
-								pFontFileRef = pFontDesDict->GetElement( CHE_ByteString("FontFile2") );
+								pFontFileRef = pFontDesDict->GetElement( "FontFile2" );
 								if ( pFontFileRef == NULL )
 								{
-									pFontFileRef = pFontDesDict->GetElement( CHE_ByteString("FontFile3") );
+									pFontFileRef = pFontDesDict->GetElement( "FontFile3" );
 								}
 							}
 							if ( pFontFileRef != NULL && pFontFileRef->GetType() == PDFOBJ_REFERENCE )
@@ -10980,7 +10980,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 			return;
 		}
 
-		pTmpObj = pEncodingDict->GetElement( CHE_ByteString("Type") );
+		pTmpObj = pEncodingDict->GetElement( "Type" );
 		if ( pTmpObj != NULL )
 		{
 			if ( pTmpObj->GetType() != PDFOBJ_NAME )
@@ -10993,7 +10993,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 				return;
 			}
 		}
-		pTmpObj = pEncodingDict->GetElement( CHE_ByteString("BaseEncoding") );
+		pTmpObj = pEncodingDict->GetElement( "BaseEncoding" );
 		if ( pTmpObj != NULL )
 		{
 			if ( pTmpObj->GetType() == PDFOBJ_NAME )
@@ -11038,7 +11038,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 		default:
 			break;
 		}
-		CHE_PDF_Array * pDifArray = (CHE_PDF_Array *)pEncodingDict->GetElement( CHE_ByteString("Differences") );
+		CHE_PDF_Array * pDifArray = (CHE_PDF_Array *)pEncodingDict->GetElement( "Differences" );
 		if ( pDifArray == NULL )
 		{
 			return;
@@ -11057,8 +11057,8 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 						iIndex = ((CHE_PDF_Number*)pObj)->GetInteger();
 					}else if ( pObj->GetType() == PDFOBJ_NAME )
 					{
-						
-						if ( HE_GetCodeFromName( ((CHE_PDF_Name*)pObj)->GetString(), m_EncodingType, tmpByte ) )
+						CHE_ByteString strTmp = ((CHE_PDF_Name*)pObj)->GetString();
+						if ( HE_GetCodeFromName( strTmp, m_EncodingType, tmpByte ) )
 						{
 							*(m_pUnicodeTable + iIndex) = tmpByte;
 							iIndex++;
@@ -11160,7 +11160,8 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 							{
 								continue;
 							}
-							tmpValue = HE_HexStrToValue( pStrObj->GetString() );
+							CHE_ByteString strTmp = pStrObj->GetString();
+							tmpValue = HE_HexStrToValue( strTmp );
 							tmpMap->Append( i, (HE_LPVOID)tmpValue );
 							lCodeCount++;
 						}

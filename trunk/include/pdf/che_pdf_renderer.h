@@ -2,7 +2,7 @@
 #define _CHE_PDF_RENDERER_H_
 
 #include "../che_base.h"
-#include "../CHE_DynBuffer.h"
+#include "../che_dynbuffer.h"
 #include "che_pdf_pages.h"
 #include "che_pdf_graphics.h"
 

@@ -1,4 +1,4 @@
-#include "../include/che_dynBuffer.h"
+#include "../include/che_dynbuffer.h"
 #include <memory.h>
 
 CHE_DynBuffer::CHE_DynBuffer( HE_DWORD size /*= 1024*/, HE_DWORD increament /*= 1024*/ )

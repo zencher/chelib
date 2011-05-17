@@ -70,10 +70,10 @@ protected:
 class CHE_PDF_Encrypt : public CHE_Object
 {
 public:
-	CHE_PDF_Encrypt(	CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm, HE_BYTE keyLength,
+	CHE_PDF_Encrypt( const CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm, HE_BYTE keyLength,
 						HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue );
 
-	HE_BOOL Authenticate( CHE_ByteString & password );
+	HE_BOOL Authenticate( const CHE_ByteString & password );
 
 	HE_BOOL	IsPasswordOK() { return m_bPasswordOk; }
 
@@ -102,7 +102,7 @@ private:
 	
 	HE_VOID CreateObjKey( HE_DWORD objNum, HE_DWORD genNum, HE_BYTE objkey[16], HE_DWORD* pObjKeyLengthRet );
 	
-	HE_VOID PadPassword( CHE_ByteString & password, HE_BYTE pswd[32] );
+	HE_VOID PadPassword( const CHE_ByteString & password, HE_BYTE pswd[32] );
 
 	HE_VOID RC4( HE_LPBYTE key, HE_DWORD keyLength, HE_LPBYTE data, HE_DWORD dataLength, HE_LPBYTE dataRet );
 	

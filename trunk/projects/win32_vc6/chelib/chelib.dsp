@@ -90,7 +90,15 @@ LIB32=link.exe -lib
 # PROP Default_Filter ""
 # Begin Source File
 
+SOURCE=..\..\..\src\pdf\che_pdf_encrypt.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\src\pdf\che_pdf_filter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\src\pdf\che_pdf_font.cpp
 # End Source File
 # Begin Source File
 
@@ -158,7 +166,15 @@ SOURCE=..\..\..\include\pdf\che_pdf_define.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\include\pdf\che_pdf_encrypt.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\include\pdf\che_pdf_filter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\include\pdf\che_pdf_font.h
 # End Source File
 # Begin Source File
 

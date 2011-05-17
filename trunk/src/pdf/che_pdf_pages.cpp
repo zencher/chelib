@@ -118,6 +118,19 @@ HE_VOID CHE_PDF_Document::Unload()
 		delete m_pIHE_GetPDFFont;
 		m_pIHE_GetPDFFont = NULL;
 	}
+	if ( m_FontMap.GetCount() > 0 )
+	{
+		CHE_PDF_Font * pTmpFont = NULL;
+		for ( HE_DWORD i = 0; i < m_FontMap.GetCount(); i++ )
+		{
+			pTmpFont = (CHE_PDF_Font*)m_FontMap.GetItemByIndex( i );
+			if ( pTmpFont )
+			{
+				delete pTmpFont;
+			}
+		}
+		m_FontMap.Clear();
+	}
 }
 
 //HE_BOOL CHE_PDF_Document::Save( IHE_Write * pFileRead );

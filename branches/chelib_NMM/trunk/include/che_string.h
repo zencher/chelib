@@ -13,8 +13,11 @@ struct HE_ByteStringData
 class CHE_ByteString : public CHE_Object
 {
 public:
-	CHE_ByteString();
-	~CHE_ByteString();
+	CHE_ByteString() {}
+	~CHE_ByteString()
+	{
+		Clear();
+	}
 
 	CHE_ByteString( HE_CHAR ch );
 	CHE_ByteString( HE_LPCSTR str, HE_LONG nStrSize = -1 );
@@ -88,8 +91,11 @@ struct HE_WideStringData
 class CHE_WideString : public CHE_Object
 {
 public:
-	CHE_WideString();
-	~CHE_WideString();
+	CHE_WideString() {}
+	~CHE_WideString()
+	{
+		Clear();
+	}
 	
 	CHE_WideString( HE_WCHAR wch );
 	CHE_WideString( HE_LPCWSTR wstr, HE_LONG nStrSize = -1 );

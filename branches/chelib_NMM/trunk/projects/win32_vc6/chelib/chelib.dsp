@@ -50,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"../../../build/win32_vc6/Release/chelib.lib"
+# ADD LIB32 /nologo /out:"../../../build/release/win32_vc6/chelib.lib"
 
 !ELSEIF  "$(CFG)" == "chelib - Win32 Debug"
 
@@ -74,7 +74,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"../../../build/win32_vc6/Debug/chelib.lib"
+# ADD LIB32 /nologo /out:"../../../build/debug/win32_vc6/chelib.lib"
 
 !ENDIF 
 

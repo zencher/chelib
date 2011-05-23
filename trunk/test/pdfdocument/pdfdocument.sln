@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pdfdocument", "pdfdocument.vcproj", "{F827607F-0996-4C16-B3D8-4C31CB52BBE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F827607F-0996-4C16-B3D8-4C31CB52BBE0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F827607F-0996-4C16-B3D8-4C31CB52BBE0}.Debug|Win32.Build.0 = Debug|Win32
+		{F827607F-0996-4C16-B3D8-4C31CB52BBE0}.Release|Win32.ActiveCfg = Release|Win32
+		{F827607F-0996-4C16-B3D8-4C31CB52BBE0}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

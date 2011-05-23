@@ -6,13 +6,14 @@
 
 int main( int argc, char **argv )
 {
+	CHE_DefCrtAllocator allocator;
 	if ( argc < 2 )
 	{
 		printf( "no param!\n" );
 		return 0;
 	}
 	
-	IHE_Read * pFileRead = HE_CreateFileRead( argv[1] );
+	IHE_Read * pFileRead = HE_CreateFileRead( argv[1], FILEREAD_MODE_DEFAULT, 4096, &allocator );
 	//IHE_Read * pFileRead = HE_CreateFileRead( argv[1], FILEREAD_MODE_MEMCOPY );
 	if ( pFileRead == NULL )
 	{
@@ -24,21 +25,21 @@ int main( int argc, char **argv )
 	}
 
 	try{
-		CHE_PDF_Document doc;
+		CHE_PDF_Document doc( NULL );
 		doc.Load( pFileRead );
 		HE_DWORD lPageCount = doc.GetPageCount();
 		printf( "page count : %ld\n", lPageCount );
 		CHE_PDF_Page * pTmpPage = NULL;
 		char tmpStr[1024];
 		sprintf( tmpStr, "%s.text.txt", argv[1] );
-		IHE_Write * pWriteText = HE_CreateFileWrite( tmpStr );
+		IHE_Write * pWriteText = HE_CreateFileWrite( tmpStr, &allocator );
 		HE_BYTE pTmp[2] = { 0xFF, 0xFE }; //UTF-16LE BOM
 		if ( pWriteText )
 		{
 			pWriteText->WriteBlock( pTmp, 2 );
 		}
 		sprintf( tmpStr, "%s.content.txt", argv[1] );
-		IHE_Write * pWriteContent = HE_CreateFileWrite( tmpStr );
+		IHE_Write * pWriteContent = HE_CreateFileWrite( tmpStr, &allocator );
 		for ( HE_DWORD i = 0; i < doc.GetPageCount(); i++ )
 		{
 			pTmpPage = doc.GetPage( i );
@@ -47,7 +48,7 @@ int main( int argc, char **argv )
 				printf( "page index : %ld Error, Can not get the page!\n", i+1 );
 				continue;
 			}
-			CHE_DynBuffer buffer;
+			CHE_DynBuffer buffer( 4096, 4096, NULL );
 			pTmpPage->GetPageContent( buffer );
 			HE_BYTE * pData = new HE_BYTE[buffer.GetByteCount()];
 			buffer.Read( pData,  buffer.GetByteCount() );
@@ -55,8 +56,8 @@ int main( int argc, char **argv )
 			{
 				pWriteContent->WriteBlock( pData, buffer.GetByteCount() );
 			}
-			CHE_PDF_TextExtractor textExtractor;
-			CHE_DynWideByteBuffer buf(4096, 4096);
+			CHE_PDF_TextExtractor textExtractor( NULL );
+			CHE_DynWideByteBuffer buf( 4096, 4096, NULL );
 			HE_DWORD lcount = textExtractor.Extract( pTmpPage, buf );
 			if ( pWriteText )
 			{
@@ -96,5 +97,6 @@ int main( int argc, char **argv )
 	{
 		printf( "Error! Crash!\n" );
 	}
+
 	return 0;
 }

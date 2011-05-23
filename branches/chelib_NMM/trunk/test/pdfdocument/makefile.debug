@@ -1,2 +1,0 @@
-pdfdocument : main.cpp
-	g++ --debug -o pdfdocument main.cpp ../../build/debug/libche.a ../../build/debug/libz.a ../../build/debug/libfreetype.a 

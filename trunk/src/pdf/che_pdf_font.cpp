@@ -10731,7 +10731,8 @@ HE_VOID HE_DestroyFTLibrary()
 }
 
 
-CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * pIHE_GetPDFInObj )
+CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * pIHE_GetPDFInObj, CHE_Allocator * pAllocator )
+: CHE_Object( pAllocator )
 {
 	if ( gFTLibrary == NULL )
 	{
@@ -10760,7 +10761,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 	{
 		return;
 	}
-	CHE_ByteString str;
+	CHE_ByteString str( GetAllocator() );
 	str = ((CHE_PDF_Name*)pTmpObj)->GetString();
 	if ( str != "Font" )
 	{
@@ -10855,10 +10856,10 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 							CHE_PDF_Stream * pFontFileStream = (CHE_PDF_Stream *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontFileRef)->GetRefNuml(), PDFOBJ_STREAM );
 							if ( pFontFileStream != NULL )
 							{
-								CHE_PDF_StreamAcc stmAcc;
+								CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 								stmAcc.Attach( pFontFileStream );
 								m_lFontDataLength = stmAcc.GetSize();
-								m_pFontProgramData = new HE_BYTE[stmAcc.GetSize()];
+								m_pFontProgramData = GetAllocator()->NewArray<HE_BYTE>( stmAcc.GetSize() );
 								memcpy( m_pFontProgramData, stmAcc.GetData(), stmAcc.GetSize() );
 								stmAcc.Detach();
 								FT_New_Memory_Face( gFTLibrary, m_pFontProgramData, m_lFontDataLength, 0, &m_FontFace );
@@ -10936,10 +10937,10 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 								CHE_PDF_Stream * pFontFileStream = (CHE_PDF_Stream *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontFileRef)->GetRefNuml(), PDFOBJ_STREAM );
 								if ( pFontFileStream != NULL )
 								{
-									CHE_PDF_StreamAcc stmAcc;
+									CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 									stmAcc.Attach( pFontFileStream );
 									m_lFontDataLength = stmAcc.GetSize();
-									m_pFontProgramData = new HE_BYTE[stmAcc.GetSize()];
+									m_pFontProgramData = GetAllocator()->NewArray<HE_BYTE>( stmAcc.GetSize() );
 									memcpy( m_pFontProgramData, stmAcc.GetData(), stmAcc.GetSize() );
 									stmAcc.Detach();
 									FT_New_Memory_Face( gFTLibrary, m_pFontProgramData, m_lFontDataLength, 0, &m_FontFace );
@@ -11017,7 +11018,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 			m_EncodingType = PDFENCODING_STANDARD;
 		}
 
-		m_pUnicodeTable = new HE_WCHAR[256];
+		m_pUnicodeTable = GetAllocator()->NewArray<HE_WCHAR>( 256 );
 		switch ( m_EncodingType )
 		{
 		case PDFENCODING_PDFDOC:
@@ -11074,11 +11075,11 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 
 CHE_PDF_Font::~CHE_PDF_Font()
 {
-	if ( m_pUnicodeTable != gMacExpertEncoding && m_pUnicodeTable != gMacRomanEncoding 
+	if ( m_pUnicodeTable != NULL && m_pUnicodeTable != gMacExpertEncoding && m_pUnicodeTable != gMacRomanEncoding 
 			&& m_pUnicodeTable != gPdfDocEncoding && m_pUnicodeTable != gStandardEncoding
 			&& m_pUnicodeTable != gWinAnsiEncoding )
 	{
-		delete [] m_pUnicodeTable;
+		GetAllocator()->DeleteArray<HE_WCHAR>( m_pUnicodeTable );
 		m_pUnicodeTable = NULL;
 	}
 	if ( m_FontFace )
@@ -11088,12 +11089,12 @@ CHE_PDF_Font::~CHE_PDF_Font()
 	}
 	if ( m_pFontProgramData )
 	{
-		delete [] m_pFontProgramData;
+		GetAllocator()->DeleteArray<HE_BYTE>( m_pFontProgramData );
 	}
 	if ( m_pMap )
 	{
 		m_pMap->Clear();
-		delete m_pMap;
+		GetAllocator()->Delete<CHE_NumToPtrMap>( m_pMap );
 	}
 }
 
@@ -11104,7 +11105,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 		return NULL;
 	}
 
-	CHE_PDF_StreamAcc stmAcc;
+	CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 	stmAcc.Attach( pToUnicodeStream );
 	if ( stmAcc.GetSize() == 0 )
 	{
@@ -11112,10 +11113,10 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 		return NULL;
 	}
 
-	CHE_NumToPtrMap * tmpMap = new CHE_NumToPtrMap;
-	IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize() );
-	CHE_PDF_SyntaxParser parser;
-	PDFPARSER_WORD_DES wordDes;
+	CHE_NumToPtrMap * tmpMap = GetAllocator()->New<CHE_NumToPtrMap>( GetAllocator() );
+	IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize(), GetAllocator() );
+	CHE_PDF_SyntaxParser parser( GetAllocator() );
+	CHE_PDF_PARSER_WORD_DES wordDes( GetAllocator() );
 	HE_DWORD lMaxIndex = 0;
 	HE_DWORD lCodeCount = 0;
 	parser.InitParser( pFileRead );
@@ -11278,7 +11279,7 @@ HE_WCHAR CHE_PDF_Font::GetUnicode( HE_WCHAR wch )
 
 HE_BOOL	CHE_PDF_Font::GetUnicodeString( CHE_ByteString & str, CHE_WideString & wstrRet )
 {
-	CHE_DynWideByteBuffer buf( str.GetLength() );
+	CHE_DynWideByteBuffer buf( str.GetLength(), 1024, GetAllocator() );
 	HE_WCHAR wch, wch1, wch2;
 	if ( IsCompositeFont() )
 	{

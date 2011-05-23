@@ -9,6 +9,7 @@
 class CHE_PDF_Renderer : public CHE_Object
 {
 public:
+	CHE_PDF_Renderer( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
 	HE_VOID	Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pIHE_draw );
 };
 

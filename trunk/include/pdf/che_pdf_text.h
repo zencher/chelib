@@ -7,6 +7,8 @@
 class CHE_PDF_TextExtractor : CHE_Object
 {
 public:
+	CHE_PDF_TextExtractor( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
+
 	HE_DWORD Extract( CHE_PDF_Page * page, CHE_DynWideByteBuffer & buf );
 
 	HE_DWORD Extract(	CHE_PDF_Stream * pContent, CHE_PDF_Dictionary * pResourceDict,

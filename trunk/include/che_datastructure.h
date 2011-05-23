@@ -4,20 +4,20 @@
 #include "che_base.h"
 #include "che_string.h"
 
-class CHE_PtrNode
+class CHE_PtrNode : CHE_Object
 {
 public:
-	CHE_PtrNode() { pObj = NULL; pNext = NULL; }
+	CHE_PtrNode( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) { pObj = NULL; pNext = NULL; }
 	~CHE_PtrNode() {}	//这里不需要销毁子节点的对象，而是由Stack来负责释放
 
 	HE_VOID * pObj;
 	CHE_PtrNode * pNext;
 };
 
-class CHE_PtrStack
+class CHE_PtrStack : CHE_Object
 {
 public:
-	CHE_PtrStack() { m_pTop = NULL; }
+	CHE_PtrStack( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) { m_pTop = NULL; }
 	~CHE_PtrStack();
 	
 	HE_VOID Clear();
@@ -32,7 +32,7 @@ private:
 class CHE_PtrQueue : public CHE_Object
 {
 public:
-	CHE_PtrQueue();
+	CHE_PtrQueue( CHE_Allocator * pAllocator = NULL );
 	~CHE_PtrQueue();
 
 	HE_VOID Clear();
@@ -48,7 +48,7 @@ private:
 class CHE_PtrArray : public CHE_Object
 {
 public:
-	CHE_PtrArray();
+	CHE_PtrArray( CHE_Allocator * pAllocator = NULL );
 	~CHE_PtrArray();
 	
 	HE_BOOL		Append( HE_LPVOID ptr );
@@ -68,7 +68,7 @@ private:
 class CHE_ByteStringToPtrMap : public CHE_Object
 {
 public:
-	CHE_ByteStringToPtrMap();
+	CHE_ByteStringToPtrMap( CHE_Allocator * pAllocator = NULL );
 	~CHE_ByteStringToPtrMap();
 	
 	HE_BOOL		Append( const CHE_ByteString & str, HE_LPVOID ptr );
@@ -91,7 +91,7 @@ private:
 class CHE_NumToPtrMap : public CHE_Object
 {
 public:
-	CHE_NumToPtrMap();
+	CHE_NumToPtrMap( CHE_Allocator * pAllocator = NULL );
 	~CHE_NumToPtrMap();
 	
 	HE_BOOL		Append( HE_DWORD num, HE_LPVOID ptr );

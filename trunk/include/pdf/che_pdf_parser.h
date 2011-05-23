@@ -18,8 +18,11 @@
 #define PDFPARSER_WORD_ARRAY_B	7
 #define PDFPARSER_WORD_ARRAY_E	8
 
-struct PDFPARSER_WORD_DES
+class CHE_PDF_PARSER_WORD_DES : public CHE_Object
 {
+public:
+	CHE_PDF_PARSER_WORD_DES( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ), str( pAllocator ) {};
+
 	CHE_ByteString	str;
 	HE_BYTE			type;
 	HE_DWORD		offset;
@@ -31,6 +34,8 @@ HE_FLOAT HE_PDF_StringToFloat( CHE_ByteString & str );
 class IHE_PDF_GetInObj : public CHE_Object
 {
 public:
+	IHE_PDF_GetInObj( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
+
 	virtual ~IHE_PDF_GetInObj() {};
 	
 	virtual CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum ) = 0;
@@ -41,7 +46,7 @@ public:
 class CHE_PDF_SyntaxParser : public CHE_Object
 {
 public:
-	CHE_PDF_SyntaxParser();
+	CHE_PDF_SyntaxParser( CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_SyntaxParser();
 
 	HE_BOOL				InitParser( IHE_Read* pFileAccess );
@@ -70,7 +75,7 @@ public:
 
 	HE_DWORD			ReadBytes( /*HE_DWORD offset,*/ HE_LPBYTE pBuffer, HE_DWORD length );
 
-	HE_BOOL				GetWord( PDFPARSER_WORD_DES & des );
+	HE_BOOL				GetWord( CHE_PDF_PARSER_WORD_DES & des );
 
 	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
 	CHE_PDF_Array *		GetArray();
@@ -103,8 +108,8 @@ private:
 class CHE_PDF_Parser : public CHE_Object
 {
 public:
-	CHE_PDF_Parser();
-	~CHE_PDF_Parser() {};
+	CHE_PDF_Parser( CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_Parser() { CloseParser(); }
 
 	HE_BOOL						StartParse( IHE_Read * file );
 

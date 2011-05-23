@@ -4,7 +4,8 @@
 class IHE_DefaultGetPDFFont : public IHE_PDF_GetFont
 {
 public:
-	IHE_DefaultGetPDFFont( CHE_PDF_Document * pDocument ) { m_pDoc = pDocument; }
+	IHE_DefaultGetPDFFont( CHE_PDF_Document * pDocument, CHE_Allocator * pAllocator ) : IHE_PDF_GetFont( pAllocator )
+		{ m_pDoc = pDocument; }
 	~IHE_DefaultGetPDFFont() {};
 	
 	CHE_PDF_Font * GetFont( HE_DWORD objNum ) { return (m_pDoc!= NULL)?m_pDoc->GetFont(objNum):NULL; }
@@ -13,16 +14,18 @@ private:
 	CHE_PDF_Document * m_pDoc;
 };
 
-CHE_PDF_Document::CHE_PDF_Document() : m_ID1(), m_ID2()
+CHE_PDF_Document::CHE_PDF_Document( CHE_Allocator * pAllocator ) 
+: CHE_Object( pAllocator ), m_ID1( pAllocator ), m_ID2( pAllocator ), m_FontMap( pAllocator )
 {
 	m_pInfoDict = NULL;
 	m_pRootDict = NULL;
 	m_pParser = NULL;
 	m_pPageObjNumList = NULL;
-	m_pIHE_GetPDFFont = new IHE_DefaultGetPDFFont( this );
+	m_pIHE_GetPDFFont = GetAllocator()->New<IHE_DefaultGetPDFFont>( this, GetAllocator() );
 }
 
-CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
+CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAllocator )
+: CHE_Object( pAllocator ), m_ID1( pAllocator ), m_ID2( pAllocator ), m_FontMap( pAllocator )
 {
 	if ( pFileRead == NULL )
 	{
@@ -32,9 +35,9 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
 		m_pRootDict = NULL;
 		m_pParser = NULL;
 		m_pPageObjNumList = NULL;
-		m_pIHE_GetPDFFont = new IHE_DefaultGetPDFFont( this );
+		m_pIHE_GetPDFFont = GetAllocator()->New<IHE_DefaultGetPDFFont>( this, GetAllocator() );
 	}else{
-		m_pParser = new CHE_PDF_Parser();
+		m_pParser = GetAllocator()->New<CHE_PDF_Parser>( GetAllocator() );
 		m_pParser->StartParse( pFileRead );
 		m_pParser->GetStartxrefOffset( 1024 );
 		m_pParser->ParseXRef();
@@ -42,7 +45,7 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
 		m_pRootDict = m_pParser->GetRootDict();
 		m_pInfoDict = m_pParser->GetInfoDict();
 		HE_DWORD pageCount = m_pParser->GetPageCount();
-		m_pPageObjNumList = new HE_DWORD[pageCount];
+		m_pPageObjNumList = GetAllocator()->NewArray<HE_DWORD>( pageCount );
 		memset( m_pPageObjNumList, 0, pageCount * sizeof(HE_DWORD) );
 		m_pParser->GetPageObjList( m_pPageObjNumList );
 		CHE_PDF_Object * pIDArray = m_pParser->GetIDArray();
@@ -53,7 +56,7 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead )
 			pStrObj = (CHE_PDF_String*)((CHE_PDF_Array*)pIDArray)->GetElement( 1 );
 			m_ID2 = pStrObj->GetString();
 		}
-		m_pIHE_GetPDFFont = new IHE_DefaultGetPDFFont( this );
+		m_pIHE_GetPDFFont = GetAllocator()->New<IHE_DefaultGetPDFFont>( this, GetAllocator() );
 	}
 }
 
@@ -61,16 +64,16 @@ CHE_PDF_Document::~CHE_PDF_Document()
 {
 	if ( m_pPageObjNumList )
 	{
-		delete [] m_pPageObjNumList;
+		GetAllocator()->DeleteArray<HE_DWORD>( m_pPageObjNumList );
 	}
 	if ( m_pIHE_GetPDFFont )
 	{
-		delete m_pIHE_GetPDFFont;
+		GetAllocator()->Delete<IHE_PDF_GetFont>( m_pIHE_GetPDFFont );
 	}
 	if ( m_pParser )
 	{
 		m_pParser->CloseParser();
-		delete m_pParser;
+		GetAllocator()->Delete<CHE_PDF_Parser>( m_pParser );
 	}
 }
 
@@ -81,7 +84,7 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 		return FALSE;
 	}
 
-	m_pParser = new CHE_PDF_Parser();
+	m_pParser = GetAllocator()->New<CHE_PDF_Parser>( GetAllocator() );
 	m_pParser->StartParse( pFileRead );
 	m_pParser->GetStartxrefOffset( 1024 );
 	m_pParser->ParseXRef();
@@ -89,7 +92,7 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 	m_pRootDict = m_pParser->GetRootDict();
 	m_pInfoDict = m_pParser->GetInfoDict();
 	HE_DWORD pageCount = m_pParser->GetPageCount();
-	m_pPageObjNumList = new HE_DWORD[pageCount];
+	m_pPageObjNumList = GetAllocator()->NewArray<HE_DWORD>( pageCount );
 	memset( m_pPageObjNumList, 0, pageCount * sizeof(HE_DWORD) );
 	m_pParser->GetPageObjList( m_pPageObjNumList );
 	CHE_PDF_Object * pIDArray = m_pParser->GetIDArray();
@@ -106,16 +109,16 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 HE_VOID CHE_PDF_Document::Unload()
 {
 	m_pParser->CloseParser();
-	delete m_pParser;
+	GetAllocator()->Delete<CHE_PDF_Parser>( m_pParser );
 	m_pParser = NULL;
 	if ( m_pPageObjNumList )
 	{
-		delete [] m_pPageObjNumList;
+		GetAllocator()->DeleteArray<HE_DWORD>( m_pPageObjNumList );
 		m_pPageObjNumList = NULL;
 	}
 	if ( m_pIHE_GetPDFFont )
 	{
-		delete m_pIHE_GetPDFFont;
+		GetAllocator()->Delete<IHE_PDF_GetFont>( m_pIHE_GetPDFFont );
 		m_pIHE_GetPDFFont = NULL;
 	}
 	if ( m_FontMap.GetCount() > 0 )
@@ -126,7 +129,7 @@ HE_VOID CHE_PDF_Document::Unload()
 			pTmpFont = (CHE_PDF_Font*)m_FontMap.GetItemByIndex( i );
 			if ( pTmpFont )
 			{
-				delete pTmpFont;
+				GetAllocator()->Delete<CHE_PDF_Font>( pTmpFont );
 			}
 		}
 		m_FontMap.Clear();
@@ -165,7 +168,7 @@ CHE_PDF_Page* CHE_PDF_Document::GetPage( HE_DWORD iPageIndex )
 		return NULL;
 	}
 	pPageObj = ((CHE_PDF_IndirectObject*)pPageObj)->GetObject();
-	CHE_PDF_Page * pPage = new CHE_PDF_Page( iPageIndex, (CHE_PDF_Dictionary*)pPageObj, this );
+	CHE_PDF_Page * pPage = GetAllocator()->New<CHE_PDF_Page>( iPageIndex, (CHE_PDF_Dictionary*)pPageObj, this, GetAllocator() );
 	return pPage;
 }
 
@@ -331,14 +334,15 @@ CHE_PDF_Font *	CHE_PDF_Document::GetFont( HE_DWORD objNum )
 		{
 			return NULL;
 		}
-		pFont = new CHE_PDF_Font( pDict, m_pParser->GetIHE_GetPDFInObj() );
+		pFont = GetAllocator()->New<CHE_PDF_Font>( pDict, m_pParser->GetIHE_GetPDFInObj(), GetAllocator() );
 		m_FontMap.Append( objNum, pFont );
 		return pFont;
 	}
 	return pFont;
 }
 
-CHE_PDF_Page::CHE_PDF_Page( HE_DWORD lPageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc )
+CHE_PDF_Page::CHE_PDF_Page( HE_DWORD lPageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc, CHE_Allocator * pAllocator )
+: CHE_Object( pAllocator )
 {
 	m_lPageIndex = lPageIndex;
 	m_pPageObj = NULL;
@@ -404,7 +408,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 		CHE_PDF_Object *  pContentObj = pInObj->GetObject();
 		if ( pContentObj->GetType() == PDFOBJ_STREAM )
 		{
-			CHE_PDF_StreamAcc stmAcc;
+			CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 			stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
 			buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 			stmAcc.Detach();
@@ -416,7 +420,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 				pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
 				if ( pTmpObj->GetType() == PDFOBJ_STREAM )
 				{
-					CHE_PDF_StreamAcc stmAcc;
+					CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 					stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
 					buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 					stmAcc.Detach();
@@ -433,7 +437,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 					CHE_PDF_Object *  pContentObj = pInObj->GetObject();
 					if ( pContentObj->GetType() == PDFOBJ_STREAM )
 					{
-						CHE_PDF_StreamAcc stmAcc;
+						CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 						stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
 						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 						stmAcc.Detach();
@@ -466,7 +470,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 
 			if ( pContentObj->GetType() == PDFOBJ_STREAM )
 			{
-				CHE_PDF_StreamAcc stmAcc;
+				CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 				stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
 				buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 				stmAcc.Detach();
@@ -478,7 +482,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 					pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
 					if ( pTmpObj->GetType() == PDFOBJ_STREAM )
 					{
-						CHE_PDF_StreamAcc stmAcc;
+						CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 						stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
 						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 						stmAcc.Detach();
@@ -494,7 +498,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 						CHE_PDF_Object *  pContentObj = pInObj->GetObject();
 						if ( pContentObj->GetType() == PDFOBJ_STREAM )
 						{
-							CHE_PDF_StreamAcc stmAcc;
+							CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 							stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
 							buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 							stmAcc.Detach();

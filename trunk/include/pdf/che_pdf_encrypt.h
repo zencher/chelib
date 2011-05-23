@@ -71,7 +71,7 @@ class CHE_PDF_Encrypt : public CHE_Object
 {
 public:
 	CHE_PDF_Encrypt( const CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm, HE_BYTE keyLength,
-						HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue );
+						HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue, CHE_Allocator * pAllocator = NULL );
 
 	HE_BOOL Authenticate( const CHE_ByteString & password );
 

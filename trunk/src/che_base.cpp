@@ -3,32 +3,66 @@
 #include <cstdio>
 #include <memory.h>
 
+CHE_DefCrtAllocator gDefCrtAllocator;
 
-// HE_VOID* CHE_Object::operator new( size_t size )
-// {
-// 	return malloc( size );
-// }
-// 
-// HE_VOID CHE_Object::operator delete( HE_VOID* p )
-// {
-// 	free( p );
-// }
-// 
-// HE_VOID* CHE_Object::operator new( size_t size, HE_LPCSTR lpszFileName, HE_INT32 nLine )
-// {
-// 	return malloc( size );
-// }
-// 
-// 
-// HE_VOID CHE_Object::operator delete( HE_VOID* p, HE_LPCSTR lpszFileName, HE_INT32 nLine )
-// {
-// 	free( p );
-// }
+CHE_Object::CHE_Object( CHE_Allocator * pAllocator )
+{
+	if ( pAllocator )
+	{
+		m_pAllocator = pAllocator;
+	}else{
+		m_pAllocator = &gDefCrtAllocator;
+	}
+}
+
+
+inline void* CHE_DefCrtAllocator::Alloc( size_t cb )
+{
+	return malloc( cb );
+}
+
+inline void CHE_DefCrtAllocator::Free( void* data )
+{
+	free( data );
+}
+
+inline size_t CHE_DefCrtAllocator::GetSize( void * data )
+{
+	return _msize( data );
+}
+
+CHE_HeapAllocator::CHE_HeapAllocator( size_t initSize )
+{
+	m_Heap = HeapCreate( 0, initSize, 0 );
+}
+
+CHE_HeapAllocator::~CHE_HeapAllocator()
+{
+	if ( m_Heap )
+	{
+		HeapDestroy( m_Heap );
+	}
+}
+
+inline void* CHE_HeapAllocator::Alloc( size_t cb )
+{
+	return HeapAlloc( m_Heap, 0, cb );
+}
+
+inline void CHE_HeapAllocator::Free( void* data )
+{
+	HeapFree( m_Heap, 0, data );
+}
+
+inline size_t CHE_HeapAllocator::GetSize( void * data )
+{
+	return HeapSize( m_Heap, 0, data );
+}
 
 class IHE_CrtFileWrite: public IHE_Write
 {
 public:
-	IHE_CrtFileWrite( HE_LPCSTR filename );
+	IHE_CrtFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator );
 
 	~IHE_CrtFileWrite();
 
@@ -44,7 +78,7 @@ private:
 	FILE *				m_pFile;
 };
 
-IHE_CrtFileWrite::IHE_CrtFileWrite( HE_LPCSTR filename )
+IHE_CrtFileWrite::IHE_CrtFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator ) : IHE_Write( pAllocator )
 {
 	if ( filename == NULL )
 	{
@@ -115,11 +149,11 @@ HE_BOOL IHE_CrtFileWrite::WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE
 	}
 }
 
-IHE_Write* HE_CreateFileWrite( HE_LPCSTR filename )
+IHE_Write* HE_CreateFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator )
 {
 	if ( filename != NULL )
 	{
-		IHE_Write * pTmp = new IHE_CrtFileWrite( filename );
+		IHE_Write * pTmp = pAllocator->New<IHE_CrtFileWrite>( filename, pAllocator );
 		return pTmp;
 	}else{
 		return NULL;
@@ -130,16 +164,17 @@ HE_VOID HE_DestoryIHEWrite( IHE_Write * pIHEWrite )
 {
 	if ( pIHEWrite != NULL )
 	{
-		delete pIHEWrite;
+		pIHEWrite->GetAllocator()->Delete<IHE_Write>( pIHEWrite );
 	}
 }
 
 class IHE_MemBufRead : public IHE_Read
 {
 public:
-	IHE_MemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize ) { m_lSize = lSize; m_pBuf = pBuf; }
+	IHE_MemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize , CHE_Allocator * pAllocator ) : IHE_Read( pAllocator )
+ 	{ m_lSize = lSize; m_pBuf = pBuf; }
 	
-	~IHE_MemBufRead() {};
+	virtual ~IHE_MemBufRead() {};
 	
 	virtual HE_DWORD	GetSize() { return m_lSize; }
 	
@@ -183,19 +218,19 @@ HE_BYTE IHE_MemBufRead::ReadByte( HE_DWORD offset )
 	}
 }
 
-IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize )
+IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize, CHE_Allocator * pAllocator )
 {
 	if ( pBuf == NULL || lSize == 0 )
 	{
 		return NULL;
 	}
-	return new IHE_MemBufRead( pBuf, lSize );
+	return pAllocator->New<IHE_MemBufRead>( pBuf, lSize, pAllocator );
 }
 
 class IHE_CrtFileReadDefault: public IHE_Read
 {
 public:
-	IHE_CrtFileReadDefault( HE_LPCSTR filename );
+	IHE_CrtFileReadDefault( HE_LPCSTR filename, CHE_Allocator * pAllocator );
 
 	~IHE_CrtFileReadDefault();
 
@@ -211,7 +246,7 @@ private:
 	FILE *				m_pFile;
 };
 
-IHE_CrtFileReadDefault::IHE_CrtFileReadDefault( HE_LPCSTR filename )
+IHE_CrtFileReadDefault::IHE_CrtFileReadDefault( HE_LPCSTR filename, CHE_Allocator * pAllocator ) : IHE_Read( pAllocator )
 {
 	if ( filename == NULL )
 	{
@@ -291,7 +326,7 @@ void IHE_CrtFileReadDefault::Release()
 class IHE_CrtFileReadMemcopy: public IHE_Read
 {
 public:
-	IHE_CrtFileReadMemcopy( HE_LPCSTR filename );
+	IHE_CrtFileReadMemcopy( HE_LPCSTR filename, CHE_Allocator * pAllocator );
 	~IHE_CrtFileReadMemcopy();
 	
 	virtual HE_DWORD	GetSize() { return m_lSize; }
@@ -307,7 +342,7 @@ private:
 	HE_DWORD			m_lSize;
 };
 
-IHE_CrtFileReadMemcopy::IHE_CrtFileReadMemcopy( HE_LPCSTR filename )
+IHE_CrtFileReadMemcopy::IHE_CrtFileReadMemcopy( HE_LPCSTR filename, CHE_Allocator * pAllocator ) : IHE_Read( pAllocator )
 {
 	FILE * pFile = fopen( filename, "rb" );
 	if ( pFile )
@@ -315,7 +350,7 @@ IHE_CrtFileReadMemcopy::IHE_CrtFileReadMemcopy( HE_LPCSTR filename )
 		fseek( pFile, 0, SEEK_END );
 		m_lSize = ftell( pFile );
 		fseek( pFile, 0, SEEK_SET );
-		m_pByte = new HE_BYTE[m_lSize];
+		m_pByte = GetAllocator()->NewArray<HE_BYTE>( m_lSize );
 		fread( m_pByte, 1, m_lSize, pFile );
 		fclose( pFile );
 	}else{
@@ -328,7 +363,7 @@ IHE_CrtFileReadMemcopy::~IHE_CrtFileReadMemcopy()
 {
 	if ( m_pByte )
 	{
-		delete [] m_pByte;
+		GetAllocator()->DeleteArray<HE_BYTE>(m_pByte);
 	}
 }
 
@@ -359,7 +394,7 @@ HE_BYTE IHE_CrtFileReadMemcopy::ReadByte( HE_DWORD offset )
 class IHE_CrtFileReadBuffer: public IHE_Read
 {
 public:
-	IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize );
+	IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize, CHE_Allocator * pAllocator );
 	
 	~IHE_CrtFileReadBuffer();
 	
@@ -379,7 +414,7 @@ private:
 	HE_DWORD			m_dwFileSize;
 };
 
-IHE_CrtFileReadBuffer::IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize )
+IHE_CrtFileReadBuffer::IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize, CHE_Allocator * pAllocator ) : IHE_Read( pAllocator )
 {
 	m_pFile = NULL;
 	m_pBytes = NULL;
@@ -399,7 +434,7 @@ IHE_CrtFileReadBuffer::~IHE_CrtFileReadBuffer()
 {
 	if ( m_pBytes )
 	{
-		delete [] m_pBytes;
+		GetAllocator()->DeleteArray<HE_BYTE>( m_pBytes );
 	}
 	if ( m_pFile )
 	{
@@ -424,10 +459,9 @@ HE_DWORD IHE_CrtFileReadBuffer::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE
 	{
 		if ( m_pBytes == NULL )
 		{
-			m_pBytes = new HE_BYTE[m_dwBufSize];
+			m_pBytes = GetAllocator()->NewArray<HE_BYTE>( m_dwBufSize );
 			fseek( m_pFile, offset, SEEK_SET );
 			fread( m_pBytes, 1, m_dwBufSize, m_pFile );
-			//memcpy(  )
 		}
 
 		if ( offset < m_dwBufPos || offset > m_dwBufPos + m_dwBufSize  )
@@ -455,16 +489,16 @@ void IHE_CrtFileReadBuffer::Release()
 
 }
 
-IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode /*= 0*/, HE_DWORD param /*= 4096*/ )
+IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode /*= 0*/, HE_DWORD param /*= 4096*/, CHE_Allocator * pAllocator )
 {
 	if ( filename != NULL )
 	{
 		switch ( mode )
 		{
 		case FILEREAD_MODE_DEFAULT:
-			return new IHE_CrtFileReadDefault( filename );
+			return pAllocator->New<IHE_CrtFileReadDefault>( filename, pAllocator );
 		case FILEREAD_MODE_MEMCOPY:
-			return new IHE_CrtFileReadMemcopy( filename );
+			return pAllocator->New<IHE_CrtFileReadMemcopy>( filename, pAllocator );
 		case FILEREAD_MODE_BUFFER:
 			return NULL;
 		case FILEREAD_MODE_BLOCKLINK:
@@ -481,7 +515,7 @@ HE_VOID	HE_DestoryIHERead( IHE_Read * pIHERead )
 {
 	if ( pIHERead != NULL )
 	{
-		delete pIHERead;
+		pIHERead->GetAllocator()->Delete<IHE_Read>( pIHERead );
 	}
 }
 

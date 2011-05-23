@@ -11,6 +11,8 @@ class CHE_PDF_Page;
 class IHE_PDF_GetFont : public CHE_Object
 {
 public:
+	IHE_PDF_GetFont( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
+
 	virtual ~IHE_PDF_GetFont() {};
 	
 	virtual CHE_PDF_Font * GetFont( HE_DWORD objNum ) = 0;
@@ -19,8 +21,8 @@ public:
 class CHE_PDF_Document : public CHE_Object
 {
 public:
-	CHE_PDF_Document();
-	CHE_PDF_Document( IHE_Read * pFileRead );
+	CHE_PDF_Document( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAllocator );
 	~CHE_PDF_Document();
 
 	HE_BOOL						Load( IHE_Read * pFileRead );
@@ -67,7 +69,6 @@ protected:
 class CHE_PDF_Page : public CHE_Object
 {
 public:
-	CHE_PDF_Page( HE_DWORD pageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc );
 	~CHE_PDF_Page();
 
 	HE_FLOAT			GetPageWidth() { return m_fPageWidth; }
@@ -84,6 +85,7 @@ public:
 	HE_DWORD			GetPageIndex() { return m_lPageIndex; }
 
 private:
+	CHE_PDF_Page( HE_DWORD pageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc, CHE_Allocator * pAllocator = NULL );
 
 	HE_DWORD			m_lPageIndex;
 
@@ -94,6 +96,7 @@ private:
 	CHE_PDF_Document*	m_pDoc;
 	
 	friend class		CHE_PDF_Document;
+	friend class		CHE_Allocator;
 };
 
 #endif

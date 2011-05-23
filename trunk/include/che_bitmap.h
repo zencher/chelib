@@ -40,7 +40,7 @@ typedef HE_DWORD HE_ARGB;
 class CHE_Palette : public CHE_Object
 {
 public:
-	CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette = NULL );
+	CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette = NULL, CHE_Allocator * pAllocator = NULL );
 	CHE_Palette( const CHE_Palette& palette );
 	~CHE_Palette();
 
@@ -63,7 +63,7 @@ private:
 class CHE_Bitmap : public CHE_Object
 {
 public:
-	CHE_Bitmap();
+	CHE_Bitmap( CHE_Allocator * pAllocator = NULL );
 	CHE_Bitmap( const CHE_Bitmap & bitmap );
 	~CHE_Bitmap();
 

@@ -18,6 +18,7 @@
 class CHE_GraphicsObject : public CHE_Object
 {
 public :
+	CHE_GraphicsObject( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
 	HE_BYTE	GetType() { return m_type; } 
 	HE_BYTE m_type;
 };
@@ -25,7 +26,7 @@ public :
 class CHE_Line : public CHE_GraphicsObject
 {
 public:
-	CHE_Line( HE_LONG lStartX, HE_LONG lStartY, HE_LONG lEndX, HE_LONG lEndY )
+	CHE_Line( HE_LONG lStartX, HE_LONG lStartY, HE_LONG lEndX, HE_LONG lEndY, CHE_Allocator * pAllocator = NULL ) : CHE_GraphicsObject( pAllocator )
 		{ m_lStartX = lStartX; m_lStartY = lStartY; m_lEndX = lEndX; m_lEndY = lEndY; m_type = GRAPHTYPE_LINE; }
 	HE_LONG m_lStartX;
 	HE_LONG m_lStartY;
@@ -36,7 +37,7 @@ public:
 class CHE_Rectangle : public CHE_GraphicsObject
 {
 public:
-	CHE_Rectangle( HE_LONG leftTopX, HE_LONG leftTopY, HE_DWORD dwWidth, HE_DWORD dwHeight )
+	CHE_Rectangle( HE_LONG leftTopX, HE_LONG leftTopY, HE_DWORD dwWidth, HE_DWORD dwHeight, CHE_Allocator * pAllocator = NULL ) : CHE_GraphicsObject( pAllocator )
 		{ m_lLeftTopX = leftTopX; m_lLeftTopY = leftTopY; m_dwWidth = dwWidth; m_dwHeight = dwHeight;m_type = GRAPHTYPE_RECTANGLE;  }
 	
 	HE_LONG m_lLeftTopX;
@@ -53,6 +54,8 @@ public:
 class CHE_Path : public CHE_GraphicsObject
 {
 public:
+	CHE_Path( CHE_Allocator * pAllocator = NULL ) : CHE_GraphicsObject( pAllocator ), m_objArray( pAllocator ) {}
+
 	HE_VOID		AddLine( CHE_Line & line );
 	HE_VOID		AddRectangle( CHE_Rectangle & rect );
 	CHE_GraphicsObject * GetGraph( HE_DWORD index ) { return (CHE_GraphicsObject *)m_objArray.GetItem( index ); }

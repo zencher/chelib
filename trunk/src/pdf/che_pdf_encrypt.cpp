@@ -1781,7 +1781,9 @@ static unsigned char padding[] ="\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x5
 
 
 CHE_PDF_Encrypt::CHE_PDF_Encrypt( const CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm,
-									HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue )
+									HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue,
+									CHE_Allocator * pAllocator )
+									: CHE_Object( pAllocator ), m_ID( pAllocator )
 {
 	m_ID = id;
 	for ( HE_DWORD i = 0; i < 32; i++ )
@@ -1952,7 +1954,7 @@ HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encr
 	HE_BYTE * docId = NULL;
 	if ( m_ID.GetLength() > 0 )
 	{
-		docId = new HE_BYTE[m_ID.GetLength()];
+		docId = GetAllocator()->NewArray<HE_BYTE>( m_ID.GetLength() );
 		HE_DWORD j;
 		for ( j = 0; j < m_ID.GetLength(); j++ )
 		{
@@ -1995,13 +1997,13 @@ HE_VOID CHE_PDF_Encrypt::ComputeUserKey( HE_BYTE encryptionKey[16], HE_BYTE user
 
 		if ( m_ID.GetLength() > 0)
 		{
-			HE_BYTE * docId = new HE_BYTE[m_ID.GetLength()];
+			HE_BYTE * docId = GetAllocator()->NewArray<HE_BYTE>( m_ID.GetLength() );
 			for ( HE_DWORD j = 0; j < m_ID.GetLength(); j++ )
 			{
 				docId[j] = static_cast<unsigned char>( m_ID[j] );
 			}
 			MD5Update( &ctx, docId, m_ID.GetLength() );
-			delete [] docId;
+			GetAllocator()->DeleteArray<HE_BYTE>( docId );
 		}
 		HE_BYTE digest[MD5_HASHBYTES];
 		MD5Final( digest, &ctx );
@@ -2048,7 +2050,7 @@ HE_DWORD CHE_PDF_Encrypt::Encrypt( HE_LPBYTE pData, HE_DWORD length, HE_DWORD ob
 HE_DWORD CHE_PDF_Encrypt::Encrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_DWORD objKeyLen )
 {
 	HE_DWORD length = str.GetLength();
-	HE_BYTE * pData = new HE_BYTE[length+16];
+	HE_BYTE * pData = GetAllocator()->NewArray<HE_BYTE>(length+16);
 	for ( HE_DWORD i = 0; i < length; i++ )
 	{
 		pData[i] = (HE_BYTE)( str[i] );
@@ -2061,7 +2063,7 @@ HE_DWORD CHE_PDF_Encrypt::Encrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_
 		AESEncrypt( objKey, objKeyLen, pData, length, pData );
 		str.SetData( pData, length+16 );
 	}
-	delete [] pData;
+	GetAllocator()->DeleteArray<HE_BYTE>( pData );
 	return str.GetLength();
 }
 
@@ -2099,7 +2101,7 @@ HE_DWORD CHE_PDF_Encrypt::Decrypt( HE_LPBYTE pData, HE_DWORD length, HE_DWORD ob
 HE_DWORD CHE_PDF_Encrypt::Decrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_DWORD objKeyLen )
 {
 	HE_DWORD length = str.GetLength();
-	HE_BYTE * pData = new HE_BYTE[length];
+	HE_BYTE * pData = GetAllocator()->NewArray<HE_BYTE>(length);
 	for ( HE_DWORD i = 0; i < length; i++ )
 	{
 		pData[i] = (HE_BYTE)( str[i] );
@@ -2115,7 +2117,7 @@ HE_DWORD CHE_PDF_Encrypt::Decrypt( CHE_ByteString & str, HE_BYTE objKey[16], HE_
 			str.SetData( pData, length );
 		}
 	}
-	delete [] pData;
+	GetAllocator()->DeleteArray<HE_BYTE>(pData);
 	return length;
 }
 

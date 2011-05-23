@@ -466,7 +466,7 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuf
 		return;
 	}
 
-	CHE_DynBuffer buf( length, length );
+	CHE_DynBuffer buf( length, length, GetAllocator() );
 	HE_BYTE byte = *pData;
 	pData++;
 	HE_DWORD lCount = 1;

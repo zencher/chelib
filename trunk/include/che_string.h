@@ -13,11 +13,17 @@ struct HE_ByteStringData
 class CHE_ByteString : public CHE_Object
 {
 public:
-	CHE_ByteString();
-	~CHE_ByteString();
+	CHE_ByteString( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator )
+	{
+		m_lpData = NULL;
+	}
+	~CHE_ByteString()
+	{
+		Clear();
+	}
 
-	CHE_ByteString( HE_CHAR ch );
-	CHE_ByteString( HE_LPCSTR str, HE_LONG nStrSize = -1 );
+	CHE_ByteString( HE_CHAR ch, CHE_Allocator * pAllocator = NULL );
+	CHE_ByteString( HE_LPCSTR str, HE_LONG nStrSize = -1, CHE_Allocator * pAllocator = NULL );
 	CHE_ByteString( const CHE_ByteString& str );
 	
 	CHE_ByteString& operator=( HE_CHAR ch );		//该函数可以不要，因为编译器可以通过构造函数将参数转化成
@@ -88,11 +94,18 @@ struct HE_WideStringData
 class CHE_WideString : public CHE_Object
 {
 public:
-	CHE_WideString();
-	~CHE_WideString();
+	CHE_WideString( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator )
+	{
+		m_lpData = NULL;
+	}
+
+	~CHE_WideString()
+	{
+		Clear();
+	}
 	
-	CHE_WideString( HE_WCHAR wch );
-	CHE_WideString( HE_LPCWSTR wstr, HE_LONG nStrSize = -1 );
+	CHE_WideString( HE_WCHAR wch, CHE_Allocator * pAllocator = NULL );
+	CHE_WideString( HE_LPCWSTR wstr, HE_LONG nStrSize = -1, CHE_Allocator * pAllocator = NULL );
 	CHE_WideString( const CHE_WideString& wstr );
 	
 	CHE_WideString& operator=( HE_WCHAR wch );		//该函数可以不要，因为编译器可以通过构造函数将参数转化成一个临时的const CHE_ByteString引用

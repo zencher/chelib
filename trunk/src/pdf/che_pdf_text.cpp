@@ -17,7 +17,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract( CHE_PDF_Page * page, CHE_DynWideByteBuf
 	{
 		return 0;
 	}
-	CHE_DynBuffer tmpbuf( 4096, 4096 );
+	CHE_DynBuffer tmpbuf( 4096, 4096, GetAllocator() );
 	if ( !page->GetPageContent( tmpbuf ) )
 	{
 		return 0;
@@ -33,12 +33,12 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_PDF_Stream * pContent, CHE_PDF_Dict
 	{
 		return 0;
 	}
-	CHE_PDF_StreamAcc stmAcc;
+	CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 	if ( !stmAcc.Attach( pContent ) )
 	{
 		return 0;
 	}
-	CHE_DynBuffer tmpbuf( stmAcc.GetSize() );
+	CHE_DynBuffer tmpbuf( stmAcc.GetSize(), stmAcc.GetSize(), GetAllocator() );
 	tmpbuf.Write( stmAcc.GetData(), stmAcc.GetSize() );
 	return Extract( tmpbuf, pResourceDict, pIHE_GetFont, pIHE_InObj, buf );
 }
@@ -66,22 +66,22 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			return 0;
 		}
 	}
-	IHE_Read* pContentRead = HE_CreateMemBufRead( content.GetData(), content.GetByteCount() );	//need to delete
+	IHE_Read* pContentRead = HE_CreateMemBufRead( content.GetData(), content.GetByteCount(), GetAllocator() );	//need to delete
 	if (  pContentRead == NULL )
 	{
 		return 0;
 	}
-	CHE_PDF_SyntaxParser sParser;
+	CHE_PDF_SyntaxParser sParser( GetAllocator() );
 	if ( sParser.InitParser( pContentRead ) == FALSE )
 	{
 		pContentRead->Release();
-		delete pContentRead;
+		GetAllocator()->Delete<IHE_Read>( pContentRead );
 		return 0;
 	}
 
 	HE_DWORD lCharCount = 0;
-	CHE_PtrStack OpdStack;
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PtrStack OpdStack( GetAllocator() );
+	CHE_PDF_PARSER_WORD_DES wordDes( GetAllocator() );
 	CHE_PDF_Object * pTmpNode = NULL;
 	HE_BOOL	bOpd = TRUE;
 	while( sParser.GetWord( wordDes ) == TRUE )
@@ -104,15 +104,15 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			switch ( wordDes.type )
 			{
 			case PDFPARSER_WORD_INTEGER:
-				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0 );
+				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_FLOAT:
-				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0 );
+				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_NAME:
-				pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0 );
+				pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_ARRAY_B:
@@ -126,24 +126,24 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_STRING:
-				pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0 );
+				pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_UNKNOWN:
 				{
 					if ( wordDes.str == "null" )
 					{
-						pTmpNode = CHE_PDF_Null::Create( 0, 0 );
+						pTmpNode = CHE_PDF_Null::Create( 0, 0, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}else if ( wordDes.str == "false" )
 					{
-						pTmpNode = CHE_PDF_Boolean::Create( FALSE, 0, 0 );
+						pTmpNode = CHE_PDF_Boolean::Create( FALSE, 0, 0, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}else if ( wordDes.str == "true" )
 					{
-						pTmpNode = CHE_PDF_Boolean::Create( TRUE, 0, 0 );
+						pTmpNode = CHE_PDF_Boolean::Create( TRUE, 0, 0, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}
@@ -178,7 +178,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			{
 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 				CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetString();
-				CHE_WideString wstr;
+				CHE_WideString wstr( GetAllocator() );
 				if ( pCurFont == NULL )
 				{
 					continue;
@@ -209,7 +209,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 						continue;
 					}
 					CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetString();
-					CHE_WideString wstr;
+					CHE_WideString wstr( GetAllocator() );
 					pCurFont->GetUnicodeString( str, wstr );
 					if ( wstr.GetLength() > 0 )
 					{
@@ -233,7 +233,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 		}
 	}
 	pContentRead->Release();
-	delete pContentRead; 
+	GetAllocator()->Delete<IHE_Read>( pContentRead ); 
 
 	while ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 	{

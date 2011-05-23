@@ -6,19 +6,21 @@
 #include <vector>
 #include <memory.h>
 
-class CHE_PDF_Filter
+class CHE_PDF_Filter : public CHE_Object
 {
 public:
+	CHE_PDF_Filter( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
 	virtual	~CHE_PDF_Filter() {};
 
 	virtual HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer ) = 0;
 	virtual HE_VOID	Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer ) = 0;
 };
 
-class CHE_PDF_Predictor 
+class CHE_PDF_Predictor : public CHE_Object
 {
 public:
-    CHE_PDF_Predictor(	HE_BYTE Predictor = 1, HE_BYTE Colors = 1, HE_BYTE BitsPerComponent = 8, HE_BYTE Columns = 8, HE_BYTE EarlyChange = 1 )
+    CHE_PDF_Predictor(	HE_BYTE Predictor = 1, HE_BYTE Colors = 1, HE_BYTE BitsPerComponent = 8, HE_BYTE Columns = 8, HE_BYTE EarlyChange = 1, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator )
 	{
         m_nPredictor   = Predictor;
         m_nColors      = 1;
@@ -29,7 +31,7 @@ public:
         m_nCurRowIndex  = 0;
         m_nBpp  = (m_nBPC * m_nColors) >> 3;
         m_nRows = (m_nColumns * m_nColors * m_nBPC) >> 3;
-        m_pPrev = new HE_BYTE[m_nRows];
+        m_pPrev = GetAllocator()->NewArray<HE_BYTE>( m_nRows );
         if( !m_pPrev )
         {
 			throw 0;
@@ -41,7 +43,7 @@ public:
     {
         if ( m_pPrev )
         {
-			delete [] m_pPrev;
+			GetAllocator()->DeleteArray<HE_BYTE>( m_pPrev );
         }
     }
 
@@ -126,6 +128,7 @@ private:
 class CHE_PDF_HexFilter : public CHE_PDF_Filter
 {
 public:
+	CHE_PDF_HexFilter( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator ) {}
 	~CHE_PDF_HexFilter() {};
 	
 	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
@@ -135,6 +138,7 @@ public:
 class CHE_PDF_ASCII85Filter : public CHE_PDF_Filter
 {
 public:
+	CHE_PDF_ASCII85Filter( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator ) {}
 	~CHE_PDF_ASCII85Filter() {};
 
 	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
@@ -153,8 +157,9 @@ private:
 class CHE_PDF_FlateFilter : public CHE_PDF_Filter
 {
 public:
-	CHE_PDF_FlateFilter( CHE_PDF_Predictor * pPredictor = NULL ) { m_pPredictor = pPredictor; }
-
+	CHE_PDF_FlateFilter( CHE_PDF_Predictor * pPredictor = NULL, CHE_Allocator * pAllocator = NULL) : CHE_PDF_Filter( pAllocator )
+	{ m_pPredictor = pPredictor; }
+	
 	~CHE_PDF_FlateFilter() {}
 
 	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
@@ -176,7 +181,8 @@ typedef TLzwTable::const_iterator TCILzwTable;
 class CHE_PDF_LZWFilter : public CHE_PDF_Filter
 {
 public:
-	CHE_PDF_LZWFilter( CHE_PDF_Predictor * pPredictor = NULL ) { m_pPredictor = pPredictor; }
+	CHE_PDF_LZWFilter( CHE_PDF_Predictor * pPredictor = NULL, CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator )
+	{ m_pPredictor = pPredictor; }
 
 	~CHE_PDF_LZWFilter() {};
 
@@ -205,6 +211,7 @@ private:
 class CHE_PDF_RLEFileter : public CHE_PDF_Filter
 {
 public:
+	CHE_PDF_RLEFileter( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator ) {}
 	~CHE_PDF_RLEFileter() {};
 	
 	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );

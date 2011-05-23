@@ -1,47 +1,47 @@
 #include "../../include/pdf/che_pdf_objects.h"
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../include/che_dynbuffer.h"
-#include <memory>
+#include <memory.h>
 
 HE_VOID CHE_PDF_Object::Release()
 {
 	switch ( m_Type )
 	{
 	case PDFOBJ_INVALID:
-		delete this;
+		GetAllocator()->Delete<CHE_PDF_Object>( this );
 		break;
 	case PDFOBJ_BOOLEAN:
-		delete ((CHE_PDF_Boolean*)this);
+		GetAllocator()->Delete<CHE_PDF_Boolean>( (CHE_PDF_Boolean*)this );
 		break;
 	case PDFOBJ_NUMBER:
-		delete ((CHE_PDF_Number*)this);
+		GetAllocator()->Delete<CHE_PDF_Number>( (CHE_PDF_Number*)this );
 		break;
 	case PDFOBJ_STRING:
-		delete ((CHE_PDF_String*)this);
+		GetAllocator()->Delete<CHE_PDF_String>( (CHE_PDF_String*)this );
 		break;
 	case PDFOBJ_NAME:
-		delete ((CHE_PDF_Name*)this);
+		GetAllocator()->Delete<CHE_PDF_Name>( (CHE_PDF_Name*)this );
 		break;
 	case PDFOBJ_ARRAY:
-		delete ((CHE_PDF_Array*)this);
+		GetAllocator()->Delete<CHE_PDF_Array>( (CHE_PDF_Array*)this );
 		break;
 	case PDFOBJ_DICTIONARY:
-		delete ((CHE_PDF_Dictionary*)this);
+		GetAllocator()->Delete<CHE_PDF_Dictionary>( (CHE_PDF_Dictionary*)this );
 		break;
 	case PDFOBJ_STREAM:
-		delete ((CHE_PDF_Stream*)this);
+		GetAllocator()->Delete<CHE_PDF_Stream>( (CHE_PDF_Stream*)this );
 		break;
 	case PDFOBJ_NULL:
-		delete ((CHE_PDF_Null*)this);
+		GetAllocator()->Delete<CHE_PDF_Null>( (CHE_PDF_Null*)this );
 		break;
 	case PDFOBJ_REFERENCE:
-		delete ((CHE_PDF_Reference*)this);
+		GetAllocator()->Delete<CHE_PDF_Reference>( (CHE_PDF_Reference*)this );
 		break;
 	case PDFOBJ_INDIRECTOBJ:
-		delete ((CHE_PDF_IndirectObject*)this);
+		GetAllocator()->Delete<CHE_PDF_IndirectObject>( (CHE_PDF_IndirectObject*)this );
 		break;
 	default:
-		delete this;
+		GetAllocator()->Delete<CHE_PDF_Object>( (CHE_PDF_Object*)this );
 		break;
 	}
 }
@@ -96,7 +96,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtNull( const CHE_ByteString & key )
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Null * pNullOjb = CHE_PDF_Null::Create( this->GetObjNum(), this->GetGenNum() );
+		CHE_PDF_Null * pNullOjb = CHE_PDF_Null::Create( this->GetObjNum(), this->GetGenNum(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pNullOjb );
 	}
 }
@@ -105,7 +105,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( const CHE_ByteString & key, bool value
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Boolean * pObj = CHE_PDF_Boolean::Create( value, GetObjNum(), GetGenNum() );
+		CHE_PDF_Boolean * pObj = CHE_PDF_Boolean::Create( value, GetObjNum(), GetGenNum(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -114,7 +114,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtInteger( const CHE_ByteString & key, HE_INT32 v
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjNum(), GetGenNum() );
+		CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjNum(), GetGenNum(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -123,7 +123,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtFloatNumber( const CHE_ByteString & key, HE_FLO
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjNum(), GetGenNum() );
+		CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjNum(), GetGenNum(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -132,7 +132,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtString( const CHE_ByteString & key, const CHE_B
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_String * pObj = CHE_PDF_String::Create( string, GetObjNum(), GetGenNum() );
+		CHE_PDF_String * pObj = CHE_PDF_String::Create( string, GetObjNum(), GetGenNum(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -141,7 +141,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtName( const CHE_ByteString & key, const CHE_Byt
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Name * pObj = CHE_PDF_Name::Create( name, GetObjNum(), GetGenNum() );
+		CHE_PDF_Name * pObj = CHE_PDF_Name::Create( name, GetObjNum(), GetGenNum(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -166,13 +166,13 @@ HE_VOID	CHE_PDF_Dictionary::SetAtReference( const CHE_ByteString & key, HE_DWORD
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Reference * pObj = CHE_PDF_Reference::Create( objnum, GetObjNum(), GetGenNum() );
+		CHE_PDF_Reference * pObj = CHE_PDF_Reference::Create( objnum, GetObjNum(), GetGenNum(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
 
-CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt )
-:CHE_PDF_Object( )
+CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt, CHE_Allocator * pAllocator )
+:CHE_PDF_Object( pAllocator )
 {
 	m_pEncrypt = pEncrypt;
 	m_ObjNum = objNum;
@@ -185,7 +185,7 @@ CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictiona
 	m_pFile = NULL;
 	if ( pData != NULL && size != 0 )
 	{
-		m_pDataBuf = new HE_BYTE[size];
+		m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( size );
 		memcpy( m_pDataBuf, pData, size );
 	}
 	if ( pDict )
@@ -194,7 +194,8 @@ CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictiona
 	}
 }
 	
-CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt )
+CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum, HE_DWORD genNum,
+								CHE_PDF_Encrypt * pEncrypt, CHE_Allocator * pAllocator ) : CHE_PDF_Object( pAllocator )
 {
 	m_pEncrypt = pEncrypt;
 	m_ObjNum = objNum;
@@ -244,7 +245,7 @@ HE_DWORD CHE_PDF_Stream::ReadRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD 
 	}
 }
 
-CHE_PDF_StreamAcc::CHE_PDF_StreamAcc()
+CHE_PDF_StreamAcc::CHE_PDF_StreamAcc( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator )
 {
 	m_dwSize = 0;
 	m_pData = NULL;
@@ -255,7 +256,7 @@ CHE_PDF_StreamAcc::~CHE_PDF_StreamAcc()
 {
 	if ( m_pData )
 	{
-		delete [] m_pData;
+		GetAllocator()->DeleteArray<HE_BYTE>( m_pData );
 	}
 	m_dwSize = 0;
 }
@@ -271,7 +272,6 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 		CHE_PDF_Dictionary * pDict = pStream->GetDict();
 		if ( pDict )
 		{
-			
 			HE_DWORD lFilterCount = 0;
 			HE_DWORD length = pStream->GetRawSize();
 			CHE_PDF_Object * pFilter = pDict->GetElement( CHE_ByteString("Filter") );
@@ -279,7 +279,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 			if ( pFilter == NULL )
 			{
 				m_dwSize = length;
-				m_pData = new HE_BYTE[length];
+				m_pData = GetAllocator()->NewArray<HE_BYTE>( length );
 				pStream->ReadRawData( 0, m_pData, length );
 				if ( pStream->m_pEncrypt && pStream->m_pEncrypt->IsPasswordOK() == TRUE )
 				{
@@ -294,8 +294,12 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 					lFilterCount = 1;
 				}
 			}
-			CHE_PDF_Name ** pFilterNameArr = new CHE_PDF_Name*[lFilterCount];
-			CHE_PDF_Dictionary ** pParamDictArr = new CHE_PDF_Dictionary*[lFilterCount];
+			CHE_PDF_Name ** pFilterNameArr = NULL;
+			CHE_PDF_Dictionary ** pParamDictArr = NULL;
+	
+			pFilterNameArr = GetAllocator()->NewArray<CHE_PDF_Name*>( lFilterCount );
+			pParamDictArr = GetAllocator()->NewArray<CHE_PDF_Dictionary*>( lFilterCount );
+
 			for ( HE_DWORD j = 0; j < lFilterCount; j++ )
 			{
 				pFilterNameArr[j] = NULL;
@@ -330,45 +334,35 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 				}
 			}
 			HE_DWORD bufSize = (length == 0) ? 1024 : length;
-			CHE_DynBuffer buffer( bufSize, bufSize );
+			CHE_DynBuffer buffer( bufSize, bufSize, GetAllocator() );
 			HE_DWORD lSize = pStream->GetRawSize();
-			HE_LPBYTE pTmp = new HE_BYTE[lSize];
+			HE_LPBYTE pTmp = NULL;
+			pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
+
 			pStream->ReadRawData( 0, pTmp, lSize );
 			if ( pStream->m_pEncrypt && pStream->m_pEncrypt->IsPasswordOK() == TRUE )
 			{
 				pStream->m_pEncrypt->Decrypt( pTmp, lSize, pStream->GetObjNum(), pStream->GetGenNum() );
 			}
-			CHE_ByteString str;
+			CHE_ByteString str( GetAllocator() );
 			for ( HE_DWORD i = 0; i < lFilterCount; i++ )
 			{
 				str = pFilterNameArr[i]->GetString();
 				if ( str == "ASCIIHexDecode" )
 				{
-					CHE_PDF_HexFilter filter;
+					CHE_PDF_HexFilter filter( GetAllocator() );
 					filter.Decode( pTmp, lSize, buffer );
-					delete [] pTmp;
-					lSize = buffer.GetByteCount();
-					pTmp = new HE_BYTE[lSize];
-					buffer.Read( pTmp, lSize );
 				}else if ( str == "ASCII85Decode" )
 				{
-					CHE_PDF_ASCII85Filter filter;
+					CHE_PDF_ASCII85Filter filter( GetAllocator() );
 					filter.Decode( pTmp, lSize, buffer );
-					delete [] pTmp;
-					lSize = buffer.GetByteCount();
-					pTmp = new HE_BYTE[lSize];
-					buffer.Read( pTmp, lSize );
 				}else if ( str == "LZWDecode" )
 				{
 					CHE_PDF_Dictionary * pDecodeParams = pParamDictArr[i];
 					if ( pDecodeParams == NULL )
 					{
-						CHE_PDF_LZWFilter filter;
+						CHE_PDF_LZWFilter filter( NULL, GetAllocator() );
 						filter.Decode( pTmp, lSize, buffer );
-						delete [] pTmp;
-						lSize = buffer.GetByteCount();
-						pTmp = new HE_BYTE[lSize];
-						buffer.Read( pTmp, lSize );
 					}else{
 						HE_BYTE Predictor = 1;
 						HE_BYTE Colors = 1;
@@ -401,24 +395,16 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 							EarlyChange = ((CHE_PDF_Number*)pObj)->GetInteger();
 						}
 						CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
-						CHE_PDF_LZWFilter filter( &pPredictor );
+						CHE_PDF_LZWFilter filter( &pPredictor, GetAllocator() );
 						filter.Decode( pTmp, lSize, buffer );
-						delete [] pTmp;
-						lSize = buffer.GetByteCount();
-						pTmp = new HE_BYTE[lSize];
-						buffer.Read( pTmp, lSize );
 					}
 				}else if ( str == "FlateDecode" )
 				{
 					CHE_PDF_Dictionary * pDecodeParams = pParamDictArr[i];
 					if ( pDecodeParams == NULL )
 					{
-						CHE_PDF_FlateFilter filter;
+						CHE_PDF_FlateFilter filter( NULL, GetAllocator() );
 						filter.Decode( pTmp, lSize, buffer );
-						delete [] pTmp;
-						lSize = buffer.GetByteCount();
-						pTmp = new HE_BYTE[lSize];
-						buffer.Read( pTmp, lSize );
 					}else{
 						HE_BYTE Predictor = 1;
 						HE_BYTE Colors = 1;
@@ -451,21 +437,13 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 							EarlyChange = ((CHE_PDF_Number*)pObj)->GetInteger();
 						}
 						CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
-						CHE_PDF_FlateFilter filter( &pPredictor );
+						CHE_PDF_FlateFilter filter( &pPredictor, GetAllocator() );
 						filter.Decode( pTmp, lSize, buffer );
-						delete [] pTmp;
-						lSize = buffer.GetByteCount();
-						pTmp = new HE_BYTE[lSize];
-						buffer.Read( pTmp, lSize );
 					}
 				}else if ( str == "RunLengthDecode" )
 				{
-					CHE_PDF_RLEFileter filter;
+					CHE_PDF_RLEFileter filter( GetAllocator() );
 					filter.Decode( pTmp, lSize, buffer );
-					delete [] pTmp;
-					lSize = buffer.GetByteCount();
-					pTmp = new HE_BYTE[lSize];
-					buffer.Read( pTmp, lSize );
 				}else if ( str == "CCITTFaxDecode" )
 				{
 					/*CHE_PDF_HexFilter filter;
@@ -503,10 +481,16 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 					return FALSE;
 				}
 			}
+
+			lSize = buffer.GetByteCount();
+			GetAllocator()->DeleteArray<HE_BYTE>( pTmp );
+			pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
+			GetAllocator()->DeleteArray<CHE_PDF_Name*>( pFilterNameArr );
+			GetAllocator()->DeleteArray<CHE_PDF_Dictionary*>( pParamDictArr );
+			buffer.Read( pTmp, lSize );
+
 			m_pData = pTmp;
 			m_dwSize = lSize;
-			delete [] pParamDictArr;
-			delete [] pFilterNameArr;
 			return TRUE;
 		}
 	}
@@ -517,14 +501,14 @@ HE_VOID CHE_PDF_StreamAcc::Detach()
 {
 	if ( m_pData )
 	{
-		delete [] m_pData;
+		GetAllocator()->DeleteArray<HE_BYTE>( m_pData );
 		m_pData = NULL;
 	}
 	m_pStream = NULL;
 	m_dwSize = 0;
 }
 
-CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj )
+CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj, CHE_Allocator * pAllocator ) : CHE_PDF_Object( pAllocator )
 {
 	m_ObjNum = objNum;
 	m_GenNum = genNum, 
@@ -585,8 +569,7 @@ HE_VOID CHE_PDF_IndirectObjectCollector::ReleaseObj()
 		pObj = (CHE_PDF_IndirectObject*)m_map.GetItemByIndex( i );
 		if ( pObj )
 		{
-			//pObj->Release();
-			delete pObj;
+			pObj->Release();
 		}
 	}
 }

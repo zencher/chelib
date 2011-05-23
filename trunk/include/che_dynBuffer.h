@@ -6,7 +6,7 @@
 class CHE_DynBuffer : public CHE_Object
 {
 public:
-	CHE_DynBuffer( HE_DWORD size = 1024, HE_DWORD increament = 1024 );
+	CHE_DynBuffer( HE_DWORD size = 1024, HE_DWORD increament = 1024, CHE_Allocator * pAllocator = NULL );
 	CHE_DynBuffer( const CHE_DynBuffer & buf );
 	~CHE_DynBuffer();
 
@@ -40,7 +40,7 @@ private:
 class CHE_DynWideByteBuffer : public CHE_Object
 {
 public:
-	CHE_DynWideByteBuffer( HE_DWORD size = 1024, HE_DWORD increament = 1024 );
+	CHE_DynWideByteBuffer( HE_DWORD size = 1024, HE_DWORD increament = 1024, CHE_Allocator * pAllocator = NULL );
 	CHE_DynWideByteBuffer( const CHE_DynWideByteBuffer & buf );
 	~CHE_DynWideByteBuffer();
 	

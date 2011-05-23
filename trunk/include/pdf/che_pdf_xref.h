@@ -14,7 +14,7 @@ class CHE_PDF_Parser;
 class CHE_PDF_XREF_Entry
 {
 public:
-	CHE_PDF_XREF_Entry();
+	CHE_PDF_XREF_Entry( );
 	CHE_PDF_XREF_Entry( HE_DWORD f1, HE_DWORD f2, HE_DWORD f3, HE_DWORD objNum );
 
 	HE_DWORD field1;
@@ -46,10 +46,10 @@ struct PDF_XREF_SECTION
 	PDF_XREF_SECTION * pNextSection;
 };
 
-class CHE_PDF_XREF_Table
+class CHE_PDF_XREF_Table : public CHE_Object
 {
 public:
-	CHE_PDF_XREF_Table();
+	CHE_PDF_XREF_Table( CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_XREF_Table();
 	
 	HE_VOID Clear();

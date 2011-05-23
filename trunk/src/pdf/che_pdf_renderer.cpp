@@ -8,21 +8,21 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 		return;
 	}
 
-	CHE_DynBuffer buf;
+	CHE_DynBuffer buf( 1024, 1024, GetAllocator() );
 	if ( page->GetPageContent( buf ) == FALSE )
 	{
 		return;
 	}
-	IHE_Read * pIHE_Read = HE_CreateMemBufRead( buf.GetData(), buf.GetByteCount() );
+	IHE_Read * pIHE_Read = HE_CreateMemBufRead( buf.GetData(), buf.GetByteCount(), GetAllocator() );
 	if ( pIHE_Read == NULL )
 	{
 		return;
 	}
-	CHE_PDF_SyntaxParser sParser;
+	CHE_PDF_SyntaxParser sParser( GetAllocator() );
 	sParser.InitParser( pIHE_Read );
 
-	CHE_PtrStack OpdStack;
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PtrStack OpdStack( GetAllocator() );
+	CHE_PDF_PARSER_WORD_DES wordDes( GetAllocator() );
 	HE_BOOL bOpd = TRUE;
 	CHE_PDF_Object * pTmpNode = NULL;
 
@@ -38,15 +38,15 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 		switch ( wordDes.type )
 		{
 		case PDFPARSER_WORD_INTEGER:
-			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0 );
+			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0, GetAllocator() );
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_FLOAT:
-			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0 );
+			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0, GetAllocator() );
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_NAME:
-			pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0 );
+			pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0, GetAllocator() );
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_ARRAY_B:
@@ -60,7 +60,7 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_STRING:
-			pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0 );
+			pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0, GetAllocator() );
 			OpdStack.Push( pTmpNode );
 			break;
 		default:
@@ -77,7 +77,7 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 			{
 				delete pPath;
 			}
-			pPath = new CHE_Path;
+			pPath = new CHE_Path( GetAllocator() ) ;
 			OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 			cpy = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 			pTmpNode->Release();
@@ -102,7 +102,7 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 				HE_LONG Y0 = ctmb * cpx + ctmd * cpy + ctmf;
 				X0 = tmda * X0 + tmdc * Y0 + tmde;
 				Y0 = tmdb * X0 + tmdd * Y0 + tmdf;
-				CHE_Line line( X0, Y0, X1, Y1 );
+				CHE_Line line( X0, Y0, X1, Y1, GetAllocator() );
 				pPath->AddLine( line );
 			}
 		}else if ( wordDes.str == "s" )

@@ -153,7 +153,13 @@ IHE_Write* HE_CreateFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator )
 {
 	if ( filename != NULL )
 	{
-		IHE_Write * pTmp = pAllocator->New<IHE_CrtFileWrite>( filename, pAllocator );
+		IHE_Write * pTmp = NULL;
+		if ( pAllocator == NULL )
+		{
+			pTmp = new IHE_CrtFileWrite( filename, NULL );
+		}else{
+			pTmp = pAllocator->New<IHE_CrtFileWrite>( filename, pAllocator );
+		}
 		return pTmp;
 	}else{
 		return NULL;
@@ -224,7 +230,12 @@ IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize, CHE_Allocator * 
 	{
 		return NULL;
 	}
-	return pAllocator->New<IHE_MemBufRead>( pBuf, lSize, pAllocator );
+	if ( pAllocator == NULL )
+	{
+		return new IHE_MemBufRead( pBuf, lSize, NULL );
+	}else{
+		return pAllocator->New<IHE_MemBufRead>( pBuf, lSize, pAllocator );
+	}
 }
 
 class IHE_CrtFileReadDefault: public IHE_Read
@@ -489,16 +500,24 @@ void IHE_CrtFileReadBuffer::Release()
 
 }
 
-IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode /*= 0*/, HE_DWORD param /*= 4096*/, CHE_Allocator * pAllocator )
+IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode, HE_DWORD param, CHE_Allocator * pAllocator )
 {
-	if ( filename != NULL )
+	CHE_DefCrtAllocator defcrtAllocator;
+	CHE_Allocator * pTmpAllocator = NULL;
+	if ( pAllocator == NULL )
 	{
+		pTmpAllocator = &defcrtAllocator;
+	}else{
+		pTmpAllocator = pAllocator;
+	}
+	if ( filename != NULL )
+	{s
 		switch ( mode )
 		{
 		case FILEREAD_MODE_DEFAULT:
-			return pAllocator->New<IHE_CrtFileReadDefault>( filename, pAllocator );
+			return pTmpAllocator->New<IHE_CrtFileReadDefault>( filename, pAllocator );
 		case FILEREAD_MODE_MEMCOPY:
-			return pAllocator->New<IHE_CrtFileReadMemcopy>( filename, pAllocator );
+			return pTmpAllocator->New<IHE_CrtFileReadMemcopy>( filename, pAllocator );
 		case FILEREAD_MODE_BUFFER:
 			return NULL;
 		case FILEREAD_MODE_BLOCKLINK:

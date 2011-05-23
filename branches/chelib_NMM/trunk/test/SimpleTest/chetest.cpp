@@ -1,9 +1,11 @@
-#include "../../include/che_dynBuffer.h"
+#include <cstdio>
+#include <memory.h>
+
+#include "../../include/che_base.h"
+#include "../../include/che_datastructure.h"
+#include "../../include/che_bitmap.h"
 #include "../../include/pdf/che_pdf_parser.h"
 #include "../../include/pdf/che_pdf_filter.h"
-#include "../../include/che_bitmap.h"
-#include <stdio.h>
-#include <memory.h>
 
 int main()
 {
@@ -115,17 +117,14 @@ int main()
 	//filter.Decode( tmpByte, 18, dynBuffer );
 	//filter.Decode( buffer, 0, buffer2, 20 );
 
-
-
-
-	IHE_FileRead * pFileRead = HE_CreateFileRead( "c:\\pdf.pdf" );
+	IHE_Read * pFileRead = HE_CreateFileRead( "c:\\pdf.pdf" );
 	if ( pFileRead )
 	{
 		CHE_PDF_Parser parser;
 		parser.StartParse( pFileRead );
 		HE_DWORD version = parser.GetPDFVersion();
 		HE_DWORD xrefoffset = parser.GetStartxrefOffset( 512 );
-		HE_BOOL bRet = parser.GetXRefTable();
+		HE_BOOL bRet = parser.ParseXRef();
 		//CHE_PDF_IndirectObject * pObj = parser.GetIndirectObject( 1 );
 		//CHE_PDF_Dictionary* pDict = (CHE_PDF_Dictionary*)(pObj->GetDict()->GetElement( CHE_ByteString("OCProperties") ));
 		//CHE_PDF_Array* pArr = (CHE_PDF_Array*)(pDict->GetElement( CHE_ByteString("OCGs") ) );

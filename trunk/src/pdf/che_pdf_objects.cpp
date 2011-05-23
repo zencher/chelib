@@ -1,6 +1,6 @@
 #include "../../include/pdf/che_pdf_objects.h"
 #include "../../include/pdf/che_pdf_filter.h"
-#include "../../include/che_dynbuffer.h"
+#include "../../include/che_datastructure.h"
 #include <memory.h>
 
 HE_VOID CHE_PDF_Object::Release()

@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_font.h"
-#include "../../include/che_dynbuffer.h"
+#include "../../include/che_datastructure.h"
 
 FT_Library gFTLibrary = NULL;
 

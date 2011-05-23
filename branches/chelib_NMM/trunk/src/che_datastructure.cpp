@@ -281,13 +281,7 @@ HE_BOOL CHE_DynWideByteBuffer::ReadByte( HE_DWORD offset, HE_LPWSTR pWchar )
 
 CHE_PtrStack::~CHE_PtrStack()
 {
-	CHE_PtrNode * pTmp = m_pTop;
-	while ( pTmp )
-	{
-		m_pTop = m_pTop->pNext;
-		delete pTmp;
-		pTmp = m_pTop;
-	}
+	Clear();
 }
 
 HE_BOOL CHE_PtrStack::IsEmpty()
@@ -432,13 +426,7 @@ CHE_PtrArray::CHE_PtrArray()
 
 CHE_PtrArray::~CHE_PtrArray()
 {
-	if ( m_pData )
-	{
-		delete [] m_pData;
-		m_pData = NULL;
-		m_lSize = 0;
-		m_lCount = 0;
-	}
+	Clear();
 }
 
 HE_BOOL CHE_PtrArray::Append( HE_LPVOID ptr )
@@ -501,18 +489,7 @@ CHE_ByteStringToPtrMap::CHE_ByteStringToPtrMap()
 
 CHE_ByteStringToPtrMap::~CHE_ByteStringToPtrMap()
 {
-	if ( m_pData )
-	{
-		delete [] m_pData;
-	}
-	if ( m_pString && m_lCount > 0 )
-	{
-		for ( HE_DWORD i = 0; i < m_lCount; i++ )
-		{
-			delete m_pString[i];
-		}
-		delete [] m_pString;
-	}
+	Clear();
 }
 
 HE_BOOL	CHE_ByteStringToPtrMap::Append( const CHE_ByteString & str, HE_LPVOID ptr )
@@ -605,14 +582,7 @@ CHE_NumToPtrMap::CHE_NumToPtrMap()
 
 CHE_NumToPtrMap::~CHE_NumToPtrMap()
 {
-	if ( m_pData )
-	{
-		delete [] m_pData;
-	}
-	if ( m_pNum && m_lCount > 0 )
-	{
-		delete [] m_pNum;
-	}
+	Clear();
 }
 
 HE_BOOL CHE_NumToPtrMap::Append( HE_DWORD num, HE_LPVOID ptr )

@@ -22,7 +22,7 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 	sParser.InitParser( pIHE_Read );
 
 	CHE_PtrStack OpdStack;
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDes;
 	HE_BOOL bOpd = TRUE;
 	CHE_PDF_Object * pTmpNode = NULL;
 

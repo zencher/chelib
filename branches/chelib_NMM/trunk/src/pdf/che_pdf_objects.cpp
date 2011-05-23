@@ -1,7 +1,7 @@
 #include "../../include/pdf/che_pdf_objects.h"
 #include "../../include/pdf/che_pdf_filter.h"
-#include "../../include/che_dynbuffer.h"
-#include <memory>
+#include "../../include/che_datastructure.h"
+#include <memory.h>
 
 HE_VOID CHE_PDF_Object::Release()
 {
@@ -294,8 +294,12 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 					lFilterCount = 1;
 				}
 			}
-			CHE_PDF_Name ** pFilterNameArr = new CHE_PDF_Name*[lFilterCount];
-			CHE_PDF_Dictionary ** pParamDictArr = new CHE_PDF_Dictionary*[lFilterCount];
+			CHE_PDF_Name ** pFilterNameArr = NULL;
+			CHE_PDF_Dictionary ** pParamDictArr = NULL;
+	
+			pFilterNameArr = new CHE_PDF_Name*[lFilterCount];
+			pParamDictArr = new CHE_PDF_Dictionary*[lFilterCount];
+
 			for ( HE_DWORD j = 0; j < lFilterCount; j++ )
 			{
 				pFilterNameArr[j] = NULL;
@@ -346,18 +350,10 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 				{
 					CHE_PDF_HexFilter filter;
 					filter.Decode( pTmp, lSize, buffer );
-					delete [] pTmp;
-					lSize = buffer.GetByteCount();
-					pTmp = new HE_BYTE[lSize];
-					buffer.Read( pTmp, lSize );
 				}else if ( str == "ASCII85Decode" )
 				{
 					CHE_PDF_ASCII85Filter filter;
 					filter.Decode( pTmp, lSize, buffer );
-					delete [] pTmp;
-					lSize = buffer.GetByteCount();
-					pTmp = new HE_BYTE[lSize];
-					buffer.Read( pTmp, lSize );
 				}else if ( str == "LZWDecode" )
 				{
 					CHE_PDF_Dictionary * pDecodeParams = pParamDictArr[i];
@@ -365,10 +361,6 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 					{
 						CHE_PDF_LZWFilter filter;
 						filter.Decode( pTmp, lSize, buffer );
-						delete [] pTmp;
-						lSize = buffer.GetByteCount();
-						pTmp = new HE_BYTE[lSize];
-						buffer.Read( pTmp, lSize );
 					}else{
 						HE_BYTE Predictor = 1;
 						HE_BYTE Colors = 1;
@@ -403,10 +395,6 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 						CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
 						CHE_PDF_LZWFilter filter( &pPredictor );
 						filter.Decode( pTmp, lSize, buffer );
-						delete [] pTmp;
-						lSize = buffer.GetByteCount();
-						pTmp = new HE_BYTE[lSize];
-						buffer.Read( pTmp, lSize );
 					}
 				}else if ( str == "FlateDecode" )
 				{
@@ -415,10 +403,6 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 					{
 						CHE_PDF_FlateFilter filter;
 						filter.Decode( pTmp, lSize, buffer );
-						delete [] pTmp;
-						lSize = buffer.GetByteCount();
-						pTmp = new HE_BYTE[lSize];
-						buffer.Read( pTmp, lSize );
 					}else{
 						HE_BYTE Predictor = 1;
 						HE_BYTE Colors = 1;
@@ -453,19 +437,11 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 						CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
 						CHE_PDF_FlateFilter filter( &pPredictor );
 						filter.Decode( pTmp, lSize, buffer );
-						delete [] pTmp;
-						lSize = buffer.GetByteCount();
-						pTmp = new HE_BYTE[lSize];
-						buffer.Read( pTmp, lSize );
 					}
 				}else if ( str == "RunLengthDecode" )
 				{
 					CHE_PDF_RLEFileter filter;
 					filter.Decode( pTmp, lSize, buffer );
-					delete [] pTmp;
-					lSize = buffer.GetByteCount();
-					pTmp = new HE_BYTE[lSize];
-					buffer.Read( pTmp, lSize );
 				}else if ( str == "CCITTFaxDecode" )
 				{
 					/*CHE_PDF_HexFilter filter;
@@ -503,10 +479,16 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 					return FALSE;
 				}
 			}
+
+			lSize = buffer.GetByteCount();
+			delete [] pTmp;
+			pTmp = new HE_BYTE[lSize];
+			delete [] pFilterNameArr;
+			delete [] pParamDictArr;
+			buffer.Read( pTmp, lSize );
+
 			m_pData = pTmp;
 			m_dwSize = lSize;
-			delete [] pParamDictArr;
-			delete [] pFilterNameArr;
 			return TRUE;
 		}
 	}
@@ -585,8 +567,7 @@ HE_VOID CHE_PDF_IndirectObjectCollector::ReleaseObj()
 		pObj = (CHE_PDF_IndirectObject*)m_map.GetItemByIndex( i );
 		if ( pObj )
 		{
-			//pObj->Release();
-			delete pObj;
+			pObj->Release();
 		}
 	}
 }

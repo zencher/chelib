@@ -46,7 +46,7 @@ struct PDF_XREF_SECTION
 	PDF_XREF_SECTION * pNextSection;
 };
 
-class CHE_PDF_XREF_Table
+class CHE_PDF_XREF_Table : public CHE_Object
 {
 public:
 	CHE_PDF_XREF_Table();

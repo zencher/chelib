@@ -18,8 +18,9 @@
 #define PDFPARSER_WORD_ARRAY_B	7
 #define PDFPARSER_WORD_ARRAY_E	8
 
-struct PDFPARSER_WORD_DES
+class CHE_PDF_PARSER_WORD_DES : public CHE_Object
 {
+public:
 	CHE_ByteString	str;
 	HE_BYTE			type;
 	HE_DWORD		offset;
@@ -70,7 +71,7 @@ public:
 
 	HE_DWORD			ReadBytes( /*HE_DWORD offset,*/ HE_LPBYTE pBuffer, HE_DWORD length );
 
-	HE_BOOL				GetWord( PDFPARSER_WORD_DES & des );
+	HE_BOOL				GetWord( CHE_PDF_PARSER_WORD_DES & des );
 
 	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
 	CHE_PDF_Array *		GetArray();
@@ -104,7 +105,7 @@ class CHE_PDF_Parser : public CHE_Object
 {
 public:
 	CHE_PDF_Parser();
-	~CHE_PDF_Parser() {};
+	~CHE_PDF_Parser() { CloseParser(); }
 
 	HE_BOOL						StartParse( IHE_Read * file );
 

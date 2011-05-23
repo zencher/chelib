@@ -185,9 +185,14 @@ CHE_PDF_Object * IHE_DefaultGetPDFInObj::GetObj( HE_DWORD objNum, HE_BYTE objTyp
 			//不处理数组下面的数组，只获取第一个可能，也即是可能忽略掉一些数组元素
 			CHE_PDF_Object * pTmpObj = NULL;
 			HE_BOOL	bContinue = FALSE;
-			for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pCurObj)->GetCount(); i++ )
+			HE_DWORD lCount = ((CHE_PDF_Array*)pCurObj)->GetCount();
+			for ( HE_DWORD i = 0; i < lCount; i++ )
 			{
 				pTmpObj = ((CHE_PDF_Array*)pCurObj)->GetElement( i );
+				if ( pTmpObj == NULL )
+				{
+					break;
+				}
 				if ( pTmpObj->GetType() == objType )
 				{
 					return pTmpObj;
@@ -515,12 +520,14 @@ HE_VOID CHE_PDF_SyntaxParser::SeekToMark( CHE_ByteString markStr )
 						if ( markStr == CHE_ByteString(pTmpStr) )
 						{
 							m_lFilePos--;
+							delete [] pTmpStr;
 							return;
 						}
 					}
 				}
 			}
 		}
+		delete [] pTmpStr;
 	}
 }
 
@@ -529,7 +536,7 @@ HE_DWORD CHE_PDF_SyntaxParser::ReadBytes( HE_LPBYTE pBuffer, HE_DWORD length )
 	return m_pFileAccess->ReadBlock( pBuffer, m_lFilePos, length );
 }
 
-HE_BOOL CHE_PDF_SyntaxParser::GetWord( PDFPARSER_WORD_DES & des )
+HE_BOOL CHE_PDF_SyntaxParser::GetWord( CHE_PDF_PARSER_WORD_DES & des )
 {
 	if ( m_pFileAccess )
 	{
@@ -1062,7 +1069,7 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 		return NULL;
 	}
 
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDes;
 
 	if ( !GetWord( wordDes ) )
 	{
@@ -1268,8 +1275,8 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 	{
 		return NULL;
 	}
-	PDFPARSER_WORD_DES wordDes;
-	PDFPARSER_WORD_DES wordDesKey;
+	CHE_PDF_PARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDesKey;
 	GetWord( wordDes );
 	if ( wordDes.type != PDFPARSER_WORD_DICT_B )
 	{
@@ -1609,7 +1616,7 @@ HE_DWORD CHE_PDF_Parser::GetStartxrefOffset( HE_DWORD range )
 HE_DWORD CHE_PDF_Parser::FullParseForXRef()	//分析整个文件来获取对象信息 // 还需要添加搜索xref的功能，针对某些具有xref但startxref错误的pdf文件
 {
 	HE_DWORD			xrefEntryCount = 0;
-	PDFPARSER_WORD_DES	wordDes;
+	CHE_PDF_PARSER_WORD_DES	wordDes;
 	HE_DWORD			offset = 0;
 	HE_DWORD			objNumOffset = 0;
 	HE_DWORD			objNum = 0;
@@ -1715,7 +1722,7 @@ HE_DWORD CHE_PDF_Parser::ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** 
 	m_sParser.SetPos( offset );
 	*pTrailerDictRet = NULL;
 
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDes;
 	HE_DWORD xrefEntryCount = 0;
 	if ( m_sParser.GetWord( wordDes ) == FALSE )
 	{
@@ -1788,7 +1795,7 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 	m_sParser.SetPos( offset );
 	*pTrailerDictRet = NULL;
 	
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDes;
 	HE_DWORD xrefEntryCount = 0;
 	HE_DWORD objNum = 0, genNum = 0, lBeginNum = 0, lObjCount = 0, lSize = 0, lW1 = 0, lW2 = 0, lW3 = 0, lSecCount = 0;
 
@@ -2367,7 +2374,7 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 HE_VOID CHE_PDF_Parser::VerifyXRef()
 {
 	PDF_XREF_ENTRY_NODE * pTmpNode = NULL;
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDes;
 	HE_DWORD index = 0;
 	while( TRUE )
 	{
@@ -2473,7 +2480,7 @@ HE_VOID	CHE_PDF_Parser::VerifyObjInStm()
 						continue;
 					}
 					CHE_PDF_SyntaxParser sParser;
-					PDFPARSER_WORD_DES wordDes;
+					CHE_PDF_PARSER_WORD_DES wordDes;
 					IHE_Read * pIHE_Read = HE_CreateMemBufRead( stmAcc.GetData(), stmAcc.GetSize() );
 					if ( pIHE_Read == NULL )
 					{
@@ -2741,7 +2748,7 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 	}
 
 	HE_DWORD offset = m_sParser.GetPos();
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDes;
 	HE_DWORD objNum = 0, genNum = 0;
 	m_sParser.GetWord( wordDes );
 	if ( wordDes.type == PDFPARSER_WORD_INTEGER )
@@ -3004,7 +3011,7 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObjectInObjStm( HE_DWORD stm
 				sParser.SetCurGenNum( 0 );
 				
 				HE_DWORD first = 0;
-				PDFPARSER_WORD_DES	wordDes;
+				CHE_PDF_PARSER_WORD_DES	wordDes;
 				HE_DWORD			offset = 0;
 				HE_DWORD			objNumOffset = 0;
 				HE_DWORD			objNumTmp = 0;

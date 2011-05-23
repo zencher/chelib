@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_font.h"
-#include "../../include/che_dynbuffer.h"
+#include "../../include/che_datastructure.h"
 
 FT_Library gFTLibrary = NULL;
 
@@ -11115,7 +11115,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 	CHE_NumToPtrMap * tmpMap = new CHE_NumToPtrMap;
 	IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize() );
 	CHE_PDF_SyntaxParser parser;
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDes;
 	HE_DWORD lMaxIndex = 0;
 	HE_DWORD lCodeCount = 0;
 	parser.InitParser( pFileRead );

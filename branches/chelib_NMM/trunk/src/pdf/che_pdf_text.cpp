@@ -81,7 +81,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 
 	HE_DWORD lCharCount = 0;
 	CHE_PtrStack OpdStack;
-	PDFPARSER_WORD_DES wordDes;
+	CHE_PDF_PARSER_WORD_DES wordDes;
 	CHE_PDF_Object * pTmpNode = NULL;
 	HE_BOOL	bOpd = TRUE;
 	while( sParser.GetWord( wordDes ) == TRUE )

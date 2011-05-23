@@ -2,7 +2,7 @@
 #define _CHE_PDF_PAGES_H_
 
 #include "../che_base.h"
-#include "../che_dynbuffer.h"
+#include "../che_datastructure.h"
 #include "che_pdf_parser.h"
 #include "che_pdf_font.h"
 
@@ -67,7 +67,6 @@ protected:
 class CHE_PDF_Page : public CHE_Object
 {
 public:
-	CHE_PDF_Page( HE_DWORD pageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc );
 	~CHE_PDF_Page();
 
 	HE_FLOAT			GetPageWidth() { return m_fPageWidth; }
@@ -84,6 +83,7 @@ public:
 	HE_DWORD			GetPageIndex() { return m_lPageIndex; }
 
 private:
+	CHE_PDF_Page( HE_DWORD pageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc );
 
 	HE_DWORD			m_lPageIndex;
 

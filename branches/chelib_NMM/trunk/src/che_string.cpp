@@ -3,16 +3,6 @@
 #include <cwchar>
 #include <memory.h>
 
-CHE_ByteString::CHE_ByteString()
-{
-	m_lpData = NULL;
-}
-
-CHE_ByteString::~CHE_ByteString()
-{
-	Clear();
-}
-
 CHE_ByteString::CHE_ByteString( HE_CHAR ch )
 {
 	if ( ch == '\0' )
@@ -425,7 +415,6 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 			m_lpData->m_lpString = new HE_CHAR[2];
 			m_lpData->m_lpString[0] = ch;
 			m_lpData->m_lpString[1] = '\0';
-			
 			return *this;
 		}
 		
@@ -489,7 +478,6 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_LPCSTR lpStr )
 			strcpy( m_lpData->m_lpString, lpStr );
 			m_lpData->m_dwLength = dwStrlen;
 			m_lpData->m_dwRef = 1;
-			
 			return *this;
 		}
 		
@@ -756,17 +744,6 @@ bool operator!=( HE_LPCSTR lpStr, const CHE_ByteString& str )
 	return ( str != lpStr );
 }
 
-
-
-CHE_WideString::CHE_WideString()
-{
-	m_lpData = NULL;
-}
-
-CHE_WideString::~CHE_WideString()
-{
-	Clear();
-}
 
 CHE_WideString::CHE_WideString( HE_WCHAR wch )
 {

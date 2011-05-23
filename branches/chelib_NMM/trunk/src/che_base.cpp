@@ -3,34 +3,12 @@
 #include <cstdio>
 #include <memory.h>
 
-
-// HE_VOID* CHE_Object::operator new( size_t size )
-// {
-// 	return malloc( size );
-// }
-// 
-// HE_VOID CHE_Object::operator delete( HE_VOID* p )
-// {
-// 	free( p );
-// }
-// 
-// HE_VOID* CHE_Object::operator new( size_t size, HE_LPCSTR lpszFileName, HE_INT32 nLine )
-// {
-// 	return malloc( size );
-// }
-// 
-// 
-// HE_VOID CHE_Object::operator delete( HE_VOID* p, HE_LPCSTR lpszFileName, HE_INT32 nLine )
-// {
-// 	free( p );
-// }
-
 class IHE_CrtFileWrite: public IHE_Write
 {
 public:
 	IHE_CrtFileWrite( HE_LPCSTR filename );
 
-	~IHE_CrtFileWrite();
+	virtual ~IHE_CrtFileWrite();
 
 	virtual HE_DWORD	GetSize();
 
@@ -139,7 +117,7 @@ class IHE_MemBufRead : public IHE_Read
 public:
 	IHE_MemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize ) { m_lSize = lSize; m_pBuf = pBuf; }
 	
-	~IHE_MemBufRead() {};
+	virtual ~IHE_MemBufRead() {};
 	
 	virtual HE_DWORD	GetSize() { return m_lSize; }
 	
@@ -197,7 +175,7 @@ class IHE_CrtFileReadDefault: public IHE_Read
 public:
 	IHE_CrtFileReadDefault( HE_LPCSTR filename );
 
-	~IHE_CrtFileReadDefault();
+	virtual ~IHE_CrtFileReadDefault();
 
 	virtual HE_DWORD	GetSize();
 
@@ -292,7 +270,7 @@ class IHE_CrtFileReadMemcopy: public IHE_Read
 {
 public:
 	IHE_CrtFileReadMemcopy( HE_LPCSTR filename );
-	~IHE_CrtFileReadMemcopy();
+	virtual ~IHE_CrtFileReadMemcopy();
 	
 	virtual HE_DWORD	GetSize() { return m_lSize; }
 	
@@ -361,7 +339,7 @@ class IHE_CrtFileReadBuffer: public IHE_Read
 public:
 	IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize );
 	
-	~IHE_CrtFileReadBuffer();
+	virtual ~IHE_CrtFileReadBuffer();
 	
 	virtual HE_DWORD	GetSize();
 	
@@ -427,7 +405,6 @@ HE_DWORD IHE_CrtFileReadBuffer::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE
 			m_pBytes = new HE_BYTE[m_dwBufSize];
 			fseek( m_pFile, offset, SEEK_SET );
 			fread( m_pBytes, 1, m_dwBufSize, m_pFile );
-			//memcpy(  )
 		}
 
 		if ( offset < m_dwBufPos || offset > m_dwBufPos + m_dwBufSize  )

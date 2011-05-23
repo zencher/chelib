@@ -196,7 +196,7 @@ public:
 	virtual HE_VOID		Release() = 0;
 };
 
-IHE_Write*	HE_CreateFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator );
+IHE_Write*	HE_CreateFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator = NULL );
 
 HE_VOID		HE_DestoryIHEWrite( IHE_Write * pIHEWrite );
 

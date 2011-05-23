@@ -245,7 +245,7 @@ HE_DWORD CHE_PDF_Stream::ReadRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD 
 	}
 }
 
-CHE_PDF_StreamAcc::CHE_PDF_StreamAcc( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator )
+CHE_PDF_StreamAcc::CHE_PDF_StreamAcc( CHE_Allocator * pAllocator ) : CHE_Object( pAllocator )
 {
 	m_dwSize = 0;
 	m_pData = NULL;

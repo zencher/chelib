@@ -355,7 +355,7 @@ protected:
 class CHE_PDF_StreamAcc : public CHE_Object
 {
 public:
-	CHE_PDF_StreamAcc( CHE_Allocator * pAllocator );
+	CHE_PDF_StreamAcc( CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_StreamAcc();
 	
 	HE_BOOL					Attach( const CHE_PDF_Stream * stream /*, HE_BOOL bRawAccess = FALSE, FX_DWORD estimated_size = 0, FX_BOOL bImageAcc = FALSE*/);

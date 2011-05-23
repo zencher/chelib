@@ -14,7 +14,7 @@ class CHE_PDF_Parser;
 class CHE_PDF_XREF_Entry
 {
 public:
-	CHE_PDF_XREF_Entry( );
+	CHE_PDF_XREF_Entry();
 	CHE_PDF_XREF_Entry( HE_DWORD f1, HE_DWORD f2, HE_DWORD f3, HE_DWORD objNum );
 
 	HE_DWORD field1;

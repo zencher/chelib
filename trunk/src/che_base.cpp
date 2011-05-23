@@ -62,9 +62,9 @@ inline size_t CHE_HeapAllocator::GetSize( void * data )
 class IHE_CrtFileWrite: public IHE_Write
 {
 public:
-	IHE_CrtFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator );
+	IHE_CrtFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator = NULL );
 
-	~IHE_CrtFileWrite();
+	virtual ~IHE_CrtFileWrite();
 
 	virtual HE_DWORD	GetSize();
 
@@ -177,7 +177,7 @@ HE_VOID HE_DestoryIHEWrite( IHE_Write * pIHEWrite )
 class IHE_MemBufRead : public IHE_Read
 {
 public:
-	IHE_MemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize , CHE_Allocator * pAllocator ) : IHE_Read( pAllocator )
+	IHE_MemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize , CHE_Allocator * pAllocator = NULL ) : IHE_Read( pAllocator )
  	{ m_lSize = lSize; m_pBuf = pBuf; }
 	
 	virtual ~IHE_MemBufRead() {};
@@ -241,9 +241,9 @@ IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize, CHE_Allocator * 
 class IHE_CrtFileReadDefault: public IHE_Read
 {
 public:
-	IHE_CrtFileReadDefault( HE_LPCSTR filename, CHE_Allocator * pAllocator );
+	IHE_CrtFileReadDefault( HE_LPCSTR filename, CHE_Allocator * pAllocator = NULL );
 
-	~IHE_CrtFileReadDefault();
+	virtual ~IHE_CrtFileReadDefault();
 
 	virtual HE_DWORD	GetSize();
 
@@ -337,8 +337,8 @@ void IHE_CrtFileReadDefault::Release()
 class IHE_CrtFileReadMemcopy: public IHE_Read
 {
 public:
-	IHE_CrtFileReadMemcopy( HE_LPCSTR filename, CHE_Allocator * pAllocator );
-	~IHE_CrtFileReadMemcopy();
+	IHE_CrtFileReadMemcopy( HE_LPCSTR filename, CHE_Allocator * pAllocator = NULL );
+	virtual ~IHE_CrtFileReadMemcopy();
 	
 	virtual HE_DWORD	GetSize() { return m_lSize; }
 	
@@ -405,9 +405,9 @@ HE_BYTE IHE_CrtFileReadMemcopy::ReadByte( HE_DWORD offset )
 class IHE_CrtFileReadBuffer: public IHE_Read
 {
 public:
-	IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize, CHE_Allocator * pAllocator );
+	IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize, CHE_Allocator * pAllocator = NULL );
 	
-	~IHE_CrtFileReadBuffer();
+	virtual ~IHE_CrtFileReadBuffer();
 	
 	virtual HE_DWORD	GetSize();
 	
@@ -511,7 +511,7 @@ IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode, HE_DWORD param, C
 		pTmpAllocator = pAllocator;
 	}
 	if ( filename != NULL )
-	{s
+	{
 		switch ( mode )
 		{
 		case FILEREAD_MODE_DEFAULT:

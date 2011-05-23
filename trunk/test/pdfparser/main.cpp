@@ -1,7 +1,6 @@
-#include <stdio.h>
-#include "../../include/pdf/CHE_PDF_Parser.h"
+#include <cstdio>
 
-#include <windows.h>
+#include "../../include/pdf/CHE_PDF_Parser.h"
 
 int main( int argc, char **argv )
 {
@@ -24,21 +23,31 @@ int main( int argc, char **argv )
 
 	CHE_PDF_Parser parser;
 	parser.StartParse( pFileRead );
-
+	if ( parser.GetPDFVersion() == 0 )
+	{
+		parser.CloseParser();
+		printf( "not a pdf file!\n" );
+		return 0;
+	}
 	printf( "pdf version : %d\n", parser.GetPDFVersion() );
 	printf( "xref : %d\n", parser.GetStartxrefOffset( 1024 ) );
-	unsigned int tickBegin = GetTickCount();
-	unsigned int tickEnd = 0;
-	printf( "parse xref table start : %d\n", tickBegin );
 	parser.ParseXRef();
-	parser.VerifyXRef();
-	tickEnd = GetTickCount();
-	printf( "parse xref table stop : %d\n", tickEnd );
-	printf( "time spend : %d\n", tickEnd - tickBegin );
 	printf( "page count : %d\n\n", parser.GetPageCount() );
 
+	CHE_PDF_IndirectObject * pInObj = parser.GetIndirectObject( 104 );
+	if ( pInObj )
+	{
+ 		CHE_PDF_Stream * pObj = pInObj->GetStream();
+ 		IHE_Write * pIWrite = HE_CreateFileWrite( "c:\\ToUnicode.txt" );
+ 		CHE_PDF_StreamAcc strAcc;
+ 		strAcc.Attach( pObj );
+ 		pIWrite->WriteBlock( (HE_LPVOID)strAcc.GetData(), strAcc.GetSize() );
+ 		pIWrite->Release();
+ 		strAcc.Detach();
+	}   
+
 	parser.CloseParser();
-	pFileRead->Release();
+	HE_DestoryIHERead( pFileRead );
 
 	return 0;
 }

@@ -1,19 +1,20 @@
 #include <cstdio>
+#include "../../include/che_datastructure.h"
 #include "../../include/pdf/che_pdf_pages.h"
-#include "../../include/che_dynbuffer.h"
 #include "../../include/pdf/che_pdf_renderer.h"
 #include "../../include/pdf/che_pdf_text.h"
 
 int main( int argc, char **argv )
 {
 	CHE_DefCrtAllocator allocator;
+	CHE_Allocator * pAllocator = &allocator;
 	if ( argc < 2 )
 	{
 		printf( "no param!\n" );
 		return 0;
 	}
 	
-	IHE_Read * pFileRead = HE_CreateFileRead( argv[1], FILEREAD_MODE_DEFAULT, 4096, &allocator );
+	IHE_Read * pFileRead = HE_CreateFileRead( argv[1], FILEREAD_MODE_DEFAULT, 4096, pAllocator );
 	//IHE_Read * pFileRead = HE_CreateFileRead( argv[1], FILEREAD_MODE_MEMCOPY );
 	if ( pFileRead == NULL )
 	{
@@ -25,21 +26,21 @@ int main( int argc, char **argv )
 	}
 
 	try{
-		CHE_PDF_Document doc( NULL );
+		CHE_PDF_Document doc( pAllocator );
 		doc.Load( pFileRead );
 		HE_DWORD lPageCount = doc.GetPageCount();
 		printf( "page count : %ld\n", lPageCount );
 		CHE_PDF_Page * pTmpPage = NULL;
 		char tmpStr[1024];
 		sprintf( tmpStr, "%s.text.txt", argv[1] );
-		IHE_Write * pWriteText = HE_CreateFileWrite( tmpStr, &allocator );
+		IHE_Write * pWriteText = HE_CreateFileWrite( tmpStr, pAllocator );
 		HE_BYTE pTmp[2] = { 0xFF, 0xFE }; //UTF-16LE BOM
 		if ( pWriteText )
 		{
 			pWriteText->WriteBlock( pTmp, 2 );
 		}
 		sprintf( tmpStr, "%s.content.txt", argv[1] );
-		IHE_Write * pWriteContent = HE_CreateFileWrite( tmpStr, &allocator );
+		IHE_Write * pWriteContent = HE_CreateFileWrite( tmpStr, pAllocator );
 		for ( HE_DWORD i = 0; i < doc.GetPageCount(); i++ )
 		{
 			pTmpPage = doc.GetPage( i );
@@ -48,7 +49,7 @@ int main( int argc, char **argv )
 				printf( "page index : %ld Error, Can not get the page!\n", i+1 );
 				continue;
 			}
-			CHE_DynBuffer buffer( 4096, 4096, NULL );
+			CHE_DynBuffer buffer( 4096, 4096, pAllocator );
 			pTmpPage->GetPageContent( buffer );
 			HE_BYTE * pData = new HE_BYTE[buffer.GetByteCount()];
 			buffer.Read( pData,  buffer.GetByteCount() );
@@ -56,8 +57,9 @@ int main( int argc, char **argv )
 			{
 				pWriteContent->WriteBlock( pData, buffer.GetByteCount() );
 			}
-			CHE_PDF_TextExtractor textExtractor( NULL );
-			CHE_DynWideByteBuffer buf( 4096, 4096, NULL );
+			delete [] pData;
+			CHE_PDF_TextExtractor textExtractor( pAllocator );
+			CHE_DynWideByteBuffer buf( 4096, 4096, pAllocator );
 			HE_DWORD lcount = textExtractor.Extract( pTmpPage, buf );
 			if ( pWriteText )
 			{
@@ -80,7 +82,7 @@ int main( int argc, char **argv )
 				printf( "page index : %ld ", i+1 );
 				printf( "page width : %.2f ", pTmpPage->GetPageWidth() );
 				printf( "page height : %.2f\n", pTmpPage->GetPageHeight() );
-				delete pTmpPage;
+				pTmpPage->GetAllocator()->Delete( pTmpPage );
 			}
 		}
 		doc.Unload();

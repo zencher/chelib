@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../build/debug/chelib.lib ../../extlib/freetype/debug/freetype.lib ../../extlib/zlib/debug/zlib.lib"
+				AdditionalDependencies="../../build/debug/win32_vc8/chelib.lib ../../extlib/freetype/debug/freetype.lib ../../extlib/zlib/debug/zlib.lib"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames="LIBCD.lib"
 				GenerateDebugInformation="true"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../../build/release/chelib.lib ../../extlib/freetype/release/freetype.lib ../../extlib/zlib/release/zlib.lib"
+				AdditionalDependencies="../../build/release/win32_vc8/chelib.lib ../../extlib/freetype/release/freetype.lib ../../extlib/zlib/release/zlib.lib"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="LIBC.lib"
 				GenerateDebugInformation="true"

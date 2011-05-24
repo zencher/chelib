@@ -38,11 +38,11 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 		switch ( wordDes.type )
 		{
 		case PDFPARSER_WORD_INTEGER:
-			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0 );
+			pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetInteger(), 0, 0 );
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_FLOAT:
-			pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0 );
+			pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetFloat(), 0, 0 );
 			OpdStack.Push( pTmpNode );
 			break;
 		case PDFPARSER_WORD_NAME:

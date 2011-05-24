@@ -41,6 +41,8 @@ public:
 
 	CHE_PDF_Page*				GetPage( HE_DWORD iPageIndex );
 
+	HE_VOID						ClosePage( CHE_PDF_Page * pPage );
+
 	HE_DWORD					GetPageIndex( HE_DWORD objnum );
 
 	HE_BOOL						IsEncrypted();

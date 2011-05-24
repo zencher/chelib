@@ -26,9 +26,6 @@ public:
 	HE_DWORD		offset;
 };
 
-HE_INT32 HE_PDF_StringToInteger( CHE_ByteString & str );
-HE_FLOAT HE_PDF_StringToFloat( CHE_ByteString & str );
-
 class IHE_PDF_GetInObj : public CHE_Object
 {
 public:

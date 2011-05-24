@@ -11077,7 +11077,7 @@ CHE_PDF_Font::~CHE_PDF_Font()
 {
 	if ( m_pUnicodeTable != NULL && m_pUnicodeTable != gMacExpertEncoding && m_pUnicodeTable != gMacRomanEncoding 
 			&& m_pUnicodeTable != gPdfDocEncoding && m_pUnicodeTable != gStandardEncoding
-			&& m_pUnicodeTable != gWinAnsiEncoding )
+			&& m_pUnicodeTable != gWinAnsiEncoding && m_pUnicodeTable != gGBKToUnicode )
 	{
 		GetAllocator()->DeleteArray<HE_WCHAR>( m_pUnicodeTable );
 		m_pUnicodeTable = NULL;
@@ -11124,7 +11124,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 	{
 		if ( wordDes.type == PDFPARSER_WORD_INTEGER )
 		{
-			HE_DWORD lCount = HE_PDF_StringToInteger( wordDes.str );
+			HE_DWORD lCount = wordDes.str.GetInteger();
 			if ( parser.GetWord( wordDes ) == FALSE )
 			{
 				break;

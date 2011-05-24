@@ -4,133 +4,6 @@
 #include <cstring>
 //#include <cstdio>
 
-HE_INT32 HE_PDF_StringToInteger( CHE_ByteString & str )
-{
-	if ( str.GetLength() == 0 )
-	{
-		return 0;
-	}else{
-		HE_BOOL bBegin = TRUE;
-		HE_BOOL	bNegative = FALSE;
-		HE_INT32 iValue = 0;
-		HE_BOOL bPoint = FALSE;
-		HE_BOOL bSign = FALSE;
-		for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
-		{
-			if ( bBegin && i > 0 )
-			{
-				bBegin = FALSE;
-			}
-			switch( str[i] )
-			{
-			case '+':
-				if ( bSign == FALSE && bBegin == TRUE )
-				{
-					bSign = TRUE;
-					bNegative = FALSE;
-				}else{
-					return 0;
-				}
-				break;
-			case '-':
-				if ( bSign == FALSE && bBegin == TRUE )
-				{
-					bSign = TRUE;
-					bNegative = TRUE;
-				}else{
-					return 0;
-				}
-				break;
-			default:
-				if ( '0' > str[i] || str[i] > '9' )
-				{
-					return 0;
-				}else{
-					iValue = iValue * 10 + ( str[i] - '0' ); 
-				}
-				break;
-			}
-		}
-		if( bNegative == TRUE )
-		{
-			return 0 - iValue;
-		}else{
-			return iValue;
-		}
-	}
-}
-
-HE_FLOAT HE_PDF_StringToFloat( CHE_ByteString & str )
-{
-	if ( str.GetLength() == 0 )
-	{
-		return 0;
-	}else{
-		HE_BOOL	bNegative = FALSE;
-		HE_BOOL bBegin = TRUE;
-		HE_DWORD lPointBit = 1;
-		HE_FLOAT fValue = 0;
-		HE_BOOL bPoint = FALSE;
-		HE_BOOL bSign = FALSE;
-		for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
-		{
-			if ( bBegin && i > 0 )
-			{
-				bBegin = FALSE;
-			}
-			switch( str[i] )
-			{
-			case '+':
-				if ( bSign == FALSE && bBegin == TRUE )
-				{
-					bSign = TRUE;
-					bNegative = FALSE;
-				}else{
-					return 0;
-				}
-				break;
-			case '-':
-				if ( bSign == FALSE && bBegin == TRUE )
-				{
-					bSign = TRUE;
-					bNegative = TRUE;
-				}else{
-					return 0;
-				}
-				break;
-			case '.':
-				if ( bPoint == FALSE )
-				{
-					bPoint = TRUE;
-				}else{
-					return 0;
-				}
-				break;
-			default:
-				if ( '0' > str[i] || str[i] > '9' )
-				{
-					return 0;
-				}else{
-					if ( bPoint == FALSE )
-					{
-						fValue = fValue * 10 + ( str[i] - '0' );
-					}else{
-						fValue = fValue + ( str[i] - '0' ) / ( lPointBit * 10 );
-						lPointBit++;
-					}
-				}
-				break;
-			}
-		}
-		if ( bNegative == TRUE )
-		{
-			return 0 - fValue;
-		}else{
-			return fValue;
-		}
-	}
-}
-
 class IHE_DefaultGetPDFInObj : public IHE_PDF_GetInObj
 {
 public:
@@ -1133,7 +1006,7 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 			if ( wordDes.type == PDFPARSER_WORD_INTEGER )	//整数和引用
 			{
 				HE_DWORD objNum = 0, genNum = 0;
-				objNum = HE_PDF_StringToInteger( wordDes.str );
+				objNum = wordDes.str.GetInteger();
 
 				HE_DWORD lPos = GetPos();
 				if ( !GetWord( wordDes ) )
@@ -1142,7 +1015,7 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 				}
 				if ( wordDes.type == PDFPARSER_WORD_INTEGER )
 				{
-					genNum = HE_PDF_StringToInteger( wordDes.str );
+					genNum = wordDes.str.GetInteger();
 					if ( !GetWord( wordDes ) )
 					{
 						return NULL;
@@ -1181,9 +1054,9 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 			{
 				if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 				{
-					((CHE_PDF_Dictionary*)pCurObj)->SetAtFloatNumber( key, HE_PDF_StringToFloat( wordDes.str ) );
+					((CHE_PDF_Dictionary*)pCurObj)->SetAtFloatNumber( key, wordDes.str.GetFloat() );
 				}else{
-					CHE_PDF_Number * pTmp = CHE_PDF_Number::Create( HE_PDF_StringToFloat( wordDes.str ), m_dwCurObjNum, m_dwCurGenNum, GetAllocator() );
+					CHE_PDF_Number * pTmp = CHE_PDF_Number::Create( wordDes.str.GetFloat(), m_dwCurObjNum, m_dwCurGenNum, GetAllocator() );
 					((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 				}
 			}else if ( wordDes.type == PDFPARSER_WORD_STRING )	//字符串
@@ -1335,13 +1208,13 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 			if ( wordDes.type == PDFPARSER_WORD_INTEGER )	//整数和引用
 			{
 				HE_DWORD objNum = 0, genNum = 0;
-				objNum = HE_PDF_StringToInteger( wordDes.str );
+				objNum = wordDes.str.GetInteger();
 
 				HE_DWORD lPos = GetPos();
 				GetWord( wordDes );
 				if ( wordDes.type == PDFPARSER_WORD_INTEGER )
 				{
-					genNum = HE_PDF_StringToInteger( wordDes.str );
+					genNum = wordDes.str.GetInteger();
 					GetWord( wordDes );
 					if ( wordDes.str == "R" )
 					{
@@ -1376,9 +1249,9 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 			{
 				if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 				{
-					((CHE_PDF_Dictionary*)pCurObj)->SetAtFloatNumber( wordDesKey.str, HE_PDF_StringToFloat( wordDes.str ) );
+					((CHE_PDF_Dictionary*)pCurObj)->SetAtFloatNumber( wordDesKey.str, wordDes.str.GetFloat() );
 				}else{
-					CHE_PDF_Number * pTmp = CHE_PDF_Number::Create( HE_PDF_StringToFloat( wordDes.str ), m_dwCurObjNum, m_dwCurGenNum, GetAllocator() );
+					CHE_PDF_Number * pTmp = CHE_PDF_Number::Create( wordDes.str.GetFloat(), m_dwCurObjNum, m_dwCurGenNum, GetAllocator() );
 					((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 				}
 			}else if ( wordDes.type == PDFPARSER_WORD_STRING )	//字符串
@@ -1655,7 +1528,7 @@ HE_DWORD CHE_PDF_Parser::FullParseForXRef()	//分析整个文件来获取对象信息 // 还需
 				m_sParser.SetPos( offset );
 				continue;
 			}
-			objNum = HE_PDF_StringToInteger( wordDes.str );
+			objNum = wordDes.str.GetInteger();
 			m_sParser.GetWord( wordDes );
 			if ( wordDes.type != PDFPARSER_WORD_INTEGER )
 			{
@@ -1751,14 +1624,14 @@ HE_DWORD CHE_PDF_Parser::ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** 
 		}
 		if( wordDes.type == PDFPARSER_WORD_INTEGER )
 		{
-			lBeginNum = HE_PDF_StringToInteger( wordDes.str );
+			lBeginNum = wordDes.str.GetInteger();
 		}else{
 			break;
 		}
 		if ( m_sParser.GetWord( wordDes ) == FALSE ) break;
 		if( wordDes.type == PDFPARSER_WORD_INTEGER )
 		{
-			lCount = HE_PDF_StringToInteger( wordDes.str );
+			lCount = wordDes.str.GetInteger();
 		}else{
 			break;
 		}
@@ -1973,7 +1846,7 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 					m_sParser.SetPos( offsetSave );
 					if ( wordDes.type != PDFPARSER_WORD_INTEGER ||
 						( wordDes.type == PDFPARSER_WORD_INTEGER && 
-						HE_PDF_StringToInteger( wordDes.str ) != (HE_INT32)(lBeginNum + xrefEntryCount) )  )
+						 wordDes.str.GetInteger() != (HE_INT32)(lBeginNum + xrefEntryCount) )  )
 					{
 						break;
 					}
@@ -2498,7 +2371,7 @@ HE_VOID	CHE_PDF_Parser::VerifyObjInStm()
 						}
 						if ( wordDes.type == PDFPARSER_WORD_INTEGER )
 						{
-							HE_DWORD iObjNum = HE_PDF_StringToInteger( wordDes.str );
+							HE_DWORD iObjNum = wordDes.str.GetInteger();
 							m_xrefTable.m_pFastAccessArr[iObjNum]->entry.field2 = objNum;
 							m_xrefTable.m_pFastAccessArr[iObjNum]->entry.field3 = i;
 						}
@@ -2755,14 +2628,14 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 	m_sParser.GetWord( wordDes );
 	if ( wordDes.type == PDFPARSER_WORD_INTEGER )
 	{
-		objNum = HE_PDF_StringToInteger( wordDes.str );
+		objNum = wordDes.str.GetInteger();
 	}else{
 		return NULL;
 	}
 	m_sParser.GetWord( wordDes );
 	if ( wordDes.type == PDFPARSER_WORD_INTEGER )
 	{
-		genNum = HE_PDF_StringToInteger( wordDes.str );
+		genNum = wordDes.str.GetInteger();
 	}else{
 		return NULL;
 	}
@@ -2880,10 +2753,10 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObject()
 		}
 	}else if ( wordDes.type == PDFPARSER_WORD_FLOAT )
 	{
-		pCurObj = CHE_PDF_Number::Create( HE_PDF_StringToFloat( wordDes.str ), objNum, genNum, GetAllocator() );
+		pCurObj = CHE_PDF_Number::Create( wordDes.str.GetFloat(), objNum, genNum, GetAllocator() );
 	}else if ( wordDes.type == PDFPARSER_WORD_INTEGER )
 	{
-		HE_DWORD refNum = HE_PDF_StringToInteger( wordDes.str );
+		HE_DWORD refNum = wordDes.str.GetInteger();
 		HE_DWORD pos = m_sParser.GetPos();
 		m_sParser.GetWord( wordDes );
 		if ( wordDes.type == PDFPARSER_WORD_INTEGER )
@@ -3046,7 +2919,7 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObjectInObjStm( HE_DWORD stm
 					{
 						offset = sParser.GetPos();
 
-						objNumTmp = HE_PDF_StringToInteger( wordDes.str );
+						objNumTmp = wordDes.str.GetInteger();
 
 						sParser.GetWord( wordDes );
 						if ( wordDes.type != PDFPARSER_WORD_INTEGER )
@@ -3054,7 +2927,7 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObjectInObjStm( HE_DWORD stm
 							sParser.SetPos( offset );
 							continue;
 						}
-						first += HE_PDF_StringToInteger( wordDes.str );
+						first += wordDes.str.GetInteger();
 						if ( objNumTmp == objNum )
 						{
 							sParser.SetPos( first );
@@ -3067,10 +2940,10 @@ CHE_PDF_IndirectObject * CHE_PDF_Parser::GetIndirectObjectInObjStm( HE_DWORD stm
 								pCurObj = sParser.GetDictionary();
 							}else if ( wordDes.type == PDFPARSER_WORD_FLOAT )
 							{
-								pCurObj = CHE_PDF_Number::Create( HE_PDF_StringToFloat( wordDes.str ), objNum, 0, GetAllocator() );
+								pCurObj = CHE_PDF_Number::Create( wordDes.str.GetInteger(), objNum, 0, GetAllocator() );
 							}else if ( wordDes.type == PDFPARSER_WORD_INTEGER )
 							{
-								HE_DWORD refNum = HE_PDF_StringToInteger( wordDes.str );
+								HE_DWORD refNum = wordDes.str.GetInteger();
 								HE_DWORD pos = sParser.GetPos();
 								sParser.GetWord( wordDes );
 								if ( wordDes.type == PDFPARSER_WORD_INTEGER )

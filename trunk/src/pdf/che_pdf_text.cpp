@@ -104,11 +104,11 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			switch ( wordDes.type )
 			{
 			case PDFPARSER_WORD_INTEGER:
-				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0, GetAllocator() );
+				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetInteger(), 0, 0, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_FLOAT:
-				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0, GetAllocator() );
+				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetFloat(), 0, 0, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PDFPARSER_WORD_NAME:

@@ -47,6 +47,10 @@ public:
 	HE_CHAR operator[]( HE_DWORD index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
 													//的值，实际上，临时变量是const，根本不能被赋值。
 
+	HE_INT32 GetInteger() const;
+
+	HE_FLOAT GetFloat() const;
+
 	//如下能够前后颠倒的操作，还需要在全局的空间里面定义全局的函数。
 	CHE_ByteString operator+( HE_CHAR ch );
 	CHE_ByteString operator+( HE_LPCSTR lpStr );
@@ -127,6 +131,10 @@ public:
 	
 	HE_WCHAR operator[]( HE_DWORD index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
 	//的值，实际上，临时变量是const，根本不能被赋值。
+
+	HE_INT32 GetInteger() const;
+
+	HE_FLOAT GetFloat() const;
 	
 	//如下能够前后颠倒的操作，还需要在全局的空间里面定义全局的函数。
 	CHE_WideString operator+( const CHE_WideString& wstr );

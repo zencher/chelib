@@ -75,6 +75,19 @@ CHE_PDF_Document::~CHE_PDF_Document()
 		m_pParser->CloseParser();
 		GetAllocator()->Delete<CHE_PDF_Parser>( m_pParser );
 	}
+	if ( m_FontMap.GetCount() > 0 )
+	{
+		CHE_PDF_Font * pTmpFont = NULL;
+		for ( HE_DWORD i = 0; i < m_FontMap.GetCount(); i++ )
+		{
+			pTmpFont = (CHE_PDF_Font*)m_FontMap.GetItemByIndex( i );
+			if ( pTmpFont )
+			{
+				GetAllocator()->Delete<CHE_PDF_Font>( pTmpFont );
+			}
+		}
+		m_FontMap.Clear();
+	}
 }
 
 HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
@@ -170,6 +183,14 @@ CHE_PDF_Page* CHE_PDF_Document::GetPage( HE_DWORD iPageIndex )
 	pPageObj = ((CHE_PDF_IndirectObject*)pPageObj)->GetObject();
 	CHE_PDF_Page * pPage = GetAllocator()->New<CHE_PDF_Page>( iPageIndex, (CHE_PDF_Dictionary*)pPageObj, this, GetAllocator() );
 	return pPage;
+}
+
+HE_VOID	CHE_PDF_Document::ClosePage( CHE_PDF_Page * pPage )
+{
+	if ( pPage )
+	{
+		GetAllocator()->Delete<CHE_PDF_Page>( pPage );
+	}
 }
 
 HE_BOOL CHE_PDF_Document::IsEncrypted()

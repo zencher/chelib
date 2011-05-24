@@ -22,7 +22,7 @@ class CHE_PDF_Document : public CHE_Object
 {
 public:
 	CHE_PDF_Document( CHE_Allocator * pAllocator = NULL );
-	CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAllocator );
+	CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_Document();
 
 	HE_BOOL						Load( IHE_Read * pFileRead );
@@ -42,6 +42,8 @@ public:
 	HE_DWORD					GetPageCount() const;
 
 	CHE_PDF_Page*				GetPage( HE_DWORD iPageIndex );
+
+	HE_VOID						ClosePage( CHE_PDF_Page * pPage );
 
 	HE_DWORD					GetPageIndex( HE_DWORD objnum );
 

@@ -5,6 +5,7 @@
 #include "../che_datastructure.h"
 #include "che_pdf_parser.h"
 #include "che_pdf_font.h"
+#include "che_pdf_pageobjs.h"
 
 class CHE_PDF_Page;
 
@@ -86,6 +87,12 @@ public:
 
 	HE_DWORD			GetPageIndex() { return m_lPageIndex; }
 
+	HE_DWORD			ParseContent();
+
+	HE_DWORD			GetContentObjectCount() { return m_arrContentObj.GetCount(); }
+
+	CHE_PDF_ContentObject *	GetContentObject( HE_DWORD index ) { return (CHE_PDF_ContentObject*)m_arrContentObj.GetItem( index );  }
+
 private:
 	CHE_PDF_Page( HE_DWORD pageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc, CHE_Allocator * pAllocator = NULL );
 
@@ -96,6 +103,8 @@ private:
 
 	CHE_PDF_Dictionary* m_pPageObj;
 	CHE_PDF_Document*	m_pDoc;
+
+	CHE_PtrArray		m_arrContentObj;
 	
 	friend class		CHE_PDF_Document;
 	friend class		CHE_Allocator;

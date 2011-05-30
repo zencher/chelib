@@ -75,7 +75,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 	if ( sParser.InitParser( pContentRead ) == FALSE )
 	{
 		pContentRead->Release();
-		GetAllocator()->Delete<IHE_Read>( pContentRead );
+		HE_DestoryIHERead( pContentRead );
 		return 0;
 	}
 

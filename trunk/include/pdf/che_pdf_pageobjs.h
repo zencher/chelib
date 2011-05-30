@@ -1,0 +1,250 @@
+#ifndef _CHE_PDF_PAGEOBJS_H_
+#define _CHE_PDF_PAGEOBJS_H_
+
+#include "../che_base.h"
+#include "../che_datastructure.h"
+#include "../che_graphics.h"
+#include "che_pdf_objects.h"
+
+
+#define CONTENTOBJ_INVALID	0
+#define CONTENTOBJ_TEXT		1
+#define CONTENTOBJ_PATH		2
+
+class CHE_PDF_GraphState : public CHE_Object
+{
+public:
+	CHE_PDF_GraphState( CHE_Allocator * pAllocator ) : CHE_Object( pAllocator )
+	{
+		m_MatrixA = 1; m_MatrixB = 0; m_MatrixC = 0; m_MatrixD = 1; m_MatrixE = 0; m_MatrixF = 0;
+		m_LineWidth = 1; m_LineCap = 0; m_LineJoin = 0; m_MiterLimit = 10;
+		m_DashArraySize = 0; m_DashArray = NULL; m_DashPhase = 0;
+	}
+
+	~CHE_PDF_GraphState()
+	{
+		if ( m_DashArray )
+		{
+			GetAllocator()->DeleteArray<HE_FLOAT>( m_DashArray );
+			m_DashArray = NULL;
+		}
+	}
+
+	CHE_PDF_GraphState * Clone()
+	{
+		CHE_PDF_GraphState * pTmp = GetAllocator()->New<CHE_PDF_GraphState>( GetAllocator() );
+		memcpy( pTmp, this, sizeof( CHE_PDF_GraphState ) );
+		return pTmp;
+	}
+
+	HE_VOID SetMatrix( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT d, HE_FLOAT e, HE_FLOAT f )
+	{
+		m_MatrixA = a;
+		m_MatrixB = b;
+		m_MatrixC = c;
+		m_MatrixD = d;
+		m_MatrixE = e;
+		m_MatrixF = f;
+	}
+
+	HE_FLOAT	m_MatrixA;
+	HE_FLOAT	m_MatrixB;
+	HE_FLOAT	m_MatrixC;
+	HE_FLOAT	m_MatrixD;
+	HE_FLOAT	m_MatrixE;
+	HE_FLOAT	m_MatrixF;
+	HE_FLOAT	m_LineWidth;
+	HE_BYTE		m_LineCap;		//0, 1, 2
+	HE_BYTE		m_LineJoin;		//0, 1, 2
+	HE_FLOAT	m_MiterLimit;	//def: 10.0
+
+	HE_VOID		SetDashArray( HE_DWORD size, HE_FLOAT* pArray, HE_FLOAT dashPhase )
+	{
+		if ( size == 0 || pArray == NULL )
+		{
+			return;
+		}else{
+			m_DashPhase = dashPhase;
+			m_DashArraySize = size;
+			m_DashArray = GetAllocator()->NewArray<HE_FLOAT>( m_DashArraySize );
+			memcpy( m_DashArray, pArray, m_DashArraySize * sizeof( HE_FLOAT ) );
+		}
+	}
+	HE_DWORD	GetDashArraySize() { return m_DashArraySize; }
+	HE_FLOAT*	GetDashArray() { return m_DashArray; }
+	HE_FLOAT	GetDashPhase() { return m_DashPhase; }
+
+private:
+	HE_DWORD	m_DashArraySize;
+	HE_FLOAT*	m_DashArray;
+	HE_FLOAT	m_DashPhase;
+// 	HE_DWORD	m_Intent;
+// 	HE_DWORD	m_Flatness;
+};
+
+class CHE_PDF_TextObject;
+class CHE_PDF_PathObject;
+
+class CHE_PDF_ContentObject : public CHE_Object
+{
+public:
+	CHE_PDF_ContentObject( HE_BYTE type = CONTENTOBJ_INVALID, CHE_PDF_GraphState * pGraphState = NULL, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator )
+	{ m_Type = type; m_pGraphState = pGraphState; }
+
+	virtual ~CHE_PDF_ContentObject()
+	{
+		if( m_pGraphState )
+		{
+			m_pGraphState->GetAllocator()->Delete<CHE_PDF_GraphState>( m_pGraphState ); 
+		}
+	}
+
+	HE_BYTE GetType() { return m_Type; }
+
+	CHE_PDF_GraphState * GetGraphState() { return m_pGraphState; }
+
+	HE_VOID Release();
+
+private:
+	HE_BYTE m_Type;
+
+	CHE_PDF_GraphState *	m_pGraphState;
+};
+
+
+class CHE_PDF_TextObjectItem;
+
+class CHE_PDF_TextObject : public CHE_PDF_ContentObject
+{
+public:
+	static CHE_PDF_TextObject* Create( CHE_Allocator * pAllocator = NULL )
+	{
+		if ( pAllocator )
+		{
+			return pAllocator->New<CHE_PDF_TextObject>( pAllocator );
+		}else{
+			return new CHE_PDF_TextObject( NULL );
+		}
+	}
+
+	HE_BOOL AppendItem( CHE_PDF_TextObjectItem * pItem );
+
+	CHE_PDF_TextObjectItem * GetItem( HE_DWORD index )
+	{
+		return (CHE_PDF_TextObjectItem*)m_arrTextItem.GetItem( index );
+	}
+
+	HE_DWORD GetItemCount() { return m_arrTextItem.GetCount(); }
+
+	HE_VOID Clear();
+
+private:
+	CHE_PDF_TextObject( CHE_Allocator * pAllocator ) : CHE_PDF_ContentObject( CONTENTOBJ_TEXT, NULL, pAllocator ), m_arrTextItem( pAllocator ) {}
+	~CHE_PDF_TextObject() { Clear(); }
+
+	CHE_PtrArray	m_arrTextItem;
+
+	friend class CHE_PDF_ContentObject;
+	friend class CHE_Allocator;
+};
+
+class CHE_PDF_TextObjectItem : public CHE_Object
+{
+public:
+	CHE_PDF_TextObjectItem( CHE_Allocator * pAllocator );
+	~CHE_PDF_TextObjectItem();
+
+	HE_VOID SetPosi( HE_DWORD dwX, HE_DWORD dwY ) { m_dwPosiX = dwX; m_dwPosiY = dwY; }
+	HE_VOID SetCharSpace( HE_FLOAT cs ) { m_fCharSpace = cs; }
+	HE_VOID SetWordSpace( HE_FLOAT ws ) { m_fWordSpace = ws; }
+	HE_VOID SetScale( HE_DWORD scale ) { m_dwScale = scale; }
+	HE_VOID SetLeading( HE_FLOAT leading ) { m_fLeading = leading; }
+	HE_VOID SetFontObj( HE_DWORD objNum ) { m_dwFontObjNum = objNum; }
+	HE_VOID SetSize( HE_DWORD size ) { m_dwSize = size; }
+	HE_VOID SetRender( HE_BYTE render ) { m_byteRender = render; }
+	HE_VOID SetRise( HE_DWORD rise ) { m_dwRise = rise; }
+	HE_VOID SetKnockout( HE_BOOL knockout ) { m_bKnockout = knockout; }
+	HE_VOID SetMatrix( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT d, HE_FLOAT e, HE_FLOAT f )
+	{
+		m_fMatrixA = a; m_fMatrixB = b; m_fMatrixC = c; m_fMatrixD = d; m_fMatrixE = e; m_fMatrixF = f;
+	}
+	HE_VOID SetText( CHE_PDF_Object * pObj ) { m_pText = pObj; }
+
+	HE_FLOAT GetLeading() { return m_fLeading; }
+
+private:
+	HE_DWORD	m_dwPosiX;
+	HE_DWORD	m_dwPosiY;
+	HE_FLOAT	m_fCharSpace;	//def: 0
+	HE_FLOAT	m_fWordSpace;	//def: 0
+	HE_DWORD	m_dwScale;		//def: 100
+	HE_FLOAT	m_fLeading;		//def: 0
+	HE_DWORD	m_dwFontObjNum;
+	HE_DWORD	m_dwSize;
+	HE_BYTE		m_byteRender;	//0 - 7
+	HE_DWORD	m_dwRise;		//0
+	HE_BOOL		m_bKnockout;	//def: false
+	HE_FLOAT	m_fMatrixA;		//def: 1
+	HE_FLOAT	m_fMatrixB;		//def: 0
+	HE_FLOAT	m_fMatrixC;		//def: 0
+	HE_FLOAT	m_fMatrixD;		//def: 1
+	HE_FLOAT	m_fMatrixE;		//def: 0
+	HE_FLOAT	m_fMatrixF;		//def: 0
+	CHE_PDF_Object *	m_pText;	//string or array
+
+	friend class CHE_PDF_TextObject;
+};
+
+
+#define PATH_OPERATOR_STROKE		0x01
+#define PATH_OPERATOR_FILL			0x10
+#define PATH_OPERATOR_FILLSTROKE	0x11
+
+#define PATH_FILL_MODE_NOZERO		0x00
+#define PATH_FILL_MODE_EVERODD		0x01
+
+class CHE_PDF_PathObject : public CHE_PDF_ContentObject
+{
+public:
+	static CHE_PDF_PathObject* Create( CHE_PDF_GraphState * pGraphState = NULL, CHE_Allocator * pAllocator = NULL )
+	{
+		if ( pAllocator )
+		{
+			return pAllocator->New<CHE_PDF_PathObject>( pGraphState, pAllocator );
+		}else{
+			return new CHE_PDF_PathObject( NULL );
+		}
+	}
+
+	HE_VOID SetOperator( HE_BYTE opt ) { m_byteOperator = opt; }
+	HE_VOID SetFillMode( HE_BYTE mode ) { m_byteMode = mode; }
+
+	HE_BYTE GetOperator() { return m_byteOperator; }
+	HE_BYTE GetFillMode() { return m_byteMode; }
+
+	HE_BOOL AppendItem( CHE_GraphicsObject * pItem );
+
+	CHE_GraphicsObject * GetItem( HE_DWORD index )
+	{
+		return (CHE_GraphicsObject*)m_arrPathItem.GetItem( index );
+	}
+
+	HE_DWORD GetItemCount() { return m_arrPathItem.GetCount(); }
+
+	HE_VOID Clear();
+
+private:
+	CHE_PDF_PathObject( CHE_PDF_GraphState * pGraphState = NULL, CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( CONTENTOBJ_PATH, pGraphState, pAllocator ), m_arrPathItem( pAllocator )
+	{ m_byteMode = 0; m_byteOperator = 0; }
+	~CHE_PDF_PathObject() { Clear(); }
+
+	CHE_PtrArray	m_arrPathItem;
+	HE_BYTE			m_byteOperator;
+	HE_BYTE			m_byteMode;
+
+	friend class CHE_PDF_ContentObject;
+	friend class CHE_Allocator;
+};
+
+#endif

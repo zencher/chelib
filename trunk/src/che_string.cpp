@@ -331,133 +331,135 @@ HE_CHAR CHE_ByteString::operator[]( HE_DWORD index )const
 
 HE_INT32 CHE_ByteString::GetInteger() const
 {
-	if ( GetLength() == 0 )
-	{
-		return 0;
-	}else{
-		HE_BOOL bBegin = TRUE;
-		HE_BOOL	bNegative = FALSE;
-		HE_INT32 iValue = 0;
-		HE_BOOL bPoint = FALSE;
-		HE_BOOL bSign = FALSE;
-		HE_CHAR tmpChar = 0;
-		for ( HE_DWORD i = 0; i < GetLength(); i++ )
-		{
-			if ( bBegin && i > 0 )
-			{
-				bBegin = FALSE;
-			}
-			tmpChar = GetData()[i];
-			switch( tmpChar )
-			{
-			case '+':
-				if ( bSign == FALSE && bBegin == TRUE )
-				{
-					bSign = TRUE;
-					bNegative = FALSE;
-				}else{
-					return 0;
-				}
-				break;
-			case '-':
-				if ( bSign == FALSE && bBegin == TRUE )
-				{
-					bSign = TRUE;
-					bNegative = TRUE;
-				}else{
-					return 0;
-				}
-				break;
-			default:
-				if ( '0' > tmpChar || tmpChar > '9' )
-				{
-					return 0;
-				}else{
-					iValue = iValue * 10 + ( tmpChar - '0' ); 
-				}
-				break;
-			}
-		}
-		if( bNegative == TRUE )
-		{
-			return 0 - iValue;
-		}else{
-			return iValue;
-		}
-	}
+	return atoi( GetData() );
+// 	if ( GetLength() == 0 )
+// 	{
+// 		return 0;
+// 	}else{
+// 		HE_BOOL bBegin = TRUE;
+// 		HE_BOOL	bNegative = FALSE;
+// 		HE_INT32 iValue = 0;
+// 		HE_BOOL bPoint = FALSE;
+// 		HE_BOOL bSign = FALSE;
+// 		HE_CHAR tmpChar = 0;
+// 		for ( HE_DWORD i = 0; i < GetLength(); i++ )
+// 		{
+// 			if ( bBegin && i > 0 )
+// 			{
+// 				bBegin = FALSE;
+// 			}
+// 			tmpChar = GetData()[i];
+// 			switch( tmpChar )
+// 			{
+// 			case '+':
+// 				if ( bSign == FALSE && bBegin == TRUE )
+// 				{
+// 					bSign = TRUE;
+// 					bNegative = FALSE;
+// 				}else{
+// 					return 0;
+// 				}
+// 				break;
+// 			case '-':
+// 				if ( bSign == FALSE && bBegin == TRUE )
+// 				{
+// 					bSign = TRUE;
+// 					bNegative = TRUE;
+// 				}else{
+// 					return 0;
+// 				}
+// 				break;
+// 			default:
+// 				if ( '0' > tmpChar || tmpChar > '9' )
+// 				{
+// 					return 0;
+// 				}else{
+// 					iValue = iValue * 10 + ( tmpChar - '0' ); 
+// 				}
+// 				break;
+// 			}
+// 		}
+// 		if( bNegative == TRUE )
+// 		{
+// 			return 0 - iValue;
+// 		}else{
+// 			return iValue;
+// 		}
+// 	}
 }
 
 HE_FLOAT CHE_ByteString::GetFloat() const
 {
-	if ( GetLength() == 0 )
-	{
-		return 0;
-	}else{
-		HE_BOOL	bNegative = FALSE;
-		HE_BOOL bBegin = TRUE;
-		HE_DWORD lPointBit = 1;
-		HE_FLOAT fValue = 0;
-		HE_BOOL bPoint = FALSE;
-		HE_BOOL bSign = FALSE;
-		HE_CHAR tmpChar = 0;
-		for ( HE_DWORD i = 0; i < GetLength(); i++ )
-		{
-			if ( bBegin && i > 0 )
-			{
-				bBegin = FALSE;
-			}
-			tmpChar = GetData()[i];
-			switch( tmpChar )
-			{
-			case '+':
-				if ( bSign == FALSE && bBegin == TRUE )
-				{
-					bSign = TRUE;
-					bNegative = FALSE;
-				}else{
-					return 0;
-				}
-				break;
-			case '-':
-				if ( bSign == FALSE && bBegin == TRUE )
-				{
-					bSign = TRUE;
-					bNegative = TRUE;
-				}else{
-					return 0;
-				}
-				break;
-			case '.':
-				if ( bPoint == FALSE )
-				{
-					bPoint = TRUE;
-				}else{
-					return 0;
-				}
-				break;
-			default:
-				if ( '0' > tmpChar || tmpChar > '9' )
-				{
-					return 0;
-				}else{
-					if ( bPoint == FALSE )
-					{
-						fValue = fValue * 10 + ( tmpChar - '0' );
-					}else{
-						fValue = fValue + ( tmpChar - '0' ) / ( lPointBit * 10 );
-						lPointBit++;
-					}
-				}
-				break;
-			}
-		}
-		if ( bNegative == TRUE )
-		{
-			return 0 - fValue;
-		}else{
-			return fValue;
-		}
-	}
+	return atof( GetData() );
+// 	if ( GetLength() == 0 )
+// 	{
+// 		return 0;
+// 	}else{
+// 		HE_BOOL	bNegative = FALSE;
+// 		HE_BOOL bBegin = TRUE;
+// 		HE_DWORD lPointBit = 1;
+// 		HE_FLOAT fValue = 0;
+// 		HE_BOOL bPoint = FALSE;
+// 		HE_BOOL bSign = FALSE;
+// 		HE_CHAR tmpChar = 0;
+// 		for ( HE_DWORD i = 0; i < GetLength(); i++ )
+// 		{
+// 			if ( bBegin && i > 0 )
+// 			{
+// 				bBegin = FALSE;
+// 			}
+// 			tmpChar = GetData()[i];
+// 			switch( tmpChar )
+// 			{
+// 			case '+':
+// 				if ( bSign == FALSE && bBegin == TRUE )
+// 				{
+// 					bSign = TRUE;
+// 					bNegative = FALSE;
+// 				}else{
+// 					return 0;
+// 				}
+// 				break;
+// 			case '-':
+// 				if ( bSign == FALSE && bBegin == TRUE )
+// 				{
+// 					bSign = TRUE;
+// 					bNegative = TRUE;
+// 				}else{
+// 					return 0;
+// 				}
+// 				break;
+// 			case '.':
+// 				if ( bPoint == FALSE )
+// 				{
+// 					bPoint = TRUE;
+// 				}else{
+// 					return 0;
+// 				}
+// 				break;
+// 			default:
+// 				if ( '0' > tmpChar || tmpChar > '9' )
+// 				{
+// 					return 0;
+// 				}else{
+// 					if ( bPoint == FALSE )
+// 					{
+// 						fValue = fValue * 10 + ( tmpChar - '0' );
+// 					}else{
+// 						fValue = fValue + ( tmpChar - '0' ) * 1.0 / ( lPointBit * 10 );
+// 						lPointBit *= 10;
+// 					}
+// 				}
+// 				break;
+// 			}
+// 		}
+// 		if ( bNegative == TRUE )
+// 		{
+// 			return 0 - fValue;
+// 		}else{
+// 			return fValue;
+// 		}
+// 	}
 }
 
 CHE_ByteString CHE_ByteString::operator+( HE_CHAR ch )

@@ -63,7 +63,7 @@ public:
 
 protected:
 
-	void		Destroy() {};
+	//void		Destroy() {};
 	
 	HE_BYTE 	m_Type;
 	HE_DWORD 	m_ObjNum;

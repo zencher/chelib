@@ -203,6 +203,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\include\pdf\che_pdf_pageobjs.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\include\pdf\che_pdf_pages.h"
 					>
 				</File>
@@ -252,6 +256,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\src\che_graphics.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\src\che_string.cpp"
 				>
 			</File>
@@ -280,6 +288,10 @@
 				</File>
 				<File
 					RelativePath="..\..\..\src\pdf\che_pdf_objects.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\pdf\che_pdf_pageobjs.cpp"
 					>
 				</File>
 				<File

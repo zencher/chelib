@@ -7,11 +7,17 @@
 class IHE_PDF_DrawGraphics : public CHE_Object
 {
 public:
+	IHE_PDF_DrawGraphics( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
+
 	virtual ~IHE_PDF_DrawGraphics() {};
 
-	virtual HE_VOID StrokePath( CHE_Path & path ) = 0;
+	virtual HE_VOID SetMatrixToDevice( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT d, HE_FLOAT e, HE_FLOAT f ) = 0;
 
-	//virtual HE_VOID FillPath( CHE_Path & path ) = 0; 
+	virtual HE_FLOAT GetX( HE_FLOAT x, HE_FLOAT y ) = 0;
+
+	virtual HE_FLOAT GetY( HE_FLOAT x, HE_FLOAT y ) = 0;
+
+	virtual HE_VOID DrawPath( CHE_PDF_PathObject * pPath ) = 0;
 };
 
 #endif

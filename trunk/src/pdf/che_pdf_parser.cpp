@@ -1030,13 +1030,12 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 							((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 						}
 					}else{
+						SetPos( lPos );
 						if ( pCurObj->GetType() == PDFOBJ_DICTIONARY )
 						{
-							return NULL;
+							((CHE_PDF_Dictionary*)pCurObj)->SetAtInteger( key, objNum );
 						}else{
 							CHE_PDF_Number * pTmp = CHE_PDF_Number::Create( (HE_INT32)objNum, m_dwCurObjNum, m_dwCurGenNum, GetAllocator() );
-							((CHE_PDF_Array*)pCurObj)->Append( pTmp );
-							pTmp = CHE_PDF_Number::Create( (HE_INT32)genNum, m_dwCurObjNum, m_dwCurGenNum, GetAllocator() );
 							((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 						}
 					}

@@ -3,18 +3,71 @@
 
 #include "../che_base.h"
 #include "../che_datastructure.h"
+#include "../che_bitmap.h"
 #include "../che_graphics.h"
 #include "che_pdf_objects.h"
 
 
-#define CONTENTOBJ_INVALID	0
-#define CONTENTOBJ_TEXT		1
-#define CONTENTOBJ_PATH		2
+#define CONTENTOBJ_INVALID			0x0000
+#define CONTENTOBJ_TEXT				0x0001
+#define CONTENTOBJ_PATH				0x0002
+
+#define COLORSAPCE_DEVICE			0x0000
+#define COLORSPACE_CIEBASE			0x0001
+#define COLORSPACE_SPECIAL			0x0002
+
+#define COLOR_DEVICE_GRAY			0x0000
+#define COLOR_DEVICE_RGB			0x0001
+#define COLOR_DEVICE_CMYK			0x0002
+
+#define COLOR_CIEBASE_CALCRAY		0x0100
+#define COLOR_CIEBASE_CALRGB		0x0101
+#define COLOR_CIEBASE_CALLAB		0x0102
+#define COLOR_CIEBASE_ICCBASED		0x0103
+
+#define COLOR_SPECIAL_PATTERN		0x0201
+#define COLOR_SPECIAL_INDEXED		0x0202
+#define COLOR_SPECIAL_SEPARATION	0x0203
+#define COLOR_SPECAIL_DEVICEN		0x0204
+
+class CHE_PDF_Color : public CHE_Object
+{
+public:
+	CHE_PDF_Color( HE_BYTE colorSpace = COLORSAPCE_DEVICE, HE_BYTE colorType = COLOR_CIEBASE_CALRGB, HE_DWORD value = 0xFF000000, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator )
+	{
+		m_colorSpace = colorSpace;
+		m_colorType = colorType;
+		m_value = value;
+	}
+
+	HE_VOID SetColorSpace( HE_BYTE colorSpace ) { m_colorSpace = colorSpace; }
+
+	HE_VOID SetColorType( HE_BYTE colorType ) { m_colorType = colorType; }
+
+	HE_VOID SetValue( HE_DWORD value ) { m_value = value; }
+
+	HE_BYTE GetColorSpace() { return m_colorSpace; }
+
+	HE_BYTE GetColorType() { return m_colorType; }
+
+	HE_DWORD GetValue() { return m_value; }
+
+	HE_ARGB GetARGB() { return m_value; }
+
+private:
+	HE_BYTE m_colorSpace;
+	HE_BYTE	m_colorType;
+	HE_DWORD m_value;
+};
 
 class CHE_PDF_GraphState : public CHE_Object
 {
 public:
-	CHE_PDF_GraphState( CHE_Allocator * pAllocator ) : CHE_Object( pAllocator )
+	CHE_PDF_GraphState( CHE_Allocator * pAllocator )
+		: CHE_Object( pAllocator ), 
+		m_StrokeColor( COLORSAPCE_DEVICE, COLOR_CIEBASE_CALRGB, 0xFF000000, pAllocator ),
+		m_FillColor( COLORSAPCE_DEVICE, COLOR_CIEBASE_CALRGB, 0xFF000000, pAllocator )
 	{
 		m_MatrixA = 1; m_MatrixB = 0; m_MatrixC = 0; m_MatrixD = 1; m_MatrixE = 0; m_MatrixF = 0;
 		m_LineWidth = 1; m_LineCap = 0; m_LineJoin = 0; m_MiterLimit = 10;
@@ -73,6 +126,9 @@ public:
 	HE_DWORD	GetDashArraySize() { return m_DashArraySize; }
 	HE_FLOAT*	GetDashArray() { return m_DashArray; }
 	HE_FLOAT	GetDashPhase() { return m_DashPhase; }
+
+	CHE_PDF_Color	m_StrokeColor;
+	CHE_PDF_Color	m_FillColor;
 
 private:
 	HE_DWORD	m_DashArraySize;

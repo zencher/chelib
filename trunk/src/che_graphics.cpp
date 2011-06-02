@@ -24,17 +24,17 @@ HE_VOID CHE_GraphicsObject::Release()
 
 HE_VOID	CHE_Path::AddLine( CHE_Line & line )
 {
-	CHE_Line * pLine = GetAllocator()->New<CHE_Line>( line.m_fStartX, line.m_fStartY, line.m_fEndX, line.m_fEndY, GetAllocator() );
+	CHE_Line * pLine = GetAllocator()->New<CHE_Line>( line.m_fStartX, line.m_fStartY, line.m_fEndX, line.m_fEndY, line.IsConnect(), GetAllocator() );
 	m_objArray.Append( (HE_LPVOID)pLine );
 }
 
 HE_VOID CHE_Path::AddBCrave( CHE_BCurve & crave )
 {
-	CHE_BCurve * pCrave = GetAllocator()->New<CHE_BCurve>( crave.m_fX1, crave.m_fY1, crave.m_fX2, crave.m_fY2, crave.m_fX3, crave.m_fY3, crave.m_fX4, crave.m_fY4, GetAllocator() );
+	CHE_BCurve * pCrave = GetAllocator()->New<CHE_BCurve>( crave.m_fX1, crave.m_fY1, crave.m_fX2, crave.m_fY2, crave.m_fX3, crave.m_fY3, crave.m_fX4, crave.m_fY4, crave.IsConnect(), GetAllocator() );
 }
 
 HE_VOID	CHE_Path::AddRectangle( CHE_Rectangle & rect )
 {
-	CHE_Rectangle * pRect = GetAllocator()->New<CHE_Rectangle>( rect.m_fLeftTopX, rect.m_fLeftTopY, rect.m_fWidth, rect.m_fHeight, GetAllocator() );
+	CHE_Rectangle * pRect = GetAllocator()->New<CHE_Rectangle>( rect.m_fLeftTopX, rect.m_fLeftTopY, rect.m_fWidth, rect.m_fHeight, rect.IsConnect(), GetAllocator() );
 	m_objArray.Append( (HE_LPVOID)pRect );
 }

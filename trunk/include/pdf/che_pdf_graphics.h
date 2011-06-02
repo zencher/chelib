@@ -18,6 +18,8 @@ public:
 	virtual HE_FLOAT GetY( HE_FLOAT x, HE_FLOAT y ) = 0;
 
 	virtual HE_VOID DrawPath( CHE_PDF_PathObject * pPath ) = 0;
+
+	virtual HE_VOID DrawText( CHE_PDF_TextObject * pText ) = 0;
 };
 
 #endif

@@ -130,6 +130,9 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 		if ( pContentObj->GetType() == CONTENTOBJ_PATH )
 		{
 			pIHE_draw->DrawPath( (CHE_PDF_PathObject*)pContentObj );
+		}else if ( pContentObj->GetType() == CONTENTOBJ_TEXT )
+		{
+			pIHE_draw->DrawText( (CHE_PDF_TextObject*)pContentObj );
 		}
 	}
 }

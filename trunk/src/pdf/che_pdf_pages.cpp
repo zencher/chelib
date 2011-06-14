@@ -41,7 +41,6 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAlloc
 		m_pParser->StartParse( pFileRead );
 		m_pParser->GetStartxrefOffset( 1024 );
 		m_pParser->ParseXRef();
-		//m_pParser->VerifyXRef();
 		m_pRootDict = m_pParser->GetRootDict();
 		m_pInfoDict = m_pParser->GetInfoDict();
 		HE_DWORD pageCount = m_pParser->GetPageCount();
@@ -101,7 +100,6 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 	m_pParser->StartParse( pFileRead );
 	m_pParser->GetStartxrefOffset( 1024 );
 	m_pParser->ParseXRef();
-	//m_pParser->VerifyXRef();
 	m_pRootDict = m_pParser->GetRootDict();
 	m_pInfoDict = m_pParser->GetInfoDict();
 	HE_DWORD pageCount = m_pParser->GetPageCount();
@@ -462,7 +460,6 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 					if ( pInObj == NULL )
 					{
 						continue;
-						//return FALSE;
 					}
 					CHE_PDF_Object *  pContentObj = pInObj->GetObject();
 					if ( pContentObj->GetType() == PDFOBJ_STREAM )
@@ -576,12 +573,6 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 	//Graphics state
 	CHE_PDF_GraphState * pGraphState = GetAllocator()->New<CHE_PDF_GraphState>( GetAllocator() );
 	CHE_PtrStack graphStateStack( GetAllocator() );
-// 	pGraphState->m_MatrixA = 1;
-// 	pGraphState->m_MatrixB = 0;
-// 	pGraphState->m_MatrixC = 0;
-// 	pGraphState->m_MatrixD = -1;
-// 	pGraphState->m_MatrixE = 0;
-// 	pGraphState->m_MatrixF = -GetPageHeight();
 
 	//用于维护path对象
 	CHE_PDF_PathObject * pPathForCliping = NULL;
@@ -592,8 +583,43 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 	HE_BOOL	bConnect = FALSE;
 	HE_BOOL	bSubPathClosed = FALSE;
 
-	CHE_PDF_Dictionary* pFontDict =  GetPageResources();
-	pFontDict = (CHE_PDF_Dictionary*)pFontDict->GetElement( "Font" );
+	HE_FLOAT	fPosiX = 0;
+	HE_FLOAT	fPosiY = 0;
+	HE_FLOAT	fCharSpace = 0;
+	HE_FLOAT	fWordSpace = 0;
+	HE_DWORD	dwScale = 100;
+	HE_FLOAT	fLeading = 0;
+	HE_DWORD	dwSize = 0;
+	HE_BYTE		byteRender = 0;
+	HE_DWORD	dwRise = 0;
+	HE_BOOL		bKnockout = FALSE;
+	HE_FLOAT	fMatrixA = 1;
+	HE_FLOAT	fMatrixB = 0;
+	HE_FLOAT	fMatrixC = 0;
+	HE_FLOAT	fMatrixD = 1;
+	HE_FLOAT	fMatrixE = 0;
+	HE_FLOAT	fMatrixF = 0;
+	HE_DWORD	dwFontObjNum = 0;
+
+	CHE_PDF_Dictionary* pPageResourcesDict =  GetPageResources();
+	CHE_PDF_Object * pTmpObj = NULL;
+	CHE_PDF_Dictionary* pFontDict = NULL;
+	if ( pPageResourcesDict != NULL )
+	{
+		pTmpObj = pPageResourcesDict->GetElement( "Font" );
+		if ( pTmpObj->GetType() == PDFOBJ_DICTIONARY )
+		{
+			pFontDict = (CHE_PDF_Dictionary*)pTmpObj;
+		}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			IHE_PDF_GetInObj * pIHE_GetInObj = GetDocument()->GetParser()->GetIHE_GetPDFInObj();
+			if ( pIHE_GetInObj != NULL )
+			{
+				pFontDict = (CHE_PDF_Dictionary*)pIHE_GetInObj->GetObj( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml(), PDFOBJ_DICTIONARY );
+
+			}
+		}
+	}	
 
 	while( sParser.GetWord( wordDes ) == TRUE )
 	{
@@ -638,26 +664,33 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		//text对象
 		if ( wordDes.str == "BT" )
 		{
-			CHE_PDF_TextObject * pTmpText = CHE_PDF_TextObject::Create( GetAllocator() );
-			CHE_PDF_TextObjectItem * pTmpTextItem = NULL; 
-
+			CHE_PDF_TextObject * pTmpText = CHE_PDF_TextObject::Create( pGraphState->Clone(), GetAllocator() );
 			CHE_PDF_ContentObject * pCurContentObj = pTmpText;
+
+			fPosiX = 0;
+			fPosiY = 0;
+			fCharSpace = 0;
+			fWordSpace = 0;
+			dwScale = 100;
+			fLeading = 0;
+			dwSize = 0;
+			byteRender = 0;
+			dwRise = 0;
+			bKnockout = FALSE;
+			fMatrixA = 1;
+			fMatrixB = 0;
+			fMatrixC = 0;
+			fMatrixD = 1;
+			fMatrixE = 0;
+			fMatrixF = 0;
 
 			while ( sParser.GetWord( wordDes ) == TRUE )
 			{
 				bOpd = TRUE;
 				if ( wordDes.str == "ET" )
 				{
-					if ( pTmpTextItem != NULL )
-					{
-						GetAllocator()->Delete<CHE_PDF_TextObjectItem>( pTmpTextItem );
-					}
 					m_arrContentObj.Append( (HE_LPVOID)pCurContentObj );
 					break;
-				}
-				if ( pTmpTextItem == NULL )
-				{
-					pTmpTextItem = GetAllocator()->New<CHE_PDF_TextObjectItem>( GetAllocator() );
 				}
 
 				switch ( wordDes.type )
@@ -722,7 +755,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetCharSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
+						fCharSpace = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 				}else if ( wordDes.str == "Tw" )	//word space //1 opd
@@ -730,7 +763,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetWordSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
+						fWordSpace = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 				}else if ( wordDes.str == "Tz" )	//word space //1 opd
@@ -738,7 +771,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetScale( ((CHE_PDF_Number*)pTmpNode)->GetInteger() );
+						dwScale = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 						pTmpNode->Release();
 					}
 				}else if ( wordDes.str == "TL" )	//word space //1 opd
@@ -746,7 +779,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetLeading( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
+						fLeading = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 				}else if ( wordDes.str == "Tf" )
@@ -754,7 +787,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetSize( ((CHE_PDF_Number*)pTmpNode)->GetInteger() );
+						dwSize = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
@@ -767,10 +800,10 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}else{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NAME )
 						{
-							CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
+							CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)( pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() ) );
 							if ( pFontRef != NULL && pFontRef->GetType() == PDFOBJ_REFERENCE )
 							{
-								pTmpTextItem->SetFontObj( pFontRef->GetRefNuml() );
+								dwFontObjNum = pFontRef->GetRefNuml();
 							}
 							pTmpNode->Release();
 						}
@@ -780,7 +813,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetRender( ((CHE_PDF_Number*)pTmpNode)->GetInteger() );\
+						byteRender = ((CHE_PDF_Number*)pTmpNode)->GetInteger(); 
 						pTmpNode->Release();
 					}
 				}else if ( wordDes.str == "Ts" )
@@ -788,126 +821,393 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetRise( ((CHE_PDF_Number*)pTmpNode)->GetInteger() );
+						dwRise = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 						pTmpNode->Release();
 					}
 				}else if( wordDes.str == "Td" )
 				{
-					HE_DWORD x = 0, y = 0; 
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						y = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
+						fPosiY += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						x = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
+						fPosiX += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
-					pTmpTextItem->SetPosi( x, y );
 				}else if( wordDes.str == "TD" )
 				{
-					HE_FLOAT x = 0, y = 0; 
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						y = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						HE_FLOAT tmpValue = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						fLeading = -tmpValue;
+						fPosiY += tmpValue;
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						x = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						fPosiX += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
-					HE_FLOAT f = y;
-					pTmpTextItem->SetLeading( -f );
-					pTmpTextItem->SetPosi( (HE_DWORD)x, (HE_DWORD)y );
 				}else if( wordDes.str == "Tm" )
 				{
-					HE_FLOAT a = 0, b = 0, c = 0, d = 0, e = 0, f = 0; 
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						f = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						fMatrixF = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						e = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						fMatrixE = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						d = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						fMatrixD = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						c = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						fMatrixC = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						b = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						fMatrixB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						a = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+						fMatrixA = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 						pTmpNode->Release();
 					}
-					pTmpTextItem->SetMatrix( a, b, c, d, e, f );
 				}else if( wordDes.str == "T*" )
 				{
-					pTmpTextItem->SetPosi( 0, (HE_DWORD)pTmpTextItem->GetLeading() );
+					fPosiY -= fLeading;
 				}else if ( wordDes.str == "Tj" || wordDes.str == "'" ) 
 				{
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if ( pTmpNode != NULL )
 					{
-						pTmpTextItem->SetText( pTmpNode );
-						pTmpText->AppendItem( pTmpTextItem );
+						CHE_PDF_TextObjectItem * pTextItem =  GetAllocator()->New<CHE_PDF_TextObjectItem>( pGraphState->Clone(), GetAllocator() );
+						pTextItem->SetMatrix( fMatrixA, fMatrixB, fMatrixC, fMatrixD, fMatrixE, fMatrixF );
+						pTextItem->SetCharSpace( fCharSpace );
+						pTextItem->SetWordSpace( fWordSpace );
+						pTextItem->SetFontObj( dwFontObjNum );
+						pTextItem->SetKnockout( bKnockout );
+						pTextItem->SetLeading( fLeading );
+						pTextItem->SetPosi( fPosiX, fPosiY );
+						pTextItem->SetRender( byteRender );
+						pTextItem->SetRise( dwRise );
+						pTextItem->SetSize( dwSize );
+						pTextItem->SetScale( dwScale );
+						pTextItem->SetText( pTmpNode );
+						CHE_ByteString str( GetAllocator() );
+						str = ((CHE_PDF_String*)pTmpNode)->GetString();
+						CHE_WideString wstr( GetAllocator() );
+						CHE_PDF_Font * pFont = NULL;
+						if ( GetDocument() && (pFont = GetDocument()->GetFont( dwFontObjNum )) )
+						{
+							if ( pFont->GetUnicodeString( str, wstr ) )
+							{
+								pTextItem->SetString( wstr );
+							}
+						}
+						pTmpText->AppendItem( pTextItem );
 					}
-					pTmpTextItem = NULL;
 				}else if ( wordDes.str == "\"" )
 				{
+					CHE_PDF_TextObjectItem * pTextItem =  GetAllocator()->New<CHE_PDF_TextObjectItem>( pGraphState->Clone(), GetAllocator() );
+
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if ( pTmpNode != NULL )
 					{
-						pTmpTextItem->SetText( pTmpNode );
+						pTextItem->SetMatrix( fMatrixA, fMatrixB, fMatrixC, fMatrixD, fMatrixE, fMatrixF );
+						pTextItem->SetCharSpace( fCharSpace );
+						pTextItem->SetWordSpace( fWordSpace );
+						pTextItem->SetFontObj( dwFontObjNum );
+						pTextItem->SetKnockout( bKnockout );
+						pTextItem->SetLeading( fLeading );
+						pTextItem->SetPosi( fPosiX, fPosiY );
+						pTextItem->SetRender( byteRender );
+						pTextItem->SetRise( dwRise );
+						pTextItem->SetSize( dwSize );
+						pTextItem->SetScale( dwScale );
+						pTextItem->SetText( pTmpNode );
+						CHE_ByteString str( GetAllocator() );
+						str = ((CHE_PDF_String*)pTmpNode)->GetString();
+						CHE_WideString wstr( GetAllocator() );
+						CHE_PDF_Font * pFont = NULL;
+						if ( GetDocument() && (pFont = GetDocument()->GetFont( dwFontObjNum )) )
+						{
+							if ( pFont->GetUnicodeString( str, wstr ) )
+							{
+								pTextItem->SetString( wstr );
+							}
+						}
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetCharSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
+						pTextItem->SetCharSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
 						pTmpNode->Release();
 					}
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 					{
-						pTmpTextItem->SetWordSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
-						pTmpText->AppendItem( pTmpTextItem );
+						pTextItem->SetWordSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
 						pTmpNode->Release();
 					}
-					pTmpTextItem = NULL;
+					pTmpText->AppendItem( pTextItem );
 				}else if ( wordDes.str == "TJ" )
 				{
 					OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 					if ( pTmpNode != NULL )
 					{
-						pTmpTextItem->SetText( pTmpNode );
-						pTmpText->AppendItem( pTmpTextItem );
+						CHE_PDF_TextObjectItem * pTextItem =  GetAllocator()->New<CHE_PDF_TextObjectItem>( pGraphState->Clone(), GetAllocator() );
+						pTextItem->SetMatrix( fMatrixA, fMatrixB, fMatrixC, fMatrixD, fMatrixE, fMatrixF );
+						pTextItem->SetCharSpace( fCharSpace );
+						pTextItem->SetWordSpace( fWordSpace );
+						pTextItem->SetFontObj( dwFontObjNum );
+						pTextItem->SetKnockout( bKnockout );
+						pTextItem->SetLeading( fLeading );
+						pTextItem->SetPosi( fPosiX, fPosiY );
+						pTextItem->SetRender( byteRender );
+						pTextItem->SetRise( dwRise );
+						pTextItem->SetSize( dwSize );
+						pTextItem->SetScale( dwScale );
+						pTextItem->SetText( pTmpNode );
+						CHE_ByteString str( GetAllocator() );
+						CHE_WideString wstr( GetAllocator() );
+						CHE_WideString wstrTmp( GetAllocator() );
+						CHE_PDF_Font * pFont = NULL;
+						if ( GetDocument() && (pFont = GetDocument()->GetFont( dwFontObjNum )) )
+						{
+							CHE_PDF_Object * pTmpObj = NULL;
+							for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pTmpNode)->GetCount(); i++ )
+							{
+								pTmpObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
+								if ( pTmpNode != NULL && pTextItem->GetType() == PDFOBJ_STRING )
+								{
+									str = ((CHE_PDF_String*)pTmpObj)->GetString();
+									if ( pFont->GetUnicodeString( str, wstr ) )
+									{
+										pTextItem->SetString( wstrTmp );
+										wstr += wstrTmp;
+									}
+								}
+							}
+						}
+						pTmpText->AppendItem( pTextItem );
 					}
-					pTmpTextItem = NULL;
+
+				}else if ( wordDes.str == "gs" )
+				{
+				}else if ( wordDes.str == "w" )	//line width 
+				{
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							pGraphState->SetLineWidth( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
+							pTmpNode->Release();
+						}
+					}
+				}else if ( wordDes.str == "J" )	//line cap
+				{
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							pGraphState->SetLineCap( ((CHE_PDF_Number*)pTmpNode)->GetInteger() );
+							pTmpNode->Release();
+						}
+					}
+				}else if ( wordDes.str == "j" )	//line join
+				{
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							pGraphState->SetLineJoin( ((CHE_PDF_Number*)pTmpNode)->GetInteger() );
+							pTmpNode->Release();
+						}
+					}
+				}else if ( wordDes.str == "M" )	//Miter limit
+				{
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							pGraphState->SetMiterLimit( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
+							pTmpNode->Release();
+						}
+					}
+				}else if ( wordDes.str == "d" )	//dash
+				{
+					HE_FLOAT dashPhase = 0;
+					HE_FLOAT * dashArray = 0;
+					HE_DWORD dashArraySize = 0;
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							dashPhase = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							pTmpNode->Release();
+						}
+					}
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_ARRAY )
+						{
+							dashArraySize = ((CHE_PDF_Array*)pTmpNode)->GetCount();
+							if ( dashArraySize == 0 )
+							{
+								pGraphState->SetDashArray( 0, NULL, dashPhase );
+							}else{
+								dashArray = GetAllocator()->NewArray<HE_FLOAT>( dashArraySize );
+								CHE_PDF_Object * pObj = NULL;
+								for ( HE_DWORD i = 0; i < dashArraySize; i++ )
+								{
+									pObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
+									if ( pObj != NULL && pObj->GetType() == PDFOBJ_NUMBER )
+									{
+										dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloatNumber();
+									}
+								}
+								pGraphState->SetDashArray( dashArraySize, dashArray, dashPhase );
+								GetAllocator()->DeleteArray<HE_FLOAT>( dashArray );
+							}
+							pTmpNode->Release();
+						}
+					}
+				}else if ( wordDes.str == "ri" )
+				{
+					//
+				}else if ( wordDes.str == "i" )
+				{
+					//
+				}else if ( wordDes.str == "GS" )
+				{
+				}else if ( wordDes.str == "gs" )
+				{
+				}else if ( wordDes.str == "SC" )
+				{
+				}else if ( wordDes.str == "sc" )
+				{
+				}else if ( wordDes.str == "G" )
+				{
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							HE_DWORD value = 0;
+							HE_DWORD bTmp = fTmp * 255;
+							value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
+							pGraphState->GetStrokeColor()->SetValue( value );
+							pTmpNode->Release();
+						}
+					}
+				}else if ( wordDes.str == "g" )
+				{
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							HE_DWORD value = 0;
+							HE_DWORD bTmp = fTmp * 255;
+							value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
+							pGraphState->GetFillColor()->SetValue( value );
+							pTmpNode->Release();
+						}
+					}
+				}else if ( wordDes.str == "RG" )
+				{
+					HE_FLOAT fR = 0.0, fG = 0.0, fB = 0.0;
+					HE_DWORD dwR = 0, dwG = 0, dwB = 0;
+					HE_DWORD value = 0;
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							pTmpNode->Release();
+						}
+					}
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							pTmpNode->Release();
+						}
+					}
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							pTmpNode->Release();
+						}
+					}
+					dwR = fR * 255;
+					dwG = fG * 255;
+					dwB = fB * 255;
+					value = 0xFF000000 | ( (dwR << 16) | (dwG << 8) | dwB );
+					pGraphState->GetStrokeColor()->SetValue( value );
+				}else if ( wordDes.str == "rg" )
+				{
+					HE_FLOAT fR = 0.0, fG = 0.0, fB = 0.0;
+					HE_DWORD dwR = 0, dwG = 0, dwB = 0;
+					HE_DWORD value = 0;
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							pTmpNode->Release();
+						}
+					}
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							pTmpNode->Release();
+						}
+					}
+					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+					{
+						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						{
+							fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							pTmpNode->Release();
+						}
+					}
+					dwR = fR * 255;
+					dwG = fG * 255;
+					dwB = fB * 255;
+					value = 0xFF000000 | (dwR << 16) | (dwG << 8) | dwB;
+					pGraphState->GetFillColor()->SetValue( value );
+				}else if ( wordDes.str == "K" )
+				{
+				}else if ( wordDes.str == "k" )
+				{
 				}
+
 				//清除无用的操作数
 				while ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 				{
@@ -1278,39 +1578,34 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			pLastPath = pPath;
 		}else if ( wordDes.str == "B" )
 		{
-			CHE_PDF_PathObject * pPathFill = GetAllocator()->New<CHE_PDF_PathObject>( pGraphState->Clone(), GetAllocator() );
-			CHE_PDF_PathObject * pPathStroke = GetAllocator()->New<CHE_PDF_PathObject>( pGraphState->Clone(), GetAllocator() );
+			CHE_PDF_PathObject * pPath = GetAllocator()->New<CHE_PDF_PathObject>( pGraphState->Clone(), GetAllocator() );
 			CHE_GraphicsObject * pSubPath = NULL;
 			while( SupPathQueue.Pop( (HE_LPVOID*)&pSubPath ) == TRUE )
 			{
 				if ( pSubPath )
 				{
-					pPathFill->AppendItem( pSubPath );
-					pPathStroke->AppendItem( pSubPath );
+					pPath->AppendItem( pSubPath );
 				}
 			}
-			pPathFill->SetOperator( PATH_OPERATOR_FILL );
-			m_arrContentObj.Append( (HE_LPVOID)pPathFill );
-			m_arrContentObj.Append( (HE_LPVOID)pPathStroke );
-			pLastPath = pPathStroke;
+			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
+			pPath->SetFillMode( PATH_FILL_MODE_NOZERO );
+			m_arrContentObj.Append( (HE_LPVOID)pPath );
+			pLastPath = pPath;
 		}else if ( wordDes.str == "B*" )
 		{
-			CHE_PDF_PathObject * pPathFill = GetAllocator()->New<CHE_PDF_PathObject>( pGraphState->Clone(), GetAllocator() );
-			CHE_PDF_PathObject * pPathStroke = GetAllocator()->New<CHE_PDF_PathObject>( pGraphState->Clone(), GetAllocator() );
+			CHE_PDF_PathObject * pPath = GetAllocator()->New<CHE_PDF_PathObject>( pGraphState->Clone(), GetAllocator() );
 			CHE_GraphicsObject * pSubPath = NULL;
 			while( SupPathQueue.Pop( (HE_LPVOID*)&pSubPath ) == TRUE )
 			{
 				if ( pSubPath )
 				{
-					pPathFill->AppendItem( pSubPath );
-					pPathStroke->AppendItem( pSubPath );
+					pPath->AppendItem( pSubPath );
 				}
 			}
-			pPathFill->SetOperator( PATH_OPERATOR_FILL );
-			pPathFill->SetFillMode( PATH_FILL_MODE_EVERODD );
-			m_arrContentObj.Append( (HE_LPVOID)pPathFill );
-			m_arrContentObj.Append( (HE_LPVOID)pPathStroke );
-			pLastPath = pPathStroke;
+			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
+			pPath->SetFillMode( PATH_FILL_MODE_EVERODD );
+			m_arrContentObj.Append( (HE_LPVOID)pPath );
+			pLastPath = pPath;
 		}else if ( wordDes.str == "b" )
 		{
 			if ( bSubPathClosed == FALSE )
@@ -1423,17 +1718,11 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pTmpNode->Release();
 				}
 			}
-			pGraphState->m_MatrixA = pGraphState->m_MatrixA * a + pGraphState->m_MatrixB * c;
-			pGraphState->m_MatrixB = pGraphState->m_MatrixA * b + pGraphState->m_MatrixB * a;
-			pGraphState->m_MatrixC = pGraphState->m_MatrixC * a + pGraphState->m_MatrixD * c;
-			pGraphState->m_MatrixD = pGraphState->m_MatrixC * b + pGraphState->m_MatrixD * d;
-			pGraphState->m_MatrixE = pGraphState->m_MatrixE * a + pGraphState->m_MatrixF * c + e;
-			pGraphState->m_MatrixF = pGraphState->m_MatrixE * b + pGraphState->m_MatrixF * d + f;
+			pGraphState->MultiplyMatrix( a, b, c, d, e, f );
 		}else if ( wordDes.str == "q" )
 		{
 			graphStateStack.Push( (HE_LPVOID)pGraphState );
-			CHE_PDF_GraphState * pTmp = GetAllocator()->New<CHE_PDF_GraphState>( GetAllocator() );
-			memcpy( pTmp, pGraphState, sizeof(CHE_PDF_GraphState) );
+			CHE_PDF_GraphState * pTmp = pGraphState->Clone();
 			pGraphState = pTmp;
 		}else if ( wordDes.str == "Q" )
 		{
@@ -1449,7 +1738,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 				{
-					pGraphState->m_LineWidth = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					pGraphState->SetLineWidth( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
 					pTmpNode->Release();
 				}
 			}
@@ -1459,7 +1748,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 				{
-					pGraphState->m_LineCap = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
+					pGraphState->SetLineCap( ((CHE_PDF_Number*)pTmpNode)->GetInteger() );
 					pTmpNode->Release();
 				}
 			}
@@ -1469,7 +1758,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 				{
-					pGraphState->m_LineJoin = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
+					pGraphState->SetLineJoin( ((CHE_PDF_Number*)pTmpNode)->GetInteger() );
 					pTmpNode->Release();
 				}
 			}
@@ -1479,7 +1768,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 				{
-					pGraphState->m_MiterLimit = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					pGraphState->SetMiterLimit( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
 					pTmpNode->Release();
 				}
 			}
@@ -1501,22 +1790,25 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_ARRAY )
 				{
 					dashArraySize = ((CHE_PDF_Array*)pTmpNode)->GetCount();
-					dashArray = GetAllocator()->NewArray<HE_FLOAT>( dashArraySize );
-					CHE_PDF_Object * pObj = NULL;
-					for ( HE_DWORD i = 0; i < dashArraySize; i++ )
+					if ( dashArraySize == 0 )
 					{
-						pObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
-						if ( pObj != NULL && pObj->GetType() == PDFOBJ_NUMBER )
+						pGraphState->SetDashArray( 0, NULL, dashPhase );
+					}else{
+						dashArray = GetAllocator()->NewArray<HE_FLOAT>( dashArraySize );
+						CHE_PDF_Object * pObj = NULL;
+						for ( HE_DWORD i = 0; i < dashArraySize; i++ )
 						{
-							dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloatNumber();
+							pObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
+							if ( pObj != NULL && pObj->GetType() == PDFOBJ_NUMBER )
+							{
+								dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloatNumber();
+							}
 						}
+						pGraphState->SetDashArray( dashArraySize, dashArray, dashPhase );
+						GetAllocator()->DeleteArray<HE_FLOAT>( dashArray );
 					}
 					pTmpNode->Release();
 				}
-			}
-			if ( dashArray )
-			{
-				pGraphState->SetDashArray( dashArraySize, dashArray, dashPhase );
 			}
 		}else if ( wordDes.str == "ri" )
 		{
@@ -1539,10 +1831,10 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 				{
 					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
-					HE_DWORD value = 0xFF000000;
+					HE_DWORD value = 0;
 					HE_DWORD bTmp = fTmp * 255;
-					value += bTmp + bTmp << 8 + bTmp << 16; 
-					pGraphState->m_StrokeColor.SetValue( fTmp );
+					value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
+					pGraphState->GetStrokeColor()->SetValue( value );
 					pTmpNode->Release();
 				}
 			}
@@ -1553,10 +1845,10 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
 				{
 					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
-					HE_DWORD value = 0xFF000000;
+					HE_DWORD value = 0;
 					HE_DWORD bTmp = fTmp * 255;
-					value += bTmp + bTmp << 8 + bTmp << 16; 
-					pGraphState->m_FillColor.SetValue( fTmp );
+					value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
+					pGraphState->GetFillColor()->SetValue( value );
 					pTmpNode->Release();
 				}
 			}
@@ -1593,7 +1885,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			dwG = fG * 255;
 			dwB = fB * 255;
 			value = 0xFF000000 | ( (dwR << 16) | (dwG << 8) | dwB );
-			pGraphState->m_StrokeColor.SetValue( value );
+			pGraphState->GetStrokeColor()->SetValue( value );
 		}else if ( wordDes.str == "rg" )
 		{
 			HE_FLOAT fR = 0.0, fG = 0.0, fB = 0.0;
@@ -1627,7 +1919,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			dwG = fG * 255;
 			dwB = fB * 255;
 			value = 0xFF000000 | (dwR << 16) | (dwG << 8) | dwB;
-			pGraphState->m_FillColor.SetValue( value );
+			pGraphState->GetFillColor()->SetValue( value );
 		}else if ( wordDes.str == "K" )
 		{
 		}else if ( wordDes.str == "k" )
@@ -1669,7 +1961,6 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			pTmpGraph->Release();
 		}
 	}
-
 
 	return m_arrContentObj.GetCount();
 }

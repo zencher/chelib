@@ -177,7 +177,8 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			}else if ( wordDes.str == "Tj" || wordDes.str == "'" || wordDes.str == "\"" ) 
 			{
 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
-				CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetString();
+				CHE_ByteString str( GetAllocator() );
+				str = ((CHE_PDF_String*)pTmpNode)->GetString();
 				CHE_WideString wstr( GetAllocator() );
 				if ( pCurFont == NULL )
 				{

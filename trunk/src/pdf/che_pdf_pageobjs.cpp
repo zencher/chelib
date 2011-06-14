@@ -40,29 +40,6 @@ HE_VOID CHE_PDF_TextObject::Clear()
 	m_arrTextItem.Clear();
 }
 
-CHE_PDF_TextObjectItem::CHE_PDF_TextObjectItem( CHE_Allocator * pAllocator )
-: CHE_Object( pAllocator )
-{
-	m_dwPosiX = 0;
-	m_dwPosiY = 0;
-	m_fCharSpace = 0;
-	m_fWordSpace = 0;
-	m_dwScale = 100;
-	m_fLeading = 0;
-	m_dwFontObjNum = 0;
-	m_dwSize = 0;
-	m_byteRender = 0;
-	m_dwRise = 0;
-	m_bKnockout = FALSE;
-	m_fMatrixA = 1;
-	m_fMatrixB = 0;
-	m_fMatrixC = 0;
-	m_fMatrixD = 1;
-	m_fMatrixE = 0;
-	m_fMatrixF = 0;
-	m_pText = NULL;	
-}
-
 CHE_PDF_TextObjectItem::~CHE_PDF_TextObjectItem()
 {
 	if ( m_pText )

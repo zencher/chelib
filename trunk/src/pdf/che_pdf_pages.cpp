@@ -575,13 +575,17 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 	CHE_PtrStack graphStateStack( GetAllocator() );
 
 	//用于维护path对象
-	CHE_PDF_PathObject * pPathForCliping = NULL;
+	//CHE_PDF_PathObject * pPathForCliping = NULL;
 	CHE_PDF_PathObject * pLastPath = NULL;
 	CHE_PtrQueue SupPathQueue( GetAllocator() );
 	HE_FLOAT fBeginX = 0, fBeginY = 0;
 	HE_FLOAT fCurX = 0, fCurY = 0;
 	HE_BOOL	bConnect = FALSE;
 	HE_BOOL	bSubPathClosed = FALSE;
+
+	//For Clip
+	HE_BOOL		bClipPath = FALSE;
+	HE_BYTE		bClipFlag = 0;
 
 	HE_FLOAT	fPosiX = 0;
 	HE_FLOAT	fPosiY = 0;
@@ -619,7 +623,11 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 
 			}
 		}
-	}	
+	}
+
+	//set clip
+	CHE_PDF_OrderObject * pClipOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
+	m_arrContentObj.Append( pClipOrder );
 
 	while( sParser.GetWord( wordDes ) == TRUE )
 	{
@@ -1523,6 +1531,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pPath->AppendItem( pSubPath );
 				}
 			}
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
+			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 			pLastPath = pPath;
 		}else if ( wordDes.str == "s" )
@@ -1545,6 +1559,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pPath->AppendItem( pSubPath );
 				}
 			}
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
+			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 			pLastPath = pPath;
 		}else if ( wordDes.str == "f" || wordDes.str == "F" )
@@ -1558,6 +1578,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					pPath->AppendItem( pSubPath );
 				}
+			}
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 			pLastPath = pPath;
@@ -1574,6 +1600,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pPath->AppendItem( pSubPath );
 				}
 			}
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
+			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 			pLastPath = pPath;
 		}else if ( wordDes.str == "B" )
@@ -1589,6 +1621,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
 			pPath->SetFillMode( PATH_FILL_MODE_NOZERO );
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
+			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 			pLastPath = pPath;
 		}else if ( wordDes.str == "B*" )
@@ -1604,6 +1642,13 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
 			pPath->SetFillMode( PATH_FILL_MODE_EVERODD );
+
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
+			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 			pLastPath = pPath;
 		}else if ( wordDes.str == "b" )
@@ -1625,6 +1670,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
 			pPath->SetFillMode( PATH_FILL_MODE_NOZERO );
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
+			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 			pLastPath = pPath;
 		}else if ( wordDes.str == "b*" )
@@ -1646,27 +1697,42 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
 			pPath->SetFillMode( PATH_FILL_MODE_EVERODD );
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
+			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 			pLastPath = pPath;
 		}else if ( wordDes.str == "n" )
 		{
-			if ( pPathForCliping != NULL )
-			{
-				pPathForCliping->GetAllocator()->Delete<CHE_PDF_PathObject>( pPathForCliping );
-			}
-			pPathForCliping = GetAllocator()->New<CHE_PDF_PathObject>( pGraphState->Clone(), GetAllocator() );
+			CHE_PDF_PathObject * pPath = GetAllocator()->New<CHE_PDF_PathObject>( pGraphState->Clone(), GetAllocator() );
 			CHE_GraphicsObject * pSubPath = NULL;
 			while( SupPathQueue.Pop( (HE_LPVOID*)&pSubPath ) == TRUE )
 			{
 				if ( pSubPath )
 				{
-					pPathForCliping->AppendItem( pSubPath );
+					pPath->AppendItem( pSubPath );
 				}
 			}
+			pPath->SetOperator( PATH_OPERATOR_NOOP );
+			if ( bClipPath == TRUE )
+			{
+				pPath->SetClip( TRUE );
+				pPath->SetClipFlag( bClipFlag );
+				bClipPath = FALSE;
+			}
+			m_arrContentObj.Append( (HE_LPVOID)pPath );
+			pLastPath = pPath;
 		}else if ( wordDes.str == "W" )
 		{
+			bClipPath = TRUE;
+			bClipFlag = 0;
 		}else if ( wordDes.str == "W*" )
 		{
+			bClipPath = TRUE;
+			bClipFlag = 1;
 		}else if ( wordDes.str == "cm" )
 		{
 			HE_FLOAT a = 0, b = 0, c = 0, d = 0, e = 0, f = 0 ; 
@@ -1724,12 +1790,18 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			graphStateStack.Push( (HE_LPVOID)pGraphState );
 			CHE_PDF_GraphState * pTmp = pGraphState->Clone();
 			pGraphState = pTmp;
+			CHE_PDF_OrderObject * pClipOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
+			pClipOrder->SetOrder( ORDER_CLIPPUSH );
+			m_arrContentObj.Append( pClipOrder );
 		}else if ( wordDes.str == "Q" )
 		{
 			CHE_PDF_GraphState * pTmp = NULL;
 			graphStateStack.Pop( (HE_LPVOID*)&pTmp );
 			pGraphState->GetAllocator()->Delete<CHE_PDF_GraphState>( pGraphState );
 			pGraphState = pTmp;
+			CHE_PDF_OrderObject * pClipOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
+			pClipOrder->SetOrder( ORDER_CLIPPOP );
+			m_arrContentObj.Append( pClipOrder );
 		}else if ( wordDes.str == "gs" )
 		{
 		}else if ( wordDes.str == "w" )	//line width 
@@ -1934,12 +2006,6 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				pTmpNode->Release();
 			}
 		}
-	}
-
-
-	if ( pPathForCliping != NULL )
-	{
-		pPathForCliping->GetAllocator()->Delete<CHE_PDF_PathObject>( pPathForCliping );
 	}
 
 	pRead->Release();

@@ -19,6 +19,9 @@ HE_VOID	CHE_PDF_Renderer::Render( CHE_PDF_Page * page, IHE_PDF_DrawGraphics * pI
 		}else if ( pContentObj->GetType() == CONTENTOBJ_TEXT )
 		{
 			pIHE_draw->DrawText( (CHE_PDF_TextObject*)pContentObj );
+		}else if ( pContentObj->GetType() == CONTENTOBJ_ORDER )
+		{
+			pIHE_draw->Execute( (CHE_PDF_OrderObject*)pContentObj );
 		}
 	}
 }

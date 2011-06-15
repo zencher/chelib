@@ -5,17 +5,14 @@
 using namespace Gdiplus;
 LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
-HDC gMemDc = NULL;
-Graphics * gpGraphics = NULL;
-Pen * gpPen = NULL;
-Brush * gpBrush = NULL;
+CHE_PDF_Page * gpPage = NULL;
+CHE_PDF_Document * gdoc = NULL;
+unsigned int pageIndex = 0;
 
 class IHE_PDF_GDIplusDraw : public IHE_PDF_DrawGraphics
 {
 public:
-	IHE_PDF_GDIplusDraw( Graphics * pGraphics, CHE_Allocator * pAllocator = NULL )
-		: IHE_PDF_DrawGraphics( pAllocator )
-	{ m_pGrahpics = pGraphics; }
+	IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight, HE_DWORD posiX, HE_DWORD posiY, HE_FLOAT scale, CHE_Allocator * pAllocator = NULL );
 
 	virtual ~IHE_PDF_GDIplusDraw() {};
 
@@ -37,8 +34,24 @@ public:
 
 	virtual HE_VOID DrawText( CHE_PDF_TextObject * pText );
 
+	virtual HE_VOID Execute( CHE_PDF_OrderObject * pOrder );
+
+	HE_VOID UpdateDC();
+
 private:
-	 Graphics * m_pGrahpics;
+	HDC m_DC;
+	HDC m_MemDC;
+	HBITMAP m_Bitmap;
+	HE_DWORD m_dwWidth;
+	HE_DWORD m_dwHeight;
+	HE_DWORD m_dwPosiX;
+	HE_DWORD m_dwPosiY;
+
+	Graphics * m_pGraphics;
+	Pen * m_pPen;
+	Brush * m_pBrush;
+	Region * m_pRegion;
+	
 
 	 HE_FLOAT m_a;
 	 HE_FLOAT m_b;
@@ -46,44 +59,84 @@ private:
 	 HE_FLOAT m_d;
 	 HE_FLOAT m_e;
 	 HE_FLOAT m_f;
+
+	 CHE_PtrStack m_ClipStack;
 };
+
+IHE_PDF_GDIplusDraw::IHE_PDF_GDIplusDraw(	HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight,  
+											HE_DWORD posiX, HE_DWORD posiY, HE_FLOAT scale,
+											CHE_Allocator * pAllocator/* = NULL*/ )
+	: IHE_PDF_DrawGraphics( pAllocator ), m_ClipStack( pAllocator )
+{
+	m_DC = hDC;
+	m_MemDC = CreateCompatibleDC( hDC );
+	m_Bitmap = CreateCompatibleBitmap( m_DC, dibWidth , dibHeight );
+ 	SelectObject( m_MemDC, m_Bitmap );
+ 	RECT rt;
+ 	rt.top = 0;
+ 	rt.left = 0;
+	rt.right = m_dwWidth = dibWidth;
+ 	rt.bottom = m_dwHeight = dibHeight;
+ 	FillRect( m_MemDC, &rt, HBRUSH(WHITE_BRUSH) );
+ 	
+	m_pGraphics  = new Graphics( m_MemDC );
+ 	m_pGraphics->SetSmoothingMode( SmoothingModeAntiAlias );
+ 	m_pGraphics->SetPageUnit( UnitPoint );
+ 	m_pPen = new Pen( Color( 255, 0, 0, 0 ), 1 );
+ 	m_pBrush = new SolidBrush( Color( 255, 0, 0, 0 ) );
+ 	m_pRegion = NULL;
+
+	m_dwPosiX = posiX;
+	m_dwPosiY = posiY;
+ 
+ 	m_a = 0/*1 * scale*/;
+ 	m_b = 0;
+ 	m_c = 0/*-1 * scale*/;
+ 	m_d = 0;
+ 	m_e = 0;
+ 	m_f = 0/*dibHeight * scale*/;
+}
+
+HE_VOID IHE_PDF_GDIplusDraw::UpdateDC()
+{
+	BitBlt( m_DC, m_dwPosiX, m_dwPosiY, m_dwWidth,  m_dwHeight, m_MemDC, 0, 0, SRCCOPY );
+}
 
 HE_VOID IHE_PDF_GDIplusDraw::DrawPath( CHE_PDF_PathObject * pPath )
 {
-	//return;
-	if ( pPath == NULL )
+	if ( pPath == NULL || m_pGraphics == NULL )
 	{
 		return;
 	}
 	CHE_PDF_GraphState * pGraphState = pPath->GetGraphState();
 
-	gpPen->SetWidth( pGraphState->GetLineWidth() + 0.001 );
+	m_pPen->SetWidth( pGraphState->GetLineWidth() + 0.001 );
 
 	if ( pGraphState->GetLineCap() == 0 )
 	{
-		gpPen->SetLineCap( LineCapFlat, LineCapFlat, DashCapFlat );
+		m_pPen->SetLineCap( LineCapFlat, LineCapFlat, DashCapFlat );
 	}else if ( pGraphState->GetLineCap() == 1 )
 	{
-		gpPen->SetLineCap( LineCapRound, LineCapRound, DashCapRound );
+		m_pPen->SetLineCap( LineCapRound, LineCapRound, DashCapRound );
 	}else if ( pGraphState->GetLineCap() == 2 )
 	{
-		gpPen->SetLineCap( LineCapSquare, LineCapSquare, DashCapFlat );
+		m_pPen->SetLineCap( LineCapSquare, LineCapSquare, DashCapFlat );
 	}
 
 	if ( pGraphState->GetLineJoin() == 0 )
 	{
-		gpPen->SetLineJoin( LineJoinMiter );
+		m_pPen->SetLineJoin( LineJoinMiter );
 	}else if ( pGraphState->GetLineJoin() == 1 )
 	{
-		gpPen->SetLineJoin( LineJoinRound );
+		m_pPen->SetLineJoin( LineJoinRound );
 	}else if ( pGraphState->GetLineJoin() == 2 )
 	{
-		gpPen->SetLineJoin( LineJoinBevel );
+		m_pPen->SetLineJoin( LineJoinBevel );
 	}
 	
-	gpPen->SetMiterLimit( pGraphState->GetMiterLimit() );
-	gpPen->SetColor( pGraphState->GetStrokeColor()->GetARGB() );
-	((SolidBrush*)gpBrush)->SetColor( pGraphState->GetFillColor()->GetARGB() );
+	m_pPen->SetMiterLimit( pGraphState->GetMiterLimit() );
+	m_pPen->SetColor( pGraphState->GetStrokeColor()->GetARGB() );
+	((SolidBrush*)m_pBrush)->SetColor( pGraphState->GetFillColor()->GetARGB() );
 
 	if ( pGraphState->GetDashArraySize() == 1 )
 	{
@@ -94,12 +147,12 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawPath( CHE_PDF_PathObject * pPath )
 			dashArray[0] += 0.99;
 			dashArray[1] -= 0.99;
 		}
-		gpPen->SetDashPattern( dashArray, 2 );
+		m_pPen->SetDashPattern( dashArray, 2 );
 		if ( pGraphState->GetLineCap() == 2 )
 		{
-			gpPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() + 0.5 );
+			m_pPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() + 0.5 );
 		}else{
-			gpPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() );
+			m_pPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() );
 		}	
 		delete [] dashArray;
 	}else if ( pGraphState->GetDashArraySize() > 1 )
@@ -130,12 +183,12 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawPath( CHE_PDF_PathObject * pPath )
 					}
 				}
 			}
-			gpPen->SetDashPattern( dashArray, pGraphState->GetDashArraySize() * 2 );
+			m_pPen->SetDashPattern( dashArray, pGraphState->GetDashArraySize() * 2 );
 			if ( pGraphState->GetLineCap() == 2 )
 			{
-				gpPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() + 0.5 );
+				m_pPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() + 0.5 );
 			}else{
-				gpPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() );
+				m_pPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() );
 			}
 			delete [] dashArray;
 		}else{
@@ -159,32 +212,38 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawPath( CHE_PDF_PathObject * pPath )
 					}
 				}
 			}
-			gpPen->SetDashPattern( dashArray, pGraphState->GetDashArraySize() );
+			m_pPen->SetDashPattern( dashArray, pGraphState->GetDashArraySize() );
 			if ( pGraphState->GetLineCap() == 2 )
 			{
-				gpPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() + 0.5 );
+				m_pPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() + 0.5 );
 			}else{
-				gpPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() );
+				m_pPen->SetDashOffset( pGraphState->GetDashPhase() / pGraphState->GetLineWidth() );
 			}
 			delete [] dashArray;
 		}
 	}else{
-		gpPen->SetDashStyle( DashStyleSolid );
-		gpPen->SetDashOffset( pGraphState->GetDashPhase() );
+		m_pPen->SetDashStyle( DashStyleSolid );
+		m_pPen->SetDashOffset( pGraphState->GetDashPhase() );
 	}
-
-	gpGraphics->SetPageUnit( UnitPoint );
 
 	Matrix matrix(	pGraphState->GetMatrixA(), pGraphState->GetMatrixB(), pGraphState->GetMatrixC(),
 					pGraphState->GetMatrixD(), pGraphState->GetMatrixE(), pGraphState->GetMatrixF() );
 	Matrix matrixToDev(	m_a, m_b, m_c,
 						m_d, m_e, m_f );
-	gpGraphics->SetTransform( &matrixToDev );
-	gpGraphics->MultiplyTransform( &matrix );
+	m_pGraphics->SetTransform( &matrixToDev );
+	if ( m_pRegion )
+	{
+		m_pGraphics->SetClip( m_pRegion );
+		//Brush * bursh = new SolidBrush( Color( 255, 0, 255, 255 ) );
+		//m_pGraphics->FillRegion( bursh, m_pRegion );
+	}else{
+		m_pGraphics->ResetClip();
+	}
+	m_pGraphics->MultiplyTransform( &matrix );
 
+	GraphicsPath GraphPath;
 	HE_DWORD iGraphCount = pPath->GetItemCount();
 	CHE_GraphicsObject * pGraphObj = NULL;
-	GraphicsPath GraphPath;
 	for ( HE_DWORD i = 0; i < iGraphCount; i++ )
 	{
 		pGraphObj = pPath->GetItem( i );
@@ -192,20 +251,20 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawPath( CHE_PDF_PathObject * pPath )
 		{
 			GraphicsPath tmpPath;
 			tmpPath.AddLine(	((CHE_Line*)pGraphObj)->m_fStartX, ((CHE_Line*)pGraphObj)->m_fStartY, 
-								((CHE_Line*)pGraphObj)->m_fEndX, ((CHE_Line*)pGraphObj)->m_fEndY );
+				((CHE_Line*)pGraphObj)->m_fEndX, ((CHE_Line*)pGraphObj)->m_fEndY );
 			GraphPath.AddPath( &tmpPath, pGraphObj->IsConnect() );
 		}else if ( pGraphObj->GetType() == GRAPHTYPE_BCURVE )
 		{
 			GraphicsPath tmpPath;
 			tmpPath.AddBezier(	((CHE_BCurve*)pGraphObj)->m_fX1, ((CHE_BCurve*)pGraphObj)->m_fY1,
-								((CHE_BCurve*)pGraphObj)->m_fX2, ((CHE_BCurve*)pGraphObj)->m_fY2,
-								((CHE_BCurve*)pGraphObj)->m_fX3, ((CHE_BCurve*)pGraphObj)->m_fY3,
-								((CHE_BCurve*)pGraphObj)->m_fX4, ((CHE_BCurve*)pGraphObj)->m_fY4 );
+				((CHE_BCurve*)pGraphObj)->m_fX2, ((CHE_BCurve*)pGraphObj)->m_fY2,
+				((CHE_BCurve*)pGraphObj)->m_fX3, ((CHE_BCurve*)pGraphObj)->m_fY3,
+				((CHE_BCurve*)pGraphObj)->m_fX4, ((CHE_BCurve*)pGraphObj)->m_fY4 );
 			GraphPath.AddPath( &tmpPath, pGraphObj->IsConnect() );
 		}else if ( pGraphObj->GetType() == GRAPHTYPE_RECTANGLE ) {
 			GraphicsPath tmpPath;
 			Rect rt(	((CHE_Rectangle*)pGraphObj)->m_fLeftTopX, ((CHE_Rectangle*)pGraphObj)->m_fLeftTopY,
-						((CHE_Rectangle*)pGraphObj)->m_fWidth, ((CHE_Rectangle*)pGraphObj)->m_fHeight );
+				((CHE_Rectangle*)pGraphObj)->m_fWidth, ((CHE_Rectangle*)pGraphObj)->m_fHeight );
 			tmpPath.AddRectangle( rt );
 			GraphPath.AddPath( &tmpPath, pGraphObj->IsConnect() );
 		}
@@ -217,15 +276,30 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawPath( CHE_PDF_PathObject * pPath )
 		GraphPath.SetFillMode( FillModeWinding );
 	}
 
-	if ( pPath->GetOperator() == PATH_OPERATOR_STROKE )
+	if ( pPath->GetOperator() != PATH_OPERATOR_NOOP )
 	{
-		gpGraphics->DrawPath( gpPen, &GraphPath );
-	}else if ( pPath->GetOperator() == PATH_OPERATOR_FILL )
+		if ( pPath->GetOperator() == PATH_OPERATOR_STROKE )
+		{
+			m_pGraphics->DrawPath( m_pPen, &GraphPath );
+		}else if ( pPath->GetOperator() == PATH_OPERATOR_FILL )
+		{
+			m_pGraphics->FillPath( m_pBrush, &GraphPath );
+		}else{
+			m_pGraphics->FillPath( m_pBrush, &GraphPath );
+			m_pGraphics->DrawPath( m_pPen, &GraphPath );
+		}	
+	}
+
+	if ( pPath->GetClip() == TRUE )
 	{
-		gpGraphics->FillPath( gpBrush, &GraphPath );
-	}else{
-		gpGraphics->FillPath( gpBrush, &GraphPath );
-		gpGraphics->DrawPath( gpPen, &GraphPath );
+		GraphPath.Transform( &matrix );
+		if ( m_pRegion == NULL )
+		{
+			m_pRegion = new Region( &GraphPath );
+		}else{
+			Region tmpRegion( &GraphPath );
+			m_pRegion->Intersect( &tmpRegion );
+		}
 	}
 }
 
@@ -234,6 +308,13 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 	if ( pText == NULL )
 	{
 		return;
+	}
+
+
+	Region * pTmpRegion = NULL;
+	if ( m_pRegion != NULL )
+	{
+		pTmpRegion = m_pRegion->Clone();
 	}
 
 	CHE_PDF_TextObjectItem * pTextItemObj = NULL;
@@ -257,13 +338,23 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 						pTextItemObj->GetMatrixD(), pTextItemObj->GetMatrixE(), pTextItemObj->GetMatrixF() );
 
 		Matrix matrixToDev(	m_a, m_b, m_c, m_d, m_e, m_f );
-		gpGraphics->SetTransform( &matrixToDev );
-		gpGraphics->MultiplyTransform( &matrixT );
-		gpGraphics->MultiplyTransform( &matrix );
+		m_pGraphics->SetTransform( &matrixToDev );
 
-		FontFamily  fontFamily( L"ÐÂËÎÌå" );
+		if ( m_pRegion )
+		{
+			m_pGraphics->SetClip( m_pRegion );
+			//Brush * bursh = new SolidBrush( Color( 255, 0, 255, 255 ) );
+			//m_pGraphics->FillRegion( bursh, m_pRegion );
+		}else{
+			m_pGraphics->ResetClip();
+		}
 
-		gpGraphics->GetTransform( &matrixToDev );
+		m_pGraphics->MultiplyTransform( &matrixT );
+		m_pGraphics->MultiplyTransform( &matrix );
+
+		FontFamily  fontFamily( L"Î¢ÈíÑÅºÚ" );
+
+		m_pGraphics->GetTransform( &matrixToDev );
 		HE_FLOAT	x = pTextItemObj->GetPosiX() - pTextItemObj->GetSize() * m_a / 6;
 		HE_FLOAT	y = pTextItemObj->GetPosiY() + pTextItemObj->GetRise() + ( 
 						pTextItemObj->GetSize() * 1.0 / fontFamily.GetEmHeight(FontStyleRegular) * fontFamily.GetCellAscent(FontStyleRegular) );
@@ -274,45 +365,44 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 		Pen			pen( pGraphState->GetStrokeColor()->GetARGB() );
 		pen.SetWidth( pGraphState->GetLineWidth() + 0.001 );
 
-		gpGraphics->ResetTransform();
-		gpGraphics->SetTextRenderingHint( TextRenderingHintAntiAlias );
+		m_pGraphics->ResetTransform();
+		m_pGraphics->SetTextRenderingHint( TextRenderingHintAntiAlias );
 
 		Matrix m( pTextItemObj->GetScale() / 100.0, 0, 0, 1, 0, 0 );
-		gpGraphics->MultiplyTransform( &m );
+		m_pGraphics->MultiplyTransform( &m );
 		pointF.X = pointF.X / ( pTextItemObj->GetScale() / 100.0 );
 
 		pTextItemObj->SetSize( pTextItemObj->GetSize() * m_a );
 
 		if ( pTextItemObj->GetString()->GetLength() > 0 )
 		{
+			GraphicsPath strPath;
+
 			switch( pTextItemObj->GetRender() )
 			{
 			case 0:
 			case 4:
 				{
-					GraphicsPath strPath;
 					strPath.AddString( pTextItemObj->GetString()->GetData(), pTextItemObj->GetString()->GetLength(), &fontFamily, FontStyleRegular,
 						pTextItemObj->GetSize() * 1.0, pointF, NULL );
-					gpGraphics->FillPath( &solidBrush, &strPath );
+					m_pGraphics->FillPath( &solidBrush, &strPath );
 					break;
 				}
 			case 1:
 			case 5:
 				{
-					GraphicsPath strPath;
 					strPath.AddString( pTextItemObj->GetString()->GetData(), pTextItemObj->GetString()->GetLength(), &fontFamily, FontStyleRegular,
 						pTextItemObj->GetSize() * 1.0, pointF, NULL );
-					gpGraphics->DrawPath( &pen, &strPath );
+					m_pGraphics->DrawPath( &pen, &strPath );
 					break;
 				}
 			case 2:
 			case 6:
 				{
-					GraphicsPath strPath;
 					strPath.AddString( pTextItemObj->GetString()->GetData(), pTextItemObj->GetString()->GetLength(), &fontFamily, FontStyleRegular,
 						pTextItemObj->GetSize() * 1.0, pointF, NULL );
-					gpGraphics->FillPath( &solidBrush, &strPath );
-					gpGraphics->DrawPath( &pen, &strPath );
+					m_pGraphics->FillPath( &solidBrush, &strPath );
+					m_pGraphics->DrawPath( &pen, &strPath );
 					break;
 				}
 			case 3:
@@ -323,9 +413,75 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 			default:
 				break;
 			}
+
+			switch ( pTextItemObj->GetRender() )
+			{
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+				{
+					strPath.Transform( &matrixToDev );
+					if ( pTmpRegion == NULL )
+					{
+						pTmpRegion = new Region( &strPath );
+					}else{
+						Region tmpRegion( &strPath );
+						pTmpRegion->Union( &tmpRegion );
+					}
+					break;
+				}
+			default:
+				break;
+			}
+		}
+	}
+
+	if ( m_pRegion )
+	{
+		delete m_pRegion;
+	}
+	m_pRegion = pTmpRegion;
+}
+
+HE_VOID IHE_PDF_GDIplusDraw::Execute( CHE_PDF_OrderObject * pOrder )
+{
+	//return;
+	if ( pOrder == NULL )
+	{
+		return;
+	}else{
+		if ( pOrder->GetOrder() == ORDER_CLIPRESET )
+		{
+			if ( m_pRegion )
+			{
+				delete m_pRegion;
+				m_pRegion = NULL;
+			}
+		}else if ( pOrder->GetOrder() == ORDER_CLIPPOP )
+		{
+			if ( m_pRegion )
+			{
+				delete m_pRegion;
+				m_pRegion = NULL;
+			}
+			if ( m_ClipStack.Pop( (HE_VOID**)&m_pRegion ) == FALSE )
+			{
+				m_pRegion = NULL;
+			}
+		}else if ( pOrder->GetOrder() == ORDER_CLIPPUSH )
+		{
+			if ( m_pRegion == NULL )
+			{
+				m_ClipStack.Push( m_pRegion );
+			}else{
+				Region * tmpRegion = m_pRegion->Clone();
+				m_ClipStack.Push( tmpRegion );
+			}
 		}
 	}
 }
+
 
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int nCmdShow )
 {
@@ -380,6 +536,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 	return 0 ;
 }
 
+
 LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	HDC		hdc ;
@@ -389,55 +546,29 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 	{
 	case WM_CREATE:
 		{
-			HDC hdc = GetDC( hwnd );
-			gMemDc =  CreateCompatibleDC( hdc );
-			HBITMAP hBitmap = CreateCompatibleBitmap( hdc, 612 * 96 / 72 , 792 * 96 / 72  );//A
-			SelectObject( gMemDc, hBitmap );//B
-			RECT rt;
-			rt.top = 0;
-			rt.left = 0;
-			rt.bottom = 792 * 96 / 72;
-			rt.right = 612 * 96 / 72;
-			FillRect( gMemDc, &rt, HBRUSH(WHITE_BRUSH) );
-			gpGraphics = new Graphics( gMemDc );
-			ReleaseDC( hwnd, hdc );
-			gpGraphics->SetSmoothingMode( SmoothingModeAntiAlias );
-			gpGraphics->SetPageUnit( UnitPoint );
-			gpPen = new Pen( Color( 255, 0, 0, 0 ), 1 );
-			gpBrush = new SolidBrush( Color( 255, 0, 0, 0 ) );
-			IHE_PDF_DrawGraphics * pGraphDraw = new IHE_PDF_GDIplusDraw( gpGraphics );
-			pGraphDraw->SetMatrixToDevice( 1, 0, 0, -1, 0, 792 * 1 );
-
-			IHE_Read * pIHE_Read  = HE_CreateFileRead( "c:\\demo2.pdf" );
-			CHE_PDF_Document doc;
-			doc.Load( pIHE_Read );
-			CHE_PDF_Page * pPage = doc.GetPage( 5 );
-			CHE_PDF_Renderer renderer;
-			renderer.Render( pPage, pGraphDraw );
+			gdoc = new CHE_PDF_Document;
+			IHE_Read * pIHE_Read  = HE_CreateFileRead( "c:\\demo13.pdf" );
+			gdoc->Load( pIHE_Read );
+			gpPage = gdoc->GetPage( 0 );
 			break;
 		}
 	case WM_PAINT:
 		{
-		hdc = BeginPaint( hwnd, &ps );
-		BitBlt( hdc, 0, 0, 612 * 96 / 72, 792 * 96 / 72, gMemDc, 0, 0, SRCCOPY );
-		EndPaint( hwnd, &ps );
-		break ;
+			CHE_PDF_Renderer renderer;
+			hdc = BeginPaint( hwnd, &ps );
+			IHE_PDF_GDIplusDraw	tmpDraw( hdc,  1.25 * gpPage->GetPageWidth() * 96 /72, 1.25 * gpPage->GetPageHeight() * 96 / 72, 0, 0, 1 );
+			tmpDraw.SetMatrixToDevice( 1 * 1.25, 0, 0, -1 * 1.25, 0, gpPage->GetPageHeight() * 1.25 );
+			renderer.Render( gpPage, &tmpDraw );
+			tmpDraw.UpdateDC();
+			
+			EndPaint( hwnd, &ps );
+			break ;
 		}
 	case WM_LBUTTONDOWN:
 		{
-// 		Pen* pen = new Pen(Color(255, 255, 0, 0), 1 ); ;
-// 		pen->SetEndCap( LineCapRound );
-// 		gpGraphics->SetSmoothingMode( SmoothingModeAntiAlias ); 
-// 		GraphicsPath path; 
-// 		path.AddRectangle( Rect( 10, 10, 200, 200 ) );
-// 		path.AddRectangle( Rect( 30, 30, 150, 150 ) );
-// 		path.AddRectangle( Rect( 50, 50, 120, 120 ) );
-// 		SolidBrush brush(Color(255, 255, 0, 0));
-// 		path.SetFillMode( FillModeAlternate );
-// 		gpGraphics->FillPath( &brush, &path); 
-// 		gpGraphics->DrawPath( pen, &path);
-		InvalidateRect( hwnd, NULL, TRUE );
-		break;
+			gpPage = gdoc->GetPage( ++pageIndex );
+			InvalidateRect( hwnd, NULL, TRUE );
+			break;
 		}
 	case WM_DESTROY:
 		PostQuitMessage( 0 ) ;

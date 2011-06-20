@@ -12,6 +12,7 @@
 #define CONTENTOBJ_TEXT				0x0001
 #define CONTENTOBJ_TEXTITEM			0x0002
 #define CONTENTOBJ_PATH				0x0003
+#define	CONTENTOBJ_ORDER			0x0004
 
 #define COLORSAPCE_DEVICE			0x0000
 #define COLORSPACE_CIEBASE			0x0001
@@ -30,6 +31,7 @@
 #define COLOR_SPECIAL_INDEXED		0x0202
 #define COLOR_SPECIAL_SEPARATION	0x0203
 #define COLOR_SPECAIL_DEVICEN		0x0204
+
 
 class CHE_PDF_Color : public CHE_Object
 {
@@ -62,10 +64,11 @@ private:
 	HE_DWORD m_value;
 };
 
+
 class CHE_PDF_GraphState : public CHE_Object
 {
 public:
-	CHE_PDF_GraphState( CHE_Allocator * pAllocator )
+	CHE_PDF_GraphState( CHE_Allocator * pAllocator = NULL )
 		: CHE_Object( pAllocator ), 
 		m_StrokeColor(	COLORSAPCE_DEVICE, COLOR_DEVICE_RGB, 0xFF000000, pAllocator ),
 		m_FillColor(	COLORSAPCE_DEVICE, COLOR_DEVICE_RGB, 0xFF000000, pAllocator )
@@ -134,12 +137,19 @@ public:
 
 	HE_VOID		MultiplyMatrix( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT d, HE_FLOAT e, HE_FLOAT f )
 	{
-		m_MatrixA = m_MatrixA * a + m_MatrixB * c;
-		m_MatrixB = m_MatrixA * b + m_MatrixB * a;
-		m_MatrixC = m_MatrixC * a + m_MatrixD * c;
-		m_MatrixD = m_MatrixC * b + m_MatrixD * d;
-		m_MatrixE = m_MatrixE * a + m_MatrixF * c + e;
-		m_MatrixF = m_MatrixE * b + m_MatrixF * d + f;
+		HE_FLOAT aa = 0.0, bb = 0.0, cc = 0.0, dd =0.0, ee = 0.0, ff = 0.0;
+		aa = m_MatrixA * a + m_MatrixB * c;
+		bb = m_MatrixA * b + m_MatrixB * d;
+		cc = m_MatrixC * a + m_MatrixD * c;
+		dd = m_MatrixC * b + m_MatrixD * d;
+		ee = m_MatrixE * a + m_MatrixF * c + e;
+		ff = m_MatrixE * b + m_MatrixF * d + f;
+		m_MatrixA = aa;
+		m_MatrixB = bb;
+		m_MatrixC = cc;
+		m_MatrixD = dd;
+		m_MatrixE = ee;
+		m_MatrixF = ff;
 	}
 
 	HE_FLOAT	GetLineWidth() { return m_LineWidth; }
@@ -227,6 +237,7 @@ private:
 
 class CHE_PDF_TextObject;
 class CHE_PDF_PathObject;
+class CHE_PDF_OrderObject;
 
 class CHE_PDF_ContentObject : public CHE_Object
 {
@@ -382,9 +393,11 @@ private:
 };
 
 
+#define PATH_OPERATOR_NOOP			0x00
 #define PATH_OPERATOR_STROKE		0x01
 #define PATH_OPERATOR_FILL			0x10
 #define PATH_OPERATOR_FILLSTROKE	0x11
+
 
 #define PATH_FILL_MODE_NOZERO		0x00
 #define PATH_FILL_MODE_EVERODD		0x01
@@ -408,6 +421,12 @@ public:
 	HE_BYTE GetOperator() { return m_byteOperator; }
 	HE_BYTE GetFillMode() { return m_byteMode; }
 
+	HE_VOID	SetClip( HE_BOOL bClip ) { m_bClip = bClip; }
+	HE_BOOL	GetClip() { return m_bClip; }
+
+	HE_VOID	SetClipFlag( HE_BYTE clipFlag ) { m_byteClipFlag = clipFlag; }
+	HE_BYTE	GetClipFlag() { return m_byteClipFlag; }
+
 	HE_BOOL AppendItem( CHE_GraphicsObject * pItem );
 
 	CHE_GraphicsObject * GetItem( HE_DWORD index )
@@ -422,12 +441,49 @@ public:
 private:
 	CHE_PDF_PathObject( CHE_PDF_GraphState * pGraphState = NULL, CHE_Allocator * pAllocator = NULL ) 
 		: CHE_PDF_ContentObject( CONTENTOBJ_PATH, pGraphState, pAllocator ), m_arrPathItem( pAllocator )
-	{ m_byteMode = PATH_FILL_MODE_NOZERO; m_byteOperator = PATH_OPERATOR_STROKE; }
+	{ m_byteMode = PATH_FILL_MODE_NOZERO; m_byteOperator = PATH_OPERATOR_STROKE; m_bClip = FALSE; m_byteClipFlag = 0; }
 	~CHE_PDF_PathObject() { Clear(); }
 
 	CHE_PtrArray	m_arrPathItem;
 	HE_BYTE			m_byteOperator;
 	HE_BYTE			m_byteMode;
+
+	HE_BOOL			m_bClip;
+	HE_BYTE			m_byteClipFlag;
+
+	friend class CHE_PDF_ContentObject;
+	friend class CHE_Allocator;
+};
+
+#define ORDER_CLIPRESET	0x00
+#define ORDER_CLIPPUSH	0x01
+#define ORDER_CLIPPOP	0x02
+
+class CHE_PDF_OrderObject : CHE_PDF_ContentObject
+{
+public:
+	static CHE_PDF_OrderObject* Create( CHE_Allocator * pAllocator = NULL )
+	{
+		if ( pAllocator )
+		{
+			return pAllocator->New<CHE_PDF_OrderObject>( pAllocator );
+		}else{
+			return new CHE_PDF_OrderObject( NULL );
+		}
+	}
+
+	HE_VOID SetOrder( HE_BYTE order ) { m_order = order; }
+
+	HE_BYTE	GetOrder() { return m_order; }
+
+private:
+	CHE_PDF_OrderObject( CHE_Allocator * pAllocator = NULL ) 
+		: CHE_PDF_ContentObject( CONTENTOBJ_ORDER, NULL, pAllocator )
+	{ m_order = ORDER_CLIPRESET; }
+	
+	~CHE_PDF_OrderObject() {}
+
+	HE_BYTE			m_order;
 
 	friend class CHE_PDF_ContentObject;
 	friend class CHE_Allocator;

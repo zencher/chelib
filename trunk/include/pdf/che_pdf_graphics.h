@@ -20,6 +20,8 @@ public:
 	virtual HE_VOID DrawPath( CHE_PDF_PathObject * pPath ) = 0;
 
 	virtual HE_VOID DrawText( CHE_PDF_TextObject * pText ) = 0;
+
+	virtual HE_VOID Execute( CHE_PDF_OrderObject * pOrder ) = 0;
 };
 
 #endif

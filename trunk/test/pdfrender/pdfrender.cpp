@@ -234,8 +234,6 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawPath( CHE_PDF_PathObject * pPath )
 	if ( m_pRegion )
 	{
 		m_pGraphics->SetClip( m_pRegion );
-		//Brush * bursh = new SolidBrush( Color( 255, 0, 255, 255 ) );
-		//m_pGraphics->FillRegion( bursh, m_pRegion );
 	}else{
 		m_pGraphics->ResetClip();
 	}
@@ -309,14 +307,11 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 	{
 		return;
 	}
-
-
 	Region * pTmpRegion = NULL;
 	if ( m_pRegion != NULL )
 	{
 		pTmpRegion = m_pRegion->Clone();
 	}
-
 	CHE_PDF_TextObjectItem * pTextItemObj = NULL;
 	for ( HE_DWORD i = 0; i < pText->GetItemCount(); i++ )
 	{
@@ -325,7 +320,6 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 		{
 			continue;
 		}
-
 		CHE_PDF_GraphState * pGraphState = pTextItemObj->GetGraphState();
 		if ( pGraphState == NULL )
 		{
@@ -336,55 +330,52 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 			pGraphState->GetMatrixD(), pGraphState->GetMatrixE(), pGraphState->GetMatrixF() );
 		Matrix matrixT( pTextItemObj->GetMatrixA(), pTextItemObj->GetMatrixB(), pTextItemObj->GetMatrixC(),
 						pTextItemObj->GetMatrixD(), pTextItemObj->GetMatrixE(), pTextItemObj->GetMatrixF() );
-
 		Matrix matrixToDev(	m_a, m_b, m_c, m_d, m_e, m_f );
-		m_pGraphics->SetTransform( &matrixToDev );
+		Matrix mScale( pTextItemObj->GetScale() / 100.0, 0, 0, 1, 0, 0 );
 
+		m_pGraphics->SetTransform( &matrixToDev );
 		if ( m_pRegion )
 		{
 			m_pGraphics->SetClip( m_pRegion );
-			//Brush * bursh = new SolidBrush( Color( 255, 0, 255, 255 ) );
-			//m_pGraphics->FillRegion( bursh, m_pRegion );
 		}else{
 			m_pGraphics->ResetClip();
 		}
 
-		m_pGraphics->MultiplyTransform( &matrixT );
-		m_pGraphics->MultiplyTransform( &matrix );
-
 		FontFamily  fontFamily( L"Î¢ÈíÑÅºÚ" );
-
-		m_pGraphics->GetTransform( &matrixToDev );
-		HE_FLOAT	x = pTextItemObj->GetPosiX() - pTextItemObj->GetSize() * m_a / 6;
-		HE_FLOAT	y = pTextItemObj->GetPosiY() + pTextItemObj->GetRise() + ( 
-						pTextItemObj->GetSize() * 1.0 / fontFamily.GetEmHeight(FontStyleRegular) * fontFamily.GetCellAscent(FontStyleRegular) );
+		HE_FLOAT	x = pTextItemObj->GetPosiX() + pTextItemObj->GetSize() * m_a / 6;
+		HE_FLOAT	y = pTextItemObj->GetPosiY() + pTextItemObj->GetRise();// ( 
+						//pTextItemObj->GetSize() * 1.0 / fontFamily.GetEmHeight(FontStyleRegular) * fontFamily.GetCellAscent(FontStyleRegular) );
 		PointF      pointF( x, y );
-		matrixToDev.TransformPoints( &pointF, 1 );
-
 		SolidBrush  solidBrush( pGraphState->GetFillColor()->GetARGB() );
 		Pen			pen( pGraphState->GetStrokeColor()->GetARGB() );
 		pen.SetWidth( pGraphState->GetLineWidth() + 0.001 );
+		m_pGraphics->SetTextRenderingHint( TextRenderingHintAntiAliasGridFit );
 
-		m_pGraphics->ResetTransform();
-		m_pGraphics->SetTextRenderingHint( TextRenderingHintAntiAlias );
-
-		Matrix m( pTextItemObj->GetScale() / 100.0, 0, 0, 1, 0, 0 );
-		m_pGraphics->MultiplyTransform( &m );
 		pointF.X = pointF.X / ( pTextItemObj->GetScale() / 100.0 );
 
-		pTextItemObj->SetSize( pTextItemObj->GetSize() * m_a );
+		//pTextItemObj->SetSize( pTextItemObj->GetSize() * m_a );
 
 		if ( pTextItemObj->GetString()->GetLength() > 0 )
 		{
 			GraphicsPath strPath;
 
 			switch( pTextItemObj->GetRender() )
-			{
-			case 0:
+			{ 
+			case 0: 
 			case 4:
 				{
 					strPath.AddString( pTextItemObj->GetString()->GetData(), pTextItemObj->GetString()->GetLength(), &fontFamily, FontStyleRegular,
 						pTextItemObj->GetSize() * 1.0, pointF, NULL );
+
+					Matrix matrixR( 1, 0, 0, -1, 0, 0 );
+					matrixT.Multiply( &matrix );
+					matrixT.Multiply( &mScale );
+					matrixT.Multiply( &matrixR );
+					Matrix mts;
+					mts.Translate( 0, y * -2 - pTextItemObj->GetSize() );
+					matrixT.Multiply( &mts );
+					strPath.Transform( &matrixT );
+
 					m_pGraphics->FillPath( &solidBrush, &strPath );
 					break;
 				}
@@ -393,6 +384,17 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 				{
 					strPath.AddString( pTextItemObj->GetString()->GetData(), pTextItemObj->GetString()->GetLength(), &fontFamily, FontStyleRegular,
 						pTextItemObj->GetSize() * 1.0, pointF, NULL );
+
+					Matrix matrixR( 1, 0, 0, -1, 0, 0 );
+					matrixT.Multiply( &matrix );
+					matrixT.Multiply( &mScale );
+					matrixT.Multiply( &matrixR );
+					Matrix mts;
+
+					mts.Translate( 0, y * - 2 - pTextItemObj->GetSize() );
+					matrixT.Multiply( &mts );
+					strPath.Transform( &matrixT );
+
 					m_pGraphics->DrawPath( &pen, &strPath );
 					break;
 				}
@@ -401,6 +403,16 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 				{
 					strPath.AddString( pTextItemObj->GetString()->GetData(), pTextItemObj->GetString()->GetLength(), &fontFamily, FontStyleRegular,
 						pTextItemObj->GetSize() * 1.0, pointF, NULL );
+
+					Matrix matrixR( 1, 0, 0, -1, 0, 0 );
+					matrixT.Multiply( &matrix );
+					matrixT.Multiply( &mScale );
+					matrixT.Multiply( &matrixR );
+					Matrix mts;
+					mts.Translate( 0, y * -2 - pTextItemObj->GetSize() );
+					matrixT.Multiply( &mts );
+					strPath.Transform( &matrixT );
+
 					m_pGraphics->FillPath( &solidBrush, &strPath );
 					m_pGraphics->DrawPath( &pen, &strPath );
 					break;
@@ -421,7 +433,6 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 			case 6:
 			case 7:
 				{
-					strPath.Transform( &matrixToDev );
 					if ( pTmpRegion == NULL )
 					{
 						pTmpRegion = new Region( &strPath );
@@ -446,7 +457,6 @@ HE_VOID IHE_PDF_GDIplusDraw::DrawText( CHE_PDF_TextObject * pText )
 
 HE_VOID IHE_PDF_GDIplusDraw::Execute( CHE_PDF_OrderObject * pOrder )
 {
-	//return;
 	if ( pOrder == NULL )
 	{
 		return;
@@ -547,7 +557,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 	case WM_CREATE:
 		{
 			gdoc = new CHE_PDF_Document;
-			IHE_Read * pIHE_Read  = HE_CreateFileRead( "c:\\demo13.pdf" );
+			IHE_Read * pIHE_Read  = HE_CreateFileRead( "e:\\chelibpdf\\demo2.pdf" );
 			gdoc->Load( pIHE_Read );
 			gpPage = gdoc->GetPage( 0 );
 			break;
@@ -556,8 +566,8 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 		{
 			CHE_PDF_Renderer renderer;
 			hdc = BeginPaint( hwnd, &ps );
-			IHE_PDF_GDIplusDraw	tmpDraw( hdc,  1.25 * gpPage->GetPageWidth() * 96 /72, 1.25 * gpPage->GetPageHeight() * 96 / 72, 0, 0, 1 );
-			tmpDraw.SetMatrixToDevice( 1 * 1.25, 0, 0, -1 * 1.25, 0, gpPage->GetPageHeight() * 1.25 );
+			IHE_PDF_GDIplusDraw	tmpDraw( hdc,  1.0 * gpPage->GetPageWidth() * 96 /72, 1.0 * gpPage->GetPageHeight() * 96 / 72, 0, 0, 1 );
+			tmpDraw.SetMatrixToDevice( 1 * 1.0, 0, 0, -1 * 1.0, 0, gpPage->GetPageHeight() * 1.0 );
 			renderer.Render( gpPage, &tmpDraw );
 			tmpDraw.UpdateDC();
 			

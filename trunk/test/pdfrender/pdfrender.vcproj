@@ -77,6 +77,7 @@
 				OutputFile=".\Release/pdfrender.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				IgnoreDefaultLibraryNames="LIBC.lib"
 				ProgramDatabaseFile=".\Release/pdfrender.pdb"
 				SubSystem="2"
 				TargetMachine="1"

@@ -37,7 +37,7 @@ HE_VOID CHE_PDF_TextObject::Clear()
 			 pItem->GetAllocator()->Delete<CHE_PDF_TextObjectItem>( pItem );
 		 }
 	}
-	m_arrTextItem.Clear();
+	//m_arrTextItem.Clear();
 }
 
 CHE_PDF_TextObjectItem::~CHE_PDF_TextObjectItem()

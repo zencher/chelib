@@ -10731,7 +10731,7 @@ HE_VOID HE_DestroyFTLibrary()
 }
 
 
-CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * pIHE_GetPDFInObj, CHE_Allocator * pAllocator )
+CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, /*IHE_PDF_GetInObj * pIHE_GetPDFInObj,*/ CHE_Allocator * pAllocator )
 : CHE_Object( pAllocator )
 {
 	if ( gFTLibrary == NULL )
@@ -10740,7 +10740,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 	}
 
 	m_pFontDict = pFontDict;
-	m_pIHE_GetPDFInObj = pIHE_GetPDFInObj;
+	//m_pIHE_GetPDFInObj = pIHE_GetPDFInObj;
 
 	m_pFontProgramData = NULL;
 	m_lFontDataLength = 0;
@@ -10814,12 +10814,13 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 		{
 			m_EncodingType = PDFENCODING_SELFDEF;
 			m_pUnicodeTable = NULL;
-			if ( pToUnicode == NULL || pToUnicode->GetType() != PDFOBJ_REFERENCE || pIHE_GetPDFInObj == NULL )
+			if ( pToUnicode == NULL || pToUnicode->GetType() != PDFOBJ_REFERENCE /*|| pIHE_GetPDFInObj == NULL*/ )
 			{
 				m_EncodingType = PDFENCODING_NONE;
 				return;
 			}
-			CHE_PDF_Stream * pToUniStm = (CHE_PDF_Stream*)pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pToUnicode)->GetRefNuml(), PDFOBJ_STREAM );
+			CHE_PDF_Stream * pToUniStm = (CHE_PDF_Stream*)( ((CHE_PDF_Reference*)pToUnicode)->GetRefObj( PDFOBJ_STREAM ) );
+			//CHE_PDF_Stream * pToUniStm = (CHE_PDF_Stream*)pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pToUnicode)->GetRefNuml(), PDFOBJ_STREAM );
 			if ( pToUniStm == NULL /*|| pToUniStm->GetType() != PDFOBJ_STREAM*/ )
 			{
 				return;
@@ -10831,7 +10832,8 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 			CHE_PDF_Object * pDesFontsRef = pFontDict->GetElement( "DescendantFonts" );
 			if ( pDesFontsRef != NULL && pDesFontsRef->GetType() == PDFOBJ_REFERENCE )
 			{
-				CHE_PDF_Dictionary * pDesFontDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pDesFontsRef)->GetRefNuml(), PDFOBJ_DICTIONARY );
+				CHE_PDF_Dictionary * pDesFontDict = (CHE_PDF_Dictionary *)( ((CHE_PDF_Reference*)pDesFontsRef)->GetRefObj( PDFOBJ_DICTIONARY ) );
+				//CHE_PDF_Dictionary * pDesFontDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pDesFontsRef)->GetRefNuml(), PDFOBJ_DICTIONARY );
 				if ( pDesFontDict == NULL )
 				{
 					return;
@@ -10839,7 +10841,8 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 				CHE_PDF_Object * pFontDesRef = pDesFontDict->GetElement( "FontDescriptor" );
 				if ( pDesFontsRef != NULL && pDesFontsRef->GetType() == PDFOBJ_REFERENCE )
 				{
-					CHE_PDF_Dictionary * pFontDesDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontDesRef)->GetRefNuml(), PDFOBJ_REFERENCE );
+					CHE_PDF_Dictionary * pFontDesDict = (CHE_PDF_Dictionary *)( ((CHE_PDF_Reference*)pFontDesRef)->GetRefObj( PDFOBJ_DICTIONARY ) );
+					//CHE_PDF_Dictionary * pFontDesDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontDesRef)->GetRefNuml(), PDFOBJ_REFERENCE );
 					if ( pFontDesDict != NULL )
 					{
 						CHE_PDF_Object * pFontFileRef = pFontDesDict->GetElement( "FontFile" );
@@ -10853,7 +10856,8 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 						}
 						if ( pFontFileRef != NULL && pFontFileRef->GetType() == PDFOBJ_REFERENCE )
 						{
-							CHE_PDF_Stream * pFontFileStream = (CHE_PDF_Stream *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontFileRef)->GetRefNuml(), PDFOBJ_STREAM );
+							CHE_PDF_Stream * pFontFileStream = (CHE_PDF_Stream *)( ((CHE_PDF_Reference*)pFontFileRef)->GetRefObj( PDFOBJ_STREAM ) );
+							//CHE_PDF_Stream * pFontFileStream = (CHE_PDF_Stream *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontFileRef)->GetRefNuml(), PDFOBJ_STREAM );
 							if ( pFontFileStream != NULL )
 							{
 								CHE_PDF_StreamAcc stmAcc( GetAllocator() );
@@ -10912,7 +10916,8 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 				CHE_PDF_Object * pDesFontsRef = pFontDict->GetElement( "DescendantFonts" );
 				if ( pDesFontsRef != NULL && pDesFontsRef->GetType() == PDFOBJ_REFERENCE )
 				{
-					CHE_PDF_Dictionary * pDesFontDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pDesFontsRef)->GetRefNuml(), PDFOBJ_DICTIONARY );
+					CHE_PDF_Dictionary * pDesFontDict = (CHE_PDF_Dictionary *)( ((CHE_PDF_Reference*)pDesFontsRef)->GetRefObj( PDFOBJ_DICTIONARY ) );
+					//CHE_PDF_Dictionary * pDesFontDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pDesFontsRef)->GetRefNuml(), PDFOBJ_DICTIONARY );
 					if ( pDesFontDict == NULL )
 					{
 						return;
@@ -10920,7 +10925,8 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 					CHE_PDF_Object * pFontDesRef = pDesFontDict->GetElement( "FontDescriptor" );
 					if ( pDesFontsRef != NULL && pDesFontsRef->GetType() == PDFOBJ_REFERENCE )
 					{
-						CHE_PDF_Dictionary * pFontDesDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontDesRef)->GetRefNuml(), PDFOBJ_REFERENCE );
+						CHE_PDF_Dictionary * pFontDesDict = (CHE_PDF_Dictionary *)( ((CHE_PDF_Reference*)pFontDesRef)->GetRefObj( PDFOBJ_DICTIONARY ) );
+						//CHE_PDF_Dictionary * pFontDesDict = (CHE_PDF_Dictionary *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontDesRef)->GetRefNuml(), PDFOBJ_REFERENCE );
 						if ( pFontDesDict != NULL )
 						{
 							CHE_PDF_Object * pFontFileRef = pFontDesDict->GetElement( "FontFile" );
@@ -10934,7 +10940,8 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 							}
 							if ( pFontFileRef != NULL && pFontFileRef->GetType() == PDFOBJ_REFERENCE )
 							{
-								CHE_PDF_Stream * pFontFileStream = (CHE_PDF_Stream *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontFileRef)->GetRefNuml(), PDFOBJ_STREAM );
+								CHE_PDF_Stream * pFontFileStream = (CHE_PDF_Stream *)( ((CHE_PDF_Reference*)pFontFileRef)->GetRefObj( PDFOBJ_STREAM ) );
+								//CHE_PDF_Stream * pFontFileStream = (CHE_PDF_Stream *)m_pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pFontFileRef)->GetRefNuml(), PDFOBJ_STREAM );
 								if ( pFontFileStream != NULL )
 								{
 									CHE_PDF_StreamAcc stmAcc( GetAllocator() );
@@ -10951,7 +10958,8 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 				}
 				return;
 			}
-			CHE_PDF_Stream * pToUnicodeStm = (CHE_PDF_Stream *)pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pToUnicode)->GetRefNuml(), PDFOBJ_STREAM );
+			CHE_PDF_Stream * pToUnicodeStm = (CHE_PDF_Stream *)( ((CHE_PDF_Reference*)pToUnicode)->GetRefObj( PDFOBJ_STREAM ) );
+			//CHE_PDF_Stream * pToUnicodeStm = (CHE_PDF_Stream *)pIHE_GetPDFInObj->GetObj( ((CHE_PDF_Reference*)pToUnicode)->GetRefNuml(), PDFOBJ_STREAM );
 			if ( pToUnicodeStm == NULL )
 			{
 				return;
@@ -10963,16 +10971,17 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * p
 		}
 	}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
 	{
-		if ( m_pIHE_GetPDFInObj == NULL )
-		{
-			return;
-		}
-		CHE_PDF_IndirectObject * pInObj = m_pIHE_GetPDFInObj->GetInObj( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
-		if ( pInObj == NULL )
-		{
-			return;
-		}
-		CHE_PDF_Dictionary * pEncodingDict = (CHE_PDF_Dictionary *)pInObj->GetObject();
+// 		if ( m_pIHE_GetPDFInObj == NULL )
+// 		{
+// 			return;
+// 		}
+		//CHE_PDF_IndirectObject * pInObj = m_pIHE_GetPDFInObj->GetInObj( ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml() );
+		//if ( pInObj == NULL )
+		//{
+		//	return;
+		//}
+		//CHE_PDF_Dictionary * pEncodingDict = (CHE_PDF_Dictionary *)pInObj->GetObject();
+		CHE_PDF_Dictionary * pEncodingDict = (CHE_PDF_Dictionary *)( ((CHE_PDF_Reference*)pTmpObj)->GetRefObj( PDFOBJ_DICTIONARY ) );
 		if ( pEncodingDict == NULL )
 		{
 			return;
@@ -11115,7 +11124,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 
 	CHE_NumToPtrMap * tmpMap = GetAllocator()->New<CHE_NumToPtrMap>( GetAllocator() );
 	IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize(), GetAllocator() );
-	CHE_PDF_SyntaxParser parser( GetAllocator() );
+	CHE_PDF_SyntaxParser parser( NULL, GetAllocator() );
 	CHE_PDF_PARSER_WORD_DES wordDes( GetAllocator() );
 	HE_DWORD lMaxIndex = 0;
 	HE_DWORD lCodeCount = 0;

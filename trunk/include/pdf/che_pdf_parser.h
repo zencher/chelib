@@ -28,26 +28,29 @@ public:
 	HE_DWORD		offset;
 };
 
-class IHE_PDF_GetInObj : public CHE_Object
-{
-public:
-	IHE_PDF_GetInObj( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
-
-	virtual ~IHE_PDF_GetInObj() {};
-	
-	virtual CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum ) = 0;
-
-	virtual CHE_PDF_Object * GetObj( HE_DWORD objNum, HE_BYTE objType = 0 ) = 0;
-};
+// class IHE_PDF_GetInObj : public CHE_Object
+// {
+// public:
+// 	IHE_PDF_GetInObj( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
+// 
+// 	virtual ~IHE_PDF_GetInObj() {};
+// 	
+// 	virtual CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum ) = 0;
+// 
+// 	virtual CHE_PDF_Object * GetObj( HE_DWORD objNum, HE_BYTE objType = 0 ) = 0;
+// };
 
 class CHE_PDF_SyntaxParser : public CHE_Object
 {
 public:
-	CHE_PDF_SyntaxParser( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_SyntaxParser( CHE_PDF_Parser * pParser/* = NULL*/, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_SyntaxParser();
 
 	HE_BOOL				InitParser( IHE_Read* pFileAccess );
 	HE_DWORD			GetFileSize() { return m_lFileSize; };
+
+	HE_VOID				SetParser( CHE_PDF_Parser * pParser ) { m_pParser = pParser; }
+	CHE_PDF_Parser *	GetParser()const { return m_pParser; }
 
 	/*	当前位置移动和设置的相关操作	*/
 	HE_DWORD			GetPos() { return m_lFilePos; };
@@ -98,6 +101,7 @@ private:
 	HE_BYTE				m_WordBuffer[32770];
 	HE_DWORD			m_lBufferSize;
 	HE_DWORD			m_lBufferPos;
+	CHE_PDF_Parser *	m_pParser;
 
 	friend class CHE_PDF_Parser;
 };
@@ -144,7 +148,7 @@ public:
 
 	CHE_PDF_IndirectObject *	GetIndirectObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
 
-	IHE_PDF_GetInObj	*		GetIHE_GetPDFInObj() { return m_pIHE_GetPDFInObj; }
+	//IHE_PDF_GetInObj	*		GetIHE_GetPDFInObj() { return m_pIHE_GetPDFInObj; }
 
 	//bool IsLinearized() const;
 
@@ -157,7 +161,7 @@ private:
 
 private:
 	IHE_Read *					m_pIHE_FileRead;
-	IHE_PDF_GetInObj *			m_pIHE_GetPDFInObj;
+	//IHE_PDF_GetInObj *			m_pIHE_GetPDFInObj;
 
 	CHE_PDF_Dictionary*			m_pTrailerDict;
 	HE_BOOL						m_bTrailerDictNeedDestory;

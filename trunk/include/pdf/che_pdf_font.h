@@ -32,7 +32,7 @@ HE_VOID HE_DestroyFTLibrary();
 class CHE_PDF_Font : public CHE_Object
 {
 public:
-	CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, IHE_PDF_GetInObj * pIHE_GetPDFInObj, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict,/* IHE_PDF_GetInObj * pIHE_GetPDFInObj,*/ CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_Font();
 
 	HE_BYTE		GetType() { return m_FontType; }
@@ -60,7 +60,7 @@ private:
 	HE_BYTE					m_EncodingType;
 
 	CHE_PDF_Dictionary *	m_pFontDict;
-	IHE_PDF_GetInObj *		m_pIHE_GetPDFInObj;
+	//IHE_PDF_GetInObj *		m_pIHE_GetPDFInObj;
 
 	HE_BYTE *				m_pFontProgramData;
 	HE_LONG					m_lFontDataLength;

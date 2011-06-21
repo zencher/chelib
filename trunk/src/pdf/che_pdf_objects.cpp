@@ -1,6 +1,7 @@
 #include "../../include/pdf/che_pdf_objects.h"
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../include/che_datastructure.h"
+#include "../../include/pdf/che_pdf_parser.h"
 #include <memory.h>
 
 HE_VOID CHE_PDF_Object::Release()
@@ -46,6 +47,77 @@ HE_VOID CHE_PDF_Object::Release()
 	}
 }
 
+// CHE_PDF_Object * CHE_PDF_Reference::GetRefObj() const
+// {
+// 	CHE_PDF_Parser * pParser = GetParser();
+// 	if ( pParser == NULL )
+// 	{
+// 		return NULL;
+// 	}
+// 	CHE_PDF_IndirectObject * pInObj = pParser->GetIndirectObject( m_RefObjNum );
+// 	if ( pInObj == NULL )
+// 	{
+// 		return NULL;
+// 	}
+// 	return pInObj->GetObject();
+// }
+
+CHE_PDF_Object * CHE_PDF_Reference::GetRefObj( HE_BYTE byteType ) const
+{
+	CHE_PDF_Parser * pParser = GetParser();
+	if ( pParser == NULL )
+	{
+		return NULL;
+	}
+	CHE_PDF_IndirectObject * pInObj = pParser->GetIndirectObject( m_RefObjNum );
+	if ( pInObj == NULL )
+	{
+		return NULL;
+	}
+	CHE_PDF_Object * pCurObj = pInObj->GetObject();
+	if ( pCurObj == NULL )
+	{
+		return NULL;
+	}
+	if ( pCurObj->GetType() == byteType || byteType == PDFOBJ_INVALID )
+	{
+		return pCurObj;
+	}
+
+	while ( TRUE )
+	{
+		if ( pCurObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			pCurObj = ((CHE_PDF_Reference*)pCurObj)->GetRefObj( PDFOBJ_REFERENCE );
+			if ( pCurObj == NULL )
+			{
+				return NULL;
+			}
+			if ( pCurObj->GetType() == byteType )
+			{
+				return pCurObj;
+			}
+			if ( pCurObj->GetType() == PDFOBJ_REFERENCE || pCurObj->GetType() == PDFOBJ_ARRAY )
+			{
+				continue;
+			}
+			return NULL;
+		}else if ( pCurObj->GetType() == PDFOBJ_ARRAY )
+		{
+			CHE_PDF_Object * pTmpObj = NULL;
+			pTmpObj = ((CHE_PDF_Array*)pCurObj)->GetElement( 0, byteType );
+			return pTmpObj;
+		}else if ( pCurObj->GetType() == byteType )
+		{
+			return pCurObj;
+		}else{
+			return NULL;
+		}
+	}
+	return NULL;
+
+}
+
 CHE_PDF_Array::~CHE_PDF_Array()
 {
 	CHE_PDF_Object * pTmpObj = NULL;
@@ -73,6 +145,81 @@ CHE_PDF_Object * CHE_PDF_Array::GetElement( HE_DWORD index ) const
 	return (CHE_PDF_Object*)m_array.GetItem( index );
 }
 
+CHE_PDF_Object* CHE_PDF_Array::GetElement( HE_DWORD index, HE_BYTE type ) const
+{
+	CHE_PDF_Object * pCurObj = GetElement( index );
+	if ( pCurObj == NULL )
+	{
+		return NULL;
+	}
+
+	HE_BYTE byteType = pCurObj->GetType();
+	if ( byteType == type || byteType == PDFOBJ_INVALID )
+	{
+		return pCurObj;
+	}
+
+	if ( GetParser() == NULL )
+	{
+		return NULL;
+	}
+
+	while ( TRUE )
+	{
+		if ( pCurObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			pCurObj = ((CHE_PDF_Reference*)pCurObj)->GetRefObj( byteType );
+			if ( pCurObj == NULL )
+			{
+				return NULL;
+			}
+			if ( pCurObj->GetType() == byteType )
+			{
+				return pCurObj;
+			}
+			if ( pCurObj->GetType() == PDFOBJ_REFERENCE || pCurObj->GetType() == PDFOBJ_ARRAY )
+			{
+				continue;
+			}
+			return NULL;
+		}else if ( pCurObj->GetType() == PDFOBJ_ARRAY )
+		{
+			CHE_PDF_Object * pTmpObj = NULL;
+			//HE_DWORD lCount = ((CHE_PDF_Array*)pCurObj)->GetCount();
+			//for ( HE_DWORD i = 0; i < lCount; i++ )
+			//{
+				pTmpObj = GetElement( 0, byteType );
+				if ( pTmpObj != NULL )
+				{
+					return pTmpObj;
+				}
+			//}
+			return NULL;
+		}else if ( pCurObj->GetType() == byteType )
+		{
+			return pCurObj;
+		}else{
+			return NULL;
+		}
+	}
+	return NULL;
+}
+
+CHE_PDF_Object* CHE_PDF_Array::GetElementByType( HE_BYTE type ) const
+{
+	CHE_PDF_Object * pCurObj = NULL;
+	HE_DWORD lCount = m_array.GetCount();
+	for ( HE_DWORD i = 0; i < lCount; i++ )
+	{
+		pCurObj = GetElement( i, type );
+		if ( pCurObj != NULL )
+		{
+			return pCurObj;
+		}
+	}
+	return NULL;
+}
+
 CHE_PDF_Dictionary::~CHE_PDF_Dictionary()
 {
 	CHE_PDF_Object * pTmpObj = NULL;
@@ -92,11 +239,66 @@ CHE_PDF_Object*	CHE_PDF_Dictionary::GetElement( const CHE_ByteString & key )cons
 	return (CHE_PDF_Object*)m_Map.GetItem( key );
 }
 
+CHE_PDF_Object*	CHE_PDF_Dictionary::GetElement( const CHE_ByteString & key, HE_BYTE type )const
+{
+	CHE_PDF_Object * pCurObj = NULL;
+	pCurObj = (CHE_PDF_Object*)m_Map.GetItem( key );
+	if ( pCurObj == NULL )
+	{
+		return NULL;
+	}
+	HE_BYTE byteType = pCurObj->GetType();
+	if ( byteType == type || type == PDFOBJ_INVALID )
+	{
+		return pCurObj;
+	}
+
+	while ( TRUE )
+	{
+		if ( pCurObj->GetType() == PDFOBJ_REFERENCE )
+		{
+			pCurObj = ((CHE_PDF_Reference*)pCurObj)->GetRefObj( byteType );
+			if ( pCurObj == NULL )
+			{
+				return NULL;
+			}
+			if ( pCurObj->GetType() == byteType )
+			{
+				return pCurObj;
+			}
+			if ( pCurObj->GetType() == PDFOBJ_REFERENCE || pCurObj->GetType() == PDFOBJ_ARRAY )
+			{
+				continue;
+			}
+			return NULL;
+		}else if ( pCurObj->GetType() == PDFOBJ_ARRAY )
+		{
+			CHE_PDF_Object * pTmpObj = NULL;
+			//HE_DWORD lCount = ((CHE_PDF_Array*)pCurObj)->GetCount();
+			//for ( HE_DWORD i = 0; i < lCount; i++ )
+			//{
+				pTmpObj = ((CHE_PDF_Array*)pCurObj)->GetElement( 0, byteType );
+				if ( pTmpObj != NULL )
+				{
+					return pTmpObj;
+				}
+			//}
+			return NULL;
+		}else if ( pCurObj->GetType() == byteType )
+		{
+			return pCurObj;
+		}else{
+			return NULL;
+		}
+	}
+	return NULL;
+}
+
 HE_VOID	CHE_PDF_Dictionary::SetAtNull( const CHE_ByteString & key )
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Null * pNullOjb = CHE_PDF_Null::Create( this->GetObjNum(), this->GetGenNum(), GetAllocator() );
+		CHE_PDF_Null * pNullOjb = CHE_PDF_Null::Create( this->GetObjNum(), this->GetGenNum(), GetParser(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pNullOjb );
 	}
 }
@@ -105,7 +307,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( const CHE_ByteString & key, bool value
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Boolean * pObj = CHE_PDF_Boolean::Create( value, GetObjNum(), GetGenNum(), GetAllocator() );
+		CHE_PDF_Boolean * pObj = CHE_PDF_Boolean::Create( value, GetObjNum(), GetGenNum(),GetParser(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -114,7 +316,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtInteger( const CHE_ByteString & key, HE_INT32 v
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjNum(), GetGenNum(), GetAllocator() );
+		CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjNum(), GetGenNum(), GetParser(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -123,7 +325,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtFloatNumber( const CHE_ByteString & key, HE_FLO
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjNum(), GetGenNum(), GetAllocator() );
+		CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjNum(), GetGenNum(), GetParser(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -132,7 +334,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtString( const CHE_ByteString & key, const CHE_B
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_String * pObj = CHE_PDF_String::Create( string, GetObjNum(), GetGenNum(), GetAllocator() );
+		CHE_PDF_String * pObj = CHE_PDF_String::Create( string, GetObjNum(), GetGenNum(), GetParser(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -141,7 +343,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtName( const CHE_ByteString & key, const CHE_Byt
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Name * pObj = CHE_PDF_Name::Create( name, GetObjNum(), GetGenNum(), GetAllocator() );
+		CHE_PDF_Name * pObj = CHE_PDF_Name::Create( name, GetObjNum(), GetGenNum(), GetParser(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
@@ -166,13 +368,13 @@ HE_VOID	CHE_PDF_Dictionary::SetAtReference( const CHE_ByteString & key, HE_DWORD
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Reference * pObj = CHE_PDF_Reference::Create( objnum, GetObjNum(), GetGenNum(), GetAllocator() );
+		CHE_PDF_Reference * pObj = CHE_PDF_Reference::Create( objnum, GetObjNum(), GetGenNum(), GetParser(), GetAllocator() );
 		m_Map.Append( key, (HE_LPBYTE)pObj );
 	}
 }
 
-CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt, CHE_Allocator * pAllocator )
-:CHE_PDF_Object( pAllocator )
+CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt, CHE_PDF_Parser * pParser, CHE_Allocator * pAllocator )
+:CHE_PDF_Object( pParser, pAllocator )
 {
 	m_pEncrypt = pEncrypt;
 	m_ObjNum = objNum;
@@ -195,7 +397,7 @@ CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictiona
 }
 	
 CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum, HE_DWORD genNum,
-								CHE_PDF_Encrypt * pEncrypt, CHE_Allocator * pAllocator ) : CHE_PDF_Object( pAllocator )
+								CHE_PDF_Encrypt * pEncrypt, CHE_PDF_Parser * pParser, CHE_Allocator * pAllocator ) : CHE_PDF_Object( pParser, pAllocator )
 {
 	m_pEncrypt = pEncrypt;
 	m_ObjNum = objNum;
@@ -508,7 +710,7 @@ HE_VOID CHE_PDF_StreamAcc::Detach()
 	m_dwSize = 0;
 }
 
-CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj, CHE_Allocator * pAllocator ) : CHE_PDF_Object( pAllocator )
+CHE_PDF_IndirectObject::CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj, CHE_PDF_Parser * pParser, CHE_Allocator * pAllocator ) : CHE_PDF_Object( pParser, pAllocator )
 {
 	m_ObjNum = objNum;
 	m_GenNum = genNum, 

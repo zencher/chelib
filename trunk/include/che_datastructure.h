@@ -145,9 +145,11 @@ public:
 	
 	HE_LPVOID	GetItem( const CHE_ByteString & str ) const;
 
-	HE_LPVOID	GetItemByIndex( HE_DWORD index );
+	HE_LPVOID	GetItemByIndex( HE_DWORD index ) const;
+
+	HE_BOOL  GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const;
 	
-	HE_DWORD	GetCount() { return m_lCount; }
+	HE_DWORD	GetCount() const { return m_lCount; }
 	
 	HE_VOID		Clear();
 	

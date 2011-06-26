@@ -549,13 +549,23 @@ HE_LPVOID CHE_ByteStringToPtrMap::GetItem( const CHE_ByteString & str ) const
 	return NULL;
 }
 
-HE_LPVOID CHE_ByteStringToPtrMap::GetItemByIndex( HE_DWORD index )
+HE_LPVOID CHE_ByteStringToPtrMap::GetItemByIndex( HE_DWORD index ) const
 {
 	if ( index >= m_lCount )
 	{
 		return NULL;
 	}
 	return m_pData[index]; 
+}
+
+HE_BOOL CHE_ByteStringToPtrMap::GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const
+{
+	if ( index >= m_lCount )
+	{
+		return FALSE;
+	}
+	strRet = *(m_pString[index]);
+	return TRUE;
 }
 
 HE_VOID	CHE_ByteStringToPtrMap::Clear()

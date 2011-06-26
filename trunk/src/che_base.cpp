@@ -68,6 +68,8 @@ public:
 
 	virtual HE_DWORD	GetSize();
 
+	virtual HE_DWORD	GetCurOffset();
+
 	virtual HE_DWORD	Flush();
 
 	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE_DWORD size);
@@ -106,6 +108,11 @@ HE_DWORD IHE_CrtFileWrite::GetSize()
 	}else{
 		return 0;
 	}
+}
+
+HE_DWORD IHE_CrtFileWrite::GetCurOffset()
+{
+	return GetSize();
 }
 
 HE_DWORD IHE_CrtFileWrite::Flush()

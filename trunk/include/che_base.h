@@ -179,6 +179,8 @@ public:
 
 	virtual HE_DWORD	GetSize() = 0;
 
+	virtual HE_DWORD	GetCurOffset() = 0;
+
 	virtual HE_DWORD	Flush() = 0;
 
 	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE_DWORD size ) = 0;

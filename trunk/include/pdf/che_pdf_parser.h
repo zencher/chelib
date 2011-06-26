@@ -5,6 +5,7 @@
 #include "../che_string.h"
 #include "che_pdf_define.h"
 #include "che_pdf_objects.h"
+#include "che_pdf_collector.h"
 #include "che_pdf_xref.h"
 #include "che_pdf_encrypt.h"
 
@@ -161,7 +162,6 @@ private:
 
 private:
 	IHE_Read *					m_pIHE_FileRead;
-	//IHE_PDF_GetInObj *			m_pIHE_GetPDFInObj;
 
 	CHE_PDF_Dictionary*			m_pTrailerDict;
 	HE_BOOL						m_bTrailerDictNeedDestory;
@@ -179,7 +179,7 @@ private:
 	
 	CHE_PDF_SyntaxParser		m_sParser;
 	CHE_PDF_XREF_Table			m_xrefTable;
-	CHE_PDF_IndirectObjectCollector	m_objCollector;
+	CHE_PDF_Collector			m_objCollector;
 };
 
 #endif

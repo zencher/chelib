@@ -133,6 +133,10 @@ public:
 
 	HE_FLOAT	GetFloatNumber() const { return m_bInteger ? (HE_FLOAT)m_Integer : m_Float; }
 
+	HE_VOID		SetValue( HE_INT32 value ) { m_bInteger = TRUE; m_Integer = value; }
+
+	HE_VOID		SetValue( HE_FLOAT value ) { m_bInteger = FALSE; m_Float = value; }
+
 protected:
 	CHE_PDF_Number( HE_INT32 value, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
 		: CHE_PDF_Object( pParser, pAllocator )
@@ -260,6 +264,12 @@ public:
 	CHE_PDF_Object*			GetElement( const CHE_ByteString & key ) const;
 
 	CHE_PDF_Object*			GetElement( const CHE_ByteString & key, HE_BYTE type ) const;
+
+	CHE_PDF_Object*			GetElementByIndex( HE_DWORD index ) const { return (CHE_PDF_Object*)( m_Map.GetItemByIndex( index ) ); }
+
+	HE_BOOL					GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const { return m_Map.GetKeyByIndex( index, strRet ); }
+
+	HE_DWORD				GetCount() { return m_Map.GetCount(); }
 
 	HE_VOID					SetAtNull( const CHE_ByteString & key );
 
@@ -488,26 +498,6 @@ protected:
 	friend class CHE_PDF_Object;
 	friend class CHE_PDF_IndirectObjectCollector;
 	friend class CHE_Allocator;
-};
-
-class CHE_PDF_IndirectObjectCollector : public CHE_Object
-{
-public:
-	CHE_PDF_IndirectObjectCollector( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ), m_map( pAllocator ) {}
-	~CHE_PDF_IndirectObjectCollector() { ReleaseObj(); }
-
-	HE_BOOL Add( CHE_PDF_IndirectObject * pObj );
-
-	HE_BOOL IsExist( HE_DWORD objNum ) { return m_map.GetItem( objNum ) ? TRUE : FALSE ; }
-
-	CHE_PDF_IndirectObject * GetObj( HE_DWORD objNum ) { return (CHE_PDF_IndirectObject*)m_map.GetItem( objNum ); }
-
-	HE_VOID Clear() { m_map.Clear(); }
-
-	HE_VOID ReleaseObj();
-
-private:
-	CHE_NumToPtrMap m_map;
 };
 
 #endif

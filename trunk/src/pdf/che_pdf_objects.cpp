@@ -723,27 +723,3 @@ CHE_PDF_Stream*	CHE_PDF_IndirectObject::GetStream() const
 	}
 	return NULL;
 }
-
-HE_BOOL CHE_PDF_IndirectObjectCollector::Add( CHE_PDF_IndirectObject * pObj )
-{
-	if ( pObj == NULL )
-	{
-		return FALSE;
-	}
-	return m_map.Append( pObj->GetObjNum(), (HE_LPVOID)pObj );
-}
-
-HE_VOID CHE_PDF_IndirectObjectCollector::ReleaseObj()
-{
-	HE_DWORD count = m_map.GetCount();
-	CHE_PDF_IndirectObject * pObj = NULL;
-	for ( HE_DWORD i = 0; i < count; i++ )
-	{
-		pObj = (CHE_PDF_IndirectObject*)m_map.GetItemByIndex( i );
-		if ( pObj )
-		{
-			pObj->Release();
-		}
-	}
-}
-

@@ -576,8 +576,6 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 	}
 
 	CHE_PDF_Parser * pDocParser = GetDocument()->GetParser();
-	//IHE_PDF_GetInObj * pIHE_GetInObj = GetDocument()->GetParser()->GetIHE_GetPDFInObj();
-
 
 	CHE_PDF_SyntaxParser sParser( pDocParser, GetAllocator() );
 	if ( sParser.InitParser( pRead ) == FALSE )

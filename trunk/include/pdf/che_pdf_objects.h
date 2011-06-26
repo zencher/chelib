@@ -442,6 +442,8 @@ public:
 
 	HE_DWORD	GetRefNuml() const { return m_RefObjNum; }
 
+	CHE_PDF_Object * GetRefObj() const;
+
 	CHE_PDF_Object * GetRefObj( HE_BYTE type ) const;
 
 protected:

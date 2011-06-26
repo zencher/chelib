@@ -66,6 +66,9 @@ public:
 
 	HE_BOOL IsExist( HE_DWORD objNum );
 
+	HE_DWORD GetCount() { return m_lCount; }
+	HE_DWORD GetMaxObjNum() { return m_lMaxObjNum; }
+
 private:
 	PDF_XREF_SECTION *		m_pFirstSection;
 	PDF_XREF_SECTION *		m_pCurSection;

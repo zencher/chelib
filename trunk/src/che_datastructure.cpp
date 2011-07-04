@@ -537,6 +537,22 @@ HE_BOOL	CHE_ByteStringToPtrMap::Append( const CHE_ByteString & str, HE_LPVOID pt
 	}
 }
 
+HE_BOOL CHE_ByteStringToPtrMap::UpdateItem( const CHE_ByteString & str, HE_LPVOID ptr )
+{
+	if ( str.GetLength() != 0 && ptr != NULL )
+	{
+		for ( HE_DWORD i = 0; i < m_lCount; i++ )
+		{
+			if ( *m_pString[i] == str )
+			{
+				m_pData[i] = ptr;
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
 HE_LPVOID CHE_ByteStringToPtrMap::GetItem( const CHE_ByteString & str ) const
 {
 	for ( HE_DWORD i = 0; i < m_lCount; i++ )

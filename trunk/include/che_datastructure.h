@@ -142,6 +142,8 @@ public:
 	~CHE_ByteStringToPtrMap();
 	
 	HE_BOOL		Append( const CHE_ByteString & str, HE_LPVOID ptr );
+
+	HE_BOOL		UpdateItem( const CHE_ByteString & str, HE_LPVOID ptr );
 	
 	HE_LPVOID	GetItem( const CHE_ByteString & str ) const;
 

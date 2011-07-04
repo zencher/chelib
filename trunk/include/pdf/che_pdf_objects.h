@@ -87,6 +87,7 @@ public:
 	}
 
 	HE_BOOL	GetValue() { return m_bValue; }
+	HE_VOID SetValue( HE_BOOL value ) { m_bValue = value; }
 
 protected:
 	CHE_PDF_Boolean( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
@@ -169,7 +170,8 @@ public:
 		}
 	}
 
-	CHE_ByteString GetString() { return m_String; }
+	CHE_ByteString	GetString() { return m_String; }
+	HE_VOID			SetString( CHE_ByteString & name ) { m_String = name; }
 	
 protected:
 	CHE_PDF_String( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
@@ -200,6 +202,7 @@ public:
 	}
 
 	CHE_ByteString			GetString() { return m_Name; }
+	HE_VOID					SetString( CHE_ByteString & name ) { m_Name = name; }
 	
 protected:
 	CHE_PDF_Name( const CHE_ByteString& str, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
@@ -306,6 +309,16 @@ protected:
 class CHE_PDF_Stream : public CHE_PDF_Object
 {
 public:
+	static CHE_PDF_Stream* Create(	HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt = NULL,
+									CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
+	{
+		if ( pAllocator )
+		{
+			return pAllocator->New<CHE_PDF_Stream>( objNum, genNum, pEncrypt, pParser, pAllocator );
+		}else{
+			return new CHE_PDF_Stream( objNum, genNum, pEncrypt, pParser, pAllocator );
+		}
+	}
 
 	static CHE_PDF_Stream* Create(	HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary* pDict, 
 									HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt = NULL,
@@ -333,6 +346,8 @@ public:
 
 	CHE_PDF_Dictionary*		GetDict() const { return m_pDict; }
 
+	HE_BOOL					SetDict( CHE_PDF_Dictionary * pDict );
+
 	//HE_VOID					SetData( HE_LPBYTE pData, HE_DWORD size, HE_BOOL bCompressed );
 
 	//HE_VOID					InitStream( HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary& dict );
@@ -343,6 +358,8 @@ public:
 
 	HE_DWORD				GetRawSize() const { return m_dwSize; }
 
+	HE_BOOL					SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize );
+
 	HE_DWORD				ReadRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD buf_size ) const;
 
 protected:
@@ -352,6 +369,9 @@ protected:
 
 	CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, CHE_PDF_Dictionary* pDict, HE_DWORD objNum, HE_DWORD genNum,
 		CHE_PDF_Encrypt * pEncrypt = NULL, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL );
+
+	CHE_PDF_Stream(	HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt = NULL, CHE_PDF_Parser * pParser = NULL, 
+					CHE_Allocator * pAllocator = NULL );
 
 	~CHE_PDF_Stream();
 

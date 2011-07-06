@@ -474,7 +474,7 @@ HE_BOOL	CHE_PDF_Stream::SetDict( CHE_PDF_Dictionary * pDict )
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize )
+HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYTE filter/* = STREAM_FILTER_NULL*/ )
 {
 	if ( pData == NULL || dwDataSize == 0 )
 	{
@@ -492,14 +492,93 @@ HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize )
 			m_dwSize = 0;
 		}
 	}
-	m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( dwDataSize );
-	memcpy( m_pDataBuf, pData, dwDataSize );
-	m_dwSize = dwDataSize;
 	if ( m_pDict == NULL )
 	{
 		m_pDict = CHE_PDF_Dictionary::Create( GetObjNum(), GetGenNum(), NULL, NULL );
 	}
-	m_pDict->SetAtInteger( "Length", dwDataSize );
+	switch( filter )
+	{
+	case STREAM_FILTER_NULL:
+		{
+			m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( dwDataSize );
+			memcpy( m_pDataBuf, pData, dwDataSize );
+			m_dwSize = dwDataSize;
+			break;
+		}
+	case STREAM_FILTER_HEX:
+		{
+			CHE_DynBuffer buf;
+			CHE_PDF_HexFilter filter;
+			filter.Encode( pData, dwDataSize, buf );
+			if ( buf.GetByteCount() > 0 )
+			{
+				m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( buf.GetByteCount() );
+				m_dwSize = buf.GetByteCount();
+				memcpy( m_pDataBuf, buf.GetData(), m_dwSize );
+				m_pDict->SetAtName( "Filter", "ASCIIHexDecode" );
+			}
+			break;
+		}
+	case STREAM_FILTER_ASCII85:
+		{
+			CHE_DynBuffer buf;
+			CHE_PDF_ASCII85Filter filter;
+			filter.Encode( pData, dwDataSize, buf );
+			if ( buf.GetByteCount() > 0 )
+			{
+				m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( buf.GetByteCount() );
+				m_dwSize = buf.GetByteCount();
+				memcpy( m_pDataBuf, buf.GetData(), m_dwSize );
+				m_pDict->SetAtName( "Filter", "ASCII85Decode" );
+			}
+			break;
+		}
+	case STREAM_FILTER_FLATE:
+		{
+			CHE_DynBuffer buf;
+			CHE_PDF_FlateFilter filter;
+			filter.Encode( pData, dwDataSize, buf );
+			if ( buf.GetByteCount() > 0 )
+			{
+				m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( buf.GetByteCount() );
+				m_dwSize = buf.GetByteCount();
+				memcpy( m_pDataBuf, buf.GetData(), m_dwSize );
+				m_pDict->SetAtName( "Filter", "FlateDecode" );
+			}
+			break;
+		}
+	case STREAM_FILTER_LZW:
+		{
+			CHE_DynBuffer buf;
+			CHE_PDF_LZWFilter filter;
+			filter.Encode( pData, dwDataSize, buf );
+			if ( buf.GetByteCount() > 0 )
+			{
+				m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( buf.GetByteCount() );
+				m_dwSize = buf.GetByteCount();
+				memcpy( m_pDataBuf, buf.GetData(), m_dwSize );
+				m_pDict->SetAtName( "Filter", "LZWDecode" );
+			}
+			break;
+		}
+	case STREAM_FILTER_RLE:
+		{
+			CHE_DynBuffer buf;
+			CHE_PDF_RLEFileter filter;
+			filter.Encode( pData, dwDataSize, buf );
+			if ( buf.GetByteCount() > 0 )
+			{
+				m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( buf.GetByteCount() );
+				m_dwSize = buf.GetByteCount();
+				memcpy( m_pDataBuf, buf.GetData(), m_dwSize );
+				m_pDict->SetAtName( "Filter", "RunLengthDecode" );
+			}
+			break;
+		}
+	default:
+		break;
+	}
+	m_pDict->SetAtInteger( "Length", m_dwSize );
 	return TRUE;
 }
 

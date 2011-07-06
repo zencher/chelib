@@ -18,6 +18,13 @@
 #define PDFOBJ_REFERENCE	9
 #define PDFOBJ_INDIRECTOBJ	10
 
+#define STREAM_FILTER_NULL		0
+#define STREAM_FILTER_HEX		1
+#define STREAM_FILTER_ASCII85	2
+#define STREAM_FILTER_FLATE		3
+#define STREAM_FILTER_LZW		4
+#define STREAM_FILTER_RLE		5
+
 class CHE_PDF_Object;
 class CHE_PDF_Null;
 class CHE_PDF_Boolean;
@@ -358,7 +365,7 @@ public:
 
 	HE_DWORD				GetRawSize() const { return m_dwSize; }
 
-	HE_BOOL					SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize );
+	HE_BOOL					SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYTE filter = STREAM_FILTER_NULL );
 
 	HE_DWORD				ReadRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD buf_size ) const;
 
@@ -388,6 +395,7 @@ protected:
 
 	friend class CHE_PDF_Object;
 	friend class CHE_PDF_StreamAcc;
+	friend class CHE_PDF_Creator;
 	friend class CHE_Allocator;
 };
 

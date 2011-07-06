@@ -1,6 +1,9 @@
 #include "../../include/pdf/che_pdf_creator.h"
 #include "../../include/pdf/che_pdf_xref.h"
 
+#include "../../extlib/freetype/ft2build.h"
+#include "../../extlib/freetype/freetype/freetype.h"
+
 #include <cstdio>
 
 //string resouces for creator
@@ -34,7 +37,7 @@ HE_CHAR * gpStrArrayObjRight = "]";
 HE_CHAR * gpStrDictObjLeft = "<<";				HE_DWORD glStrDictObj = 2;
 HE_CHAR * gpStrDictObjRight = ">>";
 HE_CHAR * gpStrStreamObjBegin = "stream\n";		HE_DWORD glStrStreamObjBegin = 7;
-HE_CHAR * gpStrStreamObjEnd = "endstream";	HE_DWORD glStrStreamObjEnd = 9;
+HE_CHAR * gpStrStreamObjEnd = "\nendstream";	HE_DWORD glStrStreamObjEnd = 10;
 
 
 CHE_PDF_Creator::CHE_PDF_Creator( CHE_Allocator * pAllocator )
@@ -479,7 +482,7 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font(	const CHE_ByteString & baseF
 	return pDict;
 }
 
-CHE_PDF_Dictionary* CHE_PDF_Creator::AddTureTypeFont(	const CHE_ByteString & baseFont, 
+CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont(	const CHE_ByteString & baseFont, 
 														HE_DWORD firstChar/* = 0*/, HE_DWORD lastChar/* = 255*/,
 														HE_BYTE Encoding/* = ENCODING_TYPE1_WINANSIENCODING*/,
 														const CHE_PDF_Array * pWidths/* = NULL*/, 
@@ -527,6 +530,89 @@ CHE_PDF_Dictionary* CHE_PDF_Creator::AddTureTypeFont(	const CHE_ByteString & bas
 		pDict->SetAtReference( "FontDescriptor", pToUnicode->GetObjNum() );
 	}
 	return pDict;
+}
+
+CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont( const char * pFontFile, HE_BOOL bEmbed/* = FALSE*/ )
+{
+	if( pFontFile == NULL )
+		return NULL;
+
+	FT_Error eRet = 0;
+	FT_Library ftLib = NULL;
+	FT_Face ftFace = NULL;
+	eRet = FT_Init_FreeType( &ftLib );
+	if ( eRet != 0 )
+	{
+		return NULL;
+	}
+	eRet = FT_New_Face( ftLib, pFontFile, 0, &ftFace );
+	if ( eRet != 0 )
+	{
+		FT_Done_FreeType( ftLib );
+		return NULL;
+	}
+	const char * pFontName = FT_Get_Postscript_Name( ftFace );
+	if ( pFontName == NULL )
+	{
+		FT_Done_Face( ftFace );
+		FT_Done_FreeType( ftLib );
+		return NULL;
+	}
+	CHE_PDF_Dictionary * pFontDict = AddTrueTypeFont( pFontName, 0, 0 );
+	if ( pFontDict == NULL )
+	{
+		FT_Done_Face( ftFace );
+		FT_Done_FreeType( ftLib );
+		return NULL;
+	}
+	HE_FLOAT tmpF = ftFace->units_per_EM * 1.0 / 1000;
+	CHE_PDF_Array * pArr = CHE_PDF_Array::Create( pFontDict->GetObjNum(), 0, NULL, pFontDict->GetAllocator() );
+	CHE_PDF_Number * pWidth = CHE_PDF_Number::Create( (HE_INT32)( ftFace->max_advance_width/tmpF + 0.5 ), pFontDict->GetObjNum(), 0, NULL, pFontDict->GetAllocator() );
+	pArr->Append( pWidth );
+	pFontDict->SetAtArray( "Widths", pArr );
+	CHE_PDF_Dictionary * pFontDescriptor = AddDictionary();
+	if ( pFontDescriptor )
+	{
+		pFontDict->SetAtReference( "FontDescriptor", pFontDescriptor->GetObjNum() );
+		pFontDescriptor->SetAtName( "Type", "FontDescriptor" );
+		pFontDescriptor->SetAtName( "FontName", pFontName );
+		
+		CHE_PDF_Array * pArr = CHE_PDF_Array::Create( pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+		CHE_PDF_Number* f1 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.xMin/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+		CHE_PDF_Number* f2 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.yMin/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+		CHE_PDF_Number* f3 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.xMax/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+		CHE_PDF_Number* f4 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.yMax/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+		pArr->Append( f1 );
+		pArr->Append( f2 );
+		pArr->Append( f3 );
+		pArr->Append( f4 );
+		pFontDescriptor->SetAtArray( "FontBBox", pArr );
+		pFontDescriptor->SetAtInteger( "Ascent", ftFace->ascender/tmpF + 0.5 );
+		pFontDescriptor->SetAtInteger( "Descent", ftFace->descender/tmpF + 0.5 );
+		pFontDescriptor->SetAtInteger( "CapHeight", 500 );
+		pFontDescriptor->SetAtInteger( "MissingWidth", ftFace->max_advance_width/tmpF + 0.5 );
+		pFontDescriptor->SetAtInteger( "Flags", 33 );
+		pFontDescriptor->SetAtInteger( "ItalicAngle", 0 );
+		pFontDescriptor->SetAtInteger( "StemV", 80 );
+
+		if ( bEmbed == TRUE )
+		{
+			IHE_Read * pRead = HE_CreateFileRead( pFontFile );
+			if ( pRead != NULL )
+			{
+				HE_LPBYTE pByte = GetAllocator()->NewArray<HE_BYTE>( pRead->GetSize() );
+				pRead->ReadBlock( pByte, 0, pRead->GetSize() );
+				CHE_PDF_Stream * pStm = AddStream();
+				pFontDescriptor->SetAtReference( "FontFile2", pStm->GetObjNum() );
+				pStm->SetRawData( pByte, pRead->GetSize(), STREAM_FILTER_NULL );
+				HE_DestoryIHERead( pRead );
+				GetAllocator()->DeleteArray<HE_BYTE>( pByte );
+			}
+		}
+	}
+	FT_Done_Face( ftFace );
+	FT_Done_FreeType( ftLib );
+	return pFontDict;
 }
 
 HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite )
@@ -642,11 +728,10 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite
 				pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
 			}
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjBegin, glStrStreamObjBegin );
-			CHE_PDF_StreamAcc stmAcc;
-			if ( stmAcc.Attach( pStm ) == TRUE )
-			{
-				pWrite->WriteBlock( (HE_LPVOID)( stmAcc.GetData() ), stmAcc.GetSize() );
-			}
+			HE_LPBYTE pByte = GetAllocator()->NewArray<HE_BYTE>( pStm->GetRawSize() );
+			pStm->ReadRawData( 0, pByte, pStm->GetRawSize() );
+			pWrite->WriteBlock( (HE_LPVOID)( pByte ), pStm->GetRawSize() );
+			GetAllocator()->DeleteArray<HE_BYTE>( pByte );
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjEnd, glStrStreamObjEnd );
 			break;
 		}

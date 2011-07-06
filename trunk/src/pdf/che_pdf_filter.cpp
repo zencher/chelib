@@ -7,21 +7,18 @@ HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuff
 	{
 		return;
 	}
-
     HE_BYTE data[2];
-	HE_DWORD index = 0; 
     while( length-- )
     {
         data[0]  = (*pData & 0xF0) >> 4;
         data[0] += (data[0] > 9 ? 'A' - 10 : '0');
-		
         data[1]  = (*pData & 0x0F);
         data[1] += (data[1] > 9 ? 'A' - 10 : '0');
-		
 		buffer.Write( data, 2 );
-		
         ++pData;
     }
+	data[0] = '>';
+	buffer.Write( data, 1 );
 }
 
 HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
@@ -30,25 +27,35 @@ HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuff
 	{
 		return;
 	}
-
-	HE_BOOL	bLow = TRUE;
+	HE_BOOL	bLow = FALSE;
     HE_BYTE chr = 0;
 	HE_BYTE	val = 0;
-	HE_DWORD index = 0;
     while( length-- ) 
     {
         chr  = *pData;
-        if( bLow ) 
-        {
-            val = (chr & 0x0F);
-            bLow = FALSE;
-        }
-        else
-        {
-            val = ((val << 4) | chr);
-            bLow = TRUE;
+		if ( chr == '>' )
+		{
+			break;
+		}
+		if ( chr >= '0' && chr <= '9' )
+		{
+			val += (chr-'0');
+		}else if ( chr >= 'a' && chr <= 'f' )
+		{
+			val += (chr-'a'+10);
+		}else if ( chr >= 'A' && chr <= 'F' )
+		{
+			val += (chr-'A'+10);
+		}
+		if ( bLow == TRUE )
+		{
 			buffer.Write( &val, 1 );
-        }
+			val = 0;
+			bLow = FALSE;
+		}else{
+			val *= 16;
+			bLow = TRUE;
+		}
         ++pData;
     }
 }

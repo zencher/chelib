@@ -18,7 +18,7 @@ HE_CHAR * gpStrPDFVersion11 = "%PDF-1.1\n";
 HE_CHAR * gpStrPDFVersion10 = "%PDF-1.0\n";
 HE_CHAR	* gpStrNewLine = "\n";					HE_DWORD glStrNewLine = 1;
 HE_CHAR * gpStrObjBegin = "obj\n";				HE_DWORD glStrObjBegin = 4;
-HE_CHAR * gpStrObjEnd = "\nendobj\n";				HE_DWORD glStrObjEnd = 8;
+HE_CHAR * gpStrObjEnd = "\nendobj\n";			HE_DWORD glStrObjEnd = 8;
 HE_CHAR * gpStrXrefMark = "xref\n";				HE_DWORD glstrXrefMark = 5;
 HE_CHAR * gpStrXrefFirstFreeEntry = "0000000000 65535 f \n";	HE_DWORD glStrXrefEntry = 20;
 HE_CHAR * gpStrTrailerMark = "trailer\n";		HE_DWORD glStrTrailerMark = 8;
@@ -38,7 +38,6 @@ HE_CHAR * gpStrDictObjLeft = "<<";				HE_DWORD glStrDictObj = 2;
 HE_CHAR * gpStrDictObjRight = ">>";
 HE_CHAR * gpStrStreamObjBegin = "stream\n";		HE_DWORD glStrStreamObjBegin = 7;
 HE_CHAR * gpStrStreamObjEnd = "\nendstream";	HE_DWORD glStrStreamObjEnd = 10;
-
 
 CHE_PDF_Creator::CHE_PDF_Creator( CHE_Allocator * pAllocator )
 	:CHE_Object( pAllocator ), m_collector( pAllocator ), m_arrPageDict( pAllocator )
@@ -93,9 +92,10 @@ HE_BOOL	CHE_PDF_Creator::NewDocument()
 	m_pCatalogDict->SetAtReference( "Pages", m_pPagesDict->GetObjNum() );
 
 	m_bNewDocument = TRUE;
+	return TRUE;
 }
 
-HE_BOOL CHE_PDF_Creator::SetDocumentInfo( HE_BYTE infoType, CHE_ByteString & str )
+HE_BOOL CHE_PDF_Creator::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, CHE_ByteString & str )
 {
 	if ( m_bNewDocument == FALSE || str.GetLength() == 0 )
 	{
@@ -337,7 +337,7 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 	return TRUE;
 }
 
-CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font_Standard14( HE_BYTE fontType, HE_BYTE Type1Encoding )
+CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/ )
 {
 	if ( m_bNewDocument != TRUE )
 	{
@@ -415,15 +415,15 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font_Standard14( HE_BYTE fontType,
 	//pDict->SetAtInteger( "FirstChar", 0 );
 	//pDict->SetAtInteger( "LastChar", 255 );
 	//pDict->SetAtReference( "Widths", pWidthsArr->GetObjNum() );
-	switch ( Type1Encoding )
+	switch ( encoding )
 	{
-	case ENCODING_WINANSIENCODING:
+	case FONT_ENCODING_WINANSIENCODING:
 		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
 		break;
-	case ENCODING_MACROMANENCODING:
+	case FONT_ENCODING_MACROMANENCODING:
 		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
 		break;
-	case ENCODING_MACEXPERTENCODING:
+	case FONT_ENCODING_MACEXPERTENCODING:
 		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
 		break;
 	default:
@@ -434,7 +434,7 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font_Standard14( HE_BYTE fontType,
 
 CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font(	const CHE_ByteString & baseFont,
 												   HE_DWORD firstChar/* = 0*/, HE_DWORD lastChar/* = 255*/,
-												   HE_BYTE Encoding/* = ENCODING_TYPE1_WINANSIENCODING*/, 
+												   PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/, 
 												   const CHE_PDF_Array * pWidths/* = NULL*/, 
 												   const CHE_PDF_Dictionary * pFontDescriptor/* = NULL*/,
 												   const CHE_PDF_Stream * pToUnicode/* = NULL*/ )
@@ -453,15 +453,15 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font(	const CHE_ByteString & baseF
 	pDict->SetAtName( "BaseFont", baseFont );
 	pDict->SetAtInteger( "FirstChar", 0 );
 	pDict->SetAtInteger( "LastChar", 255 );
-	switch( Encoding )
+	switch( encoding )
 	{
-	case ENCODING_WINANSIENCODING:
+	case FONT_ENCODING_WINANSIENCODING:
 		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
 		break;
-	case ENCODING_MACROMANENCODING:
+	case FONT_ENCODING_MACROMANENCODING:
 		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
 		break;
-	case ENCODING_MACEXPERTENCODING:
+	case FONT_ENCODING_MACEXPERTENCODING:
 		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
 		break;
 	default:
@@ -484,7 +484,7 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font(	const CHE_ByteString & baseF
 
 CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont(	const CHE_ByteString & baseFont, 
 														HE_DWORD firstChar/* = 0*/, HE_DWORD lastChar/* = 255*/,
-														HE_BYTE Encoding/* = ENCODING_TYPE1_WINANSIENCODING*/,
+														PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/,
 														const CHE_PDF_Array * pWidths/* = NULL*/, 
 														const CHE_PDF_Dictionary * pFontDescriptor/* = NULL*/,
 														const CHE_PDF_Stream * pToUnicode/* = NULL*/ )
@@ -503,15 +503,15 @@ CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont(	const CHE_ByteString & bas
 	pDict->SetAtName( "BaseFont", baseFont );
 	pDict->SetAtInteger( "FirstChar", firstChar );
 	pDict->SetAtInteger( "LastChar", lastChar );
-	switch( Encoding )
+	switch( encoding )
 	{
-	case ENCODING_WINANSIENCODING:
+	case FONT_ENCODING_WINANSIENCODING:
 		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
 		break;
-	case ENCODING_MACROMANENCODING:
+	case FONT_ENCODING_MACROMANENCODING:
 		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
 		break;
-	case ENCODING_MACEXPERTENCODING:
+	case FONT_ENCODING_MACEXPERTENCODING:
 		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
 		break;
 	default:
@@ -604,7 +604,8 @@ CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont( const char * pFontFile, HE
 				pRead->ReadBlock( pByte, 0, pRead->GetSize() );
 				CHE_PDF_Stream * pStm = AddStream();
 				pFontDescriptor->SetAtReference( "FontFile2", pStm->GetObjNum() );
-				pStm->SetRawData( pByte, pRead->GetSize(), STREAM_FILTER_NULL );
+				pStm->SetRawData( pByte, pRead->GetSize(), STREAM_FILTER_FLATE );
+				pStm->GetDict()->SetAtInteger( "Length1", pRead->GetSize() );
 				HE_DestoryIHERead( pRead );
 				GetAllocator()->DeleteArray<HE_BYTE>( pByte );
 			}

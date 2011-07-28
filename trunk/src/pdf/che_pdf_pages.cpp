@@ -591,7 +591,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 	CHE_PDF_Object * pTmpObj = NULL;
 
 	CHE_PtrStack OpdStack( GetAllocator() );
-	CHE_PDF_PARSER_WORD_DES wordDes( GetAllocator() );
+	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
 	CHE_PDF_Object * pTmpNode = NULL;
 	HE_BOOL	bOpd = TRUE;
 
@@ -602,7 +602,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 	HE_BOOL	bSubPathClosed = FALSE;
 
 	HE_BOOL		bClipPath = FALSE;
-	HE_BYTE		bClipFlag = 0;
+	PDF_FILL_MODE	ClipFillMode = FILL_MODE_NOZERO;
 
 	HE_FLOAT	fPosiX = 0;
 	HE_FLOAT	fPosiY = 0;
@@ -638,38 +638,38 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		bOpd = TRUE;
 		switch ( wordDes.type )
 		{
-		case PDFPARSER_WORD_INTEGER:
+		case PARSE_WORD_INTEGER:
 			{
 				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetInteger(), 0, 0, pDocParser, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			}
-		case PDFPARSER_WORD_FLOAT:
+		case PARSE_WORD_FLOAT:
 			{
 				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetFloat(), 0, 0, pDocParser, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			}
-		case PDFPARSER_WORD_NAME:
+		case PARSE_WORD_NAME:
 			{
 				pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0, pDocParser, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			}
-		case PDFPARSER_WORD_STRING:
+		case PARSE_WORD_STRING:
 			{
 				pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0, pDocParser, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			}
-		case PDFPARSER_WORD_ARRAY_B:
+		case PARSE_WORD_ARRAY_B:
 			{
 				sParser.SetPos( wordDes.offset );
 				pTmpNode = sParser.GetArray();
 				OpdStack.Push( pTmpNode );
 				break;
 			}
-		case PDFPARSER_WORD_DICT_B:
+		case PARSE_WORD_DICT_B:
 			{
 				sParser.SetPos( wordDes.offset );
 				pTmpNode = sParser.GetDictionary();
@@ -721,46 +721,46 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 
 				switch ( wordDes.type )
 				{
-				case PDFPARSER_WORD_INTEGER:
+				case PARSE_WORD_INTEGER:
 					{
 						pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetInteger(), 0, 0, pDocParser, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}
-				case PDFPARSER_WORD_FLOAT:
+				case PARSE_WORD_FLOAT:
 					{
 						pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetFloat(), 0, 0, pDocParser, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}
 
-				case PDFPARSER_WORD_NAME:
+				case PARSE_WORD_NAME:
 					{
 						pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0, pDocParser, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}
-				case PDFPARSER_WORD_STRING:
+				case PARSE_WORD_STRING:
 					{
 						pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0, pDocParser, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}
-				case PDFPARSER_WORD_ARRAY_B:
+				case PARSE_WORD_ARRAY_B:
 					{
 						sParser.SetPos( wordDes.offset );
 						pTmpNode = sParser.GetArray();
 						OpdStack.Push( pTmpNode );
 						break;			
 					}
-				case PDFPARSER_WORD_DICT_B:
+				case PARSE_WORD_DICT_B:
 					{
 						sParser.SetPos( wordDes.offset );
 						pTmpNode = sParser.GetDictionary();
 						OpdStack.Push( pTmpNode );
 						break;
 					}
-				case PDFPARSER_WORD_UNKNOWN:
+				case PARSE_WORD_UNKNOWN:
 					{
 						if ( wordDes.str == "null" )
 						{
@@ -1107,7 +1107,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							CHE_PDF_OrderParam_LineWidth * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineWidth>( fTmp, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-							pOrder->SetOrder( ORDER_LINE_WIDTH );
+							pOrder->SetType( ORDER_LINE_WIDTH );
 							pOrder->SetParam( pTmp );
 							m_arrContentObj.Append( pOrder );
 							pTmpNode->Release();
@@ -1122,7 +1122,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							HE_BYTE dwByte = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							CHE_PDF_OrderParam_LineCap * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineCap>( dwByte, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-							pOrder->SetOrder( ORDER_LINE_CAP );
+							pOrder->SetType( ORDER_LINE_CAP );
 							pOrder->SetParam( pTmp );
 							m_arrContentObj.Append( pOrder );
 							pTmpNode->Release();
@@ -1137,7 +1137,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							HE_BYTE dwByte = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							CHE_PDF_OrderParam_LineJoin * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineJoin>( dwByte, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-							pOrder->SetOrder( ORDER_LINE_JION );
+							pOrder->SetType( ORDER_LINE_JION );
 							pOrder->SetParam( pTmp );
 							m_arrContentObj.Append( pOrder );
 							pTmpNode->Release();
@@ -1152,7 +1152,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							CHE_PDF_OrderParam_MiterLimit * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_MiterLimit>( fTmp, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-							pOrder->SetOrder( ORDER_MITER_LIMIT );
+							pOrder->SetType( ORDER_MITER_LIMIT );
 							pOrder->SetParam( pTmp );
 							m_arrContentObj.Append( pOrder );
 							pTmpNode->Release();
@@ -1180,7 +1180,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							{
 								CHE_PDF_OrderParam_DashPattern * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_DashPattern>( dashArray, 0, dashPhase, GetAllocator() );
 								CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-								pOrder->SetOrder( ORDER_DASH_PATTERN );
+								pOrder->SetType( ORDER_DASH_PATTERN );
 								pOrder->SetParam( pTmp );
 								m_arrContentObj.Append( pOrder );
 							}else{
@@ -1196,7 +1196,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 								}
 								CHE_PDF_OrderParam_DashPattern * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_DashPattern>( dashArray, dashArraySize, dashPhase, GetAllocator() );
 								CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-								pOrder->SetOrder( ORDER_DASH_PATTERN );
+								pOrder->SetType( ORDER_DASH_PATTERN );
 								pOrder->SetParam( pTmp );
 								m_arrContentObj.Append( pOrder );
 								GetAllocator()->DeleteArray<HE_FLOAT>( dashArray );
@@ -1212,7 +1212,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 						{
 							CHE_PDF_OrderParam_Intent * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_Intent>( GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-							pOrder->SetOrder( ORDER_INTENT );
+							pOrder->SetType( ORDER_INTENT );
 							pOrder->SetParam( pTmp );
 							m_arrContentObj.Append( pOrder );
 							pTmpNode->Release();
@@ -1227,7 +1227,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							HE_BYTE byteTmp = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							CHE_PDF_OrderParam_Flatness * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_Flatness>( byteTmp, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-							pOrder->SetOrder( ORDER_FALTNESS );
+							pOrder->SetType( ORDER_FALTNESS );
 							pOrder->SetParam( pTmp );
 							m_arrContentObj.Append( pOrder );
 							pTmpNode->Release();
@@ -1246,13 +1246,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							HE_DWORD value = 0;
 							HE_DWORD bTmp = (HE_DWORD)( fTmp * 255 );
-							value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
-							//pGraphState->GetStrokeColor()->SetValue( value );
+							value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp );
 							CHE_PDF_Color color;
 							color.SetValue( value );
 							CHE_PDF_OrderParam_StrokeColor * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_StrokeColor>( color, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-							pOrder->SetOrder( ORDER_STROKE_COLOR );
+							pOrder->SetType( ORDER_STROKE_COLOR );
 							pOrder->SetParam( pTmp );
 							m_arrContentObj.Append( pOrder );
 							pTmpNode->Release();
@@ -1268,12 +1267,11 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							HE_DWORD value = 0;
 							HE_DWORD bTmp = (HE_DWORD)( fTmp * 255 );
 							value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
-							//pGraphState->GetFillColor()->SetValue( value );
 							CHE_PDF_Color color;
 							color.SetValue( value );
 							CHE_PDF_OrderParam_FillColor * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_FillColor>( color, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-							pOrder->SetOrder( ORDER_FILL_COLOR );
+							pOrder->SetType( ORDER_FILL_COLOR );
 							pOrder->SetParam( pTmp );
 							m_arrContentObj.Append( pOrder );
 							pTmpNode->Release();
@@ -1316,7 +1314,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					color.SetValue( value );
 					CHE_PDF_OrderParam_StrokeColor * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_StrokeColor>( color, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_STROKE_COLOR );
+					pOrder->SetType( ORDER_STROKE_COLOR );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 				}else if ( wordDes.str == "rg" )
@@ -1356,7 +1354,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					color.SetValue( value );
 					CHE_PDF_OrderParam_FillColor * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_FillColor>( color, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_FILL_COLOR );
+					pOrder->SetType( ORDER_FILL_COLOR );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 				}else if ( wordDes.str == "K" )
@@ -1671,7 +1669,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		}else if ( wordDes.str == "S" )
 		{
 			CHE_PDF_PathObject * pPath = GetAllocator()->New<CHE_PDF_PathObject>( GetAllocator() );
-			pPath->SetOperator( PATH_OPERATOR_STROKE );
+			pPath->SetType( PATH_STROKE );
 			CHE_GraphicsObject * pSubPath = NULL;
 			while( SupPathQueue.Pop( (HE_LPVOID*)&pSubPath ) == TRUE )
 			{
@@ -1682,8 +1680,8 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_STROKE_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
@@ -1698,7 +1696,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			bConnect = FALSE;
 			
 			CHE_PDF_PathObject * pPath = GetAllocator()->New<CHE_PDF_PathObject>( GetAllocator() );
-			pPath->SetOperator( PATH_OPERATOR_STROKE );
+			pPath->SetType( PATH_STROKE );
 			CHE_GraphicsObject * pSubPath = NULL;
 			while( SupPathQueue.Pop( (HE_LPVOID*)&pSubPath ) == TRUE )
 			{
@@ -1709,15 +1707,15 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_STROKE_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 		}else if ( wordDes.str == "f" || wordDes.str == "F" )
 		{
 			CHE_PDF_PathObject * pPath = GetAllocator()->New<CHE_PDF_PathObject>( GetAllocator() );
-			pPath->SetOperator( PATH_OPERATOR_FILL );
+			pPath->SetType( PATH_FILL );
 			CHE_GraphicsObject * pSubPath = NULL;
 			while( SupPathQueue.Pop( (HE_LPVOID*)&pSubPath ) == TRUE )
 			{
@@ -1728,16 +1726,16 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_FILL_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 		}else if ( wordDes.str == "f*" )
 		{
 			CHE_PDF_PathObject * pPath = GetAllocator()->New<CHE_PDF_PathObject>( GetAllocator() );
-			pPath->SetOperator( PATH_OPERATOR_FILL );
-			pPath->SetFillMode( PATH_FILL_MODE_EVERODD );
+			pPath->SetType( PATH_FILL );
+			pPath->SetFillMode( FILL_MODE_EVERODD );
 			CHE_GraphicsObject * pSubPath = NULL;
 			while( SupPathQueue.Pop( (HE_LPVOID*)&pSubPath ) == TRUE )
 			{
@@ -1748,8 +1746,8 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_FILL_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
@@ -1764,12 +1762,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pPath->AppendItem( pSubPath );
 				}
 			}
-			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
-			pPath->SetFillMode( PATH_FILL_MODE_NOZERO );
+			pPath->SetType( PATH_FILLSTROKE );
+			pPath->SetFillMode( FILL_MODE_NOZERO );
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_FILLSTROKE_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
@@ -1784,13 +1782,13 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pPath->AppendItem( pSubPath );
 				}
 			}
-			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
-			pPath->SetFillMode( PATH_FILL_MODE_EVERODD );
+			pPath->SetType( PATH_FILLSTROKE );
+			pPath->SetFillMode( FILL_MODE_EVERODD );
 
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_FILLSTROKE_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
@@ -1811,12 +1809,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pPath->AppendItem( pSubPath );
 				}
 			}
-			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
-			pPath->SetFillMode( PATH_FILL_MODE_NOZERO );
+			pPath->SetType( PATH_FILLSTROKE );
+			pPath->SetFillMode( FILL_MODE_NOZERO );
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_FILLSTROKE_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
@@ -1837,12 +1835,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pPath->AppendItem( pSubPath );
 				}
 			}
-			pPath->SetOperator( PATH_OPERATOR_FILLSTROKE );
-			pPath->SetFillMode( PATH_FILL_MODE_EVERODD );
+			pPath->SetType( PATH_FILLSTROKE );
+			pPath->SetFillMode( FILL_MODE_EVERODD );
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_FILLSTROKE_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
@@ -1857,22 +1855,22 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					pPath->AppendItem( pSubPath );
 				}
 			}
-			pPath->SetOperator( PATH_OPERATOR_NOOP );
+			pPath->SetType( PATH_NOOP );
 			if ( bClipPath == TRUE )
 			{
-				pPath->SetClip( TRUE );
-				pPath->SetClipFlag( bClipFlag );
+				pPath->SetType( PATH_NOOP_CLIP );
+				pPath->SetClipFillMode( ClipFillMode );
 				bClipPath = FALSE;
 			}
 			m_arrContentObj.Append( (HE_LPVOID)pPath );
 		}else if ( wordDes.str == "W" )
 		{
 			bClipPath = TRUE;
-			bClipFlag = 0;
+			ClipFillMode = FILL_MODE_NOZERO;
 		}else if ( wordDes.str == "W*" )
 		{
 			bClipPath = TRUE;
-			bClipFlag = 1;
+			ClipFillMode = FILL_MODE_EVERODD;
 		}else if ( wordDes.str == "cm" )
 		{
 			HE_FLOAT a = 0, b = 0, c = 0, d = 0, e = 0, f = 0 ; 
@@ -1927,12 +1925,12 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		}else if ( wordDes.str == "q" )
 		{
 			CHE_PDF_OrderObject * pClipOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-			pClipOrder->SetOrder( ORDER_PUSH_STATE );
+			pClipOrder->SetType( ORDER_PUSH_STATE );
 			m_arrContentObj.Append( pClipOrder );
 		}else if ( wordDes.str == "Q" )
 		{
 			CHE_PDF_OrderObject * pClipOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-			pClipOrder->SetOrder( ORDER_POP_STATE );
+			pClipOrder->SetType( ORDER_POP_STATE );
 			m_arrContentObj.Append( pClipOrder );
 		}else if ( wordDes.str == "gs" )
 		{
@@ -1949,7 +1947,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						CHE_PDF_Object * pTmpObj = NULL;
 						CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-						pOrder->SetOrder( ORDER_GRAPHSTATE );
+						pOrder->SetType( ORDER_SET_STATE );
 						CHE_PDF_OrderParam_GraphState * pOrderParam = GetAllocator()->New<CHE_PDF_OrderParam_GraphState>( GetAllocator() );
 						pTmpObj = pGraphStateDict->GetElement( "LW", PDFOBJ_NUMBER );
 						if ( pTmpObj != NULL )
@@ -2034,7 +2032,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					CHE_PDF_OrderParam_LineWidth * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineWidth>( fTmp, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_LINE_WIDTH );
+					pOrder->SetType( ORDER_LINE_WIDTH );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 					pTmpNode->Release();
@@ -2049,7 +2047,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_BYTE dwByte = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 					CHE_PDF_OrderParam_LineCap * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineCap>( dwByte, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_LINE_CAP );
+					pOrder->SetType( ORDER_LINE_CAP );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 					pTmpNode->Release();
@@ -2064,7 +2062,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_BYTE dwByte = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 					CHE_PDF_OrderParam_LineJoin * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineJoin>( dwByte, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_LINE_JION );
+					pOrder->SetType( ORDER_LINE_JION );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 					pTmpNode->Release();
@@ -2079,7 +2077,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					CHE_PDF_OrderParam_MiterLimit * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_MiterLimit>( fTmp, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_MITER_LIMIT );
+					pOrder->SetType( ORDER_MITER_LIMIT );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 					pTmpNode->Release();
@@ -2107,7 +2105,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						CHE_PDF_OrderParam_DashPattern * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_DashPattern>( dashArray, 0, dashPhase, GetAllocator() );
 						CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-						pOrder->SetOrder( ORDER_DASH_PATTERN );
+						pOrder->SetType( ORDER_DASH_PATTERN );
 						pOrder->SetParam( pTmp );
 						m_arrContentObj.Append( pOrder );
 					}else{
@@ -2123,7 +2121,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 						}
 						CHE_PDF_OrderParam_DashPattern * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_DashPattern>( dashArray, dashArraySize, dashPhase, GetAllocator() );
 						CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-						pOrder->SetOrder( ORDER_DASH_PATTERN );
+						pOrder->SetType( ORDER_DASH_PATTERN );
 						pOrder->SetParam( pTmp );
 						m_arrContentObj.Append( pOrder );
 						GetAllocator()->DeleteArray<HE_FLOAT>( dashArray );
@@ -2139,7 +2137,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					CHE_PDF_OrderParam_Intent * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_Intent>( GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_INTENT );
+					pOrder->SetType( ORDER_INTENT );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 					pTmpNode->Release();
@@ -2154,7 +2152,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_BYTE byteTmp = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 					CHE_PDF_OrderParam_Flatness * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_Flatness>( byteTmp, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_FALTNESS );
+					pOrder->SetType( ORDER_FALTNESS );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 					pTmpNode->Release();
@@ -2175,7 +2173,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						CHE_PDF_Object * pTmpObj = NULL;
 						CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-						pOrder->SetOrder( ORDER_GRAPHSTATE );
+						pOrder->SetType( ORDER_SET_STATE );
 						CHE_PDF_OrderParam_GraphState * pOrderParam = GetAllocator()->New<CHE_PDF_OrderParam_GraphState>( GetAllocator() );
 						pTmpObj = pGraphStateDict->GetElement( "LW", PDFOBJ_NUMBER );
 						if ( pTmpObj != NULL )
@@ -2265,12 +2263,11 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_DWORD value = 0;
 					HE_DWORD bTmp = (HE_DWORD)( fTmp * 255 );
 					value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
-					//pGraphState->GetStrokeColor()->SetValue( value );
 					CHE_PDF_Color color;
 					color.SetValue( value );
 					CHE_PDF_OrderParam_StrokeColor * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_StrokeColor>( color, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_STROKE_COLOR );
+					pOrder->SetType( ORDER_STROKE_COLOR );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 					pTmpNode->Release();
@@ -2286,12 +2283,11 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_DWORD value = 0;
 					HE_DWORD bTmp = (HE_DWORD)( fTmp * 255 );
 					value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
-					//pGraphState->GetFillColor()->SetValue( value );
 					CHE_PDF_Color color;
 					color.SetValue( value );
 					CHE_PDF_OrderParam_FillColor * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_FillColor>( color, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-					pOrder->SetOrder( ORDER_FILL_COLOR );
+					pOrder->SetType( ORDER_FILL_COLOR );
 					pOrder->SetParam( pTmp );
 					m_arrContentObj.Append( pOrder );
 					pTmpNode->Release();
@@ -2330,12 +2326,11 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			dwG = (HE_DWORD)( fG * 255 );
 			dwB = (HE_DWORD)( fB * 255 );
 			value = 0xFF000000 | ( (dwR << 16) | (dwG << 8) | dwB );
-			//pGraphState->GetStrokeColor()->SetValue( value );
 			CHE_PDF_Color color;
 			color.SetValue( value );
 			CHE_PDF_OrderParam_StrokeColor * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_StrokeColor>( color, GetAllocator() );
 			CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-			pOrder->SetOrder( ORDER_STROKE_COLOR );
+			pOrder->SetType( ORDER_STROKE_COLOR );
 			pOrder->SetParam( pTmp );
 			m_arrContentObj.Append( pOrder );
 		}else if ( wordDes.str == "rg" )
@@ -2371,12 +2366,11 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			dwG = (HE_DWORD)( fG * 255 );
 			dwB = (HE_DWORD)( fB * 255 );
 			value = 0xFF000000 | (dwR << 16) | (dwG << 8) | dwB;
-			//pGraphState->GetFillColor()->SetValue( value );
 			CHE_PDF_Color color;
 			color.SetValue( value );
 			CHE_PDF_OrderParam_FillColor * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_FillColor>( color, GetAllocator() );
 			CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
-			pOrder->SetOrder( ORDER_FILL_COLOR );
+			pOrder->SetType( ORDER_FILL_COLOR );
 			pOrder->SetParam( pTmp );
 			m_arrContentObj.Append( pOrder );
 		}else if ( wordDes.str == "K" )

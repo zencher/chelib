@@ -2,37 +2,10 @@
 #define _CHE_PDF_CREATOR_H_
 
 #include "../che_base.h"
+#include "che_pdf_define.h"
 #include "che_pdf_collector.h"
 #include "che_pdf_objects.h"
 
-#define FONT_TYPE1_STANDARD14_TIMES_ROMAN			0
-#define FONT_TYPE1_STANDARD14_TIMES_BOLD			1
-#define FONT_TYPE1_STANDARD14_TIMES_ITALIC			2
-#define FONT_TYPE1_STANDARD14_TIMES_BOLDITALIC		3
-#define FONT_TYPE1_STANDARD14_HELVETICA				4
-#define FONT_TYPE1_STANDARD14_HELVETICA_BOLD		5
-#define FONT_TYPE1_STANDARD14_HELVETICA_OBILQUE		6
-#define FONT_TYPE1_STANDARD14_HELVETICA_BOLDOBILQUE	7
-#define FONT_TYPE1_STANDARD14_COURIER				8
-#define FONT_TYPE1_STANDARD14_COURIER_BOLD			9
-#define FONT_TYPE1_STANDARD14_COURIER_OBILQUE		10
-#define FONT_TYPE1_STANDARD14_COURIER_BOLDOBILQUE	11
-#define FONT_TYPE1_STANDARD14_SYMBOL				12
-#define FONT_TYPE1_STANDARD14_ZAPFDINGBATS			13
-
-#define ENCODING_WINANSIENCODING					1
-#define ENCODING_MACROMANENCODING					2
-#define ENCODING_MACEXPERTENCODING					3
-
-#define DOCUMENT_INFO_TITLE							0
-#define DOCUMENT_INFO_AUTHOR						1
-#define DOCUMENT_INFO_SUBJECT						2
-#define DOCUMENT_INFO_KEYWORDS						3
-#define DOCUMENT_INFO_CREATOR						4
-#define DOCUMENT_INFO_PRODUCER						5
-#define DOCUMENT_INFO_CREATIONDATE					6
-#define DOCUMENT_INFO_MODDATE						7
-#define DOCUMENT_INFO_TRAPPED						8
 
 class CHE_PDF_Creator : public CHE_Object
 {
@@ -43,7 +16,7 @@ public:
 	/**************   Document Operations   *************/
 
  	HE_BOOL					NewDocument();
-	HE_BOOL					SetDocumentInfo( HE_BYTE infoType, CHE_ByteString & str );
+	HE_BOOL					SetDocumentInfo( PDF_DOCUMENT_INFO infoType, CHE_ByteString & str );
 	HE_BOOL					SetDocumentParam();
 	HE_BOOL					Save( IHE_Write * pWrite );
 
@@ -65,13 +38,13 @@ public:
 
 	/************* Document Level Resources Operations *************/
 
-	CHE_PDF_Dictionary*		AddType1Font_Standard14( HE_BYTE fontType, HE_BYTE Encoding = ENCODING_WINANSIENCODING );
+	CHE_PDF_Dictionary*		AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSIENCODING );
 	
 	/* AddType1Font 添加一个Type1 字体，必须自行并正确的设置相关的信息，如果包含Widths, */
 	/* FontDescriptor, ToUnicode 等信息，必须首先将这些对象插入文档，以便在创建字体字典的时候 */
 	/* 可以正确引用这些对象 */
 	CHE_PDF_Dictionary *	AddType1Font(	const CHE_ByteString & baseFont, HE_DWORD firstChar = 0, HE_DWORD lastChar = 255,
-											HE_BYTE Encoding = ENCODING_WINANSIENCODING, 
+											PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSIENCODING, 
 											const CHE_PDF_Array * pWidths = NULL, const CHE_PDF_Dictionary * pFontDescriptor = NULL,
 											const CHE_PDF_Stream * pToUnicode = NULL );
 
@@ -79,7 +52,7 @@ public:
 	/* FontDescriptor, ToUnicode 等信息，必须首先将这些对象插入文档，以便在创建字体字典的时候 */
 	/* 可以正确引用这些对象 */
 	CHE_PDF_Dictionary*		AddTrueTypeFont(	const CHE_ByteString & baseFont, HE_DWORD firstChar = 0, HE_DWORD lastChar = 255,
-												HE_BYTE Encoding = ENCODING_WINANSIENCODING, 
+												PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSIENCODING, 
 												const CHE_PDF_Array * pWidths = NULL, const CHE_PDF_Dictionary * pFontDescriptor = NULL,
 												const CHE_PDF_Stream * pToUnicode = NULL );
 

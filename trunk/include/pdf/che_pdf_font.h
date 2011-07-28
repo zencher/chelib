@@ -4,7 +4,6 @@
 #include "../che_base.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_parser.h"
-#define USE_FREETYPE2_STATIC
 #include "../../extlib/freetype/ft2build.h"
 #include "../../extlib/freetype/freetype/freetype.h"
 

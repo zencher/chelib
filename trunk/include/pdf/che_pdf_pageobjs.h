@@ -5,30 +5,8 @@
 #include "../che_datastructure.h"
 #include "../che_bitmap.h"
 #include "../che_graphics.h"
+#include "che_pdf_define.h"
 #include "che_pdf_objects.h"
-
-
-enum PDF_COLORSPACE_TYPE
-{
-	COLORSAPCE_DEVICE	= 0x0000,
-	COLORSPACE_CIEBASE	= 0x0001,
-	COLORSPACE_SPECIAL	= 0x0002
-};
-
-enum PDF_COLORSPACE
-{
-	COLORSAPCE_DEVICE_GRAY			= 0x0001,
-	COLORSAPCE_DEVICE_RGB			= 0x0002,
-	COLORSAPCE_DEVICE_CMYK			= 0x0003,
-	COLORSAPCE_CIEBASE_CALCRAY		= 0x0101,
-	COLORSAPCE_CIEBASE_CALRGB		= 0x0102,
-	COLORSAPCE_CIEBASE_CALLAB		= 0x0103,
-	COLORSAPCE_CIEBASE_ICCBASED		= 0x0104,
-	COLORSAPCE_SPECIAL_PATTERN		= 0x0201,
-	COLORSAPCE_SPECIAL_INDEXED		= 0x0202,
-	COLORSAPCE_SPECIAL_SEPARATION	= 0x0203,
-	COLORSAPCE_SPECAIL_DEVICEN		= 0x0204,
-};
 
 
 class CHE_PDF_Color : public CHE_Object
@@ -69,19 +47,9 @@ private:
 	HE_DWORD				m_value;
 };
 
-
-
 class CHE_PDF_TextObject;
 class CHE_PDF_PathObject;
 class CHE_PDF_OrderObject;
-
-enum PDF_CONTENTOBJ_TYPE
-{
-	CONTENTOBJ_INVALID	= 0x0000,
-	CONTENTOBJ_TEXT		= 0x0001,
-	CONTENTOBJ_PATH		= 0x0002,
-	CONTENTOBJ_ORDER	= 0x0003
-};
 
 class CHE_PDF_ContentObject : public CHE_Object
 {
@@ -99,7 +67,6 @@ public:
 private:
 	PDF_CONTENTOBJ_TYPE m_Type;
 };
-
 
 class CHE_PDF_TextObjectItem;
 
@@ -226,21 +193,6 @@ private:
 	friend class CHE_PDF_TextObject;
 };
 
-
-enum PDF_PATH_TYPE
-{
-	PATH_NOOP		= 0x00,
-	PATH_STROKE		= 0x01,
-	PATH_FILL		= 0x10,
-	PATH_FILLSTROKE	= 0x11
-};
-
-enum PDF_FILL_MODE
-{
-	FILL_MODE_NOZERO	= 0x00,
-	FILL_MODE_EVERODD	= 0x01
-};
-
 class CHE_PDF_PathObject : public CHE_PDF_ContentObject
 {
 public:
@@ -254,14 +206,11 @@ public:
 		}
 	}
 
-	HE_VOID SetPathType( PDF_PATH_TYPE opt ) { m_PathType = opt; }
+	HE_VOID SetType( PDF_PATH_TYPE opt ) { m_PathType = opt; }
 	HE_VOID SetFillMode( PDF_FILL_MODE mode ) { m_FillMode = mode; }
 
-	PDF_PATH_TYPE GetPathType() { return m_PathType; }
+	PDF_PATH_TYPE GetType() { return m_PathType; }
 	PDF_FILL_MODE GetFillMode() { return m_FillMode; }
-
-	HE_VOID	SetClip( HE_BOOL bClip ) { m_bClip = bClip; }
-	HE_BOOL	GetClip() { return m_bClip; }
 
 	HE_VOID	SetClipFillMode( PDF_FILL_MODE clipMode ) { m_ClipFillMode = clipMode; }
 	PDF_FILL_MODE	GetClipFillMode() { return m_ClipFillMode; }
@@ -280,43 +229,16 @@ public:
 private:
 	CHE_PDF_PathObject( CHE_Allocator * pAllocator = NULL ) 
 		: CHE_PDF_ContentObject( CONTENTOBJ_PATH, pAllocator ), m_arrPathItem( pAllocator )
-	{ m_FillMode = FILL_MODE_NOZERO; m_PathType = PATH_STROKE; m_bClip = FALSE; m_ClipFillMode = FILL_MODE_NOZERO; }
+	{ m_FillMode = FILL_MODE_NOZERO; m_PathType = PATH_STROKE; m_ClipFillMode = FILL_MODE_NOZERO; }
 	~CHE_PDF_PathObject() { Clear(); }
 
 	CHE_PtrArray	m_arrPathItem;
 	PDF_PATH_TYPE	m_PathType;
 	PDF_FILL_MODE	m_FillMode;
-	
-	HE_BOOL			m_bClip;
 	PDF_FILL_MODE	m_ClipFillMode;
 
 	friend class CHE_PDF_ContentObject;
 	friend class CHE_Allocator;
-};
-
-enum PDF_ORDER_TYPE
-{
-	ORDER_UNKNOWN			= 0x0000,
-	ORDER_INIT_STATE		= 0x0001,
-
-	//General graphics state
-	ORDER_LINE_WIDTH		= 0x0002,
-	ORDER_LINE_CAP			= 0x0003,
-	ORDER_LINE_JION			= 0x0004,
-	ORDER_MITER_LIMIT		= 0x0005,
-	ORDER_DASH_PATTERN		= 0x0006,
-	ORDER_INTENT			= 0x0007,
-	ORDER_FALTNESS			= 0x0008,
-	ORDER_SET_STATE			= 0x0009,
-
-	//Special graphics state
-	ORDER_PUSH_STATE		= 0x000A,
-	ORDER_POP_STATE			= 0x000B,
-	ORDER_MATRIX			= 0x000C,
-
-	//Color
-	ORDER_STROKE_COLOR		= 0x000D,
-	ORDER_FILL_COLOR		= 0x000E
 };
 
 class CHE_PDF_OrderParam : public CHE_Object

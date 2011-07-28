@@ -2,14 +2,9 @@
 #define _CHE_PDF_XREF_H_
 
 #include "../che_base.h"
+#include "che_pdf_define.h"
 
 class CHE_PDF_Parser;
-
-#define PDF_XREF_ENTRY_INUSE	'n'
-#define PDF_XREF_ENTRY_FREE		'f'
-
-#define OBJTYPE_COMMON			0
-#define OBJTYPE_COMPRESSED		1
 
 class CHE_PDF_XREF_Entry
 {
@@ -22,7 +17,7 @@ public:
 	HE_DWORD field3;
 	HE_DWORD objNum;
 
-	HE_DWORD GetType() { return ( field1 == 0 ) ? -1 : ( ( field1 == 2 ) ? OBJTYPE_COMPRESSED : OBJTYPE_COMMON ); }
+	HE_DWORD GetType() { return ( field1 == 0 ) ? -1 : ( ( field1 == 2 ) ? INOBJ_TYPE_COMPRESSED : INOBJ_TYPE_COMMON ); }
 	HE_DWORD GetOffset() { return field2; }
 	HE_DWORD GetParentObjNum() { return field2; }
 	HE_DWORD GetObjNum() { return objNum; }

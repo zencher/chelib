@@ -70,7 +70,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 
 	HE_DWORD lCharCount = 0;
 	CHE_PtrStack OpdStack( GetAllocator() );
-	CHE_PDF_PARSER_WORD_DES wordDes( GetAllocator() );
+	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
 	CHE_PDF_Object * pTmpNode = NULL;
 	HE_BOOL	bOpd = TRUE;
 	while( sParser.GetWord( wordDes ) == TRUE )
@@ -92,33 +92,33 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			}
 			switch ( wordDes.type )
 			{
-			case PDFPARSER_WORD_INTEGER:
+			case PARSE_WORD_INTEGER:
 				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetInteger(), 0, 0, NULL, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
-			case PDFPARSER_WORD_FLOAT:
+			case PARSE_WORD_FLOAT:
 				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetFloat(), 0, 0, NULL, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
-			case PDFPARSER_WORD_NAME:
+			case PARSE_WORD_NAME:
 				pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0, NULL, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
-			case PDFPARSER_WORD_ARRAY_B:
+			case PARSE_WORD_ARRAY_B:
 				sParser.SetPos( wordDes.offset );
 				pTmpNode = sParser.GetArray();
 				OpdStack.Push( pTmpNode );
 				break;
-			case PDFPARSER_WORD_DICT_B:
+			case PARSE_WORD_DICT_B:
 				sParser.SetPos( wordDes.offset );
 				pTmpNode = sParser.GetDictionary();
 				OpdStack.Push( pTmpNode );
 				break;
-			case PDFPARSER_WORD_STRING:
+			case PARSE_WORD_STRING:
 				pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0, NULL, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
-			case PDFPARSER_WORD_UNKNOWN:
+			case PARSE_WORD_UNKNOWN:
 				{
 					if ( wordDes.str == "null" )
 					{
@@ -273,7 +273,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 // 
 // 	HE_DWORD lCharCount = 0;
 // 	CHE_PtrStack OpdStack;
-// 	PDFPARSER_WORD_DES wordDes;
+// 	PARSE_WORD_DES wordDes;
 // 	CHE_PDF_Object * pTmpNode = NULL;
 // 	HE_BOOL	bOpd = TRUE;
 // 	HE_WCHAR wch, wch1, wch2;
@@ -296,33 +296,33 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 // 			}
 // 			switch ( wordDes.type )
 // 			{
-// 			case PDFPARSER_WORD_INTEGER:
+// 			case PARSE_WORD_INTEGER:
 // 				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToInteger(wordDes.str), 0, 0 );
 // 				OpdStack.Push( pTmpNode );
 // 				break;
-// 			case PDFPARSER_WORD_FLOAT:
+// 			case PARSE_WORD_FLOAT:
 // 				pTmpNode = CHE_PDF_Number::Create( HE_PDF_StringToFloat(wordDes.str), 0, 0 );
 // 				OpdStack.Push( pTmpNode );
 // 				break;
-// 			case PDFPARSER_WORD_NAME:
+// 			case PARSE_WORD_NAME:
 // 				pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0 );
 // 				OpdStack.Push( pTmpNode );
 // 				break;
-// 			case PDFPARSER_WORD_ARRAY_B:
+// 			case PARSE_WORD_ARRAY_B:
 // 				sParser.SetPos( wordDes.offset );
 // 				pTmpNode = sParser.GetArray();
 // 				OpdStack.Push( pTmpNode );
 // 				break;
-// 			case PDFPARSER_WORD_DICT_B:
+// 			case PARSE_WORD_DICT_B:
 // 				sParser.SetPos( wordDes.offset );
 // 				pTmpNode = sParser.GetDictionary();
 // 				OpdStack.Push( pTmpNode );
 // 				break;
-// 			case PDFPARSER_WORD_STRING:
+// 			case PARSE_WORD_STRING:
 // 				pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0 );
 // 				OpdStack.Push( pTmpNode );
 // 				break;
-// 			case PDFPARSER_WORD_UNKNOWN:
+// 			case PARSE_WORD_UNKNOWN:
 // 				{
 // 					if ( wordDes.str == "null" )
 // 					{

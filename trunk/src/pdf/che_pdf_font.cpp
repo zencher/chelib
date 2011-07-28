@@ -11041,13 +11041,13 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 	CHE_NumToPtrMap * tmpMap = GetAllocator()->New<CHE_NumToPtrMap>( GetAllocator() );
 	IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize(), GetAllocator() );
 	CHE_PDF_SyntaxParser parser( NULL, GetAllocator() );
-	CHE_PDF_PARSER_WORD_DES wordDes( GetAllocator() );
+	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
 	HE_DWORD lMaxIndex = 0;
 	HE_DWORD lCodeCount = 0;
 	parser.InitParser( pFileRead );
 	while ( parser.GetWord( wordDes ) )
 	{
-		if ( wordDes.type == PDFPARSER_WORD_INTEGER )
+		if ( wordDes.type == PARSE_WORD_INTEGER )
 		{
 			HE_DWORD lCount = wordDes.str.GetInteger();
 			if ( parser.GetWord( wordDes ) == FALSE )
@@ -11087,7 +11087,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 					lIndexEnd = HE_HexStrToValue( wordDes.str );
 					offset = parser.GetPos();
 					parser.GetWord( wordDes );
-					if ( wordDes.type == PDFPARSER_WORD_ARRAY_B )
+					if ( wordDes.type == PARSE_WORD_ARRAY_B )
 					{
 						parser.SetPos( offset );
 						CHE_PDF_Array * pArray = parser.GetArray();

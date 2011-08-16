@@ -17,7 +17,7 @@ public:
 	HE_DWORD field3;
 	HE_DWORD objNum;
 
-	HE_DWORD GetType() { return ( field1 == 0 ) ? -1 : ( ( field1 == 2 ) ? INOBJ_TYPE_COMPRESSED : INOBJ_TYPE_COMMON ); }
+	HE_DWORD GetType() { return ( field1 == 0 ) ? -1 : ( ( field1 == 2 ) ? XREF_ENTRY_TYPE_COMPRESSED : XREF_ENTRY_TYPE_COMMON ); }
 	HE_DWORD GetOffset() { return field2; }
 	HE_DWORD GetParentObjNum() { return field2; }
 	HE_DWORD GetObjNum() { return objNum; }

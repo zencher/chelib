@@ -537,15 +537,17 @@ HE_BOOL	CHE_ByteStringToPtrMap::Append( const CHE_ByteString & str, HE_LPVOID pt
 	}
 }
 
-HE_BOOL CHE_ByteStringToPtrMap::UpdateItem( const CHE_ByteString & str, HE_LPVOID ptr )
+HE_BOOL CHE_ByteStringToPtrMap::UpdateItem( const CHE_ByteString & str, HE_LPVOID * ptr )
 {
-	if ( str.GetLength() != 0 && ptr != NULL )
+	if ( str.GetLength() != 0 && *ptr != NULL )
 	{
 		for ( HE_DWORD i = 0; i < m_lCount; i++ )
 		{
 			if ( *m_pString[i] == str )
 			{
-				m_pData[i] = ptr;
+				HE_LPVOID tmpPtr = m_pData[i];
+				m_pData[i] = *ptr;
+				*ptr = tmpPtr;
 				return TRUE;
 			}
 		}

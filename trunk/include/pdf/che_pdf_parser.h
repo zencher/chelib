@@ -5,9 +5,9 @@
 #include "../che_string.h"
 #include "che_pdf_define.h"
 #include "che_pdf_objects.h"
-#include "che_pdf_collector.h"
 #include "che_pdf_xref.h"
 #include "che_pdf_encrypt.h"
+#include "che_pdf_collector.h"
 
 class CHE_PDF_ParseWordDes : public CHE_Object
 {
@@ -22,7 +22,7 @@ public:
 class CHE_PDF_SyntaxParser : public CHE_Object
 {
 public:
-	CHE_PDF_SyntaxParser( CHE_PDF_Parser * pParser/* = NULL*/, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_SyntaxParser( CHE_PDF_Parser * pParser, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_SyntaxParser();
 
 	HE_BOOL				InitParser( IHE_Read* pFileAccess );
@@ -52,7 +52,7 @@ public:
 
 	CHE_PDF_Encrypt *	GetEncrypt() { return m_pStrEncrypt; }
 
-	HE_DWORD			ReadBytes( /*HE_DWORD offset,*/ HE_LPBYTE pBuffer, HE_DWORD length );
+	HE_DWORD			ReadBytes( HE_LPBYTE pBuffer, HE_DWORD length );
 
 	HE_BOOL				GetWord( CHE_PDF_ParseWordDes & des );
 
@@ -89,58 +89,48 @@ class CHE_PDF_Parser : public CHE_Object
 {
 public:
 	CHE_PDF_Parser( CHE_Allocator * pAllocator = NULL );
-	~CHE_PDF_Parser() { CloseParser(); }
+	~CHE_PDF_Parser() { Close(); }
 
-	HE_BOOL						StartParse( IHE_Read * file );
+	HE_BOOL						Open( IHE_Read * file );
+	HE_VOID						Close();
 
-	HE_VOID						CloseParser();
+	HE_DWORD					GetFileSize() const;
+	PDF_VERSION					GetPDFVersion() const;
+	CHE_PDF_Dictionary *		GetTrailerDict() const { return m_pTrailerDict; }
 
-	HE_DWORD					GetFileSize();
-
-	PDF_VERSION					GetPDFVersion();
-
-	HE_DWORD					GetStartxrefOffset( HE_DWORD range );
-
-	HE_DWORD					ParseXRef();
-
-	HE_VOID						VerifyXRef();
-
-	HE_VOID						VerifyObjInStm();
-
-	CHE_PDF_Dictionary*			GetRootDict();
-
-	CHE_PDF_Dictionary*			GetInfoDict();
-
-	CHE_PDF_Dictionary*			GetTrailerDict() { return m_pTrailerDict; }
-	
-	CHE_PDF_Array*				GetIDArray();
+	CHE_PDF_Dictionary *		GetRootDict();
+	CHE_PDF_Dictionary *		GetInfoDict();
+	CHE_PDF_Array *				GetIDArray();
+	//HE_BOOL					IsLinearized();
 
 	HE_DWORD					GetPageCount();
-
 	HE_DWORD					GetPageObjList( HE_DWORD* pList );
 
-	HE_BOOL						Authenticate( CHE_ByteString & password ) { return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): FALSE; }
+	HE_BOOL						Authenticate( CHE_ByteString & password ) const 
+									{ return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): FALSE; }
 
-	CHE_PDF_IndirectObject *	GetIndirectObject();
-	
-	CHE_PDF_IndirectObject *	GetIndirectObject( HE_DWORD objNum );
-
-	CHE_PDF_IndirectObject *	GetIndirectObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
-
-	//bool IsLinearized() const;
+	CHE_PDF_Object *			GetObject();
+	CHE_PDF_Object *			GetObject( HE_DWORD objNum );
+	CHE_PDF_Object *			GetObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
 
 private:
-	HE_DWORD					FullParseForXRef();
-	
+	HE_DWORD					GetStartxref( HE_DWORD range );
+
+	HE_DWORD					ParseXRef();
 	HE_DWORD					ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
-	
 	HE_DWORD					ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
+
+	HE_DWORD					FullParseForXRef();
+	HE_VOID						VerifyXRef();
+	HE_VOID						VerifyObjInStm();
+
+	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict );
 
 private:
 	IHE_Read *					m_pIHE_FileRead;
 
 	CHE_PDF_Dictionary*			m_pTrailerDict;
-	HE_BOOL						m_bTrailerDictNeedDestory;
+	HE_BOOL						m_bTrailerDictNeedDestory;	//标志尾字典是否需要销毁，尾字典为单独对象时需要销毁
 
 	HE_DWORD					m_lstartxref;
 	HE_DWORD					m_lPageCount;
@@ -150,12 +140,10 @@ private:
 	CHE_PDF_Encrypt	*			m_pEefEncrypt;
 
 	CHE_PtrArray				m_arrObjStm;
-	CHE_NumToPtrMap				m_XrefVerifyMap1;
-	CHE_NumToPtrMap				m_XrefVerifyMap2;
 	
 	CHE_PDF_SyntaxParser		m_sParser;
-	CHE_PDF_XREF_Table			m_xrefTable;
-	CHE_PDF_Collector			m_objCollector;
+	CHE_PDF_XREF_Table			m_xrefTable;				//结构化的交叉索引表信息
+	CHE_PDF_Collector			m_objCollector;				//对象收集器，被加载的都被放入收集器，某些尾字典不会
 };
 
 #endif

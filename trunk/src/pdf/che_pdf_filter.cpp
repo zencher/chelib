@@ -570,7 +570,7 @@ HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuf
 			pData+= byteLen+1;
 		}else if ( byteLen > 128 )
 		{
-			for ( HE_DWORD i = 0; i < byteLen - 127; i++ )
+			for ( HE_BYTE i = 0; i < byteLen - 127; i++ )
 			{
 				buffer.Write( pData, 1 );
 			}

@@ -1,6 +1,6 @@
 #include "../../include/pdf/che_pdf_collector.h"
 
-HE_BOOL CHE_PDF_Collector::Add( CHE_PDF_IndirectObject * pObj )
+HE_BOOL CHE_PDF_Collector::Add( CHE_PDF_Object * pObj )
 {
 	if ( pObj == NULL )
 	{
@@ -12,10 +12,10 @@ HE_BOOL CHE_PDF_Collector::Add( CHE_PDF_IndirectObject * pObj )
 HE_VOID CHE_PDF_Collector::ReleaseObj()
 {
 	HE_DWORD count = m_map.GetCount();
-	CHE_PDF_IndirectObject * pObj = NULL;
+	CHE_PDF_Object * pObj = NULL;
 	for ( HE_DWORD i = 0; i < count; i++ )
 	{
-		pObj = (CHE_PDF_IndirectObject*)m_map.GetItemByIndex( i );
+		pObj = (CHE_PDF_Object*)m_map.GetItemByIndex( i );
 		if ( pObj )
 		{
 			pObj->Release();

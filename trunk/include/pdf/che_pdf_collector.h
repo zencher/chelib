@@ -13,13 +13,13 @@ public:
 
 	HE_DWORD GetCount() { return m_map.GetCount(); }
 
-	HE_BOOL Add( CHE_PDF_IndirectObject * pObj );
+	HE_BOOL Add( CHE_PDF_Object * pObj );
 
 	HE_BOOL IsExist( HE_DWORD objNum ) { return m_map.GetItem( objNum ) ? TRUE : FALSE ; }
 
-	CHE_PDF_IndirectObject * GetObj( HE_DWORD objNum ) { return (CHE_PDF_IndirectObject*)m_map.GetItem( objNum ); }
+	CHE_PDF_Object * GetObj( HE_DWORD objNum ) { return (CHE_PDF_Object*)m_map.GetItem( objNum ); }
 
-	CHE_PDF_IndirectObject * GetObjByIndex( HE_DWORD index ) { return (CHE_PDF_IndirectObject*)( m_map.GetItemByIndex( index ) ); }
+	CHE_PDF_Object * GetObjByIndex( HE_DWORD index ) { return (CHE_PDF_Object*)( m_map.GetItemByIndex( index ) ); }
 
 	HE_VOID Clear() { m_map.Clear(); }
 

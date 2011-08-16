@@ -50,7 +50,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 	}
 
 	CHE_PDF_Font * pCurFont = NULL;
-	CHE_PDF_Dictionary * pFontDict = (CHE_PDF_Dictionary *)pResourceDict->GetElement( "Font", PDFOBJ_DICTIONARY );
+	CHE_PDF_Dictionary * pFontDict = (CHE_PDF_Dictionary *)pResourceDict->GetElement( "Font", OBJ_TYPE_DICTIONARY );
 	if ( pFontDict == NULL )
 	{
 		return 0;
@@ -152,7 +152,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				pTmpNode->Release();
 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
-				if ( pFontRef == NULL || pFontRef->GetType() != PDFOBJ_REFERENCE )
+				if ( pFontRef == NULL || pFontRef->GetType() != OBJ_TYPE_REFERENCE )
 				{
 					pCurFont = NULL;
 				}else{
@@ -194,7 +194,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				for ( HE_DWORD i = 0; i < pArray->GetCount(); i++ )
 				{
 					pTmpNode = pArray->GetElement( i );
-					if ( pTmpNode->GetType() != PDFOBJ_STRING )
+					if ( pTmpNode->GetType() != OBJ_TYPE_STRING )
 					{
 						continue;
 					}
@@ -249,7 +249,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 // 	if ( pFontDict == NULL )
 // 	{
 // 		return 0;
-// 	}else if ( pFontDict->GetType() == PDFOBJ_REFERENCE )
+// 	}else if ( pFontDict->GetType() == OBJ_TYPE_REFERENCE )
 // 	{
 // 		CHE_PDF_IndirectObject * pInObj = pIHE_InObj->GetInObj( ((CHE_PDF_Reference*)pFontDict)->GetRefNuml() );
 // 		pFontDict = pInObj->GetDict();
@@ -356,7 +356,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 // 				pTmpNode->Release();
 // 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 // 				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
-// 				if ( pFontRef == NULL || pFontRef->GetType() != PDFOBJ_REFERENCE )
+// 				if ( pFontRef == NULL || pFontRef->GetType() != OBJ_TYPE_REFERENCE )
 // 				{
 // 					pCurFontCharCodeMgr = NULL;
 // 				}else{
@@ -469,7 +469,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 // 				for ( HE_DWORD i = 0; i < pArray->GetCount(); i++ )
 // 				{
 // 					pTmpNode = pArray->GetElement( i );
-// 					if ( pTmpNode->GetType() != PDFOBJ_STRING )
+// 					if ( pTmpNode->GetType() != OBJ_TYPE_STRING )
 // 					{
 // 						continue;
 // 					}

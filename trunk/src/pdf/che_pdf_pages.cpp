@@ -38,9 +38,7 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAlloc
 		m_pIHE_GetPDFFont = GetAllocator()->New<IHE_DefaultGetPDFFont>( this, GetAllocator() );
 	}else{
 		m_pParser = GetAllocator()->New<CHE_PDF_Parser>( GetAllocator() );
-		m_pParser->StartParse( pFileRead );
-		m_pParser->GetStartxrefOffset( 1024 );
-		m_pParser->ParseXRef();
+		m_pParser->Open( pFileRead );
 		m_pRootDict = m_pParser->GetRootDict();
 		m_pInfoDict = m_pParser->GetInfoDict();
 		HE_DWORD pageCount = m_pParser->GetPageCount();
@@ -48,7 +46,7 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAlloc
 		memset( m_pPageObjNumList, 0, pageCount * sizeof(HE_DWORD) );
 		m_pParser->GetPageObjList( m_pPageObjNumList );
 		CHE_PDF_Object * pIDArray = m_pParser->GetIDArray();
-		if ( pIDArray && pIDArray->GetType() != PDFOBJ_ARRAY )
+		if ( pIDArray && pIDArray->GetType() != OBJ_TYPE_ARRAY )
 		{
 			CHE_PDF_String * pStrObj = (CHE_PDF_String*)((CHE_PDF_Array*)pIDArray)->GetElement( 0 );
 			m_ID1 = pStrObj->GetString();
@@ -71,7 +69,7 @@ CHE_PDF_Document::~CHE_PDF_Document()
 	}
 	if ( m_pParser )
 	{
-		m_pParser->CloseParser();
+		m_pParser->Close();
 		GetAllocator()->Delete<CHE_PDF_Parser>( m_pParser );
 	}
 	if ( m_FontMap.GetCount() > 0 )
@@ -97,9 +95,7 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 	}
 
 	m_pParser = GetAllocator()->New<CHE_PDF_Parser>( GetAllocator() );
-	m_pParser->StartParse( pFileRead );
-	m_pParser->GetStartxrefOffset( 1024 );
-	m_pParser->ParseXRef();
+	m_pParser->Open( pFileRead );
 	m_pRootDict = m_pParser->GetRootDict();
 	m_pInfoDict = m_pParser->GetInfoDict();
 	HE_DWORD pageCount = m_pParser->GetPageCount();
@@ -107,7 +103,7 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 	memset( m_pPageObjNumList, 0, pageCount * sizeof(HE_DWORD) );
 	m_pParser->GetPageObjList( m_pPageObjNumList );
 	CHE_PDF_Object * pIDArray = m_pParser->GetIDArray();
-	if ( pIDArray && pIDArray->GetType() == PDFOBJ_ARRAY )
+	if ( pIDArray && pIDArray->GetType() == OBJ_TYPE_ARRAY )
 	{
 		CHE_PDF_String * pStrObj = (CHE_PDF_String*)((CHE_PDF_Array*)pIDArray)->GetElement( 0 );
 		m_ID1 = pStrObj->GetString();
@@ -119,7 +115,7 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 
 HE_VOID CHE_PDF_Document::Unload()
 {
-	m_pParser->CloseParser();
+	m_pParser->Close();
 	GetAllocator()->Delete<CHE_PDF_Parser>( m_pParser );
 	m_pParser = NULL;
 	if ( m_pPageObjNumList )
@@ -173,14 +169,12 @@ CHE_PDF_Page* CHE_PDF_Document::GetPage( HE_DWORD iPageIndex )
 	{
 		return NULL;
 	}
-	CHE_PDF_Object * pPageObj =  m_pParser->GetIndirectObject( objNum );
-	if ( pPageObj == NULL )
+	CHE_PDF_Object * pPageObj =  m_pParser->GetObject( objNum );
+	if ( pPageObj == NULL || pPageObj->GetType() != OBJ_TYPE_DICTIONARY )
 	{
 		return NULL;
 	}
-	pPageObj = ((CHE_PDF_IndirectObject*)pPageObj)->GetObject();
-	CHE_PDF_Page * pPage = GetAllocator()->New<CHE_PDF_Page>( iPageIndex, (CHE_PDF_Dictionary*)pPageObj, this, GetAllocator() );
-	return pPage;
+	return GetAllocator()->New<CHE_PDF_Page>( iPageIndex, pPageObj->ToDict(), this, GetAllocator() );
 }
 
 HE_VOID	CHE_PDF_Document::ClosePage( CHE_PDF_Page * pPage )
@@ -219,7 +213,6 @@ CHE_PDF_Array * CHE_PDF_Document::GetPageMediaBox( CHE_PDF_Dictionary * pPageDic
 	CHE_PDF_Object * pObj = pPageDict->GetElement( "MediaBox" );
 	if ( pObj == NULL )
 	{
-		CHE_PDF_IndirectObject * pInObj = NULL;
 		CHE_PDF_Dictionary * pCurDict = pPageDict;
 		while ( pCurDict )
 		{
@@ -228,42 +221,33 @@ CHE_PDF_Array * CHE_PDF_Document::GetPageMediaBox( CHE_PDF_Dictionary * pPageDic
 			{
 				return NULL;
 			}
-			if ( pObj->GetType() != PDFOBJ_REFERENCE )
+			if ( pObj->GetType() != OBJ_TYPE_REFERENCE )
 			{
 				return NULL;
 			}else{
-				pInObj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
-				if ( pInObj == NULL )
+				pObj = m_pParser->GetObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+				if ( pObj == NULL || pObj->GetType() != OBJ_TYPE_DICTIONARY )
 				{
 					return NULL;
 				}
-				pObj = pInObj->GetDict();
-				if ( pObj == NULL || pObj->GetType() != PDFOBJ_DICTIONARY )
-				{
-					return NULL;
-				}
-				pObj = ((CHE_PDF_Dictionary*)pObj)->GetElement( "MediaBox" );
+				pCurDict = pObj->ToDict();
+				pObj = GetPageMediaBox( pCurDict );
 				if ( pObj != NULL )
 				{
-					break;
-				}else{
-					pCurDict = pInObj->GetDict();
+					return pObj->ToArray();
 				}
 			}
 		}
 	}
-	if ( pObj->GetType() == PDFOBJ_ARRAY )
+	if ( pObj->GetType() == OBJ_TYPE_ARRAY )
 	{
-		return (CHE_PDF_Array*)pObj;
-	}else if ( pObj->GetType() == PDFOBJ_REFERENCE )
+		return pObj->ToArray();
+	}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		CHE_PDF_IndirectObject * pInOBj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
-		if ( pInOBj == NULL )
+		pObj = m_pParser->GetObject( pObj->ToReference()->GetRefNuml() );
+		if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_ARRAY )
 		{
-			return NULL;
-		}else if ( pInOBj->GetObject()->GetType() == PDFOBJ_ARRAY )
-		{
-			return (CHE_PDF_Array*)pInOBj->GetObject();
+			return pObj->ToArray();
 		}else{
 			return NULL;
 		}
@@ -281,7 +265,6 @@ CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pP
 	CHE_PDF_Object * pObj = pPageDict->GetElement( "Resources" );
 	if ( pObj == NULL )
 	{
-		CHE_PDF_IndirectObject * pInObj = NULL;
 		CHE_PDF_Dictionary * pCurDict = pPageDict;
 		while ( pCurDict )
 		{
@@ -290,49 +273,34 @@ CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pP
 			{
 				return NULL;
 			}
-			if ( pObj->GetType() != PDFOBJ_REFERENCE )
+			if ( pObj->GetType() != OBJ_TYPE_REFERENCE )
 			{
 				return NULL;
 			}else{
-				pInObj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
-				if ( pInObj == NULL )
+				pObj = pObj->ToReference()->GetRefObj( OBJ_TYPE_DICTIONARY );
+				if ( pObj == NULL )
 				{
 					return NULL;
 				}
-				pObj = pInObj->GetDict();
-				if ( pObj == NULL || pObj->GetType() != PDFOBJ_DICTIONARY )
-				{
-					return NULL;
-				}
-				pObj = ((CHE_PDF_Dictionary*)pObj)->GetElement( "Resources" );
+				pCurDict = pObj->ToDict();
+				pObj = GetPageResources( pCurDict );
 				if ( pObj != NULL )
 				{
-					break;
-				}else{
-					pCurDict = pInObj->GetDict();
-				}
+					return pObj->ToDict();
+				}				
 			}
 		}
-	}
-	if ( pObj == NULL )
+	}else if ( pObj->GetType() == OBJ_TYPE_DICTIONARY )
 	{
-		return NULL;
-	}
-	if ( pObj->GetType() == PDFOBJ_DICTIONARY )
+		return pObj->ToDict();
+	}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		return (CHE_PDF_Dictionary*)pObj;
-	}else if ( pObj->GetType() == PDFOBJ_REFERENCE )
-	{
-		CHE_PDF_IndirectObject * pInOBj = m_pParser->GetIndirectObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
-		if ( pInOBj == NULL )
+		pObj = pObj->ToReference()->GetRefObj( OBJ_TYPE_DICTIONARY );
+		if ( pObj == NULL )
 		{
-			return NULL;
-		}else if ( pInOBj->GetObject()->GetType() == PDFOBJ_DICTIONARY )
-		{
-			return (CHE_PDF_Dictionary*)pInOBj->GetObject();
-		}else{
 			return NULL;
 		}
+		return pObj->ToDict();
 	}else{
 		return NULL;
 	}
@@ -343,34 +311,31 @@ CHE_PDF_Font *	CHE_PDF_Document::GetFont( HE_DWORD objNum )
 	CHE_PDF_Font * pFont = (CHE_PDF_Font *)m_FontMap.GetItem( objNum );
 	if ( pFont == NULL )
 	{
-		CHE_PDF_IndirectObject * pInObj = m_pParser->GetIndirectObject( objNum );
-		if ( pInObj == NULL )
+		CHE_PDF_Object * pObj = m_pParser->GetObject( objNum );
+		if ( pObj == NULL )
 		{
 			return NULL;
 		}
-		CHE_PDF_Object * pObj = pInObj->GetObject();
-		CHE_PDF_Dictionary * pDict = NULL;
-		if ( pObj->GetType() == PDFOBJ_REFERENCE )
+		CHE_PDF_Dictionary * pFontDict = NULL;
+		if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
 		{
-			pObj = ((CHE_PDF_Reference*)pObj)->GetRefObj( PDFOBJ_DICTIONARY );
-			if ( pObj->GetType() == PDFOBJ_DICTIONARY )
+			pObj = pObj->ToReference()->GetRefObj( OBJ_TYPE_DICTIONARY );
+			if ( pObj->GetType() == OBJ_TYPE_DICTIONARY )
 			{
-				pDict = (CHE_PDF_Dictionary*)pObj;
+				pFontDict = pObj->ToDict();
 			}
-		}else if ( pObj->GetType() == PDFOBJ_DICTIONARY )
+		}else if ( pObj->GetType() == OBJ_TYPE_DICTIONARY )
 		{
-			pDict = (CHE_PDF_Dictionary*)pObj;
-		}else if ( pObj->GetType() == PDFOBJ_ARRAY )
+			pFontDict = pObj->ToDict();
+		}else if ( pObj->GetType() == OBJ_TYPE_ARRAY )
 		{
-			pDict = (CHE_PDF_Dictionary*)( ((CHE_PDF_Array*)pObj)->GetElement( 0, PDFOBJ_DICTIONARY ) );
+			pFontDict = pObj->ToArray()->GetElement( 0, OBJ_TYPE_DICTIONARY )->ToDict();
 		}
-		//CHE_PDF_Dictionary * pDict =  pInObj->GetDict();
-		if ( pDict == NULL )
+		if ( pFontDict == NULL )
 		{
 			return NULL;
 		}
-		pFont = GetAllocator()->New<CHE_PDF_Font>( pDict, GetAllocator() );
-		//pFont = GetAllocator()->New<CHE_PDF_Font>( pDict, m_pParser->GetIHE_GetPDFInObj(), GetAllocator() );
+		pFont = GetAllocator()->New<CHE_PDF_Font>( pFontDict, GetAllocator() );
 		m_FontMap.Append( objNum, pFont );
 		return pFont;
 	}
@@ -395,7 +360,7 @@ CHE_PDF_Page::CHE_PDF_Page( HE_DWORD lPageIndex, CHE_PDF_Dictionary * pDict, CHE
 		}
 		if ( pObj )
 		{
-			if ( pObj->GetType() == PDFOBJ_ARRAY )
+			if ( pObj->GetType() == OBJ_TYPE_ARRAY )
 			{
 				CHE_PDF_Number * pNum1 = (CHE_PDF_Number*)((CHE_PDF_Array*)pObj)->GetElement( 0 );
 				CHE_PDF_Number * pNum2 = (CHE_PDF_Number*)((CHE_PDF_Array*)pObj)->GetElement( 1 );
@@ -438,51 +403,49 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 	{
 		return FALSE;
 	}
-	if (m_pDoc->GetParser() == NULL )
+	if ( m_pDoc->GetParser() == NULL )
 	{
 		return FALSE;
 	}
-	if ( pPageContent->GetType() == PDFOBJ_REFERENCE )
+	if ( pPageContent->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		HE_DWORD objNum = ((CHE_PDF_Reference*)pPageContent)->GetRefNuml();
-		CHE_PDF_IndirectObject * pInObj = m_pDoc->GetParser()->GetIndirectObject( objNum );
-		if ( pInObj == NULL )
+		HE_DWORD objNum = pPageContent->ToReference()->GetRefNuml();
+		pPageContent = m_pDoc->GetParser()->GetObject( objNum );
+		if ( pPageContent == NULL )
 		{
 			return FALSE;
 		}
-		CHE_PDF_Object *  pContentObj = pInObj->GetObject();
-		if ( pContentObj->GetType() == PDFOBJ_STREAM )
+		if ( pPageContent->GetType() == OBJ_TYPE_STREAM )
 		{
 			CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-			stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+			stmAcc.Attach( pPageContent->ToStream() );
 			buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 			stmAcc.Detach();
-		}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
+		}else if ( pPageContent->GetType() == OBJ_TYPE_ARRAY )
 		{
 			CHE_PDF_Object * pTmpObj = NULL;
-			for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
+			for ( HE_DWORD i = 0; i < pPageContent->ToArray()->GetCount(); i++ )
 			{
-				pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
-				if ( pTmpObj->GetType() == PDFOBJ_STREAM )
+				pTmpObj = ((CHE_PDF_Array*)pPageContent)->GetElement( i );
+				if ( pTmpObj->GetType() == OBJ_TYPE_STREAM )
 				{
 					CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-					stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
+					stmAcc.Attach( pTmpObj->ToStream() );
 					buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 					stmAcc.Detach();
 					
-				}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+				}else if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 				{
-					HE_DWORD objNum = ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml();
-					CHE_PDF_IndirectObject * pInObj = m_pDoc->GetParser()->GetIndirectObject( objNum );
-					if ( pInObj == NULL )
+					HE_DWORD objNum = pTmpObj->ToReference()->GetRefNuml();
+					pTmpObj = m_pDoc->GetParser()->GetObject( objNum );
+					if ( pTmpObj == NULL )
 					{
 						continue;
 					}
-					CHE_PDF_Object *  pContentObj = pInObj->GetObject();
-					if ( pContentObj->GetType() == PDFOBJ_STREAM )
+					if ( pTmpObj->GetType() == OBJ_TYPE_STREAM )
 					{
 						CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-						stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+						stmAcc.Attach( pTmpObj->ToStream() );
 						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 						stmAcc.Detach();
 					}
@@ -490,60 +453,55 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 			}
 		}
 		return TRUE;
-	}else if ( pPageContent->GetType() == PDFOBJ_ARRAY )
+	}else if ( pPageContent->GetType() == OBJ_TYPE_ARRAY )
 	{
-		HE_DWORD objCount = ((CHE_PDF_Array*)pPageContent)->GetCount();
+		HE_DWORD objCount = pPageContent->ToArray()->GetCount();
 		for ( HE_DWORD i = 0; i < objCount; i++ )
 		{
-			CHE_PDF_Object * pObj = ((CHE_PDF_Array*)pPageContent)->GetElement( i );
-			if ( pObj == NULL )
+			CHE_PDF_Object * pTmpObj = pPageContent->ToArray()->GetElement( i );
+			if ( pTmpObj == NULL )
 			{
 				continue;
 			}
-			if ( pObj->GetType() != PDFOBJ_REFERENCE )
+			if ( pTmpObj->GetType() != OBJ_TYPE_REFERENCE )
 			{
 				continue;
 			}
-			HE_DWORD objNum = ((CHE_PDF_Reference*)pObj)->GetRefNuml();
-			CHE_PDF_IndirectObject * pInObj = m_pDoc->GetParser()->GetIndirectObject( objNum );
-			if ( pInObj == NULL )
+			pTmpObj = pTmpObj->ToReference()->GetRefObj( OBJ_TYPE_STREAM );
+			if ( pTmpObj == NULL )
 			{
 				continue;
 			}
-			CHE_PDF_Object *  pContentObj = pInObj->GetObject();
-
-			if ( pContentObj->GetType() == PDFOBJ_STREAM )
+			if ( pTmpObj->GetType() == OBJ_TYPE_STREAM )
 			{
 				CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-				stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+				stmAcc.Attach( pTmpObj->ToStream() );
 				buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 				stmAcc.Detach();
-			}else if ( pContentObj->GetType() == PDFOBJ_ARRAY )
+			}else if ( pTmpObj->GetType() == OBJ_TYPE_ARRAY )
 			{
-				CHE_PDF_Object * pTmpObj = NULL;
-				for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pContentObj)->GetCount(); i++ )
+				CHE_PDF_Object * pObj = NULL;
+				for ( HE_DWORD i = 0; i < pTmpObj->ToArray()->GetCount(); i++ )
 				{
-					pTmpObj = ((CHE_PDF_Array*)pContentObj)->GetElement( i );
-					if ( pTmpObj->GetType() == PDFOBJ_STREAM )
+					pObj = pTmpObj->ToArray()->GetElement( i );
+					if ( pObj->GetType() == OBJ_TYPE_STREAM )
 					{
 						CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-						stmAcc.Attach( (CHE_PDF_Stream*)pTmpObj );
+						stmAcc.Attach( pObj->ToStream() );
 						buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 						stmAcc.Detach();
 						
-					}else if ( pTmpObj->GetType() == PDFOBJ_REFERENCE )
+					}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
 					{
-						HE_DWORD objNum = ((CHE_PDF_Reference*)pTmpObj)->GetRefNuml();
-						CHE_PDF_IndirectObject * pInObj = m_pDoc->GetParser()->GetIndirectObject( objNum );
-						if ( pInObj == NULL )
+						pObj = pObj->ToReference()->GetRefObj( OBJ_TYPE_STREAM );
+						if ( pObj == NULL )
 						{
 							continue;
 						}
-						CHE_PDF_Object *  pContentObj = pInObj->GetObject();
-						if ( pContentObj->GetType() == PDFOBJ_STREAM )
+						if ( pObj->GetType() == OBJ_TYPE_STREAM )
 						{
 							CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-							stmAcc.Attach( (CHE_PDF_Stream*)pContentObj );
+							stmAcc.Attach( pObj->ToStream() );
 							buffer.Write( stmAcc.GetData(), stmAcc.GetSize() );
 							stmAcc.Detach();
 						}
@@ -563,7 +521,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		return m_arrContentObj.GetCount();
 	}
 
-	CHE_DynBuffer buf;
+	CHE_DynBuffer buf( 1024 * 4, 1024 *4, GetAllocator() );
 	if ( GetPageContent( buf ) == FALSE )
 	{
 		return 0;
@@ -624,9 +582,9 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 
 	if ( pPageResourcesDict != NULL )
 	{
-		pFontDict = (CHE_PDF_Dictionary*)( pPageResourcesDict->GetElement( "Font", PDFOBJ_DICTIONARY ) );
+		pFontDict = (CHE_PDF_Dictionary*)( pPageResourcesDict->GetElement( "Font", OBJ_TYPE_DICTIONARY ) );
 		
-		pExtGStateDict = (CHE_PDF_Dictionary*)( pPageResourcesDict->GetElement( "ExtGState", PDFOBJ_DICTIONARY ) );
+		pExtGStateDict = (CHE_PDF_Dictionary*)( pPageResourcesDict->GetElement( "ExtGState", OBJ_TYPE_DICTIONARY ) );
 	}
 
 	//Init or Reset the Graph State
@@ -793,7 +751,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fCharSpace = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -803,7 +761,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fWordSpace = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -813,7 +771,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							dwScale = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							pTmpNode->Release();
@@ -823,7 +781,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fLeading = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -833,7 +791,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							dwSize = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							pTmpNode->Release();
@@ -848,10 +806,10 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 								pTmpNode->Release();
 							}
 						}else{
-							if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NAME )
+							if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NAME )
 							{
 								CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)( pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() ) );
-								if ( pFontRef != NULL && pFontRef->GetType() == PDFOBJ_REFERENCE )
+								if ( pFontRef != NULL && pFontRef->GetType() == OBJ_TYPE_REFERENCE )
 								{
 									dwFontObjNum = pFontRef->GetRefNuml();
 								}
@@ -863,7 +821,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							byteRender = ((CHE_PDF_Number*)pTmpNode)->GetInteger(); 
 							pTmpNode->Release();
@@ -873,7 +831,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							dwRise = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							pTmpNode->Release();
@@ -883,7 +841,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fPosiY += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -891,7 +849,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fPosiX += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -901,7 +859,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							HE_FLOAT tmpValue = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							fLeading = -tmpValue;
@@ -911,7 +869,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fPosiX += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -921,7 +879,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fMatrixF = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -929,7 +887,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fMatrixE = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -937,7 +895,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fMatrixD = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -945,7 +903,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fMatrixC = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -953,7 +911,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fMatrixB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -961,7 +919,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fMatrixA = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -1039,7 +997,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							pTextItem->SetCharSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
 							pTmpNode->Release();
@@ -1047,7 +1005,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							pTextItem->SetWordSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
 							pTmpNode->Release();
@@ -1083,7 +1041,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 								for ( HE_DWORD i = 0; i < ((CHE_PDF_Array*)pTmpNode)->GetCount(); i++ )
 								{
 									pTmpObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
-									if ( pTmpObj != NULL && pTmpObj->GetType() == PDFOBJ_STRING )
+									if ( pTmpObj != NULL && pTmpObj->GetType() == OBJ_TYPE_STRING )
 									{
 										str = ((CHE_PDF_String*)pTmpObj)->GetString();
 										if ( pFont->GetUnicodeString( str, wstr ) )
@@ -1102,7 +1060,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							CHE_PDF_OrderParam_LineWidth * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineWidth>( fTmp, GetAllocator() );
@@ -1117,7 +1075,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							HE_BYTE dwByte = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							CHE_PDF_OrderParam_LineCap * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineCap>( dwByte, GetAllocator() );
@@ -1132,7 +1090,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							HE_BYTE dwByte = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							CHE_PDF_OrderParam_LineJoin * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineJoin>( dwByte, GetAllocator() );
@@ -1147,7 +1105,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							CHE_PDF_OrderParam_MiterLimit * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_MiterLimit>( fTmp, GetAllocator() );
@@ -1165,7 +1123,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_DWORD dashArraySize = 0;
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							dashPhase = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -1173,7 +1131,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_ARRAY )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_ARRAY )
 						{
 							dashArraySize = ((CHE_PDF_Array*)pTmpNode)->GetCount();
 							if ( dashArraySize == 0 )
@@ -1189,7 +1147,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 								for ( HE_DWORD i = 0; i < dashArraySize; i++ )
 								{
 									pObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
-									if ( pObj != NULL && pObj->GetType() == PDFOBJ_NUMBER )
+									if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_NUMBER )
 									{
 										dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloatNumber();
 									}
@@ -1208,7 +1166,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							CHE_PDF_OrderParam_Intent * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_Intent>( GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
@@ -1222,7 +1180,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							HE_BYTE byteTmp = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 							CHE_PDF_OrderParam_Flatness * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_Flatness>( byteTmp, GetAllocator() );
@@ -1241,7 +1199,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							HE_DWORD value = 0;
@@ -1261,7 +1219,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 				{
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							HE_DWORD value = 0;
@@ -1284,7 +1242,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_DWORD value = 0;
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -1292,7 +1250,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -1300,7 +1258,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -1324,7 +1282,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					HE_DWORD value = 0;
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -1332,7 +1290,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -1340,7 +1298,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					}
 					if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 					{
-						if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
 							fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 							pTmpNode->Release();
@@ -1424,7 +1382,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					fCurY = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1432,7 +1390,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					fCurX = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1447,7 +1405,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_FLOAT x = 0, y = 0; 
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1455,7 +1413,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					x = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1474,7 +1432,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_FLOAT x1 = 0, y1 = 0, x2 = 0, y2 = 0, x3 = 0, y3 = 0 ; 
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y3 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1482,7 +1440,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					x3 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1490,7 +1448,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1498,7 +1456,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1506,7 +1464,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1514,7 +1472,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1533,7 +1491,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_FLOAT x1 = 0, y1 = 0, x2 = 0, y2 = 0 ; 
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1541,7 +1499,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1549,7 +1507,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1557,7 +1515,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1576,7 +1534,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_FLOAT x1 = 0, y1 = 0, x2 = 0, y2 = 0 ; 
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1584,7 +1542,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1592,7 +1550,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1600,7 +1558,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1630,7 +1588,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_FLOAT x = 0, y = 0, width = 0, height = 0 ; 
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					height = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1638,7 +1596,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					width = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1646,7 +1604,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					y = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1654,7 +1612,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 		   		{
 					x = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1876,7 +1834,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_FLOAT a = 0, b = 0, c = 0, d = 0, e = 0, f = 0 ; 
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					f = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1884,7 +1842,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					e = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1892,7 +1850,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					d = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1900,7 +1858,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					c = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1908,7 +1866,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					b = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1916,7 +1874,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					a = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -1940,16 +1898,16 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NAME )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NAME )
 				{
-					CHE_PDF_Dictionary * pGraphStateDict = (CHE_PDF_Dictionary*)pExtGStateDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString(), PDFOBJ_DICTIONARY );
+					CHE_PDF_Dictionary * pGraphStateDict = (CHE_PDF_Dictionary*)pExtGStateDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString(), OBJ_TYPE_DICTIONARY );
 					if ( pGraphStateDict != NULL )
 					{
 						CHE_PDF_Object * pTmpObj = NULL;
 						CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
 						pOrder->SetType( ORDER_SET_STATE );
 						CHE_PDF_OrderParam_GraphState * pOrderParam = GetAllocator()->New<CHE_PDF_OrderParam_GraphState>( GetAllocator() );
-						pTmpObj = pGraphStateDict->GetElement( "LW", PDFOBJ_NUMBER );
+						pTmpObj = pGraphStateDict->GetElement( "LW", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
 							HE_FLOAT fLineWidth = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloatNumber() );
@@ -1957,7 +1915,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pOrderParam->Append( pParam );
 						}
 
-						pTmpObj = pGraphStateDict->GetElement( "LC", PDFOBJ_NUMBER );
+						pTmpObj = pGraphStateDict->GetElement( "LC", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
 							HE_BYTE byteLineCap = (HE_BYTE)( ((CHE_PDF_Number*)pTmpObj)->GetInteger() );
@@ -1965,7 +1923,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pOrderParam->Append( pParam );
 						}
 
-						pTmpObj = pGraphStateDict->GetElement( "LJ", PDFOBJ_NUMBER );
+						pTmpObj = pGraphStateDict->GetElement( "LJ", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
 							HE_BYTE byteLineJoin = (HE_BYTE)( ((CHE_PDF_Number*)pTmpObj)->GetInteger() );
@@ -1973,7 +1931,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pOrderParam->Append( pParam );
 						}
 
-						pTmpObj = pGraphStateDict->GetElement( "ML", PDFOBJ_NUMBER );
+						pTmpObj = pGraphStateDict->GetElement( "ML", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
 							HE_FLOAT fMiterLimit = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloatNumber() );
@@ -1981,15 +1939,15 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pOrderParam->Append( pParam );
 						}
 
-						pTmpObj = pGraphStateDict->GetElement( "D", PDFOBJ_ARRAY );
+						pTmpObj = pGraphStateDict->GetElement( "D", OBJ_TYPE_ARRAY );
 						if ( pTmpObj != NULL )
 						{
 							HE_FLOAT * pDashArray = NULL;
 							HE_FLOAT fDashPhase = 0;
 							HE_DWORD dwDashArraySize = 0;
 	
-							CHE_PDF_Object * pFirstElement = ((CHE_PDF_Array*)pTmpObj)->GetElement( 0, PDFOBJ_ARRAY );
-							CHE_PDF_Object * pSecondElement = ((CHE_PDF_Array*)pTmpObj)->GetElement( 1, PDFOBJ_NUMBER );
+							CHE_PDF_Object * pFirstElement = ((CHE_PDF_Array*)pTmpObj)->GetElement( 0, OBJ_TYPE_ARRAY );
+							CHE_PDF_Object * pSecondElement = ((CHE_PDF_Array*)pTmpObj)->GetElement( 1, OBJ_TYPE_NUMBER );
 							if ( pFirstElement != NULL )
 							{
 								CHE_PDF_Array * pArray = (CHE_PDF_Array*)pFirstElement;
@@ -1998,7 +1956,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 								CHE_PDF_Number * pNumber = NULL;
 								for ( HE_DWORD i = 0; i < dwDashArraySize; i++ )
 								{
-									pNumber = (CHE_PDF_Number*)pArray->GetElement( i, PDFOBJ_NUMBER );
+									pNumber = (CHE_PDF_Number*)pArray->GetElement( i, OBJ_TYPE_NUMBER );
 									if ( pNumber != NULL )
 									{
 										pDashArray[i] = pNumber->GetFloatNumber();
@@ -2027,7 +1985,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					CHE_PDF_OrderParam_LineWidth * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineWidth>( fTmp, GetAllocator() );
@@ -2042,7 +2000,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					HE_BYTE dwByte = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 					CHE_PDF_OrderParam_LineCap * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineCap>( dwByte, GetAllocator() );
@@ -2057,7 +2015,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					HE_BYTE dwByte = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 					CHE_PDF_OrderParam_LineJoin * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineJoin>( dwByte, GetAllocator() );
@@ -2072,7 +2030,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					CHE_PDF_OrderParam_MiterLimit * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_MiterLimit>( fTmp, GetAllocator() );
@@ -2090,7 +2048,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_DWORD dashArraySize = 0;
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					dashPhase = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -2098,7 +2056,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_ARRAY )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_ARRAY )
 				{
 					dashArraySize = ((CHE_PDF_Array*)pTmpNode)->GetCount();
 					if ( dashArraySize == 0 )
@@ -2114,7 +2072,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 						for ( HE_DWORD i = 0; i < dashArraySize; i++ )
 						{
 							pObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
-							if ( pObj != NULL && pObj->GetType() == PDFOBJ_NUMBER )
+							if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_NUMBER )
 							{
 								dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloatNumber();
 							}
@@ -2133,7 +2091,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					CHE_PDF_OrderParam_Intent * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_Intent>( GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
@@ -2147,7 +2105,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					HE_BYTE byteTmp = ((CHE_PDF_Number*)pTmpNode)->GetInteger();
 					CHE_PDF_OrderParam_Flatness * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_Flatness>( byteTmp, GetAllocator() );
@@ -2166,16 +2124,16 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NAME )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NAME )
 				{
-					CHE_PDF_Dictionary * pGraphStateDict = (CHE_PDF_Dictionary*)pExtGStateDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString(), PDFOBJ_DICTIONARY );
+					CHE_PDF_Dictionary * pGraphStateDict = (CHE_PDF_Dictionary*)pExtGStateDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString(), OBJ_TYPE_DICTIONARY );
 					if ( pGraphStateDict != NULL )
 					{
 						CHE_PDF_Object * pTmpObj = NULL;
 						CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
 						pOrder->SetType( ORDER_SET_STATE );
 						CHE_PDF_OrderParam_GraphState * pOrderParam = GetAllocator()->New<CHE_PDF_OrderParam_GraphState>( GetAllocator() );
-						pTmpObj = pGraphStateDict->GetElement( "LW", PDFOBJ_NUMBER );
+						pTmpObj = pGraphStateDict->GetElement( "LW", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
 							HE_FLOAT fLineWidth = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloatNumber() );
@@ -2183,7 +2141,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pOrderParam->Append( pParam );
 						}
 
-						pTmpObj = pGraphStateDict->GetElement( "LC", PDFOBJ_NUMBER );
+						pTmpObj = pGraphStateDict->GetElement( "LC", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
 							HE_BYTE byteLineCap = (HE_BYTE)( ((CHE_PDF_Number*)pTmpObj)->GetInteger() );
@@ -2191,7 +2149,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pOrderParam->Append( pParam );
 						}
 
-						pTmpObj = pGraphStateDict->GetElement( "LJ", PDFOBJ_NUMBER );
+						pTmpObj = pGraphStateDict->GetElement( "LJ", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
 							HE_BYTE byteLineJoin = (HE_BYTE)( ((CHE_PDF_Number*)pTmpObj)->GetInteger() );
@@ -2199,7 +2157,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pOrderParam->Append( pParam );
 						}
 
-						pTmpObj = pGraphStateDict->GetElement( "ML", PDFOBJ_NUMBER );
+						pTmpObj = pGraphStateDict->GetElement( "ML", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
 							HE_FLOAT fMiterLimit = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloatNumber() );
@@ -2207,15 +2165,15 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pOrderParam->Append( pParam );
 						}
 
-						pTmpObj = pGraphStateDict->GetElement( "D", PDFOBJ_ARRAY );
+						pTmpObj = pGraphStateDict->GetElement( "D", OBJ_TYPE_ARRAY );
 						if ( pTmpObj != NULL )
 						{
 							HE_FLOAT * pDashArray = NULL;
 							HE_FLOAT fDashPhase = 0;
 							HE_DWORD dwDashArraySize = 0;
 
-							CHE_PDF_Object * pFirstElement = ((CHE_PDF_Array*)pTmpObj)->GetElement( 0, PDFOBJ_ARRAY );
-							CHE_PDF_Object * pSecondElement = ((CHE_PDF_Array*)pTmpObj)->GetElement( 1, PDFOBJ_NUMBER );
+							CHE_PDF_Object * pFirstElement = ((CHE_PDF_Array*)pTmpObj)->GetElement( 0, OBJ_TYPE_ARRAY );
+							CHE_PDF_Object * pSecondElement = ((CHE_PDF_Array*)pTmpObj)->GetElement( 1, OBJ_TYPE_NUMBER );
 							if ( pFirstElement != NULL )
 							{
 								CHE_PDF_Array * pArray = (CHE_PDF_Array*)pFirstElement;
@@ -2224,7 +2182,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 								CHE_PDF_Number * pNumber = NULL;
 								for ( HE_DWORD i = 0; i < dwDashArraySize; i++ )
 								{
-									pNumber = (CHE_PDF_Number*)pArray->GetElement( i, PDFOBJ_NUMBER );
+									pNumber = (CHE_PDF_Number*)pArray->GetElement( i, OBJ_TYPE_NUMBER );
 									if ( pNumber != NULL )
 									{
 										pDashArray[i] = pNumber->GetFloatNumber();
@@ -2257,7 +2215,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					HE_DWORD value = 0;
@@ -2277,7 +2235,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 		{
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					HE_DWORD value = 0;
@@ -2300,7 +2258,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_DWORD value = 0;
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -2308,7 +2266,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -2316,7 +2274,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -2340,7 +2298,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			HE_DWORD value = 0;
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -2348,7 +2306,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();
@@ -2356,7 +2314,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			}
 			if( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
 			{
-				if ( pTmpNode != NULL && pTmpNode->GetType() == PDFOBJ_NUMBER )
+				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
 					fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
 					pTmpNode->Release();

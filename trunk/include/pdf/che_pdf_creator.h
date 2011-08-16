@@ -38,13 +38,13 @@ public:
 
 	/************* Document Level Resources Operations *************/
 
-	CHE_PDF_Dictionary*		AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSIENCODING );
+	CHE_PDF_Dictionary*		AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI );
 	
 	/* AddType1Font 添加一个Type1 字体，必须自行并正确的设置相关的信息，如果包含Widths, */
 	/* FontDescriptor, ToUnicode 等信息，必须首先将这些对象插入文档，以便在创建字体字典的时候 */
 	/* 可以正确引用这些对象 */
 	CHE_PDF_Dictionary *	AddType1Font(	const CHE_ByteString & baseFont, HE_DWORD firstChar = 0, HE_DWORD lastChar = 255,
-											PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSIENCODING, 
+											PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI, 
 											const CHE_PDF_Array * pWidths = NULL, const CHE_PDF_Dictionary * pFontDescriptor = NULL,
 											const CHE_PDF_Stream * pToUnicode = NULL );
 
@@ -52,7 +52,7 @@ public:
 	/* FontDescriptor, ToUnicode 等信息，必须首先将这些对象插入文档，以便在创建字体字典的时候 */
 	/* 可以正确引用这些对象 */
 	CHE_PDF_Dictionary*		AddTrueTypeFont(	const CHE_ByteString & baseFont, HE_DWORD firstChar = 0, HE_DWORD lastChar = 255,
-												PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSIENCODING, 
+												PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI, 
 												const CHE_PDF_Array * pWidths = NULL, const CHE_PDF_Dictionary * pFontDescriptor = NULL,
 												const CHE_PDF_Stream * pToUnicode = NULL );
 

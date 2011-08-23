@@ -335,6 +335,93 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 	return TRUE;
 }
 
+HE_BOOL CHE_PDF_Creator::SaveUpdate( IHE_Write * pWrite, CHE_PDF_Parser * pParser )
+{
+	if ( pWrite == NULL || pParser == NULL )
+	{
+		return FALSE;
+	}
+	HE_CHAR tempStr[1024];
+	CHE_PDF_XREF_Table xrefTable;
+	CHE_PDF_Object * pObj = NULL;
+	HE_DWORD lObjCount = pParser->GetModifiedObjectCount();
+	if ( lObjCount > 0 )
+	{
+		for ( HE_DWORD i = 0; i < lObjCount; i++ )
+		{
+			pObj = pParser->GetModifiedObject( i );
+			if ( pObj != NULL )
+			{
+				xrefTable.NewSection( pObj->GetObjNum() );
+				CHE_PDF_XREF_Entry tmpEntry( 2, pWrite->GetCurOffset(), 0, pObj->GetObjNum() );
+				xrefTable.NewNode( tmpEntry );
+				sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
+				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
+				OutPutObject( pObj, pWrite );
+				pWrite->WriteBlock( (HE_LPVOID)gpStrObjEnd, glStrObjEnd );
+			}
+		}
+	}
+	lObjCount = pParser->GetNewObjectCount();
+	if ( lObjCount > 0 )
+	{
+		for ( HE_DWORD i = 0; i < lObjCount; i++ )
+		{
+			pObj = pParser->GetNewObject( i );
+			if ( pObj != NULL )
+			{
+				xrefTable.NewSection( pObj->GetObjNum() );
+				CHE_PDF_XREF_Entry tmpEntry( 2, pWrite->GetCurOffset(), 0, pObj->GetObjNum() );
+				xrefTable.NewNode( tmpEntry );
+				sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
+				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
+				OutPutObject( pObj, pWrite );
+				pWrite->WriteBlock( (HE_LPVOID)gpStrObjEnd, glStrObjEnd );
+			}
+		}
+	}
+
+	HE_DWORD xrefOffset = pWrite->GetCurOffset();
+
+	pWrite->WriteBlock( (HE_LPVOID)gpStrXrefMark, glstrXrefMark );
+
+	sprintf( tempStr, "%d %d\n", 0, 1 );
+	pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+	pWrite->WriteBlock(  (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
+
+	CHE_PDF_XREF_Entry tmpEntry;
+	for ( HE_DWORD i = 1; i <= xrefTable.GetMaxObjNum(); i++ )
+	{
+		if ( xrefTable.GetEntry( i, tmpEntry ) == TRUE )
+		{
+			sprintf( tempStr, "%d %d\n", i, 1 );
+			pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+			sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), 0 );
+			pWrite->WriteBlock( (HE_LPVOID)tempStr, 20 );
+		}
+	}
+
+	CHE_PDF_Dictionary * pTrailerDict = pParser->GetTrailerDict();
+	if ( pTrailerDict )
+	{
+		pTrailerDict->SetAtInteger( "Prev", pParser->m_lstartxref );
+
+		//Ð´Î²×Öµä
+		pWrite->WriteBlock( (HE_LPVOID)gpStrTrailerMark, glStrTrailerMark );
+		OutPutObject( pTrailerDict, pWrite );
+	}
+
+	pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, glStrNewLine );
+	pWrite->WriteBlock( (HE_LPVOID)gpStrXrefStartMark, glStrXrefStartMark );
+	sprintf( tempStr, "%d\n", xrefOffset );
+	pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
+	pWrite->WriteBlock( (HE_LPVOID)gpStrFileEnd, glStrFileEnd );
+
+	pWrite->Flush();
+
+	return TRUE;
+}
+
 CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/ )
 {
 	if ( m_bNewDocument != TRUE )
@@ -661,14 +748,14 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite
 				sprintf( tempStr, "%d", ((CHE_PDF_Number*)pObj)->GetInteger() );
 				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			}else{
-				sprintf( tempStr, "%f", ((CHE_PDF_Number*)pObj)->GetFloatNumber() );
+				sprintf( tempStr, "%f", ((CHE_PDF_Number*)pObj)->GetFloat() );
 				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			}
 			break;
 		}
 	case OBJ_TYPE_REFERENCE:
 		{
-			sprintf( tempStr, "%d 0 R", ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+			sprintf( tempStr, "%d 0 R", ((CHE_PDF_Reference*)pObj)->GetRefNum() );
 			pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			break;
 		}

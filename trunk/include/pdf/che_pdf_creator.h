@@ -3,9 +3,9 @@
 
 #include "../che_base.h"
 #include "che_pdf_define.h"
-#include "che_pdf_collector.h"
 #include "che_pdf_objects.h"
-
+#include "che_pdf_parser.h"
+#include "che_pdf_collector.h"
 
 class CHE_PDF_Creator : public CHE_Object
 {
@@ -19,6 +19,8 @@ public:
 	HE_BOOL					SetDocumentInfo( PDF_DOCUMENT_INFO infoType, CHE_ByteString & str );
 	HE_BOOL					SetDocumentParam();
 	HE_BOOL					Save( IHE_Write * pWrite );
+
+	HE_BOOL					SaveUpdate( IHE_Write * pWrite, CHE_PDF_Parser * pParser );
 
 
 	/**************   Page Operations   **************/

@@ -9,6 +9,8 @@
 #include "che_pdf_encrypt.h"
 #include "che_pdf_collector.h"
 
+class CHE_PDF_Creator;
+
 class CHE_PDF_ParseWordDes : public CHE_Object
 {
 public:
@@ -94,24 +96,34 @@ public:
 	HE_BOOL						Open( IHE_Read * file );
 	HE_VOID						Close();
 
+	//Basic information
 	HE_DWORD					GetFileSize() const;
 	PDF_VERSION					GetPDFVersion() const;
 	CHE_PDF_Dictionary *		GetTrailerDict() const { return m_pTrailerDict; }
-
 	CHE_PDF_Dictionary *		GetRootDict();
 	CHE_PDF_Dictionary *		GetInfoDict();
 	CHE_PDF_Array *				GetIDArray();
 	//HE_BOOL					IsLinearized();
 
+	//Page tree information
 	HE_DWORD					GetPageCount();
 	HE_DWORD					GetPageObjList( HE_DWORD* pList );
 
+	//Encryption
 	HE_BOOL						Authenticate( CHE_ByteString & password ) const 
 									{ return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): FALSE; }
 
-	CHE_PDF_Object *			GetObject();
+	//Object operation
 	CHE_PDF_Object *			GetObject( HE_DWORD objNum );
-	CHE_PDF_Object *			GetObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
+	PDF_OBJ_STATUS				GetObjectStatus( HE_DWORD objNum );
+
+	CHE_PDF_Object *			CreateObject( PDF_OBJ_TYPE type );
+	HE_DWORD					GetNewObjectCount();
+	CHE_PDF_Object *			GetNewObject( HE_DWORD index );
+
+	HE_BOOL						SetObjectModified( HE_DWORD objNum );
+	HE_DWORD					GetModifiedObjectCount();
+	CHE_PDF_Object *			GetModifiedObject( HE_DWORD index );
 
 private:
 	HE_DWORD					GetStartxref( HE_DWORD range );
@@ -126,6 +138,11 @@ private:
 
 	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict );
 
+	CHE_PDF_Object *			GetObject();
+	CHE_PDF_Object *			GetObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
+
+	HE_DWORD					GetFreeObjNum();
+
 private:
 	IHE_Read *					m_pIHE_FileRead;
 
@@ -139,11 +156,16 @@ private:
 	CHE_PDF_Encrypt	*			m_pStmEncrypt;
 	CHE_PDF_Encrypt	*			m_pEefEncrypt;
 
-	CHE_PtrArray				m_arrObjStm;
-	
 	CHE_PDF_SyntaxParser		m_sParser;
+
+	CHE_PtrArray				m_arrObjStm;
+
 	CHE_PDF_XREF_Table			m_xrefTable;				//结构化的交叉索引表信息
 	CHE_PDF_Collector			m_objCollector;				//对象收集器，被加载的都被放入收集器，某些尾字典不会
+	CHE_PDF_Collector			m_NewObjCollector;			//新建的对象的收集器
+	CHE_PDF_Collector			m_ModifiedObjCollector;		//被修改的对象的收集器
+
+	friend class CHE_PDF_Creator;
 };
 
 #endif

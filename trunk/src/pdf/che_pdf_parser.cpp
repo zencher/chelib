@@ -1245,9 +1245,8 @@ HE_VOID CHE_PDF_SyntaxParser::SubmitBufferStr( CHE_ByteString & str )
 }
 
 CHE_PDF_Parser::CHE_PDF_Parser( CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), m_arrObjStm( pAllocator ),/* m_XrefVerifyMap1( pAllocator ), */
-	/*m_XrefVerifyMap2( pAllocator ),*/ m_sParser( NULL, pAllocator ), m_xrefTable( pAllocator ),
-	m_objCollector( pAllocator ) 
+	: CHE_Object( pAllocator ), m_sParser( NULL, pAllocator ), m_xrefTable( pAllocator ), m_arrObjStm( pAllocator ),
+	m_objCollector( pAllocator ), m_ModifiedObjCollector( pAllocator ), m_NewObjCollector( pAllocator ) 
 {
 	m_sParser.SetParser( this );
 	m_pTrailerDict = NULL;
@@ -1280,6 +1279,8 @@ HE_VOID CHE_PDF_Parser::Close()
 {
 	m_objCollector.ReleaseObj();
 	m_objCollector.Clear();
+	m_ModifiedObjCollector.Clear();
+	m_NewObjCollector.Clear();
 	if ( m_pIHE_FileRead )
 	{
 		m_pIHE_FileRead->Release();
@@ -2439,7 +2440,7 @@ CHE_PDF_Object * CHE_PDF_Parser::GetObject()
 					{
 						length = pObj->ToNumber()->GetInteger();
 					}else{
-						HE_DWORD objNum = pObj->ToReference()->GetRefNuml();
+						HE_DWORD objNum = pObj->ToReference()->GetRefNum();
 						HE_DWORD offset = m_sParser.GetPos();
 						CHE_PDF_XREF_Entry entry;
 						m_xrefTable.GetEntry( objNum, entry );
@@ -2706,4 +2707,137 @@ CHE_PDF_Object * CHE_PDF_Parser::GetObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD
 		}
 	}
 	return NULL;
+}
+
+PDF_OBJ_STATUS	CHE_PDF_Parser::GetObjectStatus( HE_DWORD objNum )
+{
+	CHE_PDF_Object * pObj = NULL;
+	pObj = m_NewObjCollector.GetObj( objNum );
+	if ( pObj )
+	{
+		return OBJ_STATUS_MODIFIED;
+	}
+	pObj = m_ModifiedObjCollector.GetObj( objNum );
+	if ( pObj )
+	{
+		return OBJ_STATUS_NEW;
+	}
+	pObj = m_objCollector.GetObj( objNum );
+	if ( pObj )
+	{
+		return OBJ_STATUS_LOAD;
+	}
+	return OBJ_STATUS_UNLOAD;
+}
+
+CHE_PDF_Object * CHE_PDF_Parser::CreateObject( PDF_OBJ_TYPE type )
+{
+	CHE_PDF_Object * pObj = NULL;
+	switch ( type )
+	{
+	case OBJ_TYPE_INVALID:
+		{
+			return NULL;
+		}
+	case OBJ_TYPE_NULL:
+		{
+			pObj = CHE_PDF_Null::Create( GetFreeObjNum(), 0, this, GetAllocator() );
+			break;
+		}
+	case OBJ_TYPE_BOOLEAN:
+		{
+			pObj = CHE_PDF_Boolean::Create( FALSE, GetFreeObjNum(), 0, this, GetAllocator() );
+			break;
+		}
+	case OBJ_TYPE_NUMBER:
+		{
+			pObj = CHE_PDF_Number::Create( (HE_INT32)0, GetFreeObjNum(), 0, this, GetAllocator() );
+			break;
+		}
+	case OBJ_TYPE_STRING:
+		{
+			pObj = CHE_PDF_String::Create( "", GetFreeObjNum(), 0, this, GetAllocator() );
+			break;
+		}
+	case OBJ_TYPE_NAME:
+		{
+			pObj = CHE_PDF_Name::Create( "", GetFreeObjNum(), 0, this, GetAllocator() );
+			break;
+		}
+	case OBJ_TYPE_REFERENCE:
+		{
+			pObj = CHE_PDF_Reference::Create( 0, GetFreeObjNum(), 0, this, GetAllocator() );
+			break;
+		}
+	case OBJ_TYPE_ARRAY:
+		{
+			pObj = CHE_PDF_Array::Create( GetFreeObjNum(), 0, this, GetAllocator() );
+			break;
+		}
+	case OBJ_TYPE_DICTIONARY:
+		{
+			pObj = CHE_PDF_Dictionary::Create( GetFreeObjNum(), 0, this, GetAllocator() );
+			break;
+		}
+	case OBJ_TYPE_STREAM:
+		{
+			pObj = CHE_PDF_Stream::Create( GetFreeObjNum(), 0, NULL, this, GetAllocator() );
+			break;
+		}
+	default:
+		{
+			return NULL;
+		}
+	}
+	if ( pObj )
+	{
+		m_objCollector.Add( pObj );
+		m_NewObjCollector.Add( pObj );
+	}
+	return pObj;
+}
+
+HE_DWORD CHE_PDF_Parser::GetNewObjectCount()
+{
+	return m_NewObjCollector.GetCount();
+}
+
+CHE_PDF_Object * CHE_PDF_Parser::GetNewObject( HE_DWORD index )
+{
+	return m_NewObjCollector.GetObjByIndex( index );
+}
+
+HE_BOOL CHE_PDF_Parser::SetObjectModified( HE_DWORD objNum )
+{
+	CHE_PDF_Object * pObj = m_objCollector.GetObj( objNum );
+	if ( pObj )
+	{
+		m_ModifiedObjCollector.Add( pObj );
+		return TRUE;
+	}else{
+		pObj = GetObject( objNum );
+		if ( pObj == NULL )
+		{
+			return FALSE;
+		}
+		m_ModifiedObjCollector.Add( pObj );
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_DWORD CHE_PDF_Parser::GetModifiedObjectCount()
+{
+	return m_ModifiedObjCollector.GetCount();
+}
+
+CHE_PDF_Object * CHE_PDF_Parser::GetModifiedObject( HE_DWORD index )
+{
+	return m_ModifiedObjCollector.GetObjByIndex( index );
+}
+
+HE_DWORD CHE_PDF_Parser::GetFreeObjNum()
+{
+	m_xrefTable.m_lMaxObjNum++;
+	return m_xrefTable.m_lMaxObjNum;
 }

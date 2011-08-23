@@ -198,7 +198,10 @@ public:
 	virtual HE_VOID		Release() = 0;
 };
 
-IHE_Write*	HE_CreateFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator = NULL );
+#define FILEWRITE_MODE_NEW			0
+#define FILEWRITE_MODE_OPEN			1
+
+IHE_Write*	HE_CreateFileWrite( HE_LPCSTR filename, HE_BYTE mode = FILEWRITE_MODE_NEW, CHE_Allocator * pAllocator = NULL );
 
 HE_VOID		HE_DestoryIHEWrite( IHE_Write * pIHEWrite );
 
@@ -218,16 +221,15 @@ public:
 	virtual HE_VOID		Release() = 0;
 };
 
-IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize, CHE_Allocator * pAllocator = NULL );
-
-HE_VOID		HE_DestoryIHERead( IHE_Read * pIHERead );
-
 #define FILEREAD_MODE_DEFAULT		0
 #define FILEREAD_MODE_MEMCOPY		1
 #define FILEREAD_MODE_BUFFER		2
 #define FILEREAD_MODE_BLOCKLINK		3
 
-IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode = 0, HE_DWORD param = 4096, CHE_Allocator * pAllocator = NULL );
+IHE_Read*	HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode = FILEREAD_MODE_DEFAULT, HE_DWORD param = 0, CHE_Allocator * pAllocator = NULL );
 
+IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize, CHE_Allocator * pAllocator = NULL );
+
+HE_VOID		HE_DestoryIHERead( IHE_Read * pIHERead );
 
 #endif

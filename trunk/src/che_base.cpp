@@ -62,7 +62,7 @@ inline size_t CHE_HeapAllocator::GetSize( void * data )
 class IHE_CrtFileWrite: public IHE_Write
 {
 public:
-	IHE_CrtFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator = NULL );
+	IHE_CrtFileWrite( HE_LPCSTR filename,  HE_BYTE mode, CHE_Allocator * pAllocator = NULL );
 
 	virtual ~IHE_CrtFileWrite();
 
@@ -80,13 +80,18 @@ private:
 	FILE *				m_pFile;
 };
 
-IHE_CrtFileWrite::IHE_CrtFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator ) : IHE_Write( pAllocator )
+IHE_CrtFileWrite::IHE_CrtFileWrite( HE_LPCSTR filename, HE_BYTE mode, CHE_Allocator * pAllocator ) : IHE_Write( pAllocator )
 {
 	if ( filename == NULL )
 	{
 		m_pFile = NULL;
 	}else{
-		m_pFile = fopen( filename, "wb" );
+		if ( mode == FILEWRITE_MODE_NEW )
+		{
+			m_pFile = fopen( filename, "wb+" );
+		}else{
+			m_pFile = fopen( filename, "r+b" );
+		}
 	}
 }
 
@@ -156,16 +161,16 @@ HE_BOOL IHE_CrtFileWrite::WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE
 	}
 }
 
-IHE_Write* HE_CreateFileWrite( HE_LPCSTR filename, CHE_Allocator * pAllocator )
+IHE_Write* HE_CreateFileWrite( HE_LPCSTR filename, HE_BYTE mode, CHE_Allocator * pAllocator )
 {
 	if ( filename != NULL )
 	{
 		IHE_Write * pTmp = NULL;
 		if ( pAllocator == NULL )
 		{
-			pTmp = new IHE_CrtFileWrite( filename, NULL );
+			pTmp = new IHE_CrtFileWrite( filename, mode, NULL );
 		}else{
-			pTmp = pAllocator->New<IHE_CrtFileWrite>( filename, pAllocator );
+			pTmp = pAllocator->New<IHE_CrtFileWrite>( filename, mode, pAllocator );
 		}
 		return pTmp;
 	}else{
@@ -545,10 +550,33 @@ HE_VOID	HE_DestoryIHERead( IHE_Read * pIHERead )
 	}
 }
 
+class IHE_File : public CHE_Object 
+{
+	IHE_File( CHE_Allocator * pAllocator ) : CHE_Object( pAllocator ) {}
 
+	virtual ~IHE_File() {};
 
+	virtual HE_DWORD	GetSize() = 0;
 
+	virtual HE_DWORD	GetCurOffset() = 0;
 
-	
+	virtual HE_DWORD	ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size ) = 0;
 
+	virtual HE_BYTE		ReadByte( HE_DWORD offset ) = 0;
 
+	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE_DWORD size ) = 0;
+
+	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD size )
+	{
+		return WriteBlock( pData, GetSize(), size );
+	}
+
+	virtual HE_BOOL		WriteByte( HE_BYTE byte )
+	{
+		return WriteBlock( &byte, 1 );
+	}
+
+	virtual HE_DWORD	Flush() = 0;
+
+	virtual HE_VOID		Release() = 0;
+};

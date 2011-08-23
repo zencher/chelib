@@ -225,7 +225,7 @@ CHE_PDF_Array * CHE_PDF_Document::GetPageMediaBox( CHE_PDF_Dictionary * pPageDic
 			{
 				return NULL;
 			}else{
-				pObj = m_pParser->GetObject( ((CHE_PDF_Reference*)pObj)->GetRefNuml() );
+				pObj = m_pParser->GetObject( ((CHE_PDF_Reference*)pObj)->GetRefNum() );
 				if ( pObj == NULL || pObj->GetType() != OBJ_TYPE_DICTIONARY )
 				{
 					return NULL;
@@ -244,7 +244,7 @@ CHE_PDF_Array * CHE_PDF_Document::GetPageMediaBox( CHE_PDF_Dictionary * pPageDic
 		return pObj->ToArray();
 	}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		pObj = m_pParser->GetObject( pObj->ToReference()->GetRefNuml() );
+		pObj = m_pParser->GetObject( pObj->ToReference()->GetRefNum() );
 		if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_ARRAY )
 		{
 			return pObj->ToArray();
@@ -366,8 +366,8 @@ CHE_PDF_Page::CHE_PDF_Page( HE_DWORD lPageIndex, CHE_PDF_Dictionary * pDict, CHE
 				CHE_PDF_Number * pNum2 = (CHE_PDF_Number*)((CHE_PDF_Array*)pObj)->GetElement( 1 );
 				CHE_PDF_Number * pNum3 = (CHE_PDF_Number*)((CHE_PDF_Array*)pObj)->GetElement( 2 );
 				CHE_PDF_Number * pNum4 = (CHE_PDF_Number*)((CHE_PDF_Array*)pObj)->GetElement( 3 );
-				m_fPageWidth = pNum3->GetFloatNumber() - pNum1->GetFloatNumber();
-				m_fPageHeight = pNum4->GetFloatNumber() - pNum2->GetFloatNumber();
+				m_fPageWidth = pNum3->GetFloat() - pNum1->GetFloat();
+				m_fPageHeight = pNum4->GetFloat() - pNum2->GetFloat();
 			}
 		}
 	}
@@ -409,7 +409,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 	}
 	if ( pPageContent->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		HE_DWORD objNum = pPageContent->ToReference()->GetRefNuml();
+		HE_DWORD objNum = pPageContent->ToReference()->GetRefNum();
 		pPageContent = m_pDoc->GetParser()->GetObject( objNum );
 		if ( pPageContent == NULL )
 		{
@@ -436,7 +436,7 @@ HE_BOOL CHE_PDF_Page::GetPageContent( CHE_DynBuffer & buffer )
 					
 				}else if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 				{
-					HE_DWORD objNum = pTmpObj->ToReference()->GetRefNuml();
+					HE_DWORD objNum = pTmpObj->ToReference()->GetRefNum();
 					pTmpObj = m_pDoc->GetParser()->GetObject( objNum );
 					if ( pTmpObj == NULL )
 					{
@@ -753,7 +753,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fCharSpace = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fCharSpace = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -763,7 +763,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fWordSpace = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fWordSpace = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -783,7 +783,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fLeading = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fLeading = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -811,7 +811,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 								CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)( pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() ) );
 								if ( pFontRef != NULL && pFontRef->GetType() == OBJ_TYPE_REFERENCE )
 								{
-									dwFontObjNum = pFontRef->GetRefNuml();
+									dwFontObjNum = pFontRef->GetRefNum();
 								}
 								pTmpNode->Release();
 							}
@@ -843,7 +843,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fPosiY += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fPosiY += ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -851,7 +851,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fPosiX += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fPosiX += ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -861,7 +861,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							HE_FLOAT tmpValue = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							HE_FLOAT tmpValue = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							fLeading = -tmpValue;
 							fPosiY += tmpValue;
 							pTmpNode->Release();
@@ -871,7 +871,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fPosiX += ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fPosiX += ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -881,7 +881,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fMatrixF = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fMatrixF = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -889,7 +889,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fMatrixE = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fMatrixE = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -897,7 +897,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fMatrixD = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fMatrixD = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -905,7 +905,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fMatrixC = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fMatrixC = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -913,7 +913,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fMatrixB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fMatrixB = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -921,7 +921,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fMatrixA = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fMatrixA = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -999,7 +999,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							pTextItem->SetCharSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
+							pTextItem->SetCharSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloat() );
 							pTmpNode->Release();
 						}
 					}
@@ -1007,7 +1007,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							pTextItem->SetWordSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber() );
+							pTextItem->SetWordSpace( ((CHE_PDF_Number*)pTmpNode)->GetFloat() );
 							pTmpNode->Release();
 						}
 					}
@@ -1062,7 +1062,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							CHE_PDF_OrderParam_LineWidth * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineWidth>( fTmp, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
 							pOrder->SetType( ORDER_LINE_WIDTH );
@@ -1107,7 +1107,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							CHE_PDF_OrderParam_MiterLimit * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_MiterLimit>( fTmp, GetAllocator() );
 							CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
 							pOrder->SetType( ORDER_MITER_LIMIT );
@@ -1125,7 +1125,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							dashPhase = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							dashPhase = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -1149,7 +1149,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 									pObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
 									if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_NUMBER )
 									{
-										dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloatNumber();
+										dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloat();
 									}
 								}
 								CHE_PDF_OrderParam_DashPattern * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_DashPattern>( dashArray, dashArraySize, dashPhase, GetAllocator() );
@@ -1201,7 +1201,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							HE_DWORD value = 0;
 							HE_DWORD bTmp = (HE_DWORD)( fTmp * 255 );
 							value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp );
@@ -1221,7 +1221,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							HE_DWORD value = 0;
 							HE_DWORD bTmp = (HE_DWORD)( fTmp * 255 );
 							value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
@@ -1244,7 +1244,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fB = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -1252,7 +1252,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fG = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -1260,7 +1260,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fR = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -1284,7 +1284,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fB = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -1292,7 +1292,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fG = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -1300,7 +1300,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 					{
 						if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 						{
-							fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+							fR = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 							pTmpNode->Release();
 						}
 					}
@@ -1384,7 +1384,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					fCurY = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					fCurY = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1392,7 +1392,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					fCurX = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					fCurX = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1407,7 +1407,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1415,7 +1415,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					x = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1434,7 +1434,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y3 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y3 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1442,7 +1442,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					x3 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x3 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1450,7 +1450,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1458,7 +1458,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1466,7 +1466,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1474,7 +1474,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1493,7 +1493,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1501,7 +1501,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1509,7 +1509,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1517,7 +1517,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1536,7 +1536,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y2 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1544,7 +1544,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x2 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1552,7 +1552,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y1 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1560,7 +1560,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x1 = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1590,7 +1590,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					height = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					height = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1598,7 +1598,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					width = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					width = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1606,7 +1606,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					y = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					y = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1614,7 +1614,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 		   		{
-					x = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					x = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1836,7 +1836,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					f = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					f = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1844,7 +1844,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					e = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					e = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1852,7 +1852,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					d = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					d = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1860,7 +1860,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					c = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					c = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1868,7 +1868,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					b = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					b = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1876,7 +1876,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					a = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					a = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -1910,7 +1910,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 						pTmpObj = pGraphStateDict->GetElement( "LW", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
-							HE_FLOAT fLineWidth = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloatNumber() );
+							HE_FLOAT fLineWidth = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloat() );
 							CHE_PDF_OrderParam_LineWidth * pParam = GetAllocator()->New<CHE_PDF_OrderParam_LineWidth>( fLineWidth, GetAllocator() );
 							pOrderParam->Append( pParam );
 						}
@@ -1934,7 +1934,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 						pTmpObj = pGraphStateDict->GetElement( "ML", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
-							HE_FLOAT fMiterLimit = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloatNumber() );
+							HE_FLOAT fMiterLimit = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloat() );
 							CHE_PDF_OrderParam_MiterLimit * pParam = GetAllocator()->New<CHE_PDF_OrderParam_MiterLimit>( fMiterLimit, GetAllocator() );
 							pOrderParam->Append( pParam );
 						}
@@ -1959,7 +1959,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 									pNumber = (CHE_PDF_Number*)pArray->GetElement( i, OBJ_TYPE_NUMBER );
 									if ( pNumber != NULL )
 									{
-										pDashArray[i] = pNumber->GetFloatNumber();
+										pDashArray[i] = pNumber->GetFloat();
 									}else{
 										pDashArray[i] = 0;
 									}
@@ -1967,7 +1967,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							}
 							if ( pSecondElement != NULL )
 							{
-								fDashPhase = ((CHE_PDF_Number*)pSecondElement)->GetFloatNumber();
+								fDashPhase = ((CHE_PDF_Number*)pSecondElement)->GetFloat();
 							}
 							CHE_PDF_OrderParam_DashPattern * pParam = GetAllocator()->New<CHE_PDF_OrderParam_DashPattern>( pDashArray, dwDashArraySize, fDashPhase, GetAllocator() );
 							pOrderParam->Append( pParam );
@@ -1987,7 +1987,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					CHE_PDF_OrderParam_LineWidth * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_LineWidth>( fTmp, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
 					pOrder->SetType( ORDER_LINE_WIDTH );
@@ -2032,7 +2032,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					CHE_PDF_OrderParam_MiterLimit * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_MiterLimit>( fTmp, GetAllocator() );
 					CHE_PDF_OrderObject * pOrder = CHE_PDF_OrderObject::Create( GetAllocator() );
 					pOrder->SetType( ORDER_MITER_LIMIT );
@@ -2050,7 +2050,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					dashPhase = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					dashPhase = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -2074,7 +2074,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							pObj = ((CHE_PDF_Array*)pTmpNode)->GetElement( i );
 							if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_NUMBER )
 							{
-								dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloatNumber();
+								dashArray[i] = ((CHE_PDF_Number*)pObj)->GetFloat();
 							}
 						}
 						CHE_PDF_OrderParam_DashPattern * pTmp = GetAllocator()->New<CHE_PDF_OrderParam_DashPattern>( dashArray, dashArraySize, dashPhase, GetAllocator() );
@@ -2136,7 +2136,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 						pTmpObj = pGraphStateDict->GetElement( "LW", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
-							HE_FLOAT fLineWidth = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloatNumber() );
+							HE_FLOAT fLineWidth = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloat() );
 							CHE_PDF_OrderParam_LineWidth * pParam = GetAllocator()->New<CHE_PDF_OrderParam_LineWidth>( fLineWidth, GetAllocator() );
 							pOrderParam->Append( pParam );
 						}
@@ -2160,7 +2160,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 						pTmpObj = pGraphStateDict->GetElement( "ML", OBJ_TYPE_NUMBER );
 						if ( pTmpObj != NULL )
 						{
-							HE_FLOAT fMiterLimit = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloatNumber() );
+							HE_FLOAT fMiterLimit = (HE_FLOAT)( ((CHE_PDF_Number*)pTmpObj)->GetFloat() );
 							CHE_PDF_OrderParam_MiterLimit * pParam = GetAllocator()->New<CHE_PDF_OrderParam_MiterLimit>( fMiterLimit, GetAllocator() );
 							pOrderParam->Append( pParam );
 						}
@@ -2185,7 +2185,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 									pNumber = (CHE_PDF_Number*)pArray->GetElement( i, OBJ_TYPE_NUMBER );
 									if ( pNumber != NULL )
 									{
-										pDashArray[i] = pNumber->GetFloatNumber();
+										pDashArray[i] = pNumber->GetFloat();
 									}else{
 										pDashArray[i] = 0;
 									}
@@ -2193,7 +2193,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 							}
 							if ( pSecondElement != NULL )
 							{
-								fDashPhase = ((CHE_PDF_Number*)pSecondElement)->GetFloatNumber();
+								fDashPhase = ((CHE_PDF_Number*)pSecondElement)->GetFloat();
 							}
 							CHE_PDF_OrderParam_DashPattern * pParam = GetAllocator()->New<CHE_PDF_OrderParam_DashPattern>( pDashArray, dwDashArraySize, fDashPhase, GetAllocator() );
 							pOrderParam->Append( pParam );
@@ -2217,7 +2217,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					HE_DWORD value = 0;
 					HE_DWORD bTmp = (HE_DWORD)( fTmp * 255 );
 					value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
@@ -2237,7 +2237,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					HE_FLOAT fTmp = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					HE_DWORD value = 0;
 					HE_DWORD bTmp = (HE_DWORD)( fTmp * 255 );
 					value = 0xFF000000 | ( (bTmp<<16) | (bTmp<<8) | bTmp ); 
@@ -2260,7 +2260,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					fB = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -2268,7 +2268,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					fG = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -2276,7 +2276,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					fR = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -2300,7 +2300,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					fB = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					fB = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -2308,7 +2308,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					fG = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					fG = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}
@@ -2316,7 +2316,7 @@ HE_DWORD CHE_PDF_Page::ParseContent()
 			{
 				if ( pTmpNode != NULL && pTmpNode->GetType() == OBJ_TYPE_NUMBER )
 				{
-					fR = ((CHE_PDF_Number*)pTmpNode)->GetFloatNumber();
+					fR = ((CHE_PDF_Number*)pTmpNode)->GetFloat();
 					pTmpNode->Release();
 				}
 			}

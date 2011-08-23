@@ -156,7 +156,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				{
 					pCurFont = NULL;
 				}else{
-					pCurFont = pIHE_GetFont->GetFont( pFontRef->GetRefNuml() );
+					pCurFont = pIHE_GetFont->GetFont( pFontRef->GetRefNum() );
 				}
 				if ( pTmpNode )
 				{

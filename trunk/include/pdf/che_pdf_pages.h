@@ -64,7 +64,6 @@ protected:
 	CHE_PDF_Dictionary*			m_pInfoDict;
 	CHE_ByteString				m_ID1;
 	CHE_ByteString				m_ID2;
-	HE_DWORD*					m_pPageObjNumList;
 	CHE_NumToPtrMap				m_FontMap;
 	IHE_PDF_GetFont*			m_pIHE_GetPDFFont;
 };

@@ -280,7 +280,7 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 		{
 			continue;
 		}
-		CHE_PDF_XREF_Entry tmpEntry( 2, pWrite->GetCurOffset(), 0, pObj->GetObjNum() );
+		CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, pWrite->GetCurOffset(), 0 );
 		xrefTable.NewNode( tmpEntry );
 
 		sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
@@ -353,7 +353,7 @@ HE_BOOL CHE_PDF_Creator::SaveUpdate( IHE_Write * pWrite, CHE_PDF_Parser * pParse
 			if ( pObj != NULL )
 			{
 				xrefTable.NewSection( pObj->GetObjNum() );
-				CHE_PDF_XREF_Entry tmpEntry( 2, pWrite->GetCurOffset(), 0, pObj->GetObjNum() );
+				CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, pWrite->GetCurOffset(), 0 );
 				xrefTable.NewNode( tmpEntry );
 				sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
 				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
@@ -371,7 +371,7 @@ HE_BOOL CHE_PDF_Creator::SaveUpdate( IHE_Write * pWrite, CHE_PDF_Parser * pParse
 			if ( pObj != NULL )
 			{
 				xrefTable.NewSection( pObj->GetObjNum() );
-				CHE_PDF_XREF_Entry tmpEntry( 2, pWrite->GetCurOffset(), 0, pObj->GetObjNum() );
+				CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, pWrite->GetCurOffset(), 0 );
 				xrefTable.NewNode( tmpEntry );
 				sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
 				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );

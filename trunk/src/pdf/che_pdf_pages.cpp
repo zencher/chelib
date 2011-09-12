@@ -20,7 +20,6 @@ CHE_PDF_Document::CHE_PDF_Document( CHE_Allocator * pAllocator )
 	m_pInfoDict = NULL;
 	m_pRootDict = NULL;
 	m_pParser = NULL;
-	m_pPageObjNumList = NULL;
 	m_pIHE_GetPDFFont = GetAllocator()->New<IHE_DefaultGetPDFFont>( this, GetAllocator() );
 }
 
@@ -34,7 +33,6 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAlloc
 		m_pInfoDict = NULL;
 		m_pRootDict = NULL;
 		m_pParser = NULL;
-		m_pPageObjNumList = NULL;
 		m_pIHE_GetPDFFont = GetAllocator()->New<IHE_DefaultGetPDFFont>( this, GetAllocator() );
 	}else{
 		m_pParser = GetAllocator()->New<CHE_PDF_Parser>( GetAllocator() );
@@ -42,9 +40,6 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAlloc
 		m_pRootDict = m_pParser->GetRootDict();
 		m_pInfoDict = m_pParser->GetInfoDict();
 		HE_DWORD pageCount = m_pParser->GetPageCount();
-		m_pPageObjNumList = GetAllocator()->NewArray<HE_DWORD>( pageCount );
-		memset( m_pPageObjNumList, 0, pageCount * sizeof(HE_DWORD) );
-		m_pParser->GetPageObjList( m_pPageObjNumList );
 		CHE_PDF_Object * pIDArray = m_pParser->GetIDArray();
 		if ( pIDArray && pIDArray->GetType() != OBJ_TYPE_ARRAY )
 		{
@@ -59,10 +54,6 @@ CHE_PDF_Document::CHE_PDF_Document( IHE_Read * pFileRead, CHE_Allocator * pAlloc
 
 CHE_PDF_Document::~CHE_PDF_Document()
 {
-	if ( m_pPageObjNumList )
-	{
-		GetAllocator()->DeleteArray<HE_DWORD>( m_pPageObjNumList );
-	}
 	if ( m_pIHE_GetPDFFont )
 	{
 		GetAllocator()->Delete<IHE_PDF_GetFont>( m_pIHE_GetPDFFont );
@@ -93,15 +84,11 @@ HE_BOOL CHE_PDF_Document::Load( IHE_Read * pFileRead )
 	{
 		return FALSE;
 	}
-
 	m_pParser = GetAllocator()->New<CHE_PDF_Parser>( GetAllocator() );
 	m_pParser->Open( pFileRead );
 	m_pRootDict = m_pParser->GetRootDict();
 	m_pInfoDict = m_pParser->GetInfoDict();
 	HE_DWORD pageCount = m_pParser->GetPageCount();
-	m_pPageObjNumList = GetAllocator()->NewArray<HE_DWORD>( pageCount );
-	memset( m_pPageObjNumList, 0, pageCount * sizeof(HE_DWORD) );
-	m_pParser->GetPageObjList( m_pPageObjNumList );
 	CHE_PDF_Object * pIDArray = m_pParser->GetIDArray();
 	if ( pIDArray && pIDArray->GetType() == OBJ_TYPE_ARRAY )
 	{
@@ -118,11 +105,6 @@ HE_VOID CHE_PDF_Document::Unload()
 	m_pParser->Close();
 	GetAllocator()->Delete<CHE_PDF_Parser>( m_pParser );
 	m_pParser = NULL;
-	if ( m_pPageObjNumList )
-	{
-		GetAllocator()->DeleteArray<HE_DWORD>( m_pPageObjNumList );
-		m_pPageObjNumList = NULL;
-	}
 	if ( m_pIHE_GetPDFFont )
 	{
 		GetAllocator()->Delete<IHE_PDF_GetFont>( m_pIHE_GetPDFFont );
@@ -143,8 +125,6 @@ HE_VOID CHE_PDF_Document::Unload()
 	}
 }
 
-//HE_BOOL CHE_PDF_Document::Save( IHE_Write * pFileRead );
-
 HE_DWORD CHE_PDF_Document::GetPageCount() const
 {
 	if ( m_pParser )
@@ -164,7 +144,7 @@ CHE_PDF_Page* CHE_PDF_Document::GetPage( HE_DWORD iPageIndex )
 	{
 		return NULL;
 	}
-	HE_DWORD objNum = m_pPageObjNumList[iPageIndex];
+	HE_DWORD objNum = m_pParser->GetPageObjNum( iPageIndex );
 	if ( objNum == 0 )
 	{
 		return NULL;

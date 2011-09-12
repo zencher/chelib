@@ -295,7 +295,8 @@ HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBu
 		stream.avail_out = 4096;
 		stream.next_out  = tmpBuffer;
    
-		switch ( inflate( &stream, param ) )
+		int i = 0;
+		switch ( i = inflate( &stream, param ) )
 		{
 		case Z_OK:
 			if ( stream.avail_out != 0 )
@@ -319,7 +320,6 @@ HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBu
 		default:
 			inflateEnd( &stream );
 			return;
-			break;
 		}   
 		nWrittenData = 4096 - stream.avail_out;
 		if ( m_pPredictor )

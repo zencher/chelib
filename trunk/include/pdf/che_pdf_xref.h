@@ -10,36 +10,43 @@ class CHE_PDF_XREF_Entry
 {
 public:
 	CHE_PDF_XREF_Entry();
-	CHE_PDF_XREF_Entry( HE_DWORD f1, HE_DWORD f2, HE_DWORD f3, HE_DWORD objNum );
+	CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_DWORD f1, HE_DWORD f2 );
 
-	HE_DWORD field1;
-	HE_DWORD field2;
-	HE_DWORD field3;
-	HE_DWORD objNum;
+	PDF_XREF_ENTRY_TYPE		Type;
+	HE_DWORD				Field1;
+	HE_DWORD				Field2;
 
-	HE_DWORD GetType() { return ( field1 == 0 ) ? -1 : ( ( field1 == 2 ) ? XREF_ENTRY_TYPE_COMPRESSED : XREF_ENTRY_TYPE_COMMON ); }
-	HE_DWORD GetOffset() { return field2; }
-	HE_DWORD GetParentObjNum() { return field2; }
-	HE_DWORD GetObjNum() { return objNum; }
-	HE_DWORD GetIndex() { return field3; }
+	PDF_XREF_ENTRY_TYPE GetType() { return Type; }
+	HE_DWORD GetOffset() { return Field1; }
+	HE_DWORD GetParentObjNum() { return Field1; }
+	HE_DWORD GetIndex() { return Field2; }
 };
 
 struct PDF_XREF_ENTRY_NODE
 {
 	CHE_PDF_XREF_Entry entry;
-	PDF_XREF_ENTRY_NODE * pPrv;
 	PDF_XREF_ENTRY_NODE * pNext;
 };
 
-struct PDF_XREF_SECTION
+struct PDF_XREF_SECTION_PART
 {
+	PDF_XREF_SECTION_PART * pNextSecPart;
 	PDF_XREF_ENTRY_NODE * pFirstEntry;
 	PDF_XREF_ENTRY_NODE * pLastEntry;
 	HE_DWORD lBeginNum;
 	HE_DWORD lCount;
-	PDF_XREF_SECTION * pPreSection;
-	PDF_XREF_SECTION * pNextSection;
+	HE_DWORD lSectionIndex;
 };
+
+// struct PDF_XREF_FASTACCESS_NODE
+// {
+// 	HE_DWORD lSectionIndex;
+// 	HE_DWORD lBeginNum;
+// 	HE_DWORD lSize;
+// 	PDF_XREF_SECTION_PART * pFirstSecPart;
+// 	PDF_XREF_ENTRY_NODE ** pAccessArr;
+// 	PDF_XREF_FASTACCESS_NODE * pNext;
+// };
 
 class CHE_PDF_XREF_Table : public CHE_Object
 {
@@ -47,29 +54,32 @@ public:
 	CHE_PDF_XREF_Table( CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_XREF_Table();
 	
-	HE_VOID Clear();
-
+	//Register the Entry, Finally call BuildIndex().
 	HE_VOID	NewSection( HE_DWORD lBegin );
-
 	HE_VOID NewNode( CHE_PDF_XREF_Entry & entry );
+	HE_VOID SkipNode();
+	HE_VOID Update( HE_DWORD objNum, CHE_PDF_XREF_Entry & entry );
 
 	HE_VOID BuildIndex();
 
-	//HE_BOOL Remove( unsigned int objNum );
+	HE_VOID Clear();
 
 	HE_BOOL GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
-
 	HE_BOOL IsExist( HE_DWORD objNum );
 
 	HE_DWORD GetCount() { return m_lCount; }
 	HE_DWORD GetMaxObjNum() { return m_lMaxObjNum; }
 
 private:
-	PDF_XREF_SECTION *		m_pFirstSection;
-	PDF_XREF_SECTION *		m_pCurSection;
-	HE_DWORD				m_lCount;
-	HE_DWORD				m_lMaxObjNum;
-	PDF_XREF_ENTRY_NODE **	m_pFastAccessArr;
+	PDF_XREF_SECTION_PART *		m_pFirstSecPart;
+	PDF_XREF_SECTION_PART *		m_pLastSecPart;
+	PDF_XREF_ENTRY_NODE **		m_pFastAccessArr;
+	//PDF_XREF_FASTACCESS_NODE *	m_pFastAccess;
+	HE_DWORD					m_lNextSecNum;
+	HE_DWORD					m_lNextObjNum;
+	HE_DWORD					m_lMaxObjNum;
+	HE_DWORD					m_lCount;
+	HE_BOOL						m_bSkiped;
 
 	friend class CHE_PDF_Parser;
 };

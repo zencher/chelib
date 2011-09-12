@@ -107,7 +107,9 @@ public:
 
 	//Page tree information
 	HE_DWORD					GetPageCount();
-	HE_DWORD					GetPageObjList( HE_DWORD* pList );
+	HE_DWORD					GetPageObjNum( HE_DWORD pageIndex );
+
+	//HE_DWORD					GetPageObjList( HE_DWORD* pList );
 
 	//Encryption
 	HE_BOOL						Authenticate( CHE_ByteString & password ) const 
@@ -151,15 +153,16 @@ private:
 
 	HE_DWORD					m_lstartxref;
 	HE_DWORD					m_lPageCount;
+	HE_DWORD					m_lCurPageIndex;
+	HE_DWORD*					m_pPageObjList;
+	CHE_PtrStack				m_PageNodeStack;
 
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;
 	CHE_PDF_Encrypt	*			m_pStmEncrypt;
 	CHE_PDF_Encrypt	*			m_pEefEncrypt;
 
 	CHE_PDF_SyntaxParser		m_sParser;
-
 	CHE_PtrArray				m_arrObjStm;
-
 	CHE_PDF_XREF_Table			m_xrefTable;				//结构化的交叉索引表信息
 	CHE_PDF_Collector			m_objCollector;				//对象收集器，被加载的都被放入收集器，某些尾字典不会
 	CHE_PDF_Collector			m_NewObjCollector;			//新建的对象的收集器

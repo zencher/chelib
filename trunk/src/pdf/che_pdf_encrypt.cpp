@@ -1795,7 +1795,7 @@ CHE_PDF_Encrypt::CHE_PDF_Encrypt( const CHE_ByteString id, HE_BYTE O[32], HE_BYT
 	{
 		m_algorithm = 1;
 	}else{
-		algorithm = 4;
+		m_algorithm = 4;
 	}
 	m_keyLength = keyLength;
 	m_revision = revision;

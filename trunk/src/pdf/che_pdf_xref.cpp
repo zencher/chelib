@@ -43,42 +43,44 @@ CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
 
 HE_VOID CHE_PDF_XREF_Table::Clear()
 {
-	PDF_XREF_SECTION_PART * pTmpSecPart = m_pFirstSecPart;
+	PDF_XREF_SECTION_PART * pTmpSecPart = NULL;
 	PDF_XREF_ENTRY_NODE * pTmpNode = NULL;
-	while ( pTmpSecPart )
+	while ( m_pFirstSecPart )
 	{
-		pTmpNode = pTmpSecPart->pFirstEntry;
+		pTmpSecPart = m_pFirstSecPart;
+		pTmpNode = m_pFirstSecPart->pFirstEntry;
 		while ( pTmpNode )
 		{
-			pTmpSecPart->pFirstEntry = pTmpSecPart->pFirstEntry->pNext;
+			m_pFirstSecPart->pFirstEntry = m_pFirstSecPart->pFirstEntry->pNext;
 			GetAllocator()->Delete<PDF_XREF_ENTRY_NODE>( pTmpNode );
-			pTmpNode = pTmpSecPart->pFirstEntry;
+			pTmpNode = m_pFirstSecPart->pFirstEntry;
 		}
 		m_pFirstSecPart = m_pFirstSecPart->pNextSecPart;
 		GetAllocator()->Delete<PDF_XREF_SECTION_PART>( pTmpSecPart );
-		pTmpSecPart = m_pFirstSecPart;
 	}
 
+	PDF_XREF_FASTACCESS_NODE* pTmpAccessNode = NULL;
 	while ( m_pFirstFastAccess )
 	{
-		PDF_XREF_FASTACCESS_NODE* pTmp = m_pFirstFastAccess;
-		if ( pTmp->pAccessArr )
+		pTmpAccessNode = m_pFirstFastAccess;
+		if ( pTmpAccessNode->pAccessArr )
 		{
-			GetAllocator()->DeleteArray( pTmp->pAccessArr );
+			GetAllocator()->DeleteArray( pTmpAccessNode->pAccessArr );
 		}
 		m_pFirstFastAccess = m_pFirstFastAccess->pNext;
-		GetAllocator()->Delete( pTmp );
+		GetAllocator()->Delete( pTmpAccessNode );
 	}
 
+	PDF_XREF_TRAILER_NODE * pTmpTrailer = NULL;
 	while( m_pFirstTrailer )
 	{
-		PDF_XREF_TRAILER_NODE * pTmp = m_pFirstTrailer;
-		if ( pTmp && pTmp->bNeedDestroy == TRUE )
+		pTmpTrailer = m_pFirstTrailer;
+		if ( pTmpTrailer && pTmpTrailer->bNeedDestroy == TRUE )
 		{
-			GetAllocator()->DeleteArray( pTmp->pDict );
+			GetAllocator()->DeleteArray( pTmpTrailer->pDict );
 		}
 		m_pFirstTrailer = m_pFirstTrailer->pNext;
-		GetAllocator()->DeleteArray( pTmp );
+		GetAllocator()->DeleteArray( pTmpTrailer );
 	}
 }
 
@@ -174,7 +176,7 @@ HE_VOID CHE_PDF_XREF_Table::SkipNode()
 	m_lSkipCount++;
 }
 
-HE_VOID CHE_PDF_XREF_Table::Update( HE_DWORD objNum, CHE_PDF_XREF_Entry & entry )
+HE_VOID CHE_PDF_XREF_Table::UpdateNode( HE_DWORD objNum, CHE_PDF_XREF_Entry & entry )
 {
 	if ( m_bIndexed == FALSE )
 	{

@@ -1976,7 +1976,7 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 									wordDes.str.GetInteger() != (HE_INT32)(lSecBeginNum + indexInSec)  )
 						{
 							CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, field2, field3 );
-							m_xrefTable.Update( lSecBeginNum + xrefEntryCount, tmpEntry );
+							m_xrefTable.UpdateNode( lSecBeginNum + xrefEntryCount, tmpEntry );
 							lEntryToCheck--;
 							break;
 						}

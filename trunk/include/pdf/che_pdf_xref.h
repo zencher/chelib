@@ -66,26 +66,21 @@ public:
 	HE_VOID	NewSection( HE_DWORD lBegin );
 	HE_VOID NewNode( CHE_PDF_XREF_Entry & entry );
 	HE_VOID SkipNode();
-	HE_VOID Update( HE_DWORD objNum, CHE_PDF_XREF_Entry & entry );
-
+	HE_VOID UpdateNode( HE_DWORD objNum, CHE_PDF_XREF_Entry & entry );
+	HE_VOID NewTrailer( CHE_PDF_Dictionary * pDict, HE_BOOL bNeedDestroy = FALSE );
 	HE_VOID BuildIndex();
-
 	HE_VOID Clear();
 
 	HE_BOOL GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
 	HE_BOOL IsExist( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
 	HE_BOOL IsExist( HE_DWORD objNum );
 
-
-	HE_VOID NewTrailer( CHE_PDF_Dictionary * pDict, HE_BOOL bNeedDestroy = FALSE );
-
 	HE_DWORD GetTrailerCount() { m_lTrailerCount; }
-
 	CHE_PDF_Dictionary * GetTrailer( HE_DWORD index = 0 ) const;
-
 
 	HE_DWORD GetCount() { return m_lCount; }
 	HE_DWORD GetMaxObjNum() { return m_lMaxObjNum; }
+	HE_DWORD RequestObjNum() { return ++m_lMaxObjNum; }
 
 private:
 	PDF_XREF_SECTION_PART *		m_pFirstSecPart;

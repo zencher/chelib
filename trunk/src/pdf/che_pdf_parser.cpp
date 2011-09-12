@@ -1249,14 +1249,12 @@ CHE_PDF_Parser::CHE_PDF_Parser( CHE_Allocator * pAllocator )
 	m_objCollector( pAllocator ), m_ModifiedObjCollector( pAllocator ), m_NewObjCollector( pAllocator ) 
 {
 	m_sParser.SetParser( this );
-	m_pTrailerDict = NULL;
 	m_pIHE_FileRead = NULL;
 	m_pStrEncrypt = NULL;
 	m_pStmEncrypt = NULL;
 	m_pEefEncrypt = NULL;
-	m_lstartxref = 0;
+	m_lStartxref = 0;
 	m_lPageCount = 0;
-	m_bTrailerDictNeedDestory = TRUE;
 	m_pPageObjList = NULL;
 	m_lCurPageIndex = 0;
 }
@@ -1303,11 +1301,6 @@ HE_VOID CHE_PDF_Parser::Close()
 		m_pIHE_FileRead->Release();
 		m_pIHE_FileRead = NULL;
 	}
- 	if ( m_pTrailerDict && m_bTrailerDictNeedDestory == TRUE )
- 	{
- 		m_pTrailerDict->Release();
-		m_pTrailerDict = NULL;
- 	}
 }
 
 HE_DWORD CHE_PDF_Parser::GetFileSize() const
@@ -1351,9 +1344,9 @@ PDF_VERSION CHE_PDF_Parser::GetPDFVersion() const
 
 CHE_PDF_Dictionary* CHE_PDF_Parser::GetRootDict()
 {
-	if ( m_pTrailerDict )
+	if ( m_xrefTable.GetTrailer() )
 	{
-		CHE_PDF_Object * pObj = m_pTrailerDict->GetElement( "Root" );
+		CHE_PDF_Object * pObj =m_xrefTable.GetTrailer()->GetElement( "Root" );
 		if ( pObj == NULL )
 		{
 			return NULL;
@@ -1372,9 +1365,9 @@ CHE_PDF_Dictionary* CHE_PDF_Parser::GetRootDict()
 
 CHE_PDF_Dictionary* CHE_PDF_Parser::GetInfoDict()
 {
-	if ( m_pTrailerDict )
+	if ( m_xrefTable.GetTrailer() )
 	{
-		CHE_PDF_Object * pObj = m_pTrailerDict->GetElement( "Info" );
+		CHE_PDF_Object * pObj = m_xrefTable.GetTrailer()->GetElement( "Info" );
 		if ( pObj == NULL )
 		{
 			return NULL;
@@ -1393,9 +1386,9 @@ CHE_PDF_Dictionary* CHE_PDF_Parser::GetInfoDict()
 
 CHE_PDF_Array* CHE_PDF_Parser::GetIDArray()
 {
-	if ( m_pTrailerDict )
+	if ( m_xrefTable.GetTrailer() )
 	{
-		CHE_PDF_Object * pObj = m_pTrailerDict->GetElement( "ID" );
+		CHE_PDF_Object * pObj = m_xrefTable.GetTrailer()->GetElement( "ID" );
 		if ( pObj == NULL )
 		{
 			return NULL;
@@ -1454,7 +1447,7 @@ HE_DWORD CHE_PDF_Parser::GetStartxref( HE_DWORD range )
 			GetAllocator()->DeleteArray<HE_BYTE>( pBuffer );
 			pBuffer = NULL;
 		}
-		m_lstartxref = iStartXref;
+		m_lStartxref = iStartXref;
 		return iStartXref;
 	}
 	return 0;
@@ -1466,30 +1459,27 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 	{
 		return 0;
 	}
-	if ( m_lstartxref == 0 )
+	if ( m_lStartxref == 0 )
 	{
 		GetStartxref( m_sParser.GetFileSize() );
-		if ( m_lstartxref == 0 )
+		if ( m_lStartxref == 0 )
 		{
 			return FullParseForXRef();
 		}
 	}
 
 	CHE_PDF_Dictionary * pDict = NULL;
-	HE_DWORD offset = m_lstartxref;
+	HE_DWORD offset = m_lStartxref;
 	HE_DWORD xrefEntryCount = 0;
 	HE_DWORD entryCount = 0;
 
 	while ( TRUE )
 	{
+		pDict = NULL;
 		entryCount = ParseXRefTable( offset, &pDict );
 		xrefEntryCount += entryCount;
 		if ( pDict )
 		{
-			if ( m_pTrailerDict == NULL )
-			{
-				m_pTrailerDict = pDict;
-			}
 			CHE_PDF_Object * pObj = pDict->GetElement( "Encrypt" );
 			if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
@@ -1503,28 +1493,16 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 			if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_NUMBER )
 			{
 				offset = pObj->ToNumber()->GetInteger();
-				if ( pDict != m_pTrailerDict )
-				{
-					pDict->Release();	//由于该对象没有被间接对象容器管理，所以必须手动释放
-				}
 				continue;
-			}
-			if ( pDict != m_pTrailerDict )
-			{
-				pDict->Release();	//由于该对象没有被间接对象容器管理，所以必须手动释放
 			}
 		}
 		if ( entryCount == 0 )
 		{
+			pDict = NULL;
 			entryCount = ParseXRefStream( offset, &pDict );
 			xrefEntryCount += entryCount;
 			if ( pDict )
 			{
-				if ( m_pTrailerDict == NULL )
-				{
-					m_pTrailerDict = pDict;
-					m_bTrailerDictNeedDestory = FALSE;
-				}
 				CHE_PDF_Object * pObj = pDict->GetElement( "Encrypt" );
 				if ( pObj != NULL )
 				{
@@ -1713,7 +1691,6 @@ HE_DWORD CHE_PDF_Parser::ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** 
 {
 	HE_DWORD orgOffset = m_sParser.GetPos();
 	m_sParser.SetPos( offset );
-	*pTrailerDictRet = NULL;
 
 	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
 	HE_DWORD xrefEntryCount = 0;
@@ -1737,6 +1714,7 @@ HE_DWORD CHE_PDF_Parser::ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** 
 		}else if ( wordDes.type == PARSE_WORD_UNKNOWN && wordDes.str == "trailer" )
 		{
 			*pTrailerDictRet = m_sParser.GetDictionary();
+			m_xrefTable.NewTrailer( *pTrailerDictRet, TRUE );
 		}else{
 			break;
 		}
@@ -1792,7 +1770,6 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 {
 	HE_DWORD orgOffset = m_sParser.GetPos();
 	m_sParser.SetPos( offset );
-	*pTrailerDictRet = NULL;
 
 	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
 	HE_DWORD xrefEntryCount = 0;
@@ -1811,6 +1788,7 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 		return 0;
 	}else{
 		*pTrailerDictRet = pDict;
+		m_xrefTable.NewTrailer( pDict ); 
 	}
 	CHE_PDF_Object * pElement =  pDict->GetElement( "Type" );
 	if ( pElement == NULL || pElement->GetType() != OBJ_TYPE_NAME || pElement->ToName()->GetString() != "XRef" )
@@ -1833,8 +1811,8 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 		return 0;
 	}
 	if (	pElement->ToArray()->GetElement( 0 )->GetType() != OBJ_TYPE_NUMBER ||
-			pElement->ToArray()->GetElement( 1 )->GetType() != OBJ_TYPE_NUMBER ||
-			pElement->ToArray()->GetElement( 2 )->GetType() != OBJ_TYPE_NUMBER )
+		pElement->ToArray()->GetElement( 1 )->GetType() != OBJ_TYPE_NUMBER ||
+		pElement->ToArray()->GetElement( 2 )->GetType() != OBJ_TYPE_NUMBER )
 	{
 		m_sParser.SetPos( orgOffset );
 		return 0;
@@ -1875,22 +1853,39 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 	CHE_NumToPtrMap	XrefVerifyMap1( GetAllocator() );
 	CHE_NumToPtrMap	XrefVerifyMap2( GetAllocator() );
 
+	HE_DWORD lEntryToCheck = 0;
+
+	HE_DWORD *lSecBeginArray = GetAllocator()->NewArray<HE_DWORD>( lSecCount );
+	HE_DWORD *lSecObjCountArray = GetAllocator()->NewArray<HE_DWORD>( lSecCount );
+	HE_DWORD lEntryCount = 0;
+	if ( pElement == NULL )
+	{
+		lSecBeginArray[0] = 0;
+		lSecObjCountArray[0] = lSize;
+		lEntryCount = lSize;
+	}else{
+		CHE_PDF_Array * pIndexArray = pElement->ToArray();
+		for ( HE_DWORD i = 0; i < lSecCount; i++ )
+		{
+			lSecBeginArray[i] = pIndexArray->GetElement( i * 2 )->ToNumber()->GetInteger();
+			lSecObjCountArray[i] = pIndexArray->GetElement( i * 2 + 1 )->ToNumber()->GetInteger();
+			lEntryCount += lSecObjCountArray[i];
+		}
+	}
+
+	if ( streamSize / lEntrySize > lEntryCount )
+	{
+		lEntryToCheck = streamSize / lEntrySize - lEntryCount;
+	}else{
+		lEntryToCheck = 0;
+	}
+
+
 	for ( HE_DWORD i = 0; i < lSecCount; i++ )
 	{
-		if ( pElement == NULL )
-		{
-			lSecBeginNum = 0;
-			if ( streamSize / lEntrySize > lSize )
-			{
-				lSecObjCount = streamSize / lEntrySize;
-			}else{
-				lSecObjCount = lSize;
-			}
-		}else{
-			CHE_PDF_Array * pIndexArray = pElement->ToArray();
-			lSecBeginNum = pIndexArray->GetElement( i * 2 )->ToNumber()->GetInteger();
-			lSecObjCount = pIndexArray->GetElement( i * 2 + 1 )->ToNumber()->GetInteger();
-		}
+		lSecBeginNum = lSecBeginArray[i];
+		lSecObjCount = lSecObjCountArray[i] + lEntryToCheck;
+
 		m_xrefTable.NewSection( lSecBeginNum );
 		lItemOfSecCount = lSecObjCount;
 		HE_DWORD indexInSec = 0;
@@ -1945,6 +1940,7 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 						HE_LPVOID pIndex = ((CHE_NumToPtrMap *)pSubMap)->GetItem( field3 );
 						if ( pIndex != NULL )
 						{
+							lEntryToCheck--;
 							break;
 						}else{
 							((CHE_NumToPtrMap *)pSubMap)->Append( field3, (HE_LPVOID)1 );
@@ -1963,21 +1959,27 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 					{
 						XrefVerifyMap1.Append( field2, (HE_LPVOID)1 );
 					}else{
+						lEntryToCheck--;
 						break;
 					}
-					HE_DWORD offsetSave = m_sParser.GetPos();
-					m_sParser.SetPos( field2 );
-					m_sParser.GetWord( wordDes );
-					m_sParser.SetPos( offsetSave );
-					if ( wordDes.type != PARSE_WORD_INTEGER )
+					if ( lEntryToCheck > 0 )
 					{
-						break;
-					}else if (	wordDes.type == PARSE_WORD_INTEGER && 
-								wordDes.str.GetInteger() != (HE_INT32)(lSecBeginNum + indexInSec)  )
-					{
-						CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, field2, field3 );
-						m_xrefTable.Update( lSecBeginNum + xrefEntryCount, tmpEntry ); 
-						break;
+						HE_DWORD offsetSave = m_sParser.GetPos();
+						m_sParser.SetPos( field2 );
+						m_sParser.GetWord( wordDes );
+						m_sParser.SetPos( offsetSave );
+						if ( wordDes.type != PARSE_WORD_INTEGER )
+						{
+							lEntryToCheck--;
+							break;
+						}else if (	wordDes.type == PARSE_WORD_INTEGER && 
+									wordDes.str.GetInteger() != (HE_INT32)(lSecBeginNum + indexInSec)  )
+						{
+							CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, field2, field3 );
+							m_xrefTable.Update( lSecBeginNum + xrefEntryCount, tmpEntry );
+							lEntryToCheck--;
+							break;
+						}
 					}
 					CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, field2, field3 );
 					m_xrefTable.NewNode( tmpEntry );
@@ -1996,6 +1998,12 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 			}
 		}
 	}
+
+	GetAllocator()->DeleteArray<HE_DWORD>( lSecBeginArray );
+	GetAllocator()->DeleteArray<HE_DWORD>( lSecObjCountArray );
+
+	lSecBeginArray = NULL;
+	lSecObjCountArray = NULL;
 	streamAcc.Detach();
 	m_sParser.SetPos( orgOffset );
 	return xrefEntryCount;
@@ -2023,10 +2031,7 @@ HE_DWORD CHE_PDF_Parser::FullParseForXRef()	//分析整个文件来获取对象信息 // 还需
 		}
 		if ( wordDes.str == "trailer" )
 		{
-			if ( m_pTrailerDict == NULL )
-			{
-				m_pTrailerDict = m_sParser.GetDictionary();
-			}
+			m_xrefTable.NewTrailer( m_sParser.GetDictionary() ); 
 			continue;
 		}
 		if ( wordDes.str == "obj" )
@@ -2242,12 +2247,6 @@ HE_VOID	CHE_PDF_Parser::VerifyObjInStm()
 						{
 							break;
 						}
-// 						if ( wordDes.type == PARSE_WORD_INTEGER )
-// 						{
-// 							HE_DWORD iObjNum = wordDes.str.GetInteger();
-// 							m_xrefTable.m_pFastAccessArr[iObjNum]->entry.Field1 = objNum;
-// 							m_xrefTable.m_pFastAccessArr[iObjNum]->entry.Field2 = i;
-// 						}
 						if ( sParser.GetWord( wordDes ) == FALSE )
 						{
 							break;

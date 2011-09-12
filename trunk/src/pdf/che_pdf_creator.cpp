@@ -404,7 +404,7 @@ HE_BOOL CHE_PDF_Creator::SaveUpdate( IHE_Write * pWrite, CHE_PDF_Parser * pParse
 	CHE_PDF_Dictionary * pTrailerDict = pParser->GetTrailerDict();
 	if ( pTrailerDict )
 	{
-		pTrailerDict->SetAtInteger( "Prev", pParser->m_lstartxref );
+		pTrailerDict->SetAtInteger( "Prev", pParser->m_lStartxref );
 
 		//Ð´Î²×Öµä
 		pWrite->WriteBlock( (HE_LPVOID)gpStrTrailerMark, glStrTrailerMark );

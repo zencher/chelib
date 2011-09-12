@@ -3,6 +3,7 @@
 
 #include "../che_base.h"
 #include "che_pdf_define.h"
+#include "che_pdf_objects.h"
 
 class CHE_PDF_Parser;
 
@@ -38,15 +39,22 @@ struct PDF_XREF_SECTION_PART
 	HE_DWORD lSectionIndex;
 };
 
-// struct PDF_XREF_FASTACCESS_NODE
-// {
-// 	HE_DWORD lSectionIndex;
-// 	HE_DWORD lBeginNum;
-// 	HE_DWORD lSize;
-// 	PDF_XREF_SECTION_PART * pFirstSecPart;
-// 	PDF_XREF_ENTRY_NODE ** pAccessArr;
-// 	PDF_XREF_FASTACCESS_NODE * pNext;
-// };
+struct PDF_XREF_TRAILER_NODE
+{
+	CHE_PDF_Dictionary * pDict;
+	HE_BOOL bNeedDestroy;
+	PDF_XREF_TRAILER_NODE * pNext;
+};
+
+struct PDF_XREF_FASTACCESS_NODE
+{
+	HE_DWORD lSectionIndex;
+	HE_DWORD lBeginNum;
+	HE_DWORD lSize;
+	PDF_XREF_SECTION_PART * pFirstSecPart;
+	PDF_XREF_ENTRY_NODE ** pAccessArr;
+	PDF_XREF_FASTACCESS_NODE * pNext;
+};
 
 class CHE_PDF_XREF_Table : public CHE_Object
 {
@@ -65,7 +73,16 @@ public:
 	HE_VOID Clear();
 
 	HE_BOOL GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
+	HE_BOOL IsExist( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
 	HE_BOOL IsExist( HE_DWORD objNum );
+
+
+	HE_VOID NewTrailer( CHE_PDF_Dictionary * pDict, HE_BOOL bNeedDestroy = FALSE );
+
+	HE_DWORD GetTrailerCount() { m_lTrailerCount; }
+
+	CHE_PDF_Dictionary * GetTrailer( HE_DWORD index = 0 ) const;
+
 
 	HE_DWORD GetCount() { return m_lCount; }
 	HE_DWORD GetMaxObjNum() { return m_lMaxObjNum; }
@@ -73,13 +90,21 @@ public:
 private:
 	PDF_XREF_SECTION_PART *		m_pFirstSecPart;
 	PDF_XREF_SECTION_PART *		m_pLastSecPart;
-	PDF_XREF_ENTRY_NODE **		m_pFastAccessArr;
-	//PDF_XREF_FASTACCESS_NODE *	m_pFastAccess;
+
+	PDF_XREF_FASTACCESS_NODE *	m_pFirstFastAccess;
+	PDF_XREF_FASTACCESS_NODE *	m_pLastFastAccess;
+
+	PDF_XREF_TRAILER_NODE *		m_pFirstTrailer;
+	PDF_XREF_TRAILER_NODE *		m_pLastTrailer;
+	HE_DWORD					m_lTrailerCount;
+
 	HE_DWORD					m_lNextSecNum;
 	HE_DWORD					m_lNextObjNum;
 	HE_DWORD					m_lMaxObjNum;
 	HE_DWORD					m_lCount;
+	HE_DWORD					m_lSkipCount;
 	HE_BOOL						m_bSkiped;
+	HE_BOOL						m_bIndexed;
 
 	friend class CHE_PDF_Parser;
 };

@@ -19,13 +19,18 @@ CHE_PDF_XREF_Table::CHE_PDF_XREF_Table( CHE_Allocator * pAllocator ) : CHE_Objec
 {
 	m_pFirstSecPart = NULL;
 	m_pLastSecPart = NULL;
-	m_pFastAccessArr = NULL;
-	//m_pFastAccess = NULL;
+	m_pFirstFastAccess = NULL;
+	m_pLastFastAccess = NULL;
+	m_pFirstTrailer = NULL;
+	m_pLastTrailer = NULL;
+	m_lTrailerCount = 0;
 	m_lNextSecNum = 0;
 	m_lNextObjNum = 0;
 	m_lCount = 0;
 	m_lMaxObjNum = 0;
+	m_lSkipCount = 0;
 	m_bSkiped = FALSE;
+	m_bIndexed = FALSE;
 }
 
 CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
@@ -54,21 +59,27 @@ HE_VOID CHE_PDF_XREF_Table::Clear()
 		pTmpSecPart = m_pFirstSecPart;
 	}
 
-	if ( m_pFastAccessArr )
+	while ( m_pFirstFastAccess )
 	{
-		GetAllocator()->DeleteArray<PDF_XREF_ENTRY_NODE *>( m_pFastAccessArr );
-		m_pFastAccessArr = NULL;
+		PDF_XREF_FASTACCESS_NODE* pTmp = m_pFirstFastAccess;
+		if ( pTmp->pAccessArr )
+		{
+			GetAllocator()->DeleteArray( pTmp->pAccessArr );
+		}
+		m_pFirstFastAccess = m_pFirstFastAccess->pNext;
+		GetAllocator()->Delete( pTmp );
 	}
-// 	while ( m_pFastAccess )
-// 	{
-// 		PDF_XREF_FASTACCESS_NODE* pTmp = m_pFastAccess;
-// 		if ( pTmp->pAccessArr )
-// 		{
-// 			delete [] pTmp->pAccessArr;
-// 		}
-// 		delete pTmp;
-// 		m_pFastAccess = m_pFastAccess->pNext;
-// 	}
+
+	while( m_pFirstTrailer )
+	{
+		PDF_XREF_TRAILER_NODE * pTmp = m_pFirstTrailer;
+		if ( pTmp && pTmp->bNeedDestroy == TRUE )
+		{
+			GetAllocator()->DeleteArray( pTmp->pDict );
+		}
+		m_pFirstTrailer = m_pFirstTrailer->pNext;
+		GetAllocator()->DeleteArray( pTmp );
+	}
 }
 
 HE_VOID	CHE_PDF_XREF_Table::NewSection( HE_DWORD lBegin )
@@ -93,6 +104,28 @@ HE_VOID	CHE_PDF_XREF_Table::NewSection( HE_DWORD lBegin )
 	m_lNextSecNum++;
 	m_lNextObjNum = lBegin;
 	m_bSkiped = FALSE;
+	m_bIndexed = FALSE;
+
+	if ( m_pFirstFastAccess == NULL )
+	{
+		m_pFirstFastAccess = GetAllocator()->New<PDF_XREF_FASTACCESS_NODE>();
+		m_pLastFastAccess = m_pFirstFastAccess;
+		m_pLastFastAccess->lBeginNum = m_pLastSecPart->lBeginNum;
+		m_pLastFastAccess->lSectionIndex = m_pLastSecPart->lSectionIndex;
+		m_pLastFastAccess->lSize = 0;
+		m_pLastFastAccess->pAccessArr = NULL;
+		m_pLastFastAccess->pFirstSecPart = m_pLastSecPart;
+		m_pLastFastAccess->pNext = NULL;
+	}else{
+		m_pLastFastAccess->pNext = GetAllocator()->New<PDF_XREF_FASTACCESS_NODE>();
+		m_pLastFastAccess = m_pLastFastAccess->pNext;
+		m_pLastFastAccess->lBeginNum = m_pLastSecPart->lBeginNum;
+		m_pLastFastAccess->lSectionIndex = m_pLastSecPart->lSectionIndex;
+		m_pLastFastAccess->lSize = 0;
+		m_pLastFastAccess->pAccessArr = NULL;
+		m_pLastFastAccess->pFirstSecPart = m_pLastSecPart;
+		m_pLastFastAccess->pNext = NULL;
+	}
 }
 
 HE_VOID CHE_PDF_XREF_Table::NewNode( CHE_PDF_XREF_Entry & entry )
@@ -107,8 +140,10 @@ HE_VOID CHE_PDF_XREF_Table::NewNode( CHE_PDF_XREF_Entry & entry )
 		m_pLastSecPart->pNextSecPart = NULL;
 		m_pLastSecPart->lBeginNum = m_lNextObjNum;
 		m_pLastSecPart->lCount = 0;
-		m_pLastSecPart->lSectionIndex = m_lNextSecNum;
+		m_pLastSecPart->lSectionIndex = m_lNextSecNum-1;
+		m_pLastFastAccess->lSize += m_lSkipCount;
 		m_bSkiped = FALSE;
+		m_lSkipCount = 0;
 	}
 	if ( m_pLastSecPart->pFirstEntry == NULL )
 	{
@@ -125,6 +160,7 @@ HE_VOID CHE_PDF_XREF_Table::NewNode( CHE_PDF_XREF_Entry & entry )
 	m_pLastSecPart->lCount++;
 	m_lCount++;
 	m_lNextObjNum++;
+	m_pLastFastAccess->lSize++;
 	if ( m_pLastSecPart->lCount + m_pLastSecPart->lBeginNum - 1 > m_lMaxObjNum )
 	{
 		m_lMaxObjNum = m_pLastSecPart->lCount + m_pLastSecPart->lBeginNum - 1;
@@ -135,11 +171,12 @@ HE_VOID CHE_PDF_XREF_Table::SkipNode()
 {
 	m_bSkiped = TRUE;
 	m_lNextObjNum++;
+	m_lSkipCount++;
 }
 
 HE_VOID CHE_PDF_XREF_Table::Update( HE_DWORD objNum, CHE_PDF_XREF_Entry & entry )
 {
-	if ( m_pFastAccessArr == NULL )
+	if ( m_bIndexed == FALSE )
 	{
 		PDF_XREF_SECTION_PART * pTmpSecPart = m_pFirstSecPart;
 		while ( pTmpSecPart && pTmpSecPart->lCount != 0 )
@@ -162,53 +199,72 @@ HE_VOID CHE_PDF_XREF_Table::Update( HE_DWORD objNum, CHE_PDF_XREF_Entry & entry 
 			pTmpSecPart = pTmpSecPart->pNextSecPart;
 		}
 		return;
-	}
-	if ( objNum <= m_lMaxObjNum  )
-	{
-		if ( m_pFastAccessArr[objNum] != NULL )
+	}else{
+		PDF_XREF_FASTACCESS_NODE * pTmp = m_pFirstFastAccess;
+		while( pTmp )
 		{
-			m_pFastAccessArr[objNum]->entry = entry;
+			if ( pTmp->lBeginNum <= objNum && pTmp->lSize != 0 && objNum < pTmp->lBeginNum + pTmp->lSize )
+			{
+				if ( pTmp->pAccessArr[objNum-pTmp->lBeginNum] != NULL )
+				{
+					pTmp->pAccessArr[objNum-pTmp->lBeginNum]->entry = entry;
+				}
+				return;
+			}
+			pTmp = pTmp->pNext;
 		}
 	}
 }
 
 HE_VOID CHE_PDF_XREF_Table::BuildIndex()
 {
-	if ( m_pFastAccessArr )
-	{
-		GetAllocator()->DeleteArray<PDF_XREF_ENTRY_NODE *>( m_pFastAccessArr );
-		m_pFastAccessArr = NULL;
-	}
 	if ( m_lMaxObjNum == 0 )
 	{
 		return;
 	}
-	m_pFastAccessArr = GetAllocator()->NewArray<PDF_XREF_ENTRY_NODE*>( m_lMaxObjNum+1 );
-	memset( m_pFastAccessArr, 0, sizeof(CHE_PDF_XREF_Entry*)*(m_lMaxObjNum+1) );
+
+	PDF_XREF_FASTACCESS_NODE * pTmpAccess = m_pFirstFastAccess;
+	while( pTmpAccess )
+	{
+		if ( pTmpAccess->pAccessArr )
+		{
+			GetAllocator()->DeleteArray( pTmpAccess->pAccessArr );
+		}
+		pTmpAccess->pAccessArr = GetAllocator()->NewArray<PDF_XREF_ENTRY_NODE*>( pTmpAccess->lSize );
+		memset( pTmpAccess->pAccessArr, 0, sizeof(PDF_XREF_FASTACCESS_NODE*)*pTmpAccess->lSize );
+		pTmpAccess = pTmpAccess->pNext;
+	}
 
 	PDF_XREF_SECTION_PART * pTmpSecPart = m_pFirstSecPart;
 	PDF_XREF_ENTRY_NODE * pTmpEntry = NULL;
+	pTmpAccess = m_pFirstFastAccess;
 	HE_DWORD lIndex = 0;
 	while ( pTmpSecPart )
 	{
+		while ( pTmpSecPart->lSectionIndex != pTmpAccess->lSectionIndex  )
+		{
+			pTmpAccess = pTmpAccess->pNext;
+		}
 		pTmpEntry = pTmpSecPart->pFirstEntry;
 		lIndex = pTmpSecPart->lBeginNum;
 		while( pTmpEntry )
 		{
-			if ( m_pFastAccessArr[lIndex] == NULL )
-			{
-				m_pFastAccessArr[lIndex] = pTmpEntry;
-			}
+			pTmpAccess->pAccessArr[lIndex-pTmpAccess->lBeginNum] = pTmpEntry;
 			lIndex++;
 			pTmpEntry = pTmpEntry->pNext;
 		}
 		pTmpSecPart = pTmpSecPart->pNextSecPart;
 	}
+	m_bIndexed = TRUE;
 }
 
 HE_BOOL CHE_PDF_XREF_Table::GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet )
 {
-	if ( m_pFastAccessArr == NULL )
+	if ( objNum > m_lMaxObjNum  )
+	{
+		return FALSE;
+	}
+	if ( m_bIndexed == FALSE )
 	{
 		PDF_XREF_SECTION_PART * pTmpSecPart = m_pFirstSecPart;
 		while ( pTmpSecPart && pTmpSecPart->lCount != 0 )
@@ -231,34 +287,150 @@ HE_BOOL CHE_PDF_XREF_Table::GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entr
 			pTmpSecPart = pTmpSecPart->pNextSecPart;
 		}
 		return FALSE;
-	}
-	if ( objNum > m_lMaxObjNum  )
-	{
-		return FALSE;
-	}
-	if ( m_pFastAccessArr[objNum] != NULL )
-	{
-		entryRet = m_pFastAccessArr[objNum]->entry;
-		return TRUE;
 	}else{
-		return FALSE;
+		PDF_XREF_FASTACCESS_NODE * pTmp = m_pFirstFastAccess;
+		while( pTmp )
+		{
+			if ( pTmp->lBeginNum <= objNum && objNum < pTmp->lBeginNum + pTmp->lSize )
+			{
+				if ( pTmp->pAccessArr[objNum-pTmp->lBeginNum] != NULL )
+				{
+					entryRet = pTmp->pAccessArr[objNum-pTmp->lBeginNum]->entry;
+					return TRUE;
+				}else{
+					return FALSE;
+				}
+			}
+			pTmp = pTmp->pNext;
+		}
 	}
-	return TRUE;
+	return FALSE;
 }
 
-HE_BOOL CHE_PDF_XREF_Table::IsExist( HE_DWORD objNum )
+HE_BOOL CHE_PDF_XREF_Table::IsExist( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet )
 {
-	if ( m_pFastAccessArr == NULL )
-	{
-		return FALSE;
-	}
 	if ( objNum > m_lMaxObjNum )
 	{
 		return FALSE;
 	}
-	if ( m_pFastAccessArr[m_lMaxObjNum] == NULL )
+	if ( m_bIndexed == FALSE )
+	{
+		PDF_XREF_SECTION_PART * pTmpSecPart = m_pFirstSecPart;
+		while ( pTmpSecPart && pTmpSecPart->lCount != 0 )
+		{
+			HE_DWORD lBegin = pTmpSecPart->lBeginNum;
+			HE_DWORD lCount = pTmpSecPart->lCount;
+			if ( objNum >= lBegin && objNum < lBegin + lCount )
+			{
+				PDF_XREF_ENTRY_NODE * pTmpEntry = pTmpSecPart->pFirstEntry;
+				for ( HE_DWORD index = lBegin; index < objNum; index++ )
+				{
+					pTmpEntry = pTmpEntry->pNext;
+				}
+				if ( pTmpEntry )
+				{
+					entryRet = pTmpEntry->entry;
+					return TRUE;
+				}
+			}
+			pTmpSecPart = pTmpSecPart->pNextSecPart;
+		}
+	}else{
+		PDF_XREF_FASTACCESS_NODE * pTmp = m_pFirstFastAccess;
+		while( pTmp )
+		{
+			if ( pTmp->lBeginNum <= objNum && objNum < pTmp->lBeginNum + pTmp->lSize )
+			{
+				if ( pTmp->pAccessArr[objNum-pTmp->lBeginNum] != NULL )
+				{
+					entryRet = pTmp->pAccessArr[objNum-pTmp->lBeginNum]->entry;
+					return TRUE;
+				}else{
+					return FALSE;
+				}
+			}
+			pTmp = pTmp->pNext;
+		}
+	}
+	return FALSE;
+}
+
+HE_BOOL CHE_PDF_XREF_Table::IsExist( HE_DWORD objNum )
+{
+	if ( objNum > m_lMaxObjNum )
 	{
 		return FALSE;
 	}
-	return TRUE;
+	if ( m_bIndexed == FALSE )
+	{
+		PDF_XREF_SECTION_PART * pTmpSecPart = m_pFirstSecPart;
+		while ( pTmpSecPart && pTmpSecPart->lCount != 0 )
+		{
+			HE_DWORD lBegin = pTmpSecPart->lBeginNum;
+			HE_DWORD lCount = pTmpSecPart->lCount;
+			if ( objNum >= lBegin && objNum < lBegin + lCount )
+			{
+				PDF_XREF_ENTRY_NODE * pTmpEntry = pTmpSecPart->pFirstEntry;
+				for ( HE_DWORD index = lBegin; index < objNum; index++ )
+				{
+					pTmpEntry = pTmpEntry->pNext;
+				}
+				if ( pTmpEntry )
+				{
+					return TRUE;
+				}
+			}
+			pTmpSecPart = pTmpSecPart->pNextSecPart;
+		}
+	}else{
+		PDF_XREF_FASTACCESS_NODE * pTmp = m_pFirstFastAccess;
+		while( pTmp )
+		{
+			if ( pTmp->lBeginNum <= objNum && objNum < pTmp->lBeginNum + pTmp->lSize )
+			{
+				if ( pTmp->pAccessArr[objNum-pTmp->lBeginNum] != NULL )
+				{
+					return TRUE;
+				}else{
+					return FALSE;
+				}
+			}
+		}
+	}
+	return FALSE;
+}
+
+
+HE_VOID CHE_PDF_XREF_Table::NewTrailer( CHE_PDF_Dictionary * pDict, HE_BOOL bNeedDestroy /*= FALSE*/ )
+{
+	if ( pDict == NULL )
+	{
+		return;
+	}
+	if ( m_pFirstTrailer == NULL )
+	{
+		m_pFirstTrailer = GetAllocator()->New<PDF_XREF_TRAILER_NODE>();
+		m_pLastTrailer = m_pFirstTrailer;
+	}else{
+		m_pLastTrailer->pNext = GetAllocator()->New<PDF_XREF_TRAILER_NODE>();
+		m_pLastTrailer = m_pLastTrailer->pNext;
+	}
+	m_pLastTrailer->bNeedDestroy = bNeedDestroy;
+	m_pLastTrailer->pDict = pDict;
+	m_pLastTrailer->pNext = NULL;
+	m_lTrailerCount++;
+}
+
+CHE_PDF_Dictionary * CHE_PDF_XREF_Table::GetTrailer( HE_DWORD index /*= 0*/ ) const
+{
+	if ( index >= m_lTrailerCount )
+	{
+		return NULL;
+	}
+	PDF_XREF_TRAILER_NODE * pTmp = m_pFirstTrailer;
+	for ( HE_DWORD i = index; i > 0 &&  pTmp ; i-- )
+	{
+		pTmp = pTmp->pNext;
+	}
+	return pTmp->pDict;
 }

@@ -99,7 +99,7 @@ public:
 	//Basic information
 	HE_DWORD					GetFileSize() const;
 	PDF_VERSION					GetPDFVersion() const;
-	CHE_PDF_Dictionary *		GetTrailerDict() const { return m_pTrailerDict; }
+	CHE_PDF_Dictionary *		GetTrailerDict() const { return m_xrefTable.GetTrailer(); }
 	CHE_PDF_Dictionary *		GetRootDict();
 	CHE_PDF_Dictionary *		GetInfoDict();
 	CHE_PDF_Array *				GetIDArray();
@@ -108,8 +108,6 @@ public:
 	//Page tree information
 	HE_DWORD					GetPageCount();
 	HE_DWORD					GetPageObjNum( HE_DWORD pageIndex );
-
-	//HE_DWORD					GetPageObjList( HE_DWORD* pList );
 
 	//Encryption
 	HE_BOOL						Authenticate( CHE_ByteString & password ) const 
@@ -148,10 +146,7 @@ private:
 private:
 	IHE_Read *					m_pIHE_FileRead;
 
-	CHE_PDF_Dictionary*			m_pTrailerDict;
-	HE_BOOL						m_bTrailerDictNeedDestory;	//标志尾字典是否需要销毁，尾字典为单独对象时需要销毁
-
-	HE_DWORD					m_lstartxref;
+	HE_DWORD					m_lStartxref;
 	HE_DWORD					m_lPageCount;
 	HE_DWORD					m_lCurPageIndex;
 	HE_DWORD*					m_pPageObjList;

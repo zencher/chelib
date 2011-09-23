@@ -3,7 +3,6 @@
 
 #include "../che_base.h"
 #include "../che_datastructure.h"
-#include <vector>
 
 class CHE_PDF_Filter : public CHE_Object
 {

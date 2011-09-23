@@ -1,5 +1,5 @@
 #include "../include/che_datastructure.h"
-#include <memory.h>
+#include <memory>
 
 CHE_DynBuffer::CHE_DynBuffer( HE_DWORD size /*= 1024*/, HE_DWORD increament /*= 1024*/, CHE_Allocator * pAllocator /*= NULL*/ )
 : CHE_Object( pAllocator )
@@ -701,4 +701,91 @@ HE_VOID CHE_NumToPtrMap::Clear()
 		GetAllocator()->DeleteArray<HE_DWORD>( m_pNum );
 		m_pNum = NULL;
 	}
+}
+
+
+CHE_SkipList::CHE_SkipList( CHE_Allocator * pAllocator ) : CHE_Object( pAllocator ), m_lLevel( 0 ) {}
+
+HE_BOOL CHE_SkipList::Append( HE_DWORD val )
+{
+	if ( m_Forward.size() == 0 )
+	{
+		SkipListNode * pNewNode = GetAllocator()->New<SkipListNode>();
+		pNewNode->lValue = val;
+		m_Forward.push_back( pNewNode );
+		return TRUE;
+	}else{
+		HE_DWORD lLevelRet = 0;
+		SkipListNode * pNoteRet = NULL;
+		if ( Find( val, lLevelRet, &pNoteRet ) == FALSE )
+		{
+			if ( pNoteRet == NULL )
+			{
+				SkipListNode * pNewNode = GetAllocator()->New<SkipListNode>();
+				pNewNode->lValue = val;
+				m_Forward.push_back( pNewNode );
+				return TRUE;
+			}else{
+				//
+			}
+		}else{
+			return FALSE;
+		}
+	}
+}
+
+HE_BOOL CHE_SkipList::Find( HE_DWORD val, HE_DWORD & levelRet, SkipListNode** ppNodeRet ) const
+{
+	if ( m_Forward.size() == 0 || ppNodeRet == NULL )
+	{
+		return FALSE;
+	}
+	HE_DWORD curLevel = m_lLevel;
+	SkipListNode* pTmpNode = *(m_Forward.end());
+	SkipListNode* pPreNode = NULL;
+	
+	while( pTmpNode )
+	{
+		if ( val == pTmpNode->lValue )
+		{
+			levelRet = curLevel;
+			*ppNodeRet = pTmpNode;
+			return TRUE;
+		}else if ( val < pTmpNode->lValue )
+		{
+			//to lower level
+			if ( curLevel == 0 )
+			{
+				levelRet = 0;
+				*ppNodeRet = pPreNode;
+				return FALSE;
+			}else{
+				pTmpNode = pTmpNode->Forward[--curLevel];
+			}
+		}else if ( val > pTmpNode->lValue )
+		{
+			if ( pTmpNode->Forward.size() > curLevel )
+			{
+				//to next node
+				pPreNode = pTmpNode;
+				pTmpNode = pTmpNode->Forward[curLevel];
+			}else if ( pTmpNode->Forward.size() == 0 )
+			{
+				levelRet = curLevel;
+				*ppNodeRet = pTmpNode;
+				return FALSE;
+			}else{
+				//´íÎóµÄ½á¹¹
+				return FALSE;
+			}
+		}
+	}
+	levelRet = 0;
+	*ppNodeRet = NULL;
+	return FALSE;
+}
+
+HE_DWORD CHE_SkipList::GetNewNodeLevel() const
+{
+	return 0;
 }

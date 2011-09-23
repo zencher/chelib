@@ -1,8 +1,6 @@
 #include "../../include/pdf/che_pdf_parser.h"
 #include "../../include/pdf/che_pdf_encrypt.h"
 #include "../../include/che_datastructure.h"
-#include <cstring>
-#include <cstdio>
 
 CHE_PDF_SyntaxParser::CHE_PDF_SyntaxParser( CHE_PDF_Parser * pParser, CHE_Allocator * pAllocator ) : CHE_Object( pAllocator )
 {
@@ -1255,7 +1253,6 @@ CHE_PDF_Parser::CHE_PDF_Parser( CHE_Allocator * pAllocator )
 	m_pEefEncrypt = NULL;
 	m_lStartxref = 0;
 	m_lPageCount = 0;
-	m_pPageObjList = NULL;
 	m_lCurPageIndex = 0;
 }
 
@@ -1270,22 +1267,6 @@ HE_BOOL CHE_PDF_Parser::Open( IHE_Read * file )
 		GetStartxref( 1024 );
 		ParseXRef();
 		m_xrefTable.BuildIndex();
-
-// 		FILE * pFile = fopen( "d:\\asdf.txt", "wb+" );
-// 		PDF_XREF_ENTRY_NODE * pEntry = NULL;
-// 		for ( HE_DWORD i = 0; i < m_xrefTable.m_lMaxObjNum; i++ )
-// 		{
-// 			pEntry = m_xrefTable.m_pFastAccessArr[i];
-// 			if ( pEntry )
-// 			{
-// 				fprintf( pFile, "obj Num : %8d, type %1d, filed1 %10d, field2 %10d\r\n", i, pEntry->entry.Type, pEntry->entry.Field1, pEntry->entry.Field2 );
-// 			}
-// 		}
-// 		fclose( pFile );
-//		pFile = NULL;
-
-
-
 		return TRUE;
 	}
 }
@@ -1296,6 +1277,11 @@ HE_VOID CHE_PDF_Parser::Close()
 	m_objCollector.Clear();
 	m_ModifiedObjCollector.Clear();
 	m_NewObjCollector.Clear();
+	if ( m_pStmEncrypt )
+	{
+		GetAllocator()->Delete( m_pStmEncrypt );
+		m_pStmEncrypt = NULL;
+	}
 	if ( m_pIHE_FileRead )
 	{
 		m_pIHE_FileRead->Release();
@@ -1779,10 +1765,6 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 	}
 	HE_DWORD streamSize = streamAcc.GetSize();
 	HE_LPCBYTE lpByte = streamAcc.GetData();
-	//    FILE * pFile = fopen( "c:\\11.txt", "wb+" );
-	//    fwrite( lpByte, 1, streamSize, pFile );
-	//	fclose( pFile );
-
 	HE_DWORD field1 = 0, field2 = 0, field3 = 0;
 	HE_DWORD lBlockCount = 0;
 	HE_DWORD lEntrySize = lW1 + lW2 + lW3;
@@ -1909,14 +1891,6 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 					}else{
 						XrefVerify1.push_back( field2 );
 					}
-// 					HE_LPVOID pSubMap = XrefVerifyMap1.GetItem( field2 );
-// 					if ( pSubMap == NULL )
-// 					{
-// 						XrefVerifyMap1.Append( field2, (HE_LPVOID)1 );
-// 					}else{
-// 						lEntryToCheck--;
-// 						break;
-// 					}
 					if ( lEntryToCheck > 0 )
 					{
 						HE_DWORD offsetSave = m_sParser.GetPos();
@@ -2100,8 +2074,6 @@ HE_DWORD CHE_PDF_Parser::GetPageCount()
 		return 0;
 	}
 	m_lPageCount = pObj->ToNumber()->GetInteger();
-	m_pPageObjList = GetAllocator()->NewArray<HE_DWORD>( m_lPageCount );
-	memset( m_pPageObjList, 0, sizeof(HE_DWORD)*m_lPageCount );
 	
 	pObj = pDict->GetElement( "Kids", OBJ_TYPE_ARRAY );
 	if ( pObj == NULL )
@@ -2120,7 +2092,7 @@ HE_DWORD CHE_PDF_Parser::GetPageCount()
 				if ( pObj && pObj->GetType() == OBJ_TYPE_REFERENCE )
 				{
 					pRef = pObj->ToReference();
-					m_pPageObjList[i] = pRef->GetRefNum();
+					m_pPageObjList.push_back( pRef->GetRefNum() );
 				}
 			}
 			m_lCurPageIndex = m_lPageCount-1;
@@ -2134,15 +2106,11 @@ HE_DWORD CHE_PDF_Parser::GetPageCount()
 
 HE_DWORD CHE_PDF_Parser::GetPageObjNum( HE_DWORD pageIndex )
 {
-	if ( m_pPageObjList == NULL )
-	{
-		GetPageCount();
-	}
 	if ( pageIndex >= m_lPageCount )
 	{
 		return 0;
 	}
-	if ( m_pPageObjList[pageIndex] != 0 )
+	if ( m_pPageObjList.size() > pageIndex && m_pPageObjList[pageIndex] != 0 )
 	{
 		return m_pPageObjList[pageIndex];
 	}else{
@@ -2165,7 +2133,8 @@ HE_DWORD CHE_PDF_Parser::GetPageObjNum( HE_DWORD pageIndex )
 				pName = pObj->ToName();
 				if ( pName->GetString() == "Page" )
 				{
-					m_pPageObjList[m_lCurPageIndex++] = pName->GetObjNum();
+					m_pPageObjList.push_back( pName->GetObjNum() );
+					m_lCurPageIndex++;
 					if ( m_lCurPageIndex-1 == pageIndex )
 					{
 						return pName->GetObjNum();
@@ -2436,9 +2405,6 @@ CHE_PDF_Object * CHE_PDF_Parser::GetObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD
 			stmAcc.Attach( pObj->ToStream() );
 			HE_LPCBYTE pData = stmAcc.GetData();
 			HE_DWORD lDataSize = stmAcc.GetSize();
-// 			FILE * pFile  = fopen( "d:\\33.txt", "wb+" );
-// 			fwrite( pData, 1, lDataSize, pFile );
-// 			fclose( pFile );
 			IHE_Read * pIHE_Read = HE_CreateMemBufRead( (HE_LPBYTE)pData, lDataSize, GetAllocator() );
 			if ( pIHE_Read == NULL )
 			{

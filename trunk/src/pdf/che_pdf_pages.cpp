@@ -281,9 +281,8 @@ CHE_PDF_Dictionary * CHE_PDF_Document::GetPageResources( CHE_PDF_Dictionary * pP
 			return NULL;
 		}
 		return pObj->ToDict();
-	}else{
-		return NULL;
 	}
+	return NULL;
 }
 
 CHE_PDF_Font *	CHE_PDF_Document::GetFont( HE_DWORD objNum )

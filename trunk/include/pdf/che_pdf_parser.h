@@ -9,6 +9,8 @@
 #include "che_pdf_encrypt.h"
 #include "che_pdf_collector.h"
 
+#include <vector>
+
 class CHE_PDF_Creator;
 
 class CHE_PDF_ParseWordDes : public CHE_Object
@@ -45,22 +47,14 @@ public:
  	HE_VOID				SeekToEndobj();
 
 	HE_VOID				SeekToMark( CHE_ByteString markStr );
-
 	HE_VOID				SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { m_pStrEncrypt = pEncrypt; }
-
 	HE_VOID				SetCurObjNum( HE_DWORD objNum ) { m_dwCurObjNum = objNum; }
-
 	HE_VOID				SetCurGenNum( HE_DWORD genNum ) { m_dwCurGenNum = genNum; }
-
 	CHE_PDF_Encrypt *	GetEncrypt() { return m_pStrEncrypt; }
-
 	HE_DWORD			ReadBytes( HE_LPBYTE pBuffer, HE_DWORD length );
-
 	HE_BOOL				GetWord( CHE_PDF_ParseWordDes & des );
-
 	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
 	CHE_PDF_Array *		GetArray();
-
 	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）	*/
 	CHE_PDF_Dictionary * GetDictionary();
 
@@ -142,11 +136,11 @@ private:
 
 private:
 	IHE_Read *					m_pIHE_FileRead;
-
 	HE_DWORD					m_lStartxref;
+	
 	HE_DWORD					m_lPageCount;
 	HE_DWORD					m_lCurPageIndex;
-	HE_DWORD*					m_pPageObjList;
+	std::vector<HE_DWORD>		m_pPageObjList;
 	CHE_PtrStack				m_PageNodeStack;
 
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;

@@ -1245,7 +1245,7 @@ HE_VOID CHE_PDF_SyntaxParser::SubmitBufferStr( CHE_ByteString & str )
 }
 
 CHE_PDF_Parser::CHE_PDF_Parser( CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), m_sParser( NULL, pAllocator ), m_xrefTable( pAllocator ), m_arrObjStm( pAllocator ),
+	: CHE_Object( pAllocator ), m_sParser( NULL, pAllocator ), m_xrefTable( pAllocator ), /*m_arrObjStm( pAllocator ),*/
 	m_objCollector( pAllocator ), m_ModifiedObjCollector( pAllocator ), m_NewObjCollector( pAllocator ) 
 {
 	m_sParser.SetParser( this );
@@ -1472,7 +1472,6 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 	HE_DWORD offset = m_lStartxref;
 	HE_DWORD xrefEntryCount = 0;
 	HE_DWORD entryCount = 0;
-
 	while ( TRUE )
 	{
 		pDict = NULL;
@@ -1527,68 +1526,6 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 			break;
 		} 
 	}
-
-	//检查所有对象流对象，判断是否需要验证交叉索引表的全部条目
-	HE_BOOL bNeedVerify = FALSE;
-	if ( m_arrObjStm.GetCount() > 0 )
-	{
-		HE_DWORD objNum = 0;
-		for ( HE_DWORD i = 0; i < m_arrObjStm.GetCount(); i++ )
-		{
-			objNum = (HE_DWORD)m_arrObjStm.GetItem( i );
-			if ( objNum == 0 )
-			{
-				continue;
-			}else{
-				CHE_PDF_Object * pObj = GetObject( objNum );
-				if ( pObj == NULL || pObj->GetType() != OBJ_TYPE_STREAM )
-				{
-					bNeedVerify = TRUE;
-					break;
-				}else{
-					CHE_PDF_Dictionary * pDict = pObj->ToStream()->GetDict();
-					if ( pDict == NULL )
-					{
-						bNeedVerify = TRUE;
-						break;
-					}else{
-						CHE_PDF_Name * pDictName = pDict->GetElement( "Type" )->ToName();
-						if ( pDictName == NULL )
-						{
-							bNeedVerify = TRUE;
-							break;
-						}else{
-							if ( pDictName->GetString() != "ObjStm" )
-							{
-								bNeedVerify = TRUE;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	if ( bNeedVerify )
-	{
-		//验证交叉索引表
-		VerifyObjInStm();
-	}
-
-	// 		FILE * pFile = fopen( "c:\\XRefIndex.txt", "wb+" );
-	//    	HE_CHAR tmpStr[128];
-	// 		PDF_XREF_ENTRY_NODE * pTmpNode = NULL;
-	// 		for ( HE_DWORD i = 0; i < m_xrefTable.m_lMaxObjNum; i++ )
-	// 		{
-	// 			pTmpNode = m_xrefTable.m_pFastAccessArr[i];
-	// 			if ( pTmpNode )
-	// 			{
-	// 				sprintf( tmpStr, "obj:%04d - %d %08X %d\r\n", pTmpNode->entry.objNum, pTmpNode->entry.field1, pTmpNode->entry.GetParentObjNum(), pTmpNode->entry.GetIndex() );
-	// 				fwrite( tmpStr, 1, strlen(tmpStr), pFile );
-	// 			}
-	// 		}
-	// 		fclose( pFile );
 	return xrefEntryCount;
 }
 
@@ -1850,8 +1787,8 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 	HE_DWORD lBlockCount = 0;
 	HE_DWORD lEntrySize = lW1 + lW2 + lW3;
 	HE_DWORD lItemOfSecCount = 0;
-	CHE_NumToPtrMap	XrefVerifyMap1( GetAllocator() );
-	CHE_NumToPtrMap	XrefVerifyMap2( GetAllocator() );
+	std::vector<HE_DWORD> XrefVerify1;
+	std::vector<HE_DWORD> XrefVerify2;
 
 	HE_DWORD lEntryToCheck = 0;
 
@@ -1929,22 +1866,23 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 			{
 			case 2:
 				{
-					HE_LPVOID pSubMap = XrefVerifyMap2.GetItem( field2 );
-					if ( pSubMap == NULL )
+					HE_DWORD tmpValue = ( field2 << 9 ) + field3;
+					bool bRepeat = false;
+					std::vector<HE_DWORD>::iterator it;
+					for ( it = XrefVerify2.begin(); it != XrefVerify2.end(); it++ )
 					{
-						CHE_NumToPtrMap * pNewMap = GetAllocator()->New<CHE_NumToPtrMap>( GetAllocator() ) ;
-						pNewMap->Append( field3, (HE_LPVOID)1 );
-						XrefVerifyMap2.Append( field2, pNewMap );
-						m_arrObjStm.Append( (HE_LPVOID)field2 );
-					}else{
-						HE_LPVOID pIndex = ((CHE_NumToPtrMap *)pSubMap)->GetItem( field3 );
-						if ( pIndex != NULL )
+						if ( *it == tmpValue )
 						{
-							lEntryToCheck--;
+							bRepeat = true;
 							break;
-						}else{
-							((CHE_NumToPtrMap *)pSubMap)->Append( field3, (HE_LPVOID)1 );
 						}
+					}
+					if ( bRepeat )
+					{
+						lEntryToCheck--;
+						break;
+					}else{
+						XrefVerify2.push_back( tmpValue );
 					}
 					CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMPRESSED, field2, field3 );
 					m_xrefTable.NewNode( tmpEntry );
@@ -1953,15 +1891,32 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 					break;
 				}
 			case 1:
-				{
-					HE_LPVOID pSubMap = XrefVerifyMap1.GetItem( field2 );
-					if ( pSubMap == NULL )
+				{	
+					bool bRepeat = false;
+					std::vector<HE_DWORD>::iterator it;
+					for ( it = XrefVerify1.begin(); it != XrefVerify1.end(); it++ )
 					{
-						XrefVerifyMap1.Append( field2, (HE_LPVOID)1 );
-					}else{
+						if ( *it == field2 )
+						{
+							bRepeat = true;
+							break;
+						}
+					}
+					if ( bRepeat )
+					{
 						lEntryToCheck--;
 						break;
+					}else{
+						XrefVerify1.push_back( field2 );
 					}
+// 					HE_LPVOID pSubMap = XrefVerifyMap1.GetItem( field2 );
+// 					if ( pSubMap == NULL )
+// 					{
+// 						XrefVerifyMap1.Append( field2, (HE_LPVOID)1 );
+// 					}else{
+// 						lEntryToCheck--;
+// 						break;
+// 					}
 					if ( lEntryToCheck > 0 )
 					{
 						HE_DWORD offsetSave = m_sParser.GetPos();
@@ -2109,156 +2064,6 @@ HE_DWORD CHE_PDF_Parser::FullParseForXRef()	//分析整个文件来获取对象信息 // 还需
 	}
 	m_xrefTable.BuildIndex();
 	return xrefEntryCount;
-}
-
-
-HE_VOID CHE_PDF_Parser::VerifyXRef()
-{
-	if ( m_xrefTable.m_lMaxObjNum == 0 )
-	{
-		return;
-	}
-	PDF_XREF_ENTRY_NODE * pTmpNode = NULL, * pPreTmpNode = NULL;
-	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
-	HE_DWORD index = 0;
-	HE_LPBYTE tmpByte = GetAllocator()->NewArray<HE_BYTE>( m_xrefTable.m_lMaxObjNum+1 );
-	memset( tmpByte, 0, sizeof(HE_BYTE) * (m_xrefTable.m_lMaxObjNum+1) );
-
-	PDF_XREF_SECTION_PART * pTmpSecPart = m_xrefTable.m_pFirstSecPart;
-	while ( pTmpSecPart )
-	{
-		pTmpNode = pTmpSecPart->pFirstEntry;
-		pPreTmpNode = NULL;
-		static HE_DWORD dwObjNum = pTmpSecPart->lBeginNum;
-		while( pTmpNode )
-		{
-			if ( tmpByte[dwObjNum] != 0  )
-			{
-				if ( pTmpNode->entry.GetType() == XREF_ENTRY_TYPE_COMPRESSED )
-				{
-					static CHE_PDF_Object * pObj = GetObject( pTmpNode->entry.GetParentObjNum() );
-					if (	pObj == NULL || pObj->ToDict() == NULL ||
-							pObj->ToDict()->GetElement( "Type" ) == NULL ||
-							pObj->ToDict()->GetElement( "Type" )->ToName()->GetString() != "ObjStm" )
-					{
-						//清除一个node
-						if ( pPreTmpNode )
-						{
-							pPreTmpNode->pNext = pTmpNode->pNext;
-							GetAllocator()->Delete( pTmpNode );
-							pTmpNode = pTmpNode->pNext;
-						}else{
-							pPreTmpNode = pTmpNode;
-							pTmpNode = pTmpNode->pNext;
-							GetAllocator()->Delete( pPreTmpNode );
-							pPreTmpNode = NULL;
-						}
-						m_xrefTable.m_lCount--;
-						pTmpSecPart->lCount--;
-						HE_DWORD lSecIndex = pTmpSecPart->lSectionIndex;
-						static PDF_XREF_SECTION_PART * pSecPart = pTmpSecPart->pNextSecPart;
-						while( pSecPart )
-						{
-							if ( pSecPart->lSectionIndex == lSecIndex )
-							{
-								pSecPart->lBeginNum--;
-							}else{
-								break;
-							}
-							pSecPart = pSecPart->pNextSecPart;
-						}
-						continue;
-					}
-				}
-				tmpByte[dwObjNum++] = 1;
-			}
-			pPreTmpNode = pTmpNode;
-			pTmpNode = pTmpNode->pNext;
-		}
-		pTmpSecPart = pTmpSecPart->pNextSecPart;
-	}
-	GetAllocator()->DeleteArray( tmpByte );
-}
-
-HE_VOID	CHE_PDF_Parser::VerifyObjInStm()
-{
-	if ( m_arrObjStm.GetCount() > 0 )
-	{
-		HE_DWORD objNum = 0;
-		HE_DWORD n = 0;
-		for ( HE_DWORD i = 0; i < m_arrObjStm.GetCount(); i++ )
-		{
-			objNum = (HE_DWORD)( m_arrObjStm.GetItem( i ) );
-			if ( objNum == 0 )
-			{
-				continue;
-			}else{
-				CHE_PDF_Object * pObj = GetObject( objNum );
-				if ( pObj == NULL || pObj->GetType() != OBJ_TYPE_STREAM )
-				{
-					continue;
-				}else{
-					CHE_PDF_Dictionary * pDict = pObj->ToStream()->GetDict();
-					if ( pDict == NULL )
-					{
-						continue;
-					}else{
-						CHE_PDF_Object * pTmpObj = pDict->GetElement( "N" );
-						if ( pTmpObj != NULL && pTmpObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							n = pTmpObj->ToNumber()->GetInteger();
-						}else{
-							continue;
-						}
-						
-						CHE_PDF_Name * pDictName = (CHE_PDF_Name *)pDict->GetElement( "Type" );
-						if ( pDictName == NULL )
-						{
-							continue;
-						}else{
-							if ( pDictName->GetString() != "ObjStm" )
-							{
-								continue;
-							}
-						}
-					}
-					CHE_PDF_Stream * pStream = pObj->ToStream();
-					if ( pStream == NULL )
-					{
-						continue;
-					}
-					CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-					if ( stmAcc.Attach( pStream ) == FALSE )
-					{
-						continue;
-					}
-					CHE_PDF_SyntaxParser sParser( this, GetAllocator() );
-					CHE_PDF_ParseWordDes wordDes( GetAllocator() );
-					IHE_Read * pIHE_Read = HE_CreateMemBufRead( stmAcc.GetData(), stmAcc.GetSize(), GetAllocator() );
-					if ( pIHE_Read == NULL )
-					{
-						continue;
-					}
-					sParser.InitParser( pIHE_Read );
-					for ( HE_DWORD i = 0; i < n; i++ )
-					{
-
-						if ( sParser.GetWord( wordDes ) == FALSE )
-						{
-							break;
-						}
-						if ( sParser.GetWord( wordDes ) == FALSE )
-						{
-							break;
-						}
-					}
-					pIHE_Read->Release();
-					HE_DestoryIHERead( pIHE_Read );
-					stmAcc.Detach();
-				}
-			}
-		}
-	}
 }
 
 

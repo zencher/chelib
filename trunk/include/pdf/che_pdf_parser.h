@@ -131,10 +131,7 @@ private:
 	HE_DWORD					ParseXRef();
 	HE_DWORD					ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
 	HE_DWORD					ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
-
 	HE_DWORD					FullParseForXRef();
-	HE_VOID						VerifyXRef();
-	HE_VOID						VerifyObjInStm();
 
 	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict );
 
@@ -157,7 +154,6 @@ private:
 	CHE_PDF_Encrypt	*			m_pEefEncrypt;
 
 	CHE_PDF_SyntaxParser		m_sParser;
-	CHE_PtrArray				m_arrObjStm;
 	CHE_PDF_XREF_Table			m_xrefTable;				//结构化的交叉索引表信息
 	CHE_PDF_Collector			m_objCollector;				//对象收集器，被加载的都被放入收集器，某些尾字典不会
 	CHE_PDF_Collector			m_NewObjCollector;			//新建的对象的收集器

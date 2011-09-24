@@ -199,15 +199,23 @@ class CHE_SkipList : public CHE_Object
 public:
 	CHE_SkipList( CHE_Allocator * pAllocator = NULL );
 
+	~CHE_SkipList();
+
 	HE_BOOL Append( HE_DWORD val );
 
+	HE_DWORD GetCount() { return m_lCount; }
+
+	HE_BOOL IsExist( HE_DWORD val );
+
+	HE_VOID	Clear();
+
 private:
+	HE_BOOL Find( HE_DWORD val, HE_DWORD & levelRet, std::vector<SkipListNode*> & vectorRet ) const;	//如果找到该节点返回该节点和节点的level，没有找到返回插入位置和level
 
-	HE_BOOL Find( HE_DWORD val, HE_DWORD & levelRet, SkipListNode** ppNodeRet ) const;	//如果找到该节点返回该节点和节点的level，没有找到返回插入位置和level
-
-	HE_DWORD GetNewNodeLevel() const;
+	HE_DWORD RandomLevel();
 
 	HE_DWORD m_lLevel;
+	HE_DWORD m_lCount;
 	std::vector<SkipListNode*> m_Forward;
 };
 

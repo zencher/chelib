@@ -1,5 +1,7 @@
 #include "../include/che_datastructure.h"
 #include <memory>
+#include <cstdlib>
+#include <ctime>
 
 CHE_DynBuffer::CHE_DynBuffer( HE_DWORD size /*= 1024*/, HE_DWORD increament /*= 1024*/, CHE_Allocator * pAllocator /*= NULL*/ )
 : CHE_Object( pAllocator )
@@ -704,52 +706,159 @@ HE_VOID CHE_NumToPtrMap::Clear()
 }
 
 
-CHE_SkipList::CHE_SkipList( CHE_Allocator * pAllocator ) : CHE_Object( pAllocator ), m_lLevel( 0 ) {}
+CHE_SkipList::CHE_SkipList( CHE_Allocator * pAllocator ) : CHE_Object( pAllocator ), m_lLevel( 0 ), m_lCount( 0 ) {}
+
+CHE_SkipList::~CHE_SkipList() { Clear(); }
 
 HE_BOOL CHE_SkipList::Append( HE_DWORD val )
 {
+	if ( val == 36395064 || val == 36395013 )
+	{
+		int x = 0;
+	}
 	if ( m_Forward.size() == 0 )
 	{
 		SkipListNode * pNewNode = GetAllocator()->New<SkipListNode>();
 		pNewNode->lValue = val;
 		m_Forward.push_back( pNewNode );
+		m_lCount++;
 		return TRUE;
 	}else{
 		HE_DWORD lLevelRet = 0;
-		SkipListNode * pNoteRet = NULL;
-		if ( Find( val, lLevelRet, &pNoteRet ) == FALSE )
+		std::vector<SkipListNode*> nodeVector;
+		if ( Find( val, lLevelRet, nodeVector ) == FALSE )
 		{
-			if ( pNoteRet == NULL )
+			if ( nodeVector.size() == 1 )
 			{
 				SkipListNode * pNewNode = GetAllocator()->New<SkipListNode>();
 				pNewNode->lValue = val;
 				m_Forward.push_back( pNewNode );
+				m_lCount++;
 				return TRUE;
 			}else{
-				//
+				HE_DWORD targetLevel = RandomLevel();
+				if ( targetLevel > m_lLevel )
+				{
+					m_lLevel = targetLevel;
+				}
+				SkipListNode * pNewNode = GetAllocator()->New<SkipListNode>();
+				pNewNode->lValue = val;
+				for ( size_t i = 0, index = nodeVector.size() - 1; i <= targetLevel; i++, index-- )
+				{
+					if ( nodeVector[index] == NULL )
+					{
+						if ( m_Forward.size() > i )
+						{
+							pNewNode->Forward.push_back( m_Forward[i] );
+							m_Forward[i] = pNewNode;
+						}else{
+							m_Forward.push_back( pNewNode );
+						}
+					}else if ( nodeVector[index]->Forward.size() > i )
+					{
+						pNewNode->Forward.push_back( nodeVector[index]->Forward[i] );
+						nodeVector[index]->Forward[i] = pNewNode;
+					}else{
+						nodeVector[index]->Forward.push_back( pNewNode );
+					}
+				}
+				m_lCount++;
+				return TRUE;
 			}
 		}else{
 			return FALSE;
 		}
 	}
+	return FALSE;
 }
 
-HE_BOOL CHE_SkipList::Find( HE_DWORD val, HE_DWORD & levelRet, SkipListNode** ppNodeRet ) const
+HE_BOOL CHE_SkipList::IsExist( HE_DWORD val )
 {
-	if ( m_Forward.size() == 0 || ppNodeRet == NULL )
+	if ( m_Forward.size() == 0 )
 	{
 		return FALSE;
 	}
 	HE_DWORD curLevel = m_lLevel;
-	SkipListNode* pTmpNode = *(m_Forward.end());
+	SkipListNode* pTmpNode = m_Forward[m_Forward.size()-1];
 	SkipListNode* pPreNode = NULL;
+
+	while( pTmpNode )
+	{
+		if ( val == pTmpNode->lValue )
+		{
+			return TRUE;
+		}else if ( val < pTmpNode->lValue )
+		{
+			//to lower level
+			if ( curLevel == 0 )
+			{
+				return FALSE;
+			}else{
+				if ( pPreNode == NULL )
+				{
+					pTmpNode = m_Forward[--curLevel];
+				}else{
+					pTmpNode = pPreNode->Forward[--curLevel];
+				}
+			}
+		}else if ( val > pTmpNode->lValue )
+		{
+			if ( pTmpNode->Forward.size() > curLevel )
+			{
+				//to next node
+				pPreNode = pTmpNode;
+				pTmpNode = pTmpNode->Forward[curLevel];
+			}else if ( pTmpNode->Forward.size() == 0 )
+			{
+				return FALSE;
+			}else{
+				--curLevel;
+			}
+		}
+	}
+	return FALSE;
+}
+
+HE_VOID	CHE_SkipList::Clear()
+{
+	if ( m_Forward.size() == 0 )
+	{
+		return;
+	}
+	m_lLevel = 0;
+	SkipListNode* pTmpNode = m_Forward[0];
+	SkipListNode* pTmpNode2 = NULL;
+	m_Forward.clear();
+	while( true )
+	{
+		if ( pTmpNode->Forward.size() > 0 )
+		{
+			pTmpNode2 = pTmpNode->Forward[0];
+			pTmpNode->Forward.clear();
+			pTmpNode = pTmpNode2;
+		}else{
+			break;
+		}
+	}
+}
+
+HE_BOOL CHE_SkipList::Find( HE_DWORD val, HE_DWORD & levelRet, std::vector<SkipListNode*> & nodeVector ) const
+{
+	if ( m_Forward.size() == 0 )
+	{
+		return FALSE;
+	}
+	HE_DWORD curLevel = m_lLevel;
+	SkipListNode* pTmpNode = m_Forward[m_Forward.size()-1];
+	SkipListNode* pPreNode = NULL;
+
+	nodeVector.push_back( NULL );
 	
 	while( pTmpNode )
 	{
 		if ( val == pTmpNode->lValue )
 		{
 			levelRet = curLevel;
-			*ppNodeRet = pTmpNode;
 			return TRUE;
 		}else if ( val < pTmpNode->lValue )
 		{
@@ -757,10 +866,17 @@ HE_BOOL CHE_SkipList::Find( HE_DWORD val, HE_DWORD & levelRet, SkipListNode** pp
 			if ( curLevel == 0 )
 			{
 				levelRet = 0;
-				*ppNodeRet = pPreNode;
+				nodeVector.push_back( pPreNode );
 				return FALSE;
 			}else{
-				pTmpNode = pTmpNode->Forward[--curLevel];
+				if ( pPreNode == NULL )
+				{
+					nodeVector.push_back( NULL );
+					pTmpNode = m_Forward[--curLevel];
+				}else{
+					nodeVector.push_back( pPreNode );
+					pTmpNode = pPreNode->Forward[--curLevel];
+				}
 			}
 		}else if ( val > pTmpNode->lValue )
 		{
@@ -772,20 +888,46 @@ HE_BOOL CHE_SkipList::Find( HE_DWORD val, HE_DWORD & levelRet, SkipListNode** pp
 			}else if ( pTmpNode->Forward.size() == 0 )
 			{
 				levelRet = curLevel;
-				*ppNodeRet = pTmpNode;
+				for ( HE_DWORD i = curLevel+1; i > 0; i-- )
+				{
+					nodeVector.push_back( pTmpNode );
+				}
 				return FALSE;
 			}else{
-				//´íÎóµÄ½á¹¹
-				return FALSE;
+				for ( HE_DWORD i = curLevel+1; i > pTmpNode->Forward.size(); i-- )
+				{
+					nodeVector.push_back( pTmpNode );
+					--curLevel;
+				}
 			}
 		}
 	}
 	levelRet = 0;
-	*ppNodeRet = NULL;
 	return FALSE;
 }
 
-HE_DWORD CHE_SkipList::GetNewNodeLevel() const
+HE_DWORD CHE_SkipList::RandomLevel()
 {
-	return 0;
+// 	srand( time(0) );
+// 	HE_DWORD levelRet = 0;
+// 	while ( levelRet <= m_lLevel  )
+// 	{
+// 		if ( ( rand() * 1.0 / 0x7FFF ) > 0.2 || rand()%2 == 0 )
+// 		{
+// 			levelRet++;
+// 		}else{
+// 			break;
+// 		}
+// 	}
+	static HE_DWORD flag = 0;
+	HE_DWORD levelRet = 0;
+	levelRet = rand()%(m_lLevel+1);
+	if ( flag == 500 )
+	{
+		flag = 0;
+		return m_lLevel+1;
+	}else{
+		flag++;
+	}
+	return levelRet;
 }

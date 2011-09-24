@@ -1769,8 +1769,12 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 	HE_DWORD lBlockCount = 0;
 	HE_DWORD lEntrySize = lW1 + lW2 + lW3;
 	HE_DWORD lItemOfSecCount = 0;
-	std::vector<HE_DWORD> XrefVerify1;
-	std::vector<HE_DWORD> XrefVerify2;
+
+//  	std::vector<HE_DWORD> XrefVerify1;
+//  	std::vector<HE_DWORD> XrefVerify2;
+
+	CHE_SkipList XrefVerify1;
+	CHE_SkipList XrefVerify2;
 
 	HE_DWORD lEntryToCheck = 0;
 
@@ -1849,23 +1853,31 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 			case 2:
 				{
 					HE_DWORD tmpValue = ( field2 << 9 ) + field3;
-					bool bRepeat = false;
-					std::vector<HE_DWORD>::iterator it;
-					for ( it = XrefVerify2.begin(); it != XrefVerify2.end(); it++ )
-					{
-						if ( *it == tmpValue )
-						{
-							bRepeat = true;
-							break;
-						}
-					}
-					if ( bRepeat )
+					if ( XrefVerify2.IsExist( tmpValue ) )
 					{
 						lEntryToCheck--;
 						break;
 					}else{
-						XrefVerify2.push_back( tmpValue );
+						XrefVerify2.Append( tmpValue );
 					}
+//					HE_DWORD tmpValue = ( field2 << 9 ) + field3;
+// 					bool bRepeat = false;
+// 					std::vector<HE_DWORD>::iterator it;
+// 					for ( it = XrefVerify2.begin(); it != XrefVerify2.end(); it++ )
+// 					{
+// 						if ( *it == tmpValue )
+// 						{
+// 							bRepeat = true;
+// 							break;
+// 						}
+// 					}
+// 					if ( bRepeat )
+// 					{
+// 						lEntryToCheck--;
+// 						break;
+// 					}else{
+// 						XrefVerify2.push_back( tmpValue );
+// 					}
 					CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMPRESSED, field2, field3 );
 					m_xrefTable.NewNode( tmpEntry );
 					indexInSec++;
@@ -1874,23 +1886,30 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 				}
 			case 1:
 				{	
-					bool bRepeat = false;
-					std::vector<HE_DWORD>::iterator it;
-					for ( it = XrefVerify1.begin(); it != XrefVerify1.end(); it++ )
-					{
-						if ( *it == field2 )
-						{
-							bRepeat = true;
-							break;
-						}
-					}
-					if ( bRepeat )
+					if ( XrefVerify1.IsExist( field2 ) )
 					{
 						lEntryToCheck--;
 						break;
 					}else{
-						XrefVerify1.push_back( field2 );
+						XrefVerify1.Append( field2 );
 					}
+// 					bool bRepeat = false;
+// 					std::vector<HE_DWORD>::iterator it;
+// 					for ( it = XrefVerify1.begin(); it != XrefVerify1.end(); it++ )
+// 					{
+// 						if ( *it == field2 )
+// 						{
+// 							bRepeat = true;
+// 							break;
+// 						}
+// 					}
+// 					if ( bRepeat )
+// 					{
+// 						lEntryToCheck--;
+// 						break;
+// 					}else{
+// 						XrefVerify1.push_back( field2 );
+// 					}
 					if ( lEntryToCheck > 0 )
 					{
 						HE_DWORD offsetSave = m_sParser.GetPos();

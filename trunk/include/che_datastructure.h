@@ -75,45 +75,166 @@ private:
 };
 
 
-class CHE_PtrNode : CHE_Object
+template <class Type>
+class CHE_Stack : CHE_Object
 {
 public:
-	CHE_PtrNode( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) { pObj = NULL; pNext = NULL; }
-	~CHE_PtrNode() {}	//这里不需要销毁子节点的对象，而是由Stack来负责释放
+	template <class Type>
+	struct Node
+	{
+		Type data;
+		Node * pNext;
+	};
 
-	HE_VOID * pObj;
-	CHE_PtrNode * pNext;
-};
+	CHE_Stack( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator ), m_FirstNode( NULL ) {}
 
-class CHE_PtrStack : CHE_Object
-{
-public:
-	CHE_PtrStack( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) { m_pTop = NULL; }
-	~CHE_PtrStack();
+	~CHE_Stack() { Clear(); }
 	
-	HE_VOID Clear();
-	HE_BOOL IsEmpty();
-	HE_BOOL Pop( HE_VOID ** ptr );
-	HE_BOOL Push( HE_VOID * ptr );
+	HE_VOID Clear()
+	{
+		if ( m_FirstNode )
+		{
+			Node<Type> * pTmp = m_FirstNode;
+			while( pTmp )
+			{
+				m_FirstNode = m_FirstNode->pNext;
+				GetAllocator()->Delete( pTmp );
+				pTmp = m_FirstNode;
+			}
+		}
+	}
+
+	HE_BOOL IsEmpty() const
+	{
+		if ( m_FirstNode == NULL )
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	HE_BOOL Pop( Type & valRet )
+	{
+		if ( m_FirstNode == NULL )
+		{
+			return FALSE;
+		}
+		Node<Type> * pTmp = m_FirstNode;
+		valRet = pTmp->data;
+		m_FirstNode = m_FirstNode->pNext;
+		GetAllocator()->Delete<>( pTmp );
+		pTmp = NULL;
+		return TRUE;
+	}
+
+	HE_BOOL Push( const Type & val )
+	{
+		if ( m_FirstNode == NULL )
+		{
+			m_FirstNode = GetAllocator()->New<Node<Type>>();
+			m_FirstNode->pNext = NULL;
+			m_FirstNode->data = val;
+		}else{
+			Node<Type> * pTmp = GetAllocator()->New<Node<Type>>();
+			pTmp->pNext = m_FirstNode;
+			pTmp->data = val;
+			m_FirstNode = pTmp;
+		}
+		return TRUE;
+	}
 
 private:
-	CHE_PtrNode * m_pTop;
+	Node<Type> * m_FirstNode;
 };
 
-class CHE_PtrQueue : public CHE_Object
+
+template <class Type>
+class CHE_Queue : public CHE_Object
 {
 public:
-	CHE_PtrQueue( CHE_Allocator * pAllocator = NULL );
-	~CHE_PtrQueue();
+	template <class Type>
+	struct Node
+	{
+		Type data;
+		Node * pNext;
+	};
 
-	HE_VOID Clear();
-	HE_BOOL IsEmpty();
-	HE_BOOL	Pop( HE_VOID** pptr );
-	HE_BOOL	Push( HE_VOID* ptr );
+	CHE_Queue( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator )
+	{
+		m_pHead = NULL;
+		m_pTail = NULL;
+	}
+
+	~CHE_Queue()
+	{
+		Clear();
+	}
+
+	HE_VOID Clear()
+	{
+		Node<Type> * pNode = m_pHead;
+		while ( pNode )
+		{
+			m_pHead = m_pHead->pNext;
+			GetAllocator()->Delete<Node<Type>>( pNode );
+			pNode = m_pHead;
+		}
+		m_pTail = NULL;
+	}
+
+	HE_BOOL IsEmpty() const
+	{
+		if ( m_pHead == NULL && m_pTail == NULL )
+		{
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
+
+	HE_BOOL	Pop( Type & valRet )
+	{
+		if ( m_pTail == NULL )
+		{
+			return FALSE;
+		}
+		valRet = m_pHead->data;
+
+		if ( m_pHead == m_pTail )
+		{
+			GetAllocator()->Delete<Node<Type>>( m_pHead );
+			m_pHead = NULL;
+			m_pTail =  NULL;
+		}else{
+			Node<Type> * pTmp = m_pHead;
+			m_pHead = m_pHead->pNext;
+			GetAllocator()->Delete<Node<Type>>( pTmp );
+		}
+		return TRUE;
+	}
+
+	HE_BOOL	Push( const Type & val )
+	{
+		if ( m_pHead == NULL )
+		{
+			m_pHead = GetAllocator()->New<Node<Type>>();
+			m_pHead->data = val;
+			m_pHead->pNext = NULL;
+			m_pTail = m_pHead;
+		}else{
+			m_pTail->pNext = GetAllocator()->New<Node<Type>>();
+			m_pTail = m_pTail->pNext;
+			m_pTail->pNext = NULL;
+			m_pTail->data = val;
+		}
+		return TRUE;
+	}
 
 private:
-	CHE_PtrNode * m_pHead;
-	CHE_PtrNode * m_pTail;
+	Node<Type> * m_pHead;
+	Node<Type> * m_pTail;
 };
 
 class CHE_PtrArray : public CHE_Object
@@ -150,7 +271,7 @@ public:
 
 	HE_LPVOID	GetItemByIndex( HE_DWORD index ) const;
 
-	HE_BOOL  GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const;
+	HE_BOOL		GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const;
 	
 	HE_DWORD	GetCount() const { return m_lCount; }
 	
@@ -188,35 +309,243 @@ private:
 	HE_DWORD	m_lCount;
 };
 
-struct SkipListNode
-{
-	HE_DWORD lValue;
-	std::vector<SkipListNode*> Forward;
-};
 
+
+template <class Type>
 class CHE_SkipList : public CHE_Object
 {
 public:
-	CHE_SkipList( CHE_Allocator * pAllocator = NULL );
+	template <class Type>
+	struct SkipListNode
+	{
+		Type lValue;
+		std::vector<SkipListNode*> Forward;
+	};
 
-	~CHE_SkipList();
+	CHE_SkipList( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator ), m_lLevel( 0 ), m_lCount( 0 ) {}
 
-	HE_BOOL Append( HE_DWORD val );
+	~CHE_SkipList()
+	{
+		Clear();
+	}
 
-	HE_DWORD GetCount() { return m_lCount; }
+	HE_BOOL Append( const Type & val )
+	{
+		if ( m_Forward.size() == 0 )
+		{
+			SkipListNode<Type> * pNewNode = GetAllocator()->New<SkipListNode<Type>>();
+			pNewNode->lValue = val;
+			m_Forward.push_back( pNewNode );
+			m_lCount++;
+			return TRUE;
+		}else{
+			HE_DWORD lLevelRet = 0;
+			std::vector<SkipListNode<Type>*> nodeVector;
+			if ( Find( val, lLevelRet, nodeVector ) == FALSE )
+			{
+				if ( nodeVector.size() == 1 )
+				{
+					SkipListNode<Type> * pNewNode = GetAllocator()->New<SkipListNode<Type>>();
+					pNewNode->lValue = val;
+					m_Forward.push_back( pNewNode );
+					m_lCount++;
+					return TRUE;
+				}else{
+					HE_DWORD targetLevel = RandomLevel();
+					if ( targetLevel > m_lLevel )
+					{
+						m_lLevel = targetLevel;
+					}
+					SkipListNode<Type> * pNewNode = GetAllocator()->New<SkipListNode<Type>>();
+					pNewNode->lValue = val;
+					for ( size_t i = 0, index = nodeVector.size() - 1; i <= targetLevel; i++, index-- )
+					{
+						if ( nodeVector[index] == NULL )
+						{
+							if ( m_Forward.size() > i )
+							{
+								pNewNode->Forward.push_back( m_Forward[i] );
+								m_Forward[i] = pNewNode;
+							}else{
+								m_Forward.push_back( pNewNode );
+							}
+						}else if ( nodeVector[index]->Forward.size() > i )
+						{
+							pNewNode->Forward.push_back( nodeVector[index]->Forward[i] );
+							nodeVector[index]->Forward[i] = pNewNode;
+						}else{
+							nodeVector[index]->Forward.push_back( pNewNode );
+						}
+					}
+					m_lCount++;
+					return TRUE;
+				}
+			}else{
+				return FALSE;
+			}
+		}
+		return FALSE;
+	}
 
-	HE_BOOL IsExist( HE_DWORD val );
+	HE_DWORD GetCount() const
+	{
+		return m_lCount;
+	}
 
-	HE_VOID	Clear();
+	HE_BOOL IsExist( const Type & val ) const
+	{
+		if ( m_Forward.size() == 0 )
+		{
+			return FALSE;
+		}
+		HE_DWORD curLevel = m_lLevel;
+		SkipListNode<Type>* pTmpNode = m_Forward[m_Forward.size()-1];
+		SkipListNode<Type>* pPreNode = NULL;
+
+		while( pTmpNode )
+		{
+			if ( val == pTmpNode->lValue )
+			{
+				return TRUE;
+			}else if ( val < pTmpNode->lValue )
+			{
+				//to lower level
+				if ( curLevel == 0 )
+				{
+					return FALSE;
+				}else{
+					if ( pPreNode == NULL )
+					{
+						pTmpNode = m_Forward[--curLevel];
+					}else{
+						pTmpNode = pPreNode->Forward[--curLevel];
+					}
+				}
+			}else if ( val > pTmpNode->lValue )
+			{
+				if ( pTmpNode->Forward.size() > curLevel )
+				{
+					//to next node
+					pPreNode = pTmpNode;
+					pTmpNode = pTmpNode->Forward[curLevel];
+				}else if ( pTmpNode->Forward.size() == 0 )
+				{
+					return FALSE;
+				}else{
+					--curLevel;
+				}
+			}
+		}
+		return FALSE;
+	}
+
+	HE_VOID	Clear()
+	{
+		if ( m_Forward.size() == 0 )
+		{
+			return;
+		}
+		m_lLevel = 0;
+		SkipListNode<Type>* pTmpNode = m_Forward[0];
+		SkipListNode<Type>* pTmpNode2 = NULL;
+		m_Forward.clear();
+		while( true )
+		{
+			if ( pTmpNode->Forward.size() > 0 )
+			{
+				pTmpNode2 = pTmpNode->Forward[0];
+				pTmpNode->Forward.clear();
+				pTmpNode = pTmpNode2;
+			}else{
+				break;
+			}
+		}
+	}
 
 private:
-	HE_BOOL Find( HE_DWORD val, HE_DWORD & levelRet, std::vector<SkipListNode*> & vectorRet ) const;	//如果找到该节点返回该节点和节点的level，没有找到返回插入位置和level
+	HE_BOOL Find( const Type & val, HE_DWORD & levelRet, std::vector<SkipListNode<Type>*> & nodeVector ) const
+	{
+		if ( m_Forward.size() == 0 )
+		{
+			return FALSE;
+		}
+		HE_DWORD curLevel = m_lLevel;
+		SkipListNode<Type>* pTmpNode = m_Forward[m_Forward.size()-1];
+		SkipListNode<Type>* pPreNode = NULL;
 
-	HE_DWORD RandomLevel();
+		nodeVector.push_back( NULL );
+
+		while( pTmpNode )
+		{
+			if ( val == pTmpNode->lValue )
+			{
+				levelRet = curLevel;
+				return TRUE;
+			}else if ( val < pTmpNode->lValue )
+			{
+				//to lower level
+				if ( curLevel == 0 )
+				{
+					levelRet = 0;
+					nodeVector.push_back( pPreNode );
+					return FALSE;
+				}else{
+					if ( pPreNode == NULL )
+					{
+						nodeVector.push_back( NULL );
+						pTmpNode = m_Forward[--curLevel];
+					}else{
+						nodeVector.push_back( pPreNode );
+						pTmpNode = pPreNode->Forward[--curLevel];
+					}
+				}
+			}else if ( val > pTmpNode->lValue )
+			{
+				if ( pTmpNode->Forward.size() > curLevel )
+				{
+					//to next node
+					pPreNode = pTmpNode;
+					pTmpNode = pTmpNode->Forward[curLevel];
+				}else if ( pTmpNode->Forward.size() == 0 )
+				{
+					levelRet = curLevel;
+					for ( HE_DWORD i = curLevel+1; i > 0; i-- )
+					{
+						nodeVector.push_back( pTmpNode );
+					}
+					return FALSE;
+				}else{
+					for ( HE_DWORD i = curLevel+1; i > pTmpNode->Forward.size(); i-- )
+					{
+						nodeVector.push_back( pTmpNode );
+						--curLevel;
+					}
+				}
+			}
+		}
+		levelRet = 0;
+		return FALSE;
+	}
+
+	HE_DWORD RandomLevel() const
+	{
+		static HE_DWORD flag = 0;
+		HE_DWORD levelRet = 0;
+		levelRet = rand()%(m_lLevel+1);
+		if ( flag == 500 )
+		{
+			flag = 0;
+			return m_lLevel+1;
+		}else{
+			flag++;
+		}
+		return levelRet;
+	}
 
 	HE_DWORD m_lLevel;
 	HE_DWORD m_lCount;
-	std::vector<SkipListNode*> m_Forward;
+	std::vector<SkipListNode<Type>*> m_Forward;
 };
 
 #endif

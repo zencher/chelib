@@ -848,8 +848,8 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 	HE_BOOL bKey = FALSE;
 	HE_BOOL bOver = FALSE;
 	CHE_ByteString key( GetAllocator() );
-	CHE_PtrStack stack( GetAllocator() );
-	CHE_PtrStack stackName( GetAllocator() );
+	CHE_Stack<CHE_PDF_Object*> stack( GetAllocator() );
+	CHE_Stack<CHE_ByteString*> stackName( GetAllocator() );
 	CHE_PDF_Object * pCurObj = CHE_PDF_Array::Create( m_dwCurObjNum, m_dwCurGenNum, GetParser(), GetAllocator() );
 
 	while ( bOver == FALSE )
@@ -865,14 +865,14 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 				if ( stack.IsEmpty() == FALSE )
 				{
 					CHE_PDF_Dictionary * pDict = (CHE_PDF_Dictionary*)pCurObj;
-					stack.Pop( (HE_VOID**)&pCurObj );
+					stack.Pop( pCurObj );
 					if ( pCurObj->GetType() == OBJ_TYPE_ARRAY )
 					{
 						((CHE_PDF_Array*)pCurObj)->Append( pDict );
 					}else if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
 					{
 						CHE_ByteString * pTmpStr = NULL;
-						stackName.Pop(  (HE_VOID**)&pTmpStr );
+						stackName.Pop( pTmpStr );
 						key = *pTmpStr;
 						GetAllocator()->Delete<CHE_ByteString>( pTmpStr );
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtDictionary( key, pDict );
@@ -975,7 +975,7 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 				if ( stack.IsEmpty() == FALSE )
 				{
 					CHE_PDF_Object * pTmp = pCurObj;
-					stack.Pop( (HE_VOID**)&pCurObj );
+					stack.Pop( pCurObj );
 					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
 					{
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtArray( key, (CHE_PDF_Array*)pTmp );
@@ -990,14 +990,14 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
 				{
 					CHE_ByteString * pStr = GetAllocator()->New<CHE_ByteString>( key );
-					stackName.Push( (CHE_PDF_Object*)pStr );
+					stackName.Push( pStr );
 				}
 				stack.Push( pCurObj );
 				pCurObj = CHE_PDF_Dictionary::Create( m_dwCurObjNum, m_dwCurGenNum, GetParser(), GetAllocator() );
 			}else if ( wordDes.type == PARSE_WORD_DICT_E )	//字典	只出现在array的情况
 			{
 				CHE_PDF_Object * pTmp = pCurObj;
-				stack.Pop( (HE_VOID**)&pCurObj );
+				stack.Pop( pCurObj );
 				((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 			}else{	//布尔和其他
 				if ( wordDes.str == "false" )
@@ -1049,8 +1049,8 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 
 	HE_BOOL bKey = TRUE;
 	HE_BOOL bOver = FALSE;
-	CHE_PtrStack stack( GetAllocator() );
-	CHE_PtrStack stackName( GetAllocator() );
+	CHE_Stack<CHE_PDF_Object*> stack( GetAllocator() );
+	CHE_Stack<CHE_ByteString*> stackName( GetAllocator() );
 	CHE_PDF_Object * pCurObj = CHE_PDF_Dictionary::Create( m_dwCurObjNum, m_dwCurGenNum, GetParser(), GetAllocator() );
 
 	while ( bOver == FALSE )
@@ -1066,14 +1066,14 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 				if ( stack.IsEmpty() == FALSE )
 				{
 					CHE_PDF_Dictionary * pDict = (CHE_PDF_Dictionary*)pCurObj;
-					stack.Pop( (HE_VOID**)&pCurObj );
+					stack.Pop( pCurObj );
 					if ( pCurObj->GetType() == OBJ_TYPE_ARRAY )
 					{
 						((CHE_PDF_Array*)pCurObj)->Append( pDict );
 					}else if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
 					{
 						CHE_ByteString * pTmpStr = NULL;
-						stackName.Pop(  (HE_VOID**)&pTmpStr );
+						stackName.Pop( pTmpStr );
 						wordDesKey.str = *pTmpStr;
 						GetAllocator()->Delete<CHE_ByteString>( pTmpStr );
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtDictionary( wordDesKey.str, pDict );
@@ -1170,7 +1170,7 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 				if ( stack.IsEmpty() == FALSE )
 				{
 					CHE_PDF_Object * pTmp = pCurObj;
-					stack.Pop( (HE_VOID**)&pCurObj );
+					stack.Pop( pCurObj );
 					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
 					{
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtArray( wordDesKey.str, (CHE_PDF_Array*)pTmp );
@@ -1183,14 +1183,14 @@ CHE_PDF_Dictionary * CHE_PDF_SyntaxParser::GetDictionary()
 				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
 				{
 					CHE_ByteString * pStr = GetAllocator()->New<CHE_ByteString>( wordDesKey.str );
-					stackName.Push( (CHE_PDF_Object*)pStr );
+					stackName.Push( pStr );
 				}
 				stack.Push( pCurObj );
 				pCurObj = CHE_PDF_Dictionary::Create( m_dwCurObjNum, m_dwCurGenNum, GetParser(), GetAllocator() );
 			}else if ( wordDes.type == PARSE_WORD_DICT_E )	//字典	只出现在array的情况
 			{
 				CHE_PDF_Object * pTmp = pCurObj;
-				stack.Pop( (HE_VOID**)&pCurObj );
+				stack.Pop( pCurObj );
 				((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 			}else{	//布尔和其他
 				if ( wordDes.str == "false" )
@@ -1773,8 +1773,8 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary *
 //  	std::vector<HE_DWORD> XrefVerify1;
 //  	std::vector<HE_DWORD> XrefVerify2;
 
-	CHE_SkipList XrefVerify1;
-	CHE_SkipList XrefVerify2;
+	CHE_SkipList<HE_DWORD> XrefVerify1;
+	CHE_SkipList<HE_DWORD> XrefVerify2;
 
 	HE_DWORD lEntryToCheck = 0;
 
@@ -2116,7 +2116,7 @@ HE_DWORD CHE_PDF_Parser::GetPageCount()
 			}
 			m_lCurPageIndex = m_lPageCount-1;
 		}else{
-			m_PageNodeStack.Push( (HE_LPVOID)(pPagesRef->ToReference()) );
+			m_PageNodeStack.Push( pPagesRef->ToReference() );
 			m_lCurPageIndex = 0;
 		}
 	}
@@ -2138,7 +2138,7 @@ HE_DWORD CHE_PDF_Parser::GetPageObjNum( HE_DWORD pageIndex )
 		CHE_PDF_Dictionary * pDict = NULL;
 		CHE_PDF_Array * pArray = NULL;
 		CHE_PDF_Name * pName = NULL;
-		while ( m_PageNodeStack.Pop( (HE_LPVOID*)(&pRef) ) == TRUE )
+		while ( m_PageNodeStack.Pop( pRef ) == TRUE )
 		{
 			pObj = pRef->GetRefObj( OBJ_TYPE_DICTIONARY );
 			if ( pObj )
@@ -2169,7 +2169,7 @@ HE_DWORD CHE_PDF_Parser::GetPageObjNum( HE_DWORD pageIndex )
 							pObj = pArray->GetElement( i-1, OBJ_TYPE_REFERENCE );
 							if ( pObj )
 							{
-								m_PageNodeStack.Push( (HE_LPVOID)(pObj) );
+								m_PageNodeStack.Push( pObj->ToReference() );
 							}
 						}
 					}

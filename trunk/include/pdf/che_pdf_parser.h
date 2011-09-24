@@ -141,7 +141,7 @@ private:
 	HE_DWORD					m_lPageCount;
 	HE_DWORD					m_lCurPageIndex;
 	std::vector<HE_DWORD>		m_pPageObjList;
-	CHE_PtrStack				m_PageNodeStack;
+	CHE_Stack<CHE_PDF_Reference*>m_PageNodeStack;
 
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;
 	CHE_PDF_Encrypt	*			m_pStmEncrypt;

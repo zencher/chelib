@@ -69,7 +69,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 	}
 
 	HE_DWORD lCharCount = 0;
-	CHE_PtrStack OpdStack( GetAllocator() );
+	CHE_Stack<CHE_PDF_Object*> OpdStack( GetAllocator() );
 	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
 	CHE_PDF_Object * pTmpNode = NULL;
 	HE_BOOL	bOpd = TRUE;
@@ -148,9 +148,9 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			//处理指令
 			if ( wordDes.str == "Tf" )
 			{
-				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+				OpdStack.Pop( pTmpNode );
 				pTmpNode->Release();
-				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+				OpdStack.Pop( pTmpNode );
 				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
 				if ( pFontRef == NULL || pFontRef->GetType() != OBJ_TYPE_REFERENCE )
 				{
@@ -165,7 +165,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				continue;
 			}else if ( wordDes.str == "Tj" || wordDes.str == "'" || wordDes.str == "\"" ) 
 			{
-				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+				OpdStack.Pop( pTmpNode );
 				CHE_ByteString str( GetAllocator() );
 				str = ((CHE_PDF_String*)pTmpNode)->GetString();
 				CHE_WideString wstr( GetAllocator() );
@@ -185,7 +185,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				}
 			}else if ( wordDes.str == "TJ" )
 			{
-				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
+				OpdStack.Pop( pTmpNode );
 				if ( pCurFont == NULL )
 				{
 					continue;
@@ -213,7 +213,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				}
 			}
 			//清除无用的操作数
-			while ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+			while ( OpdStack.Pop( pTmpNode ) == TRUE )
 			{
 				if ( pTmpNode != NULL )
 				{
@@ -225,7 +225,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 	pContentRead->Release();
 	GetAllocator()->Delete<IHE_Read>( pContentRead ); 
 
-	while ( OpdStack.Pop( (HE_LPVOID*)&pTmpNode ) == TRUE )
+	while ( OpdStack.Pop( pTmpNode ) == TRUE )
 	{
 		if ( pTmpNode != NULL )
 		{

@@ -330,7 +330,7 @@ public:
 		Clear();
 	}
 
-	HE_BOOL Append( const Type & val )
+	HE_BOOL Append( Type & val )
 	{
 		if ( m_Forward.size() == 0 )
 		{
@@ -340,9 +340,8 @@ public:
 			m_lCount++;
 			return TRUE;
 		}else{
-			HE_DWORD lLevelRet = 0;
 			std::vector<SkipListNode<Type>*> nodeVector;
-			if ( Find( val, lLevelRet, nodeVector ) == FALSE )
+			if ( FindImp( val, nodeVector ) == FALSE )
 			{
 				if ( nodeVector.size() == 1 )
 				{
@@ -447,6 +446,7 @@ public:
 			return;
 		}
 		m_lLevel = 0;
+		m_lCount = 0;
 		SkipListNode<Type>* pTmpNode = m_Forward[0];
 		SkipListNode<Type>* pTmpNode2 = NULL;
 		m_Forward.clear();
@@ -463,8 +463,14 @@ public:
 		}
 	}
 
+	HE_BOOL Find( Type & valRet )
+	{
+		std::vector<SkipListNode<Type>*> nodeVector;
+		return FindImp( valRet, nodeVector );
+	}
+
 private:
-	HE_BOOL Find( const Type & val, HE_DWORD & levelRet, std::vector<SkipListNode<Type>*> & nodeVector ) const
+	HE_BOOL FindImp( Type & val, std::vector<SkipListNode<Type>*> & nodeVector ) const
 	{
 		if ( m_Forward.size() == 0 )
 		{
@@ -480,14 +486,13 @@ private:
 		{
 			if ( val == pTmpNode->lValue )
 			{
-				levelRet = curLevel;
+				val = pTmpNode->lValue;
 				return TRUE;
 			}else if ( val < pTmpNode->lValue )
 			{
 				//to lower level
 				if ( curLevel == 0 )
 				{
-					levelRet = 0;
 					nodeVector.push_back( pPreNode );
 					return FALSE;
 				}else{
@@ -509,7 +514,6 @@ private:
 					pTmpNode = pTmpNode->Forward[curLevel];
 				}else if ( pTmpNode->Forward.size() == 0 )
 				{
-					levelRet = curLevel;
 					for ( HE_DWORD i = curLevel+1; i > 0; i-- )
 					{
 						nodeVector.push_back( pTmpNode );
@@ -524,7 +528,6 @@ private:
 				}
 			}
 		}
-		levelRet = 0;
 		return FALSE;
 	}
 

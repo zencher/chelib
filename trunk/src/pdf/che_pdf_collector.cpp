@@ -1,24 +1,35 @@
 #include "../../include/pdf/che_pdf_collector.h"
 
-HE_BOOL CHE_PDF_Collector::Add( CHE_PDF_Object * pObj )
+bool operator == ( const CHE_PDF_CollectorNode & node1, const CHE_PDF_CollectorNode & node2 )
 {
-	if ( pObj == NULL )
+	if ( node1.m_ObjNum == node2.m_ObjNum )
 	{
-		return FALSE;
+		return true;
 	}
-	return m_map.Append( pObj->GetObjNum(), (HE_LPVOID)pObj );
+	return false;
 }
 
-HE_VOID CHE_PDF_Collector::ReleaseObj()
+bool operator > ( const CHE_PDF_CollectorNode & node1, const CHE_PDF_CollectorNode & node2 )
 {
-	HE_DWORD count = m_map.GetCount();
-	CHE_PDF_Object * pObj = NULL;
-	for ( HE_DWORD i = 0; i < count; i++ )
+	if ( node1.m_ObjNum > node2.m_ObjNum )
 	{
-		pObj = (CHE_PDF_Object*)m_map.GetItemByIndex( i );
-		if ( pObj )
-		{
-			pObj->Release();
-		}
+		return true;
 	}
+	return false;
+}
+
+bool operator < (  const CHE_PDF_CollectorNode & node1, const CHE_PDF_CollectorNode & node2  )
+{
+	if ( node1.m_ObjNum < node2.m_ObjNum )
+	{
+		return true;
+	}
+	return false;
+}
+
+inline CHE_PDF_CollectorNode & CHE_PDF_CollectorNode::operator = ( const CHE_PDF_CollectorNode & node )
+{
+	m_ObjNum = node.m_ObjNum;
+	m_Obj = node.m_Obj;
+	return *this;
 }

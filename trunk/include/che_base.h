@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <malloc.h>
 #include <windows.h>
+#undef GetObject
 
 class CHE_Allocator
 {

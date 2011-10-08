@@ -16,6 +16,7 @@ public:
 	/**************   Document Operations   *************/
 
  	HE_BOOL					NewDocument();
+	HE_BOOL					SetVersion( PDF_VERSION version );
 	HE_BOOL					SetDocumentInfo( PDF_DOCUMENT_INFO infoType, CHE_ByteString & str );
 	HE_BOOL					SetDocumentParam();
 	HE_BOOL					Save( IHE_Write * pWrite );
@@ -65,14 +66,6 @@ public:
 	CHE_PDF_Dictionary *	AddDictionary() { return AppendIndirectObj_Dict(); }
 	CHE_PDF_Stream *		AddStream() { return AppendIndirectObj_Stream(); }
 
-private:
-	HE_VOID					ResetCreator();
-
-	HE_VOID					ResetObjIndex() { m_dwObjNumIndex = 0; }
-	HE_VOID					IncreaseObjIndex() { m_dwObjNumIndex++; }
-	HE_VOID					DecreaseObjIndex() { m_dwObjNumIndex--; }
-	HE_DWORD				GetObjIndex() { return m_dwObjNumIndex; }
-
 	CHE_PDF_Null*			AppendIndirectObj_Null();
 	CHE_PDF_Boolean*		AppendIndirectObj_Boolean( HE_BOOL value );
 	CHE_PDF_Number*			AppendIndirectObj_Number( HE_INT32 value );
@@ -83,10 +76,32 @@ private:
 	CHE_PDF_Dictionary*		AppendIndirectObj_Dict();
 	CHE_PDF_Stream*			AppendIndirectObj_Stream();
 
+private:
+	HE_VOID					ResetCreator();
+
+	HE_VOID					ResetObjIndex() { m_dwObjNumIndex = 0; }
+	HE_VOID					IncreaseObjIndex() { m_dwObjNumIndex++; }
+	HE_VOID					DecreaseObjIndex() { m_dwObjNumIndex--; }
+	HE_DWORD				GetObjIndex() { return m_dwObjNumIndex; }
+
+
+
+// 	CHE_PDF_Null*			AppendDirectObj_Null(  );
+// 	CHE_PDF_Boolean*		AppendDirectObj_Boolean( HE_BOOL value );
+// 	CHE_PDF_Number*			AppendDirectObj_Number( HE_INT32 value );
+// 	CHE_PDF_Number*			AppendDirectObj_Number( HE_FLOAT value );
+// 	CHE_PDF_String*			AppendDirectObj_String( CHE_ByteString & str );
+// 	CHE_PDF_Name*			AppendDirectObj_Name( CHE_ByteString & str );
+// 	CHE_PDF_Array*			AppendDirectObj_Array();
+// 	CHE_PDF_Dictionary*		AppendDirectObj_Dict();
+// 	CHE_PDF_Stream*			AppendDirectObj_Stream();
+
 	HE_VOID					OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite );
 
 private:
 	HE_BOOL					m_bNewDocument;	//是否开始了一个PDF文件创建的标志
+
+	PDF_VERSION				m_Version;
 
 	CHE_PDF_Dictionary *	m_pCatalogDict;
 	CHE_PDF_Dictionary *	m_pPagesDict;

@@ -26,9 +26,9 @@ HE_CHAR * gpStrXrefStartMark = "startxref\n";	HE_DWORD glStrXrefStartMark = 10;
 HE_CHAR * gpStrFileEnd = "%%EOF";				HE_DWORD glStrFileEnd = 5;
 HE_CHAR * gpStrSingleSpace = " ";				HE_DWORD glStrSingleSpace = 1;
 //obj relative
-HE_CHAR * gpStrNullObj = "null";				HE_DWORD glStrNullObj = 4;
+HE_CHAR * gpStrNullObj = "null";				HE_DWORD glStrNullObj = 5;
 HE_CHAR * gpStrBoolObjFalse = "false";			HE_DWORD glStrBoolObjFalse = 5;
-HE_CHAR * gpStrBoolObjTrue = "treu";			HE_DWORD glStrBoolObjTrue = 4;
+HE_CHAR * gpStrBoolObjTrue = "ture";			HE_DWORD glStrBoolObjTrue = 4;
 HE_CHAR * gpStrNameObjPre = "/";				HE_DWORD glStrNameObjPre = 1;
 HE_CHAR * gpStrStrObjLeft = "(";				HE_DWORD glStrStrObj = 1;
 HE_CHAR * gpStrStrObjRight = ")";
@@ -94,6 +94,13 @@ HE_BOOL	CHE_PDF_Creator::NewDocument()
 	m_bNewDocument = TRUE;
 	return TRUE;
 }
+
+HE_BOOL CHE_PDF_Creator::SetVersion( PDF_VERSION version )
+{
+	m_Version = version;
+	return TRUE;
+}
+
 
 HE_BOOL CHE_PDF_Creator::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, CHE_ByteString & str )
 {
@@ -268,7 +275,38 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 	CHE_PDF_XREF_Table xrefTable;
 	xrefTable.NewSection( 1 );
 
-	pWrite->WriteBlock( (HE_LPDWORD)gpStrPDFVersion17, glStrPDFVersion );
+	switch( m_Version )
+	{
+	case PDF_VERSION_1_0:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion10, glStrPDFVersion );
+		break;
+	case PDF_VERSION_1_1:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion11, glStrPDFVersion );
+		break;
+	case PDF_VERSION_1_2:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion12, glStrPDFVersion );
+		break;
+	case PDF_VERSION_1_3:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion13, glStrPDFVersion );
+		break;
+	case PDF_VERSION_1_4:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion14, glStrPDFVersion );
+		break;
+	case PDF_VERSION_1_5:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion15, glStrPDFVersion );
+		break;
+	case PDF_VERSION_1_6:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion16, glStrPDFVersion );
+		break;
+	case PDF_VERSION_1_7:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion17, glStrPDFVersion );
+		break;
+	default:
+		pWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion17, glStrPDFVersion );
+		break;
+	}
+	
+	pWrite->WriteBlock( (HE_LPVOID)"%\255\255\255\255\n", 6 );
 
 	HE_CHAR tempStr[1024];
 
@@ -288,6 +326,7 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 		OutPutObject( pObj, pWrite );
 
 		pWrite->WriteBlock( (HE_LPVOID)gpStrObjEnd, glStrObjEnd );
+		pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, glStrNewLine );
 	}
 
 	pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, glStrNewLine );
@@ -723,14 +762,38 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite
 			}else{
 				pWrite->WriteBlock( (HE_LPVOID)gpStrBoolObjFalse, glStrBoolObjFalse );
 			}
+			break;
 		}
 	case OBJ_TYPE_STRING:
 		{
 			HE_LPVOID pData = (HE_LPVOID)( ((CHE_PDF_String*)pObj)->GetString().GetData() );
 			HE_DWORD length = ((CHE_PDF_String*)pObj)->GetString().GetLength();
-			pWrite->WriteBlock( (HE_LPVOID)gpStrStrObjLeft, glStrStrObj );
-			pWrite->WriteBlock( pData, length );
-			pWrite->WriteBlock( (HE_LPVOID)gpStrStrObjRight, glStrStrObj );
+			HE_BOOL bHex = FALSE;
+			for ( HE_DWORD i = 0; i < length; i++ )
+			{
+				if ( pObj->ToString()->GetString()[i] == ')' )
+				{
+					bHex  = TRUE;
+					break;
+				}
+			}
+			if ( bHex == FALSE )
+			{
+				pWrite->WriteBlock( (HE_LPVOID)gpStrStrObjLeft, glStrStrObj );
+				pWrite->WriteBlock( pData, length );
+				pWrite->WriteBlock( (HE_LPVOID)gpStrStrObjRight, glStrStrObj );
+			}else{
+				pWrite->WriteBlock( (HE_LPVOID)"<", 1 );
+				HE_CHAR tmpByte[32];
+				HE_DWORD tmpVal = 0;
+				for ( HE_DWORD i = 0; i < length; i++ )
+				{
+					tmpVal = (pObj->ToString()->GetString())[i];
+					sprintf( tmpByte, "%08X", tmpVal );
+					pWrite->WriteBlock( (HE_LPVOID)(tmpByte+6), 2 );
+				}
+				pWrite->WriteBlock( (HE_LPVOID)">", 1 );
+			}
 			break;
 		}
 	case OBJ_TYPE_NAME:
@@ -792,7 +855,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite
 					pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
 					pWrite->WriteBlock( pData, length );
 					pElement = pDict->GetElementByIndex( i );
-					if ( pElement->GetType() == OBJ_TYPE_NULL || pElement->GetType() == OBJ_TYPE_NUMBER || pElement->GetType() == OBJ_TYPE_REFERENCE )
+					if ( pElement->GetType() == OBJ_TYPE_NULL || pElement->GetType() == OBJ_TYPE_NUMBER || pElement->GetType() == OBJ_TYPE_REFERENCE || pElement->GetType() == OBJ_TYPE_BOOLEAN )
 					{
 						pWrite->WriteBlock( (HE_LPVOID)gpStrSingleSpace, 1 );
 					}

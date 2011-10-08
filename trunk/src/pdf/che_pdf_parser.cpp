@@ -204,6 +204,20 @@ HE_VOID	CHE_PDF_SyntaxParser::SeekToEndStream()
 							&&	tmpStr[6] == 'a' && tmpStr[7] == 'm' )
 						{
 							m_lFilePos--;
+							m_lFilePos--;
+							byte = m_pFileAccess->ReadByte( m_lFilePos );
+							if ( byte == '\n' )
+							{
+								m_lFilePos--;
+								byte = m_pFileAccess->ReadByte( m_lFilePos );
+								if ( byte == '\r' )
+								{
+									m_lFilePos--;
+								}
+							}else if ( byte == '\r' )
+							{
+								m_lFilePos--;
+							}
 							return;
 						}
 					}
@@ -860,7 +874,10 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 			{
 				return NULL;
 			}
-			if ( wordDes.type == PARSE_WORD_DICT_E  )
+			if ( wordDes.type == PARSE_WORD_NAME )
+			{
+				key = wordDes.str;
+			}else if ( wordDes.type == PARSE_WORD_DICT_E  )
 			{
 				if ( stack.IsEmpty() == FALSE )
 				{
@@ -968,6 +985,11 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 				}
 			}else if ( wordDes.type == PARSE_WORD_ARRAY_B )	//数组
 			{
+				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
+				{
+					CHE_ByteString * pStr = GetAllocator()->New<CHE_ByteString>( key );
+					stackName.Push( pStr );
+				}
 				stack.Push( pCurObj );
 				pCurObj = CHE_PDF_Array::Create( m_dwCurObjNum, m_dwCurGenNum, GetParser(), GetAllocator() );
 			}else if ( wordDes.type == PARSE_WORD_ARRAY_E )	//数组
@@ -978,6 +1000,8 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 					stack.Pop( pCurObj );
 					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
 					{
+						CHE_ByteString * pkey = &key;
+						stackName.Pop( pkey );
 						((CHE_PDF_Dictionary*)pCurObj)->SetAtArray( key, (CHE_PDF_Array*)pTmp );
 					}else{
 						((CHE_PDF_Array*)pCurObj)->Append( pTmp );
@@ -998,7 +1022,18 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 			{
 				CHE_PDF_Object * pTmp = pCurObj;
 				stack.Pop( pCurObj );
-				((CHE_PDF_Array*)pCurObj)->Append( pTmp );
+				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
+				{
+					CHE_ByteString key;
+					CHE_ByteString * pkey = &key;
+					stackName.Pop( pkey );
+					pCurObj->ToDict()->SetAtDictionary( key, pTmp->ToDict() );
+				}else{
+					((CHE_PDF_Array*)pCurObj)->Append( pTmp );
+				}
+// 				CHE_PDF_Object * pTmp = pCurObj;
+// 				stack.Pop( pCurObj );
+// 				((CHE_PDF_Array*)pCurObj)->Append( pTmp );
 			}else{	//布尔和其他
 				if ( wordDes.str == "false" )
 				{
@@ -1025,7 +1060,12 @@ CHE_PDF_Array *	CHE_PDF_SyntaxParser::GetArray()
 		}
 		if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
 		{
-			bKey = TRUE;
+			if ( bKey == TRUE )
+			{
+				bKey = FALSE;
+			}else{
+				bKey = TRUE;
+			}
 		}else{
 			bKey = FALSE;
 		}
@@ -2301,7 +2341,8 @@ CHE_PDF_Object * CHE_PDF_Parser::GetObject()
 					if ( length == 0 )
 					{
 						m_sParser.SeekToEndStream();
-						length = m_sParser.GetPos() - offset;
+						length = m_sParser.GetPos() - offset + 1;
+						m_sParser.SeekToNextLine();
 					}else{	
 						m_sParser.Seek( length );
 					}

@@ -367,7 +367,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtNull( const CHE_ByteString & key )
 	}
 }
 
-HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( const CHE_ByteString & key, bool value )
+HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( const CHE_ByteString & key, BOOL value )
 {
 	if ( key.GetLength() > 0 )
 	{
@@ -716,13 +716,22 @@ HE_DWORD CHE_PDF_Stream::GetRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD b
  	}
 	if ( m_bMem == FALSE )
 	{
-		return m_pFile->ReadBlock( pBuf, offset + m_FileOffset, buf_size );
+		buf_size = m_pFile->ReadBlock( pBuf, offset + m_FileOffset, buf_size );
+		if ( m_pEncrypt && m_pEncrypt->IsPasswordOK() )
+		{
+			m_pEncrypt->Decrypt( pBuf, buf_size, GetObjNum(), GetGenNum() );
+		}
+		return buf_size;
 	}else{
 		if ( offset + buf_size > m_dwSize )
  		{
 			buf_size = m_dwSize - offset;
  		}
 		memcpy( pBuf, m_pDataBuf + offset, buf_size );
+		if ( m_pEncrypt && m_pEncrypt->IsPasswordOK() )
+		{
+			m_pEncrypt->Decrypt( pBuf, buf_size, GetObjNum(), GetGenNum() );
+		}
  		return buf_size;
 	}
 }
@@ -824,10 +833,6 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_Stream * pStream )
 			pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
 
 			pStream->GetRawData( 0, pTmp, lSize );
-			if ( pStream->m_pEncrypt && pStream->m_pEncrypt->IsPasswordOK() == TRUE )
-			{
-				pStream->m_pEncrypt->Decrypt( pTmp, lSize, pStream->GetObjNum(), pStream->GetGenNum() );
-			}
 			CHE_ByteString str( GetAllocator() );
 			for ( HE_DWORD i = 0; i < lFilterCount; i++ )
 			{

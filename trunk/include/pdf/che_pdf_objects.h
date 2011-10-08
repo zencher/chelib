@@ -297,7 +297,7 @@ public:
 	HE_BOOL					GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const { return m_Map.GetKeyByIndex( index, strRet ); }
 
 	HE_VOID					SetAtNull( const CHE_ByteString & key );
-	HE_VOID					SetAtBoolean( const CHE_ByteString & key, bool value );
+	HE_VOID					SetAtBoolean( const CHE_ByteString & key, HE_BOOL value );
 	HE_VOID					SetAtInteger( const CHE_ByteString & key, HE_INT32 value );
 	HE_VOID					SetAtFloatNumber( const CHE_ByteString & key, HE_FLOAT value );
 	HE_VOID					SetAtString( const CHE_ByteString & key, const CHE_ByteString& string );
@@ -404,7 +404,7 @@ public:
 
 	const CHE_PDF_Stream *	GetStream() const { return m_pStream; }
 
-	HE_LPCBYTE				GetData() const { return m_pData; }
+	HE_LPBYTE				GetData() const { return m_pData; }
 	HE_DWORD				GetSize() const { return m_dwSize; }
 	
 private:

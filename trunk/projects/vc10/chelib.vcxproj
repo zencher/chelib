@@ -1,0 +1,200 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\che_base.h" />
+    <ClInclude Include="..\..\include\che_bitmap.h" />
+    <ClInclude Include="..\..\include\che_datastructure.h" />
+    <ClInclude Include="..\..\include\che_define.h" />
+    <ClInclude Include="..\..\include\che_graphics.h" />
+    <ClInclude Include="..\..\include\che_string.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_contents.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_creator.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_define.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_filter.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_font.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_graphics.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_graphicsState.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_matrix.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_pageobjs.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_pages.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_renderer.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_resource.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_text.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\che_base.cpp" />
+    <ClCompile Include="..\..\src\che_bitmap.cpp" />
+    <ClCompile Include="..\..\src\che_datastructure.cpp" />
+    <ClCompile Include="..\..\src\che_graphics.cpp" />
+    <ClCompile Include="..\..\src\che_string.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_graphicsState.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_pageobjs.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_resource.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_text.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{93D59D50-47AB-4B6D-856D-4B5CD72E7E9F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>chelib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>../../build/debug/win32_vc10</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>../../build/debug/win32_vc10</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>../../build/release/win32_vc10</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>../../build/release/win32_vc10</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

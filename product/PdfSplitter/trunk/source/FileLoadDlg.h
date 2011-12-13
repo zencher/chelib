@@ -13,20 +13,28 @@ public:
 
 	enum { IDD = IDD_LOADFILE };
 
-	UINT mClientWidth;
-	UINT mClientHeight;
-	unsigned int mTimerId;
-	MyIHE_WD_InterActive * mpInterActive;
-	CHE_WD_Area *	mpMainArea;
-	CHE_WD_Animation * mpAnimation;
-
 protected:
+	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX); 
 
 	DECLARE_MESSAGE_MAP()
 
 private:
-	void DrawMainArea(void);
+	UINT				mClientWidth;
+	UINT				mClientHeight;
+
+	CDC					mMemdc;
+	CBitmap				mBitmap;
+	CBitmap *			mpOldBitmap;
+	Gdiplus::Graphics *	mGraphics;
+
+	MyIHE_WD_InterActive *	mpInterActive;
+	CHE_WD_Area *			mpMainArea;
+	CHE_WD_Animation *		mpAnimation;
+
+	unsigned int			mTimerId;
+
+	void		DrawMainArea(void);
 
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);

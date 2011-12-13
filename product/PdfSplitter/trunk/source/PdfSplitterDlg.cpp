@@ -177,6 +177,8 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 
 	theApp.mpMainDlg->mpProcess->SetVisable( false );
 
+	theApp.mpMainDlg->KillTimer( theApp.mpMainDlg->mTimerId );
+
 	theApp.mpMainDlg->MessageBox(  L"分割完成！", L"消息", MB_OK | MB_ICONINFORMATION );
 
 	return 0;
@@ -185,17 +187,35 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 
 static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 {
-	CFileDialog fileDlg(TRUE, L"PDF", NULL, 0, L"PDF Files(*.pdf)|*.pdf||", theApp.mpMainDlg );
-	if ( fileDlg.DoModal() == IDOK )
+	static wchar_t fileName[1024], fileTitleName[1024];
+	static OPENFILENAME ofn;
+	ofn.lStructSize		= sizeof ( OPENFILENAME );
+	ofn.hwndOwner		= theApp.mpMainDlg->GetSafeHwnd();
+	ofn.lpstrFilter		= L"PDF Files(*.pdf)\0*.pdf\0\0";
+	ofn.lpstrCustomFilter = NULL;
+	ofn.nMaxCustFilter	= 0;
+	ofn.nFilterIndex	= 1;
+	ofn.lpstrFile		= fileName;
+	ofn.nMaxFile		= MAX_PATH;
+	ofn.lpstrFileTitle	= fileTitleName;
+	ofn.nMaxFileTitle	= MAX_PATH;
+	ofn.Flags			= OFN_NOCHANGEDIR ;
+	ofn.nFileOffset		= 16 ;
+	ofn.nFileExtension	= 0 ;
+	ofn.lCustData		= NULL ;
+	ofn.lpfnHook		= NULL ;
+	ofn.lpTemplateName	= NULL ;
+
+	if ( GetOpenFileName( &ofn ) )
 	{
+
 		theApp.mbLoadOver = false;
-		theApp.mTargetFile = fileDlg.GetFolderPath();
-		theApp.mTargetFile += L"\\";
-		theApp.mTargetFile += fileDlg.GetFileName();
+		theApp.mTargetFile = fileName;
 		CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpFilePathText->GetBackGroundAppear();
 		CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
 		pTmpText->SetText(  theApp.mTargetFile.c_str() );
-		theApp.mpMainDlg->mpInterActive->Invalidate();
+		//theApp.mpMainDlg->mpInterActive->Invalidate();
+		theApp.mpMainDlg->mpFilePathText->Refresh();
 		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
 		CFileLoadDlg loadDlg;
 		loadDlg.DoModal();
@@ -241,7 +261,65 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 			}
 		}
 	}
+// 	CFileDialog fileDlg(TRUE, L"PDF", NULL, OFN_NOCHANGEDIR, L"PDF Files(*.pdf)|*.pdf||", theApp.mpMainDlg );
+// 	//CFileDialog fileDlg( TRUE, L"PDF", NULL, OFN_NOCHANGEDIR, L"PDF Files(*.pdf)|*.pdf||", theApp.mpMainDlg,  )
+// 	if ( fileDlg.DoModal() == IDOK )
+// 	{
+// 		theApp.mbLoadOver = false;
+// 		theApp.mTargetFile = fileDlg.GetFolderPath();
+// 		theApp.mTargetFile += L"\\";
+// 		theApp.mTargetFile += fileDlg.GetFileName();
+// 		CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpFilePathText->GetBackGroundAppear();
+// 		CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+// 		pTmpText->SetText(  theApp.mTargetFile.c_str() );
+// 		theApp.mpMainDlg->mpInterActive->Invalidate();
+// 		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
+// 		CFileLoadDlg loadDlg;
+// 		loadDlg.DoModal();
+// 		pTmpAppear = theApp.mpMainDlg->mpFilePageCountInfo->GetBackGroundAppear();
+// 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+// 		wchar_t tmpwstr[512];
+// 		wsprintf( tmpwstr, L"总计：%d 页", theApp.mParser.GetPageCount() );
+// 		pTmpText->SetText( tmpwstr );
+// 		pTmpAppear = theApp.mpMainDlg->mpFileSizeInfo->GetBackGroundAppear();
+// 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+// 		if ( theApp.mpFileRead->GetSize() <= 10485 )
+// 		{
+// 			swprintf( tmpwstr, L"%4.2f KB", theApp.mpFileRead->GetSize() * 1.0 / 1024 ) ;
+// 		}else{
+// 			swprintf( tmpwstr, L"%4.2f MB", theApp.mpFileRead->GetSize() * 1.0 / ( 1024 * 1024 ) ) ;
+// 		}
+// 		pTmpText->SetText( tmpwstr );
+// 		theApp.mpMainDlg->mpInterActive->Invalidate();
+// 
+// 		CSelectionModeDlg selectModeDlg;
+// 		unsigned int iRet = selectModeDlg.DoModal();
+// 		switch ( iRet )
+// 		{
+// 		default:
+// 		case 0:
+// 			break;
+// 		case 1:
+// 			{
+// 				CPageSelectionDlg pageDlg;
+// 				if ( pageDlg.DoModal() == 1 )
+// 				{
+// 					theApp.mpMainDlg->UpdataList();
+// 				}
+// 				break;
+// 			}
+// 		case 2:
+// 			{
+// 				CPagesSelectionDlg pageDlg;
+// 				if ( pageDlg.DoModal() == 1 )
+// 				{
+// 					theApp.mpMainDlg->UpdataList();
+// 				}
+// 			}
+// 		}
+// 	}
 }
+
 
 static void EventListItemClick( CHE_WD_Area * pArea )
 {
@@ -315,6 +393,63 @@ static void EventMoveScrollBox( CHE_WD_Area * pArea )
 
 static void EventStartBtn( CHE_WD_Area * pArea )
 {
+// 	CFileDialog fileDlg(TRUE, L"PDF", NULL, 0, L"PDF Files(*.pdf)|*.pdf||", theApp.mpMainDlg );
+// 	if ( fileDlg.DoModal() == IDOK )
+// 	{
+// 		theApp.mbLoadOver = false;
+// 		theApp.mTargetFile = fileDlg.GetFolderPath();
+// 		theApp.mTargetFile += L"\\";
+// 		theApp.mTargetFile += fileDlg.GetFileName();
+// 		CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpFilePathText->GetBackGroundAppear();
+// 		CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+// 		pTmpText->SetText(  theApp.mTargetFile.c_str() );
+// 		theApp.mpMainDlg->mpInterActive->Invalidate();
+// 		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
+// 		CFileLoadDlg loadDlg;
+// 		loadDlg.DoModal();
+// 		pTmpAppear = theApp.mpMainDlg->mpFilePageCountInfo->GetBackGroundAppear();
+// 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+// 		wchar_t tmpwstr[512];
+// 		wsprintf( tmpwstr, L"总计：%d 页", theApp.mParser.GetPageCount() );
+// 		pTmpText->SetText( tmpwstr );
+// 		pTmpAppear = theApp.mpMainDlg->mpFileSizeInfo->GetBackGroundAppear();
+// 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+// 		if ( theApp.mpFileRead->GetSize() <= 10485 )
+// 		{
+// 			swprintf( tmpwstr, L"%4.2f KB", theApp.mpFileRead->GetSize() * 1.0 / 1024 ) ;
+// 		}else{
+// 			swprintf( tmpwstr, L"%4.2f MB", theApp.mpFileRead->GetSize() * 1.0 / ( 1024 * 1024 ) ) ;
+// 		}
+// 		pTmpText->SetText( tmpwstr );
+// 		theApp.mpMainDlg->mpInterActive->Invalidate();
+// 
+// 		CSelectionModeDlg selectModeDlg;
+// 		unsigned int iRet = selectModeDlg.DoModal();
+// 		switch ( iRet )
+// 		{
+// 		default:
+// 		case 0:
+// 			break;
+// 		case 1:
+// 			{
+// 				CPageSelectionDlg pageDlg;
+// 				if ( pageDlg.DoModal() == 1 )
+// 				{
+// 					theApp.mpMainDlg->UpdataList();
+// 				}
+// 				break;
+// 			}
+// 		case 2:
+// 			{
+// 				CPagesSelectionDlg pageDlg;
+// 				if ( pageDlg.DoModal() == 1 )
+// 				{
+// 					theApp.mpMainDlg->UpdataList();
+// 				}
+// 			}
+// 		}
+// 	}
+	theApp.mpMainDlg->mTimerId = theApp.mpMainDlg->SetTimer( 2, 30, NULL );
 	theApp.mpMainDlg->mpProcess->SetVisable( true );
 	CreateThread( NULL, 0, ThreadSplit, 0, 0, 0 );
 }
@@ -722,8 +857,6 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpProcess->SetVisable( false );
 
 	mpMainArea->AppendChild( mpProcess );
-
-	SetProcessBarValue( 0 );
 }
 
 void CPdfSpliterDlg::DoDataExchange(CDataExchange* pDX)
@@ -784,7 +917,18 @@ BOOL CPdfSpliterDlg::OnInitDialog()
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 
-	return TRUE;  // return TRUE  unless you set the focus to a control
+	CWnd *		pWnd = GetDlgItem( IDC_MAIN );
+	CPaintDC	dc( pWnd );
+	mMemdc.CreateCompatibleDC( &dc );
+	mBitmap.CreateCompatibleBitmap( &dc, mpMainArea->GetWidth(), mpMainArea->GetHeight() );
+	CBitmap * olbBitmap = mMemdc.SelectObject( &mBitmap );
+	mGraphics = ::new Graphics( mMemdc.GetSafeHdc() );
+	mGraphics->SetSmoothingMode( SmoothingModeAntiAlias );
+	mpInterActive->SetGraphics( mGraphics );
+	mpMainArea->OnDraw();
+
+	SetProcessBarValue( 0 );
+	return TRUE;
 }
 
 void CPdfSpliterDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -842,15 +986,13 @@ int CPdfSpliterDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
-	mTimerId = SetTimer( 2, 50, NULL );
 	return 0;
 }
 
 
 void CPdfSpliterDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	//mpMainArea->ExecuteFrame();
-	mpMainArea->Refresh();
+	mpMainArea->ExecuteFrame();	Invalidate(FALSE);
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -870,7 +1012,6 @@ void CPdfSpliterDlg::OnSize(UINT nType, int cx, int cy)
 	{
 		pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );
 	}
-	Invalidate(TRUE);
 }
 
 
@@ -905,22 +1046,10 @@ void CPdfSpliterDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CPdfSpliterDlg::DrawMainArea()
 {
-	CDC			memdc;
-	CBitmap		bitmap;
 	CWnd *		pWnd = GetDlgItem( IDC_MAIN );
 	CPaintDC	dc( pWnd );
-
-	memdc.CreateCompatibleDC( &dc );
-	bitmap.CreateCompatibleBitmap( &dc, mpMainArea->GetWidth(), mpMainArea->GetHeight() );
-	CBitmap * olbBitmap = memdc.SelectObject( &bitmap );
-	Graphics gs( memdc.GetSafeHdc() );
-	gs.SetSmoothingMode( SmoothingModeAntiAlias );
-	mpInterActive->SetGraphics( &gs );
 	mpMainArea->OnDraw();
-	dc.BitBlt( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), &memdc, 0, 0, SRCCOPY );
-	memdc.SelectObject( olbBitmap );
-	bitmap.DeleteObject();
-	memdc.DeleteDC();
+	dc.BitBlt( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), &mMemdc, 0, 0, SRCCOPY );
 }
 
 void CPdfSpliterDlg::SetProcessBarValue( unsigned int val )
@@ -1132,13 +1261,13 @@ void CPdfSpliterDlg::OnDestroy()
 
 BOOL CPdfSpliterDlg::OnEraseBkgnd(CDC* pDC)
 {
-	mpInterActive->Invalidate();
+	Invalidate(FALSE);
 	return TRUE;
 }
 
 
 void CPdfSpliterDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
-	mpInterActive->Invalidate();
+	Invalidate(FALSE);
 	CDialogEx::OnActivate(nState, pWndOther, bMinimized);
 }

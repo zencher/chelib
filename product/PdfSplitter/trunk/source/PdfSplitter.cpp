@@ -169,12 +169,12 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 {
 	if ( pArea && pAppear && mpGraphics )
 	{
-// 		if ( pArea->IsClipEnable() )
-// 		{
-// 			Rect clipRect( pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
-// 			Region clipRegion( clipRect );
-// 			mpGraphics->SetClip( &clipRegion );
-// 		}
+ 		if ( pArea->IsClipEnable() )
+ 		{
+ 			Rect clipRect( pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
+ 			Region clipRegion( clipRect );
+ 			mpGraphics->SetClip( &clipRegion );
+ 		}
 		for ( size_t i = 0; i < pAppear->mItems.size(); ++i )
 		{
 			CHE_WD_AppearItem * tmp = pAppear->mItems[i];
@@ -391,10 +391,10 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 			default:;
 			}
 		}
-// 		if ( pArea->IsClipEnable() )
-// 		{
-// 			mpGraphics->ResetClip();
-// 		}
+ 		if ( pArea->IsClipEnable() )
+ 		{
+ 			mpGraphics->ResetClip();
+ 		}
 	}
 }
 

@@ -11,18 +11,25 @@ public:
 
 	enum { IDD = IDD_SELECTIONMODEDLG };
 
+private:
 	UINT mClientWidth;
 	UINT mClientHeight;
+
+	CDC			mMemdc;
+	CBitmap		mBitmap;
+	CBitmap *	mpOldBitmap;
+	Gdiplus::Graphics *	mGraphics;
+
 	MyIHE_WD_InterActive * mpInterActive;
 	CHE_WD_Area *	mpMainArea;
 	CHE_WD_Button * mpBtnSinglePage;
 	CHE_WD_Button * mpBtnPageRange;
 	CHE_WD_Button * mpBtnCancel;
 
-private:
 	void DrawMainArea(void);
 
 protected:
+	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);
 
 	DECLARE_MESSAGE_MAP()

@@ -20,6 +20,12 @@ public:
 
 	UINT mClientWidth;
 	UINT mClientHeight;
+
+	CDC			mMemdc;
+	CBitmap		mBitmap;
+	CBitmap *	mpOldBitmap;
+	Gdiplus::Graphics *	mGraphics;
+
 	MyIHE_WD_InterActive * mpInterActive;
 	CHE_WD_Area *	mpMainArea;
 	CHE_WD_Area *	mpBeginNumberBox;
@@ -32,6 +38,7 @@ private:
 	void DrawMainArea(void);
 
 protected:
+	virtual BOOL OnInitDialog();
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 
 	DECLARE_MESSAGE_MAP()

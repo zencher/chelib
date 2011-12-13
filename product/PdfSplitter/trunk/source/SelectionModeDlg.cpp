@@ -147,6 +147,22 @@ BEGIN_MESSAGE_MAP(CSelectionModeDlg, CDialogEx)
 	ON_WM_ACTIVATE()
 END_MESSAGE_MAP()
 
+BOOL CSelectionModeDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	CWnd *		pWnd = GetDlgItem( IDC_LOADDLG_MAIN );
+	CPaintDC	dc( pWnd );
+	mMemdc.CreateCompatibleDC( &dc );
+	mBitmap.CreateCompatibleBitmap( &dc, mpMainArea->GetWidth(), mpMainArea->GetHeight() );
+	CBitmap * olbBitmap = mMemdc.SelectObject( &mBitmap );
+	mGraphics = ::new Graphics( mMemdc.GetSafeHdc() );
+	mGraphics->SetSmoothingMode( SmoothingModeAntiAlias );
+	mpInterActive->SetGraphics( mGraphics );
+	mpMainArea->OnDraw();
+	return TRUE;
+}
+
 void CSelectionModeDlg::OnPaint()
 {
 	CPaintDC dc(this);
@@ -155,22 +171,10 @@ void CSelectionModeDlg::OnPaint()
 
 void CSelectionModeDlg::DrawMainArea(void)
 {
-	CDC			memdc;
-	CBitmap		bitmap;
 	CWnd *		pWnd = GetDlgItem( IDC_LOADDLG_MAIN );
 	CPaintDC	dc( pWnd );
-
-	memdc.CreateCompatibleDC( &dc );
-	bitmap.CreateCompatibleBitmap( &dc, mpMainArea->GetWidth(), mpMainArea->GetHeight() );
-	CBitmap * olbBitmap = memdc.SelectObject( &bitmap );
-	Graphics gs( memdc.GetSafeHdc() );
-	gs.SetSmoothingMode( SmoothingModeAntiAlias );
-	mpInterActive->SetGraphics( &gs );
 	mpMainArea->OnDraw();
-	dc.BitBlt( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), &memdc, 0, 0, SRCCOPY );
-	memdc.SelectObject( olbBitmap );
-	bitmap.DeleteObject();
-	memdc.DeleteDC();
+	dc.BitBlt( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), &mMemdc, 0, 0, SRCCOPY );
 }
 
 void CSelectionModeDlg::OnSize(UINT nType, int cx, int cy)
@@ -188,7 +192,6 @@ void CSelectionModeDlg::OnSize(UINT nType, int cx, int cy)
 	{
 		pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );
 	}
-	Invalidate(TRUE);
 }
 
 
@@ -237,13 +240,13 @@ void CSelectionModeDlg::OnCancel()
 
 BOOL CSelectionModeDlg::OnEraseBkgnd(CDC* pDC)
 {
-	mpInterActive->Invalidate();
+	Invalidate(FALSE);
 	return TRUE;
 }
 
 
 void CSelectionModeDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
-	mpInterActive->Invalidate();
+	Invalidate(FALSE);
 	CDialogEx::OnActivate(nState, pWndOther, bMinimized);
 }

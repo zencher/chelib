@@ -37,8 +37,13 @@ private:
 	void DrawMainArea();
 
 private:
-	UINT mClientWidth;
-	UINT mClientHeight;
+	UINT		mClientWidth;
+	UINT		mClientHeight;
+
+	CDC			mMemdc;
+	CBitmap		mBitmap;
+	CBitmap *	mpOldBitmap;
+	Gdiplus::Graphics *	mGraphics;
 
 public:
 	MyIHE_WD_InterActive * mpInterActive;

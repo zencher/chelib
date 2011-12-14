@@ -35,6 +35,10 @@ void CHE_WD_Area::ExecuteFrame()
 
 void CHE_WD_Area::OnMouseMove( int x, int y )
 {
+	if ( !mVisable )
+	{
+		return;
+	}
 	if ( mpCaptureChild )
 	{
  		mpCaptureChild->OnMouseMove( x, y );
@@ -79,6 +83,10 @@ void CHE_WD_Area::OnMouseMove( int x, int y )
 
 void CHE_WD_Area::OnMouseOver()
 {
+	if ( !mVisable )
+	{
+		return;
+	}
 	if ( GetParent() )
 	{
 		GetParent()->SetFocus( this );
@@ -91,12 +99,16 @@ void CHE_WD_Area::OnMouseOver()
 	mbMO = true;
 	if ( mInterActive )
 	{
-		mInterActive->Invalidate();
+		mInterActive->InvalidateRect( GetPositionX(), GetPositionY(), GetPositionX() + GetWidth(), GetPositionY() + GetHeight() );
 	}
 }
 
 void CHE_WD_Area::OnMouseOut()
 {
+	if ( !mVisable )
+	{
+		return;
+	}
 	if ( GetParent() )
 	{
 		GetParent()->ReleaseFocus();
@@ -107,12 +119,16 @@ void CHE_WD_Area::OnMouseOut()
 	mpMouseOverArea = NULL;
 	if ( mInterActive )
 	{
-		mInterActive->Invalidate();
+		mInterActive->InvalidateRect( GetPositionX(), GetPositionY(), GetPositionX() + GetWidth(), GetPositionY() + GetHeight() );
 	}
 }
 
 void CHE_WD_Area::OnMouseLButtonDown( int x, int y )
 {
+	if ( !mVisable )
+	{
+		return;
+	}
 	if ( mpCaptureChild )
 	{
 		mpCaptureChild->OnMouseLButtonDown( x, y );
@@ -140,12 +156,16 @@ void CHE_WD_Area::OnMouseLButtonDown( int x, int y )
 	mbLBD = true;
 	if ( mInterActive )
 	{
-		mInterActive->Invalidate();
+		mInterActive->InvalidateRect( GetPositionX(), GetPositionY(), GetPositionX() + GetWidth(), GetPositionY() + GetHeight() );
 	}
 }
 
 void CHE_WD_Area::OnMouseLButtonUp( int x, int y )
 {
+	if ( !mVisable )
+	{
+		return;
+	}
 	if ( mpCaptureChild )
 	{
 		mpCaptureChild->OnMouseLButtonUp( x, y );
@@ -168,12 +188,16 @@ void CHE_WD_Area::OnMouseLButtonUp( int x, int y )
 	mbLBD = false;
 	if ( mInterActive )
 	{
-		mInterActive->Invalidate();
+		mInterActive->InvalidateRect( GetPositionX(), GetPositionY(), GetPositionX() + GetWidth(), GetPositionY() + GetHeight() );
 	}
 }
 
 void CHE_WD_Area::OnMouseRButtonDown( int x, int y )
 {
+	if ( !mVisable )
+	{
+		return;
+	}
 	if ( mpCaptureChild )
 	{
 		mpCaptureChild->OnMouseRButtonDown( x, y );
@@ -200,12 +224,16 @@ void CHE_WD_Area::OnMouseRButtonDown( int x, int y )
 	mbRBD = true;
 	if ( mInterActive )
 	{
-		mInterActive->Invalidate();
+		mInterActive->InvalidateRect( GetPositionX(), GetPositionY(), GetPositionX() + GetWidth(), GetPositionY() + GetHeight() );
 	}
 }
 
 void CHE_WD_Area::OnMouseRButtonUp( int x, int y )
 {
+	if ( !mVisable )
+	{
+		return;
+	}
 	if ( mpCaptureChild )
 	{
 		mpCaptureChild->OnMouseRButtonUp( x, y );
@@ -227,7 +255,7 @@ void CHE_WD_Area::OnMouseRButtonUp( int x, int y )
 	mbRBD = false;
 	if ( mInterActive )
 	{
-		mInterActive->Invalidate();
+		mInterActive->InvalidateRect( GetPositionX(), GetPositionY(), GetPositionX() + GetWidth(), GetPositionY() + GetHeight() );
 	}
 }
 
@@ -260,6 +288,10 @@ void CHE_WD_Area::OnDraw()
 		{
 			mInterActive->Draw( this, mpNormalAppear );
 		}
+		if ( mbClip )
+		{
+			mInterActive->ResetClip();
+		}
 
 		CHE_WD_Area * pTmp = NULL;
 		for ( size_t i = 0; i < mChildren.size(); ++i )
@@ -270,9 +302,60 @@ void CHE_WD_Area::OnDraw()
 				pTmp->OnDraw();
 			}
 		}
-		if ( mbClip )
+	}
+}
+
+void CHE_WD_Area::OnDraw( int left, int top, int right, int bottom )
+{
+	if ( !mVisable )
+	{
+		return;
+	}
+	if ( mInterActive )
+	{
+		if ( ( ( left < GetPositionX() && right < GetPositionX() ) ||
+			 ( left > ( GetPositionX() + GetWidth() ) && ( right > ( GetPositionX() + GetWidth() ) ) ) &&
+			 ( ( top < GetPositionY() && bottom < GetPositionX() ) || 
+			 ( top > ( GetPositionY() + GetHeight() ) && ( bottom > ( GetPositionY() + GetHeight() ) ) ) ) ) )
 		{
-			mInterActive->ResetClip();
+
+		}else{
+			if ( mpBackgroundAppear )
+			{
+				mInterActive->SetClip( left, top, right, bottom );
+				mInterActive->Draw( this, mpBackgroundAppear );
+				mInterActive->ResetClip();
+			}
+			if ( mpMouseLButtonDownAppear && mbLBD )
+			{
+				mInterActive->SetClip( left, top, right, bottom );
+				mInterActive->Draw( this, mpMouseLButtonDownAppear );
+				mInterActive->ResetClip();
+			}else if ( mpMouseRButtonDownAppear && mbRBD )
+			{
+				mInterActive->SetClip( left, top, right, bottom );
+				mInterActive->Draw( this, mpMouseRButtonDownAppear );
+				mInterActive->ResetClip();
+			}else if ( mpMouseOverAppear && mbMO )
+			{
+				mInterActive->SetClip( left, top, right, bottom );
+				mInterActive->Draw( this, mpMouseOverAppear );
+				mInterActive->ResetClip();
+			}else if ( mpNormalAppear )
+			{
+				mInterActive->SetClip( left, top, right, bottom );
+				mInterActive->Draw( this, mpNormalAppear );
+				mInterActive->ResetClip();
+			}
+		}
+		CHE_WD_Area * pTmp = NULL;
+		for ( size_t i = 0; i < mChildren.size(); ++i )
+		{
+			pTmp = mChildren[i];
+			if ( pTmp )
+			{
+				pTmp->OnDraw( left, top, right, bottom );
+			}
 		}
 	}
 }

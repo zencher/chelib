@@ -176,8 +176,9 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 	HE_DestoryIHEWrite( pWrite );
 
 	theApp.mpMainDlg->mpProcess->SetVisable( false );
+	theApp.mpMainDlg->mpProcess->Refresh();
 
-	theApp.mpMainDlg->KillTimer( theApp.mpMainDlg->mTimerId );
+	//theApp.mpMainDlg->KillTimer( theApp.mpMainDlg->mTimerId );
 
 	theApp.mpMainDlg->MessageBox(  L"分割完成！", L"消息", MB_OK | MB_ICONINFORMATION );
 
@@ -449,7 +450,7 @@ static void EventStartBtn( CHE_WD_Area * pArea )
 // 			}
 // 		}
 // 	}
-	theApp.mpMainDlg->mTimerId = theApp.mpMainDlg->SetTimer( 2, 30, NULL );
+	//theApp.mpMainDlg->mTimerId = theApp.mpMainDlg->SetTimer( 2, 30, NULL );
 	theApp.mpMainDlg->mpProcess->SetVisable( true );
 	CreateThread( NULL, 0, ThreadSplit, 0, 0, 0 );
 }
@@ -1048,7 +1049,14 @@ void CPdfSpliterDlg::DrawMainArea()
 {
 	CWnd *		pWnd = GetDlgItem( IDC_MAIN );
 	CPaintDC	dc( pWnd );
-	mpMainArea->OnDraw();
+	if ( mpInterActive->IsReflesh() )
+	{
+		mpMainArea->OnDraw();
+	}else if ( mpInterActive->IsDirtyRect() )
+	{
+		mpMainArea->OnDraw( mpInterActive->GetLeft(), mpInterActive->GetTop(), mpInterActive->GetRight(), mpInterActive->GetBottom() );
+	}
+	mpInterActive->Reset();
 	dc.BitBlt( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), &mMemdc, 0, 0, SRCCOPY );
 }
 
@@ -1075,6 +1083,7 @@ void CPdfSpliterDlg::SetProcessBarValue( unsigned int val )
 		wsprintf( tmpStr, L"%d%%", val );
 		pTmpText->SetText( tmpStr );
 	}
+	mpProcess->Refresh();
 }
 
 
@@ -1199,6 +1208,7 @@ void CPdfSpliterDlg::UpdataList()
 			pTmpItem->SetVisable( true );
 		}
 	}
+	mpListBoxItems->Refresh();
 }
 
 void CPdfSpliterDlg::UpdateToolBtn()
@@ -1230,6 +1240,10 @@ void CPdfSpliterDlg::UpdateToolBtn()
 			}
 		}
 	}
+	mpToolBtnAdd->Refresh();
+	mpToolBtnDel->Refresh();
+	mpToolBtnDown->Refresh();
+	mpToolBtnUp->Refresh();
 }
 
 void CPdfSpliterDlg::OnOK()

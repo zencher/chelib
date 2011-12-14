@@ -351,7 +351,9 @@ class IHE_WD_InterActive
 {
 public:
 	virtual void Invalidate() = 0;
+	virtual void InvalidateRect( int left, int top, int right, int bottom ) = 0;
 	virtual void SetClip( CHE_WD_Area * pArea ) = 0;
+	virtual void SetClip( int left, int top, int right, int bottom ) = 0;
 	virtual void ResetClip() = 0;
 	virtual void Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppear ) = 0;
 	virtual void SetTimer( unsigned int ) = 0;
@@ -591,7 +593,7 @@ public:
 	{
 		if ( mInterActive )
 		{
-			mInterActive->Invalidate();
+			mInterActive->InvalidateRect( GetPositionX(), GetPositionY(), GetPositionX() + GetWidth(), GetPositionY() + GetHeight() );
 		}
 	}
 
@@ -658,6 +660,7 @@ public:
 	virtual void OnMouseRButtonDown( int x, int y );
 	virtual void OnMouseRButtonUp( int x, int y );
 	virtual void OnDraw();
+	virtual void OnDraw( int left, int top, int right, int bottom );
 
 	bool IsMouseOver() { return mbMO; }
 	bool IsMouseLButtonDown() { return mbLBD; }

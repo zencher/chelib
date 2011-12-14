@@ -133,6 +133,40 @@ void MyIHE_WD_InterActive::Invalidate()
 {
 	if ( mpDlg )
 	{
+		mbRefleshAll = true;
+		mpDlg->Invalidate(FALSE);
+	}
+}
+
+void MyIHE_WD_InterActive::InvalidateRect( int left, int top, int right, int bottom )
+{
+	if ( !mbDirtyRect )
+	{
+		mbDirtyRect = true;
+		mLeft = left;
+		mTop = top;
+		mRight = right;
+		mBottom = bottom;
+	}else{
+		if ( left < mLeft )
+		{
+			mLeft = left;
+		}
+		if ( top < mTop )
+		{
+			mTop = top;
+		}
+		if ( right > mRight )
+		{
+			mRight = right;
+		}
+		if ( bottom > mBottom )
+		{
+			mBottom = bottom;
+		}
+	}
+	if ( mpDlg )
+	{
 		mpDlg->Invalidate(FALSE);
 	}
 }
@@ -160,6 +194,13 @@ void MyIHE_WD_InterActive::SetClip( CHE_WD_Area * pArea )
 	mpGraphics->SetClip( &clipRegion );
 }
 
+void MyIHE_WD_InterActive::SetClip( int left, int top, int right, int bottom )
+{
+	Rect clipRect( left, top, right-left, bottom-top );
+	Region clipRegion( clipRect );
+	mpGraphics->SetClip( &clipRegion );
+}
+
 void MyIHE_WD_InterActive::ResetClip()
 {
 	mpGraphics->ResetClip();
@@ -173,7 +214,7 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
  		{
  			Rect clipRect( pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
  			Region clipRegion( clipRect );
- 			mpGraphics->SetClip( &clipRegion );
+ 			mpGraphics->SetClip( &clipRegion, CombineModeIntersect );
  		}
 		for ( size_t i = 0; i < pAppear->mItems.size(); ++i )
 		{
@@ -391,10 +432,10 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 			default:;
 			}
 		}
- 		if ( pArea->IsClipEnable() )
- 		{
- 			mpGraphics->ResetClip();
- 		}
+//  		if ( pArea->IsClipEnable() )
+// 		{
+// 			mpGraphics->ResetClip();
+// 		}
 	}
 }
 

@@ -27,6 +27,8 @@ public:
 
 	void SetGraphics( Graphics * pGraphics ) { mpGraphics = pGraphics; }
 
+	void SetClip( int left, int top, int right, int bottom );
+
 	void SetClip( CHE_WD_Area * pArea );
 
 	void ResetClip();
@@ -34,15 +36,37 @@ public:
 	void Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppear );
 
 	void Invalidate();
+	
+	void InvalidateRect( int left, int top, int right, int bottom );
 
 	void SetTimer( unsigned int );
 
 	void KillTimer();
 
+	int GetLeft() { return mLeft; }
+
+	int GetTop() { return mTop; }
+
+	int GetRight() { return mRight; }
+
+	int GetBottom() { return mBottom; }
+
+	bool IsReflesh() { return mbRefleshAll; }
+
+	bool IsDirtyRect() { return mbDirtyRect; }
+
+	void Reset() { mbRefleshAll = false; mbDirtyRect = false; }
+
 private:
 	HINSTANCE mhInstance;
 	CDialogEx * mpDlg;
 	Graphics * mpGraphics;
+	bool mbRefleshAll;
+	bool mbDirtyRect;
+	int mLeft;
+	int mTop;
+	int mRight;
+	int mBottom;
 };
 
 enum CListItemType

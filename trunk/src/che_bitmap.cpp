@@ -198,10 +198,10 @@ HE_BOOL		CHE_Palette::GetNearColorIndex( HE_ARGB color, HE_DWORD & indexRet ) co
 	{
 		srcColor = m_pPalette[i];
 		
-		tempLessCY = abs( ( color & 0x000000FF ) - ( srcColor & 0x000000FF )  );
-		tempLessCY += abs( ( color >> 8 & 0x000000FF ) - ( srcColor >> 8 & 0x000000FF ) );
-		tempLessCY += abs( ( color >> 16 & 0x000000FF ) - ( srcColor >> 16 & 0x000000FF ) );
-		tempLessCY += abs( ( color >> 24 & 0x000000FF ) - ( srcColor >> 24 & 0x000000FF ) );
+		tempLessCY =  abs( (long)( ( color & 0x000000FF ) - ( srcColor & 0x000000FF ) ) );
+		tempLessCY += abs( (long)( ( color >> 8 & 0x000000FF ) - ( srcColor >> 8 & 0x000000FF ) ) );
+		tempLessCY += abs( (long)( ( color >> 16 & 0x000000FF ) - ( srcColor >> 16 & 0x000000FF ) ) );
+		tempLessCY += abs( (long)( ( color >> 24 & 0x000000FF ) - ( srcColor >> 24 & 0x000000FF ) ) );
 		if ( tempLessCY < lessCY )
 		{
 			lessCY = tempLessCY;

@@ -3,26 +3,28 @@
 #include <cstdlib>
 #include <ctime>
 
-CHE_DynBuffer::CHE_DynBuffer( HE_DWORD size /*= 1024*/, HE_DWORD increament /*= 1024*/, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_DynBuffer::CHE_DynBuffer( HE_DWORD capacity /*= 1024*/, HE_DWORD increament /*= 1024*/, CHE_Allocator * pAllocator /*= NULL*/ )
 : CHE_Object( pAllocator )
 {
-	m_lSize = size;
+	m_lCapacity = capacity;
 	m_lIncreament = increament;
 
-	m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lSize );
-	m_lByteCount = 0;
+	m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity );
+	memset( m_lpData, 0, m_lCapacity );
+	m_lSize = 0;
 }
 
 CHE_DynBuffer::CHE_DynBuffer( const CHE_DynBuffer & buf )
 : CHE_Object( buf.GetAllocator() )
 {
-	m_lSize = buf.m_lSize;
+	m_lCapacity = buf.m_lCapacity;
 	m_lIncreament = buf.m_lIncreament;
-	m_lByteCount = buf.m_lByteCount;
-	m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lSize );
-	if ( m_lByteCount > 0 )
+	m_lSize = buf.m_lSize;
+	m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity );
+	memset( m_lpData, 0, m_lCapacity );
+	if ( m_lSize > 0 )
 	{
-		memcpy( m_lpData, buf.m_lpData, m_lByteCount );
+		memcpy( m_lpData, buf.m_lpData, m_lSize );
 	}
 }
 
@@ -43,13 +45,14 @@ const CHE_DynBuffer & CHE_DynBuffer::operator = ( const CHE_DynBuffer & buf )
 		{
 			GetAllocator()->DeleteArray<HE_BYTE>( m_lpData );
 		}
-		m_lSize = buf.m_lSize;
+		m_lCapacity = buf.m_lCapacity;
 		m_lIncreament = buf.m_lIncreament;
-		m_lByteCount = buf.m_lByteCount;
-		m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lSize );
-		if ( m_lByteCount > 0 )
+		m_lSize = buf.m_lSize;
+		m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity );
+		memset( m_lpData, 0, m_lCapacity );
+		if ( m_lSize > 0 )
 		{
-			memcpy( m_lpData, buf.m_lpData, m_lByteCount );
+			memcpy( m_lpData, buf.m_lpData, m_lSize );
 		}
 	}
 	return *this;
@@ -62,58 +65,60 @@ HE_DWORD CHE_DynBuffer::Write( HE_LPCBYTE pBuffer, HE_DWORD size )
 		return 0;
 	}
 
-	if ( m_lByteCount + size > m_lSize )
+	if ( m_lSize + size > m_lCapacity )
 	{
-		HE_DWORD lNeed = m_lByteCount + size - m_lSize;
+		HE_DWORD lNeed = m_lSize + size - m_lCapacity;
 		if ( lNeed <= m_lIncreament )
 		{
 			lNeed = 1;
 		}else{
 			lNeed = (HE_DWORD)( lNeed / m_lIncreament ) + 1;
 		}
-		HE_LPBYTE tmp = GetAllocator()->NewArray<HE_BYTE>( m_lSize + lNeed * m_lIncreament );
-		memcpy( tmp, m_lpData, m_lByteCount );
-		memcpy( tmp+m_lByteCount, pBuffer, size );
+		HE_LPBYTE tmp = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity + lNeed * m_lIncreament );
+		memset( tmp, 0, m_lCapacity + lNeed * m_lIncreament );
+		memcpy( tmp, m_lpData, m_lSize );
+		memcpy( tmp+m_lSize, pBuffer, size );
 		GetAllocator()->DeleteArray<HE_BYTE>( m_lpData );
 		m_lpData = tmp;
-		m_lByteCount+= size;
-		m_lSize += lNeed*m_lIncreament;
+		m_lSize += size;
+		m_lCapacity += lNeed*m_lIncreament;
 		return size;
 	}else{
-		memcpy( m_lpData+m_lByteCount, pBuffer, size );
-		m_lByteCount += size;
+		memcpy( m_lpData+m_lSize, pBuffer, size );
+		m_lSize += size;
 		return size;
 	}
 }
 
 HE_DWORD CHE_DynBuffer::Write( const CHE_DynBuffer & dynBuffer )
 {
-	if ( dynBuffer.m_lpData == NULL || dynBuffer.m_lByteCount == 0 )
+	if ( dynBuffer.m_lpData == NULL || dynBuffer.m_lSize == 0 )
 	{
 		return 0;
 	}
 
-	if ( m_lByteCount + dynBuffer.m_lByteCount > m_lSize )
+	if ( m_lSize + dynBuffer.m_lSize > m_lCapacity )
 	{
-		HE_DWORD lNeed = m_lByteCount + dynBuffer.m_lByteCount - m_lSize;
+		HE_DWORD lNeed = m_lSize + dynBuffer.m_lSize - m_lCapacity;
 		if ( lNeed <= m_lIncreament )
 		{
 			lNeed = 1;
 		}else{
 			lNeed = (HE_DWORD)( lNeed / m_lIncreament ) + 1;
 		}
-		HE_LPBYTE tmp = GetAllocator()->NewArray<HE_BYTE>( m_lSize + lNeed * m_lIncreament );
-		memcpy( tmp, m_lpData, m_lByteCount );
-		memcpy( tmp+m_lByteCount, dynBuffer.m_lpData, dynBuffer.m_lByteCount );
+		HE_LPBYTE tmp = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity + lNeed * m_lIncreament );
+		memset( tmp, 0, m_lCapacity + lNeed * m_lIncreament );
+		memcpy( tmp, m_lpData, m_lSize );
+		memcpy( tmp+m_lSize, dynBuffer.m_lpData, dynBuffer.m_lSize );
 		GetAllocator()->DeleteArray<HE_BYTE>( m_lpData );
 		m_lpData = tmp;
-		m_lByteCount+= dynBuffer.m_lByteCount;
-		m_lSize += lNeed*m_lIncreament;
-		return dynBuffer.m_lByteCount;
+		m_lSize += dynBuffer.m_lSize;
+		m_lCapacity += lNeed*m_lIncreament;
+		return dynBuffer.m_lSize;
 	}else{
-		memcpy( m_lpData+m_lByteCount, dynBuffer.m_lpData, dynBuffer.m_lByteCount );
-		m_lByteCount += dynBuffer.m_lByteCount;
-		return dynBuffer.m_lByteCount;
+		memcpy( m_lpData+m_lSize, dynBuffer.m_lpData, dynBuffer.m_lSize );
+		m_lSize += dynBuffer.m_lSize;
+		return dynBuffer.m_lSize;
 	}
 }
 
@@ -124,9 +129,9 @@ HE_DWORD CHE_DynBuffer::Read( HE_LPBYTE pBuffer, HE_DWORD size )
 		return 0;
 	}
 
-	if ( m_lByteCount < size )
+	if ( m_lSize < size )
 	{
-		size = m_lByteCount;
+		size = m_lSize;
 	}
 
 	memcpy( pBuffer, m_lpData, size );
@@ -136,7 +141,7 @@ HE_DWORD CHE_DynBuffer::Read( HE_LPBYTE pBuffer, HE_DWORD size )
 
 HE_BOOL CHE_DynBuffer::ReadByte( HE_DWORD offset, HE_LPBYTE pByte )
 {
-	if ( offset < m_lByteCount  )
+	if ( offset < m_lSize  )
 	{
 		*pByte = *(m_lpData+offset);
 		return TRUE;
@@ -144,26 +149,27 @@ HE_BOOL CHE_DynBuffer::ReadByte( HE_DWORD offset, HE_LPBYTE pByte )
 	return FALSE;
 }
 
-CHE_DynWideByteBuffer::CHE_DynWideByteBuffer( HE_DWORD size /*= 1024*/, HE_DWORD increament /*= 1024*/, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_DynWideByteBuffer::CHE_DynWideByteBuffer( HE_DWORD capacity /*= 1024*/, HE_DWORD increament /*= 1024*/, CHE_Allocator * pAllocator /*= NULL*/ )
 : CHE_Object ( pAllocator )
 {
-	m_lSize = size;
+	m_lCapacity = capacity;
 	m_lIncreament = increament;
 
-	m_lpData = GetAllocator()->NewArray<HE_WCHAR>( m_lSize );
-	m_lByteCount = 0;
+	m_lpData = GetAllocator()->NewArray<HE_WCHAR>( m_lCapacity );
+	memset( m_lpData, 0, m_lCapacity * sizeof(HE_WCHAR) );
+	m_lSize = 0;
 }
 
 CHE_DynWideByteBuffer::CHE_DynWideByteBuffer( const CHE_DynWideByteBuffer & buf )
 : CHE_Object ( buf.GetAllocator() )
 {
-	m_lSize = buf.m_lSize;
+	m_lCapacity = buf.m_lCapacity;
 	m_lIncreament = buf.m_lIncreament;
-	m_lByteCount = buf.m_lByteCount;
-	m_lpData = GetAllocator()->NewArray<HE_WCHAR>( m_lSize );
-	if ( m_lByteCount > 0 )
+	m_lSize = buf.m_lSize;
+	m_lpData = GetAllocator()->NewArray<HE_WCHAR>( m_lCapacity );
+	if ( m_lSize > 0 )
 	{
-		memcpy( m_lpData, buf.m_lpData, m_lByteCount * sizeof(HE_WCHAR) );
+		memcpy( m_lpData, buf.m_lpData, m_lSize * sizeof(HE_WCHAR) );
 	}
 }
 
@@ -184,13 +190,13 @@ const CHE_DynWideByteBuffer & CHE_DynWideByteBuffer::operator = ( const CHE_DynW
 		{
 			GetAllocator()->DeleteArray<HE_WCHAR>( m_lpData );
 		}
-		m_lSize = buf.m_lSize;
+		m_lCapacity = buf.m_lCapacity;
 		m_lIncreament = buf.m_lIncreament;
-		m_lByteCount = buf.m_lByteCount;
-		m_lpData = GetAllocator()->NewArray<HE_WCHAR>( m_lSize );
-		if ( m_lByteCount > 0 )
+		m_lSize = buf.m_lSize;
+		m_lpData = GetAllocator()->NewArray<HE_WCHAR>( m_lCapacity );
+		if ( m_lSize > 0 )
 		{
-			memcpy( m_lpData, buf.m_lpData, m_lByteCount * sizeof(HE_WCHAR) );
+			memcpy( m_lpData, buf.m_lpData, m_lSize * sizeof(HE_WCHAR) );
 		}
 	}
 	return *this;
@@ -203,58 +209,58 @@ HE_DWORD CHE_DynWideByteBuffer::Write( HE_LPCWSTR pBuffer, HE_DWORD size )
 		return 0;
 	}
 
-	if ( m_lByteCount + size > m_lSize )
+	if ( m_lSize + size > m_lCapacity )
 	{
-		HE_DWORD lNeed = m_lByteCount + size - m_lSize;
+		HE_DWORD lNeed = m_lSize + size - m_lCapacity;
 		if ( lNeed <= m_lIncreament )
 		{
 			lNeed = 1;
 		}else{
 			lNeed = (HE_DWORD)( lNeed / m_lIncreament ) + 1;
 		}
-		HE_LPWSTR tmp = GetAllocator()->NewArray<HE_WCHAR>( m_lSize + lNeed * m_lIncreament );
-		memcpy( tmp, m_lpData, m_lByteCount * sizeof(HE_WCHAR) );
-		memcpy( tmp+m_lByteCount, pBuffer, size * sizeof(HE_WCHAR) );
+		HE_LPWSTR tmp = GetAllocator()->NewArray<HE_WCHAR>( m_lCapacity + lNeed * m_lIncreament );
+		memcpy( tmp, m_lpData, m_lSize * sizeof(HE_WCHAR) );
+		memcpy( tmp+m_lSize, pBuffer, size * sizeof(HE_WCHAR) );
 		GetAllocator()->DeleteArray<HE_WCHAR>( m_lpData );
 		m_lpData = tmp;
-		m_lByteCount+= size;
-		m_lSize += lNeed*m_lIncreament;
+		m_lSize+= size;
+		m_lCapacity += lNeed*m_lIncreament;
 		return size;
 	}else{
-		memcpy( m_lpData+m_lByteCount, pBuffer, size * sizeof(HE_WCHAR) );
-		m_lByteCount += size;
+		memcpy( m_lpData+m_lSize, pBuffer, size * sizeof(HE_WCHAR) );
+		m_lSize += size;
 		return size;
 	}
 }
 
 HE_DWORD CHE_DynWideByteBuffer::Write( const CHE_DynWideByteBuffer & dynBuffer )
 {
-	if ( dynBuffer.m_lpData == NULL || dynBuffer.m_lByteCount == 0 )
+	if ( dynBuffer.m_lpData == NULL || dynBuffer.m_lSize == 0 )
 	{
 		return 0;
 	}
 
-	if ( m_lByteCount + dynBuffer.m_lByteCount > m_lSize )
+	if ( m_lSize + dynBuffer.m_lSize > m_lCapacity )
 	{
-		HE_DWORD lNeed = m_lByteCount + dynBuffer.m_lByteCount - m_lSize;
+		HE_DWORD lNeed = m_lSize + dynBuffer.m_lSize - m_lCapacity;
 		if ( lNeed <= m_lIncreament )
 		{
 			lNeed = 1;
 		}else{
 			lNeed = (HE_DWORD)( lNeed / m_lIncreament ) + 1;
 		}
-		HE_LPWSTR tmp = GetAllocator()->NewArray<HE_WCHAR>( m_lSize + lNeed * m_lIncreament );
-		memcpy( tmp, m_lpData, m_lByteCount * sizeof(HE_WCHAR) );
-		memcpy( tmp+m_lByteCount, dynBuffer.m_lpData, dynBuffer.m_lByteCount * sizeof(HE_WCHAR) );
+		HE_LPWSTR tmp = GetAllocator()->NewArray<HE_WCHAR>( m_lCapacity + lNeed * m_lIncreament );
+		memcpy( tmp, m_lpData, m_lSize * sizeof(HE_WCHAR) );
+		memcpy( tmp+m_lSize, dynBuffer.m_lpData, dynBuffer.m_lSize * sizeof(HE_WCHAR) );
 		GetAllocator()->DeleteArray<HE_WCHAR>( m_lpData );
 		m_lpData = tmp;
-		m_lByteCount+= dynBuffer.m_lByteCount;
-		m_lSize += lNeed*m_lIncreament;
-		return dynBuffer.m_lByteCount;
+		m_lSize+= dynBuffer.m_lSize;
+		m_lCapacity += lNeed*m_lIncreament;
+		return dynBuffer.m_lSize;
 	}else{
-		memcpy( m_lpData+m_lByteCount, dynBuffer.m_lpData, dynBuffer.m_lByteCount * sizeof(HE_WCHAR) );
-		m_lByteCount += dynBuffer.m_lByteCount;
-		return dynBuffer.m_lByteCount;
+		memcpy( m_lpData+m_lSize, dynBuffer.m_lpData, dynBuffer.m_lSize * sizeof(HE_WCHAR) );
+		m_lSize += dynBuffer.m_lSize;
+		return dynBuffer.m_lSize;
 	}
 }
 
@@ -265,9 +271,9 @@ HE_DWORD CHE_DynWideByteBuffer::Read( HE_LPWSTR pBuffer, HE_DWORD size )
 		return 0;
 	}
 
-	if ( m_lByteCount < size )
+	if ( m_lSize < size )
 	{
-		size = m_lByteCount;
+		size = m_lSize;
 	}
 
 	memcpy( pBuffer, m_lpData, size * sizeof(HE_WCHAR) );
@@ -277,7 +283,7 @@ HE_DWORD CHE_DynWideByteBuffer::Read( HE_LPWSTR pBuffer, HE_DWORD size )
 
 HE_BOOL CHE_DynWideByteBuffer::ReadByte( HE_DWORD offset, HE_LPWSTR pWchar )
 {
-	if ( offset < m_lByteCount  )
+	if ( offset < m_lSize  )
 	{
 		*pWchar = *(m_lpData+offset);
 		return TRUE;

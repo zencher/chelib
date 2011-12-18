@@ -9,6 +9,7 @@
 #include "../project/resource.h"
 #include "CWNDMD.h"
 #include "PdfSplitterDlg.h"
+#include "ProcessDlg.h"
 
 
 #include "../../../../trunk/include/pdf/che_pdf_parser.h"
@@ -88,16 +89,27 @@ public:
 
 	void DelCurPageListItem();
 
+	void UpCurPageListItem();
+
+	void DownCurPagaListItem();
+
+	void LoadDocument();
+
+	void CloseDocument();
+
 	bool					mbLoadOver;
+	bool					mbWork;
 	std::wstring			mTargetFile;
+	std::wstring			mNewFile;
 	IHE_Read *				mpFileRead;
 	CHE_PDF_Parser			mParser;
 	float					mfViewPoint;
-	std::list< CListItem >	mPageList;
+	std::vector<CListItem>	mPageList;
 	unsigned int			mItemCount;
 	unsigned int			mCurItem;
 
 	CPdfSpliterDlg *		mpMainDlg;
+	CProcessDlg *			mpProcessDlg;
 
 	DECLARE_MESSAGE_MAP()
 };

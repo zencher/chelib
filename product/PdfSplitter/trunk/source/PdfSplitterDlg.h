@@ -23,7 +23,6 @@ public:
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);
 
-
 protected:
 	HICON m_hIcon;
 
@@ -57,28 +56,28 @@ public:
 	CHE_WD_Area *	mpListBox;
 	CHE_WD_Area *	mpListBoxItems;
 	CHE_WD_Area *	mpListScrollBar;
-	CHE_WD_Area *	mpProcess;
+	CHE_WD_Area *	mpTextBar2;
 	CHE_WD_Button * mpBrowseBtn;
 	CHE_WD_Button * mpToolBtnAdd;
 	CHE_WD_Button * mpToolBtnDel;
 	CHE_WD_Button * mpToolBtnUp;
 	CHE_WD_Button * mpToolBtnDown;
 	CHE_WD_Button * mpStartBtn;
+	CHE_WD_Button * mpTextBar2Btn;
+	
 
 	unsigned int	mTimerId;
 
 public:
-	void SetProcessBarValue( unsigned int val );
-
 	void AppendListItem( const CListItem & item );
-
 	void DeleteListItem( unsigned int index );
-
 	void CancelSelection();
-
+	void UpdateSelection(void);
 	void UpdateToolBtn();
-
-	void UpdataList();
+	void UpdateList();
+	void UpdateTargetFileArea();
+	void UpdateFileInfoArea();
+	void UpdateNewFileArea();
 
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -93,5 +92,7 @@ public:
 	afx_msg void OnDestroy();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
-	void UpdataSelection(void);
+	afx_msg void OnOpenCmd();
+	afx_msg void OnCloseCmd();
+	afx_msg void OnQuitCmd();
 };

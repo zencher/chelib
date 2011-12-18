@@ -9,10 +9,11 @@
 #include "SelectionModeDlg.h"
 #include "PageSelectionDlg.h"
 #include "PagesSelectionDlg.h"
+#include "ProcessDlg.h"
 #include "afxdialogex.h"
 
-#include "../../../../trunk//include/pdf/che_pdf_creator.h"
-#include "../../../../trunk//include/pdf/che_pdf_objclone.h"
+// #include "../../../../trunk//include/pdf/che_pdf_creator.h"
+// #include "../../../../trunk//include/pdf/che_pdf_objclone.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -56,132 +57,8 @@ CHE_WD_AppearPath * gpListItemLine = NULL;
 
 DWORD WINAPI ThreadLoadFile( LPVOID lpParameter )
 {
-	if ( theApp.mTargetFile.size() > 0 )
-	{
-		char tmpStr[512];
-		memset( tmpStr, 0, 512 );
-		WideCharToMultiByte( CP_ACP, 0, theApp.mTargetFile.c_str(), -1, tmpStr, 512, NULL, NULL );
-		theApp.mpFileRead = HE_CreateFileRead( tmpStr, FILEREAD_MODE_DEFAULT, 4096 );
-		if ( theApp.mpFileRead )
-		{
-			theApp.mParser.Close();
-			theApp.mParser.Open( theApp.mpFileRead );
-			theApp.mParser.GetPageCount();
-		}
-		theApp.mbLoadOver = true;
-		theApp.mpMainDlg->UpdateToolBtn();
-	}
-	return 0;
-}
-
-DWORD WINAPI ThreadSplit( LPVOID lpParameter )
-{
-	theApp.mpMainDlg->SetProcessBarValue( 0 );
-
-	CHE_PDF_Creator creator;
-	if ( creator.NewDocument() == FALSE )
-	{
-		return 0;
-	}
-
-	CHE_ObjectCloneMgr ObjCloneMgr;
-
-	std::list< CListItem >::iterator it;
-
-	unsigned int iCurPage = 0;
-	unsigned int iPageCount = 0;
-
-	for ( it = theApp.mPageList.begin(); it != theApp.mPageList.end(); ++it )
-	{
-		iPageCount += (*it).pageCount;
-	}
-
-	for ( it = theApp.mPageList.begin(); it != theApp.mPageList.end(); ++it, ++iCurPage )
-	{
-		unsigned int iIndex = (*it).pageIndex - 1;
-		unsigned int iCount = (*it).pageCount;
-
-		for ( unsigned int i = 0; i < iCount; i++ )
-		{
-			theApp.mpMainDlg->SetProcessBarValue( (unsigned int)( (iCurPage+1) * 100.0 / iPageCount ) );
-			iCurPage++;
-			CHE_PDF_Dictionary * pFirstPageDict = theApp.mParser.GetObject( theApp.mParser.GetPageObjNum( iIndex + i ) )->ToDict();
-			if ( pFirstPageDict == NULL )
-			{
-				return 0;
-			}
-			CHE_PDF_Dictionary * pNewPageDict = creator.NewPage( 0, 0 );
-			if ( pNewPageDict == NULL )
-			{
-				return 0;
-			}
-
-			creator.SetVersion( theApp.mParser.GetPDFVersion() );
-
-			CHE_PDF_Object * pTmpObj = NULL;
-			CHE_ByteString key;
-			for ( HE_DWORD i = 0; i < pFirstPageDict->GetCount(); i++ )
-			{
-				pTmpObj = pFirstPageDict->GetElementByIndex( i );
-				pFirstPageDict->GetKeyByIndex( i, key );
-				if ( key == "Type" || key == "Parent"  )
-				{
-					continue;
-				}
-				switch( pTmpObj->GetType() )
-				{
-				case OBJ_TYPE_NULL:
-					pNewPageDict->SetAtNull( key );
-					break;
-				case OBJ_TYPE_BOOLEAN:
-					pNewPageDict->SetAtBoolean( key, pTmpObj->ToBoolean()->GetValue() );
-					break;
-				case OBJ_TYPE_NUMBER:
-					if ( pTmpObj->ToNumber()->IsInteger() )
-					{
-						pNewPageDict->SetAtInteger( key, pTmpObj->ToNumber()->GetInteger() );
-					}else{
-						pNewPageDict->SetAtFloatNumber( key, pTmpObj->ToNumber()->GetFloat() );
-					}
-					break;
-				case OBJ_TYPE_STRING:
-					pNewPageDict->SetAtString( key, pTmpObj->ToString()->GetString() );
-					break;
-				case OBJ_TYPE_NAME:
-					pNewPageDict->SetAtName( key, pTmpObj->ToName()->GetString() );
-					break;
-				case OBJ_TYPE_ARRAY:
-					pNewPageDict->SetAtArray( key, CloneDirectArrayObj( pTmpObj->ToArray(), &creator, pNewPageDict->GetObjNum(), pNewPageDict->GetObjNum(), &ObjCloneMgr ) );
-					break;
-				case OBJ_TYPE_DICTIONARY:
-					pNewPageDict->SetAtDictionary( key, CloneDirectDictObj( pTmpObj->ToDict(), &creator, pNewPageDict->GetObjNum(), pNewPageDict->GetGenNum(), &ObjCloneMgr ) );
-					break;
-				case OBJ_TYPE_REFERENCE:
-					{
-						HE_DWORD refNum = CloneIndirectObject( pTmpObj->ToReference(), &creator, &ObjCloneMgr );
-						pNewPageDict->SetAtReference( key, refNum );
-						break;
-					}
-				default:
-					break;
-				}
-			}
-		}
-	}
-
-	IHE_Write * pWrite = HE_CreateFileWrite( "D:\\newPdfPage.pdf" );
-
-	creator.Save( pWrite );
-
-	HE_DestoryIHEWrite( pWrite );
-
-	theApp.mpMainDlg->mpProcess->SetVisable( false );
-	theApp.mpMainDlg->mpProcess->Refresh();
-
-	//theApp.mpMainDlg->KillTimer( theApp.mpMainDlg->mTimerId );
-
-	theApp.mpMainDlg->MessageBox(  L"分割完成！", L"消息", MB_OK | MB_ICONINFORMATION );
-
+	theApp.LoadDocument();
+	theApp.mpMainDlg->UpdateToolBtn();
 	return 0;
 }
 
@@ -209,13 +86,36 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 
 	if ( GetOpenFileName( &ofn ) )
 	{
+		theApp.CloseDocument();
 
-		theApp.mbLoadOver = false;
 		theApp.mTargetFile = fileName;
-		CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpFilePathText->GetBackGroundAppear();
-		CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+
+		unsigned int i = 0;
+		for ( i = theApp.mTargetFile.size()-1; i != 0; --i )
+		{
+			if ( L'.' == fileName[i] )
+			{
+				fileName[i++] = L'_';
+				fileName[i++] = L'N';
+				fileName[i++] = L'e';
+				fileName[i++] = L'w';
+				fileName[i++] = L'.';
+				fileName[i++] = L'p';
+				fileName[i++] = L'd';
+				fileName[i++] = L'f';
+				fileName[i++] = L'\0';
+				break;
+			}
+		}
+		theApp.mNewFile = fileName;
+		CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpTextBar2->GetBackGroundAppear();
+		CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[1] );
+		pTmpText->SetText(  theApp.mNewFile.c_str() );
+		theApp.mpMainDlg->mpTextBar2->Refresh();
+
+		pTmpAppear = theApp.mpMainDlg->mpFilePathText->GetBackGroundAppear();
+		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
 		pTmpText->SetText(  theApp.mTargetFile.c_str() );
-		//theApp.mpMainDlg->mpInterActive->Invalidate();
 		theApp.mpMainDlg->mpFilePathText->Refresh();
 		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
 		CFileLoadDlg loadDlg;
@@ -248,7 +148,8 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 				CPageSelectionDlg pageDlg;
 				if ( pageDlg.DoModal() == 1 )
 				{
-					theApp.mpMainDlg->UpdataList();
+					theApp.mpMainDlg->UpdateList();
+					theApp.mpMainDlg->UpdateToolBtn();
 				}
 				break;
 			}
@@ -257,68 +158,12 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 				CPagesSelectionDlg pageDlg;
 				if ( pageDlg.DoModal() == 1 )
 				{
-					theApp.mpMainDlg->UpdataList();
+					theApp.mpMainDlg->UpdateList();
+					theApp.mpMainDlg->UpdateToolBtn();
 				}
 			}
 		}
 	}
-// 	CFileDialog fileDlg(TRUE, L"PDF", NULL, OFN_NOCHANGEDIR, L"PDF Files(*.pdf)|*.pdf||", theApp.mpMainDlg );
-// 	//CFileDialog fileDlg( TRUE, L"PDF", NULL, OFN_NOCHANGEDIR, L"PDF Files(*.pdf)|*.pdf||", theApp.mpMainDlg,  )
-// 	if ( fileDlg.DoModal() == IDOK )
-// 	{
-// 		theApp.mbLoadOver = false;
-// 		theApp.mTargetFile = fileDlg.GetFolderPath();
-// 		theApp.mTargetFile += L"\\";
-// 		theApp.mTargetFile += fileDlg.GetFileName();
-// 		CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpFilePathText->GetBackGroundAppear();
-// 		CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
-// 		pTmpText->SetText(  theApp.mTargetFile.c_str() );
-// 		theApp.mpMainDlg->mpInterActive->Invalidate();
-// 		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
-// 		CFileLoadDlg loadDlg;
-// 		loadDlg.DoModal();
-// 		pTmpAppear = theApp.mpMainDlg->mpFilePageCountInfo->GetBackGroundAppear();
-// 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
-// 		wchar_t tmpwstr[512];
-// 		wsprintf( tmpwstr, L"总计：%d 页", theApp.mParser.GetPageCount() );
-// 		pTmpText->SetText( tmpwstr );
-// 		pTmpAppear = theApp.mpMainDlg->mpFileSizeInfo->GetBackGroundAppear();
-// 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
-// 		if ( theApp.mpFileRead->GetSize() <= 10485 )
-// 		{
-// 			swprintf( tmpwstr, L"%4.2f KB", theApp.mpFileRead->GetSize() * 1.0 / 1024 ) ;
-// 		}else{
-// 			swprintf( tmpwstr, L"%4.2f MB", theApp.mpFileRead->GetSize() * 1.0 / ( 1024 * 1024 ) ) ;
-// 		}
-// 		pTmpText->SetText( tmpwstr );
-// 		theApp.mpMainDlg->mpInterActive->Invalidate();
-// 
-// 		CSelectionModeDlg selectModeDlg;
-// 		unsigned int iRet = selectModeDlg.DoModal();
-// 		switch ( iRet )
-// 		{
-// 		default:
-// 		case 0:
-// 			break;
-// 		case 1:
-// 			{
-// 				CPageSelectionDlg pageDlg;
-// 				if ( pageDlg.DoModal() == 1 )
-// 				{
-// 					theApp.mpMainDlg->UpdataList();
-// 				}
-// 				break;
-// 			}
-// 		case 2:
-// 			{
-// 				CPagesSelectionDlg pageDlg;
-// 				if ( pageDlg.DoModal() == 1 )
-// 				{
-// 					theApp.mpMainDlg->UpdataList();
-// 				}
-// 			}
-// 		}
-// 	}
 }
 
 
@@ -334,14 +179,15 @@ static void EventListItemClick( CHE_WD_Area * pArea )
 		{
 			theApp.mpMainDlg->CancelSelection();
 			theApp.mCurItem = i + 1;
-			theApp.mpMainDlg->UpdataSelection();
+			theApp.mpMainDlg->UpdateSelection();
 			theApp.mpMainDlg->UpdateToolBtn();
-			theApp.mpMainDlg->UpdataList();
+			theApp.mpMainDlg->UpdateList();
 			pArea->Refresh();
 			break;
 		}
 	}
 }
+
 
 static void EventAddBtnClick( CHE_WD_Area * pArea )
 {
@@ -357,9 +203,8 @@ static void EventAddBtnClick( CHE_WD_Area * pArea )
 			CPageSelectionDlg pageDlg;
 			if ( pageDlg.DoModal() == 1 )
 			{
-				//theApp.mpMainDlg->CancelSelection();
 				theApp.mpMainDlg->UpdateToolBtn();
-				theApp.mpMainDlg->UpdataList();
+				theApp.mpMainDlg->UpdateList();
 			}
 			break;
 		}
@@ -368,18 +213,31 @@ static void EventAddBtnClick( CHE_WD_Area * pArea )
 			CPagesSelectionDlg pageDlg;
 			if ( pageDlg.DoModal() == 1 )
 			{
-				//theApp.mpMainDlg->CancelSelection();
 				theApp.mpMainDlg->UpdateToolBtn();
-				theApp.mpMainDlg->UpdataList();
+				theApp.mpMainDlg->UpdateList();
 			}
 		}
 	}
 }
 
+
 static void EventDelBtnClick( CHE_WD_Area * pArea )
 {
 	theApp.DelCurPageListItem();
 }
+
+
+static void EventUpBtnClick( CHE_WD_Area * pArea )
+{
+	theApp.UpCurPageListItem();
+}
+
+
+static void EventDownBtnClick( CHE_WD_Area * pArea )
+{
+	theApp.DownCurPagaListItem();
+}
+
 
 static void EventMoveScrollBox( CHE_WD_Area * pArea )
 {
@@ -388,71 +246,55 @@ static void EventMoveScrollBox( CHE_WD_Area * pArea )
 	{
 		theApp.mfViewPoint = ( pArea->GetPositionY() - 165 ) * 1.0 /233;
 		point = pArea->GetPositionY();
-		theApp.mpMainDlg->UpdataList();
+		theApp.mpMainDlg->UpdateList();
 	}
 }
 
+
+static void EventFileSavePathBrowseBtnClick( CHE_WD_Area * pArea )
+{
+	static wchar_t fileName[1024], fileTitleName[1024];
+	static OPENFILENAME ofn;
+	ofn.lStructSize		= sizeof ( OPENFILENAME );
+	ofn.hwndOwner		= theApp.mpMainDlg->GetSafeHwnd();
+	ofn.lpstrFilter		= L"PDF Files(*.pdf)\0*.pdf\0\0";
+	ofn.lpstrDefExt		= L".pdf";
+	ofn.lpstrCustomFilter = NULL;
+	ofn.nMaxCustFilter	= 0;
+	ofn.nFilterIndex	= 1;
+	ofn.lpstrFile		= fileName;
+	ofn.nMaxFile		= MAX_PATH;
+	ofn.lpstrFileTitle	= fileTitleName;
+	ofn.nMaxFileTitle	= MAX_PATH;
+	ofn.Flags			= OFN_NOCHANGEDIR ;
+	ofn.nFileOffset		= 16 ;
+	ofn.nFileExtension	= 0 ;
+	ofn.lCustData		= NULL ;
+	ofn.lpfnHook		= NULL ;
+	ofn.lpTemplateName	= NULL ;
+
+	if ( GetSaveFileName( &ofn ) )
+	{
+		theApp.mNewFile = fileName;
+		CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpTextBar2->GetBackGroundAppear();
+		CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[1] );
+		pTmpText->SetText(  theApp.mNewFile.c_str() );
+		theApp.mpMainDlg->mpTextBar2->Refresh();
+	}
+}
+
+
 static void EventStartBtn( CHE_WD_Area * pArea )
 {
-// 	CFileDialog fileDlg(TRUE, L"PDF", NULL, 0, L"PDF Files(*.pdf)|*.pdf||", theApp.mpMainDlg );
-// 	if ( fileDlg.DoModal() == IDOK )
-// 	{
-// 		theApp.mbLoadOver = false;
-// 		theApp.mTargetFile = fileDlg.GetFolderPath();
-// 		theApp.mTargetFile += L"\\";
-// 		theApp.mTargetFile += fileDlg.GetFileName();
-// 		CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpFilePathText->GetBackGroundAppear();
-// 		CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
-// 		pTmpText->SetText(  theApp.mTargetFile.c_str() );
-// 		theApp.mpMainDlg->mpInterActive->Invalidate();
-// 		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
-// 		CFileLoadDlg loadDlg;
-// 		loadDlg.DoModal();
-// 		pTmpAppear = theApp.mpMainDlg->mpFilePageCountInfo->GetBackGroundAppear();
-// 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
-// 		wchar_t tmpwstr[512];
-// 		wsprintf( tmpwstr, L"总计：%d 页", theApp.mParser.GetPageCount() );
-// 		pTmpText->SetText( tmpwstr );
-// 		pTmpAppear = theApp.mpMainDlg->mpFileSizeInfo->GetBackGroundAppear();
-// 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
-// 		if ( theApp.mpFileRead->GetSize() <= 10485 )
-// 		{
-// 			swprintf( tmpwstr, L"%4.2f KB", theApp.mpFileRead->GetSize() * 1.0 / 1024 ) ;
-// 		}else{
-// 			swprintf( tmpwstr, L"%4.2f MB", theApp.mpFileRead->GetSize() * 1.0 / ( 1024 * 1024 ) ) ;
-// 		}
-// 		pTmpText->SetText( tmpwstr );
-// 		theApp.mpMainDlg->mpInterActive->Invalidate();
-// 
-// 		CSelectionModeDlg selectModeDlg;
-// 		unsigned int iRet = selectModeDlg.DoModal();
-// 		switch ( iRet )
-// 		{
-// 		default:
-// 		case 0:
-// 			break;
-// 		case 1:
-// 			{
-// 				CPageSelectionDlg pageDlg;
-// 				if ( pageDlg.DoModal() == 1 )
-// 				{
-// 					theApp.mpMainDlg->UpdataList();
-// 				}
-// 				break;
-// 			}
-// 		case 2:
-// 			{
-// 				CPagesSelectionDlg pageDlg;
-// 				if ( pageDlg.DoModal() == 1 )
-// 				{
-// 					theApp.mpMainDlg->UpdataList();
-// 				}
-// 			}
-// 		}
-// 	}
-	//theApp.mpMainDlg->mTimerId = theApp.mpMainDlg->SetTimer( 2, 30, NULL );
-	theApp.mpMainDlg->mpProcess->SetVisable( true );
-	CreateThread( NULL, 0, ThreadSplit, 0, 0, 0 );
+	if( ! theApp.mPageList.size() )
+	{
+		theApp.mpMainDlg->MessageBox( L"请先选着需要输出的页面！", L"错误", MB_OK | MB_ICONINFORMATION );
+		return;
+	}
+
+	theApp.mpProcessDlg = new CProcessDlg;
+	theApp.mpProcessDlg->DoModal();
+	theApp.mpMainDlg->MessageBox(  L"分割完成！", L"消息", MB_OK | MB_ICONINFORMATION );
 }
 
 
@@ -489,6 +331,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 
 	CHE_WD_Appearance * pTmpApper = NULL;
 	CHE_WD_AppearImage * pTmpImage = NULL;
+	CHE_WD_AppearText * pTmpText = NULL;
 
 	mpInterActive = new MyIHE_WD_InterActive( this, theApp.m_hInstance );
 	mpMainArea = new CHE_WD_Area( 0, 0, mpInterActive );
@@ -543,7 +386,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpFilePathText->SetPositionX( 30 );
 	mpFilePathText->SetPositionY( 42 );
 	pTmpApper = new CHE_WD_Appearance();
-	CHE_WD_AppearText * pTmpText = new CHE_WD_AppearText();
+	pTmpText = new CHE_WD_AppearText();
 	pTmpText->SetSize( 16 );
 	pTmpText->SetPositionX( 0 );
 	pTmpText->SetPositionY( 0 );
@@ -556,23 +399,23 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 
 	mpBrowseBtn = new CHE_WD_Button( mpInterActive );
 	mpBrowseBtn->SetWidth( 96 );
-	mpBrowseBtn->SetHeight( 34 );
+	mpBrowseBtn->SetHeight( 36 );
 	mpBrowseBtn->SetPositionX( 575 );
 	mpBrowseBtn->SetPositionY( 35 );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\browseBtn.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_FIT );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpBrowseBtn->SetBackGroundAppear( pTmpApper );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\browseBtnHover.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_FIT );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpBrowseBtn->SetMouseOverAppear( pTmpApper );
 	mpBrowseBtn->SetMouseLButtonDownAppear( pTmpApper );
-	
+
 	mpBrowseBtn->SetClickEvent( EventBrowseBtnClick );
 	mpMainArea->AppendChild( mpBrowseBtn );
 
@@ -632,7 +475,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpListBoxItems->EnableClip();
 	mpListBox->AppendChild( mpListBoxItems );
 	mpListBox->EnableClip();
-	
+
 	mpToolBtnAdd = new CHE_WD_Button( mpInterActive );
 	mpToolBtnAdd->SetWidth( 20 );
 	mpToolBtnAdd->SetHeight( 20 );
@@ -655,6 +498,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpToolBtnAdd->SetMouseLButtonDownAppear( pTmpApper );
 	mpToolBtnAdd->SetClickEvent( EventAddBtnClick );
 	mpToolBtnAdd->SetVisable( false );
+	mpToolBtnAdd->SetEnable( false );
 	mpListBox->AppendChild( mpToolBtnAdd );
 
 	mpToolBtnDel = new CHE_WD_Button( mpInterActive );
@@ -678,6 +522,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpToolBtnDel->SetMouseLButtonDownAppear( pTmpApper );
 	mpToolBtnDel->SetVisable( false );
+	mpToolBtnDel->SetEnable( false );
 	mpToolBtnDel->SetClickEvent( EventDelBtnClick );
 	mpListBox->AppendChild( mpToolBtnDel );
 
@@ -686,6 +531,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpToolBtnUp->SetHeight( 20 );
 	mpToolBtnUp->SetPositionX( 120 );
 	mpToolBtnUp->SetPositionY( 130 );
+	mpToolBtnUp->SetClickEvent( EventUpBtnClick );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\toolBarBtn3.png" );
@@ -702,6 +548,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpToolBtnUp->SetMouseLButtonDownAppear( pTmpApper );
 	mpToolBtnUp->SetVisable( false );
+	mpToolBtnUp->SetEnable( false );
 	mpListBox->AppendChild( mpToolBtnUp );
 
 	mpToolBtnDown = new CHE_WD_Button( mpInterActive );
@@ -709,6 +556,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpToolBtnDown->SetHeight( 20 );
 	mpToolBtnDown->SetPositionX( 160 );
 	mpToolBtnDown->SetPositionY( 130 );
+	mpToolBtnDown->SetClickEvent( EventDownBtnClick );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\toolBarBtn4.png" );
@@ -725,6 +573,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpToolBtnDown->SetMouseLButtonDownAppear( pTmpApper );
 	mpToolBtnDown->SetVisable( false );
+	mpToolBtnDown->SetEnable( false );
 	mpListBox->AppendChild( mpToolBtnDown );
 
 	mpMainArea->AppendChild( mpListBox );
@@ -768,10 +617,10 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpMainArea->AppendChild( mpListScrollBar );
 
 	mpStartBtn = new CHE_WD_Button( mpInterActive );
-	mpStartBtn->SetWidth( 88 );
-	mpStartBtn->SetHeight( 27 );
-	mpStartBtn->SetPositionX( 580 );
-	mpStartBtn->SetPositionY( 500 );
+	mpStartBtn->SetWidth( 125 );
+	mpStartBtn->SetHeight( 46 );
+	mpStartBtn->SetPositionX( 540 );
+	mpStartBtn->SetPositionY( 498 );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\startBtn.png" );
@@ -787,77 +636,66 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpStartBtn->SetMouseLButtonDownAppear( pTmpApper );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\startBtnDiable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	mpStartBtn->SetDisableAppear( pTmpApper );
+	mpStartBtn->SetEnable( false );
 	mpStartBtn->SetClickEvent( EventStartBtn );
 
 	mpMainArea->AppendChild( mpStartBtn );
 
-	mpProcess = new CHE_WD_Area( 0, 0, mpInterActive );
-	mpProcess->SetWidth( 486 );
-	mpProcess->SetHeight( 27 );
-	mpProcess->SetPositionX( 30 );
-	mpProcess->SetPositionY( 500 );
+	mpTextBar2 = new CHE_WD_Area( 0, 0, mpInterActive );
+	mpTextBar2->SetPositionX( 21 );
+	mpTextBar2->SetPositionY( 505 );
+	mpTextBar2->SetWidth( 509 );
+	mpTextBar2->SetHeight( 29 );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\processbg.png" );
+	pTmpImage->SetImageFile( L"images\\textBar2.png" );
 	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
-	mpProcess->SetBackGroundAppear( pTmpApper );
-	CHE_WD_Area * pTmpArea = new CHE_WD_Area( 0, 0, mpInterActive );
-	pTmpArea->SetWidth( 14 );
-	pTmpArea->SetHeight( 27 );
-	pTmpArea->SetPositionX( 31 );
-	pTmpArea->SetPositionY( 500 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\processleft.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpArea->SetBackGroundAppear( pTmpApper );
-	mpProcess->AppendChild( pTmpArea );
-	pTmpArea = new CHE_WD_Area( 0, 0, mpInterActive );
-	pTmpArea->SetWidth( 100 );
-	pTmpArea->SetHeight( 27 );
-	pTmpArea->SetPositionX( 45 );
-	pTmpArea->SetPositionY( 500 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\process.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpArea->SetBackGroundAppear( pTmpApper );
-	pTmpArea->EnableClip();
-	mpProcess->AppendChild( pTmpArea );
-	pTmpArea = new CHE_WD_Area( 0, 0, mpInterActive );
-	pTmpArea->SetWidth( 13 );
-	pTmpArea->SetHeight( 27 );
-	pTmpArea->SetPositionX( 144 );
-	pTmpArea->SetPositionY( 500 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\processright.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpArea->SetBackGroundAppear( pTmpApper );
-	mpProcess->AppendChild( pTmpArea );
-	pTmpArea = new CHE_WD_Area( 0, 0, mpInterActive );
-	pTmpArea->SetWidth( 486 );
-	pTmpArea->SetHeight( 27 );
-	pTmpArea->SetPositionX( 30 );
-	pTmpArea->SetPositionY( 500 );
-	pTmpApper = new CHE_WD_Appearance();
 	pTmpText = new CHE_WD_AppearText();
+	pTmpText->SetHoriAlign( APPEAR_TEXT_HALIGNMENT_LEFT );
+	pTmpText->SetPositionX( 10 );
+	pTmpText->SetPositionY( 8 );
+	pTmpText->SetWidth( 465 );
+	pTmpText->SetHeight( 15 );
 	pTmpText->SetSize( 12 );
-	pTmpText->SetColor( 0xFFFFFFFF );
-	pTmpText->SetPositionX( 0 );
-	pTmpText->SetPositionY( 0 );
-	pTmpText->SetWidth( 486 );
-	pTmpText->SetHeight( 27 );
+	pTmpText->SetColor( 0xFF000000 );
 	pTmpApper->mItems.push_back( pTmpText );
-	pTmpArea->SetBackGroundAppear( pTmpApper );
-	mpProcess->AppendChild( pTmpArea );
-	mpProcess->SetVisable( false );
+	mpTextBar2->SetBackGroundAppear( pTmpApper );
+	CHE_WD_Button * pTmpBtn = new CHE_WD_Button( mpInterActive );
+	mpTextBar2Btn = pTmpBtn;
+	pTmpBtn->SetPositionX( 474 );
+	pTmpBtn->SetPositionY( 505 );
+	pTmpBtn->SetWidth( 51 );
+	pTmpBtn->SetHeight( 29 );
+	pTmpBtn->SetClickEvent( EventFileSavePathBrowseBtnClick );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\textBar2Btn.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	pTmpBtn->SetBackGroundAppear( pTmpApper );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\textBar2BtnHover.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	pTmpBtn->SetMouseOverAppear( pTmpApper );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\textBar2BtnDisable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	pTmpBtn->SetDisableAppear( pTmpApper );
+	pTmpBtn->SetEnable( false );
+	mpTextBar2->AppendChild( pTmpBtn );
 
-	mpMainArea->AppendChild( mpProcess );
+	mpMainArea->AppendChild( mpTextBar2 );
 }
 
 void CPdfSpliterDlg::DoDataExchange(CDataExchange* pDX)
@@ -880,6 +718,9 @@ BEGIN_MESSAGE_MAP(CPdfSpliterDlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_WM_ERASEBKGND()
 	ON_WM_ACTIVATE()
+	ON_COMMAND(ID_CMD_OPEN, &CPdfSpliterDlg::OnOpenCmd )
+	ON_COMMAND(ID_CMD_CLOSE, &CPdfSpliterDlg::OnCloseCmd )
+	ON_COMMAND(ID_CMD_QUIT, &CPdfSpliterDlg::OnQuitCmd )
 END_MESSAGE_MAP()
 
 
@@ -928,7 +769,6 @@ BOOL CPdfSpliterDlg::OnInitDialog()
 	mpInterActive->SetGraphics( mGraphics );
 	mpMainArea->OnDraw();
 
-	SetProcessBarValue( 0 );
 	return TRUE;
 }
 
@@ -1060,32 +900,6 @@ void CPdfSpliterDlg::DrawMainArea()
 	dc.BitBlt( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), &mMemdc, 0, 0, SRCCOPY );
 }
 
-void CPdfSpliterDlg::SetProcessBarValue( unsigned int val )
-{
-	if ( val > 100 )
-	{
-		val = 100;
-	}
-	unsigned int iTmp = val / 100.0 * 457;
-	mpProcess->GetChild(1)->SetWidth( iTmp );
-	mpProcess->GetChild(2)->SetPositionX( iTmp + 45 );
-	CHE_WD_Area * pTmpArea = NULL;
-	CHE_WD_Appearance * pTmpAppear = NULL;
-	CHE_WD_AppearText * pTmpText = NULL;
-	wchar_t tmpStr[32];
-	pTmpArea = mpProcess->GetChild( mpProcess->GetChildrenCount() - 1 );
-	pTmpAppear = pTmpArea->GetBackGroundAppear();
-	pTmpText = (CHE_WD_AppearText*)( pTmpAppear->mItems[0] );
-	if ( val == 100 )
-	{
-		pTmpText->SetText( L"正在写文件，即将完成。" );
-	}else{
-		wsprintf( tmpStr, L"%d%%", val );
-		pTmpText->SetText( tmpStr );
-	}
-	mpProcess->Refresh();
-}
-
 
 void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 {
@@ -1167,7 +981,7 @@ void CPdfSpliterDlg::CancelSelection()
 	}
 }
 
-void CPdfSpliterDlg::UpdataSelection(void)
+void CPdfSpliterDlg::UpdateSelection(void)
 {
 	CHE_WD_Area * pTmpItem = NULL;
 	unsigned int iCount = theApp.mItemCount;
@@ -1182,7 +996,7 @@ void CPdfSpliterDlg::UpdataSelection(void)
 	}
 }
 
-void CPdfSpliterDlg::UpdataList()
+void CPdfSpliterDlg::UpdateList()
 {
 	CHE_WD_Area * pTmpItem = NULL;
 	int offset = 0;
@@ -1196,8 +1010,33 @@ void CPdfSpliterDlg::UpdataList()
 	{
 		mpListScrollBar->SetVisable( false );
 	}
+
+	CHE_WD_Button * pBtn = NULL;
+	CHE_WD_Appearance * pAppear = NULL;
+	CHE_WD_AppearText * pText = NULL;
+	CListItem item;
 	for ( unsigned int i = 0; i < iCount; ++i )
 	{
+		pBtn = (CHE_WD_Button*)( mpListBoxItems->GetChild( i ) );
+		pAppear = pBtn->GetBackGroundAppear();
+		pText = (CHE_WD_AppearText *)( pAppear->mItems[pAppear->mItems.size()-1] );
+		item = theApp.mPageList[i];
+		wchar_t tmpStr[128];
+		switch( item.type )
+		{
+		case SINGLE_PAGE:
+			{
+				wsprintf( tmpStr, L"单页：第 %d 页", item.pageIndex );
+				break;
+			}
+		case PAGE_RANGE:
+			{
+				wsprintf( tmpStr, L"多页：第 %d 页 到 第 %d 页", item.pageIndex, item.pageIndex + item.pageCount - 1 );
+				break;
+			}
+		default:;
+		}
+		pText->SetText( tmpStr );
 		newPosition = mpListBoxItems->GetPositionY() + i * 32 - offset;
 		pTmpItem = mpListBoxItems->GetChild( i );
 		pTmpItem->SetPositionY( newPosition );
@@ -1211,32 +1050,80 @@ void CPdfSpliterDlg::UpdataList()
 	mpListBoxItems->Refresh();
 }
 
+void CPdfSpliterDlg::UpdateTargetFileArea()
+{
+	CHE_WD_Appearance * pTmpAppear = mpFilePathText->GetBackGroundAppear();
+	CHE_WD_AppearText * pAppearText = (CHE_WD_AppearText*)( pTmpAppear->mItems[0] );
+	pAppearText->SetText( theApp.mTargetFile.c_str() ); 
+	mpFilePathText->Refresh();
+}
+
+void CPdfSpliterDlg::UpdateFileInfoArea()
+{
+	CHE_WD_Appearance * pTmpAppear = mpFileSizeInfo->GetBackGroundAppear();
+	CHE_WD_AppearText * pAppearText = (CHE_WD_AppearText*)( pTmpAppear->mItems[0] );
+	pAppearText->SetText( L"" );
+	pTmpAppear = mpFilePageCountInfo->GetBackGroundAppear();
+	pAppearText = (CHE_WD_AppearText*)( pTmpAppear->mItems[0] );
+	pAppearText->SetText( L"" ); 
+	mpFilePageCountInfo->Refresh();
+}
+
+void CPdfSpliterDlg::UpdateNewFileArea()
+{
+	CHE_WD_Appearance * pTmpAppear = mpTextBar2->GetBackGroundAppear();
+	CHE_WD_AppearText * pAppearText = (CHE_WD_AppearText*)( pTmpAppear->mItems[1] );
+	pAppearText->SetText( theApp.mTargetFile.c_str() );
+	mpTextBar2->Refresh();
+}
+
 void CPdfSpliterDlg::UpdateToolBtn()
 {
 	if ( ! theApp.mbLoadOver )
 	{
 		mpToolBtnAdd->SetVisable( false );
+		mpToolBtnAdd->SetEnable( false );
 		mpToolBtnDel->SetVisable( false );
+		mpToolBtnDel->SetEnable( false );
 		mpToolBtnUp->SetVisable( false );
+		mpToolBtnUp->SetEnable( false );
 		mpToolBtnDown->SetVisable( false );
+		mpToolBtnDown->SetEnable( false );
+		mpStartBtn->SetEnable( false );
+		mpTextBar2Btn->SetEnable( false );
 	}
 	else{
 		mpToolBtnAdd->SetVisable( true );
+		mpToolBtnAdd->SetEnable( true );
 		mpToolBtnDel->SetVisable( false );
+		mpToolBtnDel->SetEnable( false );
 		mpToolBtnUp->SetVisable( false );
+		mpToolBtnUp->SetEnable( false );
 		mpToolBtnDown->SetVisable( false );
+		mpToolBtnDown->SetEnable( false );
+		mpTextBar2Btn->SetEnable( true );
+		mpStartBtn->SetEnable( false );
+		if ( theApp.mItemCount > 0 )
+		{
+			mpStartBtn->SetEnable( true );
+		}
 		if ( theApp.mCurItem != 0 )
 		{
 			mpToolBtnDel->SetVisable( true );
+			mpToolBtnDel->SetEnable( true );
 			mpToolBtnUp->SetVisable( true );
+			mpToolBtnUp->SetEnable( true );
 			mpToolBtnDown->SetVisable( true );
+			mpToolBtnDown->SetEnable( true );
 			if ( theApp.mCurItem == 1 )
 			{
 				mpToolBtnUp->SetVisable( false );
+				mpToolBtnUp->SetEnable( false );
 			}
 			if ( theApp.mCurItem == theApp.mItemCount )
 			{
 				mpToolBtnDown->SetVisable( false );
+				mpToolBtnDown->SetEnable( false );
 			}
 		}
 	}
@@ -1244,6 +1131,8 @@ void CPdfSpliterDlg::UpdateToolBtn()
 	mpToolBtnDel->Refresh();
 	mpToolBtnDown->Refresh();
 	mpToolBtnUp->Refresh();
+	mpTextBar2->Refresh();
+	mpStartBtn->Refresh();
 }
 
 void CPdfSpliterDlg::OnOK()
@@ -1284,4 +1173,19 @@ void CPdfSpliterDlg::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
 	Invalidate(FALSE);
 	CDialogEx::OnActivate(nState, pWndOther, bMinimized);
+}
+
+void CPdfSpliterDlg::OnOpenCmd()
+{
+	EventBrowseBtnClick( NULL );
+}
+
+void CPdfSpliterDlg::OnCloseCmd()
+{
+	theApp.CloseDocument();
+}
+
+void CPdfSpliterDlg::OnQuitCmd()
+{
+	EndDialog( 0 );
 }

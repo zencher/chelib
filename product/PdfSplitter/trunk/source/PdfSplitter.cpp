@@ -25,7 +25,9 @@ CPdfSpliterApp::CPdfSpliterApp()
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
 	mbLoadOver = false;
-	mpMainDlg = false;
+	mbWork = false;
+	mpMainDlg = NULL;
+	mpProcessDlg = NULL;
 	mpFileRead = NULL;
 	mfViewPoint = 0.0;
 	mItemCount = 0;
@@ -102,7 +104,7 @@ void CPdfSpliterApp::AddPageListItem( const CListItem & item )
 
 void CPdfSpliterApp::DelCurPageListItem()
 {
-	std::list< CListItem >::iterator it;
+	std::vector< CListItem >::iterator it;
 	unsigned int i = 1;
 	it = mPageList.begin();
 	for ( ; it != mPageList.end(); ++it, ++i )
@@ -121,11 +123,89 @@ void CPdfSpliterApp::DelCurPageListItem()
 			{
 				mCurItem = 0;
 			}
-			mpMainDlg->UpdataSelection();
+			mpMainDlg->UpdateSelection();
 			mpMainDlg->UpdateToolBtn();
-			mpMainDlg->UpdataList();
+			mpMainDlg->UpdateList();
 			break;
 		}
+	}
+}
+
+void CPdfSpliterApp::UpCurPageListItem()
+{
+	if ( 1 < mCurItem && mCurItem <= mItemCount )
+	{
+		mpMainDlg->CancelSelection();
+		CListItem item = mPageList[mCurItem-2];
+		mPageList[mCurItem-2] = mPageList[mCurItem-1];
+		mPageList[mCurItem-1] = item;
+		mCurItem--;
+		mpMainDlg->UpdateSelection();
+		mpMainDlg->UpdateToolBtn();
+		mpMainDlg->UpdateList();
+	}
+}
+
+void CPdfSpliterApp::DownCurPagaListItem()
+{
+	if ( 0 < mCurItem && mCurItem < mItemCount )
+	{
+		mpMainDlg->CancelSelection();
+		CListItem item = mPageList[mCurItem];
+		mPageList[mCurItem] = mPageList[mCurItem-1];
+		mPageList[mCurItem-1] = item;
+		mCurItem++;
+		mpMainDlg->UpdateSelection();
+		mpMainDlg->UpdateToolBtn();
+		mpMainDlg->UpdateList();
+	}
+}
+
+void CPdfSpliterApp::LoadDocument()
+{
+	if ( mTargetFile.size() > 0 )
+	{
+		char tmpStr[1024];
+		memset( tmpStr, 0, 1024 );
+		WideCharToMultiByte( CP_ACP, 0, mTargetFile.c_str(), -1, tmpStr, 1024, NULL, NULL );
+		
+		mpFileRead = HE_CreateFileRead( tmpStr, FILEREAD_MODE_DEFAULT, 4096 );
+		if ( mpFileRead )
+		{
+			mParser.Open( theApp.mpFileRead );
+			mParser.GetPageCount();
+		}
+		mbLoadOver = true;
+	}
+}
+
+void CPdfSpliterApp::CloseDocument()
+{
+	mbLoadOver = false;
+	mbWork = false;
+	mTargetFile.clear();
+	mNewFile.clear();
+	mfViewPoint = 0;
+
+	mpMainDlg->CancelSelection();
+	unsigned int i = 0;
+	for ( ; i < mItemCount; ++i )
+	{
+		mpMainDlg->DeleteListItem( 0 );
+	}
+	mCurItem = 0;
+	mItemCount = 0;
+	mpMainDlg->UpdateToolBtn();
+	mpMainDlg->UpdateList();
+	mpMainDlg->UpdateTargetFileArea();
+	mpMainDlg->UpdateNewFileArea();
+	mpMainDlg->UpdateFileInfoArea();
+	if ( mpFileRead )
+	{
+		mParser.Close();
+		HE_DestoryIHERead( mpFileRead );
+		mpFileRead = NULL;
+		mbLoadOver = false;
 	}
 }
 

@@ -186,7 +186,7 @@ void CPdfSpliterApp::CloseDocument()
 	mTargetFile.clear();
 	mNewFile.clear();
 	mfViewPoint = 0;
-
+	mPageList.clear();
 	mpMainDlg->CancelSelection();
 	unsigned int i = 0;
 	for ( ; i < mItemCount; ++i )

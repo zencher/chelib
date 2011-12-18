@@ -482,9 +482,9 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuf
 	{
 		if ( byte == *pData )
 		{
-			if ( buf.GetByteCount() > 1 )
+			if ( buf.GetSize() > 1 )
 			{
-				countByte = (HE_BYTE)(buf.GetByteCount() - 1);
+				countByte = (HE_BYTE)(buf.GetSize() - 1);
 				buffer.Write( &countByte, 1 );
 				buffer.Write( buf );
 				buf.Clear();
@@ -510,9 +510,9 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuf
 			}else{
 				buf.Write( &byte, 1 );
 				byte = *pData;
-				if ( buf.GetByteCount() == 128 )
+				if ( buf.GetSize() == 128 )
 				{
-					countByte = (HE_BYTE)(buf.GetByteCount() - 1);
+					countByte = (HE_BYTE)(buf.GetSize() - 1);
 					buffer.Write( &countByte, 1 );
 					buffer.Write( buf );
 					buf.Clear();
@@ -523,9 +523,9 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuf
 		pData++;
 	}
 
-	if ( buf.GetByteCount() > 0 )
+	if ( buf.GetSize() > 0 )
 	{
-		countByte = (HE_BYTE)(buf.GetByteCount() - 1);
+		countByte = (HE_BYTE)(buf.GetSize() - 1);
 		buffer.Write( &countByte, 1 );
 		buffer.Write( buf );
 		buf.Clear();

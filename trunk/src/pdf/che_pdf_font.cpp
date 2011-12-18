@@ -11279,11 +11279,11 @@ HE_BOOL	CHE_PDF_Font::GetUnicodeString( CHE_ByteString & str, CHE_WideString & w
 			}
 		}
 	}
-	if ( buf.GetByteCount() == 0 )
+	if ( buf.GetSize() == 0 )
 	{
 		return FALSE;
 	}else{
-		wstrRet.SetData( buf.GetData(), buf.GetByteCount() );
+		wstrRet.SetData( buf.GetData(), buf.GetSize() );
 		return TRUE;
 	}
 }

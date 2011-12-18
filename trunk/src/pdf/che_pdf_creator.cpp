@@ -5,6 +5,7 @@
 #include "../../extlib/freetype/freetype/freetype.h"
 
 #include <cstdio>
+#include <math.h>
 
 //string resouces for creator
 //file structure relative

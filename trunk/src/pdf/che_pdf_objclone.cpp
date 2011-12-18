@@ -140,28 +140,63 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 	switch ( pObj->GetType() )
 	{
 	case OBJ_TYPE_NULL:
-		newObject = creator->AppendIndirectObj_Null()->GetObjNum();
-		break; 
-	case OBJ_TYPE_BOOLEAN:
-		newObject = creator->AppendIndirectObj_Boolean( pObj->ToBoolean()->GetValue() )->GetObjNum();
-		break;
-	case OBJ_TYPE_NUMBER:
-		if ( pObj->ToNumber()->IsInteger() )
 		{
-			newObject = creator->AppendIndirectObj_Number( pObj->ToNumber()->GetInteger() )->GetObjNum();
-		}else{
-			newObject = creator->AppendIndirectObj_Number( pObj->ToNumber()->GetFloat() )->GetObjNum();
+			newObject = creator->AppendIndirectObj_Null()->GetObjNum();
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
+			break;
 		}
-		break;
+	case OBJ_TYPE_BOOLEAN:
+		{
+			newObject = creator->AppendIndirectObj_Boolean( pObj->ToBoolean()->GetValue() )->GetObjNum();
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
+			break;
+		}
+	case OBJ_TYPE_NUMBER:
+		{
+			if ( pObj->ToNumber()->IsInteger() )
+			{
+				newObject = creator->AppendIndirectObj_Number( pObj->ToNumber()->GetInteger() )->GetObjNum();
+			}else{
+				newObject = creator->AppendIndirectObj_Number( pObj->ToNumber()->GetFloat() )->GetObjNum();
+			}
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
+			break;
+		}
 	case OBJ_TYPE_STRING:
-		newObject = creator->AppendIndirectObj_String( pObj->ToString()->GetString() )->GetObjNum();
-		break;
+		{
+			newObject = creator->AppendIndirectObj_String( pObj->ToString()->GetString() )->GetObjNum();
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
+			break;
+		}
 	case OBJ_TYPE_NAME:
-		newObject = creator->AppendIndirectObj_Name( pObj->ToName()->GetString() )->GetObjNum();
-		break;
+		{
+			newObject = creator->AppendIndirectObj_Name( pObj->ToName()->GetString() )->GetObjNum();
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
+			break;
+		}
 	case OBJ_TYPE_ARRAY:
 		{
 			CHE_PDF_Array * pNewArray = creator->AppendIndirectObj_Array();
+			newObject = pNewArray->GetObjNum();
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
 			CHE_PDF_Array * pArray = pObj->ToArray();
 			CHE_PDF_Object * pTmpObj = NULL;
 			for ( HE_DWORD i = 0; i < pArray->GetCount(); i++ )
@@ -205,12 +240,16 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 					break;
 				}
 			}
-			newObject = pNewArray->GetObjNum();
 			break;
 		}
 	case OBJ_TYPE_DICTIONARY:
 		{
 			CHE_PDF_Dictionary * pNewDict = creator->AppendIndirectObj_Dict();
+			newObject = pNewDict->GetObjNum();
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
 			CHE_PDF_Dictionary * pDict = pObj->ToDict();
 			CHE_PDF_Object * pTmpObj = NULL;
 			CHE_ByteString key;
@@ -256,12 +295,16 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 					break;
 				}
 			}
-			newObject = pNewDict->GetObjNum();
 			break;
 		}
 	case OBJ_TYPE_STREAM:
 		{
 			CHE_PDF_Stream * pNewStream = creator->AppendIndirectObj_Stream();
+			newObject = pNewStream->GetObjNum();
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
 			CHE_PDF_Dictionary * pNewDict = CloneDirectDictObj( pObj->ToStream()->GetDict(), creator, pNewStream->GetObjNum(), pNewStream->GetGenNum(), pMgr );
 			pNewStream->SetDict( pNewDict );
 			HE_LPBYTE pbuffer = new unsigned char[pObj->ToStream()->GetRawSize()];
@@ -275,14 +318,14 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 	case OBJ_TYPE_REFERENCE:
 		{
 			newObject = CloneIndirectObject( pObj->ToReference(), creator, pMgr );
+			if ( pMgr )
+			{
+				pMgr->SetMap( pObj->GetObjNum(), newObject );
+			}
 			break;
 		}
 	default:
 		break;
-	}
-	if ( pMgr )
-	{
-		pMgr->SetMap( pObj->GetObjNum(), newObject );
 	}
 	return newObject;
 }

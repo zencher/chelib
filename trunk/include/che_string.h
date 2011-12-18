@@ -5,6 +5,12 @@
 
 struct HE_ByteStringData
 {
+	HE_ByteStringData()
+	{
+		m_lpString = NULL;
+		m_dwLength = 0;
+		m_dwRef = 1;
+	}
 	HE_LPSTR m_lpString;
 	HE_DWORD m_dwLength;
 	HE_DWORD m_dwRef;

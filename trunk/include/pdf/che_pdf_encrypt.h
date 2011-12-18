@@ -37,6 +37,8 @@
 #define RIJNDAEL_BAD_DIRECTION -6
 #define RIJNDAEL_CORRUPTED_DATA -7
 
+class CHE_PDF_Creator;
+
 class  CHE_Rijndael
 {	
 public:
@@ -72,6 +74,12 @@ class CHE_PDF_Encrypt : public CHE_Object
 public:
 	CHE_PDF_Encrypt( const CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm, HE_BYTE keyLength,
 						HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue, CHE_Allocator * pAllocator = NULL );
+
+	CHE_PDF_Encrypt( const CHE_ByteString id, /*const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,*/
+						HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue,
+						CHE_Allocator * pAllocator = NULL );
+
+	HE_VOID Init( const CHE_ByteString userPassword, const CHE_ByteString ownerPassword );
 
 	HE_BOOL Authenticate( const CHE_ByteString & password );
 
@@ -123,6 +131,8 @@ private:
 	CHE_ByteString		m_ID;
 
 	HE_BYTE				m_EncryptionKey[16];
+
+	friend class CHE_PDF_Creator;
 };
 
 #endif

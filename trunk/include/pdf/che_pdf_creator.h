@@ -76,6 +76,9 @@ public:
 	CHE_PDF_Dictionary*		AppendIndirectObj_Dict();
 	CHE_PDF_Stream*			AppendIndirectObj_Stream();
 
+	HE_BOOL					SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,
+											HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue );
+
 private:
 	HE_VOID					ResetCreator();
 
@@ -107,6 +110,8 @@ private:
 	CHE_PDF_Dictionary *	m_pPagesDict;
 	CHE_PDF_Dictionary *	m_pEncryptDict;
 	CHE_PDF_Dictionary *	m_pInfoDict;
+
+	CHE_PDF_Encrypt *		m_pEncrypt;
 
 	HE_DWORD				m_dwObjNumIndex;
 

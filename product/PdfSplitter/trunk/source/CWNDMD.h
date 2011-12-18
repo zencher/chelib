@@ -392,14 +392,14 @@ class CHE_WD_Area
 {
 public:
 	CHE_WD_Area() : mWidthType(AREA_WIDTH_FIX), mHightType(AREA_HEIGHT_FIX), mPositionXType(AREA_POSITION_X_FIX), mPositionYType(AREA_POSITION_Y_FIX),
-		mWidth(0), mHeight(0), mX(0), mY(0), mInterActive(NULL), mbMO(false), mbLBD(false), mbRBD(false), mbClip(false), mVisable(true), mParent(NULL),
-		mpDefaultAnimation(NULL), mpMouseOverAnimation(NULL), mpMouseLButtonDownAnimation(NULL), mpMouseRButtonDownAnimation(NULL), mCurAnimation(NULL),
+		mWidth(0), mHeight(0), mX(0), mY(0), mInterActive(NULL), mbMO(false), mbLBD(false), mbRBD(false), mbClip(false), mbVisable(true), mbEnable(true),
+		mParent(NULL), mpDefaultAnimation(NULL), mpMouseOverAnimation(NULL), mpMouseLButtonDownAnimation(NULL), mpMouseRButtonDownAnimation(NULL), mCurAnimation(NULL),
 		mpBackgroundAppear(NULL), mpNormalAppear(NULL), mpMouseOverAppear(NULL), mpMouseOverArea(NULL), mpMouseLButtonDownAppear(NULL),
 		mpMouseRButtonDownAppear(NULL), mpCaptureChild(NULL) {};
 
 	CHE_WD_Area( unsigned int width, unsigned int height, IHE_WD_InterActive * pInterActive = NULL )
 		: mWidthType(AREA_WIDTH_FIX), mHightType(AREA_HEIGHT_FIX), mPositionXType(AREA_POSITION_X_FIX), mPositionYType(AREA_POSITION_Y_FIX),
-		mWidth(width), mHeight(height), mX(0), mY(0), mInterActive(pInterActive), mbMO(false), mbLBD(false), mbRBD(false), mbClip(false), mVisable(true),
+		mWidth(width), mHeight(height), mX(0), mY(0), mInterActive(pInterActive), mbMO(false), mbLBD(false), mbRBD(false), mbClip(false), mbVisable(true), mbEnable(true),
 		mParent(NULL), mpDefaultAnimation(NULL), mpMouseOverAnimation(NULL), mpMouseLButtonDownAnimation(NULL), mpMouseRButtonDownAnimation(NULL), 
 		mCurAnimation(NULL), mpBackgroundAppear(NULL), mpNormalAppear(NULL), mpMouseOverAppear(NULL), mpMouseOverArea(NULL), mpMouseLButtonDownAppear(NULL),
 		mpMouseRButtonDownAppear(NULL), mpCaptureChild(NULL) {};
@@ -545,8 +545,23 @@ public:
 	void EnableClip() { mbClip = true; }
 	void DisableClip() { mbClip = false; }
 	bool IsClipEnable() { return mbClip; }
-	void SetVisable( bool bVisable ) { mVisable = bVisable; }
-	bool IsVisable() { return mVisable; }
+	void SetVisable( bool bVisable ) { mbVisable = bVisable; }
+	bool IsVisable() { return mbVisable; }
+
+	void SetEnable( bool bEnable = true )
+	{
+		mbEnable = bEnable;
+		if ( !mbEnable )
+		{
+			ReleaseFocus();
+			ReleaseCapture();
+			mbLBD = false;
+			mbRBD = false;
+			mbMO = false;
+		}
+	}
+
+	bool IsEnable() { return mbEnable; }
 
 	void SetFocus( CHE_WD_Area * pChild )
 	{
@@ -681,7 +696,8 @@ protected:
 	bool mbRBD;
 	bool mbMO;
 	bool mbClip;
-	bool mVisable;
+	bool mbVisable;
+	bool mbEnable;
 
 	CHE_WD_Area *			mParent;
 
@@ -708,22 +724,84 @@ typedef void (*EventFunction)( CHE_WD_Area * pArea );
 class CHE_WD_Button : public CHE_WD_Area
 {
 public:
-	CHE_WD_Button( IHE_WD_InterActive * pInteractive ) : CHE_WD_Area( 0, 0, pInteractive ), mClickEventFunc(NULL) {};
+	CHE_WD_Button( IHE_WD_InterActive * pInteractive )
+		: CHE_WD_Area( 0, 0, pInteractive ), mClickEventFunc(NULL), mDisableAppear(NULL) {};
 	~CHE_WD_Button() {};
 
 	void SetClickEvent( EventFunction eventFunc ) { mClickEventFunc = eventFunc; }
 
 	virtual void OnMouseLButtonUp( int x, int y )
 	{
-		if ( mClickEventFunc )
+		if ( mbEnable )
 		{
-			mClickEventFunc( this );
+			if ( mClickEventFunc )
+			{
+				mClickEventFunc( this );
+			}
+			return CHE_WD_Area::OnMouseLButtonUp( x, y );
 		}
-		return CHE_WD_Area::OnMouseLButtonUp( x, y );
 	}
+
+	virtual void OnDraw()
+	{
+		if ( !mbVisable )
+		{
+			return;
+		}
+		if ( mInterActive )
+		{
+			if ( !mbEnable && mDisableAppear )
+			{
+				if ( mbClip )
+				{
+					mInterActive->SetClip( this );
+				}
+				mInterActive->Draw( this, mDisableAppear );
+				if ( mbClip )
+				{
+					mInterActive->ResetClip();
+				}
+			}else{
+				CHE_WD_Area::OnDraw();
+			}
+		}
+	}
+
+	virtual void OnDraw( int left, int top, int right, int bottom )
+	{
+		if ( !mbVisable )
+		{
+			return;
+		}
+		if ( mInterActive )
+		{
+			if ( ( ( left < GetPositionX() && right < GetPositionX() ) ||
+				( left > ( GetPositionX() + GetWidth() ) && ( right > ( GetPositionX() + GetWidth() ) ) ) &&
+				( ( top < GetPositionY() && bottom < GetPositionX() ) || 
+				( top > ( GetPositionY() + GetHeight() ) && ( bottom > ( GetPositionY() + GetHeight() ) ) ) ) ) )
+			{
+
+			}else{
+				if ( !mbEnable && mDisableAppear )
+				{
+					mInterActive->SetClip( left, top, right, bottom );
+					mInterActive->Draw( this, mDisableAppear );
+					mInterActive->ResetClip();
+				}else{
+					CHE_WD_Area::OnDraw( left, top, right, bottom );
+				}
+			}
+		}
+	}
+
+	void SetDisableAppear( CHE_WD_Appearance * pAppear ) { mDisableAppear = pAppear; }
+
+	CHE_WD_Appearance * GetDisableAppear() { return mDisableAppear; }
 
 protected:
 	EventFunction mClickEventFunc;
+
+	CHE_WD_Appearance * mDisableAppear;
 };
 
 

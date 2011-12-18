@@ -35,7 +35,7 @@ void CHE_WD_Area::ExecuteFrame()
 
 void CHE_WD_Area::OnMouseMove( int x, int y )
 {
-	if ( !mVisable )
+	if ( !mbEnable )
 	{
 		return;
 	}
@@ -83,7 +83,7 @@ void CHE_WD_Area::OnMouseMove( int x, int y )
 
 void CHE_WD_Area::OnMouseOver()
 {
-	if ( !mVisable )
+	if ( !mbEnable )
 	{
 		return;
 	}
@@ -105,7 +105,7 @@ void CHE_WD_Area::OnMouseOver()
 
 void CHE_WD_Area::OnMouseOut()
 {
-	if ( !mVisable )
+	if ( !mbEnable )
 	{
 		return;
 	}
@@ -125,7 +125,7 @@ void CHE_WD_Area::OnMouseOut()
 
 void CHE_WD_Area::OnMouseLButtonDown( int x, int y )
 {
-	if ( !mVisable )
+	if ( !mbEnable )
 	{
 		return;
 	}
@@ -162,7 +162,7 @@ void CHE_WD_Area::OnMouseLButtonDown( int x, int y )
 
 void CHE_WD_Area::OnMouseLButtonUp( int x, int y )
 {
-	if ( !mVisable )
+	if ( !mbEnable )
 	{
 		return;
 	}
@@ -194,7 +194,7 @@ void CHE_WD_Area::OnMouseLButtonUp( int x, int y )
 
 void CHE_WD_Area::OnMouseRButtonDown( int x, int y )
 {
-	if ( !mVisable )
+	if ( !mbEnable )
 	{
 		return;
 	}
@@ -230,7 +230,7 @@ void CHE_WD_Area::OnMouseRButtonDown( int x, int y )
 
 void CHE_WD_Area::OnMouseRButtonUp( int x, int y )
 {
-	if ( !mVisable )
+	if ( !mbEnable )
 	{
 		return;
 	}
@@ -261,7 +261,7 @@ void CHE_WD_Area::OnMouseRButtonUp( int x, int y )
 
 void CHE_WD_Area::OnDraw()
 {
-	if ( !mVisable )
+	if ( !mbVisable )
 	{
 		return;
 	}
@@ -307,16 +307,16 @@ void CHE_WD_Area::OnDraw()
 
 void CHE_WD_Area::OnDraw( int left, int top, int right, int bottom )
 {
-	if ( !mVisable )
+	if ( !mbVisable )
 	{
 		return;
 	}
 	if ( mInterActive )
 	{
 		if ( ( ( left < GetPositionX() && right < GetPositionX() ) ||
-			 ( left > ( GetPositionX() + GetWidth() ) && ( right > ( GetPositionX() + GetWidth() ) ) ) &&
-			 ( ( top < GetPositionY() && bottom < GetPositionX() ) || 
-			 ( top > ( GetPositionY() + GetHeight() ) && ( bottom > ( GetPositionY() + GetHeight() ) ) ) ) ) )
+			( left > ( GetPositionX() + GetWidth() ) && ( right > ( GetPositionX() + GetWidth() ) ) ) &&
+			( ( top < GetPositionY() && bottom < GetPositionX() ) || 
+			( top > ( GetPositionY() + GetHeight() ) && ( bottom > ( GetPositionY() + GetHeight() ) ) ) ) ) )
 		{
 
 		}else{

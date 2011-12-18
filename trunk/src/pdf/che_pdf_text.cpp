@@ -55,7 +55,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 	{
 		return 0;
 	}
-	IHE_Read* pContentRead = HE_CreateMemBufRead( content.GetData(), content.GetByteCount(), GetAllocator() );	//need to delete
+	IHE_Read* pContentRead = HE_CreateMemBufRead( content.GetData(), content.GetSize(), GetAllocator() );	//need to delete
 	if (  pContentRead == NULL )
 	{
 		return 0;
@@ -258,7 +258,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 // 			return 0;
 // 		}
 // 	}
-// 	IHE_Read* pContentRead = HE_CreateMemBufRead( content.GetData(), content.GetByteCount() );	//need to delete
+// 	IHE_Read* pContentRead = HE_CreateMemBufRead( content.GetData(), content.GetSize() );	//need to delete
 // 	if (  pContentRead == NULL )
 // 	{
 // 		return 0;

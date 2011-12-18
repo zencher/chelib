@@ -4,15 +4,79 @@
 #include "../che_base.h"
 #include "../che_datastructure.h"
 #include "che_pdf_objects.h"
-#include "che_pdf_pageobjs.h"
 #include "che_pdf_parser.h"
+#include "che_pdf_matrix.h"
+#include "che_pdf_graphicsState.h"
+#include "che_pdf_contentobjs.h"
 
-class CHE_PDF_ContentsParser : CHE_Object
+class IHE_PDF_ContentListConstructor : public CHE_Object
 {
 public:
-	CHE_PDF_ContentsParser( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
+	IHE_PDF_ContentListConstructor( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
+	virtual ~IHE_PDF_ContentListConstructor() {};
 
-	HE_VOID Parse( const CHE_PDF_Stream * pContents, const CHE_PDF_Dictionary * pResources, std::vector<CHE_PDF_ContentObject*> & vectorRet );
+	virtual void SetMatrix( const CHE_PDF_Matrix & matrix ) = 0;
+	virtual void SetLineWidth( float lineWidth ) = 0;
+	virtual void SetLineCap( PDF_GSTATE_LINECAP lineCap ) = 0;
+	virtual void SetLineJion( PDF_GSTATE_LINEJOIN lineJion ) = 0;
+	virtual void SetMiterLimit( float miterLimit ) = 0;
+	virtual void SetLineDash( const PDF_GSTATE_DASHPATTERN & dashPattern ) = 0;
+	virtual void SetRenderingIntents( PDF_GSTATE_RENDERINTENTS ri ) = 0;
+	virtual void SetFlatness( unsigned char flatness ) = 0;
+	virtual void SetExtGState( std::string name, const CHE_PDF_Dictionary * pDict ) = 0;
+	virtual void SetStrokeColor() = 0;
+	virtual void SetFillColor() = 0;
+	virtual void SetStrokeColorSpace() = 0;
+	virtual void SetFillColorSpace() = 0;
+	virtual void SetTextFont() = 0;
+	virtual void SetTextFontSize( float size ) = 0;
+	virtual void SetTextCharSpace( float charspace ) = 0;
+	virtual void SetTextWordSpace( float wordspace ) = 0;
+	virtual void SetTextHScaling( float scaling ) = 0;
+	virtual void SetTextLeading( float leading ) = 0;
+	virtual void SetTextRise( float rise ) = 0;
+	virtual void SetTextMatirx( const CHE_PDF_Matrix & matrix ) = 0;
+	virtual void SetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE rm ) = 0;
+
+	virtual void PushGState() = 0;
+	virtual void PopGState() = 0;
+
+	virtual void AddClip() = 0;
+
+	virtual void Append( CHE_PDF_ContentObject * pObject ) = 0;
+
+	virtual void Over() = 0;
+};
+
+IHE_PDF_ContentListConstructor * CreateConstructor( std::vector<CHE_PDF_ContentObject*> * pVector, CHE_Allocator * pAllocator );
+
+class CHE_PDF_ContentResMgr : public CHE_Object
+{
+
+};
+
+class CHE_PDF_ContentsParser : public CHE_Object
+{
+public:
+	CHE_PDF_ContentsParser( CHE_Allocator * pAllocator = NULL )
+		:	mpConstructor(NULL), mpPath(NULL), mCurX(0), mCurY(0),
+			mString(pAllocator), mName(pAllocator), mpObj(NULL),
+			CHE_Object( pAllocator ) {}
+
+	~CHE_PDF_ContentsParser()
+	{
+		if ( mpObj )
+		{
+			mpObj->Release();
+		}
+		mOpdFloatStack.clear();
+		if ( mpPath )
+		{ 
+			GetAllocator()->Delete<CHE_PDF_Path>( mpPath );
+		}
+	}
+
+	HE_VOID Parse( const CHE_PDF_Stream * pContents, const CHE_PDF_Dictionary * pResources, IHE_PDF_ContentListConstructor * pConstructor );
 
 private:
 	HE_VOID Handle_dquote();
@@ -87,39 +151,17 @@ private:
 	HE_VOID Handle_w();
 	HE_VOID Handle_y();
 
-	CHE_PDF_Dictionary*	m_pFontDict;
-	CHE_PDF_Dictionary* m_pExtGStateDict;
-	CHE_Stack<CHE_PDF_Object*> m_OpdStack;
+	//CHE_PDF_ContentResMgr * mpResMgr;
+	std::vector<float>	mOpdFloatStack;
+	CHE_ByteString		mName;
+	CHE_ByteString		mString;
+	CHE_PDF_Object *	mpObj;
 
-	//Path
-	HE_FLOAT			m_fPathBeginX;
-	HE_FLOAT			m_fPathBeginY;
-	HE_FLOAT			m_fPathCurX;
-	HE_FLOAT			m_fPathCurY;
-	HE_BOOL				m_bPathConnect;
-	HE_BOOL				m_bSubPathClosed;
-	HE_BOOL				m_bClipPath;
-	PDF_FILL_MODE		m_ClipFillMode;
-	CHE_Queue<CHE_GraphicsObject*> m_SupPathQueue;
+	CHE_PDF_Path *		mpPath;
+	float				mCurX;
+	float				mCurY;
 
-	//Text
-	HE_FLOAT			m_fPosiX;
-	HE_FLOAT			m_fPosiY;
-	HE_FLOAT			m_fCharSpace;
-	HE_FLOAT			m_fWordSpace;
-	HE_DWORD			m_dwScale;
-	HE_FLOAT			m_fLeading;
-	HE_DWORD			m_dwSize;
-	HE_BYTE				m_byteRender;
-	HE_DWORD			m_dwRise;
-	HE_BOOL				m_bKnockout;
-	HE_FLOAT			m_fMatrixA;
-	HE_FLOAT			m_fMatrixB;
-	HE_FLOAT			m_fMatrixC;
-	HE_FLOAT			m_fMatrixD;
-	HE_FLOAT			m_fMatrixE;
-	HE_FLOAT			m_fMatrixF;
-	HE_DWORD			m_dwFontObjNum;
+	IHE_PDF_ContentListConstructor * mpConstructor;
 };
 
 

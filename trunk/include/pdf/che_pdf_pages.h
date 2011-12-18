@@ -30,8 +30,6 @@ public:
 
 	HE_VOID						Unload();
 
-	HE_BOOL						Save( IHE_Write * pFileRead );
-
 	CHE_PDF_Parser *			GetParser() const { return m_pParser; }
 
 	CHE_PDF_Dictionary*			GetRoot() const { return m_pRootDict; }
@@ -80,17 +78,19 @@ public:
 	
 	HE_BOOL				GetPageContent( CHE_DynBuffer & buffer );
 
+	CHE_PDF_Stream *	GetPageContent();
+
 	CHE_PDF_Dictionary*	GetPageDictionary() { return m_pPageObj; }
 
 	CHE_PDF_Dictionary* GetPageResources() { return m_pDoc?m_pDoc->GetPageResources( m_pPageObj ) : NULL ; }
 
 	HE_DWORD			GetPageIndex() { return m_lPageIndex; }
 
-	HE_DWORD			ParseContent();
+	//HE_DWORD			ParseContent();
 
-	HE_DWORD			GetContentObjectCount() { return m_arrContentObj.GetCount(); }
+	//HE_DWORD			GetContentObjectCount() { return m_arrContentObj.GetCount(); }
 
-	CHE_PDF_ContentObject *	GetContentObject( HE_DWORD index ) { return (CHE_PDF_ContentObject*)m_arrContentObj.GetItem( index );  }
+	//CHE_PDF_ContentObject *	GetContentObject( HE_DWORD index ) { return (CHE_PDF_ContentObject*)m_arrContentObj.GetItem( index );  }
 
 private:
 	CHE_PDF_Page( HE_DWORD pageIndex, CHE_PDF_Dictionary * pDict, CHE_PDF_Document * pDoc, CHE_Allocator * pAllocator = NULL );
@@ -103,7 +103,7 @@ private:
 	CHE_PDF_Dictionary* m_pPageObj;
 	CHE_PDF_Document*	m_pDoc;
 
-	CHE_PtrArray		m_arrContentObj;
+	//CHE_PtrArray		m_arrContentObj;
 	
 	friend class		CHE_PDF_Document;
 	friend class		CHE_Allocator;

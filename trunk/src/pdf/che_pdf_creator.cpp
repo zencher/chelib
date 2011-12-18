@@ -28,7 +28,7 @@ HE_CHAR * gpStrSingleSpace = " ";				HE_DWORD glStrSingleSpace = 1;
 //obj relative
 HE_CHAR * gpStrNullObj = "null";				HE_DWORD glStrNullObj = 5;
 HE_CHAR * gpStrBoolObjFalse = "false";			HE_DWORD glStrBoolObjFalse = 5;
-HE_CHAR * gpStrBoolObjTrue = "ture";			HE_DWORD glStrBoolObjTrue = 4;
+HE_CHAR * gpStrBoolObjTrue = "true";			HE_DWORD glStrBoolObjTrue = 4;
 HE_CHAR * gpStrNameObjPre = "/";				HE_DWORD glStrNameObjPre = 1;
 HE_CHAR * gpStrStrObjLeft = "(";				HE_DWORD glStrStrObj = 1;
 HE_CHAR * gpStrStrObjRight = ")";
@@ -48,6 +48,8 @@ CHE_PDF_Creator::CHE_PDF_Creator( CHE_Allocator * pAllocator )
 	m_pPagesDict = NULL;
 	m_pEncryptDict = NULL;
 	m_pInfoDict = NULL;
+
+	m_pEncrypt = NULL;
 
 	m_dwObjNumIndex = 0;
 }
@@ -272,6 +274,31 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 	{
 		return FALSE;
 	}
+
+	CHE_PDF_Dictionary* pEncryptDict = NULL;
+	if ( m_pEncrypt )
+	{
+		pEncryptDict = AppendIndirectObj_Dict();
+		pEncryptDict->SetAtName( "Filter", "Standard" );
+		pEncryptDict->SetAtInteger( "V", 2/*m_pEncrypt->m_algorithm*/ );
+		pEncryptDict->SetAtInteger( "R", m_pEncrypt->m_revision );
+		pEncryptDict->SetAtInteger( "P", m_pEncrypt->m_PValue );
+		pEncryptDict->SetAtInteger( "Length", m_pEncrypt->m_keyLength );
+		//pEncryptDict->SetAtBoolean( "EncryptMetadata", m_pEncrypt->m_bMetaData );
+		CHE_ByteString str;
+		str.SetData( m_pEncrypt->m_OValue, 32 );
+		pEncryptDict->SetAtString( "O", str );
+		str.SetData( m_pEncrypt->m_UValue, 32 );
+		pEncryptDict->SetAtString( "U", str );
+// 		CHE_PDF_Dictionary * pCFDict = CHE_PDF_Dictionary::Create( pEncryptDict->GetObjNum(), pEncryptDict->GetGenNum(), NULL, GetAllocator() );
+// 		CHE_PDF_Dictionary * pStdCFDict = CHE_PDF_Dictionary::Create( pEncryptDict->GetObjNum(), pEncryptDict->GetGenNum(), NULL, GetAllocator() );
+// 		pStdCFDict->SetAtInteger( "Length", 16 );
+// 		pStdCFDict->SetAtName( "CFM", "V2" );
+// 		pStdCFDict->SetAtName( "AuthEvent", "DocOpen" );
+// 		pCFDict->SetAtDictionary( "CF", pStdCFDict );
+// 		pEncryptDict->SetAtName( "StmF", "StdCF" );
+	}
+
 	CHE_PDF_XREF_Table xrefTable;
 	xrefTable.NewSection( 1 );
 
@@ -352,6 +379,10 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 	CHE_PDF_Dictionary * pTrailerDict = CHE_PDF_Dictionary::Create( 0, 0, NULL, GetAllocator() );
 	pTrailerDict->SetAtInteger( "Size", xrefTable.GetCount() );
 	pTrailerDict->SetAtReference( "Root", m_pCatalogDict->GetObjNum() );
+	if ( pEncryptDict )
+	{
+		pTrailerDict->SetAtReference( "Encrypt", pEncryptDict->GetObjNum() );
+	}
 	if ( m_pInfoDict != NULL )
 	{
 		pTrailerDict->SetAtReference( "Info", m_pInfoDict->GetObjNum() );
@@ -798,10 +829,20 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite
 		}
 	case OBJ_TYPE_NAME:
 		{
-			HE_LPVOID pData = (HE_LPVOID)( ((CHE_PDF_Name*)pObj)->GetString().GetData() );
+			HE_BYTE * pData = (HE_BYTE*)( ((CHE_PDF_Name*)pObj)->GetString().GetData() );
 			HE_DWORD length = ((CHE_PDF_String*)pObj)->GetString().GetLength();
 			pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
-			pWrite->WriteBlock( pData, length );
+			char tmpStr[16];
+			for ( HE_DWORD i = 0; i < length; ++i )
+			{
+				if ( 32 < pData[i] && pData[i] < 127 )
+				{
+					pWrite->WriteBlock( (HE_LPVOID*)(pData+i), 1 );
+				}else{
+					sprintf( tmpStr, "#%02X", pData[i] ); 
+					pWrite->WriteBlock( (HE_LPVOID*)tmpStr, 3 );
+				}
+			}
 			break;
 		}
 	case OBJ_TYPE_NUMBER:
@@ -811,7 +852,12 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite
 				sprintf( tempStr, "%d", ((CHE_PDF_Number*)pObj)->GetInteger() );
 				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			}else{
-				sprintf( tempStr, "%f", ((CHE_PDF_Number*)pObj)->GetFloat() );
+				float value = ((CHE_PDF_Number*)pObj)->GetFloat();
+				sprintf( tempStr, "%g", value );
+				if ( strchr( tempStr, 'e' ) )
+				{
+					sprintf( tempStr, (fabsf(value))>1? "%1.1f":"%1.8f", value );
+				}
 				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			}
 			break;
@@ -877,8 +923,13 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite
 				pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
 			}
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjBegin, glStrStreamObjBegin );
-			HE_LPBYTE pByte = GetAllocator()->NewArray<HE_BYTE>( pStm->GetRawSize() );
+			HE_LPBYTE pByte = GetAllocator()->NewArray<HE_BYTE>( pStm->GetRawSize() + 16 );
 			pStm->GetRawData( 0, pByte, pStm->GetRawSize() );
+			HE_DWORD length = 0;
+			if ( m_pEncrypt )
+			{
+				m_pEncrypt->Encrypt( pByte, pStm->GetRawSize(), pStm->GetObjNum(), pStm->GetGenNum() );
+			}
 			pWrite->WriteBlock( (HE_LPVOID)( pByte ), pStm->GetRawSize() );
 			GetAllocator()->DeleteArray<HE_BYTE>( pByte );
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjEnd, glStrStreamObjEnd );
@@ -1018,4 +1069,16 @@ CHE_PDF_Stream*	CHE_PDF_Creator::AppendIndirectObj_Stream()
  		DecreaseObjIndex();
  	}
  	return pObj;
+}
+
+HE_BOOL CHE_PDF_Creator::SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,
+										HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue )
+{
+	if ( m_pEncrypt )
+	{
+		GetAllocator()->Delete( m_pEncrypt );
+	}
+	m_pEncrypt = GetAllocator()->New<CHE_PDF_Encrypt>( id, /*userPassword, ownerPassword,*/ algorithm, keyLength, revision, bMetaData, pValue );
+	m_pEncrypt->Init( userPassword, ownerPassword );
+	return m_pEncrypt->Authenticate( userPassword );
 }

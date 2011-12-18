@@ -1791,17 +1791,50 @@ CHE_PDF_Encrypt::CHE_PDF_Encrypt( const CHE_ByteString id, HE_BYTE O[32], HE_BYT
 		m_OValue[i] = O[i];
 		m_UValue[i] = U[i];
 	}
-	if ( algorithm == 1 || algorithm == 2 )
-	{
-		m_algorithm = 1;
-	}else{
-		m_algorithm = 4;
-	}
+// 	if ( algorithm == 1 || algorithm == 2 )
+// 	{
+// 		m_algorithm = 1;
+// 	}else{
+// 		m_algorithm = 4;
+// 	}
+	m_algorithm = algorithm;
 	m_keyLength = keyLength;
 	m_revision = revision;
 	m_bMetaData = bMetaData;
 	m_PValue = pValue;
 	m_bPasswordOk = FALSE;
+}
+
+CHE_PDF_Encrypt::CHE_PDF_Encrypt(	const CHE_ByteString id, /*const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,*/
+									HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue,
+									CHE_Allocator * pAllocator )
+								 : CHE_Object( pAllocator ), m_ID( pAllocator )
+{
+	m_algorithm = algorithm;
+	m_ID = id;
+	m_keyLength = keyLength;
+	m_revision = revision;
+	m_bMetaData = bMetaData;
+	m_PValue = pValue;
+	m_bPasswordOk = FALSE;
+}
+
+HE_VOID CHE_PDF_Encrypt::Init( const CHE_ByteString userPassword, const CHE_ByteString ownerPassword )
+{
+	HE_BYTE userPad[32];
+	HE_BYTE ownerPad[32];
+	HE_BYTE encryptionKey[16];
+	PadPassword( userPassword, userPad );
+	PadPassword( ownerPassword, ownerPad );
+	if ( ownerPassword.GetLength() == 0 )
+	{
+		ComputeOwnerKey( userPad, userPad, m_OValue, FALSE );
+	}else{
+		ComputeOwnerKey( userPad, ownerPad, m_OValue, FALSE );
+	}
+	ComputeEncryptionKey( userPad, encryptionKey );
+	ComputeUserKey( encryptionKey, m_UValue );
+	m_bPasswordOk = TRUE;
 }
 
 void CHE_PDF_Encrypt::PadPassword( const CHE_ByteString & password, unsigned char pswd[32] )

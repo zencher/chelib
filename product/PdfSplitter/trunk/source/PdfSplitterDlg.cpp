@@ -294,7 +294,7 @@ static void EventStartBtn( CHE_WD_Area * pArea )
 
 	theApp.mpProcessDlg = new CProcessDlg;
 	theApp.mpProcessDlg->DoModal();
-	theApp.mpMainDlg->MessageBox(  L"分割完成！", L"消息", MB_OK | MB_ICONINFORMATION );
+	//theApp.mpMainDlg->MessageBox(  L"分割完成！", L"消息", MB_OK | MB_ICONINFORMATION );
 }
 
 
@@ -718,9 +718,11 @@ BEGIN_MESSAGE_MAP(CPdfSpliterDlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_WM_ERASEBKGND()
 	ON_WM_ACTIVATE()
-	ON_COMMAND(ID_CMD_OPEN, &CPdfSpliterDlg::OnOpenCmd )
-	ON_COMMAND(ID_CMD_CLOSE, &CPdfSpliterDlg::OnCloseCmd )
-	ON_COMMAND(ID_CMD_QUIT, &CPdfSpliterDlg::OnQuitCmd )
+	ON_COMMAND(ID_CMD_OPEN, &CPdfSpliterDlg::OnOpenCmd)
+	ON_COMMAND(ID_CMD_CLOSE, &CPdfSpliterDlg::OnCloseCmd)
+	ON_COMMAND(ID_CMD_QUIT, &CPdfSpliterDlg::OnQuitCmd)
+	ON_COMMAND(ID_CMD_WEB, &CPdfSpliterDlg::OnWebCmd)
+	ON_COMMAND(ID_CMD_ABOUT, &CPdfSpliterDlg::OnAboutCmd)
 END_MESSAGE_MAP()
 
 
@@ -729,26 +731,6 @@ END_MESSAGE_MAP()
 BOOL CPdfSpliterDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-
-	// Add "About..." menu item to system menu.
-
-	// IDM_ABOUTBOX must be in the system command range.
-	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
-	ASSERT(IDM_ABOUTBOX < 0xF000);
-
-	CMenu* pSysMenu = GetSystemMenu(FALSE);
-	if (pSysMenu != NULL)
-	{
-		BOOL bNameValid;
-		CString strAboutMenu;
-		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
-		ASSERT(bNameValid);
-		if (!strAboutMenu.IsEmpty())
-		{
-			pSysMenu->AppendMenu(MF_SEPARATOR);
-			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
-		}
-	}
 
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
@@ -774,15 +756,7 @@ BOOL CPdfSpliterDlg::OnInitDialog()
 
 void CPdfSpliterDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
-	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-	{
-		CAboutDlg dlgAbout;
-		dlgAbout.DoModal();
-	}
-	else
-	{
-		CDialogEx::OnSysCommand(nID, lParam);
-	}
+	CDialogEx::OnSysCommand(nID, lParam);
 }
 
 // If you add a minimize button to your dialog, you will need the code below
@@ -1143,10 +1117,11 @@ void CPdfSpliterDlg::OnOK()
 
 void CPdfSpliterDlg::OnCancel()
 {
-	if ( MessageBox( L"是否确定要退出？", L"确定", MB_YESNO | MB_ICONQUESTION ) == IDYES )
-	{
-		EndDialog(0);
-	}
+	EndDialog( 0 );
+// 	if ( MessageBox( L"是否确定要退出？", L"确定", MB_YESNO | MB_ICONQUESTION ) == IDYES )
+// 	{
+// 		EndDialog(0);
+// 	}
 }
 
 void CPdfSpliterDlg::OnDestroy()
@@ -1188,4 +1163,15 @@ void CPdfSpliterDlg::OnCloseCmd()
 void CPdfSpliterDlg::OnQuitCmd()
 {
 	EndDialog( 0 );
+}
+
+void CPdfSpliterDlg::OnWebCmd()
+{
+	ShellExecute( GetSafeHwnd(), L"open", L"http://www.putaogun.com", NULL, NULL, SW_SHOWNORMAL );
+}
+
+void CPdfSpliterDlg::OnAboutCmd()
+{
+	CAboutDlg dlg;
+	dlg.DoModal();
 }

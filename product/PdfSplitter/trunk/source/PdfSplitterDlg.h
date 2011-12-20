@@ -95,4 +95,6 @@ public:
 	afx_msg void OnOpenCmd();
 	afx_msg void OnCloseCmd();
 	afx_msg void OnQuitCmd();
+	afx_msg void OnWebCmd();
+	afx_msg void OnAboutCmd();
 };

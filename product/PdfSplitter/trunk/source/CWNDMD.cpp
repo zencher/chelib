@@ -288,11 +288,6 @@ void CHE_WD_Area::OnDraw()
 		{
 			mInterActive->Draw( this, mpNormalAppear );
 		}
-		if ( mbClip )
-		{
-			mInterActive->ResetClip();
-		}
-
 		CHE_WD_Area * pTmp = NULL;
 		for ( size_t i = 0; i < mChildren.size(); ++i )
 		{
@@ -301,6 +296,10 @@ void CHE_WD_Area::OnDraw()
 			{
 				pTmp->OnDraw();
 			}
+		}
+		if ( mbClip )
+		{
+			mInterActive->ResetClip();
 		}
 	}
 }
@@ -313,6 +312,10 @@ void CHE_WD_Area::OnDraw( int left, int top, int right, int bottom )
 	}
 	if ( mInterActive )
 	{
+		if ( mbClip )
+		{
+			mInterActive->SetClip( this );
+		}
 		if ( ( ( left < GetPositionX() && right < GetPositionX() ) ||
 			( left > ( GetPositionX() + GetWidth() ) && ( right > ( GetPositionX() + GetWidth() ) ) ) &&
 			( ( top < GetPositionY() && bottom < GetPositionX() ) || 
@@ -322,30 +325,20 @@ void CHE_WD_Area::OnDraw( int left, int top, int right, int bottom )
 		}else{
 			if ( mpBackgroundAppear )
 			{
-				mInterActive->SetClip( left, top, right, bottom );
 				mInterActive->Draw( this, mpBackgroundAppear );
-				mInterActive->ResetClip();
 			}
 			if ( mpMouseLButtonDownAppear && mbLBD )
 			{
-				mInterActive->SetClip( left, top, right, bottom );
 				mInterActive->Draw( this, mpMouseLButtonDownAppear );
-				mInterActive->ResetClip();
 			}else if ( mpMouseRButtonDownAppear && mbRBD )
 			{
-				mInterActive->SetClip( left, top, right, bottom );
 				mInterActive->Draw( this, mpMouseRButtonDownAppear );
-				mInterActive->ResetClip();
 			}else if ( mpMouseOverAppear && mbMO )
 			{
-				mInterActive->SetClip( left, top, right, bottom );
 				mInterActive->Draw( this, mpMouseOverAppear );
-				mInterActive->ResetClip();
 			}else if ( mpNormalAppear )
 			{
-				mInterActive->SetClip( left, top, right, bottom );
 				mInterActive->Draw( this, mpNormalAppear );
-				mInterActive->ResetClip();
 			}
 		}
 		CHE_WD_Area * pTmp = NULL;
@@ -356,6 +349,10 @@ void CHE_WD_Area::OnDraw( int left, int top, int right, int bottom )
 			{
 				pTmp->OnDraw( left, top, right, bottom );
 			}
+		}
+		if ( mbClip )
+		{
+			mInterActive->ResetClip();
 		}
 	}
 }

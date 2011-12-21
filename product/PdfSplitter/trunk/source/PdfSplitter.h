@@ -24,6 +24,12 @@ public:
 		mpDlg = pDlg;
 		mhInstance = hInstance;
 		mpGraphics = NULL;
+		mLeft = 0;
+		mTop = 0;
+		mRight = 0;
+		mBottom = 0;
+		mbRefleshAll = true;
+		mbDirtyRect = false;
 	}
 
 	void SetGraphics( Graphics * pGraphics ) { mpGraphics = pGraphics; }

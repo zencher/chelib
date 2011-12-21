@@ -270,7 +270,7 @@ void MyIHE_WD_InterActive::KillTimer()
 void MyIHE_WD_InterActive::SetClip( CHE_WD_Area * pArea )
 {
 	Rect clipRect( pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
-	Region clipRegion( clipRect );
+	Region clipRegion( clipRect ); 
 	mpGraphics->SetClip( &clipRegion );
 }
 
@@ -290,11 +290,18 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 {
 	if ( pArea && pAppear && mpGraphics )
 	{
+		GraphicsContainer container = mpGraphics->BeginContainer();
+		if ( mbDirtyRect )
+		{
+			Rect clipRect( mLeft, mTop, mRight-mLeft, mBottom-mTop );
+			Region clipRegion( clipRect );
+			mpGraphics->SetClip( &clipRegion );
+		}
  		if ( pArea->IsClipEnable() )
  		{
  			Rect clipRect( pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
  			Region clipRegion( clipRect );
- 			mpGraphics->SetClip( &clipRegion, CombineModeIntersect );
+ 			mpGraphics->SetClip( &clipRegion );
  		}
 		for ( size_t i = 0; i < pAppear->mItems.size(); ++i )
 		{
@@ -512,10 +519,7 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 			default:;
 			}
 		}
-//  		if ( pArea->IsClipEnable() )
-// 		{
-// 			mpGraphics->ResetClip();
-// 		}
+		mpGraphics->EndContainer(container);
 	}
 }
 

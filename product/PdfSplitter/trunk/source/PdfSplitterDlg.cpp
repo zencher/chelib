@@ -352,6 +352,12 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpImage->SetPositionX( 0 );
 	pTmpImage->SetPositionY( 475 );
 	pTmpApper->mItems.push_back( pTmpImage );
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetPositionX( 22 );
+	pTmpImage->SetPositionY( 120 );
+	pTmpImage->SetImageFile( L"images\\listBox.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
 	mpMainArea->SetBackGroundAppear( pTmpApper );
 
 	mpTextBarTitle = new CHE_WD_Area( 0, 0, mpInterActive );
@@ -455,27 +461,6 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpFileSizeInfo->SetBackGroundAppear( pTmpApper );
 	mpMainArea->AppendChild( mpFileSizeInfo );
 
-	mpListBox = new CHE_WD_Area( 0, 0, mpInterActive );
-	mpListBox->SetWidth( 650 );
-	mpListBox->SetHeight( 345 );
-	mpListBox->SetPositionX( 22 );
-	mpListBox->SetPositionY( 120 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\listBox.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	mpListBox->SetBackGroundAppear( pTmpApper );
-
-	mpListBoxItems = new CHE_WD_Area( 0, 0, mpInterActive );
-	mpListBoxItems->SetWidth( 625 );
-	mpListBoxItems->SetHeight( 290 );
-	mpListBoxItems->SetPositionX( 25 );
-	mpListBoxItems->SetPositionY( 160 );
-	mpListBoxItems->EnableClip();
-	mpListBox->AppendChild( mpListBoxItems );
-	mpListBox->EnableClip();
-
 	mpToolBtnAdd = new CHE_WD_Button( mpInterActive );
 	mpToolBtnAdd->SetWidth( 20 );
 	mpToolBtnAdd->SetHeight( 20 );
@@ -497,9 +482,9 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpToolBtnAdd->SetMouseLButtonDownAppear( pTmpApper );
 	mpToolBtnAdd->SetClickEvent( EventAddBtnClick );
-	mpToolBtnAdd->SetVisable( false );
-	mpToolBtnAdd->SetEnable( false );
-	mpListBox->AppendChild( mpToolBtnAdd );
+	mpToolBtnAdd->SetVisable( true );
+	mpToolBtnAdd->SetEnable( true );
+	mpMainArea->AppendChild( mpToolBtnAdd );
 
 	mpToolBtnDel = new CHE_WD_Button( mpInterActive );
 	mpToolBtnDel->SetWidth( 20 );
@@ -524,7 +509,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpToolBtnDel->SetVisable( false );
 	mpToolBtnDel->SetEnable( false );
 	mpToolBtnDel->SetClickEvent( EventDelBtnClick );
-	mpListBox->AppendChild( mpToolBtnDel );
+	mpMainArea->AppendChild( mpToolBtnDel );
 
 	mpToolBtnUp = new CHE_WD_Button( mpInterActive );
 	mpToolBtnUp->SetWidth( 20 );
@@ -549,7 +534,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpToolBtnUp->SetMouseLButtonDownAppear( pTmpApper );
 	mpToolBtnUp->SetVisable( false );
 	mpToolBtnUp->SetEnable( false );
-	mpListBox->AppendChild( mpToolBtnUp );
+	mpMainArea->AppendChild( mpToolBtnUp );
 
 	mpToolBtnDown = new CHE_WD_Button( mpInterActive );
 	mpToolBtnDown->SetWidth( 20 );
@@ -574,9 +559,17 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpToolBtnDown->SetMouseLButtonDownAppear( pTmpApper );
 	mpToolBtnDown->SetVisable( false );
 	mpToolBtnDown->SetEnable( false );
-	mpListBox->AppendChild( mpToolBtnDown );
+	mpMainArea->AppendChild( mpToolBtnDown );
 
-	mpMainArea->AppendChild( mpListBox );
+	/*mpMainArea->AppendChild( mpListBox );*/
+
+	mpListBoxItems = new CHE_WD_Area( 0, 0, mpInterActive );
+	mpListBoxItems->SetWidth( 625 );
+	mpListBoxItems->SetHeight( 290 );
+	mpListBoxItems->SetPositionX( 25 );
+	mpListBoxItems->SetPositionY( 160 );
+	mpListBoxItems->EnableClip();
+	mpMainArea->AppendChild( mpListBoxItems );
 
 	mpListScrollBar = new CHE_WD_Button( mpInterActive );
 	mpListScrollBar->SetWidth( 17 );
@@ -1022,6 +1015,7 @@ void CPdfSpliterDlg::UpdateList()
 		}
 	}
 	mpListBoxItems->Refresh();
+	mpListScrollBar->Refresh();
 }
 
 void CPdfSpliterDlg::UpdateTargetFileArea()

@@ -53,7 +53,6 @@ public:
 	CHE_WD_Area *	mpFilePathText;
 	CHE_WD_Area *	mpFileSizeInfo;
 	CHE_WD_Area *	mpFilePageCountInfo;
-	CHE_WD_Area *	mpListBox;
 	CHE_WD_Area *	mpListBoxItems;
 	CHE_WD_Area *	mpListScrollBar;
 	CHE_WD_Area *	mpTextBar2;

@@ -52,7 +52,7 @@ enum APPEAR_IMAGE_STYLE
 class CHE_WD_AppearImage : public CHE_WD_AppearItem
 {
 public:
-	CHE_WD_AppearImage() : mFile(NULL) {}
+	CHE_WD_AppearImage() : mFile(NULL), mStyle(APPEAR_IMAGE_STYLE_SINGLE) {}
 	~CHE_WD_AppearImage() {}
 
 	APPEAR_ITEM_TYPE	GetType() { return APPEAR_TYPE_IMAGE; }
@@ -579,8 +579,11 @@ public:
 	{
 		if ( mpMouseOverArea )
 		{
-			mpMouseOverArea->ReleaseFocus();
 			mpMouseOverArea = NULL;
+		}
+		if ( GetParent() )
+		{
+			GetParent()->ReleaseFocus();
 		}
 	}
 
@@ -649,6 +652,30 @@ public:
 			}
 		}
 		return NULL;
+	}
+
+	bool ChildToLower( unsigned int index )
+	{
+		if ( index == 0 )
+		{
+			return false;
+		}
+		CHE_WD_Area * pTmp = mChildren[index];
+		mChildren[index] = mChildren[index-1];
+		mChildren[index-1] = pTmp;
+		return true;
+	}
+
+	bool ChildToUpper( unsigned int index )
+	{
+		if ( index >= mChildren.size() - 1 )
+		{
+			return false;
+		}
+		CHE_WD_Area * pTmp = mChildren[index];
+		mChildren[index] = mChildren[index+1];
+		mChildren[index+1] = pTmp;
+		return true;
 	}
 
 	size_t GetChildrenCount() { return mChildren.size(); }
@@ -738,7 +765,7 @@ public:
 			{
 				mClickEventFunc( this );
 			}
-			return CHE_WD_Area::OnMouseLButtonUp( x, y );
+			CHE_WD_Area::OnMouseLButtonUp( x, y );
 		}
 	}
 
@@ -804,6 +831,39 @@ protected:
 	CHE_WD_Appearance * mDisableAppear;
 };
 
+
+class CHE_WD_MouseEventBtn : public CHE_WD_Button
+{
+public:
+	CHE_WD_MouseEventBtn( IHE_WD_InterActive * pInteractive )
+		: CHE_WD_Button( pInteractive ), mMouseOverEventFunc(NULL), mMouseOutEventFunc(NULL) {};
+	~CHE_WD_MouseEventBtn() {};
+
+	void SetMouseOverEvent( EventFunction eventFunc ) { mMouseOverEventFunc = eventFunc; }
+	void SetMouseOutEvent( EventFunction eventFunc ) { mMouseOutEventFunc = eventFunc; }
+
+	void OnMouseOver()
+	{
+		if ( mMouseOverEventFunc )
+		{
+			mMouseOverEventFunc( this );
+		}
+		CHE_WD_Button::OnMouseOver();
+	}
+
+	void OnMouseOut()
+	{
+		if ( mMouseOutEventFunc )
+		{
+			mMouseOutEventFunc( this );
+		}
+		CHE_WD_Button::OnMouseOut();
+	}
+
+protected:
+	EventFunction mMouseOverEventFunc;
+	EventFunction mMouseOutEventFunc;
+};
 
 class CHE_WD_DragArea : public CHE_WD_Area
 {

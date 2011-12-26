@@ -29,6 +29,8 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 	unsigned int iCurPage = 0;
 	unsigned int iPageCount = 0;
 
+	gpDlg->mpMainArea->Refresh();
+
 	for ( it = theApp.mPageList.begin(); it != theApp.mPageList.end(); ++it )
 	{
 		iPageCount += (*it).pageCount;

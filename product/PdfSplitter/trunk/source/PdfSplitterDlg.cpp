@@ -54,6 +54,11 @@ CHE_WD_AppearPath * gpListItemHoverRect = NULL;
 CHE_WD_AppearPath * gpListItemSelectRect = NULL;
 CHE_WD_AppearPath * gpListItemLine = NULL;
 
+CHE_WD_AppearImage * gpListItemIcon1 = NULL;
+CHE_WD_AppearImage * gpListItemIcon2 = NULL;
+CHE_WD_AppearImage * gpListItemIcon3 = NULL;
+CHE_WD_AppearImage * gpListItemIcon4 = NULL;
+
 
 DWORD WINAPI ThreadLoadFile( LPVOID lpParameter )
 {
@@ -221,6 +226,12 @@ static void EventAddBtnClick( CHE_WD_Area * pArea )
 }
 
 
+static void EventClearBtnClick( CHE_WD_Area * pArea )
+{
+	theApp.ClearPageListItem();
+}
+
+
 static void EventDelBtnClick( CHE_WD_Area * pArea )
 {
 	theApp.DelCurPageListItem();
@@ -297,6 +308,73 @@ static void EventStartBtn( CHE_WD_Area * pArea )
 	//theApp.mpMainDlg->MessageBox(  L"分割完成！", L"消息", MB_OK | MB_ICONINFORMATION );
 }
 
+static void EventListItemMouseOver( CHE_WD_Area * pArea )
+{
+	if ( pArea )
+	{
+		CHE_WD_Area * pTmpBtn = pArea->GetChild( 0 );
+		pTmpBtn->SetVisable( true );
+		pTmpBtn->SetEnable( true );
+		pArea->Refresh();
+	}
+}
+
+static void EventListItemMouseOut( CHE_WD_Area * pArea )
+{
+	if ( pArea )
+	{
+		CHE_WD_Area * pTmpBtn = pArea->GetChild( 0 );
+		pTmpBtn->SetEnable( false );
+		pTmpBtn->SetVisable( false );
+		pArea->Refresh();
+	}
+}
+
+static void EventListItemDelBtnClick( CHE_WD_Area * pArea )
+{
+	if ( pArea )
+	{
+		CHE_WD_Area * pTarget = pArea->GetParent();
+		CHE_WD_Area * pTmp = NULL;
+
+		if ( pTarget )
+		{
+			bool bFlag = false;
+			unsigned int i = 0;
+			unsigned int iCount = theApp.mpMainDlg->mpListBoxItems->GetChildrenCount();
+			std::vector< CListItem >::iterator it = theApp.mPageList.begin();
+			for ( ; i < iCount; ++i, ++it )
+			{
+				pTmp = theApp.mpMainDlg->mpListBoxItems->GetChild( i );
+				if ( pTmp == pTarget )
+				{
+					bFlag = true;
+					break;
+				}
+			}
+			if ( bFlag )
+			{
+				pArea->ReleaseFocus();
+				theApp.mpMainDlg->CancelSelection();
+				theApp.mPageList.erase( it );
+				--theApp.mItemCount;
+				if ( theApp.mCurItem > theApp.mItemCount )
+				{
+					--theApp.mCurItem;
+				}
+				if ( theApp.mItemCount == 0 )
+				{
+					theApp.mCurItem = 0;
+				}
+				theApp.mpMainDlg->DeleteListItem( i );
+				theApp.mpMainDlg->UpdateSelection();
+				theApp.mpMainDlg->UpdateToolBtn();
+				theApp.mpMainDlg->UpdateList();
+			}
+		}
+	}
+}
+
 
 CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CPdfSpliterDlg::IDD, pParent)
@@ -309,24 +387,56 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	if ( ! gpListItemHoverRect )
 	{
 		gpListItemHoverRect = new CHE_WD_AppearPath;
-		gpListItemHoverRect->AddRect( 0, 0, 630, 30 );
+		gpListItemHoverRect->AddRect( 0, 1, 630, 47 );
 		gpListItemHoverRect->SetOperator( APPEAR_PATH_FILL );
 		gpListItemHoverRect->SetFillColor( 0x65EEEEEE );
 	}
 	if ( ! gpListItemSelectRect )
 	{
 		gpListItemSelectRect = new CHE_WD_AppearPath;
-		gpListItemSelectRect->AddRect( 0, 0, 630, 30 );
+		gpListItemSelectRect->AddRect( 0, 1, 630, 47 );
 		gpListItemSelectRect->SetOperator( APPEAR_PATH_FILL );
 		gpListItemSelectRect->SetFillColor( 0x650000FF );
 	}
 	if ( ! gpListItemLine )
 	{
 		gpListItemLine = new CHE_WD_AppearPath;
-		gpListItemLine->AddLine( 0, 31, 630, 31 );
+		gpListItemLine->AddLine( 0, 48, 630, 48 );
 		gpListItemLine->SetOperator( APPEAR_PATH_STROKE );
 		gpListItemLine->SetStrokeColor( 0xFF88888888 );
 		gpListItemLine->SetLineWidth( 1 );
+	}
+	if ( ! gpListItemIcon1 )
+	{
+		gpListItemIcon1 = new CHE_WD_AppearImage;
+		gpListItemIcon1->SetPositionX( 10 );
+		gpListItemIcon1->SetPositionY( 10 );
+		gpListItemIcon1->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+		gpListItemIcon1->SetImageFile( L"images\\listItemIcon1.png" );
+	}
+	if ( ! gpListItemIcon2 )
+	{
+		gpListItemIcon2 = new CHE_WD_AppearImage;
+		gpListItemIcon2->SetPositionX( 10 );
+		gpListItemIcon2->SetPositionY( 10 );
+		gpListItemIcon2->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+		gpListItemIcon2->SetImageFile( L"images\\listItemIcon2.png" );
+	}
+	if ( ! gpListItemIcon3 )
+	{
+		gpListItemIcon3 = new CHE_WD_AppearImage;
+		gpListItemIcon3->SetPositionX( 10 );
+		gpListItemIcon3->SetPositionY( 10 );
+		gpListItemIcon3->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+		gpListItemIcon3->SetImageFile( L"images\\listItemIcon3.png" );
+	}
+	if ( ! gpListItemIcon4 )
+	{
+		gpListItemIcon4 = new CHE_WD_AppearImage;
+		gpListItemIcon4->SetPositionX( 10 );
+		gpListItemIcon4->SetPositionY( 10 );
+		gpListItemIcon4->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+		gpListItemIcon4->SetImageFile( L"images\\listItemIcon4.png" );
 	}
 
 	CHE_WD_Appearance * pTmpApper = NULL;
@@ -479,37 +589,41 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpToolBtnAdd->SetMouseOverAppear( pTmpApper );
 	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\toolBarBtn1Disable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
-	mpToolBtnAdd->SetMouseLButtonDownAppear( pTmpApper );
+	mpToolBtnAdd->SetDisableAppear( pTmpApper );
 	mpToolBtnAdd->SetClickEvent( EventAddBtnClick );
-	mpToolBtnAdd->SetVisable( true );
-	mpToolBtnAdd->SetEnable( true );
+	mpToolBtnAdd->SetEnable( false );
 	mpMainArea->AppendChild( mpToolBtnAdd );
 
-	mpToolBtnDel = new CHE_WD_Button( mpInterActive );
-	mpToolBtnDel->SetWidth( 20 );
-	mpToolBtnDel->SetHeight( 20 );
-	mpToolBtnDel->SetPositionX( 80 );
-	mpToolBtnDel->SetPositionY( 130 );
+	mpToolBtnClear = new CHE_WD_Button( mpInterActive );
+	mpToolBtnClear->SetWidth( 20 );
+	mpToolBtnClear->SetHeight( 20 );
+	mpToolBtnClear->SetPositionX( 80 );
+	mpToolBtnClear->SetPositionY( 130 );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\toolBarBtn2.png" );
 	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
-	mpToolBtnDel->SetBackGroundAppear( pTmpApper );
+	mpToolBtnClear->SetBackGroundAppear( pTmpApper );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\toolBarBtn2Hover.png" );
 	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
-	mpToolBtnDel->SetMouseOverAppear( pTmpApper );
+	mpToolBtnClear->SetMouseOverAppear( pTmpApper );
 	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\toolBarBtn2Disable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
-	mpToolBtnDel->SetMouseLButtonDownAppear( pTmpApper );
-	mpToolBtnDel->SetVisable( false );
-	mpToolBtnDel->SetEnable( false );
-	mpToolBtnDel->SetClickEvent( EventDelBtnClick );
-	mpMainArea->AppendChild( mpToolBtnDel );
+	mpToolBtnClear->SetDisableAppear( pTmpApper );
+	mpToolBtnClear->SetEnable( false );
+	mpToolBtnClear->SetClickEvent( EventClearBtnClick );
+	mpMainArea->AppendChild( mpToolBtnClear );
 
 	mpToolBtnUp = new CHE_WD_Button( mpInterActive );
 	mpToolBtnUp->SetWidth( 20 );
@@ -530,10 +644,13 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpToolBtnUp->SetMouseOverAppear( pTmpApper );
 	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\toolBarBtn3Disable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
-	mpToolBtnUp->SetMouseLButtonDownAppear( pTmpApper );
-	mpToolBtnUp->SetVisable( false );
+	mpToolBtnUp->SetDisableAppear( pTmpApper );
 	mpToolBtnUp->SetEnable( false );
+	mpToolBtnUp->SetClickEvent( EventUpBtnClick );
 	mpMainArea->AppendChild( mpToolBtnUp );
 
 	mpToolBtnDown = new CHE_WD_Button( mpInterActive );
@@ -555,10 +672,13 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpToolBtnDown->SetMouseOverAppear( pTmpApper );
 	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\toolBarBtn4Disable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
-	mpToolBtnDown->SetMouseLButtonDownAppear( pTmpApper );
-	mpToolBtnDown->SetVisable( false );
+	mpToolBtnDown->SetDisableAppear( pTmpApper );
 	mpToolBtnDown->SetEnable( false );
+	mpToolBtnDown->SetClickEvent( EventDownBtnClick );
 	mpMainArea->AppendChild( mpToolBtnDown );
 
 	/*mpMainArea->AppendChild( mpListBox );*/
@@ -870,24 +990,27 @@ void CPdfSpliterDlg::DrawMainArea()
 
 void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 {
-	CHE_WD_Button * pTmpItem = NULL;
+	CHE_WD_MouseEventBtn * pTmpItem = NULL;
 	CHE_WD_Appearance * pAppear = NULL;
 	CHE_WD_AppearText * pText = NULL;
-	pTmpItem = new CHE_WD_Button( mpInterActive );
+	pTmpItem = new CHE_WD_MouseEventBtn( mpInterActive );
 	pTmpItem->SetWidth( 605 );
-	pTmpItem->SetHeight( 32 );
+	pTmpItem->SetHeight( 48 );
 	pTmpItem->SetPositionX( 25 );
 	pTmpItem->SetPositionY( 0 );
-	pAppear = new CHE_WD_Appearance;
-	pAppear->mItems.push_back( gpListItemHoverRect );
-	pTmpItem->SetMouseOverAppear( pAppear );
+	pTmpItem->SetMouseOverEvent( EventListItemMouseOver );
+	pTmpItem->SetMouseOutEvent( EventListItemMouseOut );
+// 	pAppear = new CHE_WD_Appearance;
+// 	pAppear->mItems.push_back( gpListItemHoverRect );
+// 	pTmpItem->SetMouseOverAppear( pAppear );
 	pAppear = new CHE_WD_Appearance;
 	pAppear->mItems.push_back( gpListItemLine );
+	
 	pText = new CHE_WD_AppearText;
-	pText->SetPositionX( 10 );
+	pText->SetPositionX( 140 );
 	pText->SetPositionY( 0 );
 	pText->SetWidth( 200 );
-	pText->SetHeight( 32 );
+	pText->SetHeight( 48 );
 	pText->SetHoriAlign( APPEAR_TEXT_HALIGNMENT_LEFT );
 	pText->SetVertAlign( APPEAR_TEXT_VALIGNMENT_CENTER );
 	pText->SetSize( 12 );
@@ -896,12 +1019,14 @@ void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 	{
 	case SINGLE_PAGE:
 		{
-			wsprintf( tmpStr, L"单页：第 %d 页", item.pageIndex );
+			pAppear->mItems.push_back( gpListItemIcon1 );
+			wsprintf( tmpStr, L"第 %d 页", item.pageIndex );
 			break;
 		}
 	case PAGE_RANGE:
 		{
-			wsprintf( tmpStr, L"多页：第 %d 页 到 第 %d 页", item.pageIndex, item.pageIndex + item.pageCount );
+			pAppear->mItems.push_back( gpListItemIcon2 );
+			wsprintf( tmpStr, L"第 %d 页 到 第 %d 页", item.pageIndex, item.pageIndex + item.pageCount - 1 );
 			break;
 		}
 	default:;
@@ -910,6 +1035,25 @@ void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 	pAppear->mItems.push_back( pText );
 	pTmpItem->SetBackGroundAppear( pAppear );
 	pTmpItem->SetClickEvent( EventListItemClick );
+	CHE_WD_Button * pTmpDelBtn = new CHE_WD_Button( mpInterActive );
+	pTmpDelBtn->SetPositionX( 300 );
+	pTmpDelBtn->SetPositionY( 12 );
+	pTmpDelBtn->SetWidth( 24 );
+	pTmpDelBtn->SetHeight( 23 );
+	pTmpDelBtn->SetVisable( false );
+	pTmpDelBtn->SetEnable( false );
+	pTmpDelBtn->SetClickEvent( EventListItemDelBtnClick ); 
+	pAppear = new CHE_WD_Appearance;
+	CHE_WD_AppearImage * pTmpImage = new CHE_WD_AppearImage;
+	pTmpImage->SetImageFile( L"images\\delBtn.png" );
+	pAppear->mItems.push_back( pTmpImage );
+	pTmpDelBtn->SetNormalAppear( pAppear );
+	pAppear = new CHE_WD_Appearance;
+	pTmpImage = new CHE_WD_AppearImage;
+	pTmpImage->SetImageFile( L"images\\delBtnHover.png" );
+	pAppear->mItems.push_back( pTmpImage );
+	pTmpDelBtn->SetMouseOverAppear( pAppear );
+	pTmpItem->AppendChild( pTmpDelBtn );
 	mpListBoxItems->AppendChild( pTmpItem );
 }
 
@@ -920,9 +1064,7 @@ void CPdfSpliterDlg::DeleteListItem( unsigned int index )
 	if ( pTmp )
 	{
 		CHE_WD_Appearance * pTmpAppear = pTmp->GetBackGroundAppear();
-		delete pTmpAppear->mItems[1];
-		delete pTmpAppear;
-		pTmpAppear = pTmp->GetMouseOverAppear();
+		delete pTmpAppear->mItems[2];
 		delete pTmpAppear;
 		delete pTmp;
 	}
@@ -969,50 +1111,26 @@ void CPdfSpliterDlg::UpdateList()
 	int offset = 0;
 	int newPosition = 0;
 	unsigned int iCount = theApp.mItemCount;
-	if ( iCount > 9 )
+	if ( iCount > 6 )
 	{
 		mpListScrollBar->SetVisable( true );
-		offset = (iCount - 9) * 32 * theApp.mfViewPoint;
+		offset = (iCount - 6) * 48 * theApp.mfViewPoint;
 	}else
 	{
 		mpListScrollBar->SetVisable( false );
 	}
-
-	CHE_WD_Button * pBtn = NULL;
-	CHE_WD_Appearance * pAppear = NULL;
-	CHE_WD_AppearText * pText = NULL;
-	CListItem item;
 	for ( unsigned int i = 0; i < iCount; ++i )
 	{
-		pBtn = (CHE_WD_Button*)( mpListBoxItems->GetChild( i ) );
-		pAppear = pBtn->GetBackGroundAppear();
-		pText = (CHE_WD_AppearText *)( pAppear->mItems[pAppear->mItems.size()-1] );
-		item = theApp.mPageList[i];
-		wchar_t tmpStr[128];
-		switch( item.type )
-		{
-		case SINGLE_PAGE:
-			{
-				wsprintf( tmpStr, L"单页：第 %d 页", item.pageIndex );
-				break;
-			}
-		case PAGE_RANGE:
-			{
-				wsprintf( tmpStr, L"多页：第 %d 页 到 第 %d 页", item.pageIndex, item.pageIndex + item.pageCount - 1 );
-				break;
-			}
-		default:;
-		}
-		pText->SetText( tmpStr );
-		newPosition = mpListBoxItems->GetPositionY() + i * 32 - offset;
+		newPosition = mpListBoxItems->GetPositionY() + i * 48 - offset;
 		pTmpItem = mpListBoxItems->GetChild( i );
 		pTmpItem->SetPositionY( newPosition );
-		if ( ( newPosition > mpListBoxItems->GetPositionY() + 288 ) || ( newPosition < -32 ) )
+		if ( ( newPosition > mpListBoxItems->GetPositionY() + 288 ) || ( newPosition < -48 ) )
 		{
 			pTmpItem->SetVisable( false );
 		}else{
 			pTmpItem->SetVisable( true );
 		}
+
 	}
 	mpListBoxItems->Refresh();
 	mpListScrollBar->Refresh();
@@ -1049,54 +1167,41 @@ void CPdfSpliterDlg::UpdateToolBtn()
 {
 	if ( ! theApp.mbLoadOver )
 	{
-		mpToolBtnAdd->SetVisable( false );
 		mpToolBtnAdd->SetEnable( false );
-		mpToolBtnDel->SetVisable( false );
-		mpToolBtnDel->SetEnable( false );
-		mpToolBtnUp->SetVisable( false );
+		mpToolBtnClear->SetEnable( false );
 		mpToolBtnUp->SetEnable( false );
-		mpToolBtnDown->SetVisable( false );
 		mpToolBtnDown->SetEnable( false );
 		mpStartBtn->SetEnable( false );
 		mpTextBar2Btn->SetEnable( false );
 	}
 	else{
-		mpToolBtnAdd->SetVisable( true );
 		mpToolBtnAdd->SetEnable( true );
-		mpToolBtnDel->SetVisable( false );
-		mpToolBtnDel->SetEnable( false );
-		mpToolBtnUp->SetVisable( false );
+		mpToolBtnClear->SetEnable( false );
 		mpToolBtnUp->SetEnable( false );
-		mpToolBtnDown->SetVisable( false );
 		mpToolBtnDown->SetEnable( false );
 		mpTextBar2Btn->SetEnable( true );
 		mpStartBtn->SetEnable( false );
 		if ( theApp.mItemCount > 0 )
 		{
+			mpToolBtnClear->SetEnable( true );
 			mpStartBtn->SetEnable( true );
 		}
 		if ( theApp.mCurItem != 0 )
 		{
-			mpToolBtnDel->SetVisable( true );
-			mpToolBtnDel->SetEnable( true );
-			mpToolBtnUp->SetVisable( true );
 			mpToolBtnUp->SetEnable( true );
-			mpToolBtnDown->SetVisable( true );
 			mpToolBtnDown->SetEnable( true );
 			if ( theApp.mCurItem == 1 )
 			{
-				mpToolBtnUp->SetVisable( false );
 				mpToolBtnUp->SetEnable( false );
 			}
 			if ( theApp.mCurItem == theApp.mItemCount )
 			{
-				mpToolBtnDown->SetVisable( false );
 				mpToolBtnDown->SetEnable( false );
 			}
 		}
 	}
 	mpToolBtnAdd->Refresh();
-	mpToolBtnDel->Refresh();
+	mpToolBtnClear->Refresh();
 	mpToolBtnDown->Refresh();
 	mpToolBtnUp->Refresh();
 	mpTextBar2->Refresh();

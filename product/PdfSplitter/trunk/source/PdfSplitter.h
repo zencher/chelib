@@ -68,6 +68,7 @@ private:
 	HINSTANCE mhInstance;
 	CDialogEx * mpDlg;
 	Graphics * mpGraphics;
+	std::vector<GraphicsContainer> mContainerStack; 
 	bool mbRefleshAll;
 	bool mbDirtyRect;
 	int mLeft;
@@ -92,6 +93,8 @@ public:
 
 public:
 	void AddPageListItem( const CListItem & item );
+
+	void ClearPageListItem();
 
 	void DelCurPageListItem();
 

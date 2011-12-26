@@ -58,7 +58,7 @@ public:
 	CHE_WD_Area *	mpTextBar2;
 	CHE_WD_Button * mpBrowseBtn;
 	CHE_WD_Button * mpToolBtnAdd;
-	CHE_WD_Button * mpToolBtnDel;
+	CHE_WD_Button * mpToolBtnClear;
 	CHE_WD_Button * mpToolBtnUp;
 	CHE_WD_Button * mpToolBtnDown;
 	CHE_WD_Button * mpStartBtn;

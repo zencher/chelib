@@ -102,6 +102,24 @@ void CPdfSpliterApp::AddPageListItem( const CListItem & item )
 	mpMainDlg->AppendListItem( item );
 }
 
+void CPdfSpliterApp::ClearPageListItem()
+{
+	std::vector< CListItem >::iterator it;
+	mpMainDlg->CancelSelection();
+	unsigned int iCount = mPageList.size();
+	unsigned int i = 0;
+	for ( ; i < iCount; ++i )
+	{
+		mpMainDlg->DeleteListItem( 0 );
+	}
+	mCurItem = 0;
+	mItemCount = 0;
+	mPageList.clear();
+	mpMainDlg->UpdateSelection();
+	mpMainDlg->UpdateToolBtn();
+	mpMainDlg->UpdateList();
+}
+
 void CPdfSpliterApp::DelCurPageListItem()
 {
 	std::vector< CListItem >::iterator it;
@@ -136,6 +154,7 @@ void CPdfSpliterApp::UpCurPageListItem()
 	if ( 1 < mCurItem && mCurItem <= mItemCount )
 	{
 		mpMainDlg->CancelSelection();
+		mpMainDlg->mpListBoxItems->ChildToLower( mCurItem-1 );
 		CListItem item = mPageList[mCurItem-2];
 		mPageList[mCurItem-2] = mPageList[mCurItem-1];
 		mPageList[mCurItem-1] = item;
@@ -151,6 +170,7 @@ void CPdfSpliterApp::DownCurPagaListItem()
 	if ( 0 < mCurItem && mCurItem < mItemCount )
 	{
 		mpMainDlg->CancelSelection();
+		mpMainDlg->mpListBoxItems->ChildToUpper( mCurItem-1 );
 		CListItem item = mPageList[mCurItem];
 		mPageList[mCurItem] = mPageList[mCurItem-1];
 		mPageList[mCurItem-1] = item;
@@ -269,6 +289,8 @@ void MyIHE_WD_InterActive::KillTimer()
 
 void MyIHE_WD_InterActive::SetClip( CHE_WD_Area * pArea )
 {
+	GraphicsContainer container = mpGraphics->BeginContainer();
+	mContainerStack.push_back( container );
 	Rect clipRect( pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
 	Region clipRegion( clipRect ); 
 	mpGraphics->SetClip( &clipRegion );
@@ -276,6 +298,8 @@ void MyIHE_WD_InterActive::SetClip( CHE_WD_Area * pArea )
 
 void MyIHE_WD_InterActive::SetClip( int left, int top, int right, int bottom )
 {
+	GraphicsContainer container = mpGraphics->BeginContainer();
+	mContainerStack.push_back( container );
 	Rect clipRect( left, top, right-left, bottom-top );
 	Region clipRegion( clipRect );
 	mpGraphics->SetClip( &clipRegion );
@@ -283,7 +307,12 @@ void MyIHE_WD_InterActive::SetClip( int left, int top, int right, int bottom )
 
 void MyIHE_WD_InterActive::ResetClip()
 {
-	mpGraphics->ResetClip();
+	if ( mContainerStack.size() > 0 )
+	{
+		mpGraphics->EndContainer( mContainerStack[mContainerStack.size()-1] );
+		mContainerStack.pop_back();
+	}
+	//mpGraphics->ResetClip();
 }
 
 void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppear )

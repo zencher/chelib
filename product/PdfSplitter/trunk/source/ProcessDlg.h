@@ -35,8 +35,12 @@ private:
 
 	MyIHE_WD_InterActive * mpInterActive;
 
+	unsigned int mProcessBarValue;
+
 public:
 	void SetProcessBarValue( unsigned int val );
+
+	void UpdateProcessBar();
 
 	CHE_WD_Area *	mpMainArea;
 	CHE_WD_Area *	mpProcess;

@@ -46,6 +46,7 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 			if ( theApp.mpProcessDlg )
 			{
 				theApp.mpProcessDlg->SetProcessBarValue( (unsigned int)( (iCurPage+1) * 100.0 / iPageCount ) );
+				theApp.mpProcessDlg->mpMainArea->Refresh();
 			}
 			iCurPage++;
 			CHE_PDF_Dictionary * pFirstPageDict = theApp.mParser.GetObject( theApp.mParser.GetPageObjNum( iIndex + i ) )->ToDict();
@@ -112,10 +113,11 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 		}
 	}
 
+	theApp.mpProcessDlg->mpMainArea->Refresh();
+
 	char tmpStr[1024];
 	memset( tmpStr, 0, 1024 );
 	WideCharToMultiByte( CP_ACP, 0, theApp.mNewFile.c_str(), -1, tmpStr, 1024, NULL, NULL );
-
 	IHE_Write * pWrite = HE_CreateFileWrite( tmpStr );
 
 	creator.Save( pWrite );
@@ -239,6 +241,8 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	mpCancelBtn->SetVisable( false );
 
 	mpMainArea->AppendChild( mpCancelBtn );
+
+	mProcessBarValue = 0;
 }
 
 CProcessDlg::~CProcessDlg()
@@ -390,6 +394,7 @@ void CProcessDlg::OnLButtonUp(UINT nFlags, CPoint point)
 void CProcessDlg::OnPaint()
 {
 	CPaintDC dc(this);
+	UpdateProcessBar();
 	DrawMainArea();
 }
 
@@ -414,7 +419,12 @@ void CProcessDlg::SetProcessBarValue( unsigned int val )
 	{
 		val = 100;
 	}
-	unsigned int iTmp = val / 100.0 * 457;
+	mProcessBarValue = val;
+}
+
+void CProcessDlg::UpdateProcessBar()
+{
+	unsigned int iTmp = mProcessBarValue / 100.0 * 457;
 	mpProcess->GetChild(1)->SetWidth( iTmp );
 	mpProcess->GetChild(2)->SetPositionX( iTmp + 45 );
 	CHE_WD_Area * pTmpArea = NULL;
@@ -424,14 +434,13 @@ void CProcessDlg::SetProcessBarValue( unsigned int val )
 	pTmpArea = mpProcess->GetChild( mpProcess->GetChildrenCount() - 1 );
 	pTmpAppear = pTmpArea->GetBackGroundAppear();
 	pTmpText = (CHE_WD_AppearText*)( pTmpAppear->mItems[0] );
-	if ( val == 100 )
+	if ( mProcessBarValue == 100 )
 	{
 		pTmpText->SetText( L"正在写文件，即将完成。" );
 	}else{
-		wsprintf( tmpStr, L"%d%%", val );
+		wsprintf( tmpStr, L"%d%%", mProcessBarValue );
 		pTmpText->SetText( tmpStr );
 	}
-	mpProcess->Refresh();
 }
 
 void CProcessDlg::OnOK()

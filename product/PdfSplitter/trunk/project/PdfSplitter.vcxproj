@@ -112,6 +112,7 @@
     <ClInclude Include="..\source\FileLoadDlg.h" />
     <ClInclude Include="..\source\PageSelectionDlg.h" />
     <ClInclude Include="..\source\PagesSelectionDlg.h" />
+    <ClInclude Include="..\source\PasswordDlg.h" />
     <ClInclude Include="..\source\PdfSplitter.h" />
     <ClInclude Include="..\source\PdfSplitterDlg.h" />
     <ClInclude Include="..\source\ProcessDlg.h" />
@@ -125,6 +126,7 @@
     <ClCompile Include="..\source\FileLoadDlg.cpp" />
     <ClCompile Include="..\source\PageSelectionDlg.cpp" />
     <ClCompile Include="..\source\PagesSelectionDlg.cpp" />
+    <ClCompile Include="..\source\PasswordDlg.cpp" />
     <ClCompile Include="..\source\PdfSplitter.cpp" />
     <ClCompile Include="..\source\PdfSplitterDlg.cpp" />
     <ClCompile Include="..\source\ProcessDlg.cpp" />

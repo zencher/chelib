@@ -28,6 +28,9 @@
     <ClCompile Include="..\source\ProcessDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\PasswordDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Resource.h">
@@ -61,6 +64,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\source\ProcessDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\PasswordDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

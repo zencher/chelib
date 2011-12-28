@@ -1938,7 +1938,7 @@ HE_BOOL CHE_PDF_Encrypt::Authenticate( const CHE_ByteString & password )
     ComputeEncryptionKey( padpswd, encrypt );
 	ComputeUserKey( encrypt, userKey );
 
-	HE_DWORD kmax = ( m_revision == 3 ) ? 16 : 32;
+	HE_DWORD kmax = ( m_revision == 2 ) ? 32 : 16;
 	for ( HE_DWORD k = 0; bRet && k < kmax; k++)
 	{
 		bRet = bRet && ( userKey[k] == m_UValue[k] );
@@ -1950,8 +1950,7 @@ HE_BOOL CHE_PDF_Encrypt::Authenticate( const CHE_ByteString & password )
         ComputeOwnerKey( m_OValue, padpswd, userpswd, TRUE );
         ComputeEncryptionKey( userpswd, encrypt );
 		ComputeUserKey( encrypt, userKey );
-
-		HE_DWORD kmax = ( m_revision == 3 ) ? 16 : 32;
+		kmax = 32;
 		for ( HE_DWORD k = 0; bRet && k < kmax; k++)
 		{
 			bRet = bRet && ( userKey[k] == m_UValue[k] );
@@ -2057,6 +2056,10 @@ HE_VOID CHE_PDF_Encrypt::ComputeUserKey( HE_BYTE encryptionKey[16], HE_BYTE user
 			}
 			RC4( digest, keyLengthInByte, userKeyRet, 16, userKeyRet );
 		}
+// 		for ( k = 0; k < 16; k++ )
+// 		{
+// 			userKeyRet[16+k] = padding[k];
+// 		}
 	}
 	else
 	{

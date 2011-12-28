@@ -17,12 +17,14 @@ static void UpdataNumberBox()
 	wchar_t tmpStr[16];
 	wsprintf( tmpStr, L"%d", gpDlg->mCurPage );
 	pTmpText->SetText( tmpStr );
+	gpDlg->mpNumberBox->Refresh();
 }
 
 static void UpdateScroll()
 {
 	CHE_WD_Area * pTmpArea = gpDlg->mpScrollBar->GetChild( 0 );
 	pTmpArea->SetPositionX( 25 + ( gpDlg->mCurPage - 1 ) * 1.0 / ( gpDlg->mPageCount - 1 ) * 411 );
+	gpDlg->mpScrollBar->Refresh();
 }
 
 static void EventUpBtnClick( CHE_WD_Area * pArea )

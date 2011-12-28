@@ -10,6 +10,7 @@
 #include "PageSelectionDlg.h"
 #include "PagesSelectionDlg.h"
 #include "ProcessDlg.h"
+#include "PasswordDlg.h"
 #include "afxdialogex.h"
 
 // #include "../../../../trunk//include/pdf/che_pdf_creator.h"
@@ -125,6 +126,26 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
 		CFileLoadDlg loadDlg;
 		loadDlg.DoModal();
+
+		CHE_ByteString str;
+		bool bPasswordError = false;
+		str = "";
+		while ( ! theApp.mParser.Authenticate( str ) )
+		{
+			CPasswordDlg dlg;
+			if ( bPasswordError )
+			{
+				dlg.SetErrorFlag();
+			}
+			if ( dlg.DoModal() == 1 )
+			{
+				theApp.CloseDocument();
+				return;
+			}
+			bPasswordError = true;
+			str = theApp.mPasswrod.c_str();
+		}
+
 		pTmpAppear = theApp.mpMainDlg->mpFilePageCountInfo->GetBackGroundAppear();
 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
 		wchar_t tmpwstr[512];
@@ -208,8 +229,8 @@ static void EventAddBtnClick( CHE_WD_Area * pArea )
 			CPageSelectionDlg pageDlg;
 			if ( pageDlg.DoModal() == 1 )
 			{
-				theApp.mpMainDlg->UpdateToolBtn();
 				theApp.mpMainDlg->UpdateList();
+				theApp.mpMainDlg->UpdateToolBtn();
 			}
 			break;
 		}
@@ -218,11 +239,14 @@ static void EventAddBtnClick( CHE_WD_Area * pArea )
 			CPagesSelectionDlg pageDlg;
 			if ( pageDlg.DoModal() == 1 )
 			{
-				theApp.mpMainDlg->UpdateToolBtn();
 				theApp.mpMainDlg->UpdateList();
+				theApp.mpMainDlg->UpdateToolBtn();
 			}
+			break;
 		}
+
 	}
+	pArea->OnMouseOut();
 }
 
 
@@ -1036,10 +1060,10 @@ void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 	pTmpItem->SetBackGroundAppear( pAppear );
 	pTmpItem->SetClickEvent( EventListItemClick );
 	CHE_WD_Button * pTmpDelBtn = new CHE_WD_Button( mpInterActive );
-	pTmpDelBtn->SetPositionX( 300 );
+	pTmpDelBtn->SetPositionX( 400 );
 	pTmpDelBtn->SetPositionY( 12 );
 	pTmpDelBtn->SetWidth( 24 );
-	pTmpDelBtn->SetHeight( 23 );
+	pTmpDelBtn->SetHeight( 24 );
 	pTmpDelBtn->SetVisable( false );
 	pTmpDelBtn->SetEnable( false );
 	pTmpDelBtn->SetClickEvent( EventListItemDelBtnClick ); 

@@ -16,6 +16,7 @@ static void UpdataBeginNumberBox()
 	wchar_t tmpStr[16];
 	wsprintf( tmpStr, L"%d", gpDlg->mPageBegin );
 	pTmpText->SetText( tmpStr );
+	gpDlg->mpBeginNumberBox->Refresh();
 }
 
 static void UpdataEndNumberBox()
@@ -26,6 +27,7 @@ static void UpdataEndNumberBox()
 	wchar_t tmpStr[16];
 	wsprintf( tmpStr, L"%d", gpDlg->mPageEnd );
 	pTmpText->SetText( tmpStr );
+	gpDlg->mpEndNumberBox->Refresh();
 }
 
 static void UpdateScrollBeginBlock()
@@ -46,6 +48,7 @@ static void UpdateScrollBeginBlock()
 	CHE_WD_Area * pScrollf = gpDlg->mpScrollBar->GetChild( 1 );
 	pScrollf->SetPositionX( BeginPosi );
 	pScrollf->SetWidth( EndPosi - BeginPosi );
+	gpDlg->mpScrollBar->Refresh();
 }
 
 static void UpdateScrollEndBlock()
@@ -66,6 +69,7 @@ static void UpdateScrollEndBlock()
 	CHE_WD_Area * pScrollf = gpDlg->mpScrollBar->GetChild( 1 );
 	pScrollf->SetPositionX( BeginPosi );
 	pScrollf->SetWidth( EndPosi - BeginPosi );
+	gpDlg->mpScrollBar->Refresh();
 }
 
 static void EventBeginNumberUpBtnClick( CHE_WD_Area * pArea )

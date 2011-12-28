@@ -112,6 +112,8 @@ public:
 	std::wstring			mNewFile;
 	IHE_Read *				mpFileRead;
 	CHE_PDF_Parser			mParser;
+	std::string				mPasswrod;
+
 	float					mfViewPoint;
 	std::vector<CListItem>	mPageList;
 	unsigned int			mItemCount;
@@ -119,6 +121,7 @@ public:
 
 	CPdfSpliterDlg *		mpMainDlg;
 	CProcessDlg *			mpProcessDlg;
+
 
 	DECLARE_MESSAGE_MAP()
 };

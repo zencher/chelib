@@ -73,6 +73,7 @@ HE_VOID CHE_ByteString::Clear()
 				GetAllocator()->DeleteArray<HE_CHAR>( m_lpData->m_lpString );
 			}
 			GetAllocator()->Delete<HE_ByteStringData>( m_lpData );
+			m_lpData = NULL;
 		}
 	}
 }

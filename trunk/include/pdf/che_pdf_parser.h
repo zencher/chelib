@@ -105,7 +105,7 @@ public:
 
 	//Encryption
 	HE_BOOL						Authenticate( CHE_ByteString & password ) const 
-									{ return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): FALSE; }
+									{ return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): TRUE; }
 
 	//Object operation
 	CHE_PDF_Object *			GetObject( HE_DWORD objNum );

@@ -95,15 +95,15 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 					pNewPageDict->SetAtName( key, pTmpObj->ToName()->GetString() );
 					break;
 				case OBJ_TYPE_ARRAY:
-					pNewPageDict->SetAtArray( key, CloneDirectArrayObj( pTmpObj->ToArray(), &creator, pNewPageDict->GetObjNum(), pNewPageDict->GetObjNum(), &ObjCloneMgr ) );
+					pNewPageDict->SetAtArray( key, CloneDirectArrayObj( pTmpObj->ToArray(), &creator, &ObjCloneMgr ) );
 					break;
 				case OBJ_TYPE_DICTIONARY:
-					pNewPageDict->SetAtDictionary( key, CloneDirectDictObj( pTmpObj->ToDict(), &creator, pNewPageDict->GetObjNum(), pNewPageDict->GetGenNum(), &ObjCloneMgr ) );
+					pNewPageDict->SetAtDictionary( key, CloneDirectDictObj( pTmpObj->ToDict(), &creator, &ObjCloneMgr ) );
 					break;
 				case OBJ_TYPE_REFERENCE:
 					{
 						HE_DWORD refNum = CloneIndirectObject( pTmpObj->ToReference(), &creator, &ObjCloneMgr );
-						pNewPageDict->SetAtReference( key, refNum );
+						pNewPageDict->SetAtReference( key, refNum, NULL );
 						break;
 					}
 				default:

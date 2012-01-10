@@ -30,6 +30,6 @@ bool operator < (  const CHE_PDF_CollectorNode & node1, const CHE_PDF_CollectorN
 CHE_PDF_CollectorNode & CHE_PDF_CollectorNode::operator = ( const CHE_PDF_CollectorNode & node )
 {
 	m_ObjNum = node.m_ObjNum;
-	m_Obj = node.m_Obj;
+	m_InObj = node.m_InObj;
 	return *this;
 }

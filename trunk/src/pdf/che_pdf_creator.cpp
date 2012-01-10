@@ -44,7 +44,9 @@ CHE_PDF_Creator::CHE_PDF_Creator( CHE_Allocator * pAllocator )
 	:CHE_Object( pAllocator ), m_collector( pAllocator ), m_arrPageDict( pAllocator )
 {
 	m_bNewDocument = FALSE;
-
+	m_dwCatalogObjNum = 0;
+	m_dwEncryptObjNum = 0;
+	m_dwInfoObjNum = 0;
 	m_pCatalogDict = NULL;
 	m_pPagesDict = NULL;
 	m_pEncryptDict = NULL;
@@ -68,13 +70,19 @@ HE_BOOL	CHE_PDF_Creator::NewDocument()
 	}
 	ResetObjIndex();
 
-	m_pPagesDict = AppendIndirectObj_Dict();
+	CHE_PDF_IndirectObject * pInObjPageDict = AppendIndirectObj_Dict();
+	m_dwPageObjNum = pInObjPageDict->GetObjNum();
+	if ( !pInObjPageDict )
+	{
+		return FALSE;
+	}
+	m_pPagesDict = pInObjPageDict->GetObj()->ToDict();
 	if ( m_pPagesDict == NULL )
 	{
 		return FALSE;
 	}
 	m_pPagesDict->SetAtName( "Type", "Pages" );
-	CHE_PDF_Array * pTmpArray = CHE_PDF_Array::Create( GetObjIndex(), 0, NULL, GetAllocator() );
+	CHE_PDF_Array * pTmpArray = CHE_PDF_Array::Create( GetAllocator() );
 	if ( pTmpArray == NULL )
 	{
 		ResetObjIndex();
@@ -84,7 +92,9 @@ HE_BOOL	CHE_PDF_Creator::NewDocument()
 	m_pPagesDict->SetAtArray( "Kids", pTmpArray );
 	m_pPagesDict->SetAtInteger( "Count", 0 );
 
-	m_pCatalogDict = AppendIndirectObj_Dict();
+	CHE_PDF_IndirectObject * pInObjCatalogDict = AppendIndirectObj_Dict();
+	m_dwCatalogObjNum = pInObjCatalogDict->GetObjNum();
+	m_pCatalogDict = pInObjCatalogDict->GetObj()->ToDict();
 	if ( m_pCatalogDict == NULL )
 	{
 		ResetObjIndex();
@@ -92,7 +102,7 @@ HE_BOOL	CHE_PDF_Creator::NewDocument()
 		return FALSE;
 	}
 	m_pCatalogDict->SetAtName( "Type", "Catalog" );
-	m_pCatalogDict->SetAtReference( "Pages", m_pPagesDict->GetObjNum() );
+	m_pCatalogDict->SetAtReference( "Pages", pInObjPageDict->GetObjNum(), NULL );
 
 	m_bNewDocument = TRUE;
 	return TRUE;
@@ -117,7 +127,9 @@ HE_BOOL CHE_PDF_Creator::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, CHE_ByteSt
 	}
 	if ( m_pInfoDict == NULL )
 	{
-		m_pInfoDict = AppendIndirectObj_Dict();
+		CHE_PDF_IndirectObject * pInObj = AppendIndirectObj_Dict();
+		m_pInfoDict = pInObj->GetObj()->ToDict();
+		m_dwInfoObjNum = pInObj->GetObjNum();
 	}
 	if ( m_pInfoDict == NULL )
 	{
@@ -164,26 +176,30 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::NewPage( HE_DWORD width, HE_DWORD height )
 	{
 		return NULL;
 	}
-
-	CHE_PDF_Dictionary * pTmpPageDict = AppendIndirectObj_Dict();
+	CHE_PDF_IndirectObject * pInPageDict = AppendIndirectObj_Dict();
+	if ( !pInPageDict )
+	{
+		return NULL;
+	}
+	CHE_PDF_Dictionary * pTmpPageDict = pInPageDict->GetObj()->ToDict();
 	if ( pTmpPageDict == NULL )
 	{
 		return NULL;
 	}
 	pTmpPageDict->SetAtName( "Type", "Page" );
-	pTmpPageDict->SetAtReference( "Parent", m_pPagesDict->GetObjNum() );
-	CHE_PDF_Array * pMediaBoxArray = CHE_PDF_Array::Create( GetObjIndex(), 0, NULL, GetAllocator() );
-	CHE_PDF_Number * pNum1 = CHE_PDF_Number::Create( 0, GetObjIndex(), 0, NULL, GetAllocator() );
-	CHE_PDF_Number * pNum2 = CHE_PDF_Number::Create( 0, GetObjIndex(), 0, NULL, GetAllocator() );
-	CHE_PDF_Number * pNum3 = CHE_PDF_Number::Create( (HE_INT32)width, GetObjIndex(), 0, NULL, GetAllocator() );
-	CHE_PDF_Number * pNum4 = CHE_PDF_Number::Create( (HE_INT32)height, GetObjIndex(), 0, NULL, GetAllocator() );
+	pTmpPageDict->SetAtReference( "Parent", m_dwCatalogObjNum, NULL );
+	CHE_PDF_Array * pMediaBoxArray = CHE_PDF_Array::Create( GetAllocator() );
+	CHE_PDF_Number * pNum1 = CHE_PDF_Number::Create( 0, GetAllocator() );
+	CHE_PDF_Number * pNum2 = CHE_PDF_Number::Create( 0, GetAllocator() );
+	CHE_PDF_Number * pNum3 = CHE_PDF_Number::Create( (HE_INT32)width, GetAllocator() );
+	CHE_PDF_Number * pNum4 = CHE_PDF_Number::Create( (HE_INT32)height, GetAllocator() );
 	pMediaBoxArray->Append( pNum1 );
 	pMediaBoxArray->Append( pNum2 );
 	pMediaBoxArray->Append( pNum3 );
 	pMediaBoxArray->Append( pNum4 );
 	pTmpPageDict->SetAtArray( "MediaBox", pMediaBoxArray );
 
-	CHE_PDF_Reference * pPageRef = CHE_PDF_Reference::Create( pTmpPageDict->GetObjNum(),  m_pPagesDict->GetObjNum(), 0, NULL, GetAllocator() );
+	CHE_PDF_Reference * pPageRef = CHE_PDF_Reference::Create( pInPageDict->GetObjNum(), NULL, GetAllocator() );
 	CHE_PDF_Array * pPageArray = (CHE_PDF_Array*)( m_pPagesDict->GetElement( "Kids", OBJ_TYPE_ARRAY ) );
 	if( pPageArray != NULL )
 	{
@@ -198,7 +214,7 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::NewPage( HE_DWORD width, HE_DWORD height )
 	return pTmpPageDict;
 }
 
-HE_BOOL	CHE_PDF_Creator::SetAsPageResource( HE_DWORD pageIndex, const CHE_PDF_Dictionary * pDict )
+HE_BOOL	CHE_PDF_Creator::SetAsPageResource( HE_DWORD pageIndex, CHE_PDF_Dictionary * pDict )
 {
 	CHE_PDF_Dictionary * pPageDict = (CHE_PDF_Dictionary*)( m_arrPageDict.GetItem( pageIndex ) );
 	if ( pPageDict == NULL )
@@ -227,7 +243,7 @@ HE_BOOL	CHE_PDF_Creator::SetAsPageResource( HE_DWORD pageIndex, const CHE_PDF_Di
 		pPageResourcesDict = (CHE_PDF_Dictionary*)( pPageDict->GetElement( "Resources" ) );
 		if ( pPageResourcesDict == NULL )
 		{
-			pPageResourcesDict = CHE_PDF_Dictionary::Create( pPageDict->GetObjNum(), 0, NULL, GetAllocator() );
+			pPageResourcesDict = CHE_PDF_Dictionary::Create( GetAllocator() );
 			if ( pPageResourcesDict == NULL )
 			{
 				return FALSE;
@@ -237,7 +253,7 @@ HE_BOOL	CHE_PDF_Creator::SetAsPageResource( HE_DWORD pageIndex, const CHE_PDF_Di
 		CHE_PDF_Dictionary * pPageResoucesFontDict = (CHE_PDF_Dictionary *)( pPageResourcesDict->GetElement( "Font" ) );
 		if ( pPageResoucesFontDict == NULL )
 		{
-			pPageResoucesFontDict = CHE_PDF_Dictionary::Create( pPageDict->GetObjNum(), 0, NULL, GetAllocator() );
+			pPageResoucesFontDict = CHE_PDF_Dictionary::Create( GetAllocator() );
 			if ( pPageResoucesFontDict == NULL )
 			{
 				return FALSE;
@@ -247,7 +263,8 @@ HE_BOOL	CHE_PDF_Creator::SetAsPageResource( HE_DWORD pageIndex, const CHE_PDF_Di
 		HE_DWORD fontIndex = pPageResoucesFontDict->GetCount();
 		HE_CHAR tmpStr[16];
 		sprintf( tmpStr, "F%d", fontIndex );
-		pPageResoucesFontDict->SetAtReference( tmpStr, pDict->GetObjNum() );
+		//pPageResoucesFontDict->SetAtReference( tmpStr, pDict->GetObjNum() );
+		pPageResoucesFontDict->SetAtDictionary( tmpStr, pDict );
 	}else{
 	}
 	return TRUE;
@@ -260,13 +277,13 @@ CHE_PDF_Stream * CHE_PDF_Creator::AddStreamAsPageContents( HE_DWORD pageIndex )
 	{
 		return NULL;
 	}
-	CHE_PDF_Stream * pStm = AppendIndirectObj_Stream();
+	CHE_PDF_IndirectObject * pStm = AppendIndirectObj_Stream();
 	if ( pStm == NULL )
 	{
 		return NULL;
 	}
-	pPageDict->SetAtReference( "Contents", pStm->GetObjNum() );
-	return pStm;
+	pPageDict->SetAtReference( "Contents", pStm->GetObjNum(), NULL );
+	return pStm->GetObj()->ToStream();
 }
 
 HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
@@ -279,7 +296,9 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 	CHE_PDF_Dictionary* pEncryptDict = NULL;
 	if ( m_pEncrypt )
 	{
-		pEncryptDict = AppendIndirectObj_Dict();
+		CHE_PDF_IndirectObject * pInObj = AppendIndirectObj_Dict();
+		m_dwEncryptObjNum = pInObj->GetObjNum();
+		pEncryptDict = pInObj->GetObj()->ToDict();
 		pEncryptDict->SetAtName( "Filter", "Standard" );
 		pEncryptDict->SetAtInteger( "V", 2/*m_pEncrypt->m_algorithm*/ );
 		pEncryptDict->SetAtInteger( "R", m_pEncrypt->m_revision );
@@ -339,17 +358,23 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 	HE_CHAR tempStr[1024];
 
 	CHE_PDF_Object * pObj = NULL;
+	CHE_PDF_IndirectObject * pInObj = NULL;
 	for ( HE_DWORD i = 0; i < m_collector.GetCount(); i++ )
 	{
-		pObj = m_collector.GetObjByIndex( i );
-		if ( pObj == NULL )
+		pInObj = m_collector.GetObjByIndex( i );
+		if ( !pInObj )
+		{
+			continue;
+		}
+		pObj = pInObj->GetObj();
+		if ( !pObj )
 		{
 			continue;
 		}
 		CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, pWrite->GetCurOffset(), 0 );
 		xrefTable.NewNode( tmpEntry );
 
-		sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
+		sprintf( tempStr, "%d %d obj\n", pInObj->GetObjNum(), pInObj->GetGenNum() );
 		pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 		OutPutObject( pObj, pWrite );
 
@@ -377,16 +402,16 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 		}
 	}
 
-	CHE_PDF_Dictionary * pTrailerDict = CHE_PDF_Dictionary::Create( 0, 0, NULL, GetAllocator() );
+	CHE_PDF_Dictionary * pTrailerDict = CHE_PDF_Dictionary::Create( GetAllocator() );
 	pTrailerDict->SetAtInteger( "Size", xrefTable.GetCount() );
-	pTrailerDict->SetAtReference( "Root", m_pCatalogDict->GetObjNum() );
+	pTrailerDict->SetAtReference( "Root", m_dwCatalogObjNum, NULL );
 	if ( pEncryptDict )
 	{
-		pTrailerDict->SetAtReference( "Encrypt", pEncryptDict->GetObjNum() );
+		pTrailerDict->SetAtReference( "Encrypt", m_dwEncryptObjNum, NULL );
 	}
 	if ( m_pInfoDict != NULL )
 	{
-		pTrailerDict->SetAtReference( "Info", m_pInfoDict->GetObjNum() );
+		pTrailerDict->SetAtReference( "Info", m_dwInfoObjNum, NULL );
 	}
 
 	//写尾字典
@@ -415,42 +440,44 @@ HE_BOOL CHE_PDF_Creator::SaveUpdate( IHE_Write * pWrite, CHE_PDF_Parser * pParse
 	HE_CHAR tempStr[1024];
 	CHE_PDF_XREF_Table xrefTable;
 	CHE_PDF_Object * pObj = NULL;
-	HE_DWORD lObjCount = pParser->GetModifiedObjectCount();
+	CHE_PDF_IndirectObject * pInObj = NULL;
+	HE_DWORD lObjCount = pParser->GetUpdatedInObjCount();
 	if ( lObjCount > 0 )
 	{
 		for ( HE_DWORD i = 0; i < lObjCount; i++ )
 		{
-			pObj = pParser->GetModifiedObject( i );
-			if ( pObj != NULL )
+			pInObj = pParser->GetUpdatedInObj( i );
+			if ( pInObj != NULL )
 			{
-				xrefTable.NewSection( pObj->GetObjNum() );
+				pObj = pInObj->GetObj();
+				xrefTable.NewSection( pInObj->GetObjNum() );
 				CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, pWrite->GetCurOffset(), 0 );
 				xrefTable.NewNode( tmpEntry );
-				sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
+				sprintf( tempStr, "%d %d obj\n", pInObj->GetObjNum(), 0 );
 				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 				OutPutObject( pObj, pWrite );
 				pWrite->WriteBlock( (HE_LPVOID)gpStrObjEnd, glStrObjEnd );
 			}
 		}
 	}
-	lObjCount = pParser->GetNewObjectCount();
-	if ( lObjCount > 0 )
-	{
-		for ( HE_DWORD i = 0; i < lObjCount; i++ )
-		{
-			pObj = pParser->GetNewObject( i );
-			if ( pObj != NULL )
-			{
-				xrefTable.NewSection( pObj->GetObjNum() );
-				CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, pWrite->GetCurOffset(), 0 );
-				xrefTable.NewNode( tmpEntry );
-				sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
-				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
-				OutPutObject( pObj, pWrite );
-				pWrite->WriteBlock( (HE_LPVOID)gpStrObjEnd, glStrObjEnd );
-			}
-		}
-	}
+// 	lObjCount = pParser->GetNewObjectCount();
+// 	if ( lObjCount > 0 )
+// 	{
+// 		for ( HE_DWORD i = 0; i < lObjCount; i++ )
+// 		{
+// 			pObj = pParser->GetNewObject( i );
+// 			if ( pObj != NULL )
+// 			{
+// 				xrefTable.NewSection( pObj->GetObjNum() );
+// 				CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, pWrite->GetCurOffset(), 0 );
+// 				xrefTable.NewNode( tmpEntry );
+// 				sprintf( tempStr, "%d %d obj\n", pObj->GetObjNum(), 0 );
+// 				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
+// 				OutPutObject( pObj, pWrite );
+// 				pWrite->WriteBlock( (HE_LPVOID)gpStrObjEnd, glStrObjEnd );
+// 			}
+// 		}
+// 	}
 
 	HE_DWORD xrefOffset = pWrite->GetCurOffset();
 
@@ -493,284 +520,284 @@ HE_BOOL CHE_PDF_Creator::SaveUpdate( IHE_Write * pWrite, CHE_PDF_Parser * pParse
 	return TRUE;
 }
 
-CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/ )
-{
-	if ( m_bNewDocument != TRUE )
-	{
-		return NULL;
-	}
-	if ( fontType > 13 || fontType < 0 )
-	{
-		return NULL;
-	}
-	CHE_PDF_Dictionary * pDict = AppendIndirectObj_Dict();
-	if ( pDict == NULL )
-	{
-		return NULL;
-	}
-// 	CHE_PDF_Array * pWidthsArr = AppendIndirectObj_Array();
-// 	if ( pWidthsArr == NULL )
+// CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/ )
+// {
+// 	if ( m_bNewDocument != TRUE )
 // 	{
-// 		return FALSE;	//如果这里失败了，会在文档中留下一个无用的字典间接对象
+// 		return NULL;
 // 	}
-// 	for ( HE_DWORD i = 0; i < 256; i++ )
+// 	if ( fontType > 13 || fontType < 0 )
 // 	{
-// 		CHE_PDF_Number * pNumber = CHE_PDF_Number::Create( (HE_INT32)1000, pWidthsArr->GetObjNum(), 0, NULL, GetAllocator() );
-// 		pWidthsArr->Append( pNumber );
+// 		return NULL;
 // 	}
-
-	pDict->SetAtName( "Type", "Font" );
-	pDict->SetAtName( "Subtype", "Type1" );
-	switch( fontType )
-	{
-	case FONT_TYPE1_STANDARD14_TIMES_ROMAN:
-		pDict->SetAtName( "BaseFont", "Times-Roman" );
-		break;
-	case FONT_TYPE1_STANDARD14_TIMES_BOLD:
-		pDict->SetAtName( "BaseFont", "Times-Bold" );
-		break;
-	case FONT_TYPE1_STANDARD14_TIMES_ITALIC:
-		pDict->SetAtName( "BaseFont", "Times-Italic" );
-		break;
-	case FONT_TYPE1_STANDARD14_TIMES_BOLDITALIC:
-		pDict->SetAtName( "BaseFont", "Times-BoldItalic" );
-		break;
-	case FONT_TYPE1_STANDARD14_HELVETICA:
-		pDict->SetAtName( "BaseFont", "Helvetica" );
-		break;
-	case FONT_TYPE1_STANDARD14_HELVETICA_BOLD:
-		pDict->SetAtName( "BaseFont", "Helvetica-Bold" );
-		break;
-	case FONT_TYPE1_STANDARD14_HELVETICA_OBILQUE:
-		pDict->SetAtName( "BaseFont", "Helvetica-Obilque" );
-		break;
-	case FONT_TYPE1_STANDARD14_HELVETICA_BOLDOBILQUE:
-		pDict->SetAtName( "BaseFont", "Helvetica-BoldObilque" );
-		break;
-	case FONT_TYPE1_STANDARD14_COURIER:
-		pDict->SetAtName( "BaseFont", "Courier" );
-		break;
-	case FONT_TYPE1_STANDARD14_COURIER_BOLD:
-		pDict->SetAtName( "BaseFont", "Courier-Bold" );
-		break;
-	case FONT_TYPE1_STANDARD14_COURIER_OBILQUE:
-		pDict->SetAtName( "BaseFont", "Courier-Obilque" );
-		break;
-	case FONT_TYPE1_STANDARD14_COURIER_BOLDOBILQUE:
-		pDict->SetAtName( "BaseFont", "Courier-BoldObilque" );
-		break;
-	case FONT_TYPE1_STANDARD14_SYMBOL:
-		pDict->SetAtName( "BaseFont", "Symbol" );
-		break;
-	case FONT_TYPE1_STANDARD14_ZAPFDINGBATS:
-		pDict->SetAtName( "BaseFont", "ZapfDingbats" );
-		break;
-	default:
-		break;
-	}
-	//pDict->SetAtInteger( "FirstChar", 0 );
-	//pDict->SetAtInteger( "LastChar", 255 );
-	//pDict->SetAtReference( "Widths", pWidthsArr->GetObjNum() );
-	switch ( encoding )
-	{
-	case FONT_ENCODING_WINANSI:
-		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
-		break;
-	case FONT_ENCODING_MACROMAN:
-		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
-		break;
-	case FONT_ENCODING_MACEXPERT:
-		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
-		break;
-	default:
-		break;
-	}
-	return pDict;
-}
-
-CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font(	const CHE_ByteString & baseFont,
-												   HE_DWORD firstChar/* = 0*/, HE_DWORD lastChar/* = 255*/,
-												   PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/, 
-												   const CHE_PDF_Array * pWidths/* = NULL*/, 
-												   const CHE_PDF_Dictionary * pFontDescriptor/* = NULL*/,
-												   const CHE_PDF_Stream * pToUnicode/* = NULL*/ )
-{
-	if ( m_bNewDocument != TRUE || baseFont.GetLength() == 0 )
-	{
-		return NULL;
-	}
-	CHE_PDF_Dictionary * pDict = AppendIndirectObj_Dict();
-	if ( pDict == NULL )
-	{
-		return NULL;
-	}
-	pDict->SetAtName( "Type", "Font" );
-	pDict->SetAtName( "Subtype", "Type1" );
-	pDict->SetAtName( "BaseFont", baseFont );
-	pDict->SetAtInteger( "FirstChar", 0 );
-	pDict->SetAtInteger( "LastChar", 255 );
-	switch( encoding )
-	{
-	case FONT_ENCODING_WINANSI:
-		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
-		break;
-	case FONT_ENCODING_MACROMAN:
-		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
-		break;
-	case FONT_ENCODING_MACEXPERT:
-		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
-		break;
-	default:
-		break;
-	}
-	if ( pWidths )
-	{
-		pDict->SetAtReference( "Widths", pWidths->GetObjNum() );
-	}
-	if ( pFontDescriptor )
-	{
-		pDict->SetAtReference( "FontDescriptor", pWidths->GetObjNum() );
-	}
-	if ( pToUnicode )
-	{
-		pDict->SetAtReference( "FontDescriptor", pToUnicode->GetObjNum() );
-	}
-	return pDict;
-}
-
-CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont(	const CHE_ByteString & baseFont, 
-														HE_DWORD firstChar/* = 0*/, HE_DWORD lastChar/* = 255*/,
-														PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/,
-														const CHE_PDF_Array * pWidths/* = NULL*/, 
-														const CHE_PDF_Dictionary * pFontDescriptor/* = NULL*/,
-														const CHE_PDF_Stream * pToUnicode/* = NULL*/ )
-{
-	if ( m_bNewDocument != TRUE || baseFont.GetLength() == 0 )
-	{
-		return NULL;
-	}
-	CHE_PDF_Dictionary * pDict = AppendIndirectObj_Dict();
-	if ( pDict == NULL )
-	{
-		return NULL;
-	}
-	pDict->SetAtName( "Type", "Font" );
-	pDict->SetAtName( "Subtype", "TrueType" );
-	pDict->SetAtName( "BaseFont", baseFont );
-	pDict->SetAtInteger( "FirstChar", firstChar );
-	pDict->SetAtInteger( "LastChar", lastChar );
-	switch( encoding )
-	{
-	case FONT_ENCODING_WINANSI:
-		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
-		break;
-	case FONT_ENCODING_MACROMAN:
-		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
-		break;
-	case FONT_ENCODING_MACEXPERT:
-		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
-		break;
-	default:
-		break;
-	}
-	if ( pWidths )
-	{
-		pDict->SetAtReference( "Widths", pWidths->GetObjNum() );
-	}
-	if ( pFontDescriptor )
-	{
-		pDict->SetAtReference( "FontDescriptor", pWidths->GetObjNum() );
-	}
-	if ( pToUnicode )
-	{
-		pDict->SetAtReference( "FontDescriptor", pToUnicode->GetObjNum() );
-	}
-	return pDict;
-}
-
-CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont( const char * pFontFile, HE_BOOL bEmbed/* = FALSE*/ )
-{
-	if( pFontFile == NULL )
-		return NULL;
-
-	FT_Error eRet = 0;
-	FT_Library ftLib = NULL;
-	FT_Face ftFace = NULL;
-	eRet = FT_Init_FreeType( &ftLib );
-	if ( eRet != 0 )
-	{
-		return NULL;
-	}
-	eRet = FT_New_Face( ftLib, pFontFile, 0, &ftFace );
-	if ( eRet != 0 )
-	{
-		FT_Done_FreeType( ftLib );
-		return NULL;
-	}
-	const char * pFontName = FT_Get_Postscript_Name( ftFace );
-	if ( pFontName == NULL )
-	{
-		FT_Done_Face( ftFace );
-		FT_Done_FreeType( ftLib );
-		return NULL;
-	}
-	CHE_PDF_Dictionary * pFontDict = AddTrueTypeFont( pFontName, 0, 0 );
-	if ( pFontDict == NULL )
-	{
-		FT_Done_Face( ftFace );
-		FT_Done_FreeType( ftLib );
-		return NULL;
-	}
-	HE_FLOAT tmpF = ftFace->units_per_EM * 1.0 / 1000;
-	CHE_PDF_Array * pArr = CHE_PDF_Array::Create( pFontDict->GetObjNum(), 0, NULL, pFontDict->GetAllocator() );
-	CHE_PDF_Number * pWidth = CHE_PDF_Number::Create( (HE_INT32)( ftFace->max_advance_width/tmpF + 0.5 ), pFontDict->GetObjNum(), 0, NULL, pFontDict->GetAllocator() );
-	pArr->Append( pWidth );
-	pFontDict->SetAtArray( "Widths", pArr );
-	CHE_PDF_Dictionary * pFontDescriptor = AddDictionary();
-	if ( pFontDescriptor )
-	{
-		pFontDict->SetAtReference( "FontDescriptor", pFontDescriptor->GetObjNum() );
-		pFontDescriptor->SetAtName( "Type", "FontDescriptor" );
-		pFontDescriptor->SetAtName( "FontName", pFontName );
-		
-		CHE_PDF_Array * pArr = CHE_PDF_Array::Create( pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
-		CHE_PDF_Number* f1 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.xMin/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
-		CHE_PDF_Number* f2 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.yMin/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
-		CHE_PDF_Number* f3 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.xMax/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
-		CHE_PDF_Number* f4 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.yMax/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
-		pArr->Append( f1 );
-		pArr->Append( f2 );
-		pArr->Append( f3 );
-		pArr->Append( f4 );
-		pFontDescriptor->SetAtArray( "FontBBox", pArr );
-		pFontDescriptor->SetAtInteger( "Ascent", ftFace->ascender/tmpF + 0.5 );
-		pFontDescriptor->SetAtInteger( "Descent", ftFace->descender/tmpF + 0.5 );
-		pFontDescriptor->SetAtInteger( "CapHeight", 500 );
-		pFontDescriptor->SetAtInteger( "MissingWidth", ftFace->max_advance_width/tmpF + 0.5 );
-		pFontDescriptor->SetAtInteger( "Flags", 33 );
-		pFontDescriptor->SetAtInteger( "ItalicAngle", 0 );
-		pFontDescriptor->SetAtInteger( "StemV", 80 );
-
-		if ( bEmbed == TRUE )
-		{
-			IHE_Read * pRead = HE_CreateFileRead( pFontFile );
-			if ( pRead != NULL )
-			{
-				HE_LPBYTE pByte = GetAllocator()->NewArray<HE_BYTE>( pRead->GetSize() );
-				pRead->ReadBlock( pByte, 0, pRead->GetSize() );
-				CHE_PDF_Stream * pStm = AddStream();
-				pFontDescriptor->SetAtReference( "FontFile2", pStm->GetObjNum() );
-				pStm->SetRawData( pByte, pRead->GetSize(), STREAM_FILTER_FLATE );
-				pStm->GetDict()->SetAtInteger( "Length1", pRead->GetSize() );
-				HE_DestoryIHERead( pRead );
-				GetAllocator()->DeleteArray<HE_BYTE>( pByte );
-			}
-		}
-	}
-	FT_Done_Face( ftFace );
-	FT_Done_FreeType( ftLib );
-	return pFontDict;
-}
+// 	CHE_PDF_Dictionary * pDict = AppendIndirectObj_Dict()->GetObj()->ToDict();
+// 	if ( pDict == NULL )
+// 	{
+// 		return NULL;
+// 	}
+// // 	CHE_PDF_Array * pWidthsArr = AppendIndirectObj_Array();
+// // 	if ( pWidthsArr == NULL )
+// // 	{
+// // 		return FALSE;	//如果这里失败了，会在文档中留下一个无用的字典间接对象
+// // 	}
+// // 	for ( HE_DWORD i = 0; i < 256; i++ )
+// // 	{
+// // 		CHE_PDF_Number * pNumber = CHE_PDF_Number::Create( (HE_INT32)1000, pWidthsArr->GetObjNum(), 0, NULL, GetAllocator() );
+// // 		pWidthsArr->Append( pNumber );
+// // 	}
+// 
+// 	pDict->SetAtName( "Type", "Font" );
+// 	pDict->SetAtName( "Subtype", "Type1" );
+// 	switch( fontType )
+// 	{
+// 	case FONT_TYPE1_STANDARD14_TIMES_ROMAN:
+// 		pDict->SetAtName( "BaseFont", "Times-Roman" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_TIMES_BOLD:
+// 		pDict->SetAtName( "BaseFont", "Times-Bold" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_TIMES_ITALIC:
+// 		pDict->SetAtName( "BaseFont", "Times-Italic" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_TIMES_BOLDITALIC:
+// 		pDict->SetAtName( "BaseFont", "Times-BoldItalic" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_HELVETICA:
+// 		pDict->SetAtName( "BaseFont", "Helvetica" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_HELVETICA_BOLD:
+// 		pDict->SetAtName( "BaseFont", "Helvetica-Bold" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_HELVETICA_OBILQUE:
+// 		pDict->SetAtName( "BaseFont", "Helvetica-Obilque" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_HELVETICA_BOLDOBILQUE:
+// 		pDict->SetAtName( "BaseFont", "Helvetica-BoldObilque" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_COURIER:
+// 		pDict->SetAtName( "BaseFont", "Courier" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_COURIER_BOLD:
+// 		pDict->SetAtName( "BaseFont", "Courier-Bold" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_COURIER_OBILQUE:
+// 		pDict->SetAtName( "BaseFont", "Courier-Obilque" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_COURIER_BOLDOBILQUE:
+// 		pDict->SetAtName( "BaseFont", "Courier-BoldObilque" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_SYMBOL:
+// 		pDict->SetAtName( "BaseFont", "Symbol" );
+// 		break;
+// 	case FONT_TYPE1_STANDARD14_ZAPFDINGBATS:
+// 		pDict->SetAtName( "BaseFont", "ZapfDingbats" );
+// 		break;
+// 	default:
+// 		break;
+// 	}
+// 	//pDict->SetAtInteger( "FirstChar", 0 );
+// 	//pDict->SetAtInteger( "LastChar", 255 );
+// 	//pDict->SetAtReference( "Widths", pWidthsArr->GetObjNum() );
+// 	switch ( encoding )
+// 	{
+// 	case FONT_ENCODING_WINANSI:
+// 		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
+// 		break;
+// 	case FONT_ENCODING_MACROMAN:
+// 		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
+// 		break;
+// 	case FONT_ENCODING_MACEXPERT:
+// 		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
+// 		break;
+// 	default:
+// 		break;
+// 	}
+// 	return pDict;
+// }
+// 
+// CHE_PDF_Dictionary * CHE_PDF_Creator::AddType1Font(	const CHE_ByteString & baseFont,
+// 												   HE_DWORD firstChar/* = 0*/, HE_DWORD lastChar/* = 255*/,
+// 												   PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/, 
+// 												   /*const*/ CHE_PDF_Array * pWidths/* = NULL*/, 
+// 												   /*const*/ CHE_PDF_Dictionary * pFontDescriptor/* = NULL*/,
+// 												   /*const*/ CHE_PDF_Stream * pToUnicode/* = NULL*/ )
+// {
+// 	if ( m_bNewDocument != TRUE || baseFont.GetLength() == 0 )
+// 	{
+// 		return NULL;
+// 	}
+// 	CHE_PDF_Dictionary * pDict = AppendIndirectObj_Dict()->GetObj()->ToDict();
+// 	if ( pDict == NULL )
+// 	{
+// 		return NULL;
+// 	}
+// 	pDict->SetAtName( "Type", "Font" );
+// 	pDict->SetAtName( "Subtype", "Type1" );
+// 	pDict->SetAtName( "BaseFont", baseFont );
+// 	pDict->SetAtInteger( "FirstChar", 0 );
+// 	pDict->SetAtInteger( "LastChar", 255 );
+// 	switch( encoding )
+// 	{
+// 	case FONT_ENCODING_WINANSI:
+// 		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
+// 		break;
+// 	case FONT_ENCODING_MACROMAN:
+// 		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
+// 		break;
+// 	case FONT_ENCODING_MACEXPERT:
+// 		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
+// 		break;
+// 	default:
+// 		break;
+// 	}
+// 	if ( pWidths )
+// 	{
+// 		pDict->SetAtArray( "Widths", pWidths );
+// 	}
+// 	if ( pFontDescriptor )
+// 	{
+// 		pDict->SetAtDictionary( "FontDescriptor", pFontDescriptor );
+// 	}
+// 	if ( pToUnicode )
+// 	{
+// 		pDict->SetAtReference( "ToUnicode", pToUnicode->GetObjNum(), NULL );
+// 	}
+// 	return pDict;
+// }
+// 
+// CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont(	const CHE_ByteString & baseFont, 
+// 														HE_DWORD firstChar/* = 0*/, HE_DWORD lastChar/* = 255*/,
+// 														PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/,
+// 														const CHE_PDF_Array * pWidths/* = NULL*/, 
+// 														const CHE_PDF_Dictionary * pFontDescriptor/* = NULL*/,
+// 														const CHE_PDF_Stream * pToUnicode/* = NULL*/ )
+// {
+// 	if ( m_bNewDocument != TRUE || baseFont.GetLength() == 0 )
+// 	{
+// 		return NULL;
+// 	}
+// 	CHE_PDF_Dictionary * pDict = AppendIndirectObj_Dict();
+// 	if ( pDict == NULL )
+// 	{
+// 		return NULL;
+// 	}
+// 	pDict->SetAtName( "Type", "Font" );
+// 	pDict->SetAtName( "Subtype", "TrueType" );
+// 	pDict->SetAtName( "BaseFont", baseFont );
+// 	pDict->SetAtInteger( "FirstChar", firstChar );
+// 	pDict->SetAtInteger( "LastChar", lastChar );
+// 	switch( encoding )
+// 	{
+// 	case FONT_ENCODING_WINANSI:
+// 		pDict->SetAtName( "Encoding", "WinAnsiEncoding" );
+// 		break;
+// 	case FONT_ENCODING_MACROMAN:
+// 		pDict->SetAtName( "Encoding", "MacRomanEncoding" );
+// 		break;
+// 	case FONT_ENCODING_MACEXPERT:
+// 		pDict->SetAtName( "Encoding", "MacExpertEncoding" );
+// 		break;
+// 	default:
+// 		break;
+// 	}
+// 	if ( pWidths )
+// 	{
+// 		pDict->SetAtReference( "Widths", pWidths->GetObjNum() );
+// 	}
+// 	if ( pFontDescriptor )
+// 	{
+// 		pDict->SetAtReference( "FontDescriptor", pWidths->GetObjNum() );
+// 	}
+// 	if ( pToUnicode )
+// 	{
+// 		pDict->SetAtReference( "FontDescriptor", pToUnicode->GetObjNum() );
+// 	}
+// 	return pDict;
+// }
+// 
+// CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont( const char * pFontFile, HE_BOOL bEmbed/* = FALSE*/ )
+// {
+// 	if( pFontFile == NULL )
+// 		return NULL;
+// 
+// 	FT_Error eRet = 0;
+// 	FT_Library ftLib = NULL;
+// 	FT_Face ftFace = NULL;
+// 	eRet = FT_Init_FreeType( &ftLib );
+// 	if ( eRet != 0 )
+// 	{
+// 		return NULL;
+// 	}
+// 	eRet = FT_New_Face( ftLib, pFontFile, 0, &ftFace );
+// 	if ( eRet != 0 )
+// 	{
+// 		FT_Done_FreeType( ftLib );
+// 		return NULL;
+// 	}
+// 	const char * pFontName = FT_Get_Postscript_Name( ftFace );
+// 	if ( pFontName == NULL )
+// 	{
+// 		FT_Done_Face( ftFace );
+// 		FT_Done_FreeType( ftLib );
+// 		return NULL;
+// 	}
+// 	CHE_PDF_Dictionary * pFontDict = AddTrueTypeFont( pFontName, 0, 0 );
+// 	if ( pFontDict == NULL )
+// 	{
+// 		FT_Done_Face( ftFace );
+// 		FT_Done_FreeType( ftLib );
+// 		return NULL;
+// 	}
+// 	HE_FLOAT tmpF = ftFace->units_per_EM * 1.0 / 1000;
+// 	CHE_PDF_Array * pArr = CHE_PDF_Array::Create( pFontDict->GetObjNum(), 0, NULL, pFontDict->GetAllocator() );
+// 	CHE_PDF_Number * pWidth = CHE_PDF_Number::Create( (HE_INT32)( ftFace->max_advance_width/tmpF + 0.5 ), pFontDict->GetObjNum(), 0, NULL, pFontDict->GetAllocator() );
+// 	pArr->Append( pWidth );
+// 	pFontDict->SetAtArray( "Widths", pArr );
+// 	CHE_PDF_Dictionary * pFontDescriptor = AddDictionary();
+// 	if ( pFontDescriptor )
+// 	{
+// 		pFontDict->SetAtReference( "FontDescriptor", pFontDescriptor->GetObjNum() );
+// 		pFontDescriptor->SetAtName( "Type", "FontDescriptor" );
+// 		pFontDescriptor->SetAtName( "FontName", pFontName );
+// 		
+// 		CHE_PDF_Array * pArr = CHE_PDF_Array::Create( pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+// 		CHE_PDF_Number* f1 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.xMin/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+// 		CHE_PDF_Number* f2 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.yMin/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+// 		CHE_PDF_Number* f3 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.xMax/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+// 		CHE_PDF_Number* f4 = CHE_PDF_Number::Create( (HE_INT32)( ftFace->bbox.yMax/tmpF + 0.5 ), pFontDescriptor->GetObjNum(), 0, NULL, pFontDescriptor->GetAllocator() );
+// 		pArr->Append( f1 );
+// 		pArr->Append( f2 );
+// 		pArr->Append( f3 );
+// 		pArr->Append( f4 );
+// 		pFontDescriptor->SetAtArray( "FontBBox", pArr );
+// 		pFontDescriptor->SetAtInteger( "Ascent", ftFace->ascender/tmpF + 0.5 );
+// 		pFontDescriptor->SetAtInteger( "Descent", ftFace->descender/tmpF + 0.5 );
+// 		pFontDescriptor->SetAtInteger( "CapHeight", 500 );
+// 		pFontDescriptor->SetAtInteger( "MissingWidth", ftFace->max_advance_width/tmpF + 0.5 );
+// 		pFontDescriptor->SetAtInteger( "Flags", 33 );
+// 		pFontDescriptor->SetAtInteger( "ItalicAngle", 0 );
+// 		pFontDescriptor->SetAtInteger( "StemV", 80 );
+// 
+// 		if ( bEmbed == TRUE )
+// 		{
+// 			IHE_Read * pRead = HE_CreateFileRead( pFontFile );
+// 			if ( pRead != NULL )
+// 			{
+// 				HE_LPBYTE pByte = GetAllocator()->NewArray<HE_BYTE>( pRead->GetSize() );
+// 				pRead->ReadBlock( pByte, 0, pRead->GetSize() );
+// 				CHE_PDF_Stream * pStm = AddStream();
+// 				pFontDescriptor->SetAtReference( "FontFile2", pStm->GetObjNum() );
+// 				pStm->SetRawData( pByte, pRead->GetSize(), STREAM_FILTER_FLATE );
+// 				pStm->GetDict()->SetAtInteger( "Length1", pRead->GetSize() );
+// 				HE_DestoryIHERead( pRead );
+// 				GetAllocator()->DeleteArray<HE_BYTE>( pByte );
+// 			}
+// 		}
+// 	}
+// 	FT_Done_Face( ftFace );
+// 	FT_Done_FreeType( ftLib );
+// 	return pFontDict;
+// }
 
 HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj, IHE_Write * pWrite )
 {
@@ -955,121 +982,131 @@ HE_VOID CHE_PDF_Creator::ResetCreator()
 	m_collector.ReleaseObj();
 }
 
-CHE_PDF_Null* CHE_PDF_Creator::AppendIndirectObj_Null()
+CHE_PDF_IndirectObject* CHE_PDF_Creator::AppendIndirectObj_Null()
 {
 	IncreaseObjIndex();
-	CHE_PDF_Null * pObj = CHE_PDF_Null::Create( GetObjIndex(), 0, NULL, GetAllocator() );
-	if ( pObj != NULL )
+	CHE_PDF_Null * pObj = CHE_PDF_Null::Create( GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( GetObjIndex(), 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+	if ( pInObj )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
 	}else{
 		DecreaseObjIndex();
 	}
-	return pObj;
+	return pInObj;
 }
 
-CHE_PDF_Boolean* CHE_PDF_Creator::AppendIndirectObj_Boolean( HE_BOOL value )
+CHE_PDF_IndirectObject* CHE_PDF_Creator::AppendIndirectObj_Boolean( HE_BOOL value )
 {
 	IncreaseObjIndex();
-	CHE_PDF_Boolean * pObj = CHE_PDF_Boolean::Create( value, GetObjIndex(), 0, NULL, GetAllocator() );
-	if ( pObj != NULL )
+	CHE_PDF_Boolean * pObj = CHE_PDF_Boolean::Create( value, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( GetObjIndex(), 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+	if ( pInObj != NULL )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
 	}else{
 		DecreaseObjIndex();
 	}
-	return pObj;
+	return pInObj;
 }
 
-CHE_PDF_Number* CHE_PDF_Creator::AppendIndirectObj_Number( HE_INT32 value )
+CHE_PDF_IndirectObject* CHE_PDF_Creator::AppendIndirectObj_Number( HE_INT32 value )
 {
 	IncreaseObjIndex();
-	CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjIndex(), 0, NULL, GetAllocator() );
-	if ( pObj != NULL )
+	CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( GetObjIndex(), 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+	if ( pInObj != NULL )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
 	}else{
 		DecreaseObjIndex();
 	}
-	return pObj;
+	return pInObj;
 }
 
-CHE_PDF_Number* CHE_PDF_Creator::AppendIndirectObj_Number( HE_FLOAT value )
+CHE_PDF_IndirectObject* CHE_PDF_Creator::AppendIndirectObj_Number( HE_FLOAT value )
 {
 	IncreaseObjIndex();
-	CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetObjIndex(), 0, NULL, GetAllocator() );
-	if ( pObj != NULL )
+	CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( GetObjIndex(), 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+	if ( pInObj != NULL )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
 	}else{
 		DecreaseObjIndex();
 	}
-	return pObj;
+	return pInObj;
 }
 
-CHE_PDF_String* CHE_PDF_Creator::AppendIndirectObj_String( CHE_ByteString & str )
+CHE_PDF_IndirectObject* CHE_PDF_Creator::AppendIndirectObj_String( CHE_ByteString & str )
 {
 	IncreaseObjIndex();
-	CHE_PDF_String * pObj = CHE_PDF_String::Create( str, GetObjIndex(), 0, NULL, GetAllocator() );
-	if ( pObj != NULL )
+	CHE_PDF_String * pObj = CHE_PDF_String::Create( str, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( GetObjIndex(), 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+	if ( pInObj != NULL )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
 	}else{
 		DecreaseObjIndex();
 	}
-	return pObj;
+	return pInObj;
 }
 
-CHE_PDF_Name* CHE_PDF_Creator::AppendIndirectObj_Name( CHE_ByteString & str )
+CHE_PDF_IndirectObject* CHE_PDF_Creator::AppendIndirectObj_Name( CHE_ByteString & str )
 {
 	IncreaseObjIndex();
-	CHE_PDF_Name * pObj = CHE_PDF_Name::Create( str, GetObjIndex(), 0, NULL, GetAllocator() );
-	if ( pObj != NULL )
+	CHE_PDF_Name * pObj = CHE_PDF_Name::Create( str, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( GetObjIndex(), 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+	if ( pInObj != NULL )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
 	}else{
 		DecreaseObjIndex();
 	}
-	return pObj;
+	return pInObj;
 }
 
-CHE_PDF_Array* CHE_PDF_Creator::AppendIndirectObj_Array()
+CHE_PDF_IndirectObject* CHE_PDF_Creator::AppendIndirectObj_Array()
 {
 	IncreaseObjIndex();
-	CHE_PDF_Array * pObj = CHE_PDF_Array::Create( GetObjIndex(), 0, NULL, GetAllocator() );
-	if ( pObj != NULL )
+	CHE_PDF_Array * pObj = CHE_PDF_Array::Create( GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( GetObjIndex(), 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+	if ( pInObj != NULL )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
 	}else{
 		DecreaseObjIndex();
 	}
-	return pObj;
+	return pInObj;
 }
 
-CHE_PDF_Dictionary* CHE_PDF_Creator::AppendIndirectObj_Dict()
+CHE_PDF_IndirectObject* CHE_PDF_Creator::AppendIndirectObj_Dict()
 {
 	IncreaseObjIndex();
-	CHE_PDF_Dictionary * pObj = CHE_PDF_Dictionary::Create( GetObjIndex(), 0, NULL, GetAllocator() );
-	if ( pObj != NULL )
+	CHE_PDF_Dictionary * pObj = CHE_PDF_Dictionary::Create( GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( GetObjIndex(), 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+	if ( pInObj != NULL )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
 	}else{
 		DecreaseObjIndex();
 	}
-	return pObj;
+	return pInObj;
 }
 
-CHE_PDF_Stream*	CHE_PDF_Creator::AppendIndirectObj_Stream()
+CHE_PDF_IndirectObject*	CHE_PDF_Creator::AppendIndirectObj_Stream()
 {
 	IncreaseObjIndex();
- 	CHE_PDF_Stream * pObj = CHE_PDF_Stream::Create( GetObjIndex(), 0, NULL, NULL, GetAllocator() );
- 	if ( pObj != NULL )
+	HE_DWORD objNum = GetObjIndex();
+ 	CHE_PDF_Stream * pObj = CHE_PDF_Stream::Create( objNum, 0 );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( objNum, 0, pObj, (CHE_PDF_Parser*)NULL, GetAllocator() );
+ 	if ( pInObj != NULL )
 	{
-		m_collector.Add( pObj );
+		m_collector.Add( pInObj );
  	}else{
  		DecreaseObjIndex();
  	}
- 	return pObj;
+ 	return pInObj;
 }
 
 HE_BOOL CHE_PDF_Creator::SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,

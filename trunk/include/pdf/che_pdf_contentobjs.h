@@ -50,7 +50,8 @@ enum PDF_PATHITEM_TYPE
 	PathItem_MoveTo = 0,
 	PathItem_LineTo = 1,
 	PathItem_CurveTo = 2,
-	PathItem_Close = 3
+	PathItem_Rectangle = 3,
+	PathItem_Close = 4
 };
 
 class CHE_PDF_PathItem

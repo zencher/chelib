@@ -18,13 +18,13 @@ bool operator < ( const ObjectCloneMgrData & data1, const ObjectCloneMgrData & d
 	return false;
 }
 
-CHE_PDF_Array* CloneDirectArrayObj( CHE_PDF_Array * pArray, CHE_PDF_Creator * creator, HE_DWORD objNum, HE_DWORD genNum, IHE_ObjectCloneMgr * pMgr /*= NULL*/ )
+CHE_PDF_Array* CloneDirectArrayObj( CHE_PDF_Array * pArray, CHE_PDF_Creator * creator, /*HE_DWORD objNum, HE_DWORD genNum,*/ IHE_ObjectCloneMgr * pMgr /*= NULL*/ )
 {
 	if ( pArray == NULL || creator == NULL )
 	{
 		return NULL;
 	}
-	CHE_PDF_Array * pNewArray = CHE_PDF_Array::Create( objNum, genNum );
+	CHE_PDF_Array * pNewArray = CHE_PDF_Array::Create( /*objNum, genNum*/ );
 	CHE_PDF_Object * pTmpObj = NULL;
 	for ( HE_DWORD i = 0; i < pArray->GetCount(); i++ )
 	{
@@ -32,35 +32,35 @@ CHE_PDF_Array* CloneDirectArrayObj( CHE_PDF_Array * pArray, CHE_PDF_Creator * cr
 		switch ( pTmpObj->GetType() )
 		{
 		case OBJ_TYPE_NULL:
-			pNewArray->Append( CHE_PDF_Null::Create( pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+			pNewArray->Append( CHE_PDF_Null::Create( /*pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 			break;
 		case OBJ_TYPE_BOOLEAN:
-			pNewArray->Append( CHE_PDF_Boolean::Create( pTmpObj->ToBoolean()->GetValue(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+			pNewArray->Append( CHE_PDF_Boolean::Create( pTmpObj->ToBoolean()->GetValue()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 			break;
 		case OBJ_TYPE_NUMBER:
 			if ( pTmpObj->ToNumber()->IsInteger() )
 			{
-				pNewArray->Append( CHE_PDF_Number::Create( pTmpObj->ToNumber()->GetInteger(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+				pNewArray->Append( CHE_PDF_Number::Create( pTmpObj->ToNumber()->GetInteger()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 			}else{
-				pNewArray->Append( CHE_PDF_Number::Create( pTmpObj->ToNumber()->GetFloat(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+				pNewArray->Append( CHE_PDF_Number::Create( pTmpObj->ToNumber()->GetFloat()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 			}
 			break;
 		case OBJ_TYPE_STRING:
-			pNewArray->Append( CHE_PDF_String::Create( pTmpObj->ToString()->GetString(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+			pNewArray->Append( CHE_PDF_String::Create( pTmpObj->ToString()->GetString()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 			break;
 		case OBJ_TYPE_NAME:
-			pNewArray->Append( CHE_PDF_Name::Create( pTmpObj->ToName()->GetString(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+			pNewArray->Append( CHE_PDF_Name::Create( pTmpObj->ToName()->GetString()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 			break;
 		case OBJ_TYPE_ARRAY:
-			pNewArray->Append( CloneDirectArrayObj( pTmpObj->ToArray(), creator, objNum, genNum, pMgr ) );
+			pNewArray->Append( CloneDirectArrayObj( pTmpObj->ToArray(), creator, /*objNum, genNum,*/ pMgr ) );
 			break;
 		case OBJ_TYPE_DICTIONARY:
-			pNewArray->Append( CloneDirectDictObj( pTmpObj->ToDict(), creator, objNum, genNum, pMgr ) );
+			pNewArray->Append( CloneDirectDictObj( pTmpObj->ToDict(), creator, /*objNum, genNum,*/ pMgr ) );
 			break;
 		case OBJ_TYPE_REFERENCE:
 			{
 				HE_DWORD refNum = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
-				pNewArray->Append( CHE_PDF_Reference::Create( refNum, objNum, genNum ) );
+				pNewArray->Append( CHE_PDF_Reference::Create( refNum, pTmpObj->ToReference()->GetParser() ) );
 				break;
 			}
 		default:
@@ -70,14 +70,14 @@ CHE_PDF_Array* CloneDirectArrayObj( CHE_PDF_Array * pArray, CHE_PDF_Creator * cr
 	return pNewArray;
 }
 
-CHE_PDF_Dictionary* CloneDirectDictObj( CHE_PDF_Dictionary * pDict, CHE_PDF_Creator * creator, HE_DWORD objNum, HE_DWORD genNum, IHE_ObjectCloneMgr * pMgr /*= NULL*/ )
+CHE_PDF_Dictionary* CloneDirectDictObj( CHE_PDF_Dictionary * pDict, CHE_PDF_Creator * creator, /*HE_DWORD objNum, HE_DWORD genNum,*/ IHE_ObjectCloneMgr * pMgr /*= NULL*/ )
 {
 	if ( pDict == NULL || creator == NULL )
 	{
 		return NULL;
 	}
 
-	CHE_PDF_Dictionary * pNewDict = CHE_PDF_Dictionary::Create( objNum, genNum );
+	CHE_PDF_Dictionary * pNewDict = CHE_PDF_Dictionary::Create( /*objNum, genNum*/ );
 	CHE_PDF_Object * pTmpObj = NULL;
 	CHE_ByteString key;
 	for ( HE_DWORD i = 0; i < pDict->GetCount(); i++ )
@@ -107,15 +107,15 @@ CHE_PDF_Dictionary* CloneDirectDictObj( CHE_PDF_Dictionary * pDict, CHE_PDF_Crea
 			pNewDict->SetAtName( key, pTmpObj->ToName()->GetString() );
 			break;
 		case OBJ_TYPE_ARRAY:
-			pNewDict->SetAtArray( key, CloneDirectArrayObj( pTmpObj->ToArray(), creator, pNewDict->GetObjNum(), pNewDict->GetObjNum(), pMgr ) );
+			pNewDict->SetAtArray( key, CloneDirectArrayObj( pTmpObj->ToArray(), creator, /*pNewDict->GetObjNum(), pNewDict->GetObjNum(),*/ pMgr ) );
 			break;
 		case OBJ_TYPE_DICTIONARY:
-			pNewDict->SetAtDictionary( key, CloneDirectDictObj( pTmpObj->ToDict(), creator, pNewDict->GetObjNum(), pNewDict->GetGenNum(), pMgr ) );
+			pNewDict->SetAtDictionary( key, CloneDirectDictObj( pTmpObj->ToDict(), creator, /*pNewDict->GetObjNum(), pNewDict->GetGenNum(),*/ pMgr ) );
 			break;
 		case OBJ_TYPE_REFERENCE:
 			{
 				HE_DWORD refNum = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
-				pNewDict->SetAtReference( key, refNum );
+				pNewDict->SetAtReference( key, refNum, pTmpObj->ToReference()->GetParser() );
 				break;
 			}
 		default:
@@ -144,7 +144,7 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 			newObject = creator->AppendIndirectObj_Null()->GetObjNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
 			break;
 		}
@@ -153,7 +153,7 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 			newObject = creator->AppendIndirectObj_Boolean( pObj->ToBoolean()->GetValue() )->GetObjNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
 			break;
 		}
@@ -167,7 +167,7 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 			}
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
 			break;
 		}
@@ -176,7 +176,7 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 			newObject = creator->AppendIndirectObj_String( pObj->ToString()->GetString() )->GetObjNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
 			break;
 		}
@@ -185,17 +185,18 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 			newObject = creator->AppendIndirectObj_Name( pObj->ToName()->GetString() )->GetObjNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
 			break;
 		}
 	case OBJ_TYPE_ARRAY:
 		{
-			CHE_PDF_Array * pNewArray = creator->AppendIndirectObj_Array();
-			newObject = pNewArray->GetObjNum();
+			CHE_PDF_IndirectObject * pInArrayObj  = creator->AppendIndirectObj_Array();
+			CHE_PDF_Array * pNewArray = pInArrayObj->GetObj()->ToArray();
+			newObject = pInArrayObj->GetObjNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
 			CHE_PDF_Array * pArray = pObj->ToArray();
 			CHE_PDF_Object * pTmpObj = NULL;
@@ -205,35 +206,35 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 				switch ( pTmpObj->GetType() )
 				{
 				case OBJ_TYPE_NULL:
-					pNewArray->Append( CHE_PDF_Null::Create( pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+					pNewArray->Append( CHE_PDF_Null::Create( /*pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 					break;
 				case OBJ_TYPE_BOOLEAN:
-					pNewArray->Append( CHE_PDF_Boolean::Create( pTmpObj->ToBoolean()->GetValue(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+					pNewArray->Append( CHE_PDF_Boolean::Create( pTmpObj->ToBoolean()->GetValue()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 					break;
 				case OBJ_TYPE_NUMBER:
 					if ( pTmpObj->ToNumber()->IsInteger() )
 					{
-						pNewArray->Append( CHE_PDF_Number::Create( pTmpObj->ToNumber()->GetInteger(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+						pNewArray->Append( CHE_PDF_Number::Create( pTmpObj->ToNumber()->GetInteger()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 					}else{
-						pNewArray->Append( CHE_PDF_Number::Create( pTmpObj->ToNumber()->GetFloat(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+						pNewArray->Append( CHE_PDF_Number::Create( pTmpObj->ToNumber()->GetFloat()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 					}
 					break;
 				case OBJ_TYPE_STRING:
-					pNewArray->Append( CHE_PDF_String::Create( pTmpObj->ToString()->GetString(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+					pNewArray->Append( CHE_PDF_String::Create( pTmpObj->ToString()->GetString()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 					break;
 				case OBJ_TYPE_NAME:
-					pNewArray->Append( CHE_PDF_Name::Create( pTmpObj->ToName()->GetString(), pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+					pNewArray->Append( CHE_PDF_Name::Create( pTmpObj->ToName()->GetString()/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 					break;
 				case OBJ_TYPE_ARRAY:
-					pNewArray->Append( CloneDirectArrayObj( pTmpObj->ToArray(), creator, pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+					pNewArray->Append( CloneDirectArrayObj( pTmpObj->ToArray(), creator/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 					break;
 				case OBJ_TYPE_DICTIONARY:
-					pNewArray->Append( CloneDirectDictObj( pTmpObj->ToDict(), creator, pNewArray->GetObjNum(), pNewArray->GetGenNum() )  );
+					pNewArray->Append( CloneDirectDictObj( pTmpObj->ToDict(), creator/*, pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ )  );
 					break;
 				case OBJ_TYPE_REFERENCE:
 					{
 						HE_DWORD refNum = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
-						pNewArray->Append( CHE_PDF_Reference::Create( refNum, pNewArray->GetObjNum(), pNewArray->GetGenNum() ) );
+						pNewArray->Append( CHE_PDF_Reference::Create( refNum, pTmpObj->ToReference()->GetParser()/* pNewArray->GetObjNum(), pNewArray->GetGenNum()*/ ) );
 						break;
 					}
 				default:
@@ -244,11 +245,12 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 		}
 	case OBJ_TYPE_DICTIONARY:
 		{
-			CHE_PDF_Dictionary * pNewDict = creator->AppendIndirectObj_Dict();
-			newObject = pNewDict->GetObjNum();
+			CHE_PDF_IndirectObject * pInDictObj  = creator->AppendIndirectObj_Dict();
+			CHE_PDF_Dictionary * pNewDict = pInDictObj->GetObj()->ToDict();
+			newObject = pInDictObj->GetObjNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
 			CHE_PDF_Dictionary * pDict = pObj->ToDict();
 			CHE_PDF_Object * pTmpObj = NULL;
@@ -280,15 +282,15 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 					pNewDict->SetAtName( key, pTmpObj->ToName()->GetString() );
 					break;
 				case OBJ_TYPE_ARRAY:
-					pNewDict->SetAtArray( key, CloneDirectArrayObj( pTmpObj->ToArray(), creator, pNewDict->GetObjNum(), pNewDict->GetObjNum(), pMgr ) );
+					pNewDict->SetAtArray( key, CloneDirectArrayObj( pTmpObj->ToArray(), creator, pMgr ) );
 					break;
 				case OBJ_TYPE_DICTIONARY:
-					pNewDict->SetAtDictionary( key, CloneDirectDictObj( pTmpObj->ToDict(), creator, pNewDict->GetObjNum(), pNewDict->GetGenNum(), pMgr ) );
+					pNewDict->SetAtDictionary( key, CloneDirectDictObj( pTmpObj->ToDict(), creator, pMgr ) );
 					break;
 				case OBJ_TYPE_REFERENCE:
 					{
 						HE_DWORD refNum = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
-						pNewDict->SetAtReference( key, refNum );
+						pNewDict->SetAtReference( key, refNum, pTmpObj->ToReference()->GetParser() );
 						break;
 					}
 				default:
@@ -299,13 +301,14 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 		}
 	case OBJ_TYPE_STREAM:
 		{
-			CHE_PDF_Stream * pNewStream = creator->AppendIndirectObj_Stream();
-			newObject = pNewStream->GetObjNum();
+			CHE_PDF_IndirectObject * pInStreamObj = creator->AppendIndirectObj_Stream();
+			CHE_PDF_Stream * pNewStream = pInStreamObj->GetObj()->ToStream();
+			newObject = pInStreamObj->GetObjNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
-			CHE_PDF_Dictionary * pNewDict = CloneDirectDictObj( pObj->ToStream()->GetDict(), creator, pNewStream->GetObjNum(), pNewStream->GetGenNum(), pMgr );
+			CHE_PDF_Dictionary * pNewDict = CloneDirectDictObj( pObj->ToStream()->GetDict(), creator, pMgr );
 			pNewStream->SetDict( pNewDict );
 			HE_LPBYTE pbuffer = new unsigned char[pObj->ToStream()->GetRawSize()];
 			pObj->ToStream()->GetRawData( 0, pbuffer, pObj->ToStream()->GetRawSize() );
@@ -320,7 +323,7 @@ HE_DWORD CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * cre
 			newObject = CloneIndirectObject( pObj->ToReference(), creator, pMgr );
 			if ( pMgr )
 			{
-				pMgr->SetMap( pObj->GetObjNum(), newObject );
+				pMgr->SetMap( pRefObj->GetRefNum(), newObject );
 			}
 			break;
 		}

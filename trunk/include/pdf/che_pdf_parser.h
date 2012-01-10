@@ -111,13 +111,11 @@ public:
 	CHE_PDF_Object *			GetObject( HE_DWORD objNum );
 	PDF_OBJ_STATUS				GetObjectStatus( HE_DWORD objNum );
 
-	CHE_PDF_Object *			CreateObject( PDF_OBJ_TYPE type );
-	HE_DWORD					GetNewObjectCount();
-	CHE_PDF_Object *			GetNewObject( HE_DWORD index );
+	CHE_PDF_IndirectObject *	CreateInObject( PDF_OBJ_TYPE type );
 
-	HE_BOOL						SetObjectModified( HE_DWORD objNum );
-	HE_DWORD					GetModifiedObjectCount();
-	CHE_PDF_Object *			GetModifiedObject( HE_DWORD index );
+	HE_BOOL						SetInObjUpdated( HE_DWORD objNum );
+	HE_DWORD					GetUpdatedInObjCount();
+	CHE_PDF_IndirectObject *	GetUpdatedInObj( HE_DWORD index );
 
 private:
 	HE_DWORD					GetStartxref( HE_DWORD range );
@@ -150,8 +148,8 @@ private:
 	CHE_PDF_SyntaxParser		m_sParser;
 	CHE_PDF_XREF_Table			m_xrefTable;				//结构化的交叉索引表信息
 	CHE_PDF_Collector			m_objCollector;				//对象收集器，被加载的都被放入收集器，某些尾字典不会
-	CHE_PDF_Collector			m_NewObjCollector;			//新建的对象的收集器
-	CHE_PDF_Collector			m_ModifiedObjCollector;		//被修改的对象的收集器
+	CHE_PDF_Collector			m_UpdateObjCollector;		//新建和修改的对象的收集器
+	//CHE_PDF_Collector			m_ModifiedObjCollector;		//被修改的对象的收集器
 
 	friend class CHE_PDF_Creator;
 };

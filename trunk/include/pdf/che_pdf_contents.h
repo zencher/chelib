@@ -16,25 +16,25 @@ public:
 	virtual ~IHE_PDF_ContentListConstructor() {};
 
 	virtual void SetMatrix( const CHE_PDF_Matrix & matrix ) = 0;
-	virtual void SetLineWidth( float lineWidth ) = 0;
+	virtual void SetLineWidth( HE_FLOAT lineWidth ) = 0;
 	virtual void SetLineCap( PDF_GSTATE_LINECAP lineCap ) = 0;
 	virtual void SetLineJion( PDF_GSTATE_LINEJOIN lineJion ) = 0;
-	virtual void SetMiterLimit( float miterLimit ) = 0;
+	virtual void SetMiterLimit( HE_FLOAT miterLimit ) = 0;
 	virtual void SetLineDash( const PDF_GSTATE_DASHPATTERN & dashPattern ) = 0;
 	virtual void SetRenderingIntents( PDF_GSTATE_RENDERINTENTS ri ) = 0;
-	virtual void SetFlatness( unsigned char flatness ) = 0;
-	virtual void SetExtGState( std::string name, const CHE_PDF_Dictionary * pDict ) = 0;
+	virtual void SetFlatness( HE_BYTE flatness ) = 0;
+	virtual void SetExtGState( const std::string & name, const CHE_PDF_Dictionary * pDict ) = 0;
 	virtual void SetStrokeColor() = 0;
 	virtual void SetFillColor() = 0;
 	virtual void SetStrokeColorSpace() = 0;
 	virtual void SetFillColorSpace() = 0;
 	virtual void SetTextFont() = 0;
-	virtual void SetTextFontSize( float size ) = 0;
-	virtual void SetTextCharSpace( float charspace ) = 0;
-	virtual void SetTextWordSpace( float wordspace ) = 0;
-	virtual void SetTextHScaling( float scaling ) = 0;
-	virtual void SetTextLeading( float leading ) = 0;
-	virtual void SetTextRise( float rise ) = 0;
+	virtual void SetTextFontSize( HE_FLOAT size ) = 0;
+	virtual void SetTextCharSpace( HE_FLOAT charspace ) = 0;
+	virtual void SetTextWordSpace( HE_FLOAT wordspace ) = 0;
+	virtual void SetTextHScaling( HE_FLOAT scaling ) = 0;
+	virtual void SetTextLeading( HE_FLOAT leading ) = 0;
+	virtual void SetTextRise( HE_FLOAT rise ) = 0;
 	virtual void SetTextMatirx( const CHE_PDF_Matrix & matrix ) = 0;
 	virtual void SetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE rm ) = 0;
 
@@ -48,18 +48,54 @@ public:
 	virtual void Over() = 0;
 };
 
-IHE_PDF_ContentListConstructor * CreateConstructor( std::vector<CHE_PDF_ContentObject*> * pVector, CHE_Allocator * pAllocator );
+IHE_PDF_ContentListConstructor * CreateConstructor( std::vector<CHE_PDF_ContentObject*> * pVector, CHE_Allocator * pAllocator = NULL );
+
+enum PDF_CONTENTRES_TYPE
+{
+	CONTENTRES_EXTGSTATE = 0,
+	CONTENTRES_COLORSPACE = 1,
+	CONTENTRES_PATTERN = 2,
+	CONTENTRES_SHADING = 3,
+	CONTENTRES_XOBJECT = 4,
+	CONTENTRES_FONT = 5
+};
 
 class CHE_PDF_ContentResMgr : public CHE_Object
 {
+public:
+	CHE_PDF_ContentResMgr( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object(pAllocator), mpResDict(NULL) {}
+	CHE_PDF_ContentResMgr( CHE_PDF_Dictionary * pResDict, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object(pAllocator), mpResDict(pResDict) {} 
 
+	HE_VOID SetDict( CHE_PDF_Dictionary * pDict ) { mpResDict; }
+	CHE_PDF_Dictionary * GetDict() { return mpResDict; }
+
+	CHE_ByteString CreateName( PDF_CONTENTRES_TYPE type, CHE_PDF_Object * pObj );
+
+	CHE_ByteString CreateName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name, CHE_Object * pObj );
+
+	HE_BOOL	DeleteName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
+
+	CHE_Object * GetResObj( PDF_CONTENTOBJ_TYPE type, const CHE_ByteString & name );
+
+	CHE_Object * GetResObj( const CHE_ByteString & name );
+
+private:
+	CHE_PDF_Dictionary * GetSubDict( PDF_CONTENTRES_TYPE type );
+
+	CHE_PDF_Dictionary * CreateSubDict( PDF_CONTENTRES_TYPE type );
+
+	CHE_ByteString RequestName( CHE_PDF_Dictionary * pSubDict, const CHE_ByteString & name );
+
+	CHE_PDF_Dictionary * mpResDict;
 };
 
 class CHE_PDF_ContentsParser : public CHE_Object
 {
 public:
-	CHE_PDF_ContentsParser( CHE_Allocator * pAllocator = NULL )
-		:	mpConstructor(NULL), mpPath(NULL), mCurX(0), mCurY(0),
+	CHE_PDF_ContentsParser( CHE_PDF_ContentResMgr * pResMgr, IHE_PDF_ContentListConstructor * pConstructor, CHE_Allocator * pAllocator = NULL )
+		:	mpContentResMgr(pResMgr), mpConstructor(pConstructor), mpPath(NULL), mCurX(0), mCurY(0),
 			mString(pAllocator), mName(pAllocator), mpObj(NULL),
 			CHE_Object( pAllocator ) {}
 
@@ -76,9 +112,13 @@ public:
 		}
 	}
 
-	HE_VOID Parse( const CHE_PDF_Stream * pContents, const CHE_PDF_Dictionary * pResources, IHE_PDF_ContentListConstructor * pConstructor );
+	HE_BOOL Parse( const CHE_PDF_Stream * pContentStream );
+
+	HE_BOOL Parse( const CHE_PDF_Array * pContentArray );
 
 private:
+	HE_VOID ParseImp( CHE_DynBuffer * pStream );
+
 	HE_VOID Handle_dquote();
 	HE_VOID Handle_squote();
 	HE_VOID Handle_B();
@@ -152,15 +192,16 @@ private:
 	HE_VOID Handle_y();
 
 	//CHE_PDF_ContentResMgr * mpResMgr;
-	std::vector<float>	mOpdFloatStack;
-	CHE_ByteString		mName;
-	CHE_ByteString		mString;
-	CHE_PDF_Object *	mpObj;
+	std::vector<HE_FLOAT>	mOpdFloatStack;
+	CHE_ByteString			mName;
+	CHE_ByteString			mString;
+	CHE_PDF_Object *		mpObj;
 
-	CHE_PDF_Path *		mpPath;
-	float				mCurX;
-	float				mCurY;
+	CHE_PDF_Path *			mpPath;
+	HE_FLOAT				mCurX;
+	HE_FLOAT				mCurY;
 
+	CHE_PDF_ContentResMgr * mpContentResMgr;
 	IHE_PDF_ContentListConstructor * mpConstructor;
 };
 

@@ -60,7 +60,7 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 	{
 		return 0;
 	}
-	CHE_PDF_SyntaxParser sParser( pFontDict->GetParser(), GetAllocator() );
+	CHE_PDF_SyntaxParser sParser( NULL/*pFontDict->GetParser()*/, GetAllocator() );
 	if ( sParser.InitParser( pContentRead ) == FALSE )
 	{
 		pContentRead->Release();
@@ -93,15 +93,15 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 			switch ( wordDes.type )
 			{
 			case PARSE_WORD_INTEGER:
-				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetInteger(), 0, 0, NULL, GetAllocator() );
+				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetInteger(), GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PARSE_WORD_FLOAT:
-				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetFloat(), 0, 0, NULL, GetAllocator() );
+				pTmpNode = CHE_PDF_Number::Create( wordDes.str.GetFloat(), GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PARSE_WORD_NAME:
-				pTmpNode = CHE_PDF_Name::Create( wordDes.str, 0, 0, NULL, GetAllocator() );
+				pTmpNode = CHE_PDF_Name::Create( wordDes.str, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PARSE_WORD_ARRAY_B:
@@ -115,24 +115,24 @@ HE_DWORD CHE_PDF_TextExtractor::Extract(	CHE_DynBuffer & content, CHE_PDF_Dictio
 				OpdStack.Push( pTmpNode );
 				break;
 			case PARSE_WORD_STRING:
-				pTmpNode = CHE_PDF_String::Create( wordDes.str, 0, 0, NULL, GetAllocator() );
+				pTmpNode = CHE_PDF_String::Create( wordDes.str, GetAllocator() );
 				OpdStack.Push( pTmpNode );
 				break;
 			case PARSE_WORD_UNKNOWN:
 				{
 					if ( wordDes.str == "null" )
 					{
-						pTmpNode = CHE_PDF_Null::Create( 0, 0, NULL, GetAllocator() );
+						pTmpNode = CHE_PDF_Null::Create( GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}else if ( wordDes.str == "false" )
 					{
-						pTmpNode = CHE_PDF_Boolean::Create( FALSE, 0, 0, NULL, GetAllocator() );
+						pTmpNode = CHE_PDF_Boolean::Create( FALSE, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}else if ( wordDes.str == "true" )
 					{
-						pTmpNode = CHE_PDF_Boolean::Create( TRUE, 0, 0, NULL, GetAllocator() );
+						pTmpNode = CHE_PDF_Boolean::Create( TRUE, GetAllocator() );
 						OpdStack.Push( pTmpNode );
 						break;
 					}

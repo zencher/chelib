@@ -41,30 +41,24 @@ public:
 
 	/************* Document Level Resources Operations *************/
 
-// 	CHE_PDF_Dictionary*		AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI );
-// 	
-// 	/* AddType1Font 添加一个Type1 字体，必须自行并正确的设置相关的信息，如果包含Widths, */
-// 	/* FontDescriptor, ToUnicode 等信息，必须首先将这些对象插入文档，以便在创建字体字典的时候 */
-// 	/* 可以正确引用这些对象 */
-// 	CHE_PDF_Dictionary *	AddType1Font(	const CHE_ByteString & baseFont, HE_DWORD firstChar = 0, HE_DWORD lastChar = 255,
-// 											PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI, 
-// 											/*const*/ CHE_PDF_Array * pWidths = NULL, /*const*/ CHE_PDF_Dictionary * pFontDescriptor = NULL,
-// 											/*const*/ CHE_PDF_Stream * pToUnicode = NULL );
-// 
-// 	/* AddTrueTypeFont 添加一个TrueType 字体，必须自行并正确的设置相关的信息，如果包含Widths, */
-// 	/* FontDescriptor, ToUnicode 等信息，必须首先将这些对象插入文档，以便在创建字体字典的时候 */
-// 	/* 可以正确引用这些对象 */
-// 	CHE_PDF_Dictionary*		AddTrueTypeFont(	const CHE_ByteString & baseFont, HE_DWORD firstChar = 0, HE_DWORD lastChar = 255,
-// 												PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI, 
-// 												/*const*/ CHE_PDF_Array * pWidths = NULL, /*const*/ CHE_PDF_Dictionary * pFontDescriptor = NULL,
-// 												/*const*/ CHE_PDF_Stream * pToUnicode = NULL );
+ 	CHE_PDF_IndirectObject *	AddType1Font_Standard14( HE_BYTE fontType, PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI );
+ 	
+	/* AddType1Font 添加一个Type1 字体，必须自行并正确的设置相关的信息，如果包含Widths, FontDescriptor, ToUnicode 等信息 */
+	CHE_PDF_IndirectObject *	AddType1Font(	const CHE_ByteString & baseFont, HE_DWORD firstChar = 0, HE_DWORD lastChar = 255,
+												PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI, CHE_PDF_Array * pWidths = NULL,
+												CHE_PDF_Dictionary * pFontDescriptor = NULL, CHE_PDF_IndirectObject * pToUnicodeStream = NULL );
+
+// 	/* AddTrueTypeFont 添加一个TrueType 字体，必须自行并正确的设置相关的信息，如果包含Widths, FontDescriptor, ToUnicode 等信息 */
+// 	CHE_PDF_IndirectObject *	AddTrueTypeFont(const CHE_ByteString & baseFont, HE_DWORD firstChar = 0, HE_DWORD lastChar = 255,
+// 												PDF_FONT_ENCODING encoding = FONT_ENCODING_WINANSI, CHE_PDF_Array * pWidths = NULL,
+// 												CHE_PDF_Dictionary * pFontDescriptor = NULL, CHE_PDF_Stream * pToUnicode = NULL );
 // 
 // 	/* AddTrueTypeFont 从一个字体文件去获取相关的字体信息并创建一个字体字典，加入到文档中 */
-// 	CHE_PDF_Dictionary*		AddTrueTypeFont( const char * pFontFile, HE_BOOL bEmbed = FALSE );
+// 	CHE_PDF_IndirectObject *	AddTrueTypeFont( const char * pFontFile, HE_BOOL bEmbed = FALSE );
 
 
-	CHE_PDF_Dictionary *	AddDictionary() { return AppendIndirectObj_Dict()->GetObj()->ToDict(); }
-	CHE_PDF_Stream *		AddStream() { return AppendIndirectObj_Stream()->GetObj()->ToStream(); }
+	//CHE_PDF_Dictionary *	AddDictionary() { return AppendIndirectObj_Dict()->GetObj()->ToDict(); }
+	//CHE_PDF_Stream *		AddStream() { return AppendIndirectObj_Stream()->GetObj()->ToStream(); }
 
 	CHE_PDF_IndirectObject*	AppendIndirectObj_Null();
 	CHE_PDF_IndirectObject*	AppendIndirectObj_Boolean( HE_BOOL value );
@@ -94,14 +88,10 @@ private:
 
 	PDF_VERSION				m_Version;
 
-	HE_DWORD				m_dwPageObjNum;
-	HE_DWORD				m_dwCatalogObjNum;
-	HE_DWORD				m_dwEncryptObjNum;
-	HE_DWORD				m_dwInfoObjNum;
-	CHE_PDF_Dictionary *	m_pCatalogDict;
-	CHE_PDF_Dictionary *	m_pPagesDict;
-	CHE_PDF_Dictionary *	m_pEncryptDict;
-	CHE_PDF_Dictionary *	m_pInfoDict;
+	CHE_PDF_IndirectObject * m_pCatalogObj;
+	CHE_PDF_IndirectObject * m_pPagesObj;
+	CHE_PDF_IndirectObject * m_pEncryptObj;
+	CHE_PDF_IndirectObject * m_pInfoObj;
 
 	CHE_PDF_Encrypt *		m_pEncrypt;
 

@@ -996,7 +996,7 @@ CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::GetSubDict( PDF_CONTENTRES_TYPE type
 
 CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::CreateSubDict( PDF_CONTENTRES_TYPE type )
 {
-	CHE_PDF_Dictionary * pTmpDict = CHE_PDF_Dictionary::Create( mpResDict->GetObjNum(), mpResDict->GetGenNum(), mpResDict->GetParser(), mpResDict->GetAllocator() );
+	CHE_PDF_Dictionary * pTmpDict = CHE_PDF_Dictionary::Create( mpResDict->GetAllocator() );
 	switch ( type )
 	{
 	case CONTENTRES_EXTGSTATE:

@@ -23,22 +23,23 @@ class CHE_PDF_Object : public CHE_Object
 public:
 	PDF_OBJ_TYPE		GetType() const { return m_Type; }
 
+	CHE_PDF_Object *	Clone();
+
+	HE_VOID				Release();
+
 	CHE_PDF_Boolean *	ToBoolean() const;
 	CHE_PDF_Number *	ToNumber() const;
 	CHE_PDF_String *	ToString() const;
 	CHE_PDF_Name *		ToName() const;
-	CHE_PDF_Reference * ToReference() const;
 	CHE_PDF_Array*		ToArray() const;
 	CHE_PDF_Dictionary*	ToDict() const;
+	CHE_PDF_Reference * ToReference() const;
 	CHE_PDF_Stream *	ToStream() const;
 
-	HE_VOID				Release();
-
 protected:
-	CHE_PDF_Object( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator ) { m_Type = OBJ_TYPE_INVALID; }
+	CHE_PDF_Object( CHE_Allocator * pAllocator = NULL ) : CHE_Object(pAllocator), m_Type(OBJ_TYPE_INVALID) {}
 
-	~CHE_PDF_Object() {}
+	~CHE_PDF_Object() {} //todo 是否要加上Release调用
 
 	PDF_OBJ_TYPE		m_Type;
 
@@ -58,9 +59,13 @@ public:
 		}
 	}
 
+	CHE_PDF_Null * Clone()
+	{
+		return GetAllocator()->New<CHE_PDF_Null>( GetAllocator() );
+	}
+
 private:
-	CHE_PDF_Null( CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ) { m_Type = OBJ_TYPE_NULL; }
+	CHE_PDF_Null( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object(pAllocator) { m_Type = OBJ_TYPE_NULL; }
 
 	friend class CHE_Allocator;
 	friend class CHE_PDF_Object;
@@ -81,12 +86,17 @@ public:
 	HE_BOOL	GetValue() { return m_bValue; }
 	HE_VOID SetValue( HE_BOOL value ) { m_bValue = value; }
 
+	CHE_PDF_Boolean * Clone()
+	{
+		return GetAllocator()->New<CHE_PDF_Boolean>( m_bValue, GetAllocator() );
+	}
+
 private:
 	CHE_PDF_Boolean( CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ) { m_Type = OBJ_TYPE_BOOLEAN; m_bValue = FALSE; }
+		: CHE_PDF_Object(pAllocator), m_bValue(FALSE) { m_Type = OBJ_TYPE_BOOLEAN; }
 	
 	CHE_PDF_Boolean( HE_BOOL value, CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ) { m_Type = OBJ_TYPE_BOOLEAN; m_bValue = value; }
+		: CHE_PDF_Object(pAllocator), m_bValue(value) { m_Type = OBJ_TYPE_BOOLEAN; }
 
 	HE_BOOL	m_bValue;
 
@@ -123,12 +133,23 @@ public:
 	HE_VOID		SetValue( HE_INT32 value ) { m_bInteger = TRUE; m_Integer = value; }
 	HE_VOID		SetValue( HE_FLOAT value ) { m_bInteger = FALSE; m_Float = value; }
 
+	CHE_PDF_Number * Clone()
+	{
+		if ( m_bInteger )
+		{
+			return GetAllocator()->New<CHE_PDF_Number>( m_Integer, GetAllocator() );
+		}else
+		{
+			return  GetAllocator()->New<CHE_PDF_Number>( m_Float, GetAllocator() );
+		}
+	}
+
 private:
 	CHE_PDF_Number( HE_INT32 value, CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ) { m_bInteger = TRUE; m_Integer = value; m_Type = OBJ_TYPE_NUMBER; }
+		: CHE_PDF_Object(pAllocator), m_bInteger(TRUE), m_Integer(value) { m_Type = OBJ_TYPE_NUMBER; }
 
 	CHE_PDF_Number( HE_FLOAT value, CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ) { m_bInteger = FALSE; m_Float = value; m_Type = OBJ_TYPE_NUMBER; }
+		: CHE_PDF_Object(pAllocator), m_bInteger(FALSE), m_Float(value) { m_Type = OBJ_TYPE_NUMBER; }
 
 	HE_BOOL			m_bInteger;
 	union {
@@ -156,12 +177,17 @@ public:
 	CHE_ByteString	GetString() { return m_String; }
 	HE_VOID			SetString( CHE_ByteString & name ) { m_String = name; }
 
+	CHE_PDF_String * Clone()
+	{
+		return GetAllocator()->New<CHE_PDF_String>( m_String, GetAllocator() );
+	}
+
 private:
 	CHE_PDF_String( CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ), m_String( pAllocator ) { m_Type = OBJ_TYPE_STRING; }
+		: CHE_PDF_Object(pAllocator), m_String(pAllocator) { m_Type = OBJ_TYPE_STRING; }
 
 	CHE_PDF_String( const CHE_ByteString& str, CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ), m_String( str ) { m_Type = OBJ_TYPE_STRING; }
+		: CHE_PDF_Object(pAllocator), m_String(str) { m_Type = OBJ_TYPE_STRING; }
 
 	CHE_ByteString		m_String;
 
@@ -184,10 +210,15 @@ public:
 
 	CHE_ByteString	GetString() { return m_Name; }
 	HE_VOID			SetString( CHE_ByteString & name ) { m_Name = name; };
+
+	CHE_PDF_Name * Clone()
+	{
+		return GetAllocator()->New<CHE_PDF_Name>( m_Name, GetAllocator() );
+	}
 	
 private:
 	CHE_PDF_Name( const CHE_ByteString& str,  CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ), m_Name( str ) { m_Type = OBJ_TYPE_NAME; }
+		: CHE_PDF_Object(pAllocator), m_Name(str) { m_Type = OBJ_TYPE_NAME; }
 
 	CHE_ByteString	m_Name;
 
@@ -213,12 +244,16 @@ public:
 
 	CHE_PDF_Object *	GetRefObj() const;
 	CHE_PDF_Object *	GetRefObj( PDF_OBJ_TYPE Type ) const;
-
 	CHE_PDF_Parser *	GetParser() const { return mpParser; }
+
+	CHE_PDF_Reference * Clone()
+	{
+		return GetAllocator()->New<CHE_PDF_Reference>( m_RefObjNum, mpParser, GetAllocator() );
+	}
 
 private:
 	CHE_PDF_Reference( HE_DWORD refNum, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object(pAllocator ) { m_Type = OBJ_TYPE_REFERENCE; m_RefObjNum = refNum; mpParser = pParser;  }
+		: CHE_PDF_Object(pAllocator), m_RefObjNum(refNum), mpParser(pParser) { m_Type = OBJ_TYPE_REFERENCE; }
 
 	HE_DWORD m_RefObjNum;
 	CHE_PDF_Parser * mpParser;
@@ -250,9 +285,11 @@ public:
 //  CHE_PDF_Object *	Replace( HE_DWORD index, CHE_PDF_Object * pObj );
 //  HE_BOOL				Remove( HE_DWORD index );
 
+	CHE_PDF_Array *		Clone();
+
 private:
 	CHE_PDF_Array( CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ), m_array( pAllocator ) { m_Type = OBJ_TYPE_ARRAY; }
+		: CHE_PDF_Object(pAllocator), m_array(pAllocator) { m_Type = OBJ_TYPE_ARRAY; }
 
 	~CHE_PDF_Array();
 
@@ -295,9 +332,11 @@ public:
 // 	CHE_PDF_Object *		Replace( CHE_ByteString & key, CHE_PDF_Object * pObj );
 // 	HE_BOOL					Remove( CHE_ByteString & key );
 
+	CHE_PDF_Dictionary *	Clone();
+
 private:
 	CHE_PDF_Dictionary( CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( pAllocator ), m_Map( pAllocator ) { m_Type = OBJ_TYPE_DICTIONARY; }
+		: CHE_PDF_Object(pAllocator), m_Map(pAllocator) { m_Type = OBJ_TYPE_DICTIONARY; }
 
 	~CHE_PDF_Dictionary();
 
@@ -349,6 +388,8 @@ public:
 	HE_DWORD				GetRawSize() const { return m_dwSize; }
 	HE_DWORD				GetRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD buf_size ) const;
 	HE_BOOL					SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYTE filter = STREAM_FILTER_NULL );
+
+	CHE_PDF_Stream *		Clone();
 
 private:
 	CHE_PDF_Stream(	HE_LPBYTE pData, HE_DWORD size, CHE_PDF_Dictionary * pDict, HE_DWORD objNum, HE_DWORD genNum, 
@@ -412,6 +453,8 @@ public:
 	HE_DWORD			GetGenNum() const { return m_dwGenNum; }
 	CHE_PDF_Object *	GetObj() const { return m_pObj; }
 	CHE_PDF_Parser *	GetParser() const { return m_pParser; }
+
+	CHE_PDF_IndirectObject * Clone();
 
 	HE_VOID				Release()
 	{

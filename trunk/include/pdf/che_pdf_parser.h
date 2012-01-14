@@ -149,7 +149,6 @@ private:
 	CHE_PDF_XREF_Table			m_xrefTable;				//结构化的交叉索引表信息
 	CHE_PDF_Collector			m_objCollector;				//对象收集器，被加载的都被放入收集器，某些尾字典不会
 	CHE_PDF_Collector			m_UpdateObjCollector;		//新建和修改的对象的收集器
-	//CHE_PDF_Collector			m_ModifiedObjCollector;		//被修改的对象的收集器
 
 	friend class CHE_PDF_Creator;
 };

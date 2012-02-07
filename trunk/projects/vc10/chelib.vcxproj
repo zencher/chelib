@@ -27,6 +27,7 @@
     <ClInclude Include="..\..\include\che_string.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contents.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_creator.h" />

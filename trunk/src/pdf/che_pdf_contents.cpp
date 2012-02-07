@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_contents.h"
+#include "../../include/pdf/che_pdf_graphicsstate.h"
 
 
 #define A(a)		(a)
@@ -245,16 +246,31 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 	HE_DestoryIHERead( pRead );
 }
 
+HE_BOOL CHE_PDF_ContentsParser::CheckOpdCount( size_t count )
+{
+	if ( mOpdFloatStack.size() >= count )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
 HE_VOID CHE_PDF_ContentsParser::Handle_dquote()
 {
+	mpConstructor->Operator_Tstar();
 	CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
-	mpConstructor->Append( pText );
+	mpConstructor->Operator_Append( pText );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_squote()
 {
+	if ( CheckOpdCount( 2 ) )
+	{
+		mpConstructor->State_TextWordSpace( mOpdFloatStack[0] );
+		mpConstructor->State_TextCharSpace( mOpdFloatStack[1] );
+	}
 	CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
-	mpConstructor->Append( pText );
+	mpConstructor->Operator_Append( pText );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_B()
@@ -263,7 +279,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_B()
 	{
 		mpPath->SetFillMode( Mode_Nonzero );
 		mpPath->SetPaintType( Paint_FillStroke );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
@@ -274,7 +290,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Bstar()
 	{
 		mpPath->SetFillMode( Mode_EvenOdd );
 		mpPath->SetPaintType( Paint_FillStroke );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
@@ -306,7 +322,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BX()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 {
-	mpConstructor->SetStrokeColorSpace();
+	mpConstructor->State_StrokeColorSpace( NULL );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_DP()
@@ -318,8 +334,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 {
 	if ( mName.GetLength() > 0 )
 	{
-		CHE_PDF_Image * pImage = GetAllocator()->New<CHE_PDF_Image>( mName.GetData(), GetAllocator() );
-		mpConstructor->Append( pImage );
+		CHE_PDF_Image * pImage = GetAllocator()->New<CHE_PDF_Image>( mName, GetAllocator() );
+		mpConstructor->Operator_Append( pImage );
 	}
 }
 
@@ -345,12 +361,12 @@ HE_VOID CHE_PDF_ContentsParser::Handle_F()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_G()
 {
-	mpConstructor->SetStrokeColor();
+	mpConstructor->State_StrokeColor( NULL );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_J()
 {
-	if ( mOpdFloatStack.size() >= 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
 		PDF_GSTATE_LINEJOIN lineJoin = LineJoin_Miter;
 		switch ( unsigned int( mOpdFloatStack[0] ) )
@@ -366,19 +382,19 @@ HE_VOID CHE_PDF_ContentsParser::Handle_J()
 			lineJoin = LineJoin_Bevel;
 			break;
 		}
-		mpConstructor->SetLineJion( lineJoin );
+		mpConstructor->State_LineJoin( lineJoin );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_K()
 {
-	mpConstructor->SetStrokeColor();
+	mpConstructor->State_StrokeColor( NULL );
 }
 HE_VOID CHE_PDF_ContentsParser::Handle_M()
 {
-	if ( mOpdFloatStack.size() >= 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->SetMiterLimit( mOpdFloatStack[0] );
+		mpConstructor->State_MiterLimit( mOpdFloatStack[0] );
 	}
 }
 
@@ -389,12 +405,12 @@ HE_VOID CHE_PDF_ContentsParser::Handle_MP()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Q()
 {
-	mpConstructor->PopGState();
+	mpConstructor->Operator_PopGState();
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_RG()
 {
-	mpConstructor->SetStrokeColor();
+	mpConstructor->State_StrokeColor( NULL );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_S()
@@ -402,7 +418,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_S()
 	if ( mpPath )
 	{
 		mpPath->SetPaintType( Paint_Stroke );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
@@ -418,61 +434,77 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tstar()
 {
-
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_TD()
 {
 	CHE_PDF_Matrix matrix;
-	mpConstructor->SetTextMatirx( matrix );
+	mpConstructor->State_TextMatirx( matrix );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_TJ()
 {
 	CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
-	mpConstructor->Append( pText );
+	mpConstructor->Operator_Append( pText );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_TL()
 {
-	mpConstructor->SetTextLeading( 0 );
+	if ( CheckOpdCount( 1 ) )
+	{
+		mpConstructor->State_TextLeading( mOpdFloatStack[0] );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tc()
 {
-	if ( mOpdFloatStack.size() >= 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->SetTextWordSpace( mOpdFloatStack[0] );
+		mpConstructor->State_TextWordSpace( mOpdFloatStack[0] );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Td()
 {
-	CHE_PDF_Matrix matrix;
-	mpConstructor->SetTextMatirx( matrix );
+	if ( CheckOpdCount( 2 ) )
+	{
+		mpConstructor->Operator_Td( mOpdFloatStack[0], mOpdFloatStack[1] );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tf()
 {
-	mpConstructor->SetTextFont();
-	mpConstructor->SetTextFontSize( 0 );
+	if ( CheckOpdCount( 1 ) && mName.GetLength() > 0 )
+	{
+		mpConstructor->State_TextFont( mName );
+		mpConstructor->State_TextFontSize( mOpdFloatStack[0] );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tj()
 {
 	CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
-	mpConstructor->Append( pText );
+	mpConstructor->Operator_Append( pText );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tm()
 {
-	CHE_PDF_Matrix matrix;
-	mpConstructor->SetTextMatirx( matrix );
+	if ( CheckOpdCount( 6 ) )
+	{
+		CHE_PDF_Matrix matrix;
+		matrix.a = mOpdFloatStack[0];
+		matrix.b = mOpdFloatStack[1];
+		matrix.c = mOpdFloatStack[2];
+		matrix.d = mOpdFloatStack[3];
+		matrix.e = mOpdFloatStack[4];
+		matrix.f = mOpdFloatStack[5];
+		mpConstructor->State_TextMatirx( matrix );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tr()
 {
-	if ( mOpdFloatStack.size() >= 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
 		PDF_GSTATE_TEXTRENDERMODE textRm = TextRenderMode_Fill;
 		switch ( unsigned int( mOpdFloatStack[0] ) )
@@ -503,42 +535,53 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tr()
 			textRm = TextRenderMode_Invisible;
 			break;
 		}
-		mpConstructor->SetTextRenderMode( textRm );
+		mpConstructor->State_TextRenderMode( textRm );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Ts()
 {
-	if ( mOpdFloatStack.size() >= 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->SetTextRise( mOpdFloatStack[0] );
+		mpConstructor->State_TextRise( mOpdFloatStack[0] );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tw()
 {
-	if ( mOpdFloatStack.size() > 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->SetTextWordSpace( mOpdFloatStack[0] );
+		mpConstructor->State_TextWordSpace( mOpdFloatStack[0] );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tz()
 {
-	if ( mOpdFloatStack.size() > 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->SetTextRise( mOpdFloatStack[0] );
+		mpConstructor->State_TextRise( mOpdFloatStack[0] );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_W()
 {
-	mpConstructor->AddClip();
+	if ( mpPath )
+	{
+		CHE_PDF_Path * pTmpPath = (CHE_PDF_Path *)( mpPath->Clone() );
+		pTmpPath->SetFillMode( Mode_Nonzero );
+		mpConstructor->Operator_Clip( pTmpPath );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Wstar()
 {
-	mpConstructor->AddClip();
+	if ( mpPath )
+	{
+		CHE_PDF_Path * pTmpPath = (CHE_PDF_Path *)( mpPath->Clone() );
+		pTmpPath->SetFillMode( Mode_EvenOdd );
+		mpConstructor->Operator_Clip( pTmpPath );
+	}
+	
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_b()
@@ -550,7 +593,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_b()
 		mpPath->mItems.push_back( pathItem );
 		mpPath->SetFillMode( Mode_Nonzero );
 		mpPath->SetPaintType( Paint_FillStroke );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
@@ -564,14 +607,14 @@ HE_VOID CHE_PDF_ContentsParser::Handle_bstar()
 		mpPath->mItems.push_back( pathItem );
 		mpPath->SetFillMode( Mode_EvenOdd );
 		mpPath->SetPaintType( Paint_FillStroke );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_c()
 {
-	if ( mOpdFloatStack.size() >= 6 )
+	if ( CheckOpdCount( 6 ) )
 	{
 		if ( mpPath )
 		{
@@ -596,30 +639,29 @@ HE_VOID CHE_PDF_ContentsParser::Handle_c()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_cm()
 {
-	CHE_PDF_Matrix matrix;
-	if ( mOpdFloatStack.size() >= 6 )
+	if ( CheckOpdCount( 6 ) )
 	{
+		CHE_PDF_Matrix matrix;
 		matrix.a = mOpdFloatStack[0];
 		matrix.b = mOpdFloatStack[1];
 		matrix.c = mOpdFloatStack[2];
 		matrix.d = mOpdFloatStack[3];
 		matrix.e = mOpdFloatStack[4];
 		matrix.f = mOpdFloatStack[5];
+		mpConstructor->State_ConcatMatrix( matrix );
 	}
-	//todo
-	mpConstructor->SetMatrix( matrix );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 {
-	mpConstructor->SetFillColorSpace();
+	mpConstructor->State_FillColorSpace( NULL );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_d()
 {
 	PDF_GSTATE_DASHPATTERN dashPattern;
 	dashPattern.dashPhase = 0;
-	mpConstructor->SetLineDash( dashPattern );
+	mpConstructor->State_LineDash( dashPattern );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_d0()
@@ -636,7 +678,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_f()
 	{
 		mpPath->SetFillMode( Mode_Nonzero );
 		mpPath->SetPaintType( Paint_Fill );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
@@ -647,21 +689,21 @@ HE_VOID CHE_PDF_ContentsParser::Handle_fstar()
 	{
 		mpPath->SetFillMode( Mode_EvenOdd );
 		mpPath->SetPaintType( Paint_Fill );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_g()
 {
-	mpConstructor->SetFillColor();
+	mpConstructor->State_FillColor( NULL );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_gs()
 {
 	if ( mName.GetLength() > 0 )
 	{
-		mpConstructor->SetExtGState( mName.GetData(), NULL );
+		mpConstructor->State_ExtGState( mName, NULL );
 	}
 }
 
@@ -677,15 +719,15 @@ HE_VOID CHE_PDF_ContentsParser::Handle_h()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_i()
 {
-	if ( mOpdFloatStack.size() >= 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->SetFlatness( unsigned char(mOpdFloatStack[0]) );
+		mpConstructor->State_Flatness( mOpdFloatStack[0] );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_j()
 {
-	if ( mOpdFloatStack.size() >= 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
 		PDF_GSTATE_LINEJOIN lineJion = LineJoin_Miter;
 		switch ( unsigned int( mOpdFloatStack[0] ) )
@@ -701,18 +743,18 @@ HE_VOID CHE_PDF_ContentsParser::Handle_j()
 			lineJion = LineJoin_Bevel;
 			break;
 		}
-		mpConstructor->SetLineJion( lineJion );
+		mpConstructor->State_LineJoin( lineJion );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_k()
 {
-	mpConstructor->SetFillColor();
+	mpConstructor->State_FillColor( NULL );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_l()
 {
-	if ( mOpdFloatStack.size() >= 2 )
+	if ( CheckOpdCount( 2 ) )
 	{
 		if ( mpPath )
 		{
@@ -729,7 +771,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_l()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_m()
 {
-	if ( mOpdFloatStack.size() >= 2 )
+	if ( CheckOpdCount( 2 ) )
 	{
 		if ( ! mpPath )
 		{
@@ -751,19 +793,19 @@ HE_VOID CHE_PDF_ContentsParser::Handle_n()
 	{
 		mpPath->SetFillMode( Mode_Nonzero );
 		mpPath->SetPaintType( Paint_None );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_q()
 {
-	mpConstructor->PushGState();
+	mpConstructor->Operator_PushGState();
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_re()
 {
-	if ( mOpdFloatStack.size() >= 4 )
+	if ( CheckOpdCount( 4 ) )
 	{
 		if ( ! mpPath )
 		{
@@ -787,12 +829,13 @@ HE_VOID CHE_PDF_ContentsParser::Handle_re()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_rg()
 {
-	mpConstructor->SetFillColor();
+	mpConstructor->State_FillColor( NULL );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_ri()
 {
-	mpConstructor->SetRenderingIntents( RI_AbsoluteColorimetric );
+	//todo
+	mpConstructor->State_RenderIntents( RI_AbsoluteColorimetric );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_s()
@@ -803,7 +846,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_s()
 		pathItem.type = PathItem_Close;
 		mpPath->mItems.push_back( pathItem );
 		mpPath->SetPaintType( Paint_Stroke );
-		mpConstructor->Append( mpPath );
+		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
 }
@@ -822,14 +865,14 @@ HE_VOID CHE_PDF_ContentsParser::Handle_sh()
 {
 	if ( mName.GetLength() > 0 )
 	{
-		CHE_PDF_Shading * pShading = GetAllocator()->New<CHE_PDF_Shading>( mName.GetData(), GetAllocator() );
-		mpConstructor->Append( pShading );
+		CHE_PDF_Shading * pShading = GetAllocator()->New<CHE_PDF_Shading>( mName, GetAllocator() );
+		mpConstructor->Operator_Append( pShading );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_v()
 {
-	if ( mOpdFloatStack.size() >= 4 )
+	if ( CheckOpdCount( 4 ) )
 	{
 		if ( mpPath )
 		{
@@ -854,15 +897,15 @@ HE_VOID CHE_PDF_ContentsParser::Handle_v()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_w()
 {
-	if ( mOpdFloatStack.size() >= 1 )
+	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->SetLineWidth( mOpdFloatStack[0] );
+		mpConstructor->State_LineWidth( mOpdFloatStack[0] );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_y()
 {
-	if ( mOpdFloatStack.size() >= 4 )
+	if ( CheckOpdCount( 4 ) )
 	{
 		if ( mpPath )
 		{
@@ -1070,58 +1113,226 @@ class CContentViewListConstructor : public IHE_PDF_ContentListConstructor
 {
 public:
 	CContentViewListConstructor( std::vector<CHE_PDF_ContentObject*> * pVector, CHE_Allocator * pAllocator = NULL )
-		: mpVector(pVector), IHE_PDF_ContentListConstructor( pAllocator ) {}
-	~CContentViewListConstructor() {}
-
-	void SetMatrix( const CHE_PDF_Matrix & matrix ) {}
-	void SetLineWidth( HE_FLOAT lineWidth ) {}
-	void SetLineCap( PDF_GSTATE_LINECAP lineCap ) {}
-	void SetLineJion( PDF_GSTATE_LINEJOIN lineJion ) {}
-	void SetMiterLimit( HE_FLOAT miterLimit ) {}
-	void SetLineDash( const PDF_GSTATE_DASHPATTERN & dashPattern ) {}
-	void SetRenderingIntents( PDF_GSTATE_RENDERINTENTS ri ) {}
-	void SetFlatness( unsigned char flatness ) {}
-	void SetExtGState( const std::string & name, const CHE_PDF_Dictionary * pDict ) {}
-	void SetStrokeColor() {}
-	void SetFillColor() {}
-	void SetStrokeColorSpace() {}
-	void SetFillColorSpace() {}
-	void SetTextFont() {}
-	void SetTextFontSize( HE_FLOAT size ) {}
-	void SetTextCharSpace( HE_FLOAT charspace ) {}
-	void SetTextWordSpace( HE_FLOAT wordspace ) {}
-	void SetTextHScaling( HE_FLOAT scaling ) {}
-	void SetTextLeading( HE_FLOAT leading ) {}
-	void SetTextRise( HE_FLOAT rise ) {}
-	void SetTextMatirx( const CHE_PDF_Matrix & matrix ) {}
-	void SetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE rm ) {}
-
-	void PushGState()
+		: mpVector(pVector), mpGState(NULL), IHE_PDF_ContentListConstructor( pAllocator )
 	{
-		CHE_PDF_PushGState * pNode = GetAllocator()->New<CHE_PDF_PushGState>();
-		mpVector->push_back( pNode );
+		mpGState = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
 	}
 
-	void PopGState()
+	~CContentViewListConstructor()
+	{
+		if ( mpGState )
+		{
+			mpGState->GetAllocator()->Delete( mpGState );
+		}
+	 }
+
+	HE_VOID Init() {}
+
+	HE_VOID Over() {}
+
+	HE_VOID State_Matrix( const CHE_PDF_Matrix & matrix )
+	{
+		GetGState()->SetMatrix( matrix );
+	}
+
+	HE_VOID State_ConcatMatrix( const CHE_PDF_Matrix & matrix )
+	{
+		CHE_PDF_Matrix tmpMatirx = GetGState()->GetMatrix();
+		tmpMatirx.Concat( matrix );
+		GetGState()->SetMatrix( tmpMatirx );
+	}
+
+	HE_VOID State_LineWidth( const HE_FLOAT & lineWidth )
+	{
+		GetGState()->SetLineWidth( lineWidth );
+	}
+
+	HE_VOID State_LineCap( const PDF_GSTATE_LINECAP & lineCap )
+	{
+		GetGState()->SetLineCap( lineCap );
+	}
+
+	HE_VOID State_LineJoin( const PDF_GSTATE_LINEJOIN & lineJoin )
+	{
+		GetGState()->SetLineJoin( lineJoin );
+	}
+
+	HE_VOID State_MiterLimit( const HE_FLOAT & miterLimit )
+	{
+		GetGState()->SetMiterLimit( miterLimit );
+	}
+
+	HE_VOID State_LineDash( const PDF_GSTATE_DASHPATTERN & dashPattern )
+	{
+		GetGState()->SetLineDash( dashPattern );
+	}
+
+	HE_VOID State_RenderIntents( const PDF_GSTATE_RENDERINTENTS & ri )
+	{
+		GetGState()->SetRenderIntents( ri );
+	}
+
+	HE_VOID State_Flatness( const HE_FLOAT & flatness )
+	{
+		GetGState()->SetFlatness( flatness );
+	}
+
+	HE_VOID State_ExtGState( const CHE_ByteString & resName, CHE_PDF_Dictionary * pDict )
+	{
+		GetGState()->PushExtGState( resName, pDict );
+	}
+
+	HE_VOID State_FillColor( CHE_PDF_Color * pColor )
+	{
+		GetGState()->SetFillColor( pColor );
+	}
+
+	HE_VOID State_StrokeColor( CHE_PDF_Color * pColor )
+	{
+		GetGState()->SetStrokeColor( pColor );
+	}
+
+	HE_VOID State_FillColorSpace( CHE_PDF_ColorSpace * pColorSpace )
+	{
+		GetGState()->SetFillColorSpace( pColorSpace );
+	}
+
+	HE_VOID State_StrokeColorSpace( CHE_PDF_ColorSpace * pColorSpace )
+	{
+		GetGState()->SetStrokeColorSpace( pColorSpace );
+	}
+
+	HE_VOID State_TextMatirx( const CHE_PDF_Matrix & matrix )
+	{
+		GetGState()->SetTextMatrix( matrix );
+	}
+
+	HE_VOID State_TextFont( const CHE_ByteString & resName )
+	{
+		GetGState()->SetTextFontResName( resName );
+	}
+
+	HE_VOID State_TextFontSize( const HE_FLOAT & size )
+	{
+		GetGState()->SetTextFontSize( size );
+	}
+
+	HE_VOID State_TextCharSpace( const HE_FLOAT & charSpace )
+	{
+		GetGState()->SetTextCharSpace( charSpace );
+	}
+
+	HE_VOID State_TextWordSpace( const HE_FLOAT & wordSpace )
+	{
+		GetGState()->SetTextWordSpace( wordSpace );
+	}
+
+	HE_VOID State_TextScaling( const HE_FLOAT & scaling )
+	{
+		GetGState()->SetTextScaling( scaling );
+	}
+
+	HE_VOID State_TextLeading( const HE_FLOAT & leading )
+	{
+		GetGState()->SetTextLeading( leading );
+	}
+
+	HE_VOID State_TextRise( const HE_FLOAT & rise )
+	{
+		GetGState()->SetTextRise( rise );
+	}
+
+	HE_VOID State_TextRenderMode( const PDF_GSTATE_TEXTRENDERMODE rm )
+	{
+		GetGState()->SetTextRenderMode( rm );
+	}
+
+	HE_VOID Operator_Td( const HE_FLOAT & tx, const HE_FLOAT & ty )
+	{
+		CHE_PDF_Matrix matrix, tmpMatrix;
+		matrix = GetGState()->GetMatrix();
+		tmpMatrix.e = tx;
+		tmpMatrix.f = ty;
+		matrix.Concat( tmpMatrix );
+		GetGState()->SetTextMatrix( matrix );
+	}
+
+	HE_VOID Operator_TD( const HE_FLOAT & tx, const HE_FLOAT & ty )
+	{
+		HE_FLOAT leading = 0;
+		leading = -ty;
+		GetGState()->SetTextLeading( leading );
+		Operator_Td( tx, ty );
+	}
+
+	HE_VOID Operator_Tstar()
+	{
+		HE_FLOAT leading = 0;
+		GetGState()->GetTextLeading( leading );
+		Operator_Td( 0, leading );
+	}
+	
+	HE_VOID Operator_PushGState()
+	{
+		CHE_PDF_PushGState * pNode = GetAllocator()->New<CHE_PDF_PushGState>();
+		if ( mpGState )
+		{
+			pNode->SetGState( mpGState->Clone() );
+			mGStateStack.push_back( mpGState->Clone() );
+		}
+		mpVector->push_back( pNode );
+	}
+	
+	HE_VOID Operator_PopGState()
 	{
 		CHE_PDF_PopGState * pNode = GetAllocator()->New<CHE_PDF_PopGState>();
 		mpVector->push_back( pNode );
+		if ( mpGState )
+		{
+			mpGState->GetAllocator()->Delete( mpGState );
+			mpGState = NULL;
+		}
+		if ( mGStateStack.size() > 0 )
+		{
+			mpGState = mGStateStack[mGStateStack.size()-1];
+			mGStateStack.pop_back();
+		}
 	}
 
-	void AddClip() {}
+	HE_VOID Operator_Clip( CHE_PDF_ContentObject * pObject )
+	{
+		if ( pObject && ( pObject->GetType() == ContentType_Path || pObject->GetType() == ContentType_Text ) )
+		{
+			GetGState()->PushClipElement( pObject );
+		}
+	}
 
-	void Append( CHE_PDF_ContentObject * pObject )
+	HE_VOID Operator_Append( CHE_PDF_ContentObject * pObject )
 	{
 		if ( pObject )
 		{
+			if ( pObject->GetType() == ContentType_Text )
+			{
+				//todo text Clip
+			}
+			pObject->SetGState( mpGState->Clone() );
 			mpVector->push_back( pObject );
 		}
 	}
 
-	void Over() {}
-
 private:
+	CHE_PDF_GState * GetGState()
+	{
+		if ( !mpGState )
+		{
+			mpGState = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
+		}
+		return mpGState;
+	}
+
 	std::vector<CHE_PDF_ContentObject*> * mpVector;
+	std::vector<CHE_PDF_GState*> mGStateStack;
+	CHE_PDF_GState * mpGState;
 };
 
 IHE_PDF_ContentListConstructor * CreateConstructor( std::vector<CHE_PDF_ContentObject*> * pVector, CHE_Allocator * pAllocator /*= NULL*/ )

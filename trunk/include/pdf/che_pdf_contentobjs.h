@@ -2,8 +2,9 @@
 #define _CHE_PDF_CONTENTOBJS_H_
 
 #include "../che_base.h"
-#include <string>
+#include "che_pdf_graphicsstate.h"
 #include <vector>
+#include <list>
 
 enum PDF_CONTENTOBJ_TYPE
 {
@@ -20,29 +21,40 @@ enum PDF_CONTENTOBJ_TYPE
 class CHE_PDF_ContentObject : public CHE_Object
 {
 public:
-	CHE_PDF_ContentObject( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
+	CHE_PDF_ContentObject( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object(pAllocator), mpGState(NULL) {}
 	virtual ~CHE_PDF_ContentObject() {}
 
-	virtual PDF_CONTENTOBJ_TYPE GetType() = 0;
+	virtual PDF_CONTENTOBJ_TYPE GetType() const = 0;
+
+	virtual CHE_PDF_ContentObject * Clone() const = 0;
+
+	CHE_PDF_GState * GetGState() const { return mpGState; }
+	HE_BOOL SetGState( CHE_PDF_GState * pGSatae );
+
+protected:
+	CHE_PDF_GState * mpGState;
 };
 
 class CHE_PDF_NamedContentObject : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_NamedContentObject( const std::string & name, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_NamedContentObject( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL )
 		: mName(name), CHE_PDF_ContentObject( pAllocator ) {}
 	virtual ~CHE_PDF_NamedContentObject() {}
 
 protected:
-	std::string mName;
+	CHE_ByteString mName;
 };
 
 class CHE_PDF_Text : public CHE_PDF_ContentObject
 {									 
 public:
-	CHE_PDF_Text(  CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject( pAllocator ) {}
+	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject( pAllocator ) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() { return ContentType_Text; }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Text; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Text>( GetAllocator() ); }
 };
 
 enum PDF_PATHITEM_TYPE
@@ -82,17 +94,31 @@ class CHE_PDF_Path : public CHE_PDF_ContentObject
 public:
 	CHE_PDF_Path( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() { return ContentType_Path; }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Path; }
 
 	std::vector<CHE_PDF_PathItem> mItems;
 
 	void SetPaintType( PDF_PATH_PAINT type ) { mType = type; }
 
-	PDF_PATH_PAINT GetPaintType() { return mType; }
+	PDF_PATH_PAINT GetPaintType() const { return mType; }
 
 	void SetFillMode( PDF_FILL_MODE mode ) { mFillMode = mode; }
 
-	PDF_FILL_MODE GetFillMode() { return mFillMode; }
+	PDF_FILL_MODE GetFillMode() const { return mFillMode; }
+
+	CHE_PDF_ContentObject * Clone() const
+	{
+		CHE_PDF_Path * pTmpPath = GetAllocator()->New<CHE_PDF_Path>( GetAllocator() );
+		pTmpPath->mType = mType;
+		pTmpPath->mFillMode = mFillMode;
+		pTmpPath->mItems = mItems;
+		pTmpPath->mpGState = NULL;
+		if ( mpGState )
+		{
+			pTmpPath->mpGState = mpGState->Clone();
+		}
+		return pTmpPath;
+	}
 
 private:
 	PDF_PATH_PAINT mType;
@@ -104,34 +130,42 @@ class CHE_PDF_Mark : public CHE_PDF_ContentObject
 public:
 	CHE_PDF_Mark( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() { return ContentType_Mark; }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Mark; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Mark>( GetAllocator() ); }
 };
 
 class CHE_PDF_Image : public CHE_PDF_NamedContentObject
 {
 public:
-	CHE_PDF_Image( const std::string & name, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Image( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL )
 		: CHE_PDF_NamedContentObject( name, pAllocator ) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() { return ContentType_Image; }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Image; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Image>( mName, GetAllocator() ); }
 };
 
 class CHE_PDF_Form : public CHE_PDF_NamedContentObject
 {
 public:
-	CHE_PDF_Form( const std::string & name, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Form( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL )
 		: CHE_PDF_NamedContentObject( name, pAllocator ) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() { return ContentType_Form; }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Form; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Form>( mName, GetAllocator() ); }
 };
 
 class CHE_PDF_Shading : public CHE_PDF_NamedContentObject
 {
 public:
-	CHE_PDF_Shading( const std::string & name, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Shading( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL )
 		: CHE_PDF_NamedContentObject( name, pAllocator ) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() { return ContentType_Shading; }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Shading; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Shading>( mName, GetAllocator() ); }
 };
 
 class CHE_PDF_PushGState : public CHE_PDF_ContentObject
@@ -139,7 +173,9 @@ class CHE_PDF_PushGState : public CHE_PDF_ContentObject
 public:
 	CHE_PDF_PushGState( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() { return ContentType_PushGState; }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_PushGState; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_PushGState>( GetAllocator() ); }
 };
 
 class CHE_PDF_PopGState : public CHE_PDF_ContentObject
@@ -147,7 +183,9 @@ class CHE_PDF_PopGState : public CHE_PDF_ContentObject
 public:
 	CHE_PDF_PopGState( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() { return ContentType_PopGState; }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_PopGState; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_PopGState>( GetAllocator() ); }
 };
 
 

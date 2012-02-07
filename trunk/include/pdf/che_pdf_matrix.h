@@ -1,6 +1,8 @@
 #ifndef _CHE_PDF_MATRIX_H_
 #define _CHE_PDF_MATRIX_H_
+#include "../che_define.h"
 #include <cmath>
+#include <cfloat>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

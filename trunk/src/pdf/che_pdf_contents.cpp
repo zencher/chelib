@@ -1279,6 +1279,9 @@ public:
 		{
 			pNode->SetGState( mpGState->Clone() );
 			mGStateStack.push_back( mpGState->Clone() );
+		}else
+		{
+			mGStateStack.push_back( NULL );
 		}
 		mpVector->push_back( pNode );
 	}

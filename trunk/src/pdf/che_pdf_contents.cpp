@@ -312,7 +312,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BMC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BT()
 {
-
+	CHE_PDF_TextBegin * pTextBegin = GetAllocator()->New<CHE_PDF_TextBegin>( GetAllocator() );
+	mpConstructor->Operator_Append( pTextBegin );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BX()
@@ -346,7 +347,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_EMC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_ET()
 {
-
+	CHE_PDF_TextEnd * pTextEnd = GetAllocator()->New<CHE_PDF_TextEnd>( GetAllocator() );
+	mpConstructor->Operator_Append( pTextEnd );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_EX()

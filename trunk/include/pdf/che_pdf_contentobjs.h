@@ -15,7 +15,9 @@ enum PDF_CONTENTOBJ_TYPE
 	ContentType_Form = 4,
 	ContentType_Shading = 5,
 	ContentType_PushGState = 6,
-	ContentType_PopGState = 7
+	ContentType_PopGState = 7,
+	ContentType_TextBegin = 8,
+	ContentType_TextEnd = 9
 };
 
 class CHE_PDF_ContentObject : public CHE_Object
@@ -188,5 +190,24 @@ public:
 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_PopGState>( GetAllocator() ); }
 };
 
+class CHE_PDF_TextBegin : public CHE_PDF_ContentObject
+{
+public:
+	CHE_PDF_TextBegin( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
+
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_TextBegin; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_TextBegin>( GetAllocator() ); }
+};
+
+class CHE_PDF_TextEnd : public CHE_PDF_ContentObject
+{
+public:
+	CHE_PDF_TextEnd( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
+
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_TextEnd; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_TextEnd>( GetAllocator() ); }
+};
 
 #endif

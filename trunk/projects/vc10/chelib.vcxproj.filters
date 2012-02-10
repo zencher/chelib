@@ -101,6 +101,24 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_cns.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_gb.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_japan.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_korea.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -176,6 +194,9 @@
       <Filter>源文件\PDF</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
   </ItemGroup>

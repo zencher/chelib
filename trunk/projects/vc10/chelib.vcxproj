@@ -26,6 +26,12 @@
     <ClInclude Include="..\..\include\che_graphics.h" />
     <ClInclude Include="..\..\include\che_string.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_cns.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_gb.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_japan.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_korea.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h" />
@@ -55,6 +61,7 @@
     <ClCompile Include="..\..\src\che_graphics.cpp" />
     <ClCompile Include="..\..\src\che_string.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp" />

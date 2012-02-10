@@ -63,6 +63,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp" />

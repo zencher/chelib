@@ -33,7 +33,7 @@ public:
 
 	CHE_ByteString GetResName() const { return mResName; }
 
-	CHE_Object * GetObj() const { return mpObj };
+	CHE_Object * GetObj() const { return mpObj; }
 
 	CHE_PDF_ColorSpace * Clone() const
 	{

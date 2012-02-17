@@ -41,6 +41,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_filter.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_fontmgr.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_graphics.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_graphicsState.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_matrix.h" />
@@ -70,6 +71,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_graphicsState.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp" />

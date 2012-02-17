@@ -49,14 +49,31 @@ protected:
 	CHE_ByteString mName;
 };
 
+class CHE_PDF_TextItem
+{
+public:
+	HE_INT32 cid;
+	HE_FLOAT offsetX;
+	HE_FLOAT offsetY;
+};
+
 class CHE_PDF_Text : public CHE_PDF_ContentObject
 {									 
 public:
-	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject( pAllocator ) {}
+	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject(pAllocator), mpObj(NULL) {}
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Text; }
 
 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Text>( GetAllocator() ); }
+
+	std::vector<CHE_PDF_PathItem> mItems;
+
+	HE_VOID SetText( CHE_PDF_Object * pObj ) { mpObj = pObj; }
+
+	CHE_PDF_Object * GetText() const { return mpObj; }
+
+private:
+	CHE_PDF_Object * mpObj;
 };
 
 enum PDF_PATHITEM_TYPE
@@ -73,7 +90,7 @@ class CHE_PDF_PathItem
 public:
 	union{
 		PDF_PATHITEM_TYPE type;
-		float value;
+		HE_FLOAT value;
 	};
 };
 
@@ -100,11 +117,11 @@ public:
 
 	std::vector<CHE_PDF_PathItem> mItems;
 
-	void SetPaintType( PDF_PATH_PAINT type ) { mType = type; }
+	HE_VOID SetPaintType( PDF_PATH_PAINT type ) { mType = type; }
 
 	PDF_PATH_PAINT GetPaintType() const { return mType; }
 
-	void SetFillMode( PDF_FILL_MODE mode ) { mFillMode = mode; }
+	HE_VOID SetFillMode( PDF_FILL_MODE mode ) { mFillMode = mode; }
 
 	PDF_FILL_MODE GetFillMode() const { return mFillMode; }
 

@@ -323,7 +323,30 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BX()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 {
-	mpConstructor->State_StrokeColorSpace( NULL );
+	if ( mName.GetLength() > 0 )
+	{
+		CHE_PDF_ColorSpace * pColorSpace = NULL;
+		if ( mName == "DeviceGray" )
+		{
+			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
+		}else if ( mName == "DeviceRGB" )
+		{
+			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_RGB, GetAllocator() );
+		}else if ( mName == "DeviceCMYK" )
+		{
+			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_CMYK, GetAllocator() );
+		}else if ( mName == "Pattern" )
+		{
+			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, GetAllocator() );
+		}else{
+			//todo
+			//CHE_PDF_Object * pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
+		}
+		if ( pColorSpace )
+		{
+			mpConstructor->State_StrokeColorSpace( pColorSpace );
+		}
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_DP()

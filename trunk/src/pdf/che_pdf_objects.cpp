@@ -343,7 +343,7 @@ CHE_PDF_Array * CHE_PDF_Array::Clone()
 			{
 				tmpObj = tmpObj->Clone();
 			}
-			Append( tmpObj );
+			objRet->Append( tmpObj );
 		}
 	}
 	return objRet;
@@ -587,7 +587,7 @@ CHE_PDF_Dictionary * CHE_PDF_Dictionary::Clone()
 			{
 				tmpObj = tmpObj->Clone();
 			}
-			SetAtObj( keyStr, tmpObj );
+			objRet->SetAtObj( keyStr, tmpObj );
 		}
 	}
 	return objRet;

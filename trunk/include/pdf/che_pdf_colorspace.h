@@ -22,12 +22,18 @@ class CHE_PDF_ColorSpace : public CHE_Object
 {
 public:
 	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mType(type) {}
+		: CHE_Object(pAllocator), mType(type), mpObj(NULL) {}
 
 	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, CHE_PDF_Object * pObj, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mType(type), mResName(resName) {}
+		: CHE_Object(pAllocator), mType(type), mResName(resName), mpObj(pObj) {}
 
-	~CHE_PDF_ColorSpace() { GetAllocator()->Delete( mpObj ); }
+	~CHE_PDF_ColorSpace()
+	{
+		if ( mpObj )
+		{
+			mpObj->Release();
+		}
+	}
 
 	PDF_COLORSPACE_TYPE GetType() const { return mType; }
 

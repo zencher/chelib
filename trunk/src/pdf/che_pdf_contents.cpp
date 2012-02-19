@@ -360,8 +360,85 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 		{
 			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, GetAllocator() );
 		}else{
-			//todo
-			//CHE_PDF_Object * pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
+			CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
+			if ( !pTmpObj )
+			{
+				return;
+			}
+			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
+			{
+				CHE_PDF_Reference * pRef = pTmpObj->ToReference();
+				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY );
+				if ( !pTmpObj )
+				{
+					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME );
+				}
+			}
+			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
+			{
+				CHE_PDF_Name * pName = pTmpObj->ToName();
+				CHE_ByteString name = pName->GetString();
+				if ( name == "DeviceGray" || name == "G" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
+				}else if ( name == "DeviceRGB" || name == "RGB" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_RGB, GetAllocator() );
+				}else if ( name == "DeviceCMYK" || name == "CMYK" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_CMYK, GetAllocator() );
+				}else if ( name == "Pattern" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, GetAllocator() );
+				}
+			}else if ( pTmpObj->GetType() == OBJ_TYPE_ARRAY )
+			{
+				CHE_PDF_Array * pArray = pTmpObj->ToArray();
+				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME );
+				if ( !pTmpObj )
+				{
+					return;
+				}
+				CHE_PDF_Name * pName = pTmpObj->ToName();
+				CHE_ByteString name = pName->GetString();
+				if ( name == "DeviceGray" || name == "G" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
+				}else if ( name == "DeviceRGB" || name == "RGB" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_RGB, GetAllocator() );
+				}else if ( name == "DeviceCMYK" || name == "CMYK" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_CMYK, GetAllocator() );
+				}else if ( name == "Pattern" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "CalGray" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALGRAY, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "CalRGB" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALRGB, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "CalCMYK" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALLAB, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "Lab" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_ICCBASED, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "ICCBased" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "Indexed" || name == "I" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "Separation" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_SEPARATION, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "DeviceN" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_DEVICEN, mName, pArray->Clone(), GetAllocator() );
+				}
+			}
 		}
 		if ( pColorSpace )
 		{
@@ -566,12 +643,31 @@ HE_VOID CHE_PDF_ContentsParser::Handle_S()
 }
 HE_VOID CHE_PDF_ContentsParser::Handle_SC()
 {
-
+	if ( CheckOpdCount( 1 ) )
+	{
+		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
+		for ( size_t i = 0; i < mOpdFloatStack.size(); ++i )
+		{
+			pColor->mConponents.push_back( mOpdFloatStack[i] );
+		}
+		mpConstructor->State_StrokeColor( pColor );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
 {
-
+	if ( CheckOpdCount( 1 ) )
+	{
+		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
+		for ( size_t i = 0; i < mOpdFloatStack.size(); ++i )
+		{
+			pColor->mConponents.push_back( mOpdFloatStack[i] );
+		}
+		mpConstructor->State_StrokeColor( pColor );
+	}else if ( mName.GetLength() > 0 )
+	{
+		//todo pattern color
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Tstar()
@@ -808,7 +904,107 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cm()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 {
-	mpConstructor->State_FillColorSpace( NULL );
+	if ( mName.GetLength() > 0 )
+	{
+		CHE_PDF_ColorSpace * pColorSpace = NULL;
+		if ( mName == "DeviceGray" )
+		{
+			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
+		}else if ( mName == "DeviceRGB" )
+		{
+			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_RGB, GetAllocator() );
+		}else if ( mName == "DeviceCMYK" )
+		{
+			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_CMYK, GetAllocator() );
+		}else if ( mName == "Pattern" )
+		{
+			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, GetAllocator() );
+		}else{
+			CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
+			if ( !pTmpObj )
+			{
+				return;
+			}
+			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
+			{
+				CHE_PDF_Reference * pRef = pTmpObj->ToReference();
+				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY );
+				if ( !pTmpObj )
+				{
+					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME );
+				}
+			}
+			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
+			{
+				CHE_PDF_Name * pName = pTmpObj->ToName();
+				CHE_ByteString name = pName->GetString();
+				if ( name == "DeviceGray" || name == "G" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
+				}else if ( name == "DeviceRGB" || name == "RGB" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_RGB, GetAllocator() );
+				}else if ( name == "DeviceCMYK" || name == "CMYK" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_CMYK, GetAllocator() );
+				}else if ( name == "Pattern" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, GetAllocator() );
+				}
+			}else if ( pTmpObj->GetType() == OBJ_TYPE_ARRAY )
+			{
+				CHE_PDF_Array * pArray = pTmpObj->ToArray();
+				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME );
+				if ( !pTmpObj )
+				{
+					return;
+				}
+				CHE_PDF_Name * pName = pTmpObj->ToName();
+				CHE_ByteString name = pName->GetString();
+				if ( name == "DeviceGray" || name == "G" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
+				}else if ( name == "DeviceRGB" || name == "RGB" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_RGB, GetAllocator() );
+				}else if ( name == "DeviceCMYK" || name == "CMYK" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_CMYK, GetAllocator() );
+				}else if ( name == "Pattern" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "CalGray" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALGRAY, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "CalRGB" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALRGB, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "CalCMYK" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALLAB, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "Lab" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_ICCBASED, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "ICCBased" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "Indexed" || name == "I" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "Separation" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_SEPARATION, mName, pArray->Clone(), GetAllocator() );
+				}else if ( name == "DeviceN" )
+				{
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_DEVICEN, mName, pArray->Clone(), GetAllocator() );
+				}
+			}
+		}
+		if ( pColorSpace )
+		{
+			mpConstructor->State_FillColorSpace( pColorSpace );
+		}
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_d()
@@ -1047,12 +1243,31 @@ HE_VOID CHE_PDF_ContentsParser::Handle_s()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_sc()
 {
-
+	if ( CheckOpdCount( 1 ) )
+	{
+		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
+		for ( size_t i = 0; i < mOpdFloatStack.size(); ++i )
+		{
+			pColor->mConponents.push_back( mOpdFloatStack[i] );
+		}
+		mpConstructor->State_FillColor( pColor );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_scn()
 {
-
+	if ( CheckOpdCount( 1 ) )
+	{
+		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
+		for ( size_t i = 0; i < mOpdFloatStack.size(); ++i )
+		{
+			pColor->mConponents.push_back( mOpdFloatStack[i] );
+		}
+		mpConstructor->State_FillColor( pColor );
+	}else if ( mName.GetLength() > 0 )
+	{
+		//todo pattern color
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_sh()

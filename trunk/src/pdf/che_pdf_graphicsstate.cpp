@@ -164,7 +164,7 @@ CHE_PDF_GState::~CHE_PDF_GState()
 	{
 		mpStrokeColor->GetAllocator()->Delete( mpStrokeColor );
 	}
-	if ( mpFillColorSpace )
+	if ( mpStrokeColorSpace )
 	{
 		mpStrokeColorSpace->GetAllocator()->Delete( mpStrokeColorSpace );
 	}
@@ -213,19 +213,19 @@ CHE_PDF_GState * CHE_PDF_GState::Clone() const
 	pRet->mFlag = mFlag;
 	if ( mpFillColor )
 	{
-		//pRet->mpFillColor = mpFillColor->Clone();
+		pRet->mpFillColor = mpFillColor->Clone();
 	}
 	if ( mpFillColorSpace )
 	{
-		//pRet->mpFillColorSpace = mpStrokeColorSpace->Clone();
+		pRet->mpFillColorSpace = mpFillColorSpace->Clone();
 	}
 	if ( mpStrokeColor )
 	{
-		//pRet->mpStrokeColor = mpStrokeColor->Clone();
+		pRet->mpStrokeColor = mpStrokeColor->Clone();
 	}
 	if ( mpStrokeColorSpace )
 	{
-		//pRet->mpStrokeColorSpace = mpStrokeColorSpace->Clone();
+		pRet->mpStrokeColorSpace = mpStrokeColorSpace->Clone();
 	}
 	if ( mpStrokeState )
 	{
@@ -436,7 +436,7 @@ HE_BOOL CHE_PDF_GState::GetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE & rm ) cons
 
 HE_BOOL CHE_PDF_GState::SetFillColor( CHE_PDF_Color * pColor )
 {
-	if ( ! pColor )
+	if ( pColor )
 	{
 		if ( mpFillColor )
 		{
@@ -451,7 +451,7 @@ HE_BOOL CHE_PDF_GState::SetFillColor( CHE_PDF_Color * pColor )
 
 HE_BOOL CHE_PDF_GState::SetStrokeColor( CHE_PDF_Color * pColor )
 {
-	if ( ! pColor )
+	if ( pColor )
 	{
 		if ( mpStrokeColor )
 		{
@@ -466,7 +466,7 @@ HE_BOOL CHE_PDF_GState::SetStrokeColor( CHE_PDF_Color * pColor )
 
 HE_BOOL CHE_PDF_GState::SetFillColorSpace( CHE_PDF_ColorSpace * pColorSpace )
 {
-	if ( !pColorSpace )
+	if ( pColorSpace )
 	{
 		if ( mpFillColorSpace )
 		{
@@ -481,7 +481,7 @@ HE_BOOL CHE_PDF_GState::SetFillColorSpace( CHE_PDF_ColorSpace * pColorSpace )
 
 HE_BOOL CHE_PDF_GState::SetStrokeColorSpace( CHE_PDF_ColorSpace * pColorSpace )
 {
-	if ( !pColorSpace )
+	if ( pColorSpace )
 	{
 		if ( mpStrokeColorSpace )
 		{

@@ -84,12 +84,13 @@ public:
 
 	void Concat( const CHE_PDF_Matrix & matrix )
 	{
-		a = a * matrix.a + b * matrix.c;
-		b = a * matrix.b + b * matrix.d;
-		c = c * matrix.a + d * matrix.c;
-		d = c * matrix.b + d * matrix.d;
-		e = e * matrix.a + f * matrix.c + matrix.e;
-		f = e * matrix.b + f * matrix.d + matrix.f;
+		CHE_PDF_Matrix tmpMatrix = *this;
+		a = tmpMatrix.a * matrix.a +tmpMatrix. b * matrix.c;
+		b = tmpMatrix.a * matrix.b + tmpMatrix.b * matrix.d;
+		c = tmpMatrix.c * matrix.a + tmpMatrix.d * matrix.c;
+		d = tmpMatrix.c * matrix.b + tmpMatrix.d * matrix.d;
+		e = tmpMatrix.e * matrix.a + tmpMatrix.f * matrix.c + matrix.e;
+		f = tmpMatrix.e * matrix.b + tmpMatrix.f * matrix.d + matrix.f;
 	}
 
 	void Invert( const CHE_PDF_Matrix & matirx )

@@ -3,6 +3,7 @@
 
 #include "che_pdf_matrix.h"
 #include "che_pdf_colorspace.h"
+#include "che_pdf_font.h"
 #include <list>
 
 class CHE_PDF_ContentObject;
@@ -83,10 +84,12 @@ class CHE_PDF_TextGState : public CHE_Object
 {
 public:
 	CHE_PDF_TextGState( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mRMode(TextRenderMode_Fill), mFontSize(1), mCharSpace(0), mWordSpace(0), mLeading(0), mScaling(100), mRise(0) {}
+		: CHE_Object(pAllocator), mRMode(TextRenderMode_Fill), mpFont(NULL), mFontSize(1),
+		  mCharSpace(0), mWordSpace(0), mLeading(0), mScaling(100), mRise(0) {}
 
 	CHE_PDF_Matrix GetMatrix() const { return mMatrix; }
 	HE_FLOAT GetFontSize() const { return mFontSize; }
+	CHE_PDF_Font * GetFont() const { return mpFont; }
 	HE_FLOAT GetCharSpace() const { return mCharSpace; }
 	HE_FLOAT GetWordSpace() const { return mWordSpace; }
 	HE_FLOAT GetLeading() const { return mLeading; }
@@ -97,6 +100,7 @@ public:
 
 	HE_VOID SetMatirx( const CHE_PDF_Matrix & matrix  ) { mMatrix = matrix; }
 	HE_VOID SetFontSize( HE_FLOAT size ) { mFontSize = size; }
+	HE_VOID SetFont( CHE_PDF_Font * pFont ) { mpFont = pFont; }
 	HE_VOID SetCharSpace( HE_FLOAT charSpace ) { mCharSpace = charSpace; }
 	HE_VOID SetWordSpace( HE_FLOAT wordSpace ) { mWordSpace = wordSpace; }
 	HE_VOID SetLeading( HE_FLOAT leading ) { mLeading = leading; }
@@ -116,6 +120,7 @@ private:
 	HE_FLOAT mScaling;
 	HE_FLOAT mRise;
 	CHE_ByteString mFontName;
+	CHE_PDF_Font * mpFont;
 	PDF_GSTATE_TEXTRENDERMODE mRMode;
 };
 
@@ -223,6 +228,7 @@ public:
 	HE_BOOL GetTextLeading( HE_FLOAT & leadingRet ) const;
 	HE_BOOL GetTextScaling( HE_FLOAT & scalingRet ) const;
 	HE_BOOL GetTextRise( HE_FLOAT & riseRet ) const;
+	CHE_PDF_Font * GetTextFont() const;
 	HE_BOOL GetTextFontResName( CHE_ByteString & resNameRet ) const;
 	HE_BOOL GetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE & rm ) const;
 	CHE_PDF_ClipState * GetClipState() { return mpClipState; }
@@ -242,6 +248,7 @@ public:
 	HE_VOID	SetLineDash( const PDF_GSTATE_DASHPATTERN & dashPattern );
 	HE_VOID SetTextMatrix( const CHE_PDF_Matrix & matrix );
 	HE_VOID SetTextFontSize( const HE_FLOAT & size );
+	HE_VOID SetTextFont( CHE_PDF_Font * pFont );
 	HE_VOID SetTextFontResName( const CHE_ByteString & resName );
 	HE_VOID SetTextCharSpace( const HE_FLOAT & charSpace );
 	HE_VOID SetTextWordSpace( const HE_FLOAT & wordSpace );

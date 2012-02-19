@@ -15,10 +15,12 @@ CHE_PDF_StrokeState * CHE_PDF_StrokeState::Clone() const
 CHE_PDF_TextGState * CHE_PDF_TextGState::Clone() const
 {
 	CHE_PDF_TextGState * pRet = GetAllocator()->New<CHE_PDF_TextGState>( GetAllocator() );
+	pRet->mMatrix = mMatrix;
 	pRet->mCharSpace = mCharSpace;
 	pRet->mWordSpace = mWordSpace;
 	pRet->mFontName = mFontName;
 	pRet->mFontSize = mFontSize;
+	pRet->mpFont = mpFont;
 	pRet->mLeading = mLeading;
 	pRet->mScaling = mScaling;
 	pRet->mRise = mRise;
@@ -403,6 +405,15 @@ HE_BOOL CHE_PDF_GState::GetTextRise( HE_FLOAT & riseRet ) const
 	return FALSE;
 }
 
+CHE_PDF_Font * CHE_PDF_GState::GetTextFont() const
+{
+	if ( mFlag & GSTATE_FLAG_Font  )
+	{
+		return mpTextState->GetFont();
+	}
+	return NULL;
+}
+
 HE_BOOL CHE_PDF_GState::GetTextFontResName( CHE_ByteString & resNameRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_Font )
@@ -517,6 +528,12 @@ HE_VOID CHE_PDF_GState::SetTextMatrix( const CHE_PDF_Matrix & matrix )
 {
 	MakeTextState()->SetMatirx( matrix );
 	mFlag |= GSTATE_FLAG_TextMatirx;
+}
+
+HE_VOID CHE_PDF_GState::SetTextFont( CHE_PDF_Font * pFont )
+{
+	MakeTextState()->SetFont( pFont );
+	mFlag |= GSTATE_FLAG_Font;
 }
 
 HE_VOID CHE_PDF_GState::SetTextFontSize( const HE_FLOAT & size )

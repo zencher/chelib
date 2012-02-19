@@ -8,6 +8,7 @@
 #include "che_pdf_matrix.h"
 #include "che_pdf_graphicsState.h"
 #include "che_pdf_contentobjs.h"
+#include "che_pdf_fontmgr.h"
 
 class IHE_PDF_ContentListConstructor : public CHE_Object
 {
@@ -31,7 +32,7 @@ public:
 	virtual HE_VOID State_FillColorSpace( CHE_PDF_ColorSpace * pColorSpace ) = 0;
 	virtual HE_VOID State_StrokeColorSpace( CHE_PDF_ColorSpace * pColorSpace ) = 0;
 	virtual HE_VOID State_TextMatirx( const CHE_PDF_Matrix & matrix ) = 0;
-	virtual HE_VOID State_TextFont( const CHE_ByteString & resName /*todo*/ ) = 0;
+	virtual HE_VOID State_TextFont( const CHE_ByteString & resName, CHE_PDF_Font * pFont ) = 0;
 	virtual HE_VOID State_TextFontSize( const HE_FLOAT & size ) = 0;
 	virtual HE_VOID State_TextCharSpace( const HE_FLOAT & charSpace ) = 0;
 	virtual HE_VOID State_TextWordSpace( const HE_FLOAT & wordSpace ) = 0;
@@ -79,9 +80,9 @@ public:
 
 	HE_BOOL	DeleteName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
 
-	CHE_Object * GetResObj( PDF_CONTENTOBJ_TYPE type, const CHE_ByteString & name );
+	CHE_PDF_Object * GetResObj( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
 
-	CHE_Object * GetResObj( const CHE_ByteString & name );
+	CHE_PDF_Object * GetResObj( const CHE_ByteString & name );
 
 private:
 	CHE_PDF_Dictionary * GetSubDict( PDF_CONTENTRES_TYPE type );
@@ -96,9 +97,10 @@ private:
 class CHE_PDF_ContentsParser : public CHE_Object
 {
 public:
-	CHE_PDF_ContentsParser( CHE_PDF_ContentResMgr * pResMgr, IHE_PDF_ContentListConstructor * pConstructor, CHE_Allocator * pAllocator = NULL )
-		:	mpContentResMgr(pResMgr), mpConstructor(pConstructor), mpPath(NULL), mCurX(0), mCurY(0),
-			mString(pAllocator), mName(pAllocator), mpObj(NULL), CHE_Object( pAllocator ) {}
+	CHE_PDF_ContentsParser( CHE_PDF_ContentResMgr * pResMgr, CHE_PDF_FontMgr * pFontMgr,
+							IHE_PDF_ContentListConstructor * pConstructor, CHE_Allocator * pAllocator = NULL )
+		:	mpContentResMgr(pResMgr), mpFontMgr(pFontMgr), mpConstructor(pConstructor), mpPath(NULL),
+			mCurX(0), mCurY(0), mString(pAllocator), mName(pAllocator), mpObj(NULL), CHE_Object( pAllocator ) {}
 
 	~CHE_PDF_ContentsParser()
 	{
@@ -194,7 +196,6 @@ private:
 
 	HE_BOOL CheckOpdCount( size_t count );
 
-	//CHE_PDF_ContentResMgr * mpResMgr;
 	std::vector<HE_FLOAT>	mOpdFloatStack;
 	CHE_ByteString			mName;
 	CHE_ByteString			mString;
@@ -204,6 +205,7 @@ private:
 	HE_FLOAT				mCurX;
 	HE_FLOAT				mCurY;
 
+	CHE_PDF_FontMgr * mpFontMgr;
 	CHE_PDF_ContentResMgr * mpContentResMgr;
 	IHE_PDF_ContentListConstructor * mpConstructor;
 };

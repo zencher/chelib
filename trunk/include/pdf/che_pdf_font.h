@@ -5,6 +5,8 @@
 #include "che_pdf_define.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_parser.h"
+#include "che_pdf_cmap.h"
+
 #include "../../extlib/freetype/ft2build.h"
 #include "../../extlib/freetype/freetype/freetype.h"
 

@@ -455,7 +455,7 @@ HE_BOOL CHE_PDF_GState::SetStrokeColor( CHE_PDF_Color * pColor )
 	{
 		if ( mpStrokeColor )
 		{
-			mpStrokeColor->GetAllocator()->Delete( mpFillColor );
+			mpStrokeColor->GetAllocator()->Delete( mpStrokeColor );
 		}
 		mpStrokeColor = pColor;
 		mFlag |= GSTATE_FLAG_StrokeColor;

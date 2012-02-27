@@ -388,11 +388,17 @@ CHE_PDF_Object*	CHE_PDF_Dictionary::GetElement( const CHE_ByteString & key, PDF_
 	}else if ( pCurObj->GetType() == OBJ_TYPE_ARRAY )
 	{
 		CHE_PDF_Object * pElement = NULL;
-		pElement = pCurObj->ToArray()->GetElement( Type );
-		return pElement;
-	}else{
-		return NULL;
+		CHE_PDF_Array * pTmpArray = pCurObj->ToArray();
+		for ( HE_DWORD i = 0; i < pTmpArray->GetCount(); ++i )
+		{
+			pElement = pTmpArray->GetElement( i, Type );
+			if ( pElement )
+			{
+				return pElement;
+			}
+		}
 	}
+	return NULL;
 }
 
 // HE_BOOL CHE_PDF_Dictionary::Replace( CHE_ByteString & key, CHE_PDF_Object * pObj )

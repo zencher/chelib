@@ -262,8 +262,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_dquote()
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
-		pText->SetTextObject( mpObj );
 		mpConstructor->Operator_Append( pText );
+		pText->SetTextObject( mpObj );
 	}
 }
 
@@ -277,8 +277,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_squote()
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
-		pText->SetTextObject( mpObj );
 		mpConstructor->Operator_Append( pText );
+		pText->SetTextObject( mpObj );
 	}
 }
 
@@ -688,8 +688,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_TJ()
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
-		pText->SetTextObject( mpObj );
 		mpConstructor->Operator_Append( pText );
+		pText->SetTextObject( mpObj );
 	}
 }
 
@@ -722,7 +722,19 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tf()
 	if ( CheckOpdCount( 1 ) && mName.GetLength() > 0 )
 	{
 		//todo : load font and set
-		mpConstructor->State_TextFont( mName, NULL );
+		CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_FONT, mName );
+		if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
+		{
+			CHE_PDF_Dictionary * pDict = pTmpObj->ToReference()->GetRefObj()->ToDict();
+			if ( pDict )
+			{
+				CHE_PDF_Font * pFont = GetAllocator()->New<CHE_PDF_Font>( pDict );
+				if ( pFont )
+				{
+					mpConstructor->State_TextFont( mName, pFont );
+				}
+			}
+		}
 		mpConstructor->State_TextFontSize( mOpdFloatStack[0] );
 	}
 }
@@ -732,8 +744,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tj()
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
-		pText->SetTextObject( mpObj );
 		mpConstructor->Operator_Append( pText );
+		pText->SetTextObject( mpObj );
 	}
 }
 

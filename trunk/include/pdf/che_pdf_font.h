@@ -26,31 +26,34 @@ public:
 	PDF_FONT_ENCODING		GetEncodingType() { return m_EncodingType; }
 	HE_BOOL					IsDefaultEncoding() { return ( m_EncodingType == FONT_ENCODING_SELFDEF ) ? FALSE:TRUE; }
 
-	HE_BOOL					IsFontFileLoaded() { return ( m_pFontProgramData == NULL ) ? FALSE : TRUE; }
-	HE_BOOL					LoadFontFile();
-	HE_LPBYTE				GetFontFile() { return m_pFontProgramData; }
-	HE_LONG					GetFontFileSize() { return m_lFontDataLength; }
+	//HE_BOOL					IsFontFileLoaded() { return ( m_pFontProgramData == NULL ) ? FALSE : TRUE; }
+	//HE_BOOL					LoadFontFile();
+	//HE_LPBYTE				GetFontFile() { return m_pFontProgramData; }
+	//HE_LONG					GetFontFileSize() { return m_lFontDataLength; }
 
-	HE_WCHAR				GetUnicode( HE_WCHAR wch );
-	HE_BOOL					GetUnicodeString( CHE_ByteString & str, CHE_WideString & wstrRet );
+	HE_INT32				GetUnicode( HE_INT32 code );
+	HE_INT32				GetCID( HE_INT32 code );
+	//HE_BOOL					GetUnicodeString( CHE_ByteString & str, CHE_WideString & wstrRet );
 
 private:
-	CHE_NumToPtrMap	*		GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStream );
+	//CHE_NumToPtrMap	*		GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStream );
 
-	HE_WCHAR				GetUnicodeFromFace( HE_WCHAR wch );
+	//HE_WCHAR				GetUnicodeFromFace( HE_WCHAR wch );
 
 private:
 	PDF_FONT_TYPE			m_FontType;
 	PDF_FONT_ENCODING		m_EncodingType;
 
 	CHE_PDF_Dictionary *	m_pFontDict;
+	CHE_PDF_CMap *			m_pCMap;
+	CHE_PDF_CMap *			m_pToUnicodeMap;
 
-	HE_LPBYTE				m_pFontProgramData;
-	HE_LONG					m_lFontDataLength;
-	FT_Face					m_FontFace;
-	
-	HE_WCHAR *				m_pUnicodeTable;
-	CHE_NumToPtrMap*		m_pMap;
+// 	HE_LPBYTE				m_pFontProgramData;
+// 	HE_LONG					m_lFontDataLength;
+// 	FT_Face					m_FontFace;
+
+// 	HE_WCHAR *				m_pUnicodeTable;
+// 	CHE_NumToPtrMap*		m_pMap;
 };
 
 #endif

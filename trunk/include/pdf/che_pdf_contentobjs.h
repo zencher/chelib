@@ -54,6 +54,7 @@ class CHE_PDF_TextItem
 {
 public:
 	HE_INT32 cid;
+	HE_INT32 ucs;
 	HE_INT32 kerning;
 	HE_FLOAT offsetX;
 	HE_FLOAT offsetY;
@@ -66,19 +67,7 @@ public:
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Text; }
 
-	HE_BOOL SetTextObject( CHE_PDF_Object * pObj )
-	{
-		if ( pObj )
-		{
-			if ( mpObj )
-			{
-				mpObj->Release();
-			}
-			mpObj = pObj->Clone();
-			return TRUE;
-		}
-		return FALSE;
-	}
+	HE_BOOL SetTextObject( CHE_PDF_Object * pObj );
 
 	CHE_PDF_Object * GetText() const { return mpObj; }
 

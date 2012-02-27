@@ -186,7 +186,7 @@ int LookUp_CMap( PDF_CMAP * cmap, HE_INT32 cpt )
 {
 	HE_INT32 l = 0;
 	HE_INT32 r = cmap->rlen - 1;
-	HE_INT32 m;
+	HE_INT32 m = 0;
 
 	while ( l <= r )
 	{
@@ -217,7 +217,7 @@ HE_INT32 LookUp_CMap_Full( PDF_CMAP *cmap, HE_INT32 cpt, HE_INT32 *out )
 	HE_INT32 i, k, n;
 	HE_INT32 l = 0;
 	HE_INT32 r = cmap->rlen - 1;
-	int m;
+	HE_INT32 m = 0;
 
 	while ( l <= r )
 	{
@@ -253,4 +253,35 @@ HE_INT32 LookUp_CMap_Full( PDF_CMAP *cmap, HE_INT32 cpt, HE_INT32 *out )
 		return LookUp_CMap_Full( cmap->usecmap, cpt, out );
 
 	return 0;
+}
+
+CHE_PDF_CMap * CHE_PDF_CMap::LoadBuildinCMap( const CHE_ByteString & cmapName,  CHE_Allocator * pAllocator )
+{
+	PDF_CMAP * pRet = Get_Builtin_CMap( (HE_CHAR *)( cmapName.GetData() ) );
+	if ( !pRet )
+	{
+		return NULL;
+	}
+	if ( pAllocator )
+	{
+		return pAllocator->New<CHE_PDF_CMap>( pRet, false, pAllocator );
+	}
+	return new CHE_PDF_CMap( pRet, false, NULL ); 
+}
+
+CHE_PDF_CMap::~CHE_PDF_CMap()
+{
+	if ( mbNeedClear )
+	{
+		GetAllocator()->Delete( mpCMap );
+	}
+}
+
+HE_INT32 CHE_PDF_CMap::LookupCode( HE_INT32 code ) const
+{
+	if ( mpCMap )
+	{
+		return LookUp_CMap( mpCMap, code );
+	}
+	return -1;
 }

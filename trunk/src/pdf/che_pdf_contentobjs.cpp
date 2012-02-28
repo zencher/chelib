@@ -64,8 +64,8 @@ HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); ++index )
 					{
 						charCode = HE_BYTE( tmpStr[index] );
-						item.cid = pFont->GetCID( charCode );
-						item.ucs = pFont->GetUnicode( item.cid );
+						item.cid = charCode;
+						item.ucs = pFont->GetUnicode( charCode );
 						item.kerning = kerning;
 						item.offsetX = 0;
 						item.offsetY = 0;
@@ -90,7 +90,12 @@ HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 					{
 						charCode = HE_BYTE( tmpStr[index] );
 						charCode = ( charCode << 8 ) + HE_BYTE( tmpStr[index+1] );
-						item.cid = pFont->GetCID( charCode );
+						if ( pFont->GetEncodingType() == FONT_ENCODING_SELFDEF )
+						{
+							item.cid = charCode;
+						}else{
+							item.cid = pFont->GetCID( charCode );
+						}
 						item.ucs = pFont->GetUnicode( item.cid );
 						item.kerning = kerning;
 						item.offsetX = 0;

@@ -96,7 +96,6 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 	CHE_PDF_Object * pTmpNode = NULL;
 	HE_FLOAT tmpValue = 0;
 	HE_BOOL	bOpd = TRUE;
-
 	while( sParser.GetWord( wordDes ) == TRUE )
 	{
 		bOpd = TRUE;
@@ -117,6 +116,45 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		case PARSE_WORD_NAME:
 			{
 				mName = wordDes.str;
+				if ( mbInlineImage )
+				{
+					if ( mParamFalg > 0 )
+					{
+						switch ( mParamFalg )
+						{
+						case 2:
+							mpColorSpace = CHE_PDF_Name::Create( wordDes.str, GetAllocator() );
+							break;
+						case 3:
+							mpDecode = CHE_PDF_Name::Create( wordDes.str, GetAllocator() );
+							break;
+						case 4:
+							mpDecodeParam = CHE_PDF_Name::Create( wordDes.str, GetAllocator() );
+							break;
+						case 5:
+							mpFilter = CHE_PDF_Name::Create( wordDes.str, GetAllocator() );
+							break;
+						default:
+							break;
+						}
+						mParamFalg = 0;
+					}else
+					{
+						switch ( StringToDWORD( wordDes.str ) )
+						{
+						case C('B','P','C'):	mParamFalg = 1; break;
+						case B('C','S'):		mParamFalg = 2; break;
+						case A('D'):			mParamFalg = 3; break;
+						case B('D','P'):		mParamFalg = 4; break;
+						case A('F'):			mParamFalg = 5; break;
+						case A('H'):			mParamFalg = 6; break;
+						case B('I','M'):		mParamFalg = 7; break;
+						case A('I'):			mParamFalg = 8; break;
+						case A('W'):			mParamFalg = 9; break;
+						default:				mParamFalg = 0; break;
+						}
+					}
+				}
 				break;
 			}
 		case PARSE_WORD_STRING:
@@ -130,6 +168,27 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 				sParser.SetPos( wordDes.offset );
 				pTmpNode = sParser.GetArray();
 				mpObj = pTmpNode;
+				if ( mbInlineImage )
+				{
+					if ( mParamFalg > 0 )
+					{
+						switch ( mParamFalg )
+						{
+						case 3:
+							mpDecode = mpObj->Clone();
+							break;
+						case 4:
+							mpDecodeParam = mpObj->Clone();
+							break;
+						case 5:
+							mpFilter = mpObj->Clone();
+							break;
+						default:
+							break;
+						}
+						mParamFalg = 0;
+					}
+				}
 				break;
 			}
 		case PARSE_WORD_DICT_B:
@@ -164,11 +223,13 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		case B('C','S'):		Handle_CS();		break;
 		case B('D','P'):		Handle_DP();		break;
 		case B('D','o'):		Handle_Do();		break;
+		case B('E','I'):		Handle_EI();		break;
 		case C('E','M','C'):	Handle_EMC();		break;
 		case B('E','T'):		Handle_ET();		break;
 		case B('E','X'):		Handle_EX();		break;
 		case A('F'):			Handle_F();			break;
 		case A('G'):			Handle_G();			break;
+		case B('I','D'):		Handle_ID(&sParser);break;
 		case A('J'):			Handle_J();			break;
 		case A('K'):			Handle_K();			break;
 		case A('M'):			Handle_M();			break;
@@ -318,6 +379,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BDC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BI()
 {
+	mbInlineImage = TRUE;
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BMC()
@@ -522,6 +584,36 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 	}
 }
 
+HE_VOID CHE_PDF_ContentsParser::Handle_EI()
+{
+	mbInlineImage = FALSE;
+	mbInterpolate = FALSE;
+	mbMask = FALSE;
+	mWidth = 0;
+	mHeight = 0;
+	mBpc = 0;
+	if ( mpColorSpace )
+	{
+		mpColorSpace->Release();
+		mpColorSpace = NULL;
+	}
+	if ( mpFilter )
+	{
+		mpFilter->Release();
+		mpFilter = NULL;
+	}
+	if ( mpDecode )
+	{
+		mpDecode->Release();
+		mpDecode = NULL;
+	}
+	if ( mpDecodeParam )
+	{
+		mpDecodeParam->Release();
+		mpDecodeParam = NULL;
+	}
+}
+
 HE_VOID CHE_PDF_ContentsParser::Handle_EMC()
 {
 	CHE_PDF_Mark * pMark = GetAllocator()->New<CHE_PDF_Mark>( GetAllocator() );
@@ -556,6 +648,53 @@ HE_VOID CHE_PDF_ContentsParser::Handle_G()
 		mpConstructor->State_StrokeColor( pColor );
 	}
 	mpConstructor->State_StrokeColor( NULL );
+}
+
+HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
+{
+	if ( pParser == NULL || mbInlineImage == FALSE )
+	{
+		return;
+	}
+	HE_BOOL bOver = FALSE;
+	HE_DWORD dwRet = 1;
+	HE_BYTE byteRet[4];
+	std::vector<HE_BYTE> buffer;
+	while( !bOver )
+	{
+		dwRet = pParser->ReadBytes( byteRet, 1 );
+		if ( byteRet[0] == '\r' || byteRet[0] == '\n' || byteRet[0] == '\t' ||
+			 byteRet[0] == '\f' || byteRet[0] == '\0' || byteRet[0] == ' ' )
+		{
+			pParser->Seek( 1 );
+		}else{
+			break;
+		}
+	}
+	while( dwRet )
+	{
+		dwRet = pParser->ReadBytes( byteRet, 1 );
+		if (	byteRet[0] == '\r' || byteRet[0] == '\n' || byteRet[0] == '\t' ||
+				byteRet[0] == '\f' || byteRet[0] == '\0' || byteRet[0] == ' ' )
+		{
+			dwRet = pParser->ReadBytes( byteRet, 4 );
+			if ( byteRet[1] == 'E' && byteRet[2] == 'I' )
+			{
+				pParser->Seek( 1 );
+				break;
+			}else if ( byteRet[1] == '\n' && byteRet[2] == 'E' && byteRet[3] == 'I' )
+			{
+				pParser->Seek( 2 );
+				break;
+			}
+			buffer.push_back( byteRet[0] );
+			pParser->Seek( 1 );
+		}else{
+			buffer.push_back( byteRet[0] );
+			pParser->Seek( dwRet );
+		}
+	}
+	//create inline image
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_J()
@@ -721,18 +860,24 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tf()
 {
 	if ( CheckOpdCount( 1 ) && mName.GetLength() > 0 )
 	{
-		//todo : load font and set
+		//todo load font
 		CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_FONT, mName );
-		if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
+		if ( pTmpObj )
 		{
-			CHE_PDF_Dictionary * pDict = pTmpObj->ToReference()->GetRefObj()->ToDict();
-			if ( pDict )
+			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
-				CHE_PDF_Font * pFont = GetAllocator()->New<CHE_PDF_Font>( pDict );
-				if ( pFont )
+				CHE_PDF_Dictionary * pDict = pTmpObj->ToReference()->GetRefObj()->ToDict();
+				if ( pDict )
 				{
-					mpConstructor->State_TextFont( mName, pFont );
+					CHE_PDF_Font * pFont = GetAllocator()->New<CHE_PDF_Font>( pDict );
+					if ( pFont )
+					{
+						mpConstructor->State_TextFont( mName, pFont );
+					}
 				}
+			}else if ( pTmpObj->GetType() == OBJ_TYPE_DICTIONARY )
+			{
+				//todo
 			}
 		}
 		mpConstructor->State_TextFontSize( mOpdFloatStack[0] );

@@ -100,7 +100,9 @@ public:
 	CHE_PDF_ContentsParser( CHE_PDF_ContentResMgr * pResMgr, CHE_PDF_FontMgr * pFontMgr,
 							IHE_PDF_ContentListConstructor * pConstructor, CHE_Allocator * pAllocator = NULL )
 		:	mpContentResMgr(pResMgr), mpFontMgr(pFontMgr), mpConstructor(pConstructor), mpPath(NULL),
-			mCurX(0), mCurY(0), mString(pAllocator), mName(pAllocator), mpObj(NULL), CHE_Object( pAllocator ) {}
+			mCurX(0), mCurY(0), mString(pAllocator), mName(pAllocator), mpObj(NULL), mParamFalg(0),
+			mbInlineImage(FALSE), mbInterpolate(FALSE), mbMask(FALSE), mWidth(0), mHeight(0), mBpc(0),
+			mpColorSpace(NULL), mpFilter(NULL), mpDecode(NULL), mpDecodeParam(NULL), CHE_Object( pAllocator ) {}
 
 	~CHE_PDF_ContentsParser()
 	{
@@ -134,11 +136,13 @@ private:
 	HE_VOID Handle_CS();
 	HE_VOID Handle_DP();
 	HE_VOID Handle_Do();
+	HE_VOID Handle_EI();
 	HE_VOID Handle_EMC();
 	HE_VOID Handle_ET();
 	HE_VOID Handle_EX();
 	HE_VOID Handle_F();
 	HE_VOID Handle_G();
+	HE_VOID Handle_ID( CHE_PDF_SyntaxParser * pParser );
 	HE_VOID Handle_J();
 	HE_VOID Handle_K();
 	HE_VOID Handle_M();
@@ -205,7 +209,20 @@ private:
 	HE_FLOAT				mCurX;
 	HE_FLOAT				mCurY;
 
-	CHE_PDF_FontMgr * mpFontMgr;
+	//inline image
+	HE_BYTE					mParamFalg;
+	HE_BOOL					mbInlineImage;
+	HE_BOOL					mbInterpolate;
+	HE_BOOL					mbMask;
+	HE_DWORD				mWidth;
+	HE_DWORD				mHeight;
+	HE_DWORD				mBpc;
+	CHE_PDF_Object *		mpColorSpace;
+	CHE_PDF_Object *		mpFilter;
+	CHE_PDF_Object *		mpDecode;
+	CHE_PDF_Object *		mpDecodeParam;
+
+	CHE_PDF_FontMgr *		mpFontMgr;
 	CHE_PDF_ContentResMgr * mpContentResMgr;
 	IHE_PDF_ContentListConstructor * mpConstructor;
 };

@@ -226,7 +226,7 @@ private:
 	friend class CHE_PDF_Object;
 };
 
-struct HE_PDF_InObjectNumbers
+struct HE_PDF_RefInfo
 {
 	HE_DWORD objNum;
 	HE_DWORD genNum;
@@ -249,6 +249,8 @@ public:
 	HE_VOID				SetRefNum( HE_DWORD objNum ) { m_RefObjNum = objNum; }
 	HE_DWORD			GetGenNum() const { return m_RefGenNum; }
 	HE_VOID				SetGenNum( HE_DWORD genNum ) { m_RefGenNum = genNum; }
+	HE_PDF_RefInfo		GetRefInfo() { HE_PDF_RefInfo refInfo; refInfo.objNum = m_RefObjNum; refInfo.genNum = m_RefObjNum; return refInfo; }
+	HE_VOID				SetRefInfo( HE_PDF_RefInfo refInfo )  { m_RefObjNum = refInfo.objNum; m_RefGenNum = refInfo.genNum; }
 
 	CHE_PDF_Object *	GetRefObj() const;
 	CHE_PDF_Object *	GetRefObj( PDF_OBJ_TYPE Type ) const;

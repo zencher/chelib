@@ -101,19 +101,19 @@ public:
 
 	//Page tree information
 	HE_DWORD					GetPageCount();
-	HE_DWORD					GetPageObjNum( HE_DWORD pageIndex );
+	HE_PDF_RefInfo				GetPageObjNum( HE_DWORD pageIndex );
 
 	//Encryption
 	HE_BOOL						Authenticate( CHE_ByteString & password ) const 
 									{ return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): TRUE; }
 
 	//Object operation
-	CHE_PDF_Object *			GetObject( HE_DWORD objNum );
-	PDF_OBJ_STATUS				GetObjectStatus( HE_DWORD objNum );
+	CHE_PDF_Object *			GetObject( HE_PDF_RefInfo refInfo );
+	PDF_OBJ_STATUS				GetObjectStatus( HE_PDF_RefInfo refInfo );
 
 	CHE_PDF_IndirectObject *	CreateInObject( PDF_OBJ_TYPE type );
 
-	HE_BOOL						SetInObjUpdated( HE_DWORD objNum );
+	HE_BOOL						SetInObjUpdated( HE_PDF_RefInfo refInfo );
 	HE_DWORD					GetUpdatedInObjCount();
 	CHE_PDF_IndirectObject *	GetUpdatedInObj( HE_DWORD index );
 
@@ -128,9 +128,9 @@ private:
 	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict );
 
 	CHE_PDF_Object *			GetObject();
-	CHE_PDF_Object *			GetObjectInObjStm( HE_DWORD stmObjNum, HE_DWORD objNum, HE_DWORD index );
+	CHE_PDF_Object *			GetObjectInObjStm( HE_PDF_RefInfo stmRefInfo, HE_PDF_RefInfo ObjrefInfo, HE_DWORD index );
 
-	HE_DWORD					GetFreeObjNum();
+	HE_PDF_RefInfo				GetFreeObjRefInfo();
 
 private:
 	IHE_Read *					m_pIHE_FileRead;
@@ -138,7 +138,7 @@ private:
 	
 	HE_DWORD					m_lPageCount;
 	HE_DWORD					m_lCurPageIndex;
-	std::vector<HE_DWORD>		m_pPageObjList;
+	std::vector<HE_PDF_RefInfo>	m_pPageObjList;
 	CHE_Stack<CHE_PDF_Reference*>m_PageNodeStack;
 
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;

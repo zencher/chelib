@@ -161,7 +161,10 @@ CHE_PDF_Object * CHE_PDF_Reference::GetRefObj() const
 	{
 		return NULL;
 	}
-	CHE_PDF_Object * pObj = mpParser->GetObject( m_RefObjNum );
+	HE_PDF_RefInfo refInfo;
+	refInfo.objNum = m_RefObjNum;
+	refInfo.genNum = m_RefGenNum;
+	CHE_PDF_Object * pObj = mpParser->GetObject( refInfo );
 	return pObj;
 }
 
@@ -171,7 +174,10 @@ CHE_PDF_Object * CHE_PDF_Reference::GetRefObj( PDF_OBJ_TYPE Type ) const
 	{
 		return NULL;
 	}
-	CHE_PDF_Object * pCurObj = mpParser->GetObject( m_RefObjNum );
+	HE_PDF_RefInfo refInfo;
+	refInfo.objNum = m_RefObjNum;
+	refInfo.genNum = m_RefGenNum;
+	CHE_PDF_Object * pCurObj = mpParser->GetObject( refInfo );
 	if ( pCurObj == NULL )
 	{
 		return NULL;

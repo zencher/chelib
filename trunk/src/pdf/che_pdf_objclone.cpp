@@ -70,8 +70,8 @@ CHE_PDF_Array* CloneDirectArrayObj( CHE_PDF_Array * pArray, CHE_PDF_Creator * cr
 			break;
 		case OBJ_TYPE_REFERENCE:
 			{
-				HE_PDF_InObjectNumbers numbers = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
-				pNewArray->Append( CHE_PDF_Reference::Create( numbers.objNum, numbers.genNum, pTmpObj->ToReference()->GetParser() ) );
+				HE_PDF_RefInfo refInfo = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
+				pNewArray->Append( CHE_PDF_Reference::Create( refInfo.objNum, refInfo.genNum, pTmpObj->ToReference()->GetParser() ) );
 				break;
 			}
 		default:
@@ -125,8 +125,8 @@ CHE_PDF_Dictionary* CloneDirectDictObj( CHE_PDF_Dictionary * pDict, CHE_PDF_Crea
 			break;
 		case OBJ_TYPE_REFERENCE:
 			{
-				HE_PDF_InObjectNumbers numbers = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
-				pNewDict->SetAtReference( key, numbers.objNum, numbers.genNum, pTmpObj->ToReference()->GetParser() );
+				HE_PDF_RefInfo refInfo = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
+				pNewDict->SetAtReference( key, refInfo.objNum, refInfo.genNum, pTmpObj->ToReference()->GetParser() );
 				break;
 			}
 		default:
@@ -136,46 +136,45 @@ CHE_PDF_Dictionary* CloneDirectDictObj( CHE_PDF_Dictionary * pDict, CHE_PDF_Crea
 	return pNewDict;
 }
 
-HE_PDF_InObjectNumbers CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * creator, IHE_ObjectCloneMgr * pMgr/* = NULL */ )
+HE_PDF_RefInfo CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * creator, IHE_ObjectCloneMgr * pMgr/* = NULL */ )
 {
-	HE_PDF_InObjectNumbers nunbers;
-	nunbers.objNum = 0;
-	nunbers.genNum = 0;
+	HE_PDF_RefInfo refInfo;
+	refInfo.objNum = 0;
+	refInfo.genNum = 0;
 	if ( pRefObj == NULL || creator == NULL )
 	{
-		return nunbers;
+		return refInfo;
 	}
-	nunbers.objNum = pRefObj->GetRefNum();
-	nunbers.genNum = pRefObj->GetGenNum();
-	if ( pMgr != NULL && pMgr->IsCloned( nunbers ) == TRUE )
+	refInfo.objNum = pRefObj->GetRefNum();
+	refInfo.genNum = pRefObj->GetGenNum();
+	if ( pMgr != NULL && pMgr->IsCloned( refInfo ) == TRUE )
 	{
-		return pMgr->GetMapObjNum( nunbers );
+		return pMgr->GetMapObjNum( refInfo );
 	}
 	CHE_PDF_Object * pObj = pRefObj->GetRefObj();
 	CHE_PDF_IndirectObject * pInObj = NULL;
-	HE_PDF_InObjectNumbers newNumbers;
-	/*HE_DWORD newObject = 0;*/
+	HE_PDF_RefInfo newRefInfo;
 	switch ( pObj->GetType() )
 	{
 	case OBJ_TYPE_NULL:
 		{
 			pInObj = creator->AppendIndirectObj_Null();
-			newNumbers.objNum = pInObj->GetObjNum();
-			newNumbers.genNum = pInObj->GetGenNum();
+			newRefInfo.objNum = pInObj->GetObjNum();
+			newRefInfo.genNum = pInObj->GetGenNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			break;
 		}
 	case OBJ_TYPE_BOOLEAN:
 		{
 			pInObj = creator->AppendIndirectObj_Boolean( pObj->ToBoolean()->GetValue() );
-			newNumbers.objNum = pInObj->GetObjNum();
-			newNumbers.genNum = pInObj->GetGenNum();
+			newRefInfo.objNum = pInObj->GetObjNum();
+			newRefInfo.genNum = pInObj->GetGenNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			break;
 		}
@@ -187,33 +186,33 @@ HE_PDF_InObjectNumbers CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF
 			}else{
 				pInObj = creator->AppendIndirectObj_Number( pObj->ToNumber()->GetFloat() );
 			}
-			newNumbers.objNum = pInObj->GetObjNum();
-			newNumbers.genNum = pInObj->GetGenNum();
+			newRefInfo.objNum = pInObj->GetObjNum();
+			newRefInfo.genNum = pInObj->GetGenNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			break;
 		}
 	case OBJ_TYPE_STRING:
 		{
 			pInObj = creator->AppendIndirectObj_String( pObj->ToString()->GetString() );
-			newNumbers.objNum = pInObj->GetObjNum();
-			newNumbers.genNum = pInObj->GetGenNum();
+			newRefInfo.objNum = pInObj->GetObjNum();
+			newRefInfo.genNum = pInObj->GetGenNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			break;
 		}
 	case OBJ_TYPE_NAME:
 		{
 			pInObj = creator->AppendIndirectObj_Name( pObj->ToName()->GetString() );
-			newNumbers.objNum = pInObj->GetObjNum();
-			newNumbers.genNum = pInObj->GetGenNum();
+			newRefInfo.objNum = pInObj->GetObjNum();
+			newRefInfo.genNum = pInObj->GetGenNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			break;
 		}
@@ -221,11 +220,11 @@ HE_PDF_InObjectNumbers CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF
 		{
 			pInObj = creator->AppendIndirectObj_Array();
 			CHE_PDF_Array * pNewArray = pInObj->GetObj()->ToArray();
-			newNumbers.objNum = pInObj->GetObjNum();
-			newNumbers.genNum = pInObj->GetGenNum();
+			newRefInfo.objNum = pInObj->GetObjNum();
+			newRefInfo.genNum = pInObj->GetGenNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			CHE_PDF_Array * pArray = pObj->ToArray();
 			CHE_PDF_Object * pTmpObj = NULL;
@@ -262,8 +261,8 @@ HE_PDF_InObjectNumbers CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF
 					break;
 				case OBJ_TYPE_REFERENCE:
 					{
-						HE_PDF_InObjectNumbers numbers = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
-						pNewArray->Append( CHE_PDF_Reference::Create( numbers.objNum, numbers.genNum, pTmpObj->ToReference()->GetParser() ) );
+						HE_PDF_RefInfo refInfo = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
+						pNewArray->Append( CHE_PDF_Reference::Create( refInfo.objNum, refInfo.genNum, pTmpObj->ToReference()->GetParser() ) );
 						break;
 					}
 				default:
@@ -276,11 +275,11 @@ HE_PDF_InObjectNumbers CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF
 		{
 			pInObj = creator->AppendIndirectObj_Dict();
 			CHE_PDF_Dictionary * pNewDict = pInObj->GetObj()->ToDict();
-			newNumbers.objNum = pInObj->GetObjNum();
-			newNumbers.genNum = pInObj->GetGenNum();
+			newRefInfo.objNum = pInObj->GetObjNum();
+			newRefInfo.genNum = pInObj->GetGenNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			CHE_PDF_Dictionary * pDict = pObj->ToDict();
 			CHE_PDF_Object * pTmpObj = NULL;
@@ -319,8 +318,8 @@ HE_PDF_InObjectNumbers CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF
 					break;
 				case OBJ_TYPE_REFERENCE:
 					{
-						HE_PDF_InObjectNumbers numbers = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
-						pNewDict->SetAtReference( key, numbers.objNum, numbers.genNum, pTmpObj->ToReference()->GetParser() );
+						HE_PDF_RefInfo refInfo = CloneIndirectObject( pTmpObj->ToReference(), creator, pMgr );
+						pNewDict->SetAtReference( key, refInfo.objNum, refInfo.genNum, pTmpObj->ToReference()->GetParser() );
 						break;
 					}
 				default:
@@ -333,11 +332,11 @@ HE_PDF_InObjectNumbers CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF
 		{
 			pInObj = creator->AppendIndirectObj_Stream();
 			CHE_PDF_Stream * pNewStream = pInObj->GetObj()->ToStream();
-			newNumbers.objNum = pInObj->GetObjNum();
-			newNumbers.genNum = pInObj->GetGenNum();
+			newRefInfo.objNum = pInObj->GetObjNum();
+			newRefInfo.genNum = pInObj->GetGenNum();
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			CHE_PDF_Dictionary * pNewDict = CloneDirectDictObj( pObj->ToStream()->GetDict(), creator, pMgr );
 			pNewStream->SetDict( pNewDict );
@@ -350,15 +349,15 @@ HE_PDF_InObjectNumbers CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF
 		}
 	case OBJ_TYPE_REFERENCE:
 		{
-			newNumbers = CloneIndirectObject( pObj->ToReference(), creator, pMgr );
+			newRefInfo = CloneIndirectObject( pObj->ToReference(), creator, pMgr );
 			if ( pMgr )
 			{
-				pMgr->SetMap( nunbers, newNumbers );
+				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			break;
 		}
 	default:
 		break;
 	}
-	return newNumbers;
+	return newRefInfo;
 }

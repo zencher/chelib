@@ -8,11 +8,12 @@
 class CHE_PDF_CollectorNode
 {
 public:
-	CHE_PDF_CollectorNode() : m_ObjNum( 0 ), m_InObj( NULL ) {}
-	CHE_PDF_CollectorNode( HE_DWORD objNum, CHE_PDF_IndirectObject * pInObj ) : m_ObjNum( objNum ), m_InObj( pInObj ) {}
+	CHE_PDF_CollectorNode() : m_InObj( NULL ) { m_RefInfo.objNum = 0; m_RefInfo.genNum = 0; }
+	CHE_PDF_CollectorNode( HE_PDF_RefInfo refInfo, CHE_PDF_IndirectObject * pInObj ) : m_InObj( pInObj )
+		{ m_RefInfo.objNum = refInfo.objNum; m_RefInfo.genNum = refInfo.genNum; }
 	CHE_PDF_CollectorNode & operator = ( const CHE_PDF_CollectorNode & node );
 
-	HE_DWORD m_ObjNum;
+	HE_PDF_RefInfo m_RefInfo;
 	CHE_PDF_IndirectObject * m_InObj;
 };
 
@@ -35,7 +36,10 @@ public:
 		{
 			return FALSE;
 		}
-		if ( m_QuickReq.Append( CHE_PDF_CollectorNode( pInObj->GetObjNum(), pInObj ) )  )
+		HE_PDF_RefInfo refInfo;
+		refInfo.objNum = pInObj->GetObjNum();
+		refInfo.genNum = pInObj->GetGenNum();
+		if ( m_QuickReq.Append( CHE_PDF_CollectorNode( refInfo, pInObj ) )  )
 		{
 			m_QuickGet.push_back( pInObj );
 			return TRUE;
@@ -43,44 +47,20 @@ public:
 		return FALSE;
 	}
 
-// 	HE_BOOL Add( CHE_PDF_Object * pObj )
-// 	{
-// 		if ( pObj == NULL )
-// 		{
-// 			return FALSE;
-// 		}
-// 		if ( m_QuickReq.Append( CHE_PDF_CollectorNode( pObj->GetObjNum(), pObj ) )  )
-// 		{
-// 			m_QuickGet.push_back( pObj );
-// 			return TRUE;
-// 		}
-// 		return FALSE;
-// 	}
-
-	HE_BOOL IsExist( HE_DWORD objNum )
+	HE_BOOL IsExist( HE_PDF_RefInfo refInfo )
 	{
-		return m_QuickReq.IsExist( CHE_PDF_CollectorNode( objNum, NULL ) );
+		return m_QuickReq.IsExist( CHE_PDF_CollectorNode( refInfo, NULL ) );
 	}
 
-	CHE_PDF_IndirectObject * GetInObj( HE_DWORD objNum )
+	CHE_PDF_IndirectObject * GetInObj( HE_PDF_RefInfo refInfo )
 	{
-		CHE_PDF_CollectorNode node( objNum, NULL );
+		CHE_PDF_CollectorNode node( refInfo, NULL );
 		if ( m_QuickReq.Find( node ) )
 		{
 			return node.m_InObj;
 		}
 		return NULL; 
 	}
-
-// 	CHE_PDF_Object * GetObj( HE_DWORD objNum )
-// 	{
-// 		CHE_PDF_CollectorNode node( objNum, NULL );
-// 		if ( m_QuickReq.Find( node ) )
-// 		{
-// 			return node.m_Obj;
-// 		}
-// 		return NULL; 
-// 	}
 
 	CHE_PDF_IndirectObject * GetObjByIndex( HE_DWORD index )
 	{
@@ -90,15 +70,6 @@ public:
 		}
 		return NULL;
 	}
-
-// 	CHE_PDF_Object * GetObjByIndex( HE_DWORD index )
-// 	{
-// 		if ( index < m_QuickReq.GetCount() )
-// 		{
-// 			return m_QuickGet[index];
-// 		}
-// 		return NULL;
-// 	}
 
 	HE_VOID Clear()
 	{

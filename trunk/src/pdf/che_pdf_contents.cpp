@@ -866,14 +866,10 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tf()
 		{
 			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
-				CHE_PDF_Dictionary * pDict = pTmpObj->ToReference()->GetRefObj()->ToDict();
-				if ( pDict )
+				CHE_PDF_Font * pFont = mpFontMgr->LoadFont( pTmpObj->ToReference() );
+				if ( pFont )
 				{
-					CHE_PDF_Font * pFont = GetAllocator()->New<CHE_PDF_Font>( pDict );
-					if ( pFont )
-					{
-						mpConstructor->State_TextFont( mName, pFont );
-					}
+					mpConstructor->State_TextFont( mName, pFont );
 				}
 			}else if ( pTmpObj->GetType() == OBJ_TYPE_DICTIONARY )
 			{

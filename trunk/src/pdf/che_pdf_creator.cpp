@@ -92,7 +92,7 @@ HE_BOOL	CHE_PDF_Creator::NewDocument()
 	pPagesDict->SetAtArray( "Kids", pTmpArray );
 	pPagesDict->SetAtInteger( "Count", 0 );
 
-	pCatalogDict->SetAtReference( "Pages", m_pPagesObj->GetObjNum(), NULL );
+	pCatalogDict->SetAtReference( "Pages", m_pPagesObj->GetObjNum(), m_pPagesObj->GetGenNum(), NULL );
 
 	m_bNewDocument = TRUE;
 	return TRUE;
@@ -177,7 +177,7 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::NewPage( HE_DWORD width, HE_DWORD height )
 		return NULL;
 	}
 	pTmpPageDict->SetAtName( "Type", "Page" );
-	pTmpPageDict->SetAtReference( "Parent", m_pPagesObj->GetObjNum(), NULL );
+	pTmpPageDict->SetAtReference( "Parent", m_pPagesObj->GetObjNum(), m_pPagesObj->GetGenNum(), NULL );
 	CHE_PDF_Array * pMediaBoxArray = CHE_PDF_Array::Create( GetAllocator() );
 	CHE_PDF_Number * pNum1 = CHE_PDF_Number::Create( 0, GetAllocator() );
 	CHE_PDF_Number * pNum2 = CHE_PDF_Number::Create( 0, GetAllocator() );
@@ -189,7 +189,7 @@ CHE_PDF_Dictionary * CHE_PDF_Creator::NewPage( HE_DWORD width, HE_DWORD height )
 	pMediaBoxArray->Append( pNum4 );
 	pTmpPageDict->SetAtArray( "MediaBox", pMediaBoxArray );
 
-	CHE_PDF_Reference * pPageRef = CHE_PDF_Reference::Create( pInPageDict->GetObjNum(), NULL, GetAllocator() );
+	CHE_PDF_Reference * pPageRef = CHE_PDF_Reference::Create( pInPageDict->GetObjNum(), pInPageDict->GetGenNum(), NULL, GetAllocator() );
 	CHE_PDF_Array * pPageArray = (CHE_PDF_Array*)( m_pPagesObj->GetObj()->ToDict()->GetElement( "Kids", OBJ_TYPE_ARRAY ) );
 	if( pPageArray != NULL )
 	{
@@ -272,7 +272,7 @@ CHE_PDF_Stream * CHE_PDF_Creator::AddStreamAsPageContents( HE_DWORD pageIndex )
 	{
 		return NULL;
 	}
-	pPageDict->SetAtReference( "Contents", pStm->GetObjNum(), NULL );
+	pPageDict->SetAtReference( "Contents", pStm->GetObjNum(), pStm->GetGenNum(), NULL );
 	return pStm->GetObj()->ToStream();
 }
 
@@ -393,14 +393,14 @@ HE_BOOL	CHE_PDF_Creator::Save( IHE_Write * pWrite )
 
 	CHE_PDF_Dictionary * pTrailerDict = CHE_PDF_Dictionary::Create( GetAllocator() );
 	pTrailerDict->SetAtInteger( "Size", xrefTable.GetCount() );
-	pTrailerDict->SetAtReference( "Root", m_pCatalogObj->GetObjNum(), NULL );
+	pTrailerDict->SetAtReference( "Root", m_pCatalogObj->GetObjNum(), m_pCatalogObj->GetGenNum(), NULL );
 	if ( m_pEncryptObj )
 	{
-		pTrailerDict->SetAtReference( "Encrypt", m_pEncryptObj->GetObjNum(), NULL );
+		pTrailerDict->SetAtReference( "Encrypt", m_pEncryptObj->GetObjNum(), m_pEncryptObj->GetGenNum(), NULL );
 	}
 	if ( m_pInfoObj )
 	{
-		pTrailerDict->SetAtReference( "Info", m_pInfoObj->GetObjNum(), NULL );
+		pTrailerDict->SetAtReference( "Info", m_pInfoObj->GetObjNum(), m_pInfoObj->GetGenNum(), NULL );
 	}
 
 	//Ð´Î²×Öµä
@@ -567,7 +567,7 @@ CHE_PDF_IndirectObject * CHE_PDF_Creator::AddType1Font_Standard14( HE_BYTE fontT
 		}
 		pFontDict->SetAtInteger( "FirstChar", 0 );
 		pFontDict->SetAtInteger( "LastChar", 255 );
-		pFontDict->SetAtReference( "Widths", pInWidthArrayObj->GetObjNum(), NULL );
+		pFontDict->SetAtReference( "Widths", pInWidthArrayObj->GetObjNum(), pInWidthArrayObj->GetGenNum(), NULL );
 	}
 	switch ( encoding )
 	{
@@ -633,7 +633,7 @@ CHE_PDF_IndirectObject * CHE_PDF_Creator::AddType1Font(	const CHE_ByteString & b
 	}
 	if ( pToUnicodeStream )
 	{
-		pFontDict->SetAtReference( "ToUnicode", pToUnicodeStream->GetObjNum(), NULL );
+		pFontDict->SetAtReference( "ToUnicode", pToUnicodeStream->GetObjNum(), pToUnicodeStream->GetGenNum(), NULL );
 	}
 	return pInFontDictObj;
 }

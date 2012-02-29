@@ -226,21 +226,29 @@ private:
 	friend class CHE_PDF_Object;
 };
 
+struct HE_PDF_InObjectNumbers
+{
+	HE_DWORD objNum;
+	HE_DWORD genNum;
+};
+
 class CHE_PDF_Reference : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_Reference* Create( HE_DWORD refNum, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
+	static CHE_PDF_Reference* Create( HE_DWORD refNum, HE_DWORD genNum = 0, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
 	{
 		if ( pAllocator )
 		{
-			return pAllocator->New<CHE_PDF_Reference>( refNum, pParser, pAllocator );
+			return pAllocator->New<CHE_PDF_Reference>( refNum, genNum, pParser, pAllocator );
 		}else{
-			return new CHE_PDF_Reference( refNum, pParser, NULL );	
+			return new CHE_PDF_Reference( refNum, genNum, pParser, NULL );	
 		}
 	}
 
 	HE_DWORD			GetRefNum() const { return m_RefObjNum; }
 	HE_VOID				SetRefNum( HE_DWORD objNum ) { m_RefObjNum = objNum; }
+	HE_DWORD			GetGenNum() const { return m_RefGenNum; }
+	HE_VOID				SetGenNum( HE_DWORD genNum ) { m_RefGenNum = genNum; }
 
 	CHE_PDF_Object *	GetRefObj() const;
 	CHE_PDF_Object *	GetRefObj( PDF_OBJ_TYPE Type ) const;
@@ -248,14 +256,15 @@ public:
 
 	CHE_PDF_Reference * Clone()
 	{
-		return GetAllocator()->New<CHE_PDF_Reference>( m_RefObjNum, mpParser, GetAllocator() );
+		return GetAllocator()->New<CHE_PDF_Reference>( m_RefObjNum, m_RefGenNum, mpParser, GetAllocator() );
 	}
 
 private:
-	CHE_PDF_Reference( HE_DWORD refNum, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object(pAllocator), m_RefObjNum(refNum), mpParser(pParser) { m_Type = OBJ_TYPE_REFERENCE; }
+	CHE_PDF_Reference( HE_DWORD refNum, HE_DWORD genNum, CHE_PDF_Parser * pParser = NULL, CHE_Allocator * pAllocator = NULL )
+		: CHE_PDF_Object(pAllocator), m_RefObjNum(refNum), m_RefGenNum(genNum), mpParser(pParser) { m_Type = OBJ_TYPE_REFERENCE; }
 
 	HE_DWORD m_RefObjNum;
+	HE_DWORD m_RefGenNum;
 	CHE_PDF_Parser * mpParser;
 
 	friend class CHE_Allocator;
@@ -328,7 +337,7 @@ public:
 	HE_VOID					SetAtName( const CHE_ByteString & key, const CHE_ByteString& name );
 	HE_VOID					SetAtArray( const CHE_ByteString & key, CHE_PDF_Array * pArray );
 	HE_VOID					SetAtDictionary( const CHE_ByteString & key, CHE_PDF_Dictionary * pDict );
-	HE_VOID					SetAtReference( const CHE_ByteString & key, HE_DWORD objnum, CHE_PDF_Parser * pParser );
+	HE_VOID					SetAtReference( const CHE_ByteString & key, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Parser * pParser );
 // 	CHE_PDF_Object *		Replace( CHE_ByteString & key, CHE_PDF_Object * pObj );
 // 	HE_BOOL					Remove( CHE_ByteString & key );
 

@@ -9,22 +9,30 @@
 class IHE_ObjectCloneMgr
 {
 public:
-	virtual HE_BOOL		IsCloned( HE_DWORD OriObjNum ) = 0;
-	virtual HE_DWORD	GetMapObjNum( HE_DWORD OriObjNum ) = 0;
-	virtual HE_VOID		SetMap( HE_DWORD OriObjNum, HE_DWORD NewObjNum ) = 0;
+	virtual HE_BOOL					IsCloned( HE_PDF_InObjectNumbers OriNunbers ) = 0;
+	virtual HE_PDF_InObjectNumbers	GetMapObjNum( HE_PDF_InObjectNumbers OriObjNumbers ) = 0;
+	virtual HE_VOID					SetMap( HE_PDF_InObjectNumbers OriObjNumbers, HE_PDF_InObjectNumbers NewObjNumbers ) = 0;
 };
 
 class ObjectCloneMgrData
 {
 public:
-	ObjectCloneMgrData() { mObjNum = 0; mNewObjNum = 0;}
-	HE_DWORD mObjNum;
-	HE_DWORD mNewObjNum;
+	ObjectCloneMgrData()
+	{
+		mObjNumbers.objNum = 0;
+		mObjNumbers.genNum = 0;
+		mNewObjNumbers.objNum = 0;
+		mNewObjNumbers.genNum = 0;
+	}
+	HE_PDF_InObjectNumbers mObjNumbers;
+	HE_PDF_InObjectNumbers mNewObjNumbers;
 
 	ObjectCloneMgrData & operator = ( const ObjectCloneMgrData data )
 	{
-		mObjNum = data.mObjNum;
-		mNewObjNum = data.mNewObjNum;
+		mObjNumbers.objNum = data.mObjNumbers.objNum;
+		mObjNumbers.genNum = data.mObjNumbers.genNum;
+		mNewObjNumbers.objNum = data.mNewObjNumbers.objNum;
+		mNewObjNumbers.objNum = data.mNewObjNumbers.genNum;
 		return *this;
 	}
 };
@@ -38,34 +46,36 @@ bool operator < ( const ObjectCloneMgrData & data1, const ObjectCloneMgrData & d
 class CHE_ObjectCloneMgr : public IHE_ObjectCloneMgr
 {
 public:
-	HE_BOOL IsCloned( HE_DWORD OriObjNum )
+	HE_BOOL IsCloned( HE_PDF_InObjectNumbers OriObjNumbers )
 	{
 		ObjectCloneMgrData data;
-		data.mObjNum = OriObjNum;
+		data.mObjNumbers.objNum = OriObjNumbers.objNum;
+		data.mObjNumbers.genNum = OriObjNumbers.genNum;
 		return mDataList.Find( data );
 	}
 
-	HE_DWORD GetMapObjNum( HE_DWORD OriObjNum )
+	HE_PDF_InObjectNumbers GetMapObjNum( HE_PDF_InObjectNumbers OriObjNumbers )
 	{
 		ObjectCloneMgrData data;
-		data.mObjNum = OriObjNum;
+		data.mObjNumbers.objNum = OriObjNumbers.objNum;
+		data.mObjNumbers.genNum = OriObjNumbers.genNum;
 		mDataList.Find( data );
-		return data.mNewObjNum;
+		return data.mNewObjNumbers;
 	}
 
-	HE_VOID	SetMap( HE_DWORD OriObjNum, HE_DWORD NewObjNum )
+	HE_VOID	SetMap( HE_PDF_InObjectNumbers OriObjNumers, HE_PDF_InObjectNumbers NewObjNumbers )
 	{
 		ObjectCloneMgrData data;
-		data.mObjNum = OriObjNum;
-		data.mNewObjNum = NewObjNum;
+		data.mObjNumbers = OriObjNumers;
+		data.mNewObjNumbers = NewObjNumbers;
 		mDataList.Append( data );   
 	}
 
 	CHE_SkipList< ObjectCloneMgrData > mDataList;
 };
 
-CHE_PDF_Dictionary*	CloneDirectDictObj( CHE_PDF_Dictionary * pDict, CHE_PDF_Creator * creator, /*HE_DWORD objNum, HE_DWORD genNum,*/ IHE_ObjectCloneMgr * pMgr = NULL );
-CHE_PDF_Array*		CloneDirectArrayObj( CHE_PDF_Array * pArray, CHE_PDF_Creator * creator, /*HE_DWORD objNum, HE_DWORD genNum,*/ IHE_ObjectCloneMgr * pMgr = NULL );
-HE_DWORD			CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * creator, IHE_ObjectCloneMgr * pMgr = NULL );
+CHE_PDF_Dictionary*		CloneDirectDictObj( CHE_PDF_Dictionary * pDict, CHE_PDF_Creator * creator, IHE_ObjectCloneMgr * pMgr = NULL );
+CHE_PDF_Array*			CloneDirectArrayObj( CHE_PDF_Array * pArray, CHE_PDF_Creator * creator, IHE_ObjectCloneMgr * pMgr = NULL );
+HE_PDF_InObjectNumbers	CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_Creator * creator, IHE_ObjectCloneMgr * pMgr = NULL );
 
 #endif

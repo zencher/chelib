@@ -561,11 +561,11 @@ HE_VOID CHE_PDF_Dictionary::SetAtDictionary( const CHE_ByteString & key, CHE_PDF
 	}
 }
 
-HE_VOID	CHE_PDF_Dictionary::SetAtReference( const CHE_ByteString & key, HE_DWORD objnum, CHE_PDF_Parser * pParser )
+HE_VOID	CHE_PDF_Dictionary::SetAtReference( const CHE_ByteString & key, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Parser * pParser )
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_Reference * pObj = CHE_PDF_Reference::Create( objnum, pParser, GetAllocator() );
+		CHE_PDF_Reference * pObj = CHE_PDF_Reference::Create( objNum, genNum, pParser, GetAllocator() );
 		if ( m_Map.GetItem( key ) != NULL )
 		{
 			if ( m_Map.UpdateItem( key, (HE_LPVOID*)&pObj ) && pObj )

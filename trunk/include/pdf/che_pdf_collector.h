@@ -9,8 +9,8 @@ class CHE_PDF_CollectorNode
 {
 public:
 	CHE_PDF_CollectorNode() : m_InObj( NULL ) { m_RefInfo.objNum = 0; m_RefInfo.genNum = 0; }
-	CHE_PDF_CollectorNode( HE_PDF_RefInfo refInfo, CHE_PDF_IndirectObject * pInObj ) : m_InObj( pInObj )
-		{ m_RefInfo.objNum = refInfo.objNum; m_RefInfo.genNum = refInfo.genNum; }
+	CHE_PDF_CollectorNode( HE_PDF_RefInfo refInfo, CHE_PDF_IndirectObject * pInObj )
+		: m_InObj( pInObj ) { m_RefInfo.objNum = refInfo.objNum; m_RefInfo.genNum = refInfo.genNum; }
 	CHE_PDF_CollectorNode & operator = ( const CHE_PDF_CollectorNode & node );
 
 	HE_PDF_RefInfo m_RefInfo;

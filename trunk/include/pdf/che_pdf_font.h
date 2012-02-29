@@ -36,12 +36,12 @@ private:
 	PDF_FONT_ENCODING		m_EncodingType;
 
 	CHE_PDF_Dictionary *	m_pFontDict;
-	CHE_PDF_CMap *			m_pCMap;
-	CHE_PDF_CMap *			m_pToUnicodeMap;
+	CHE_PDF_CMap *			m_pCIDMap;
+	CHE_PDF_CMap *			m_pUnicodeMap;
 
-	bool					m_bUnicodeTableToDes;
- 	HE_WCHAR *				m_pUnicodeTable;
- 	CHE_NumToPtrMap *		m_pMap;
+	bool					m_bEncodingToDes;
+ 	HE_WCHAR *				m_pEncodingTable;
+ 	CHE_NumToPtrMap *		m_pToUnicodeMap;
 };
 
 #endif

@@ -102,8 +102,12 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 					break;
 				case OBJ_TYPE_REFERENCE:
 					{
-						HE_DWORD refNum = CloneIndirectObject( pTmpObj->ToReference(), &creator, &ObjCloneMgr );
-						pNewPageDict->SetAtReference( key, refNum, NULL );
+						HE_PDF_InObjectNumbers numbers = CloneIndirectObject( pTmpObj->ToReference(), &creator, &ObjCloneMgr );
+						if ( numbers.objNum == 0 )
+						{
+							int x = 0;
+						}
+						pNewPageDict->SetAtReference( key, numbers.objNum, numbers.genNum, NULL );
 						break;
 					}
 				default:

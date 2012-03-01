@@ -14,6 +14,8 @@ public:
 
 	CHE_PDF_Font * LoadFont( CHE_PDF_Reference * pReference );
 
+	/*CHE_PDF_Font * LoadFont( CHE_PDF_Dictionary * pDict );*/
+
 private:
 	CHE_NumToPtrMap mNumToFontMap;
 };

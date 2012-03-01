@@ -49,7 +49,7 @@ public:
 	virtual HE_VOID Operator_Append( CHE_PDF_ContentObject * pObject ) = 0;
 };
 
-IHE_PDF_ContentListConstructor * CreateConstructor( std::vector<CHE_PDF_ContentObject*> * pVector, CHE_Allocator * pAllocator = NULL );
+IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * plist, CHE_Allocator * pAllocator = NULL );
 
 enum PDF_CONTENTRES_TYPE
 {

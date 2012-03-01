@@ -4471,11 +4471,15 @@ CHE_PDF_Font::~CHE_PDF_Font()
 	{
 		m_pUnicodeMap->GetAllocator()->Delete( m_pUnicodeMap );
 	}
-	if ( m_pEncodingTable )
+	if ( m_bEncodingToDes && m_pEncodingTable )
 	{
 		GetAllocator()->Delete( m_pEncodingTable );
 	}
-	m_pToUnicodeMap->Clear();
+	if ( m_pToUnicodeMap )
+	{
+		m_pToUnicodeMap->Clear();
+		GetAllocator()->Delete( m_pToUnicodeMap );
+	}
 }
 
 CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStream )

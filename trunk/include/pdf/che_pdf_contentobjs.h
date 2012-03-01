@@ -39,6 +39,24 @@ protected:
 	CHE_PDF_GState * mpGState;
 };
 
+typedef std::list<CHE_PDF_ContentObject*> ContentObjectList;
+
+class CHE_PDF_ContentObjectList : public CHE_Object
+{
+public:
+	CHE_PDF_ContentObjectList( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator ) {}
+
+	bool Append( CHE_PDF_ContentObject * pObj );
+
+	ContentObjectList::iterator Begin();
+
+	ContentObjectList::iterator End();
+
+private:
+	ContentObjectList mList;
+};
+
 class CHE_PDF_NamedContentObject : public CHE_PDF_ContentObject
 {
 public:

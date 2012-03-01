@@ -1715,8 +1715,8 @@ CHE_ByteString CHE_PDF_ContentResMgr::RequestName( CHE_PDF_Dictionary * pSubDict
 class CContentViewListConstructor : public IHE_PDF_ContentListConstructor
 {
 public:
-	CContentViewListConstructor( std::vector<CHE_PDF_ContentObject*> * pVector, CHE_Allocator * pAllocator = NULL )
-		: mpVector(pVector), mpGState(NULL), IHE_PDF_ContentListConstructor( pAllocator )
+	CContentViewListConstructor( CHE_PDF_ContentObjectList * pList, CHE_Allocator * pAllocator = NULL )
+		: mpList(pList), mpGState(NULL), IHE_PDF_ContentListConstructor( pAllocator )
 	{
 		mpGState = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
 	}
@@ -1890,13 +1890,13 @@ public:
 		{
 			mGStateStack.push_back( NULL );
 		}
-		mpVector->push_back( pNode );
+		mpList->Append( pNode );
 	}
 	
 	HE_VOID Operator_PopGState()
 	{
 		CHE_PDF_PopGState * pNode = GetAllocator()->New<CHE_PDF_PopGState>();
-		mpVector->push_back( pNode );
+		mpList->Append( pNode );
 		if ( mpGState )
 		{
 			mpGState->GetAllocator()->Delete( mpGState );
@@ -1965,7 +1965,7 @@ public:
 			default:
 				return;
 			}
-			mpVector->push_back( pObject );
+			mpList->Append( pObject );
 		}
 	}
 
@@ -1979,22 +1979,22 @@ private:
 		return mpGState;
 	}
 
-	std::vector<CHE_PDF_ContentObject*> * mpVector;
+	CHE_PDF_ContentObjectList * mpList;
 	std::vector<CHE_PDF_GState*> mGStateStack;
 	CHE_PDF_GState * mpGState;
 };
 
-IHE_PDF_ContentListConstructor * CreateConstructor( std::vector<CHE_PDF_ContentObject*> * pVector, CHE_Allocator * pAllocator /*= NULL*/ )
+IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * plist, CHE_Allocator * pAllocator /*= NULL*/ )
 {
-	if ( !pVector )
+	if ( plist == NULL )
 	{
 		return NULL;
 	}
 	if ( pAllocator == NULL )
 	{
-		return new CContentViewListConstructor( pVector );
+		return new CContentViewListConstructor( plist );
 	}else
 	{
-		return pAllocator->New<CContentViewListConstructor>( pVector, pAllocator );
+		return pAllocator->New<CContentViewListConstructor>( plist, pAllocator );
 	}
 }

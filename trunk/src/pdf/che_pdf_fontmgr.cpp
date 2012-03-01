@@ -24,9 +24,7 @@ CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( CHE_PDF_Reference * pReference )
 		return NULL;
 	}
 	HE_DWORD objNum = pReference->GetRefNum();
-	HE_DWORD genNum = pReference->GetGenNum();
-	HE_DWORD tmpValue = ( objNum << 5 ) + genNum;
-	HE_LPCVOID lpVoid = mNumToFontMap.GetItem( tmpValue );
+	HE_LPCVOID lpVoid = mNumToFontMap.GetItem( objNum );
 	if ( lpVoid == NULL )
 	{
 		CHE_PDF_Object * pTmpObj = pReference->GetRefObj( OBJ_TYPE_DICTIONARY );
@@ -40,7 +38,7 @@ CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( CHE_PDF_Reference * pReference )
 			CHE_PDF_Font * pTmpFont = GetAllocator()->New<CHE_PDF_Font>( pDict, GetAllocator() );
 			if ( pTmpFont )
 			{
-				mNumToFontMap.Append( tmpValue, (HE_LPVOID)( pTmpFont ) );
+				mNumToFontMap.Append( objNum, (HE_LPVOID)( pTmpFont ) );
 				return pTmpFont;
 			}
 		}

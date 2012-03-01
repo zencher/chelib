@@ -15,6 +15,27 @@ HE_BOOL CHE_PDF_ContentObject::SetGState( CHE_PDF_GState * pGSatae )
 	return FALSE;
 }
 
+
+bool CHE_PDF_ContentObjectList::Append( CHE_PDF_ContentObject * pObj )
+{
+	if ( pObj )
+	{
+		mList.push_back( pObj );
+		return true;
+	}
+	return false;
+}
+
+ContentObjectList::iterator CHE_PDF_ContentObjectList::Begin()
+{
+	return mList.begin();
+}
+
+ContentObjectList::iterator CHE_PDF_ContentObjectList::End()
+{
+	return mList.end();
+}
+
 HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 {
 	if ( pObj )

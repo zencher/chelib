@@ -31,6 +31,11 @@ inline size_t CHE_DefCrtAllocator::GetSize( void * data )
 	return _msize( data );
 }
 
+CHE_Allocator * GetDefaultAllocator()
+{
+	return & gDefCrtAllocator;
+}
+
 CHE_HeapAllocator::CHE_HeapAllocator( size_t initSize )
 {
 	m_Heap = HeapCreate( 0, initSize, 0 );

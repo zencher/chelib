@@ -138,6 +138,8 @@ public:
 	inline size_t GetSize( void * data );
 };
 
+CHE_Allocator * GetDefaultAllocator();
+
 class CHE_HeapAllocator : public CHE_Allocator
 {
 public:

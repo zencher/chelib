@@ -4567,7 +4567,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 							tmpMap->Append( i, (HE_LPVOID)tmpValue );
 							lCodeCount++;
 						}
-					}else if ( wordDes.type == OBJ_TYPE_STRING )
+					}else if ( wordDes.type == PARSE_WORD_STRING )
 					{
 						tmpValue = HE_HexStrToValue( wordDes.str );
 						if ( lIndexEnd > lMaxIndex )

@@ -58,4 +58,14 @@ private:
 	CHE_ByteString mResName;
 };
 
+CHE_PDF_ColorSpace * GetColorSpace( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL );
+
+CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Object * pObj, CHE_Allocator * pAllocator = NULL );
+
+CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Name * pName, CHE_Allocator * pAllocator = NULL );
+
+CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Array * pArray, CHE_Allocator * pAllocator = NULL );
+
+CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Reference * pRef, CHE_Allocator * pAllocator = NULL );
+
 #endif

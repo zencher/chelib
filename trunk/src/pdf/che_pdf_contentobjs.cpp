@@ -15,6 +15,38 @@ HE_BOOL CHE_PDF_ContentObject::SetGState( CHE_PDF_GState * pGSatae )
 	return FALSE;
 }
 
+CHE_PDF_ContentObjectList::~CHE_PDF_ContentObjectList()
+{
+	Clear();
+}
+
+CHE_PDF_ContentObjectList * CHE_PDF_ContentObjectList::Clone()
+{
+	CHE_PDF_ContentObjectList * pObjList = GetAllocator()->New<CHE_PDF_ContentObjectList>();
+
+	ContentObjectList::iterator it = Begin();
+	for ( ; it != End(); ++it )
+	{
+		pObjList->Append( *it );
+	}
+	return pObjList;
+}
+
+HE_VOID CHE_PDF_ContentObjectList::Clear()
+{
+	ContentObjectList::iterator it = Begin();
+	CHE_PDF_ContentObject * pObj = NULL;
+	for ( ; it != End(); ++it )
+	{
+		pObj = *it;
+		if ( pObj )
+		{
+			pObj->GetAllocator()->Delete( pObj );
+		}
+	}
+	mList.clear();
+}
+
 
 bool CHE_PDF_ContentObjectList::Append( CHE_PDF_ContentObject * pObj )
 {
@@ -134,4 +166,15 @@ HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 		return TRUE;
 	}
 	return FALSE;
+}
+
+
+CHE_PDF_Path::~CHE_PDF_Path()
+{
+	mItems.clear();
+}
+
+CHE_PDF_Form::~CHE_PDF_Form()
+{
+
 }

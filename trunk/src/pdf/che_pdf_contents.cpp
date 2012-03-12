@@ -572,14 +572,33 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 		}
 		if ( pSubtypeName->GetString() == "Image" )
 		{
-			CHE_PDF_Image * pImage = GetAllocator()->New<CHE_PDF_Image>( mName, GetAllocator() );
-			//todo
-			mpConstructor->Operator_Append( pImage );
+			CHE_PDF_Object * pObj = mpContentResMgr->GetResObj( CONTENTRES_XOBJECT, mName );
+			if ( pObj && pObj->GetType() == OBJ_TYPE_REFERENCE )
+			{
+				CHE_PDF_RefImage * pImage = GetAllocator()->New<CHE_PDF_RefImage>( mName, pObj->ToReference(), GetAllocator() );
+				mpConstructor->Operator_Append( pImage );
+			}
 		}else if ( pSubtypeName->GetString() == "Form" )
 		{
 			CHE_PDF_Form * pForm = GetAllocator()->New<CHE_PDF_Form>( mName, GetAllocator() );
-			//todo
+			CHE_PDF_Object * pTmpObj = NULL;
+			CHE_PDF_Dictionary * pResDict = NULL;
+			pTmpObj = pStmDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
+			if ( pTmpObj )
+			{
+				pResDict = pTmpObj->ToDict();
+			}
+			//todo : get the matrix from form dict
+			CHE_PDF_Matrix extMatrix = mpConstructor->GetExtMatrix();
+			CHE_PDF_Matrix curMatrix = mpConstructor->GetCurMatrix();
+			curMatrix.Concat( extMatrix );
+			IHE_PDF_ContentListConstructor * pConstructor =  CreateConstructor( &pForm->GetList(), curMatrix, GetAllocator() );
+			CHE_PDF_ContentResMgr * pContentResMgr = &( pForm->GetList().GetResMgr() );
+			pContentResMgr->SetDict( pResDict );
+			CHE_PDF_ContentsParser contentsParser( pContentResMgr, mpFontMgr, pConstructor );
+			contentsParser.Parse( pStm );
 			mpConstructor->Operator_Append( pForm );
+			pConstructor->GetAllocator()->Delete( pConstructor );
 		}
 	}
 }
@@ -694,7 +713,77 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 			pParser->Seek( dwRet );
 		}
 	}
-	//create inline image
+
+
+	CHE_PDF_Dictionary * pDict = CHE_PDF_Dictionary::Create( GetAllocator() );
+	if ( mpFilter )
+	{
+		pDict->SetAtObj( "Filter", mpFilter );
+		mpFilter = NULL;
+	}
+	if ( mpDecode )
+	{
+		pDict->SetAtObj( "Decode", mpDecode );
+		mpDecode = NULL;
+	}
+	if ( mpDecodeParam )
+	{
+		pDict->SetAtObj( "DecodeParam", mpDecodeParam );
+		mpDecodeParam = NULL;
+	}
+	pDict->SetAtInteger( "Length", buffer.size() );
+
+	CHE_PDF_ColorSpace * pColorspace = NULL;
+	if ( mpColorSpace )
+	{
+		if ( mpColorSpace->GetType() == OBJ_TYPE_NAME )
+		{
+			CHE_ByteString str = mpColorSpace->ToName()->GetString();
+			mpColorSpace->Release();	//only need the name, release the obj
+			mpColorSpace = NULL;
+			pColorspace = GetColorSpace( str, GetAllocator() );
+			if ( pColorspace == NULL )
+			{
+				CHE_PDF_Object * pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, str );
+				if ( pObj == NULL )
+				{
+					/*assert(0);*/
+					/*error*/
+				}
+				if ( pObj->GetType() == OBJ_TYPE_NAME )
+				{
+					pColorspace = GetColorSpace( pObj->ToName(), GetAllocator() );
+				}else if ( pObj->GetType() == OBJ_TYPE_ARRAY )
+				{
+					pColorspace = GetColorSpace( pObj->ToArray(), GetAllocator() );
+				}else{
+					/*assert(0);*/
+					/*error*/
+				}
+			}
+		}else if ( mpColorSpace->GetType() == OBJ_TYPE_ARRAY )
+		{
+			pColorspace = GetColorSpace( mpColorSpace->ToArray(), GetAllocator() );
+			mpColorSpace = NULL;
+		}
+		/*assert( 0 );*/
+		/*error*/
+	}
+
+	CHE_PDF_Stream * pStream = CHE_PDF_Stream::Create( &buffer[0], buffer.size(), pDict, 0, 0, NULL, GetAllocator() );
+	if ( pStream )
+	{
+		CHE_PDF_StreamAcc stmAcc( GetAllocator() );
+		if ( stmAcc.Attach( pStream ) )
+		{
+			CHE_PDF_InlineImage * pImage = GetAllocator()->New<CHE_PDF_InlineImage>(	mbMask, mWidth, mHeight, mBpc,
+																						stmAcc.GetData(), stmAcc.GetSize(),
+																						pColorspace, GetAllocator() );
+			mpConstructor->Operator_Append( pImage );
+		}
+		stmAcc.Detach();
+		pStream->Release();
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_J()
@@ -1489,239 +1578,16 @@ HE_VOID CHE_PDF_ContentsParser::Handle_y()
 	}
 }
 
-CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, CHE_PDF_Object * pObj )
-{
-	CHE_PDF_Dictionary * pSubDict = NULL;
-	pSubDict = GetSubDict( type );
-	if ( !pSubDict )
-	{
-		return "";
-	}
-	CHE_ByteString nameRet;
-	switch( type )
-	{
-	case CONTENTRES_EXTGSTATE:
-		{
-			nameRet = RequestName( pSubDict, "GS" );
-			break;
-		}
-	case CONTENTRES_COLORSPACE:
-		{
-			nameRet = RequestName( pSubDict, "CS" );
-			break;
-		}
-	case CONTENTRES_PATTERN:
-		{
-			nameRet = RequestName( pSubDict, "P" );
-			break;
-		}
-	case CONTENTRES_SHADING:
-		{
-			nameRet = RequestName( pSubDict, "S" );
-			break;
-		}
-	case CONTENTRES_XOBJECT:
-		{
-			nameRet = RequestName( pSubDict, "XOBJ" );
-			break;
-		}
-	case CONTENTRES_FONT:
-		{
-			nameRet = RequestName( pSubDict, "F" );
-			break;
-		}
-	default:
-		break;
-	}
-	if ( nameRet.GetLength() > 0 )
-	{
-		pSubDict->SetAtObj( nameRet, pObj );
-	}
-	return nameRet;
-}
-
-// CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name, CHE_Object * pObj );
-// 
-// HE_BOOL	CHE_PDF_ContentResMgr::DeleteName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
- 
-CHE_PDF_Object * CHE_PDF_ContentResMgr::GetResObj( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name )
-{
-	CHE_PDF_Dictionary * pSubDict = GetSubDict( type );
-	if ( pSubDict )
-	{
-		return pSubDict->GetElement( name );
-	}
-	return NULL;
-}
- 
-CHE_PDF_Object * CHE_PDF_ContentResMgr::GetResObj( const CHE_ByteString & name )
-{
-	CHE_PDF_Object * pRet = GetResObj( CONTENTRES_EXTGSTATE, name );
-	if ( pRet )
-	{
-		return pRet;	
-	}
-	pRet = GetResObj( CONTENTRES_COLORSPACE, name );
-	if ( pRet )
-	{
-		return pRet;	
-	}
-	pRet = GetResObj( CONTENTRES_PATTERN, name );
-	if ( pRet )
-	{
-		return pRet;	
-	}
-	pRet = GetResObj( CONTENTRES_SHADING, name );
-	if ( pRet )
-	{
-		return pRet;	
-	}
-	pRet = GetResObj( CONTENTRES_XOBJECT, name );
-	if ( pRet )
-	{
-		return pRet;	
-	}
-	pRet = GetResObj( CONTENTRES_FONT, name );
-	if ( pRet )
-	{
-		return pRet;	
-	}
-	return pRet;
-}
-
-CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::GetSubDict( PDF_CONTENTRES_TYPE type )
-{
-	if ( !mpResDict )
-	{
-		return NULL;
-	}
-	CHE_PDF_Object * pTmp = NULL;
-	switch ( type )
-	{
-	case CONTENTRES_EXTGSTATE:
-		{
-			pTmp = mpResDict->GetElement( "ExtGState", OBJ_TYPE_DICTIONARY );
-			break;
-		}
-	case CONTENTRES_COLORSPACE:
-		{
-			pTmp = mpResDict->GetElement( "ColorSpace", OBJ_TYPE_DICTIONARY );
-			break;
-		}
-	case CONTENTRES_PATTERN:
-		{
-			pTmp = mpResDict->GetElement( "Pattern", OBJ_TYPE_DICTIONARY );
-			break;
-		}
-	case CONTENTRES_SHADING:
-		{
-			pTmp = mpResDict->GetElement( "Shading", OBJ_TYPE_DICTIONARY );
-			break;
-		}
-	case CONTENTRES_XOBJECT:
-		{
-			pTmp = mpResDict->GetElement( "XObject", OBJ_TYPE_DICTIONARY );
-			break;
-		}
-	case CONTENTRES_FONT:
-		{
-			pTmp = mpResDict->GetElement( "Font", OBJ_TYPE_DICTIONARY );
-			break;
-		}
-	default:
-		break;
-	}
-	if ( pTmp )
-	{
-		return pTmp->ToDict();
-	}else{
-		return CreateSubDict( type );
-	}
-}
-
-
-CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::CreateSubDict( PDF_CONTENTRES_TYPE type )
-{
-	CHE_PDF_Dictionary * pTmpDict = CHE_PDF_Dictionary::Create( mpResDict->GetAllocator() );
-	switch ( type )
-	{
-	case CONTENTRES_EXTGSTATE:
-		{
-			mpResDict->SetAtDictionary( "ExtGState", pTmpDict );
-			break;
-		}
-	case CONTENTRES_COLORSPACE:
-		{
-			mpResDict->SetAtDictionary( "ColorSpace", pTmpDict );
-			break;
-		}
-	case CONTENTRES_PATTERN:
-		{
-			mpResDict->SetAtDictionary( "Pattern", pTmpDict );
-			break;
-		}
-	case CONTENTRES_SHADING:
-		{
-			mpResDict->SetAtDictionary( "Shading", pTmpDict );
-			break;
-		}
-	case CONTENTRES_XOBJECT:
-		{
-			mpResDict->SetAtDictionary( "XObject", pTmpDict );
-			break;
-		}
-	case CONTENTRES_FONT:
-		{
-			mpResDict->SetAtDictionary( "Font", pTmpDict );
-			break;
-		}
-	default:
-		break;
-	}
-	return pTmpDict;
-}
-
-CHE_ByteString CHE_PDF_ContentResMgr::RequestName( CHE_PDF_Dictionary * pSubDict, const CHE_ByteString & name )
-{
-	if ( !pSubDict )
-	{
-		return "";
-	}
-	CHE_PDF_Object * pTmpObj = pSubDict->GetElement( name );
-	if ( !pTmpObj )
-	{
-		return name;
-	}else
-	{
-		HE_CHAR tmpStr[128];
-		HE_DWORD tmpInt = 0;
-		bool bContinue = true;
-		while ( bContinue )
-		{
-			sprintf_s( tmpStr, "%s%d", name.GetData(), tmpInt );
-			pTmpObj = pSubDict->GetElement( tmpStr );
-			if ( !pTmpObj )
-			{
-				bContinue = false;
-				continue;;
-			}
-			++tmpInt;
-		}
-		return tmpStr;
-	}
-	return "";
-}
-
-class CContentViewListConstructor : public IHE_PDF_ContentListConstructor
+class CContentListConstructor : public IHE_PDF_ContentListConstructor
 {
 public:
-	CContentViewListConstructor( CHE_PDF_ContentObjectList * pList, CHE_Allocator * pAllocator = NULL )
-		: mpList(pList), mpGState(NULL), IHE_PDF_ContentListConstructor( pAllocator )
+	CContentListConstructor( CHE_PDF_ContentObjectList * pList, const CHE_PDF_Matrix & matrix, CHE_Allocator * pAllocator = NULL )
+		: mpList(pList), mpGState(NULL), mExtMatrix(matrix), IHE_PDF_ContentListConstructor( pAllocator )
 	{
 		mpGState = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
 	}
 
-	~CContentViewListConstructor()
+	~CContentListConstructor()
 	{
 		if ( mpGState )
 		{
@@ -1947,7 +1813,8 @@ public:
 					}
 				}
 			case ContentType_Path:
-			case ContentType_Image:
+			case ContentType_RefImage:
+			case ContentType_InlineImage:
 			case ContentType_Form:
 			case ContentType_Shading:
 			case ContentType_TextBegin:
@@ -1966,7 +1833,26 @@ public:
 				return;
 			}
 			mpList->Append( pObject );
+
+			//extMatrix
+			CHE_PDF_Matrix tmpMatrix = pObject->GetExtMatrix();
+			tmpMatrix.Concat( mExtMatrix );
+			pObject->SetExtMatrix( tmpMatrix );
 		}
+	}
+
+	CHE_PDF_Matrix GetExtMatrix()
+	{
+		return mExtMatrix;
+	}
+
+	CHE_PDF_Matrix GetCurMatrix()
+	{
+		if ( mpGState )
+		{
+			return mpGState->GetMatrix();
+		}
+		return CHE_PDF_Matrix();
 	}
 
 private:
@@ -1982,9 +1868,12 @@ private:
 	CHE_PDF_ContentObjectList * mpList;
 	std::vector<CHE_PDF_GState*> mGStateStack;
 	CHE_PDF_GState * mpGState;
+	CHE_PDF_Matrix mExtMatrix;
 };
 
-IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * plist, CHE_Allocator * pAllocator /*= NULL*/ )
+IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * plist,
+													const CHE_PDF_Matrix & matrix,
+													CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	if ( plist == NULL )
 	{
@@ -1992,9 +1881,9 @@ IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * 
 	}
 	if ( pAllocator == NULL )
 	{
-		return new CContentViewListConstructor( plist );
+		return new CContentListConstructor( plist, matrix );
 	}else
 	{
-		return pAllocator->New<CContentViewListConstructor>( plist, pAllocator );
+		return pAllocator->New<CContentListConstructor>( plist, matrix, pAllocator );
 	}
 }

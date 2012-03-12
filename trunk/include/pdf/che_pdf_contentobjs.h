@@ -4,6 +4,7 @@
 #include "../che_base.h"
 #include "che_pdf_graphicsstate.h"
 #include "che_pdf_font.h"
+#include "che_pdf_contentresmgr.h"
 #include <vector>
 #include <list>
 
@@ -12,13 +13,14 @@ enum PDF_CONTENTOBJ_TYPE
 	ContentType_Text = 0,
 	ContentType_Path = 1,
 	ContentType_Mark = 2,
-	ContentType_Image = 3,
-	ContentType_Form = 4,
-	ContentType_Shading = 5,
-	ContentType_PushGState = 6,
-	ContentType_PopGState = 7,
-	ContentType_TextBegin = 8,
-	ContentType_TextEnd = 9
+	ContentType_RefImage = 3,
+	ContentType_InlineImage = 4,
+	ContentType_Form = 5,
+	ContentType_Shading = 6,
+	ContentType_PushGState = 7,
+	ContentType_PopGState = 8,
+	ContentType_TextBegin = 9,
+	ContentType_TextEnd = 10
 };
 
 class CHE_PDF_ContentObject : public CHE_Object
@@ -35,8 +37,12 @@ public:
 	CHE_PDF_GState * GetGState() const { return mpGState; }
 	HE_BOOL SetGState( CHE_PDF_GState * pGSatae );
 
+	CHE_PDF_Matrix GetExtMatrix() { return mExtMatrixl; }
+	HE_VOID	SetExtMatrix( const CHE_PDF_Matrix & matrx ) { mExtMatrixl = matrx; }
+
 protected:
-	CHE_PDF_GState * mpGState;
+	CHE_PDF_GState *	mpGState;
+	CHE_PDF_Matrix		mExtMatrixl;
 };
 
 typedef std::list<CHE_PDF_ContentObject*> ContentObjectList;
@@ -44,8 +50,10 @@ typedef std::list<CHE_PDF_ContentObject*> ContentObjectList;
 class CHE_PDF_ContentObjectList : public CHE_Object
 {
 public:
-	CHE_PDF_ContentObjectList( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator ) {}
+	CHE_PDF_ContentObjectList( CHE_PDF_Dictionary * pResDict = NULL, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator ), mResMgr(pResDict, pAllocator) {}
+
+	~CHE_PDF_ContentObjectList();
 
 	bool Append( CHE_PDF_ContentObject * pObj );
 
@@ -53,8 +61,15 @@ public:
 
 	ContentObjectList::iterator End();
 
+	CHE_PDF_ContentObjectList * Clone();
+
+	HE_VOID Clear();
+
+	CHE_PDF_ContentResMgr & GetResMgr() { return mResMgr; }
+
 private:
-	ContentObjectList mList;
+	ContentObjectList		mList;
+	CHE_PDF_ContentResMgr	mResMgr;
 };
 
 class CHE_PDF_NamedContentObject : public CHE_PDF_ContentObject
@@ -63,6 +78,10 @@ public:
 	CHE_PDF_NamedContentObject( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL )
 		: mName(name), CHE_PDF_ContentObject( pAllocator ) {}
 	virtual ~CHE_PDF_NamedContentObject() {}
+
+	bool SetName( const CHE_ByteString & name ) { mName = name; }
+
+	CHE_ByteString GetName() { return mName; }
 
 protected:
 	CHE_ByteString mName;
@@ -142,6 +161,8 @@ class CHE_PDF_Path : public CHE_PDF_ContentObject
 {
 public:
 	CHE_PDF_Path( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
+
+	~CHE_PDF_Path();
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Path; }
 
@@ -237,15 +258,91 @@ private:
 	CHE_PDF_Dictionary * mpDictionary;
 };
 
-class CHE_PDF_Image : public CHE_PDF_NamedContentObject
+
+class CHE_PDF_RefImage : public CHE_PDF_NamedContentObject
 {
 public:
-	CHE_PDF_Image( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_NamedContentObject( name, pAllocator ) {}
+	CHE_PDF_RefImage( const CHE_ByteString & name, CHE_PDF_Reference * pRef, CHE_Allocator * pAllocator = NULL )
+		: CHE_PDF_NamedContentObject( name, pAllocator ), mpRef(pRef) {}
 
-	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Image; }
+	~CHE_PDF_RefImage()
+	{
+		if ( mpRef )
+		{
+			mpRef->Release();
+		}
+	}
 
-	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Image>( mName, GetAllocator() ); }
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_RefImage; }
+
+	CHE_PDF_ContentObject * Clone() const
+	{
+		return GetAllocator()->New<CHE_PDF_RefImage>( mName, mpRef ? mpRef->Clone() : NULL, GetAllocator() );
+	}
+
+	CHE_PDF_Reference * GetRef() { return mpRef; }
+
+private:
+	CHE_PDF_Reference * mpRef;
+};
+
+class CHE_PDF_InlineImage : public CHE_PDF_ContentObject
+{
+public:
+	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_DWORD width, HE_DWORD hight, HE_DWORD bps, HE_LPBYTE pBytes,
+							HE_DWORD size, CHE_PDF_ColorSpace * pColorspace = NULL, CHE_Allocator * pAllocator = NULL )
+							: CHE_PDF_ContentObject( pAllocator )
+	{
+		mWidth = width;
+		mHeight = hight;
+		mBitps = bps;
+		mpColorspace = pColorspace;
+		if ( pBytes )
+		{
+			mDataSize = size;
+			mpData = GetAllocator()->NewArray<HE_BYTE>( mDataSize );
+			memcpy( mpData, pBytes, mDataSize );
+		}
+	}
+
+	~CHE_PDF_InlineImage()
+	{
+		if ( mpData )
+		{
+			GetAllocator()->DeleteArray( mpData );
+		}
+		if ( mpColorspace )
+		{
+			mpColorspace->GetAllocator()->Delete( mpColorspace );
+		}
+	}
+
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_InlineImage; }
+
+	CHE_PDF_ContentObject * Clone() const
+	{
+		CHE_PDF_ColorSpace * pTmpColorSpace = NULL;
+		if ( mpColorspace )
+		{
+			pTmpColorSpace = mpColorspace->Clone();
+		}
+		return GetAllocator()->New<CHE_PDF_InlineImage>( mbMask, mWidth, mHeight, mBitps, mpData, mDataSize, pTmpColorSpace, GetAllocator() );
+	}
+
+	HE_BOOL	IsMask() { return mbMask; }
+	HE_DWORD GetWidth() { return mWidth; }
+	HE_DWORD GetHight() { return mHeight; }
+	HE_DWORD GetBitps() { return mBitps; }
+	CHE_PDF_ColorSpace * GetColorspace() { return mpColorspace; }
+
+private:
+	HE_BYTE				mbMask;
+	HE_DWORD			mWidth;
+	HE_DWORD			mHeight;
+	HE_DWORD			mBitps;
+	HE_LPBYTE			mpData;
+	HE_DWORD			mDataSize;
+	CHE_PDF_ColorSpace*	mpColorspace;
 };
 
 class CHE_PDF_Form : public CHE_PDF_NamedContentObject
@@ -253,10 +350,17 @@ class CHE_PDF_Form : public CHE_PDF_NamedContentObject
 public:
 	CHE_PDF_Form( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL )
 		: CHE_PDF_NamedContentObject( name, pAllocator ) {}
+	
+	~CHE_PDF_Form();
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Form; }
 
 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Form>( mName, GetAllocator() ); }
+
+	CHE_PDF_ContentObjectList & GetList() { return mList; }
+
+private:
+	CHE_PDF_ContentObjectList mList;
 };
 
 class CHE_PDF_Shading : public CHE_PDF_NamedContentObject

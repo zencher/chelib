@@ -40,7 +40,9 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_contents.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_creator.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_define.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_document.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_file.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_filter.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_fontmgr.h" />
@@ -72,7 +74,9 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp" />

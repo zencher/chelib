@@ -128,6 +128,12 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_contentresmgr.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_file.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_document.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -218,6 +224,12 @@
       <Filter>源文件\PDF</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
   </ItemGroup>

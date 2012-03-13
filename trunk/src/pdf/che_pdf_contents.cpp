@@ -575,7 +575,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 			CHE_PDF_Object * pObj = mpContentResMgr->GetResObj( CONTENTRES_XOBJECT, mName );
 			if ( pObj && pObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
-				CHE_PDF_RefImage * pImage = GetAllocator()->New<CHE_PDF_RefImage>( mName, pObj->ToReference(), GetAllocator() );
+				CHE_PDF_RefImage * pImage = GetAllocator()->New<CHE_PDF_RefImage>( mName, pObj->ToReference()->Clone(), GetAllocator() );
 				mpConstructor->Operator_Append( pImage );
 			}
 		}else if ( pSubtypeName->GetString() == "Form" )

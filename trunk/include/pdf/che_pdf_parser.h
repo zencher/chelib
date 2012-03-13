@@ -100,22 +100,24 @@ public:
 	//HE_BOOL					IsLinearized();
 
 	//Page tree information
-	HE_DWORD					GetPageCount();
-	HE_PDF_RefInfo				GetPageObjNum( HE_DWORD pageIndex );
+	//HE_DWORD					GetPageCount();
+	//HE_PDF_RefInfo				GetPageObjNum( HE_DWORD pageIndex );
 
 	//Encryption
-	HE_BOOL						Authenticate( CHE_ByteString & password ) const 
+	HE_BOOL						Authenticate( const CHE_ByteString & password ) const 
 									{ return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): TRUE; }
 
 	//Object operation
-	CHE_PDF_Object *			GetObject( HE_PDF_RefInfo refInfo );
-	PDF_OBJ_STATUS				GetObjectStatus( HE_PDF_RefInfo refInfo );
+	CHE_PDF_Object *			GetObject( const HE_PDF_RefInfo & refInfo );
+// 	CHE_PDF_IndirectObject *	GetInObject( HE_PDF_RefInfo refInfo );
 
-	CHE_PDF_IndirectObject *	CreateInObject( PDF_OBJ_TYPE type );
+	//PDF_OBJ_STATUS				GetObjectStatus( HE_PDF_RefInfo refInfo );
 
-	HE_BOOL						SetInObjUpdated( HE_PDF_RefInfo refInfo );
-	HE_DWORD					GetUpdatedInObjCount();
-	CHE_PDF_IndirectObject *	GetUpdatedInObj( HE_DWORD index );
+	//CHE_PDF_IndirectObject *	CreateInObject( PDF_OBJ_TYPE type );
+
+	//HE_BOOL						SetInObjUpdated( HE_PDF_RefInfo refInfo );
+	//HE_DWORD					GetUpdatedInObjCount();
+	//CHE_PDF_IndirectObject *	GetUpdatedInObj( HE_DWORD index );
 
 private:
 	HE_DWORD					GetStartxref( HE_DWORD range );
@@ -128,7 +130,7 @@ private:
 	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict );
 
 	CHE_PDF_Object *			GetObject();
-	CHE_PDF_Object *			GetObjectInObjStm( HE_PDF_RefInfo stmRefInfo, HE_PDF_RefInfo ObjrefInfo, HE_DWORD index );
+	CHE_PDF_Object *			GetObjectInObjStm( const HE_PDF_RefInfo & stmRefInfo, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );
 
 	HE_PDF_RefInfo				GetFreeObjRefInfo();
 
@@ -136,10 +138,10 @@ private:
 	IHE_Read *					m_pIHE_FileRead;
 	HE_DWORD					m_lStartxref;
 	
-	HE_DWORD					m_lPageCount;
-	HE_DWORD					m_lCurPageIndex;
-	std::vector<HE_PDF_RefInfo>	m_pPageObjList;
-	CHE_Stack<CHE_PDF_Reference*>m_PageNodeStack;
+// 	HE_DWORD					m_lPageCount;
+// 	HE_DWORD					m_lCurPageIndex;
+// 	std::vector<HE_PDF_RefInfo>	m_pPageObjList;
+// 	CHE_Stack<CHE_PDF_Reference*>m_PageNodeStack;
 
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;
 	CHE_PDF_Encrypt	*			m_pStmEncrypt;
@@ -148,7 +150,7 @@ private:
 	CHE_PDF_SyntaxParser		m_sParser;
 	CHE_PDF_XREF_Table			m_xrefTable;				//结构化的交叉索引表信息
 	CHE_PDF_Collector			m_objCollector;				//对象收集器，被加载的都被放入收集器，某些尾字典不会
-	CHE_PDF_Collector			m_UpdateObjCollector;		//新建和修改的对象的收集器
+	//CHE_PDF_Collector			m_UpdateObjCollector;		//新建和修改的对象的收集器
 
 	friend class CHE_PDF_Creator;
 };

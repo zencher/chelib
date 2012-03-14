@@ -379,7 +379,7 @@ HE_BOOL	CHE_ByteStringToPtrMap::Append( const CHE_ByteString & str, HE_LPVOID pt
 		m_pString[0] = GetAllocator()->New<CHE_ByteString>( str );
 		return TRUE;
 	}
-	if ( m_lCount + 1 <= m_lSize )
+	if ( m_lCount < m_lSize )
 	{
 		m_pData[m_lCount] = ptr;
 		m_pString[m_lCount] = GetAllocator()->New<CHE_ByteString>( str );
@@ -463,13 +463,14 @@ HE_VOID	CHE_ByteStringToPtrMap::Clear()
 		GetAllocator()->DeleteArray<HE_LPVOID>( m_pData );
 		m_pData = NULL;
 	}
-	if ( m_pString && m_lCount > 0 )
+	if ( m_pString )
 	{
 		for ( HE_DWORD i = 0; i < m_lCount; i++ )
 		{
-			GetAllocator()->DeleteArray<CHE_ByteString>( m_pString[i] );
+			GetAllocator()->Delete<CHE_ByteString>( m_pString[i] );
 		}
 		GetAllocator()->DeleteArray<CHE_ByteString*>( m_pString );
+		m_pString = NULL;
 	}
 	m_lSize = 0;
 	m_lCount = 0;
@@ -566,7 +567,7 @@ HE_VOID CHE_NumToPtrMap::Clear()
 		GetAllocator()->DeleteArray<HE_LPVOID>( m_pData );
 		m_pData = NULL;
 	}
-	if ( m_pNum && m_lCount > 0 )
+	if ( m_pNum )
 	{
 		GetAllocator()->DeleteArray<HE_DWORD>( m_pNum );
 		m_pNum = NULL;

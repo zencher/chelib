@@ -334,7 +334,7 @@ public:
 	{
 		if ( m_Forward.size() == 0 )
 		{
-			SkipListNode<Type> * pNewNode = GetAllocator()->New<SkipListNode<Type>>();
+			SkipListNode<Type> * pNewNode = GetAllocator()->New< SkipListNode<Type> >();
 			pNewNode->lValue = val;
 			m_Forward.push_back( pNewNode );
 			m_lCount++;

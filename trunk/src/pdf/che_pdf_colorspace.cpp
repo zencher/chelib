@@ -47,7 +47,8 @@ CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Array * pArray, CHE_Allocator * pAll
 	{
 		return NULL;
 	}
-	CHE_PDF_Object * pObj = pArray->GetElement( 0 );
+	CHE_PDF_ObjectCollector objCollector( pAllocator );
+	CHE_PDF_Object * pObj = pArray->GetElement( 0, OBJ_TYPE_NAME, objCollector );
 	if ( pObj->GetType() != OBJ_TYPE_NAME )
 	{
 		return NULL;
@@ -88,7 +89,8 @@ CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Reference * pRef, CHE_Allocator * pA
 	{
 		return NULL;
 	}
-	CHE_PDF_Object * pObj = pRef->GetRefObj();
+	CHE_PDF_ObjectCollector objCollector( pAllocator );
+	CHE_PDF_Object * pObj = pRef->GetRefObj( objCollector );
 	if ( !pObj )
 	{
 		return NULL;

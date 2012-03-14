@@ -27,7 +27,8 @@ CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( CHE_PDF_Reference * pReference )
 	HE_LPCVOID lpVoid = mNumToFontMap.GetItem( objNum );
 	if ( lpVoid == NULL )
 	{
-		CHE_PDF_Object * pTmpObj = pReference->GetRefObj( OBJ_TYPE_DICTIONARY );
+		CHE_PDF_ObjectCollector objCollector( GetAllocator() );
+		CHE_PDF_Object * pTmpObj = pReference->GetRefObj( OBJ_TYPE_DICTIONARY, objCollector );
 		if ( pTmpObj == NULL )
 		{
 			return NULL;

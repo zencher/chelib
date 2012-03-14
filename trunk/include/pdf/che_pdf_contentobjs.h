@@ -28,7 +28,13 @@ class CHE_PDF_ContentObject : public CHE_Object
 public:
 	CHE_PDF_ContentObject( CHE_Allocator * pAllocator = NULL )
 		: CHE_Object(pAllocator), mpGState(NULL) {}
-	virtual ~CHE_PDF_ContentObject() {}
+	virtual ~CHE_PDF_ContentObject()
+	{
+		if ( mpGState )
+		{
+			mpGState->GetAllocator()->Delete( mpGState );
+		}
+	}
 
 	virtual PDF_CONTENTOBJ_TYPE GetType() const = 0;
 
@@ -101,6 +107,14 @@ class CHE_PDF_Text : public CHE_PDF_ContentObject
 {									 
 public:
 	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject(pAllocator), mpObj(NULL) {}
+
+	~CHE_PDF_Text()
+	{
+		if ( mpObj )
+		{
+			mpObj->Release();
+		}
+	}
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Text; }
 

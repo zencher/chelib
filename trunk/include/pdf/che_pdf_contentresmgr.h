@@ -22,7 +22,13 @@ public:
 	CHE_PDF_ContentResMgr( CHE_PDF_Dictionary * pResDict, CHE_Allocator * pAllocator = NULL )
 		: CHE_Object(pAllocator), mpResDict( pResDict ? pResDict->Clone() : CHE_PDF_Dictionary::Create(pAllocator) ) {}
 
-	~CHE_PDF_ContentResMgr() {}
+	~CHE_PDF_ContentResMgr()
+	{
+		if ( mpResDict )
+		{
+			mpResDict->Release();
+		}
+	}
 
 	HE_VOID SetDict( CHE_PDF_Dictionary * pDict ) { pDict ? ( mpResDict = pDict->Clone() ) : ( mpResDict = CHE_PDF_Dictionary::Create(GetAllocator()) ); }
 	CHE_PDF_Dictionary * GetDict() { return mpResDict; }

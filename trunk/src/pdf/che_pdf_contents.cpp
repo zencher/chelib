@@ -26,7 +26,7 @@ HE_DWORD StringToDWORD( CHE_ByteString & str )
 	return valRet;
 }
 
-HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_Stream * pContents )
+HE_BOOL CHE_PDF_ContentsParser::Parse( CHE_PDF_Stream * pContents )
 {
 	if ( pContents == NULL || mpConstructor == NULL )
 	{
@@ -44,7 +44,7 @@ HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_Stream * pContents )
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_Array * pContentArray )
+HE_BOOL CHE_PDF_ContentsParser::Parse( CHE_PDF_Array * pContentArray )
 {
 	if ( pContentArray == NULL || mpConstructor == NULL )
 	{
@@ -53,9 +53,10 @@ HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_Array * pContentArray )
 
 	CHE_PDF_Object * pTmpObj = NULL;
 	CHE_PDF_Stream * pStream = NULL;
+	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
 	for ( HE_DWORD i = 0; i < pContentArray->GetCount(); ++i ) 
 	{
-		pTmpObj = pContentArray->GetElement( i, OBJ_TYPE_STREAM );
+		pTmpObj = pContentArray->GetElement( i, OBJ_TYPE_STREAM, objCollector );
 		pStream = pTmpObj->ToStream();
 		if ( pStream )
 		{
@@ -67,7 +68,6 @@ HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_Array * pContentArray )
 			ParseImp( &buf );
 		}
 	}
-
 	return TRUE;
 }
 
@@ -422,6 +422,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 		{
 			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, GetAllocator() );
 		}else{
+			CHE_PDF_ObjectCollector objCollector( GetAllocator() );
 			CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
 			if ( !pTmpObj )
 			{
@@ -430,10 +431,10 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
 				CHE_PDF_Reference * pRef = pTmpObj->ToReference();
-				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY );
+				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY, objCollector );
 				if ( !pTmpObj )
 				{
-					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME );
+					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME, objCollector );
 				}
 			}
 			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
@@ -456,7 +457,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 			}else if ( pTmpObj->GetType() == OBJ_TYPE_ARRAY )
 			{
 				CHE_PDF_Array * pArray = pTmpObj->ToArray();
-				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME );
+				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME, objCollector );
 				if ( !pTmpObj )
 				{
 					return;
@@ -525,6 +526,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 {
 	if ( mName.GetLength() > 0 && mpContentResMgr )
 	{
+		CHE_PDF_ObjectCollector objCollector( GetAllocator() );
 		CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_XOBJECT, mName );
 		if ( !pTmpObj )
 		{
@@ -535,7 +537,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 		{
 			return;
 		}
-		pTmpObj = pRef->GetRefObj( OBJ_TYPE_STREAM );
+		pTmpObj = pRef->GetRefObj( OBJ_TYPE_STREAM, objCollector );
 		if ( !pTmpObj )
 		{
 			return;
@@ -546,7 +548,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 		{
 			return;
 		}
-		pTmpObj = pStmDict->GetElement( "Type", OBJ_TYPE_NAME );
+		pTmpObj = pStmDict->GetElement( "Type", OBJ_TYPE_NAME, objCollector );
 		if ( !pTmpObj )
 		{
 			return;
@@ -560,7 +562,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 		{
 			return;
 		}
-		pTmpObj = pStmDict->GetElement( "Subtype", OBJ_TYPE_NAME );
+		pTmpObj = pStmDict->GetElement( "Subtype", OBJ_TYPE_NAME, objCollector );
 		if ( !pTmpObj )
 		{
 			return;
@@ -583,7 +585,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 			CHE_PDF_Form * pForm = GetAllocator()->New<CHE_PDF_Form>( mName, GetAllocator() );
 			CHE_PDF_Object * pTmpObj = NULL;
 			CHE_PDF_Dictionary * pResDict = NULL;
-			pTmpObj = pStmDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
+			pTmpObj = pStmDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY, objCollector );
 			if ( pTmpObj )
 			{
 				pResDict = pTmpObj->ToDict();
@@ -1148,6 +1150,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 {
 	if ( mName.GetLength() > 0 )
 	{
+		CHE_PDF_ObjectCollector objCollector( GetAllocator() );
 		CHE_PDF_ColorSpace * pColorSpace = NULL;
 		if ( mName == "DeviceGray" )
 		{
@@ -1170,10 +1173,10 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
 				CHE_PDF_Reference * pRef = pTmpObj->ToReference();
-				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY );
+				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY, objCollector );
 				if ( !pTmpObj )
 				{
-					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME );
+					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME, objCollector );
 				}
 			}
 			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
@@ -1196,7 +1199,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 			}else if ( pTmpObj->GetType() == OBJ_TYPE_ARRAY )
 			{
 				CHE_PDF_Array * pArray = pTmpObj->ToArray();
-				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME );
+				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME, objCollector );
 				if ( !pTmpObj )
 				{
 					return;
@@ -1593,6 +1596,15 @@ public:
 		{
 			mpGState->GetAllocator()->Delete( mpGState );
 		}
+		while ( mGStateStack.size() > 0 )
+		{
+			mpGState = mGStateStack[mGStateStack.size()-1];
+			mGStateStack.pop_back();
+			if ( mpGState )
+			{
+				mpGState->GetAllocator()->Delete( mpGState );
+			}
+		}
 	 }
 
 	HE_VOID Init() {}
@@ -1881,9 +1893,18 @@ IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * 
 	}
 	if ( pAllocator == NULL )
 	{
-		return new CContentListConstructor( plist, matrix );
+		return GetDefaultAllocator()->New<CContentListConstructor>( plist, matrix, GetDefaultAllocator() );
 	}else
 	{
 		return pAllocator->New<CContentListConstructor>( plist, matrix, pAllocator );
+	}
+}
+
+HE_VOID DestoryConstructor( IHE_PDF_ContentListConstructor * pConstructor )
+{
+	if ( pConstructor )
+	{
+		CContentListConstructor * pTmpConstructor = (CContentListConstructor *)pConstructor;
+		pTmpConstructor->GetAllocator()->Delete( pTmpConstructor );
 	}
 }

@@ -107,36 +107,37 @@ CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::GetSubDict( PDF_CONTENTRES_TYPE type
 		return NULL;
 	}
 	CHE_PDF_Object * pTmp = NULL;
+	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
 	switch ( type )
 	{
 	case CONTENTRES_EXTGSTATE:
 		{
-			pTmp = mpResDict->GetElement( "ExtGState", OBJ_TYPE_DICTIONARY );
+			pTmp = mpResDict->GetElement( "ExtGState", OBJ_TYPE_DICTIONARY, objCollector );
 			break;
 		}
 	case CONTENTRES_COLORSPACE:
 		{
-			pTmp = mpResDict->GetElement( "ColorSpace", OBJ_TYPE_DICTIONARY );
+			pTmp = mpResDict->GetElement( "ColorSpace", OBJ_TYPE_DICTIONARY, objCollector );
 			break;
 		}
 	case CONTENTRES_PATTERN:
 		{
-			pTmp = mpResDict->GetElement( "Pattern", OBJ_TYPE_DICTIONARY );
+			pTmp = mpResDict->GetElement( "Pattern", OBJ_TYPE_DICTIONARY, objCollector );
 			break;
 		}
 	case CONTENTRES_SHADING:
 		{
-			pTmp = mpResDict->GetElement( "Shading", OBJ_TYPE_DICTIONARY );
+			pTmp = mpResDict->GetElement( "Shading", OBJ_TYPE_DICTIONARY, objCollector );
 			break;
 		}
 	case CONTENTRES_XOBJECT:
 		{
-			pTmp = mpResDict->GetElement( "XObject", OBJ_TYPE_DICTIONARY );
+			pTmp = mpResDict->GetElement( "XObject", OBJ_TYPE_DICTIONARY, objCollector );
 			break;
 		}
 	case CONTENTRES_FONT:
 		{
-			pTmp = mpResDict->GetElement( "Font", OBJ_TYPE_DICTIONARY );
+			pTmp = mpResDict->GetElement( "Font", OBJ_TYPE_DICTIONARY, objCollector );
 			break;
 		}
 	default:

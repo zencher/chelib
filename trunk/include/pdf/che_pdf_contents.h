@@ -56,6 +56,8 @@ IHE_PDF_ContentListConstructor * CreateConstructor(		CHE_PDF_ContentObjectList *
 														const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix(),
 														CHE_Allocator * pAllocator = NULL );
 
+HE_VOID DestoryConstructor( IHE_PDF_ContentListConstructor * pConstructor );
+
 class CHE_PDF_ContentsParser : public CHE_Object
 {
 public:
@@ -79,9 +81,9 @@ public:
 		}
 	}
 
-	HE_BOOL Parse( const CHE_PDF_Stream * pContentStream );
+	HE_BOOL Parse( CHE_PDF_Stream * pContentStream );
 
-	HE_BOOL Parse( const CHE_PDF_Array * pContentArray );
+	HE_BOOL Parse( CHE_PDF_Array * pContentArray );
 
 private:
 	HE_VOID ParseImp( CHE_DynBuffer * pStream );

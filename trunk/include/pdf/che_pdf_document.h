@@ -5,7 +5,7 @@
 #include "che_pdf_file.h"
 #include "che_pdf_pages.h"
 
-class CHE_PDF_Document : CHE_Object
+class CHE_PDF_Document : public CHE_Object
 {
 public:
 	static CHE_PDF_Document * CreateDocument( CHE_PDF_File * pPDFFile );

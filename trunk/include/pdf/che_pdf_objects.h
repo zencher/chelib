@@ -46,6 +46,59 @@ protected:
 	friend class CHE_Allocator;
 };
 
+class CHE_PDF_IndirectObject : public CHE_Object
+{
+public:
+	CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj,
+		CHE_PDF_Parser * pParser, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator ), m_dwObjNum(objNum), m_pObj(pObj), m_dwGenNum(genNum), m_pParser(pParser) {}
+
+	HE_DWORD			GetObjNum() const { return m_dwObjNum; }
+	HE_DWORD			GetGenNum() const { return m_dwGenNum; }
+	CHE_PDF_Object *	GetObj() const { return m_pObj; }
+	CHE_PDF_Parser *	GetParser() const { return m_pParser; }
+
+	CHE_PDF_IndirectObject * Clone()
+	{
+		return GetAllocator()->New<CHE_PDF_IndirectObject>( m_dwObjNum, m_dwGenNum, m_pObj ? m_pObj->Clone() : NULL, m_pParser, GetAllocator() );
+	}
+
+	HE_VOID				Release()
+	{
+		if ( m_pObj )
+		{
+			m_pObj->Release();
+		}
+		GetAllocator()->Delete( this );
+	}
+
+private:
+	HE_DWORD			m_dwObjNum;
+	HE_DWORD			m_dwGenNum;
+	CHE_PDF_Object *	m_pObj;
+	CHE_PDF_Parser *	m_pParser;
+};
+
+class CHE_PDF_ObjectCollector : public CHE_Object
+{
+public:
+	CHE_PDF_ObjectCollector( CHE_Allocator * pAllocator = NULL );
+
+	~CHE_PDF_ObjectCollector();
+
+	HE_VOID Push( CHE_PDF_Object * pObj );
+
+	HE_VOID Push( CHE_PDF_IndirectObject * pInObj );
+
+	HE_VOID PopAll();
+
+	HE_VOID ReleaseAll();
+
+private:
+	CHE_Queue<CHE_PDF_Object*> mQueue;
+	CHE_Queue<CHE_PDF_IndirectObject*> mInQueue;
+};
+
 class CHE_PDF_Null	: public CHE_PDF_Object
 {
 public:
@@ -252,9 +305,9 @@ public:
 	HE_PDF_RefInfo		GetRefInfo() { HE_PDF_RefInfo refInfo; refInfo.objNum = m_RefObjNum; refInfo.genNum = m_RefObjNum; return refInfo; }
 	HE_VOID				SetRefInfo( HE_PDF_RefInfo refInfo )  { m_RefObjNum = refInfo.objNum; m_RefGenNum = refInfo.genNum; }
 
-	CHE_PDF_Object *	GetRefObj() const;
-	CHE_PDF_Object *	GetRefObj( PDF_OBJ_TYPE Type ) const;
-	CHE_PDF_Parser *	GetParser() const { return mpParser; }
+	CHE_PDF_Object *	GetRefObj( CHE_PDF_ObjectCollector & objCollector );
+	CHE_PDF_Object *	GetRefObj( PDF_OBJ_TYPE Type, CHE_PDF_ObjectCollector & objCollector );
+	/*CHE_PDF_Parser *	GetParser() const { return mpParser; }*/
 
 	CHE_PDF_Reference * Clone()
 	{
@@ -288,8 +341,8 @@ public:
 
 	HE_DWORD			GetCount() const { return m_array.GetCount(); }
 	CHE_PDF_Object*		GetElement( HE_DWORD index ) const;
-	CHE_PDF_Object*		GetElement( HE_DWORD index, PDF_OBJ_TYPE Type ) const;
-	CHE_PDF_Object*		GetElementByType( PDF_OBJ_TYPE Type ) const;
+	CHE_PDF_Object*		GetElement( HE_DWORD index, PDF_OBJ_TYPE Type, CHE_PDF_ObjectCollector & objCollector );
+	CHE_PDF_Object*		GetElementByType( PDF_OBJ_TYPE Type, CHE_PDF_ObjectCollector & objCollector );
 
 	HE_BOOL				Append( CHE_PDF_Object * pObj );
 //  HE_BOOL				Insert( HE_DWORD index, CHE_PDF_Object * pObj );
@@ -326,7 +379,7 @@ public:
 
 	HE_DWORD				GetCount() { return m_Map.GetCount(); }
 	CHE_PDF_Object*			GetElement( const CHE_ByteString & key ) const;
-	CHE_PDF_Object*			GetElement( const CHE_ByteString & key, PDF_OBJ_TYPE type ) const;
+	CHE_PDF_Object*			GetElement( const CHE_ByteString & key, PDF_OBJ_TYPE type, CHE_PDF_ObjectCollector & objCollector );
 	CHE_PDF_Object*			GetElementByIndex( HE_DWORD index ) const { return (CHE_PDF_Object*)( m_Map.GetItemByIndex( index ) ); }
 	HE_BOOL					GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const { return m_Map.GetKeyByIndex( index, strRet ); }
 
@@ -451,36 +504,6 @@ private:
 	HE_DWORD				m_dwSize;
 
 	const CHE_PDF_Stream*	m_pStream;
-};
-
-class CHE_PDF_IndirectObject : public CHE_Object
-{
-public:
-	CHE_PDF_IndirectObject( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Object * pObj,
-		CHE_PDF_Parser * pParser, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator ), m_dwObjNum(objNum), m_pObj(pObj), m_dwGenNum(genNum), m_pParser(pParser) {}
-
-	HE_DWORD			GetObjNum() const { return m_dwObjNum; }
-	HE_DWORD			GetGenNum() const { return m_dwGenNum; }
-	CHE_PDF_Object *	GetObj() const { return m_pObj; }
-	CHE_PDF_Parser *	GetParser() const { return m_pParser; }
-
-	CHE_PDF_IndirectObject * Clone();
-
-	HE_VOID				Release()
-	{
-		if ( m_pObj )
-		{
-			m_pObj->Release();
-		}
-		GetAllocator()->Delete( this );
-	}
-
-private:
-	HE_DWORD			m_dwObjNum;
-	HE_DWORD			m_dwGenNum;
-	CHE_PDF_Object *	m_pObj;
-	CHE_PDF_Parser *	m_pParser;
 };
 
 #endif

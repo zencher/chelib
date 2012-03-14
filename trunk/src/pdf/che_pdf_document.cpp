@@ -45,11 +45,12 @@ CHE_PDF_Page * CHE_PDF_Document::GetPage( HE_DWORD index )
 
 HE_BOOL CHE_PDF_Document::ParsePageTree()
 {
+	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
 	CHE_PDF_Dictionary * pDict = mpFile->GetRootDict();
 	CHE_PDF_Object * pObj = NULL;
 	if ( pDict )
 	{
-		pObj = pDict->GetElement( "Pages", OBJ_TYPE_DICTIONARY );
+		pObj = pDict->GetElement( "Pages", OBJ_TYPE_DICTIONARY, objCollector );
 		if ( pObj )
 		{
 			pDict = pObj->ToDict();

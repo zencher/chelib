@@ -12,6 +12,8 @@ class CHE_PDF_PageTree : public CHE_Object
 {
 public:
 	CHE_PDF_PageTree( CHE_PDF_Dictionary * pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
+	
+	~CHE_PDF_PageTree();
 
 	HE_DWORD GetPageCount();
 

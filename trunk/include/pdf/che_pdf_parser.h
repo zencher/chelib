@@ -11,7 +11,7 @@
 
 #include <vector>
 
-class CHE_PDF_Creator;
+class CHE_PDF_File;
 
 class CHE_PDF_ParseWordDes : public CHE_Object
 {
@@ -26,14 +26,14 @@ public:
 class CHE_PDF_SyntaxParser : public CHE_Object
 {
 public:
-	CHE_PDF_SyntaxParser( CHE_PDF_Parser * pParser, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_SyntaxParser( CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_SyntaxParser();
 
 	HE_BOOL				InitParser( IHE_Read* pFileAccess );
 	HE_DWORD			GetFileSize() { return m_lFileSize; };
 
-	HE_VOID				SetParser( CHE_PDF_Parser * pParser ) { m_pParser = pParser; }
-	CHE_PDF_Parser *	GetParser()const { return m_pParser; }
+	HE_VOID				SetFile( CHE_PDF_File * pFile ) { mpFile = pFile; }
+	CHE_PDF_File *		GetFile()const { return mpFile; }
 
 	/*	当前位置移动和设置的相关操作	*/
 	HE_DWORD			GetPos() { return m_lFilePos; };
@@ -76,7 +76,7 @@ private:
 	HE_BYTE				m_WordBuffer[32770];
 	HE_DWORD			m_lBufferSize;
 	HE_DWORD			m_lBufferPos;
-	CHE_PDF_Parser *	m_pParser;
+	CHE_PDF_File *		mpFile;
 
 	friend class CHE_PDF_Parser;
 };
@@ -84,16 +84,14 @@ private:
 class CHE_PDF_Parser : public CHE_Object
 {
 public:
-	CHE_PDF_Parser( CHE_Allocator * pAllocator = NULL );
-	~CHE_PDF_Parser() { Close(); }
+	static CHE_PDF_Parser * Create( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XREF_Table * pXrefTable, CHE_Allocator * pAllocator = NULL );
 
-	HE_BOOL						Open( IHE_Read * file );
-	HE_VOID						Close();
+	~CHE_PDF_Parser();
 
 	//Basic information
 	HE_DWORD					GetFileSize() const;
 	PDF_VERSION					GetPDFVersion() const;
-	CHE_PDF_Dictionary *		GetTrailerDict() const { return m_xrefTable.GetTrailer(); }
+//	CHE_PDF_Dictionary *		GetTrailerDict() const;
 	CHE_PDF_Dictionary *		GetRootDict();
 	CHE_PDF_Dictionary *		GetInfoDict();
 	CHE_PDF_Array *				GetIDArray();
@@ -103,14 +101,17 @@ public:
 	HE_BOOL						Authenticate( const CHE_ByteString & password ) const 
 									{ return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): TRUE; }
 
-	//Object operation
-	CHE_PDF_Object *			GetObject( const HE_PDF_RefInfo & refInfo );
+	HE_DWORD					GetReadPos() { return m_sParser.GetPos(); }
+	HE_VOID						SetReadPos( HE_DWORD pos) { m_sParser.SetPos( pos ); }
 
- 	CHE_PDF_IndirectObject *	GetInObject( const HE_PDF_RefInfo & refInfo );
+	CHE_PDF_Object *			GetObject();
+	CHE_PDF_Object *			GetObjectInObjStm( CHE_PDF_Stream * pStream, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );
+	/*CHE_PDF_Object *			GetObjectInObjStm( const HE_PDF_RefInfo & stmRefInfo, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );*/
 
 private:
-	HE_DWORD					GetStartxref( HE_DWORD range );
+	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XREF_Table * pXrefTable, CHE_Allocator * pAllocator = NULL );
 
+	HE_DWORD					GetStartxref( HE_DWORD range );
 	HE_DWORD					ParseXRef();
 	HE_DWORD					ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
 	HE_DWORD					ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
@@ -118,28 +119,23 @@ private:
 
 	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict );
 
-	CHE_PDF_IndirectObject *	GetObject();
-	CHE_PDF_IndirectObject *	GetObjectInObjStm( const HE_PDF_RefInfo & stmRefInfo, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );
-
-	HE_PDF_RefInfo				GetFreeObjRefInfo();
-
 private:
+	CHE_PDF_SyntaxParser		m_sParser;
+	CHE_PDF_File *				mpFile;
 	IHE_Read *					m_pIHE_FileRead;
 	HE_DWORD					m_lStartxref;
+	
+	CHE_PDF_XREF_Table *		mpXRefTable;
+	CHE_PDF_Dictionary *		mpRootDict;
+	CHE_PDF_Dictionary *		mpInfoDict;
+	CHE_PDF_Array *				mpIDArray;
 
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;
 	CHE_PDF_Encrypt	*			m_pStmEncrypt;
 	CHE_PDF_Encrypt	*			m_pEefEncrypt;
 
-	CHE_PDF_SyntaxParser		m_sParser;
-	CHE_PDF_XREF_Table			m_xrefTable;				//结构化的交叉索引表信息
-	CHE_PDF_Collector			m_objCollector;				//用于做对象缓存的收集器
-
-	CHE_PDF_Dictionary *		mpRootDict;
-	CHE_PDF_Dictionary *		mpInfoDict;
-	CHE_PDF_Array *				mpIDArray;
-
-	friend class CHE_PDF_Creator;
+	friend class CHE_PDF_File;
+	friend class CHE_Allocator;
 };
 
 #endif

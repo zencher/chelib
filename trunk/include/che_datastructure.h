@@ -441,25 +441,27 @@ public:
 
 	HE_VOID	Clear()
 	{
+		m_lLevel = 0;
+		m_lCount = 0;
 		if ( m_Forward.size() == 0 )
 		{
 			return;
 		}
-		m_lLevel = 0;
-		m_lCount = 0;
 		SkipListNode<Type>* pTmpNode = m_Forward[0];
 		SkipListNode<Type>* pTmpNode2 = NULL;
 		m_Forward.clear();
-		while( true )
+
+		while ( pTmpNode )
 		{
+			pTmpNode2 = pTmpNode;
 			if ( pTmpNode->Forward.size() > 0 )
 			{
-				pTmpNode2 = pTmpNode->Forward[0];
-				pTmpNode->Forward.clear();
-				pTmpNode = pTmpNode2;
+				pTmpNode = pTmpNode->Forward[0];
 			}else{
-				break;
+				pTmpNode = NULL;
 			}
+			pTmpNode2->Forward.clear();
+			GetAllocator()->Delete( pTmpNode2 );
 		}
 	}
 

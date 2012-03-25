@@ -94,60 +94,13 @@ struct PDF_XREF_SECTION
 class CHE_PDF_XREF_Data : public CHE_Object
 {
 public:
-	CHE_PDF_XREF_Data( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator ), mpFirstSec( NULL ), mpLastSec( NULL ), mlCount( 0 ) {}
+	CHE_PDF_XREF_Data( CHE_Allocator * pAllocator = NULL );
 
-	~CHE_PDF_XREF_Data() {}
+	~CHE_PDF_XREF_Data();
 
-	HE_VOID	NewSection( HE_DWORD lBegin )
-	{
-		if ( mpFirstSec == NULL )
-		{
-			mpFirstSec = GetAllocator()->New<PDF_XREF_SECTION>();
-			mpFirstSec->lBeginNum = lBegin;
-			mpFirstSec->lCount = 0;
-			mpFirstSec->pNextSec = NULL;
-			mpFirstSec->pFirstEntry = NULL;
-			mpFirstSec->pLastEntry = NULL;
-			mpLastSec = mpFirstSec;
-		}else{
-			if ( mpLastSec->lCount == 0 )
-			{
-				mpLastSec->lBeginNum = lBegin;
-			}else{
-				PDF_XREF_SECTION * pNewSection = GetAllocator()->New<PDF_XREF_SECTION>();
-				pNewSection->lBeginNum = lBegin;
-				pNewSection->lCount = 0;
-				pNewSection->pNextSec = NULL;
-				pNewSection->pFirstEntry = NULL;
-				pNewSection->pLastEntry = NULL;
-				mpLastSec->pNextSec = pNewSection;
-				mpLastSec = pNewSection;
-			}
-		}
-	}
+	HE_VOID	NewSection( HE_DWORD lBegin );
 
-	HE_VOID NewNode( CHE_PDF_XREF_Entry & entry )
-	{
-		if ( mpLastSec )
-		{
-			if ( mpLastSec->pFirstEntry == NULL )
-			{
-				mpLastSec->pFirstEntry = GetAllocator()->New<PDF_XREF_ENTRY_NODE>();
-				mpLastSec->pFirstEntry->entry = entry;
-				mpLastSec->pFirstEntry->pNext = NULL;
-				mpLastSec->pLastEntry = mpLastSec->pFirstEntry;
-			}else{
-				PDF_XREF_ENTRY_NODE * pNewNode = GetAllocator()->New<PDF_XREF_ENTRY_NODE>();
-				pNewNode->entry = entry;
-				pNewNode->pNext = NULL;
-				mpLastSec->pLastEntry->pNext = pNewNode;
-				mpLastSec->pLastEntry = pNewNode;
-			}
-			++(mpLastSec->lCount);
-			++mlCount;
-		}
-	}
+	HE_VOID NewNode( CHE_PDF_XREF_Entry & entry );
 
 	PDF_XREF_SECTION * mpFirstSec;
 	PDF_XREF_SECTION * mpLastSec;

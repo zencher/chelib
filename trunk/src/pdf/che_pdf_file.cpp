@@ -1,7 +1,8 @@
 #include "../../include/pdf/che_pdf_file.h"
+#include "../../include/pdf/che_pdf_creator.h"
 
 CHE_PDF_File::CHE_PDF_File( CHE_Allocator * pAllocator )
-	: CHE_Object(pAllocator), mpParser(NULL), mObjCollector(pAllocator), mXRefTable(pAllocator) {}
+	: CHE_Object(pAllocator), mpParser(NULL), mVersion(PDF_VERSION_1_7), mObjCollector(pAllocator), mXRefTable(pAllocator) {}
 
 CHE_PDF_File::~CHE_PDF_File()
 {
@@ -24,6 +25,7 @@ HE_BOOL CHE_PDF_File::Open( IHE_Read * pRead )
 	mpParser = CHE_PDF_Parser::Create( this, pRead, &mXRefTable, GetAllocator() );
 	if ( mpParser )
 	{
+		mVersion = mpParser->GetPDFVersion();
 		return TRUE;
 	}
 	return FALSE;
@@ -41,6 +43,68 @@ HE_VOID CHE_PDF_File::Close()
 	}
 }
 
+HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
+{
+	if ( pWrite == NULL )
+	{
+		return FALSE;
+	}
+	CHE_PDF_Creator * pCreator = CHE_PDF_Creator::Create( pWrite, GetAllocator() );
+	if ( pCreator == NULL )
+	{
+		return FALSE;
+	}
+
+	HE_DWORD offset = 0;
+	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XREF_Data xrefData( GetAllocator() );
+	HE_PDF_RefInfo refInfo;
+	CHE_PDF_IndirectObject * pInObj = NULL;
+
+	pCreator->OutPutFileHead( GetPDFVersion() );
+
+	HE_DWORD objNum = 0;
+	xrefData.NewSection( 0 );
+	entry.Field1 = 0;
+	entry.Field2 = 65535;
+	entry.Type = XREF_ENTRY_TYPE_FREE;
+	xrefData.NewNode( entry );
+	objNum = 1;
+
+	mXRefTable.MoveFirst();
+	while( !mXRefTable.IsEOF() )
+	{
+		if ( mXRefTable.GetCurNode( entry ) )
+		{
+			refInfo.objNum = entry.GetObjNum();
+			refInfo.genNum = 0;
+			if ( refInfo.objNum != objNum )
+			{
+				objNum = refInfo.objNum;
+				xrefData.NewSection( objNum );
+			}
+			pInObj = GetInObject( refInfo );
+			if ( pInObj )
+			{
+				offset = pCreator->OutPutInObject( pInObj );
+				entry.Field1 = offset;
+				entry.Field2 = 0;
+				xrefData.NewNode( entry );
+			}
+			++objNum;
+		}
+		mXRefTable.MoveNext();
+	}
+
+	offset = pCreator->OutPutXRefTable( xrefData );
+	CHE_PDF_Dictionary * pDict = mXRefTable.GetTrailer();
+	pDict->SetAtInteger( "Size", xrefData.mlCount );
+	pCreator->OutPutTailerDict( mXRefTable.GetTrailer() );
+	pCreator->OutPutFileTailer( offset );
+	
+	return TRUE;
+}
+
 HE_BOOL CHE_PDF_File::Authenticate( const CHE_ByteString & password ) const
 {
 	if ( mpParser )
@@ -52,10 +116,20 @@ HE_BOOL CHE_PDF_File::Authenticate( const CHE_ByteString & password ) const
 
 CHE_PDF_Object * CHE_PDF_File::GetObject( const HE_PDF_RefInfo & refInfo )
 {
-	CHE_PDF_IndirectObject * pInObj = mObjCollector.GetInObj( refInfo );
+	CHE_PDF_IndirectObject * pInObj = GetInObject( refInfo );
 	if ( pInObj )
 	{
 		return pInObj->GetObj()->Clone();
+	}
+	return NULL;
+}
+
+CHE_PDF_IndirectObject * CHE_PDF_File::GetInObject( const HE_PDF_RefInfo & refInfo )
+{
+	CHE_PDF_IndirectObject * pInObj = mObjCollector.GetInObj( refInfo );
+	if ( pInObj )
+	{
+		return pInObj;
 	}
 	if ( mpParser == NULL )
 	{
@@ -63,7 +137,7 @@ CHE_PDF_Object * CHE_PDF_File::GetObject( const HE_PDF_RefInfo & refInfo )
 	}
 	CHE_PDF_Object * pObj = NULL;
 	CHE_PDF_XREF_Entry entry;
-	if ( mXRefTable.GetEntry( refInfo.objNum, entry ) )
+	if ( mXRefTable.Get( refInfo.objNum, entry ) )
 	{
 		if ( entry.GetType() == XREF_ENTRY_TYPE_COMMON )
 		{
@@ -73,7 +147,7 @@ CHE_PDF_Object * CHE_PDF_File::GetObject( const HE_PDF_RefInfo & refInfo )
 			{
 				pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, this, GetAllocator() );
 				mObjCollector.Add( pInObj );
-				return pObj->Clone();
+				return pInObj;
 			}
 		}else{
 			HE_PDF_RefInfo stmRefInfo;
@@ -93,11 +167,30 @@ CHE_PDF_Object * CHE_PDF_File::GetObject( const HE_PDF_RefInfo & refInfo )
 			{
 				pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, this, GetAllocator() );
 				mObjCollector.Add( pInObj );
-				return pObj->Clone();
+				return pInObj;
 			}
 		}
 	}
 	return NULL;
+}
+
+HE_BOOL CHE_PDF_File::ChangeObject( const HE_PDF_RefInfo & refInfo, CHE_PDF_Object * pObj )
+{
+	if ( pObj == NULL )
+	{
+		return FALSE;
+	}
+	CHE_PDF_IndirectObject * pInObj = GetInObject( refInfo );
+	if ( pInObj )
+	{
+		pInObj->mpObj = pObj;
+		CHE_PDF_XREF_Entry entry;
+		entry.ObjNum = refInfo.objNum;
+		entry.Type = XREF_ENTRY_TYPE_NEW;
+		mXRefTable.Update( refInfo.objNum, entry );
+		return TRUE;
+	}
+	return FALSE;
 }
 
 HE_DWORD CHE_PDF_File::GetFileSize() const
@@ -111,11 +204,7 @@ HE_DWORD CHE_PDF_File::GetFileSize() const
 
 PDF_VERSION CHE_PDF_File::GetPDFVersion() const
 {
-	if ( mpParser )
-	{
-		return mpParser->GetPDFVersion();
-	}
-	return PDF_VERSION_1_7;
+	return mVersion;
 }
 
 CHE_PDF_Dictionary * CHE_PDF_File::GetTrailerDict() const
@@ -125,167 +214,180 @@ CHE_PDF_Dictionary * CHE_PDF_File::GetTrailerDict() const
 
 CHE_PDF_Dictionary * CHE_PDF_File::GetRootDict()
 {
-	if ( mpParser )
+	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
+	CHE_PDF_Object * pObj = mXRefTable.GetTrailer()->GetElement( "Root", OBJ_TYPE_DICTIONARY, objCollector );
+	if ( pObj )
 	{
-		return mpParser->GetRootDict();
+		objCollector.PopAll();
+		return pObj->ToDict();
 	}
 	return NULL;
 }
 
 CHE_PDF_Dictionary * CHE_PDF_File::GetInfoDict()
 {
-	if ( mpParser )
+	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
+	CHE_PDF_Object * pObj = mXRefTable.GetTrailer()->GetElement( "Info", OBJ_TYPE_DICTIONARY, objCollector );
+	if ( pObj )
 	{
-		return mpParser->GetInfoDict();
+		objCollector.PopAll();
+		return pObj->ToDict();
 	}
 	return NULL;
 }
 
 CHE_PDF_Array * CHE_PDF_File::GetIDArray()
 {
-	if ( mpParser )
+	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
+	CHE_PDF_Object * pObj = mXRefTable.GetTrailer()->GetElement( "ID", OBJ_TYPE_ARRAY, objCollector );
+	if ( pObj )
 	{
-		return mpParser->GetIDArray();
+		objCollector.PopAll();
+		return pObj->ToArray();
 	}
 	return NULL;
 }
 
 CHE_PDF_IndirectObject* CHE_PDF_File::CreateInObj_Null()
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
 	CHE_PDF_Null * pObj = CHE_PDF_Null::Create( GetAllocator() );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
 }
 
 CHE_PDF_IndirectObject* CHE_PDF_File::CreateInObj_Boolean( HE_BOOL value )
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
 	CHE_PDF_Boolean * pObj = CHE_PDF_Boolean::Create( value, GetAllocator() );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj != NULL )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
 }
 
 CHE_PDF_IndirectObject* CHE_PDF_File::CreateInObj_Number( HE_INT32 value )
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
 	CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetAllocator() );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj != NULL )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
 }
 
 CHE_PDF_IndirectObject* CHE_PDF_File::CreateInObj_Number( HE_FLOAT value )
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
 	CHE_PDF_Number * pObj = CHE_PDF_Number::Create( value, GetAllocator() );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj != NULL )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
 }
 
 CHE_PDF_IndirectObject* CHE_PDF_File::CreateInObj_String( const CHE_ByteString & str )
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
 	CHE_PDF_String * pObj = CHE_PDF_String::Create( str, GetAllocator() );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj != NULL )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
 }
 
 CHE_PDF_IndirectObject* CHE_PDF_File::CreateInObj_Name( const CHE_ByteString & str )
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
 	CHE_PDF_Name * pObj = CHE_PDF_Name::Create( str, GetAllocator() );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj != NULL )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
 }
 
 CHE_PDF_IndirectObject* CHE_PDF_File::CreateInObj_Array()
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
 	CHE_PDF_Array * pObj = CHE_PDF_Array::Create( GetAllocator() );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj != NULL )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
 }
 
 CHE_PDF_IndirectObject* CHE_PDF_File::CreateInObj_Dict()
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
 	CHE_PDF_Dictionary * pObj = CHE_PDF_Dictionary::Create( GetAllocator() );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj != NULL )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
 }
 
 CHE_PDF_IndirectObject*	CHE_PDF_File::CreateInObj_Stream()
 {
-	HE_PDF_RefInfo refInfo = TakeFreeRefIno();
-	CHE_PDF_Stream * pObj = CHE_PDF_Stream::Create( refInfo.objNum, refInfo.genNum );
-	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( refInfo.objNum, refInfo.genNum, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
+	CHE_PDF_XREF_Entry entry;
+	mXRefTable.AddNewEntry( entry );
+	CHE_PDF_Stream * pObj = CHE_PDF_Stream::Create( entry.ObjNum, 0 );
+	CHE_PDF_IndirectObject * pInObj = GetAllocator()->New<CHE_PDF_IndirectObject>( entry.ObjNum, 0, pObj, (CHE_PDF_File*)NULL, GetAllocator() );
 	if ( pInObj != NULL )
 	{
 		mObjCollector.Add( pInObj );
-	}else{
-		ReleaseRefInfo( refInfo );
 	}
+// 	else{
+// 		ReleaseRefInfo( refInfo );
+// 	}
 	return pInObj;
-}
-
-HE_PDF_RefInfo CHE_PDF_File::TakeFreeRefIno()
-{
-	HE_DWORD objNum = mXRefTable.GetMaxObjNum();
-	HE_PDF_RefInfo refInfo;
-	refInfo.objNum = objNum;
-	refInfo.genNum = 0;
-	return refInfo;
-}
-
-HE_VOID	CHE_PDF_File::ReleaseRefInfo( const HE_PDF_RefInfo & /*refInfo*/ )
-{
-
 }

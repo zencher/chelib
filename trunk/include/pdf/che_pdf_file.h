@@ -40,10 +40,10 @@ public:
 	CHE_PDF_IndirectObject*	CreateInObj_Stream();
 
 private:
-	HE_PDF_RefInfo			TakeFreeRefIno();
-	HE_VOID					ReleaseRefInfo( const HE_PDF_RefInfo & refInfo );
+	CHE_PDF_IndirectObject * GetInObject( const HE_PDF_RefInfo & refInfo );
 
-private:
+	PDF_VERSION				mVersion;
+
 	CHE_PDF_Parser *		mpParser;
 	CHE_PDF_Collector		mObjCollector;
 	CHE_PDF_XREF_Table		mXRefTable;

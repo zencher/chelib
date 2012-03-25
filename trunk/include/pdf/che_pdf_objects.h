@@ -77,6 +77,8 @@ private:
 	HE_DWORD			mGenNum;
 	CHE_PDF_Object *	mpObj;
 	CHE_PDF_File *		mpFile;
+
+	friend class CHE_PDF_File;
 };
 
 class CHE_PDF_ObjectCollector : public CHE_Object

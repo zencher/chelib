@@ -323,11 +323,50 @@ public:
 	};
 
 	CHE_SkipList( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator ), m_lLevel( 0 ), m_lCount( 0 ) {}
+		: CHE_Object( pAllocator ), m_lLevel( 0 ), m_lCount( 0 ), mpCurNode( NULL ) {}
 
 	~CHE_SkipList()
 	{
 		Clear();
+	}
+
+	HE_VOID MoveFirst()
+	{
+		if ( m_Forward.size() != 0 )
+		{
+			mpCurNode = m_Forward[0];
+		}else{
+			mpCurNode = NULL;
+		}
+	}
+
+	HE_VOID MoveNext()
+	{
+		if ( mpCurNode && mpCurNode->Forward.size() > 0 && mpCurNode->Forward[0] )
+		{
+			mpCurNode = mpCurNode->Forward[0];
+		}else{
+			mpCurNode = NULL;
+		}
+	}
+
+	HE_BOOL IsEOF()
+	{
+		if ( mpCurNode )
+		{
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+	HE_BOOL GetCurNode( Type & nodeRet )
+	{
+		if ( mpCurNode )
+		{
+			nodeRet = mpCurNode->lValue;
+			return TRUE;
+		}
+		return FALSE;
 	}
 
 	HE_BOOL Append( Type & val )
@@ -471,6 +510,12 @@ public:
 		return FindImp( valRet, nodeVector );
 	}
 
+	HE_BOOL Update( Type & val )
+	{
+		std::vector<SkipListNode<Type>*> nodeVector;
+		return UpdateImp( val, nodeVector );
+	}
+
 private:
 	HE_BOOL FindImp( Type & val, std::vector< SkipListNode<Type>* > & nodeVector ) const
 	{
@@ -533,6 +578,67 @@ private:
 		return FALSE;
 	}
 
+	HE_BOOL UpdateImp( Type & val, std::vector< SkipListNode<Type>* > & nodeVector ) const
+	{
+		if ( m_Forward.size() == 0 )
+		{
+			return FALSE;
+		}
+		HE_DWORD curLevel = m_lLevel;
+		SkipListNode<Type>* pTmpNode = m_Forward[m_Forward.size()-1];
+		SkipListNode<Type>* pPreNode = NULL;
+
+		nodeVector.push_back( NULL );
+
+		while( pTmpNode )
+		{
+			if ( val == pTmpNode->lValue )
+			{
+				pTmpNode->lValue = val;
+				return TRUE;
+			}else if ( val < pTmpNode->lValue )
+			{
+				//to lower level
+				if ( curLevel == 0 )
+				{
+					nodeVector.push_back( pPreNode );
+					return FALSE;
+				}else{
+					if ( pPreNode == NULL )
+					{
+						nodeVector.push_back( NULL );
+						pTmpNode = m_Forward[--curLevel];
+					}else{
+						nodeVector.push_back( pPreNode );
+						pTmpNode = pPreNode->Forward[--curLevel];
+					}
+				}
+			}else if ( val > pTmpNode->lValue )
+			{
+				if ( pTmpNode->Forward.size() > curLevel )
+				{
+					//to next node
+					pPreNode = pTmpNode;
+					pTmpNode = pTmpNode->Forward[curLevel];
+				}else if ( pTmpNode->Forward.size() == 0 )
+				{
+					for ( HE_DWORD i = curLevel+1; i > 0; i-- )
+					{
+						nodeVector.push_back( pTmpNode );
+					}
+					return FALSE;
+				}else{
+					for ( HE_DWORD i = curLevel+1; i > pTmpNode->Forward.size(); i-- )
+					{
+						nodeVector.push_back( pTmpNode );
+						--curLevel;
+					}
+				}
+			}
+		}
+		return FALSE;
+	}
+
 	HE_DWORD RandomLevel() const
 	{
 		static HE_DWORD flag = 0;
@@ -551,6 +657,8 @@ private:
 	HE_DWORD m_lLevel;
 	HE_DWORD m_lCount;
 	std::vector<SkipListNode<Type>*> m_Forward;
+
+	SkipListNode<Type> * mpCurNode;
 };
 
 

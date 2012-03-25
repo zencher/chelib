@@ -5,39 +5,28 @@
 #include "che_pdf_define.h"
 #include "che_pdf_objects.h"
 
-class CHE_PDF_Parser;
-
 class CHE_PDF_XREF_Entry
 {
 public:
 	CHE_PDF_XREF_Entry();
-	CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_DWORD f1, HE_DWORD f2 );
+	CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_DWORD objNum, HE_DWORD f1, HE_DWORD f2 );
 
 	PDF_XREF_ENTRY_TYPE		Type;
+	HE_DWORD				ObjNum;
 	HE_DWORD				Field1;
 	HE_DWORD				Field2;
 
 	PDF_XREF_ENTRY_TYPE GetType() { return Type; }
+	HE_DWORD GetObjNum() { return ObjNum; }
 	HE_DWORD GetOffset() { return Field1; }
+	HE_DWORD GetGenNum() { return Field2; }
 	HE_DWORD GetParentObjNum() { return Field1; }
 	HE_DWORD GetIndex() { return Field2; }
 };
 
-struct PDF_XREF_ENTRY_NODE
-{
-	CHE_PDF_XREF_Entry entry;
-	PDF_XREF_ENTRY_NODE * pNext;
-};
-
-struct PDF_XREF_SECTION_PART
-{
-	PDF_XREF_SECTION_PART * pNextSecPart;
-	PDF_XREF_ENTRY_NODE * pFirstEntry;
-	PDF_XREF_ENTRY_NODE * pLastEntry;
-	HE_DWORD lBeginNum;
-	HE_DWORD lCount;
-	HE_DWORD lSectionIndex;
-};
+bool operator == ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 );
+bool operator >  ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 );
+bool operator <  ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 );
 
 struct PDF_XREF_TRAILER_NODE
 {
@@ -46,62 +35,123 @@ struct PDF_XREF_TRAILER_NODE
 	PDF_XREF_TRAILER_NODE * pNext;
 };
 
-struct PDF_XREF_FASTACCESS_NODE
-{
-	HE_DWORD lSectionIndex;
-	HE_DWORD lBeginNum;
-	HE_DWORD lSize;
-	PDF_XREF_SECTION_PART * pFirstSecPart;
-	PDF_XREF_ENTRY_NODE ** pAccessArr;
-	PDF_XREF_FASTACCESS_NODE * pNext;
-};
-
 class CHE_PDF_XREF_Table : public CHE_Object
 {
 public:
 	CHE_PDF_XREF_Table( CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_XREF_Table();
-	
-	//Register the Entry, Finally call BuildIndex().
-	HE_VOID	NewSection( HE_DWORD lBegin );
-	HE_VOID NewNode( CHE_PDF_XREF_Entry & entry );
-	HE_VOID SkipNode();
-	HE_VOID UpdateNode( HE_DWORD objNum, CHE_PDF_XREF_Entry & entry );
-	HE_VOID NewTrailer( CHE_PDF_Dictionary * pDict, HE_BOOL bNeedDestroy = FALSE );
-	HE_VOID BuildIndex();
+
+	HE_BOOL Add( const CHE_PDF_XREF_Entry & entry );
+
+	HE_BOOL Get( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
+
+	HE_BOOL Update( HE_DWORD objNum, const CHE_PDF_XREF_Entry & entryRet );
+
+	HE_BOOL AddTrailerDict( CHE_PDF_Dictionary * pDict, HE_BOOL bNeedDestroy = FALSE );
+
 	HE_VOID Clear();
 
-	HE_BOOL GetEntry( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
-	HE_BOOL IsExist( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
-	HE_BOOL IsExist( HE_DWORD objNum );
-
 	HE_DWORD GetTrailerCount() { m_lTrailerCount; }
+
 	CHE_PDF_Dictionary * GetTrailer( HE_DWORD index = 0 ) const;
 
-	HE_DWORD GetCount() { return m_lCount; }
-	HE_DWORD GetMaxObjNum() { return m_lMaxObjNum; }
-	HE_DWORD RequestObjNum() { return ++m_lMaxObjNum; }
+	HE_VOID AddNewEntry( CHE_PDF_XREF_Entry & entryRet );
+
+	HE_VOID MoveFirst(){ mList.MoveFirst(); }
+
+	HE_VOID MoveNext(){ mList.MoveNext(); }
+
+	HE_BOOL IsEOF() { return mList.IsEOF(); }
+
+	HE_BOOL GetCurNode( CHE_PDF_XREF_Entry & entryRet ) { return mList.GetCurNode( entryRet ); }
 
 private:
-	PDF_XREF_SECTION_PART *		m_pFirstSecPart;
-	PDF_XREF_SECTION_PART *		m_pLastSecPart;
-
-	PDF_XREF_FASTACCESS_NODE *	m_pFirstFastAccess;
-	PDF_XREF_FASTACCESS_NODE *	m_pLastFastAccess;
-
 	PDF_XREF_TRAILER_NODE *		m_pFirstTrailer;
 	PDF_XREF_TRAILER_NODE *		m_pLastTrailer;
 	HE_DWORD					m_lTrailerCount;
 
-	HE_DWORD					m_lNextSecNum;
-	HE_DWORD					m_lNextObjNum;
-	HE_DWORD					m_lMaxObjNum;
-	HE_DWORD					m_lCount;
-	HE_DWORD					m_lSkipCount;
-	HE_BOOL						m_bSkiped;
-	HE_BOOL						m_bIndexed;
+	HE_DWORD					mMaxObjNum;
 
-	friend class CHE_PDF_Parser;
+	CHE_SkipList<CHE_PDF_XREF_Entry> mList;
+};
+
+
+struct PDF_XREF_ENTRY_NODE
+{
+	CHE_PDF_XREF_Entry entry;
+	PDF_XREF_ENTRY_NODE * pNext;
+};
+
+struct PDF_XREF_SECTION
+{
+	PDF_XREF_SECTION * pNextSec;
+	PDF_XREF_ENTRY_NODE * pFirstEntry;
+	PDF_XREF_ENTRY_NODE * pLastEntry;
+	HE_DWORD lBeginNum;
+	HE_DWORD lCount;
+};
+
+class CHE_PDF_XREF_Data : public CHE_Object
+{
+public:
+	CHE_PDF_XREF_Data( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator ), mpFirstSec( NULL ), mpLastSec( NULL ), mlCount( 0 ) {}
+
+	~CHE_PDF_XREF_Data() {}
+
+	HE_VOID	NewSection( HE_DWORD lBegin )
+	{
+		if ( mpFirstSec == NULL )
+		{
+			mpFirstSec = GetAllocator()->New<PDF_XREF_SECTION>();
+			mpFirstSec->lBeginNum = lBegin;
+			mpFirstSec->lCount = 0;
+			mpFirstSec->pNextSec = NULL;
+			mpFirstSec->pFirstEntry = NULL;
+			mpFirstSec->pLastEntry = NULL;
+			mpLastSec = mpFirstSec;
+		}else{
+			if ( mpLastSec->lCount == 0 )
+			{
+				mpLastSec->lBeginNum = lBegin;
+			}else{
+				PDF_XREF_SECTION * pNewSection = GetAllocator()->New<PDF_XREF_SECTION>();
+				pNewSection->lBeginNum = lBegin;
+				pNewSection->lCount = 0;
+				pNewSection->pNextSec = NULL;
+				pNewSection->pFirstEntry = NULL;
+				pNewSection->pLastEntry = NULL;
+				mpLastSec->pNextSec = pNewSection;
+				mpLastSec = pNewSection;
+			}
+		}
+	}
+
+	HE_VOID NewNode( CHE_PDF_XREF_Entry & entry )
+	{
+		if ( mpLastSec )
+		{
+			if ( mpLastSec->pFirstEntry == NULL )
+			{
+				mpLastSec->pFirstEntry = GetAllocator()->New<PDF_XREF_ENTRY_NODE>();
+				mpLastSec->pFirstEntry->entry = entry;
+				mpLastSec->pFirstEntry->pNext = NULL;
+				mpLastSec->pLastEntry = mpLastSec->pFirstEntry;
+			}else{
+				PDF_XREF_ENTRY_NODE * pNewNode = GetAllocator()->New<PDF_XREF_ENTRY_NODE>();
+				pNewNode->entry = entry;
+				pNewNode->pNext = NULL;
+				mpLastSec->pLastEntry->pNext = pNewNode;
+				mpLastSec->pLastEntry = pNewNode;
+			}
+			++(mpLastSec->lCount);
+			++mlCount;
+		}
+	}
+
+	PDF_XREF_SECTION * mpFirstSec;
+	PDF_XREF_SECTION * mpLastSec;
+	HE_DWORD mlCount;
 };
 
 #endif

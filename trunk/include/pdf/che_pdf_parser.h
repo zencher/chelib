@@ -91,11 +91,6 @@ public:
 	//Basic information
 	HE_DWORD					GetFileSize() const;
 	PDF_VERSION					GetPDFVersion() const;
-//	CHE_PDF_Dictionary *		GetTrailerDict() const;
-	CHE_PDF_Dictionary *		GetRootDict();
-	CHE_PDF_Dictionary *		GetInfoDict();
-	CHE_PDF_Array *				GetIDArray();
-	//HE_BOOL					IsLinearized();
 
 	//Encryption
 	HE_BOOL						Authenticate( const CHE_ByteString & password ) const 
@@ -106,18 +101,18 @@ public:
 
 	CHE_PDF_Object *			GetObject();
 	CHE_PDF_Object *			GetObjectInObjStm( CHE_PDF_Stream * pStream, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );
-	/*CHE_PDF_Object *			GetObjectInObjStm( const HE_PDF_RefInfo & stmRefInfo, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );*/
 
 private:
 	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XREF_Table * pXrefTable, CHE_Allocator * pAllocator = NULL );
 
 	HE_DWORD					GetStartxref( HE_DWORD range );
+
 	HE_DWORD					ParseXRef();
 	HE_DWORD					ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
 	HE_DWORD					ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
 	HE_DWORD					FullParseForXRef();
 
-	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict );
+	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict, CHE_PDF_Array * pIdArray );
 
 private:
 	CHE_PDF_SyntaxParser		m_sParser;
@@ -126,9 +121,6 @@ private:
 	HE_DWORD					m_lStartxref;
 	
 	CHE_PDF_XREF_Table *		mpXRefTable;
-	CHE_PDF_Dictionary *		mpRootDict;
-	CHE_PDF_Dictionary *		mpInfoDict;
-	CHE_PDF_Array *				mpIDArray;
 
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;
 	CHE_PDF_Encrypt	*			m_pStmEncrypt;

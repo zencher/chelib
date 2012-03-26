@@ -1649,7 +1649,7 @@ HE_DWORD CHE_PDF_Parser::ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** 
 
 			if ( i == 0 )
 			{
-				CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_COMMON, 0, 0, 0 );
+				CHE_PDF_XREF_Entry tmpEntry( XREF_ENTRY_TYPE_FREE, 0, 0, 0 );
 				mpXRefTable->Add( tmpEntry );
 				xrefEntryCount++;
 			}else{

@@ -55,53 +55,83 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 		return FALSE;
 	}
 
+	HE_DWORD objCount = 0;
 	HE_DWORD offset = 0;
 	CHE_PDF_XREF_Entry entry;
-	CHE_PDF_XREF_Data xrefData( GetAllocator() );
+	CHE_PDF_XREF_Table xref( GetAllocator() );
 	HE_PDF_RefInfo refInfo;
 	CHE_PDF_IndirectObject * pInObj = NULL;
 
 	pCreator->OutPutFileHead( GetPDFVersion() );
 
-	HE_DWORD objNum = 0;
-	xrefData.NewSection( 0 );
+	entry.ObjNum = 0;
 	entry.Field1 = 0;
 	entry.Field2 = 65535;
 	entry.Type = XREF_ENTRY_TYPE_FREE;
-	xrefData.NewNode( entry );
-	objNum = 1;
+
+	xref.Add( entry );
+	++objCount;
 
 	mXRefTable.MoveFirst();
 	while( !mXRefTable.IsEOF() )
 	{
-		if ( mXRefTable.GetCurNode( entry ) )
+		if ( mXRefTable.GetCurNode( entry ) && entry.GetObjNum() != 0 )
 		{
 			refInfo.objNum = entry.GetObjNum();
 			refInfo.genNum = 0;
-			if ( refInfo.objNum != objNum )
-			{
-				objNum = refInfo.objNum;
-				xrefData.NewSection( objNum );
-			}
 			pInObj = GetInObject( refInfo );
 			if ( pInObj )
 			{
+				if ( pInObj->GetObj()->GetType() == OBJ_TYPE_STREAM )
+				{
+					CHE_PDF_Dictionary * pDict = pInObj->GetObj()->ToStream()->GetDict();
+					CHE_PDF_Object * pObj = NULL;
+					CHE_PDF_Name * pName = NULL;
+					CHE_PDF_ObjectCollector objCollecor;
+					pObj = pDict->GetElement( "Type", OBJ_TYPE_NAME, objCollecor );
+					if ( pObj )
+					{
+						pName = pObj->ToName();
+						if ( pName )
+						{
+							if ( pName->GetString() == "ObjStm" )
+							{
+								mXRefTable.MoveNext();
+								continue;
+							}
+						}
+					}
+				}
 				offset = pCreator->OutPutInObject( pInObj );
+				entry.Type = XREF_ENTRY_TYPE_COMMON;
+				entry.ObjNum = refInfo.objNum;
 				entry.Field1 = offset;
 				entry.Field2 = 0;
-				xrefData.NewNode( entry );
+				xref.Add( entry );
+				++objCount;
 			}
-			++objNum;
 		}
 		mXRefTable.MoveNext();
 	}
 
-	offset = pCreator->OutPutXRefTable( xrefData );
+	offset = pCreator->OutPutXRefTable( xref );
+	CHE_PDF_Object * pObj = NULL;
 	CHE_PDF_Dictionary * pDict = mXRefTable.GetTrailer();
-	pDict->SetAtInteger( "Size", xrefData.mlCount );
-	pCreator->OutPutTailerDict( mXRefTable.GetTrailer() );
+	CHE_PDF_Dictionary * pNewDict = CHE_PDF_Dictionary::Create( GetAllocator() );
+	pObj = pDict->GetElement( "Root" );
+	if ( pObj )
+	{
+		pNewDict->SetAtObj( "Root", pObj->Clone() );
+	}
+	pObj = pDict->GetElement( "Info" );
+	if ( pObj )
+	{
+		pNewDict->SetAtObj( "Info", pObj->Clone() );
+	}
+	pNewDict->SetAtInteger( "Size", objCount );
+	pCreator->OutPutTailerDict( pNewDict );
 	pCreator->OutPutFileTailer( offset );
-	
+	pNewDict->Release();
 	return TRUE;
 }
 

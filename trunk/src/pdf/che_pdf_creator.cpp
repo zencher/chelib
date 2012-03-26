@@ -1,5 +1,6 @@
 #include "../../include/pdf/che_pdf_creator.h"
 #include "../../include/pdf/che_pdf_xref.h"
+#include "../../include/che_datastructure.h"
 
 #include <cstdio>
 #include <math.h>
@@ -463,34 +464,71 @@ HE_DWORD CHE_PDF_Creator::OutPutInObject( CHE_PDF_IndirectObject * pInObj )
 	return offset;
 }
 
-HE_DWORD CHE_PDF_Creator::OutPutXRefTable( const CHE_PDF_XREF_Data & xref )
+HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 {
-	HE_DWORD offset = mpWrite->GetCurOffset();
-
-	mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefMark, glstrXrefMark );
-
 	HE_CHAR tempStr[128];
-	PDF_XREF_SECTION * pTemSec = xref.mpFirstSec;
+	HE_DWORD lBeginNum = 0;
+	HE_DWORD lNextObjNum = 0;
+	HE_DWORD lCountNum = 0;
+	CHE_PDF_XREF_Entry entry;
+	CHE_Queue< CHE_PDF_XREF_Entry > entryList;
 
-	while ( pTemSec )
+	HE_DWORD offset = mpWrite->GetCurOffset();
+	mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefMark, glstrXrefMark );
+	
+	xref.MoveFirst();
+	if ( ! xref.GetCurNode( entry ) )
 	{
-		sprintf( tempStr, "%d %d\n", pTemSec->lBeginNum, pTemSec->lCount );
-		mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
-
-		PDF_XREF_ENTRY_NODE * pTmpNode = pTemSec->pFirstEntry;
-		while ( pTmpNode )
-		{
-			if ( pTmpNode->entry.GetType() == XREF_ENTRY_TYPE_FREE )
-			{
-				sprintf( tempStr, "%010d %05d f \n", 0, pTmpNode->entry.GetGenNum() );
-			}else{
-				sprintf( tempStr, "%010d %05d n \n", pTmpNode->entry.GetOffset(), pTmpNode->entry.GetGenNum() );
-			}
-			mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
-			pTmpNode = pTmpNode->pNext;
-		}
-		pTemSec = pTemSec->pNextSec;
+		return offset;
 	}
+	lBeginNum = entry.GetObjNum();
+	lNextObjNum = lBeginNum+1;
+	lCountNum = 1;
+	entryList.Push( entry );
+	
+	xref.MoveNext();
+
+	while( !xref.IsEOF() )
+	{
+		if ( xref.GetCurNode( entry ) )
+		{
+			if ( entry.GetObjNum() == lNextObjNum )
+			{
+				entryList.Push( entry );
+				++lCountNum;
+			}else{
+				CHE_PDF_XREF_Entry tmpEntry;
+				sprintf( tempStr, "%d %d\n", lBeginNum, lCountNum );
+				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+				while( entryList.Pop( tmpEntry ) )
+				{
+					sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
+					mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+				}
+				entryList.Push( entry );
+				lBeginNum = entry.GetObjNum();
+				lCountNum = 1;
+				lNextObjNum = lBeginNum;
+			}
+			++lNextObjNum;
+		}else{
+			break;
+		}
+		xref.MoveNext();
+	}
+
+	if ( lCountNum > 0 )
+	{
+		CHE_PDF_XREF_Entry tmpEntry;
+		sprintf( tempStr, "%d %d\n", lBeginNum, lCountNum );
+		mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+		while( entryList.Pop( tmpEntry ) )
+		{
+			sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
+			mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+		}
+	}
+
 	return offset;
 }
 
@@ -541,7 +579,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
 			HE_BOOL bHex = FALSE;
 			for ( HE_DWORD i = 0; i < length; i++ )
 			{
-				if ( pObj->ToString()->GetString()[i] == ')' )
+				if ( pObj->ToString()->GetString()[i] < 0 ) //´ýÍêÉÆ
 				{
 					bHex  = TRUE;
 					break;

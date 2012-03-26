@@ -75,36 +75,4 @@ private:
 	CHE_SkipList<CHE_PDF_XREF_Entry> mList;
 };
 
-
-struct PDF_XREF_ENTRY_NODE
-{
-	CHE_PDF_XREF_Entry entry;
-	PDF_XREF_ENTRY_NODE * pNext;
-};
-
-struct PDF_XREF_SECTION
-{
-	PDF_XREF_SECTION * pNextSec;
-	PDF_XREF_ENTRY_NODE * pFirstEntry;
-	PDF_XREF_ENTRY_NODE * pLastEntry;
-	HE_DWORD lBeginNum;
-	HE_DWORD lCount;
-};
-
-class CHE_PDF_XREF_Data : public CHE_Object
-{
-public:
-	CHE_PDF_XREF_Data( CHE_Allocator * pAllocator = NULL );
-
-	~CHE_PDF_XREF_Data();
-
-	HE_VOID	NewSection( HE_DWORD lBegin );
-
-	HE_VOID NewNode( CHE_PDF_XREF_Entry & entry );
-
-	PDF_XREF_SECTION * mpFirstSec;
-	PDF_XREF_SECTION * mpLastSec;
-	HE_DWORD mlCount;
-};
-
 #endif

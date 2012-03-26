@@ -21,7 +21,7 @@ public:
 
 	HE_DWORD				OutPutInObject( CHE_PDF_IndirectObject * pInObj );
 
-	HE_DWORD				OutPutXRefTable( const CHE_PDF_XREF_Data & xref );
+	HE_DWORD				OutPutXRefTable( CHE_PDF_XREF_Table & xref );
 
 	HE_VOID					OutPutTailerDict( CHE_PDF_Dictionary * pDcit );
 

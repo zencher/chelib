@@ -46,7 +46,7 @@ CHE_PDF_Creator * CHE_PDF_Creator::Create( IHE_Write * pWrite, CHE_Allocator * p
 	}
 	if ( pAllocator == NULL )
 	{
-		pAllocator == GetDefaultAllocator();
+		pAllocator = GetDefaultAllocator();
 	}
 	return pAllocator->New<CHE_PDF_Creator>( pWrite, pAllocator );
 }
@@ -449,6 +449,17 @@ HE_VOID CHE_PDF_Creator::OutPutFileHead( PDF_VERSION version )
 	mpWrite->WriteBlock( (HE_LPVOID)"%\255\255\255\255\n", 6 );
 }
 
+HE_DWORD CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
+{
+	if ( pObj == NULL )
+	{
+		return 0;
+	}
+	HE_DWORD offset = mpWrite->GetCurOffset();
+	OutPutObject( mpWrite, pObj, NULL );
+	return offset;
+}
+
 HE_DWORD CHE_PDF_Creator::OutPutInObject( CHE_PDF_IndirectObject * pInObj )
 {
 	if ( pInObj == NULL )
@@ -459,7 +470,7 @@ HE_DWORD CHE_PDF_Creator::OutPutInObject( CHE_PDF_IndirectObject * pInObj )
 	HE_CHAR tempStr[128];
 	sprintf( tempStr, "%d %d obj\n", pInObj->GetObjNum(), pInObj->GetGenNum() );
 	mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
-	OutPutObject( pInObj->GetObj() );
+	OutPutObject( mpWrite, pInObj->GetObj(), mpEncrypt );
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrObjEnd, glStrObjEnd );
 	return offset;
 }
@@ -545,30 +556,30 @@ HE_VOID	CHE_PDF_Creator::OutPutFileTailer( HE_DWORD startxref )
 HE_VOID CHE_PDF_Creator::OutPutTailerDict( CHE_PDF_Dictionary * pDcit )
 {
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrTrailerMark, glStrTrailerMark );
-	OutPutObject( pDcit );
+	OutPutObject( mpWrite, pDcit, mpEncrypt );
 }
 
-HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
+HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, CHE_PDF_Object * pObj, CHE_PDF_Encrypt * pEncrypt /*= NULL*/ )
 {
-	if ( pObj == NULL )
+	if ( pWrite == NULL || pObj == NULL )
 	{
 		return;
 	}
-	static HE_CHAR tempStr[1024];
+	static HE_CHAR tempStr[32768];
 	switch( pObj->GetType() )
 	{
 	case OBJ_TYPE_NULL:
 		{
-			mpWrite->WriteBlock( (HE_LPVOID)gpStrNullObj, glStrNullObj );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrNullObj, glStrNullObj );
 			break;
 		}
 	case OBJ_TYPE_BOOLEAN:
 		{
 			if( ((CHE_PDF_Boolean*)pObj)->GetValue() != FALSE )
 			{
-				mpWrite->WriteBlock( (HE_LPVOID)gpStrBoolObjTrue, glStrBoolObjTrue );
+				pWrite->WriteBlock( (HE_LPVOID)gpStrBoolObjTrue, glStrBoolObjTrue );
 			}else{
-				mpWrite->WriteBlock( (HE_LPVOID)gpStrBoolObjFalse, glStrBoolObjFalse );
+				pWrite->WriteBlock( (HE_LPVOID)gpStrBoolObjFalse, glStrBoolObjFalse );
 			}
 			break;
 		}
@@ -587,20 +598,20 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
 			}
 			if ( bHex == FALSE )
 			{
-				mpWrite->WriteBlock( (HE_LPVOID)gpStrStrObjLeft, glStrStrObj );
-				mpWrite->WriteBlock( pData, length );
-				mpWrite->WriteBlock( (HE_LPVOID)gpStrStrObjRight, glStrStrObj );
+				pWrite->WriteBlock( (HE_LPVOID)gpStrStrObjLeft, glStrStrObj );
+				pWrite->WriteBlock( pData, length );
+				pWrite->WriteBlock( (HE_LPVOID)gpStrStrObjRight, glStrStrObj );
 			}else{
-				mpWrite->WriteBlock( (HE_LPVOID)"<", 1 );
+				pWrite->WriteBlock( (HE_LPVOID)"<", 1 );
 				HE_CHAR tmpByte[32];
 				HE_DWORD tmpVal = 0;
 				for ( HE_DWORD i = 0; i < length; i++ )
 				{
 					tmpVal = (pObj->ToString()->GetString())[i];
 					sprintf( tmpByte, "%08X", tmpVal );
-					mpWrite->WriteBlock( (HE_LPVOID)(tmpByte+6), 2 );
+					pWrite->WriteBlock( (HE_LPVOID)(tmpByte+6), 2 );
 				}
-				mpWrite->WriteBlock( (HE_LPVOID)">", 1 );
+				pWrite->WriteBlock( (HE_LPVOID)">", 1 );
 			}
 			break;
 		}
@@ -608,16 +619,16 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
 		{
 			HE_BYTE * pData = (HE_BYTE*)( ((CHE_PDF_Name*)pObj)->GetString().GetData() );
 			HE_DWORD length = ((CHE_PDF_String*)pObj)->GetString().GetLength();
-			mpWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
 			char tmpStr[16];
 			for ( HE_DWORD i = 0; i < length; ++i )
 			{
 				if ( 32 < pData[i] && pData[i] < 127 )
 				{
-					mpWrite->WriteBlock( (HE_LPVOID*)(pData+i), 1 );
+					pWrite->WriteBlock( (HE_LPVOID*)(pData+i), 1 );
 				}else{
 					sprintf( tmpStr, "#%02X", pData[i] ); 
-					mpWrite->WriteBlock( (HE_LPVOID*)tmpStr, 3 );
+					pWrite->WriteBlock( (HE_LPVOID*)tmpStr, 3 );
 				}
 			}
 			break;
@@ -627,7 +638,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
 			if ( ((CHE_PDF_Number*)pObj)->IsInteger() == TRUE )
 			{
 				sprintf( tempStr, "%d", ((CHE_PDF_Number*)pObj)->GetInteger() );
-				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
+				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			}else{
 				float value = ((CHE_PDF_Number*)pObj)->GetFloat();
 				sprintf( tempStr, "%g", value );
@@ -635,38 +646,38 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
 				{
 					sprintf( tempStr, (fabsf(value))>1? "%1.1f":"%1.8f", value );
 				}
-				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
+				pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			}
 			break;
 		}
 	case OBJ_TYPE_REFERENCE:
 		{
 			sprintf( tempStr, "%d 0 R", ((CHE_PDF_Reference*)pObj)->GetRefNum() );
-			mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
+			pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			break;
 		}
 	case OBJ_TYPE_ARRAY:
 		{
 			CHE_PDF_Array * pArray = (CHE_PDF_Array*)pObj;
 			CHE_PDF_Object * pElement = NULL;
-			mpWrite->WriteBlock( (HE_LPVOID)gpStrArrayObjLeft, 1 );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrArrayObjLeft, 1 );
 			for ( HE_DWORD i = 0; i < pArray->GetCount(); i++ )
 			{
 				if ( i != 0 )
 				{
-					mpWrite->WriteBlock( (HE_LPVOID)gpStrSingleSpace, 1 );
+					pWrite->WriteBlock( (HE_LPVOID)gpStrSingleSpace, 1 );
 				}
 				pElement = pArray->GetElement( i );
-				OutPutObject( pElement );
+				OutPutObject( pWrite, pElement, pEncrypt );
 			}
-			mpWrite->WriteBlock( (HE_LPVOID)gpStrArrayObjRight, 1 );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrArrayObjRight, 1 );
 			break;
 		}
 	case OBJ_TYPE_DICTIONARY:
 		{
 			CHE_PDF_Dictionary * pDict = (CHE_PDF_Dictionary*)pObj;
 			CHE_PDF_Object * pElement = NULL;
-			mpWrite->WriteBlock( (HE_LPVOID)gpStrDictObjLeft, 2 );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrDictObjLeft, 2 );
 
 			CHE_ByteString keyStr;
 			for ( HE_DWORD i = 0; i < pDict->GetCount(); i++ )
@@ -675,20 +686,20 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
 				{
 					HE_LPVOID pData = (HE_LPVOID)( keyStr.GetData() );
 					HE_DWORD length = keyStr.GetLength();
-					mpWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
-					mpWrite->WriteBlock( pData, length );
+					pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
+					pWrite->WriteBlock( pData, length );
 					pElement = pDict->GetElementByIndex( i );
 					if ( pElement->GetType() == OBJ_TYPE_NULL || pElement->GetType() == OBJ_TYPE_NUMBER || pElement->GetType() == OBJ_TYPE_REFERENCE || pElement->GetType() == OBJ_TYPE_BOOLEAN )
 					{
-						mpWrite->WriteBlock( (HE_LPVOID)gpStrSingleSpace, 1 );
+						pWrite->WriteBlock( (HE_LPVOID)gpStrSingleSpace, 1 );
 					}
 					if ( pElement )
 					{
-						OutPutObject( pElement );
+						OutPutObject( pWrite, pElement, pEncrypt );
 					}
 				}
 			}
-			mpWrite->WriteBlock( (HE_LPVOID)gpStrDictObjRight, 2 );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrDictObjRight, 2 );
 			break;
 		}
 	case OBJ_TYPE_STREAM:
@@ -696,20 +707,20 @@ HE_VOID CHE_PDF_Creator::OutPutObject( CHE_PDF_Object * pObj )
 			CHE_PDF_Stream * pStm = (CHE_PDF_Stream*)pObj;
 			if( pStm->GetDict() != NULL )
 			{
-				OutPutObject( pStm->GetDict() );
-				mpWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
+				OutPutObject( pWrite, pStm->GetDict(), pEncrypt );
+				pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
 			}
-			mpWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjBegin, glStrStreamObjBegin );
-			HE_LPBYTE pByte = GetAllocator()->NewArray<HE_BYTE>( pStm->GetRawSize() + 16 );
-			pStm->GetRawData( 0, pByte, pStm->GetRawSize() );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjBegin, glStrStreamObjBegin );
+			HE_LPBYTE pBytes = GetDefaultAllocator()->NewArray<HE_BYTE>( pStm->GetRawSize() + 16 );
+			pStm->GetRawData( 0, pBytes, pStm->GetRawSize() );
 			HE_DWORD length = 0;
-			if ( mpEncrypt )
+			if ( pEncrypt )
 			{
-				mpEncrypt->Encrypt( pByte, pStm->GetRawSize(), pStm->GetObjNum(), pStm->GetGenNum() );
+				pEncrypt->Encrypt( pBytes, pStm->GetRawSize(), pStm->GetObjNum(), pStm->GetGenNum() );
 			}
-			mpWrite->WriteBlock( (HE_LPVOID)( pByte ), pStm->GetRawSize() );
-			GetAllocator()->DeleteArray<HE_BYTE>( pByte );
-			mpWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjEnd, glStrStreamObjEnd );
+			pWrite->WriteBlock( (HE_LPVOID)( pBytes ), pStm->GetRawSize() );
+			GetDefaultAllocator()->DeleteArray<HE_BYTE>( pBytes );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjEnd, glStrStreamObjEnd );
 			break;
 		}
 	default:

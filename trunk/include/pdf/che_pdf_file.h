@@ -14,6 +14,7 @@ public:
 	HE_BOOL					Open( IHE_Read * pRead );
 	HE_VOID					Close();
 	HE_BOOL					Save( IHE_Write * pWrite );
+	HE_BOOL					SaveCompact( IHE_Write * pWrite );
 	HE_BOOL					SaveUpdate( IHE_Write * pWrite );
 
 	HE_DWORD				GetFileSize() const;

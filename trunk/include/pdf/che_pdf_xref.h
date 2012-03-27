@@ -65,6 +65,8 @@ public:
 
 	HE_BOOL GetCurNode( CHE_PDF_XREF_Entry & entryRet ) { return mList.GetCurNode( entryRet ); }
 
+	HE_DWORD GetMaxObjNum() const { return mMaxObjNum; }
+
 private:
 	PDF_XREF_TRAILER_NODE *		m_pFirstTrailer;
 	PDF_XREF_TRAILER_NODE *		m_pLastTrailer;

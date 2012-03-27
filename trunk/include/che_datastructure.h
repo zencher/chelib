@@ -21,6 +21,8 @@ public:
 
 	HE_DWORD GetSize() { return m_lSize; }
 
+	HE_DWORD Write( HE_LPCBYTE pBuffer, HE_DWORD offset, HE_DWORD size );
+
 	HE_DWORD Write( HE_LPCBYTE pBuffer, HE_DWORD size );
 
 	HE_DWORD Read( HE_LPBYTE pBuffer, HE_DWORD size );
@@ -39,6 +41,8 @@ private:
 	HE_LPBYTE	m_lpData;
 	HE_DWORD	m_lSize;
 };
+
+IHE_Write * HE_CreateDynBufferWrite( CHE_DynBuffer * pBuffer, CHE_Allocator * pAllocator = NULL );
 
 class CHE_DynWideByteBuffer : public CHE_Object
 {

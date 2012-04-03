@@ -27,14 +27,6 @@ public:
 	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL )
 		: CHE_Object(pAllocator), mType(type), mResName(resName), mpObj(pObj) {}
 
-	~CHE_PDF_ColorSpace()
-	{
-		if ( mpObj )
-		{
-			mpObj->Release();
-		}
-	}
-
 	PDF_COLORSPACE_TYPE GetType() const { return mType; }
 
 	CHE_ByteString GetResName() const { return mResName; }

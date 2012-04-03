@@ -100,31 +100,31 @@ public:
 
 	~CHE_PDF_ObjectPtr();
 
-	inline CHE_PDF_ObjectPtr operator = ( const CHE_PDF_ObjectPtr & ptr );
+	CHE_PDF_ObjectPtr operator = ( const CHE_PDF_ObjectPtr & ptr );
 
-	inline bool operator!() const { return mpObj ? FALSE : TRUE ; }
+	bool operator!() const { return mpObj ? FALSE : TRUE ; }
 
-	inline operator HE_BOOL() const { return mpObj ? TRUE : FALSE ; }
+	operator HE_BOOL() const { return mpObj ? TRUE : FALSE ; }
 
 	inline CHE_PDF_Object *			operator->() const { return mpObj; }
 
-	inline HE_VOID					reset( CHE_PDF_Object * pObj = NULL );
+	HE_VOID					reset( CHE_PDF_Object * pObj = NULL );
 
-	inline CHE_PDF_BooleanPtr		GetBooleanPtr() const;
+	CHE_PDF_BooleanPtr		GetBooleanPtr() const;
 
-	inline CHE_PDF_NumberPtr		GetNumberPtr() const;
+	CHE_PDF_NumberPtr		GetNumberPtr() const;
 
-	inline CHE_PDF_StringPtr		GetStringPtr() const;
+	CHE_PDF_StringPtr		GetStringPtr() const;
 
-	inline CHE_PDF_NamePtr			GetNamePtr() const;
+	CHE_PDF_NamePtr			GetNamePtr() const;
 
-	inline CHE_PDF_ArrayPtr			GetArrayPtr() const;
+	CHE_PDF_ArrayPtr			GetArrayPtr() const;
 
-	inline CHE_PDF_DictionaryPtr	GetDictPtr() const;
+	CHE_PDF_DictionaryPtr	GetDictPtr() const;
 
-	inline CHE_PDF_ReferencePtr		GetReferencePtr() const;
+	CHE_PDF_ReferencePtr		GetReferencePtr() const;
 
-	inline CHE_PDF_StreamPtr		GetStreamPtr() const;
+	CHE_PDF_StreamPtr		GetStreamPtr() const;
 
 protected:
 
@@ -271,9 +271,9 @@ public:
 
 	static CHE_PDF_StringPtr		Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
 
-	inline CHE_ByteString &			GetString();
+	CHE_ByteString &				GetString();
 
-	inline HE_VOID					SetString( CHE_ByteString & name );
+	HE_VOID							SetString( CHE_ByteString & name );
 
 	CHE_PDF_StringPtr				Clone();
 

@@ -23,19 +23,19 @@ CHE_PDF_ColorSpace * GetColorSpace( const CHE_ByteString & name, CHE_Allocator *
 	return pColorSpace;
 }
 
-CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Name * pName, CHE_Allocator * pAllocator )
+CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_NamePtr & pName, CHE_Allocator * pAllocator )
 {
-	if ( pName == NULL )
+	if ( !pName )
 	{
 		return NULL;
 	}
-	CHE_ByteString name = pName->GetString();
-	return GetColorSpace( name, pAllocator );
+
+	return GetColorSpace( pName->GetString(), pAllocator );
 }
 
-CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Array * pArray, CHE_Allocator * pAllocator )
+CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ArrayPtr & pArray, CHE_Allocator * pAllocator )
 {
-	if ( pArray == NULL )
+	if ( !pArray )
 	{
 		return NULL;
 	}
@@ -47,13 +47,12 @@ CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Array * pArray, CHE_Allocator * pAll
 	{
 		return NULL;
 	}
-	CHE_PDF_ObjectCollector objCollector( pAllocator );
-	CHE_PDF_Object * pObj = pArray->GetElement( 0, OBJ_TYPE_NAME, objCollector );
-	if ( pObj->GetType() != OBJ_TYPE_NAME )
+	CHE_PDF_ObjectPtr pObj = pArray->GetElement( 0, OBJ_TYPE_NAME );
+	if ( !pObj || pObj->GetType() != OBJ_TYPE_NAME )
 	{
 		return NULL;
 	}
-	CHE_ByteString name = pObj->ToName()->GetString();
+	CHE_ByteString name = pObj->GetName()->GetString();
 	CHE_PDF_ColorSpace * pColorSpace = NULL;
 	if ( name == "CalGray" )
 	{
@@ -83,14 +82,13 @@ CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Array * pArray, CHE_Allocator * pAll
 	return pColorSpace;
 }
 
-CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Reference * pRef, CHE_Allocator * pAllocator )
+CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator )
 {
 	if ( !pRef )
 	{
 		return NULL;
 	}
-	CHE_PDF_ObjectCollector objCollector( pAllocator );
-	CHE_PDF_Object * pObj = pRef->GetRefObj( objCollector );
+	CHE_PDF_ObjectPtr pObj = pRef->GetRefObj();
 	if ( !pObj )
 	{
 		return NULL;
@@ -99,11 +97,11 @@ CHE_PDF_ColorSpace * GetColorSpace( CHE_PDF_Reference * pRef, CHE_Allocator * pA
 	{
 	case OBJ_TYPE_NAME:
 		{
-			return GetColorSpace( pObj->ToName() );
+			return GetColorSpace( pObj.GetNamePtr() );
 		}
 	case OBJ_TYPE_ARRAY:
 		{
-			return GetColorSpace( pObj->ToArray() );
+			return GetColorSpace( pObj.GetArrayPtr() );
 		}
 	default:break;
 	}

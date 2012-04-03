@@ -54,9 +54,9 @@ public:
 	HE_DWORD			ReadBytes( HE_LPBYTE pBuffer, HE_DWORD length );
 	HE_BOOL				GetWord( CHE_PDF_ParseWordDes & des );
 	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
-	CHE_PDF_Array *		GetArray();
+	CHE_PDF_ArrayPtr	GetArray();
 	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）	*/
-	CHE_PDF_Dictionary * GetDictionary();
+	CHE_PDF_DictionaryPtr	GetDictionary();
 
 private:
 	HE_VOID				SubmitBufferStr( CHE_ByteString & str );
@@ -99,8 +99,8 @@ public:
 	HE_DWORD					GetReadPos() { return m_sParser.GetPos(); }
 	HE_VOID						SetReadPos( HE_DWORD pos) { m_sParser.SetPos( pos ); }
 
-	CHE_PDF_Object *			GetObject();
-	CHE_PDF_Object *			GetObjectInObjStm( CHE_PDF_Stream * pStream, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );
+	CHE_PDF_ObjectPtr			GetObject();
+	CHE_PDF_ObjectPtr			GetObjectInObjStm( CHE_PDF_StreamPtr & pStream, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );
 
 private:
 	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XREF_Table * pXrefTable, CHE_Allocator * pAllocator = NULL );
@@ -108,11 +108,11 @@ private:
 	HE_DWORD					GetStartxref( HE_DWORD range );
 
 	HE_DWORD					ParseXRef();
-	HE_DWORD					ParseXRefTable( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
-	HE_DWORD					ParseXRefStream( HE_DWORD offset, CHE_PDF_Dictionary ** pTrailerDictRet );
+	HE_DWORD					ParseXRefTable( HE_DWORD offset, CHE_PDF_DictionaryPtr & pTrailerDictRet );
+	HE_DWORD					ParseXRefStream( HE_DWORD offset, CHE_PDF_DictionaryPtr & pTrailerDictRet );
 	HE_DWORD					FullParseForXRef();
 
-	HE_BOOL						ParseEncrypt( CHE_PDF_Dictionary * pEncryptDict, CHE_PDF_Array * pIdArray );
+	HE_BOOL						ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict, const CHE_PDF_ArrayPtr & pIdArray );
 
 private:
 	CHE_PDF_SyntaxParser		m_sParser;

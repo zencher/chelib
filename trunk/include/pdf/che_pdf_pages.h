@@ -11,21 +11,21 @@ class CHE_PDF_Page;
 class CHE_PDF_PageTree : public CHE_Object
 {
 public:
-	CHE_PDF_PageTree( CHE_PDF_Dictionary * pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
 	
 	~CHE_PDF_PageTree();
 
-	HE_DWORD GetPageCount();
+	HE_DWORD						GetPageCount();
 
-	CHE_PDF_Page * GetPage( HE_DWORD index );
+	CHE_PDF_Page *					GetPage( HE_DWORD index );
 
-	HE_PDF_RefInfo GetPageRefInfo( HE_DWORD index );
+	HE_PDF_RefInfo					GetPageRefInfo( HE_DWORD index );
 
 private:
 	HE_DWORD						mPageCount;
 	HE_DWORD						mCurPageIndex;
 	std::vector<HE_PDF_RefInfo>		mPageObjList;
-	CHE_Stack<CHE_PDF_Reference*>	mPageNodeStack;
+	CHE_Stack<CHE_PDF_ReferencePtr>	mPageNodeStack;
 	CHE_PDF_File *					mpFile;
 };
 
@@ -35,15 +35,13 @@ public:
 	~CHE_PDF_Page();
 
 private:
-	CHE_PDF_Page( CHE_PDF_Dictionary * pPageDict, CHE_PDF_PageTree * pPages, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Page( const CHE_PDF_DictionaryPtr pPageDict, CHE_PDF_PageTree * pPages, CHE_Allocator * pAllocator = NULL )
 		: CHE_Object( pAllocator ), mpPageDict( pPageDict ) {}
 
-	CHE_PDF_Dictionary * mpPageDict;
+	CHE_PDF_DictionaryPtr	mpPageDict;
 
 	friend class CHE_Allocator;
-	friend class CHE_PDF_PageTree;		
-private:
-
+	friend class CHE_PDF_PageTree;
 };
 
 #endif

@@ -4203,40 +4203,33 @@ HE_VOID HE_DestroyFTLibrary()
 }
 
 
-CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, CHE_Allocator * pAllocator )
+CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator )
 	:	CHE_Object( pAllocator ), m_FontType(FONT_TRUETYPE), m_EncodingType(FONT_ENCODING_WINANSI),
-		m_pFontDict(NULL), m_pCIDMap(NULL), m_pUnicodeMap(NULL), m_pEncodingTable(NULL),
+		m_pFontDict(pFontDict), m_pCIDMap(NULL), m_pUnicodeMap(NULL), m_pEncodingTable(NULL),
 		m_bEncodingToDes(false), m_pToUnicodeMap(NULL)
 {
-	m_pFontDict = NULL;
-	if ( pFontDict )
-	{
-		m_pFontDict = pFontDict->Clone();
-	} 
-
-	if ( m_pFontDict == NULL )
+	if ( ! m_pFontDict )
 	{	
 		return;
 	}
-	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
-	CHE_PDF_Object * pTmpObj = pFontDict->GetElement( "Type", OBJ_TYPE_NAME, objCollector );
-	if ( pTmpObj == NULL )
+	CHE_PDF_ObjectPtr pTmpObj = pFontDict->GetElement( "Type", OBJ_TYPE_NAME );
+	if ( ! pTmpObj )
 	{
 		return;
 	}
 	CHE_ByteString str( GetAllocator() );
-	str = ((CHE_PDF_Name*)pTmpObj)->GetString();
+	str = pTmpObj.GetNamePtr()->GetString();
 	if ( str != "Font" )
 	{
 		return;
 	}
 
-	pTmpObj = pFontDict->GetElement( "Subtype", OBJ_TYPE_NAME, objCollector );
-	if ( pTmpObj == NULL )
+	pTmpObj = pFontDict->GetElement( "Subtype", OBJ_TYPE_NAME );
+	if ( ! pTmpObj )
 	{
 		return;
 	}
-	str = ((CHE_PDF_Name*)pTmpObj)->GetString();
+	str = pTmpObj.GetNamePtr()->GetString();
 	if ( str == "Type0" )
 	{
 		m_FontType = FONT_TYPE0;
@@ -4251,10 +4244,10 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, CHE_Allocator * pAll
 		m_FontType = FONT_TRUETYPE;
 	}
       
-	pTmpObj = pFontDict->GetElement( "Encoding", OBJ_TYPE_NAME, objCollector );
-	if ( pTmpObj == NULL )
+	pTmpObj = pFontDict->GetElement( "Encoding", OBJ_TYPE_NAME );
+	if ( ! pTmpObj )
 	{
-		pTmpObj = pFontDict->GetElement( "Encoding", OBJ_TYPE_DICTIONARY, objCollector );
+		pTmpObj = pFontDict->GetElement( "Encoding", OBJ_TYPE_DICTIONARY );
 	}
 	if ( !pTmpObj )
 	{
@@ -4269,7 +4262,7 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, CHE_Allocator * pAll
 		{
 			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
 			{
-				str = pTmpObj->ToName()->GetString();
+				str = pTmpObj->GetName()->GetString();
 				if ( str == "MacRomanEncoding" )
 				{
 					m_EncodingType = FONT_ENCODING_MACROMAN;
@@ -4289,11 +4282,11 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, CHE_Allocator * pAll
 				}
 			}else if ( pTmpObj->GetType() == OBJ_TYPE_DICTIONARY )
 			{
-				CHE_PDF_Dictionary * pEncodingDict = pTmpObj->ToDict();
-				pTmpObj = pEncodingDict->GetElement( "BaseEncoding", OBJ_TYPE_NAME, objCollector );
-				if ( pTmpObj != NULL )
+				CHE_PDF_DictionaryPtr pEncodingDict = pTmpObj.GetDictPtr();
+				pTmpObj = pEncodingDict->GetElement( "BaseEncoding", OBJ_TYPE_NAME );
+				if ( pTmpObj )
 				{
-					str = ((CHE_PDF_Name*)pTmpObj)->GetString();
+					str = pTmpObj.GetNamePtr()->GetString();
 					if ( str == "MacRomanEncoding" )
 					{
 						m_EncodingType = FONT_ENCODING_MACROMAN;
@@ -4332,22 +4325,22 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, CHE_Allocator * pAll
 				default:
 					break;
 				}
-				CHE_PDF_Array * pDifArray = (CHE_PDF_Array *)( pEncodingDict->GetElement( "Differences", OBJ_TYPE_ARRAY, objCollector ) );
-				if ( pDifArray != NULL )
+				CHE_PDF_ArrayPtr pDifArray = pEncodingDict->GetElement( "Differences", OBJ_TYPE_ARRAY ).GetArrayPtr();
+				if ( pDifArray )
 				{
 					HE_DWORD iCount = pDifArray->GetCount();
 					HE_DWORD iIndex = 0;
 					HE_BYTE tmpByte;
-					CHE_PDF_Object * pObj = NULL;
+					CHE_PDF_ObjectPtr pObj;
 					for ( HE_DWORD i = 0; i < iCount; i++ )
 					{
 						pObj = pDifArray->GetElement( i );
 						if ( pObj->GetType() == OBJ_TYPE_NUMBER )
 						{
-							iIndex = ((CHE_PDF_Number*)pObj)->GetInteger();
+							iIndex = pObj.GetNumberPtr()->GetInteger();
 						}else if ( pObj->GetType() == OBJ_TYPE_NAME )
 						{
-							CHE_ByteString strTmp = ((CHE_PDF_Name*)pObj)->GetString();
+							CHE_ByteString strTmp = pObj.GetNamePtr()->GetString();
 							if ( HE_GetCodeFromName( strTmp, m_EncodingType, tmpByte ) )
 							{
 								*(m_pEncodingTable + iIndex) = tmpByte;
@@ -4365,45 +4358,45 @@ CHE_PDF_Font::CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, CHE_Allocator * pAll
 			{
 				break;
 			}
-			str = ((CHE_PDF_Name*)pTmpObj)->GetString();
+			str = pTmpObj.GetNamePtr()->GetString();
 			if ( str == "Identity-H" || str == "Identity-V" )
 			{
 				m_EncodingType = FONT_ENCODING_SELFDEF;
-				pTmpObj = pFontDict->GetElement( "ToUnicode", OBJ_TYPE_STREAM, objCollector );
+				pTmpObj = pFontDict->GetElement( "ToUnicode", OBJ_TYPE_STREAM );
 				if ( pTmpObj )
 				{
-					m_pToUnicodeMap = GetToUnicodeMap( pTmpObj->ToStream() );
+					m_pToUnicodeMap = GetToUnicodeMap( pTmpObj.GetStreamPtr() );
 				}
 			}else
 			{
 				m_EncodingType = FONT_ENCODING_BUILDINCMAP;
 				m_pCIDMap = CHE_PDF_CMap::LoadBuildinCMap( str, GetAllocator() );
-				pTmpObj = pFontDict->GetElement( "DescendantFonts", OBJ_TYPE_DICTIONARY, objCollector );
-				if ( pTmpObj == NULL )
+				pTmpObj = pFontDict->GetElement( "DescendantFonts", OBJ_TYPE_DICTIONARY );
+				if ( ! pTmpObj )
 				{
 					break;
 				}
-				CHE_PDF_Dictionary * pDescendantFontDict = pTmpObj->ToDict();
-				pTmpObj = pDescendantFontDict->GetElement( "CIDSystemInfo", OBJ_TYPE_DICTIONARY, objCollector );
-				if ( pTmpObj == NULL )
+				CHE_PDF_DictionaryPtr pDescendantFontDict = pTmpObj.GetDictPtr();
+				pTmpObj = pDescendantFontDict->GetElement( "CIDSystemInfo", OBJ_TYPE_DICTIONARY );
+				if ( ! pTmpObj )
 				{
 					break;
 				}
-				CHE_PDF_Dictionary * pCIDSystemInfoDict = pTmpObj->ToDict();
-				pTmpObj = pCIDSystemInfoDict->GetElement( "Registry", OBJ_TYPE_STRING, objCollector );
-				if ( pTmpObj == NULL )
+				CHE_PDF_DictionaryPtr pCIDSystemInfoDict = pTmpObj.GetDictPtr();
+				pTmpObj = pCIDSystemInfoDict->GetElement( "Registry", OBJ_TYPE_STRING );
+				if ( ! pTmpObj )
 				{
 					break;
 				}
-				CHE_PDF_String * pSt = pTmpObj->ToString();
+				CHE_PDF_StringPtr pSt = pTmpObj.GetStringPtr();
 				CHE_ByteString cmapNuame = pSt->GetString();
 				cmapNuame += "-";
-				pTmpObj = pCIDSystemInfoDict->GetElement( "Ordering", OBJ_TYPE_STRING, objCollector );
-				if ( pTmpObj == NULL )
+				pTmpObj = pCIDSystemInfoDict->GetElement( "Ordering", OBJ_TYPE_STRING );
+				if ( ! pTmpObj )
 				{
 					break;
 				}
-				pSt = pTmpObj->ToString();
+				pSt = pTmpObj.GetStringPtr();
 				cmapNuame += pSt->GetString();
 				if ( cmapNuame == "Adobe-CNS1" )
 				{
@@ -4460,10 +4453,6 @@ HE_INT32 CHE_PDF_Font::GetCID( HE_INT32 code )
 
 CHE_PDF_Font::~CHE_PDF_Font()
 {
-	if ( m_pFontDict )
-	{
-		m_pFontDict->Release();
-	}
 	if ( m_pCIDMap )
 	{
 		m_pCIDMap->GetAllocator()->Delete( m_pCIDMap );
@@ -4483,9 +4472,9 @@ CHE_PDF_Font::~CHE_PDF_Font()
 	}
 }
 
-CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStream )
+CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream )
 {
-	if ( pToUnicodeStream == NULL )
+	if ( ! pToUnicodeStream )
 	{
 		return NULL;
 	}
@@ -4546,20 +4535,20 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStre
 					if ( wordDes.type == PARSE_WORD_ARRAY_B )
 					{
 						parser.SetPos( offset );
-						CHE_PDF_Array * pArray = parser.GetArray();
-						if ( pArray == NULL )
+						CHE_PDF_ArrayPtr pArray = parser.GetArray();
+						if ( ! pArray )
 						{
 							continue;
 						}
-						CHE_PDF_String * pStrObj = NULL;
+						CHE_PDF_StringPtr pStrObj;
 						if ( lIndexEnd > lMaxIndex )
 						{
 							lMaxIndex = lIndexEnd;
 						}
 						for ( HE_DWORD i = lIndex ; i <= lIndexEnd; i++ )
 						{
-							pStrObj = (CHE_PDF_String*)pArray->GetElement( i - lIndex );
-							if ( pStrObj == NULL || pStrObj->GetType() != OBJ_TYPE_STRING )
+							pStrObj = pArray->GetElement( i - lIndex ).GetStringPtr();
+							if ( ! pStrObj || pStrObj->GetType() != OBJ_TYPE_STRING )
 							{
 								continue;
 							}

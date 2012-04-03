@@ -44,13 +44,8 @@ CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_DWORD num, 
 	Field2 = f2;
 }
 
-CHE_PDF_XREF_Table::CHE_PDF_XREF_Table( CHE_Allocator * pAllocator ) : CHE_Object( pAllocator )
-{
-	m_pFirstTrailer = NULL;
-	m_pLastTrailer = NULL;
-	m_lTrailerCount = 0;
-	mMaxObjNum = 0;
-}
+CHE_PDF_XREF_Table::CHE_PDF_XREF_Table( CHE_Allocator * pAllocator )
+	: CHE_Object( pAllocator ), mMaxObjNum( 0 ), mList( pAllocator ) {}
 
 CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
 {
@@ -59,17 +54,7 @@ CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
 
 HE_VOID CHE_PDF_XREF_Table::Clear()
 {
-	PDF_XREF_TRAILER_NODE * pTmpTrailer = NULL;
-	while( m_pFirstTrailer )
-	{
-		pTmpTrailer = m_pFirstTrailer;
-		if ( pTmpTrailer && pTmpTrailer->bNeedDestroy == TRUE )
-		{
-			GetAllocator()->DeleteArray( pTmpTrailer->pDict );
-		}
-		m_pFirstTrailer = m_pFirstTrailer->pNext;
-		GetAllocator()->DeleteArray( pTmpTrailer );
-	}
+	mTrailerDict.clear();
 	mList.Clear();
 }
 
@@ -109,38 +94,21 @@ HE_VOID CHE_PDF_XREF_Table::AddNewEntry( CHE_PDF_XREF_Entry & entryRet )
 	}
 }
 
-HE_BOOL CHE_PDF_XREF_Table::AddTrailerDict( CHE_PDF_Dictionary * pDict, HE_BOOL bNeedDestroy /*= FALSE*/ )
+HE_BOOL CHE_PDF_XREF_Table::AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict )
 {
-	if ( pDict == NULL )
+	if ( pDict )
 	{
-		return FALSE;
+		mTrailerDict.push_back( pDict );
+		return TRUE;
 	}
-	if ( m_pFirstTrailer == NULL )
-	{
-		m_pFirstTrailer = GetAllocator()->New<PDF_XREF_TRAILER_NODE>();
-		m_pLastTrailer = m_pFirstTrailer;
-	}else{
-		m_pLastTrailer->pNext = GetAllocator()->New<PDF_XREF_TRAILER_NODE>();
-		m_pLastTrailer = m_pLastTrailer->pNext;
-	}
-	m_pLastTrailer->bNeedDestroy = bNeedDestroy;
-	m_pLastTrailer->pDict = pDict;
-	m_pLastTrailer->pNext = NULL;
-	m_lTrailerCount++;
-
-	return TRUE;
+	return FALSE;
 }
 
-CHE_PDF_Dictionary * CHE_PDF_XREF_Table::GetTrailer( HE_DWORD index /*= 0*/ ) const
+CHE_PDF_DictionaryPtr CHE_PDF_XREF_Table::GetTrailer( HE_DWORD index /*= 0*/ ) const
 {
-	if ( index >= m_lTrailerCount )
+	if ( index >= mTrailerDict.size() )
 	{
-		return NULL;
+		return CHE_PDF_DictionaryPtr();
 	}
-	PDF_XREF_TRAILER_NODE * pTmp = m_pFirstTrailer;
-	for ( HE_DWORD i = index; i > 0 &&  pTmp ; i-- )
-	{
-		pTmp = pTmp->pNext;
-	}
-	return pTmp->pDict;
+	return mTrailerDict[index];
 }

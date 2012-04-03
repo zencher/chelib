@@ -7,12 +7,11 @@ CHE_DefCrtAllocator gDefCrtAllocator;
 
 CHE_Object::CHE_Object( CHE_Allocator * pAllocator )
 {
-	if ( pAllocator )
+	if ( pAllocator == NULL )
 	{
-		m_pAllocator = pAllocator;
-	}else{
-		m_pAllocator = &gDefCrtAllocator;
+		pAllocator = GetDefaultAllocator();
 	}
+	m_pAllocator = pAllocator;
 }
 
 

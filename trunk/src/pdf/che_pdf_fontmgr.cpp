@@ -17,9 +17,9 @@ CHE_PDF_FontMgr::~CHE_PDF_FontMgr()
 	mNumToFontMap.Clear();
 }
 
-CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( CHE_PDF_Reference * pReference )
+CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( const CHE_PDF_ReferencePtr & pReference )
 {
-	if ( pReference == NULL )
+	if ( ! pReference )
 	{
 		return NULL;
 	}
@@ -27,13 +27,12 @@ CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( CHE_PDF_Reference * pReference )
 	HE_LPCVOID lpVoid = mNumToFontMap.GetItem( objNum );
 	if ( lpVoid == NULL )
 	{
-		CHE_PDF_ObjectCollector objCollector( GetAllocator() );
-		CHE_PDF_Object * pTmpObj = pReference->GetRefObj( OBJ_TYPE_DICTIONARY, objCollector );
-		if ( pTmpObj == NULL )
+		CHE_PDF_ObjectPtr pTmpObj = pReference->GetRefObj( OBJ_TYPE_DICTIONARY );
+		if ( ! pTmpObj )
 		{
 			return NULL;
 		}
-		CHE_PDF_Dictionary * pDict = pTmpObj->ToDict();
+		CHE_PDF_DictionaryPtr pDict = pTmpObj.GetDictPtr();
 		if ( pDict )
 		{
 			CHE_PDF_Font * pTmpFont = GetAllocator()->New<CHE_PDF_Font>( pDict, GetAllocator() );

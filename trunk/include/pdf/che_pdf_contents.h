@@ -63,17 +63,12 @@ class CHE_PDF_ContentsParser : public CHE_Object
 public:
 	CHE_PDF_ContentsParser( CHE_PDF_ContentResMgr * pResMgr, CHE_PDF_FontMgr * pFontMgr, 
 							IHE_PDF_ContentListConstructor * pConstructor, CHE_Allocator * pAllocator = NULL )
-		:	mpContentResMgr(pResMgr), mpFontMgr(pFontMgr), mpConstructor(pConstructor), mpPath(NULL),
-			mCurX(0), mCurY(0), mString(pAllocator), mName(pAllocator), mpObj(NULL), mParamFalg(0),
-			mbInlineImage(FALSE), mbInterpolate(FALSE), mbMask(FALSE), mWidth(0), mHeight(0), mBpc(0),
-			mpColorSpace(NULL), mpFilter(NULL), mpDecode(NULL), mpDecodeParam(NULL), CHE_Object( pAllocator ) {}
+		:	CHE_Object( pAllocator ), mpContentResMgr(pResMgr), mpFontMgr(pFontMgr), mpConstructor(pConstructor), 
+			mpPath(NULL), mCurX(0), mCurY(0), mString(pAllocator), mName(pAllocator), mParamFalg(0),
+			mbInlineImage(FALSE), mbInterpolate(FALSE), mbMask(FALSE), mWidth(0), mHeight(0), mBpc(0) {}
 
 	~CHE_PDF_ContentsParser()
 	{
-		if ( mpObj )
-		{
-			mpObj->Release();
-		}
 		mOpdFloatStack.clear();
 		if ( mpPath )
 		{ 
@@ -81,9 +76,9 @@ public:
 		}
 	}
 
-	HE_BOOL Parse( CHE_PDF_Stream * pContentStream );
+	HE_BOOL Parse( const CHE_PDF_StreamPtr & pContentStream );
 
-	HE_BOOL Parse( CHE_PDF_Array * pContentArray );
+	HE_BOOL Parse( const CHE_PDF_ArrayPtr & pContentArray );
 
 private:
 	HE_VOID ParseImp( CHE_DynBuffer * pStream );
@@ -167,7 +162,7 @@ private:
 	std::vector<HE_FLOAT>	mOpdFloatStack;
 	CHE_ByteString			mName;
 	CHE_ByteString			mString;
-	CHE_PDF_Object *		mpObj;
+	CHE_PDF_ObjectPtr		mpObj;
 
 	CHE_PDF_Path *			mpPath;
 	HE_FLOAT				mCurX;
@@ -181,10 +176,10 @@ private:
 	HE_DWORD				mWidth;
 	HE_DWORD				mHeight;
 	HE_DWORD				mBpc;
-	CHE_PDF_Object *		mpColorSpace;
-	CHE_PDF_Object *		mpFilter;
-	CHE_PDF_Object *		mpDecode;
-	CHE_PDF_Object *		mpDecodeParam;
+	CHE_PDF_ObjectPtr		mpColorSpace;
+	CHE_PDF_ObjectPtr		mpFilter;
+	CHE_PDF_ObjectPtr		mpDecode;
+	CHE_PDF_ObjectPtr		mpDecodeParam;
 
 	CHE_PDF_FontMgr *		mpFontMgr;
 	CHE_PDF_ContentResMgr * mpContentResMgr;

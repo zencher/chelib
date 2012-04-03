@@ -68,15 +68,11 @@ ContentObjectList::iterator CHE_PDF_ContentObjectList::End()
 	return mList.end();
 }
 
-HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
+HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 {
 	if ( pObj )
 	{
-		if ( mpObj )
-		{
-			mpObj->Release();
-		}
-		mpObj = pObj->Clone();
+		mpObj = pObj;
 
 		//»ñÈ¡×ÖÌå
 		CHE_PDF_Font * pFont = GetGState()->GetTextFont();
@@ -85,15 +81,15 @@ HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 			return FALSE;
 		}
 
-		std::vector<CHE_PDF_Object*> tmpArray; 
+		std::vector<CHE_PDF_ObjectPtr> tmpArray; 
 		if ( pObj->GetType() == OBJ_TYPE_STRING )
 		{
 			tmpArray.push_back( pObj );
 		}
 		else if ( pObj->GetType() == OBJ_TYPE_ARRAY )
 		{
-			CHE_PDF_Array * pArray = pObj->ToArray();
-			CHE_PDF_Object * pObj = NULL;
+			CHE_PDF_ArrayPtr pArray = pObj.GetArrayPtr();
+			CHE_PDF_ObjectPtr pObj;
 			for ( HE_DWORD i = 0; i < pArray->GetCount(); ++i )
 			{
 				pObj = pArray->GetElement( i );
@@ -113,7 +109,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
-					tmpStr = tmpArray[i]->ToString()->GetString();
+					tmpStr = tmpArray[i]->GetString()->GetString();
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); ++index )
 					{
 						charCode = HE_BYTE( tmpStr[index] );
@@ -128,7 +124,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 				}
 				else if ( tmpArray[i]->GetType() == OBJ_TYPE_NUMBER )
 				{
-					kerning = tmpArray[i]->ToNumber()->GetInteger();
+					kerning = tmpArray[i]->GetNumber()->GetInteger();
 				}
 			}
 		}
@@ -138,7 +134,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
-					tmpStr = tmpArray[i]->ToString()->GetString();
+					tmpStr = tmpArray[i]->GetString()->GetString();
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); index+=2 )
 					{
 						charCode = HE_BYTE( tmpStr[index] );
@@ -159,7 +155,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( CHE_PDF_Object * pObj )
 				}
 				else if ( tmpArray[i]->GetType() == OBJ_TYPE_NUMBER )
 				{
-					kerning = tmpArray[i]->ToNumber()->GetInteger();
+					kerning = tmpArray[i]->GetNumber()->GetInteger();
 				}
 			}
 		}

@@ -26,9 +26,9 @@ HE_DWORD StringToDWORD( CHE_ByteString & str )
 	return valRet;
 }
 
-HE_BOOL CHE_PDF_ContentsParser::Parse( CHE_PDF_Stream * pContents )
+HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_StreamPtr & pContents )
 {
-	if ( pContents == NULL || mpConstructor == NULL )
+	if ( ! pContents || mpConstructor == NULL )
 	{
 		return FALSE;
 	}
@@ -44,20 +44,19 @@ HE_BOOL CHE_PDF_ContentsParser::Parse( CHE_PDF_Stream * pContents )
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_ContentsParser::Parse( CHE_PDF_Array * pContentArray )
+HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_ArrayPtr & pContentArray )
 {
-	if ( pContentArray == NULL || mpConstructor == NULL )
+	if ( ! pContentArray || mpConstructor == NULL )
 	{
 		return FALSE;
 	}
 
-	CHE_PDF_Object * pTmpObj = NULL;
-	CHE_PDF_Stream * pStream = NULL;
-	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
+	CHE_PDF_StreamPtr pStream;
+
 	for ( HE_DWORD i = 0; i < pContentArray->GetCount(); ++i ) 
 	{
-		pTmpObj = pContentArray->GetElement( i, OBJ_TYPE_STREAM, objCollector );
-		pStream = pTmpObj->ToStream();
+		pStream = pContentArray->GetElement( i, OBJ_TYPE_STREAM ).GetStreamPtr();
+
 		if ( pStream )
 		{
 			CHE_DynBuffer buf( pStream->GetRawSize() * 2, pStream->GetRawSize(), GetAllocator() );
@@ -93,7 +92,7 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 	}
 
 	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
-	CHE_PDF_Object * pTmpNode = NULL;
+	CHE_PDF_ObjectPtr pTmpNode;
 	HE_FLOAT tmpValue = 0;
 	HE_BOOL	bOpd = TRUE;
 	while( sParser.GetWord( wordDes ) == TRUE )
@@ -175,13 +174,13 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 						switch ( mParamFalg )
 						{
 						case 3:
-							mpDecode = mpObj->Clone();
+							mpDecode = mpObj;
 							break;
 						case 4:
-							mpDecodeParam = mpObj->Clone();
+							mpDecodeParam = mpObj;
 							break;
 						case 5:
-							mpFilter = mpObj->Clone();
+							mpFilter = mpObj;
 							break;
 						default:
 							break;
@@ -255,7 +254,7 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		case A('W'):			Handle_W();			break;
 		case B('W','*'):		Handle_Wstar();		break;
 		case A('b'):			Handle_b();			break;
-		case B('b','*'):		Handle_bstar();		break;
+	 	case B('b','*'):		Handle_bstar();		break;
 		case A('c'):			Handle_c();			break;
 		case B('c','m'):		Handle_cm();		break;
 		case B('c','s'):		Handle_cs();		break;
@@ -289,20 +288,12 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 
 		//清除无用的操作数
 		mOpdFloatStack.clear();
-		if ( mpObj )
-		{
-			mpObj->Release();
-			mpObj = NULL;
-		}
+		mpObj.reset();
 	}
 
 	//清除无用的操作数
 	mOpdFloatStack.clear();
-	if ( mpObj )
-	{
-		mpObj->Release();
-		mpObj = NULL;
-	}
+	mpObj.reset();
 
 	pRead->Release();
 	HE_DestoryIHERead( pRead );
@@ -367,12 +358,12 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Bstar()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BDC()
 {
-	if ( mName.GetLength() > 0 && mpObj && mpObj->ToDict() )
+	if ( mName.GetLength() > 0 && mpObj && IsPdfDictionary( mpObj ) )
 	{
 		CHE_PDF_Mark * pMark = GetAllocator()->New<CHE_PDF_Mark>( GetAllocator() );
 		pMark->SetMarkType( Mark_BDC );
 		pMark->SetTag( mName );
-		pMark->SetProperty( mpObj->ToDict() );
+		pMark->SetProperty( mpObj.GetDictPtr() );
 		mpConstructor->Operator_Append( pMark );
 	}
 }
@@ -422,24 +413,23 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 		{
 			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, GetAllocator() );
 		}else{
-			CHE_PDF_ObjectCollector objCollector( GetAllocator() );
-			CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
+			CHE_PDF_ObjectPtr pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
 			if ( !pTmpObj )
 			{
 				return;
 			}
 			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
-				CHE_PDF_Reference * pRef = pTmpObj->ToReference();
-				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY, objCollector );
+				CHE_PDF_ReferencePtr refPtr = pTmpObj.GetReferencePtr();
+				pTmpObj = refPtr->GetRefObj( OBJ_TYPE_ARRAY ); 
 				if ( !pTmpObj )
 				{
-					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME, objCollector );
+					pTmpObj = refPtr->GetRefObj( OBJ_TYPE_NAME );
 				}
 			}
 			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
 			{
-				CHE_PDF_Name * pName = pTmpObj->ToName();
+				CHE_PDF_Name * pName = pTmpObj->GetName();
 				CHE_ByteString name = pName->GetString();
 				if ( name == "DeviceGray" || name == "G" )
 				{
@@ -456,13 +446,13 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 				}
 			}else if ( pTmpObj->GetType() == OBJ_TYPE_ARRAY )
 			{
-				CHE_PDF_Array * pArray = pTmpObj->ToArray();
-				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME, objCollector );
+				CHE_PDF_Array * pArray = pTmpObj->GetArray();
+				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME );
 				if ( !pTmpObj )
 				{
 					return;
 				}
-				CHE_PDF_Name * pName = pTmpObj->ToName();
+				CHE_PDF_Name * pName = pTmpObj->GetName();
 				CHE_ByteString name = pName->GetString();
 				if ( name == "DeviceGray" || name == "G" )
 				{
@@ -512,12 +502,12 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_DP()
 {
-	if ( mName.GetLength() > 0 && mpObj && mpObj->ToDict() )
+	if ( mName.GetLength() > 0 && mpObj && IsPdfDictionary( mpObj ) )
 	{
 		CHE_PDF_Mark * pMark = GetAllocator()->New<CHE_PDF_Mark>( GetAllocator() );
 		pMark->SetMarkType( Mark_DP );
 		pMark->SetTag( mName );
-		pMark->SetProperty( mpObj->ToDict() );
+		pMark->SetProperty( mpObj.GetDictPtr() );
 		mpConstructor->Operator_Append( pMark );
 	}
 }
@@ -526,34 +516,33 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 {
 	if ( mName.GetLength() > 0 && mpContentResMgr )
 	{
-		CHE_PDF_ObjectCollector objCollector( GetAllocator() );
-		CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_XOBJECT, mName );
+		CHE_PDF_ObjectPtr pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_XOBJECT, mName );
 		if ( !pTmpObj )
 		{
 			return;
 		}
-		CHE_PDF_Reference * pRef = pTmpObj->ToReference();
+		CHE_PDF_ReferencePtr pRef = pTmpObj.GetReferencePtr();
 		if ( !pRef )
 		{
 			return;
 		}
-		pTmpObj = pRef->GetRefObj( OBJ_TYPE_STREAM, objCollector );
+		pTmpObj = pRef->GetRefObj( OBJ_TYPE_STREAM );
 		if ( !pTmpObj )
 		{
 			return;
 		}
-		CHE_PDF_Stream * pStm = pTmpObj->ToStream();
-		CHE_PDF_Dictionary * pStmDict = pStm->GetDict();
+		CHE_PDF_StreamPtr pStm = pTmpObj.GetStreamPtr();
+		CHE_PDF_DictionaryPtr pStmDict = pStm->GetDict();
 		if ( !pStmDict )
 		{
 			return;
 		}
-		pTmpObj = pStmDict->GetElement( "Type", OBJ_TYPE_NAME, objCollector );
+		pTmpObj = pStmDict->GetElement( "Type", OBJ_TYPE_NAME );
 		if ( !pTmpObj )
 		{
 			return;
 		}
-		CHE_PDF_Name * pTypeName = pTmpObj->ToName();
+		CHE_PDF_NamePtr pTypeName = pTmpObj.GetNamePtr();
 		if ( !pTypeName )
 		{
 			return;
@@ -562,33 +551,33 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 		{
 			return;
 		}
-		pTmpObj = pStmDict->GetElement( "Subtype", OBJ_TYPE_NAME, objCollector );
+		pTmpObj = pStmDict->GetElement( "Subtype", OBJ_TYPE_NAME );
 		if ( !pTmpObj )
 		{
 			return;
 		}
-		CHE_PDF_Name * pSubtypeName = pTmpObj->ToName();
+		CHE_PDF_NamePtr pSubtypeName = pTmpObj.GetNamePtr();
 		if ( !pSubtypeName )
 		{
 			return;
 		}
 		if ( pSubtypeName->GetString() == "Image" )
 		{
-			CHE_PDF_Object * pObj = mpContentResMgr->GetResObj( CONTENTRES_XOBJECT, mName );
-			if ( pObj && pObj->GetType() == OBJ_TYPE_REFERENCE )
+			CHE_PDF_ObjectPtr pObj = mpContentResMgr->GetResObj( CONTENTRES_XOBJECT, mName );
+			if ( pObj && IsPdfReference( pObj ) )
 			{
-				CHE_PDF_RefImage * pImage = GetAllocator()->New<CHE_PDF_RefImage>( mName, pObj->ToReference()->Clone(), GetAllocator() );
+				CHE_PDF_RefImage * pImage = GetAllocator()->New<CHE_PDF_RefImage>( mName, pObj.GetReferencePtr(), GetAllocator() );
 				mpConstructor->Operator_Append( pImage );
 			}
 		}else if ( pSubtypeName->GetString() == "Form" )
 		{
 			CHE_PDF_Form * pForm = GetAllocator()->New<CHE_PDF_Form>( mName, GetAllocator() );
-			CHE_PDF_Object * pTmpObj = NULL;
-			CHE_PDF_Dictionary * pResDict = NULL;
-			pTmpObj = pStmDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY, objCollector );
+			CHE_PDF_ObjectPtr pTmpObj;
+			CHE_PDF_DictionaryPtr pResDict;
+			pTmpObj = pStmDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
 			if ( pTmpObj )
 			{
-				pResDict = pTmpObj->ToDict();
+				pResDict = pTmpObj.GetDictPtr();
 			}
 			//todo : get the matrix from form dict
 			CHE_PDF_Matrix extMatrix = mpConstructor->GetExtMatrix();
@@ -613,26 +602,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_EI()
 	mWidth = 0;
 	mHeight = 0;
 	mBpc = 0;
-	if ( mpColorSpace )
-	{
-		mpColorSpace->Release();
-		mpColorSpace = NULL;
-	}
-	if ( mpFilter )
-	{
-		mpFilter->Release();
-		mpFilter = NULL;
-	}
-	if ( mpDecode )
-	{
-		mpDecode->Release();
-		mpDecode = NULL;
-	}
-	if ( mpDecodeParam )
-	{
-		mpDecodeParam->Release();
-		mpDecodeParam = NULL;
-	}
+
+	mpColorSpace.reset();
+	mpFilter.reset();
+	mpDecode.reset();
+	mpDecodeParam.reset();
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_EMC()
@@ -717,21 +691,18 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 	}
 
 
-	CHE_PDF_Dictionary * pDict = CHE_PDF_Dictionary::Create( GetAllocator() );
+	CHE_PDF_DictionaryPtr pDict = CHE_PDF_Dictionary::Create( GetAllocator() );
 	if ( mpFilter )
 	{
 		pDict->SetAtObj( "Filter", mpFilter );
-		mpFilter = NULL;
 	}
 	if ( mpDecode )
 	{
 		pDict->SetAtObj( "Decode", mpDecode );
-		mpDecode = NULL;
 	}
 	if ( mpDecodeParam )
 	{
 		pDict->SetAtObj( "DecodeParam", mpDecodeParam );
-		mpDecodeParam = NULL;
 	}
 	pDict->SetAtInteger( "Length", buffer.size() );
 
@@ -740,24 +711,22 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 	{
 		if ( mpColorSpace->GetType() == OBJ_TYPE_NAME )
 		{
-			CHE_ByteString str = mpColorSpace->ToName()->GetString();
-			mpColorSpace->Release();	//only need the name, release the obj
-			mpColorSpace = NULL;
+			CHE_ByteString str = mpColorSpace->GetName()->GetString();
 			pColorspace = GetColorSpace( str, GetAllocator() );
 			if ( pColorspace == NULL )
 			{
-				CHE_PDF_Object * pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, str );
-				if ( pObj == NULL )
+				CHE_PDF_ObjectPtr pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, str );
+				if ( ! pObj )
 				{
 					/*assert(0);*/
 					/*error*/
 				}
 				if ( pObj->GetType() == OBJ_TYPE_NAME )
 				{
-					pColorspace = GetColorSpace( pObj->ToName(), GetAllocator() );
+					pColorspace = GetColorSpace( pObj.GetNamePtr(), GetAllocator() );
 				}else if ( pObj->GetType() == OBJ_TYPE_ARRAY )
 				{
-					pColorspace = GetColorSpace( pObj->ToArray(), GetAllocator() );
+					pColorspace = GetColorSpace( pObj.GetArrayPtr(), GetAllocator() );
 				}else{
 					/*assert(0);*/
 					/*error*/
@@ -765,14 +734,13 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 			}
 		}else if ( mpColorSpace->GetType() == OBJ_TYPE_ARRAY )
 		{
-			pColorspace = GetColorSpace( mpColorSpace->ToArray(), GetAllocator() );
-			mpColorSpace = NULL;
+			pColorspace = GetColorSpace( mpColorSpace.GetArrayPtr(), GetAllocator() );
 		}
 		/*assert( 0 );*/
 		/*error*/
 	}
 
-	CHE_PDF_Stream * pStream = CHE_PDF_Stream::Create( &buffer[0], buffer.size(), pDict, 0, 0, NULL, GetAllocator() );
+	CHE_PDF_StreamPtr pStream = CHE_PDF_Stream::Create( &buffer[0], buffer.size(), pDict, 0, 0, NULL, GetAllocator() );
 	if ( pStream )
 	{
 		CHE_PDF_StreamAcc stmAcc( GetAllocator() );
@@ -784,7 +752,6 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 			mpConstructor->Operator_Append( pImage );
 		}
 		stmAcc.Detach();
-		pStream->Release();
 	}
 }
 
@@ -952,12 +919,12 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tf()
 	if ( CheckOpdCount( 1 ) && mName.GetLength() > 0 )
 	{
 		//todo load font
-		CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_FONT, mName );
+		CHE_PDF_ObjectPtr pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_FONT, mName );
 		if ( pTmpObj )
 		{
 			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
-				CHE_PDF_Font * pFont = mpFontMgr->LoadFont( pTmpObj->ToReference() );
+				CHE_PDF_Font * pFont = mpFontMgr->LoadFont( pTmpObj.GetReferencePtr() );
 				if ( pFont )
 				{
 					mpConstructor->State_TextFont( mName, pFont );
@@ -1150,7 +1117,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 {
 	if ( mName.GetLength() > 0 )
 	{
-		CHE_PDF_ObjectCollector objCollector( GetAllocator() );
+		////CHE_PDF_ObjectCollector objCollector( GetAllocator() );
 		CHE_PDF_ColorSpace * pColorSpace = NULL;
 		if ( mName == "DeviceGray" )
 		{
@@ -1165,23 +1132,23 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 		{
 			pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, GetAllocator() );
 		}else{
-			CHE_PDF_Object * pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
+			CHE_PDF_ObjectPtr pTmpObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, mName );
 			if ( !pTmpObj )
 			{
 				return;
 			}
 			if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
 			{
-				CHE_PDF_Reference * pRef = pTmpObj->ToReference();
-				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY, objCollector );
+				CHE_PDF_Reference * pRef = pTmpObj->GetReference();
+				pTmpObj = pRef->GetRefObj( OBJ_TYPE_ARRAY/*, objCollector*/ );
 				if ( !pTmpObj )
 				{
-					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME, objCollector );
+					pTmpObj = pRef->GetRefObj( OBJ_TYPE_NAME/*, objCollector*/ );
 				}
 			}
 			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
 			{
-				CHE_PDF_Name * pName = pTmpObj->ToName();
+				CHE_PDF_Name * pName = pTmpObj->GetName();
 				CHE_ByteString name = pName->GetString();
 				if ( name == "DeviceGray" || name == "G" )
 				{
@@ -1198,13 +1165,13 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 				}
 			}else if ( pTmpObj->GetType() == OBJ_TYPE_ARRAY )
 			{
-				CHE_PDF_Array * pArray = pTmpObj->ToArray();
-				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME, objCollector );
+				CHE_PDF_Array * pArray = pTmpObj->GetArray();
+				pTmpObj = pArray->GetElement( 0, OBJ_TYPE_NAME/*, objCollector*/ );
 				if ( !pTmpObj )
 				{
 					return;
 				}
-				CHE_PDF_Name * pName = pTmpObj->ToName();
+				CHE_PDF_Name * pName = pTmpObj->GetName();
 				CHE_ByteString name = pName->GetString();
 				if ( name == "DeviceGray" || name == "G" )
 				{

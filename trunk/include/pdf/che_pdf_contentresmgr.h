@@ -18,39 +18,33 @@ class CHE_PDF_ContentResMgr : public CHE_Object
 {
 public:
 	CHE_PDF_ContentResMgr( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mpResDict( CHE_PDF_Dictionary::Create(pAllocator) ) {}
-	CHE_PDF_ContentResMgr( CHE_PDF_Dictionary * pResDict, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mpResDict( pResDict ? pResDict->Clone() : CHE_PDF_Dictionary::Create(pAllocator) ) {}
+		: CHE_Object(pAllocator), mpResDict( CHE_PDF_Dictionary::Create(  pAllocator) ) {}
+	
+	CHE_PDF_ContentResMgr( const CHE_PDF_DictionaryPtr & pResDict, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object(pAllocator), mpResDict( pResDict ) {}
 
-	~CHE_PDF_ContentResMgr()
-	{
-		if ( mpResDict )
-		{
-			mpResDict->Release();
-		}
-	}
+	HE_VOID SetDict( const CHE_PDF_DictionaryPtr & pDict ) { mpResDict = pDict; }
 
-	HE_VOID SetDict( CHE_PDF_Dictionary * pDict ) { pDict ? ( mpResDict = pDict->Clone() ) : ( mpResDict = CHE_PDF_Dictionary::Create(GetAllocator()) ); }
-	CHE_PDF_Dictionary * GetDict() { return mpResDict; }
+	CHE_PDF_DictionaryPtr GetDict() { return mpResDict; }
 
-	CHE_ByteString CreateName( PDF_CONTENTRES_TYPE type, CHE_PDF_Object * pObj );
+	CHE_ByteString CreateName( PDF_CONTENTRES_TYPE type, const CHE_PDF_ObjectPtr & pObj );
 
-	CHE_ByteString CreateName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name, CHE_Object * pObj );
+	CHE_ByteString CreateName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name, const CHE_PDF_ObjectPtr & pObj );
 
 	HE_BOOL	DeleteName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
 
-	CHE_PDF_Object * GetResObj( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
+	CHE_PDF_ObjectPtr GetResObj( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
 
-	CHE_PDF_Object * GetResObj( const CHE_ByteString & name );
+	CHE_PDF_ObjectPtr GetResObj( const CHE_ByteString & name );
 
 private:
-	CHE_PDF_Dictionary * GetSubDict( PDF_CONTENTRES_TYPE type );
+	CHE_PDF_DictionaryPtr GetSubDict( PDF_CONTENTRES_TYPE type );
 
-	CHE_PDF_Dictionary * CreateSubDict( PDF_CONTENTRES_TYPE type );
+	CHE_PDF_DictionaryPtr CreateSubDict( PDF_CONTENTRES_TYPE type );
 
-	CHE_ByteString RequestName( CHE_PDF_Dictionary * pSubDict, const CHE_ByteString & name );
+	CHE_ByteString RequestName( const CHE_PDF_DictionaryPtr & pSubDict, const CHE_ByteString & name );
 
-	CHE_PDF_Dictionary * mpResDict;
+	CHE_PDF_DictionaryPtr mpResDict;
 };
 
 #endif

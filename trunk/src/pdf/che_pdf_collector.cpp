@@ -33,6 +33,6 @@ CHE_PDF_CollectorNode & CHE_PDF_CollectorNode::operator = ( const CHE_PDF_Collec
 {
 	m_RefInfo.objNum = node.m_RefInfo.objNum;
 	m_RefInfo.genNum = node.m_RefInfo.genNum;
-	m_InObj = node.m_InObj;
+	mObjPtr = node.mObjPtr;
 	return *this;
 }

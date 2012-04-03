@@ -16,7 +16,7 @@ HE_VOID HE_DestroyFTLibrary();
 class CHE_PDF_Font : public CHE_Object
 {
 public:
-	CHE_PDF_Font( CHE_PDF_Dictionary * pFontDict, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_Font();
 
 	PDF_FONT_TYPE			GetType() { return m_FontType; }
@@ -30,12 +30,12 @@ public:
 	HE_INT32				GetCID( HE_INT32 code );
 
 private:
-	CHE_NumToPtrMap	*		GetToUnicodeMap( CHE_PDF_Stream * pToUnicodeStream );
+	CHE_NumToPtrMap	*		GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream );
 
 	PDF_FONT_TYPE			m_FontType;
 	PDF_FONT_ENCODING		m_EncodingType;
 
-	CHE_PDF_Dictionary *	m_pFontDict;
+	CHE_PDF_DictionaryPtr	m_pFontDict;
 	CHE_PDF_CMap *			m_pCIDMap;
 	CHE_PDF_CMap *			m_pUnicodeMap;
 

@@ -73,8 +73,8 @@ public:
 	CHE_SkipList< ObjectCloneMgrData > mDataList;
 };
 
-CHE_PDF_Dictionary*		CloneDirectDictObj( CHE_PDF_Dictionary * pDict, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
-CHE_PDF_Array*			CloneDirectArrayObj( CHE_PDF_Array * pArray, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
-HE_PDF_RefInfo			CloneIndirectObject( CHE_PDF_Reference * pRefObj, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
+CHE_PDF_DictionaryPtr	CloneDirectDictObj( const CHE_PDF_DictionaryPtr & pDict, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
+CHE_PDF_ArrayPtr		CloneDirectArrayObj( const CHE_PDF_ArrayPtr & pArray, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
+HE_PDF_RefInfo			CloneIndirectObject( const CHE_PDF_ReferencePtr & pRefObj, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
 
 #endif

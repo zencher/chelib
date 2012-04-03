@@ -112,16 +112,15 @@ HE_BOOL CHE_PDF_ExtGState::PushExtStateName( const CHE_ByteString & name, CHE_PD
 		}
 	}
 	mExtDictNameList.push_front( name );
-	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
-	CHE_PDF_Object * pTmpObj = pDict->GetElement( "CA", OBJ_TYPE_NUMBER, objCollector );
+	CHE_PDF_ObjectPtr pTmpObj = pDict->GetElement( "CA", OBJ_TYPE_NUMBER );
 	if ( pTmpObj )
 	{
-		mStrokeAlpha = pTmpObj->ToNumber()->GetFloat();
+		mStrokeAlpha = pTmpObj->GetNumber()->GetFloat();
 	}
-	pTmpObj = pDict->GetElement( "ca", OBJ_TYPE_NUMBER, objCollector );
+	pTmpObj = pDict->GetElement( "ca", OBJ_TYPE_NUMBER );
 	if ( pTmpObj )
 	{
-		mFillAlpha = pTmpObj->ToNumber()->GetFloat();
+		mFillAlpha = pTmpObj->GetNumber()->GetFloat();
 	}
 	return TRUE;
 }

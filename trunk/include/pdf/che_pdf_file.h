@@ -8,40 +8,58 @@
 class CHE_PDF_File : public CHE_Object
 {
 public:
+
 	CHE_PDF_File( CHE_Allocator * pAllocator = NULL );
+
 	~CHE_PDF_File();
 
 	HE_BOOL					Open( IHE_Read * pRead );
+
 	HE_VOID					Close();
+
 	HE_BOOL					Save( IHE_Write * pWrite );
+
 	HE_BOOL					SaveCompact( IHE_Write * pWrite );
+
 	HE_BOOL					SaveUpdate( IHE_Write * pWrite );
 
 	HE_DWORD				GetFileSize() const;
+
 	PDF_VERSION				GetPDFVersion() const;
-	CHE_PDF_Dictionary *	GetTrailerDict() const;
-	CHE_PDF_Dictionary *	GetRootDict();
-	CHE_PDF_Dictionary *	GetInfoDict();
-	CHE_PDF_Array *			GetIDArray();
+
+	CHE_PDF_DictionaryPtr	GetTrailerDict() const;
+
+	CHE_PDF_DictionaryPtr	GetRootDict();
+
+	CHE_PDF_DictionaryPtr	GetInfoDict();
+
+	CHE_PDF_ArrayPtr		GetIDArray();
+
+	HE_VOID					CreateTrailerDict();
+
+	HE_VOID					CreateCatalogDict();
 
 	HE_BOOL					Authenticate( const CHE_ByteString & password ) const;
 
-	CHE_PDF_Object *		GetObject( const HE_PDF_RefInfo & refInfo );
+	CHE_PDF_ObjectPtr		GetObject( const HE_PDF_RefInfo & refInfo );
 
-	HE_BOOL					ChangeObject( const HE_PDF_RefInfo & refInfo, CHE_PDF_Object * pObj );
+	HE_PDF_RefInfo			CreateNullObject( CHE_PDF_NullPtr & ptrRet );
+	
+	HE_PDF_RefInfo			CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet );
 
-	CHE_PDF_IndirectObject*	CreateInObj_Null();
-	CHE_PDF_IndirectObject*	CreateInObj_Boolean( HE_BOOL value );
-	CHE_PDF_IndirectObject*	CreateInObj_Number( HE_INT32 value );
-	CHE_PDF_IndirectObject*	CreateInObj_Number( HE_FLOAT value );
-	CHE_PDF_IndirectObject*	CreateInObj_String( const CHE_ByteString & str );
-	CHE_PDF_IndirectObject*	CreateInObj_Name( const CHE_ByteString & str );
-	CHE_PDF_IndirectObject*	CreateInObj_Array();
-	CHE_PDF_IndirectObject*	CreateInObj_Dict();
-	CHE_PDF_IndirectObject*	CreateInObj_Stream();
+	HE_PDF_RefInfo			CreateNumberObject( CHE_PDF_NumberPtr & ptrRet );
+
+	HE_PDF_RefInfo			CreateStringObject( CHE_PDF_StringPtr & ptrRet );
+
+	HE_PDF_RefInfo			CreateNameObject( CHE_PDF_NamePtr & ptrRet );
+
+	HE_PDF_RefInfo			CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet );
+
+	HE_PDF_RefInfo			CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet );
+
+	HE_PDF_RefInfo			CreateStreamObject( CHE_PDF_StreamPtr & ptrRet );
 
 private:
-	CHE_PDF_IndirectObject * GetInObject( const HE_PDF_RefInfo & refInfo );
 
 	PDF_VERSION				mVersion;
 

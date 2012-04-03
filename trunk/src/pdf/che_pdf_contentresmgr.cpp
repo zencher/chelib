@@ -1,8 +1,8 @@
 #include "../../include/pdf/che_pdf_contentresmgr.h"
 
-CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, CHE_PDF_Object * pObj )
+CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, const CHE_PDF_ObjectPtr & pObj )
 {
-	CHE_PDF_Dictionary * pSubDict = NULL;
+	CHE_PDF_DictionaryPtr pSubDict;
 	pSubDict = GetSubDict( type );
 	if ( !pSubDict )
 	{
@@ -51,23 +51,19 @@ CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, CHE_
 	return nameRet;
 }
 
-// CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name, CHE_Object * pObj );
-// 
-// HE_BOOL	CHE_PDF_ContentResMgr::DeleteName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
-
-CHE_PDF_Object * CHE_PDF_ContentResMgr::GetResObj( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name )
+CHE_PDF_ObjectPtr CHE_PDF_ContentResMgr::GetResObj( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name )
 {
-	CHE_PDF_Dictionary * pSubDict = GetSubDict( type );
+	CHE_PDF_DictionaryPtr pSubDict = GetSubDict( type );
 	if ( pSubDict )
 	{
 		return pSubDict->GetElement( name );
 	}
-	return NULL;
+	return CHE_PDF_ObjectPtr();
 }
 
-CHE_PDF_Object * CHE_PDF_ContentResMgr::GetResObj( const CHE_ByteString & name )
+CHE_PDF_ObjectPtr CHE_PDF_ContentResMgr::GetResObj( const CHE_ByteString & name )
 {
-	CHE_PDF_Object * pRet = GetResObj( CONTENTRES_EXTGSTATE, name );
+	CHE_PDF_ObjectPtr pRet = GetResObj( CONTENTRES_EXTGSTATE, name );
 	if ( pRet )
 	{
 		return pRet;	
@@ -100,44 +96,43 @@ CHE_PDF_Object * CHE_PDF_ContentResMgr::GetResObj( const CHE_ByteString & name )
 	return pRet;
 }
 
-CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::GetSubDict( PDF_CONTENTRES_TYPE type )
+CHE_PDF_DictionaryPtr CHE_PDF_ContentResMgr::GetSubDict( PDF_CONTENTRES_TYPE type )
 {
 	if ( !mpResDict )
 	{
-		return NULL;
+		return CHE_PDF_DictionaryPtr();
 	}
-	CHE_PDF_Object * pTmp = NULL;
-	CHE_PDF_ObjectCollector objCollector( GetAllocator() );
+	CHE_PDF_ObjectPtr pTmp;
 	switch ( type )
 	{
 	case CONTENTRES_EXTGSTATE:
 		{
-			pTmp = mpResDict->GetElement( "ExtGState", OBJ_TYPE_DICTIONARY, objCollector );
+			pTmp = mpResDict->GetElement( "ExtGState", OBJ_TYPE_DICTIONARY );
 			break;
 		}
 	case CONTENTRES_COLORSPACE:
 		{
-			pTmp = mpResDict->GetElement( "ColorSpace", OBJ_TYPE_DICTIONARY, objCollector );
+			pTmp = mpResDict->GetElement( "ColorSpace", OBJ_TYPE_DICTIONARY );
 			break;
 		}
 	case CONTENTRES_PATTERN:
 		{
-			pTmp = mpResDict->GetElement( "Pattern", OBJ_TYPE_DICTIONARY, objCollector );
+			pTmp = mpResDict->GetElement( "Pattern", OBJ_TYPE_DICTIONARY );
 			break;
 		}
 	case CONTENTRES_SHADING:
 		{
-			pTmp = mpResDict->GetElement( "Shading", OBJ_TYPE_DICTIONARY, objCollector );
+			pTmp = mpResDict->GetElement( "Shading", OBJ_TYPE_DICTIONARY );
 			break;
 		}
 	case CONTENTRES_XOBJECT:
 		{
-			pTmp = mpResDict->GetElement( "XObject", OBJ_TYPE_DICTIONARY, objCollector );
+			pTmp = mpResDict->GetElement( "XObject", OBJ_TYPE_DICTIONARY );
 			break;
 		}
 	case CONTENTRES_FONT:
 		{
-			pTmp = mpResDict->GetElement( "Font", OBJ_TYPE_DICTIONARY, objCollector );
+			pTmp = mpResDict->GetElement( "Font", OBJ_TYPE_DICTIONARY );
 			break;
 		}
 	default:
@@ -145,16 +140,16 @@ CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::GetSubDict( PDF_CONTENTRES_TYPE type
 	}
 	if ( pTmp )
 	{
-		return pTmp->ToDict();
+		return pTmp.GetDictPtr();
 	}else{
 		return CreateSubDict( type );
 	}
 }
 
 
-CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::CreateSubDict( PDF_CONTENTRES_TYPE type )
+CHE_PDF_DictionaryPtr CHE_PDF_ContentResMgr::CreateSubDict( PDF_CONTENTRES_TYPE type )
 {
-	CHE_PDF_Dictionary * pTmpDict = CHE_PDF_Dictionary::Create( mpResDict->GetAllocator() );
+	CHE_PDF_DictionaryPtr pTmpDict = CHE_PDF_Dictionary::Create( mpResDict->GetAllocator() );
 	switch ( type )
 	{
 	case CONTENTRES_EXTGSTATE:
@@ -193,13 +188,13 @@ CHE_PDF_Dictionary * CHE_PDF_ContentResMgr::CreateSubDict( PDF_CONTENTRES_TYPE t
 	return pTmpDict;
 }
 
-CHE_ByteString CHE_PDF_ContentResMgr::RequestName( CHE_PDF_Dictionary * pSubDict, const CHE_ByteString & name )
+CHE_ByteString CHE_PDF_ContentResMgr::RequestName( const CHE_PDF_DictionaryPtr & pSubDict, const CHE_ByteString & name )
 {
 	if ( !pSubDict )
 	{
 		return "";
 	}
-	CHE_PDF_Object * pTmpObj = pSubDict->GetElement( name );
+	CHE_PDF_ObjectPtr pTmpObj = pSubDict->GetElement( name );
 	if ( !pTmpObj )
 	{
 		return name;

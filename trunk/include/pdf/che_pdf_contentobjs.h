@@ -56,7 +56,7 @@ typedef std::list<CHE_PDF_ContentObject*> ContentObjectList;
 class CHE_PDF_ContentObjectList : public CHE_Object
 {
 public:
-	CHE_PDF_ContentObjectList( CHE_PDF_Dictionary * pResDict = NULL, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_ContentObjectList( const CHE_PDF_DictionaryPtr & pResDict = CHE_PDF_DictionaryPtr(), CHE_Allocator * pAllocator = NULL )
 		: CHE_Object( pAllocator ), mResMgr(pResDict, pAllocator) {}
 
 	~CHE_PDF_ContentObjectList();
@@ -106,21 +106,15 @@ public:
 class CHE_PDF_Text : public CHE_PDF_ContentObject
 {									 
 public:
-	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject(pAllocator), mpObj(NULL) {}
+	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject(pAllocator) {}
 
-	~CHE_PDF_Text()
-	{
-		if ( mpObj )
-		{
-			mpObj->Release();
-		}
-	}
+	~CHE_PDF_Text(){}
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Text; }
 
-	HE_BOOL SetTextObject( CHE_PDF_Object * pObj );
+	HE_BOOL SetTextObject( const CHE_PDF_ObjectPtr & pObj );
 
-	CHE_PDF_Object * GetText() const { return mpObj; }
+	CHE_PDF_ObjectPtr GetText() const { return mpObj; }
 
 	CHE_PDF_ContentObject * Clone() const
 	{
@@ -136,7 +130,7 @@ public:
 	std::vector<CHE_PDF_TextItem> mItems;
 
 private:
-	CHE_PDF_Object * mpObj;
+	CHE_PDF_ObjectPtr mpObj;
 };
 
 enum PDF_PATHITEM_TYPE
@@ -221,15 +215,9 @@ enum PDF_MARK_TYPE
 class CHE_PDF_Mark : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_Mark( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject(pAllocator), mMarkType(Mark_MP), mpDictionary(NULL) {}
+	CHE_PDF_Mark( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject(pAllocator), mMarkType(Mark_MP) {}
 
-	~CHE_PDF_Mark()
-	{
-		if ( mpDictionary )
-		{
-			mpDictionary->Release();
-		}
-	}
+	~CHE_PDF_Mark() {}
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Mark; }
 
@@ -241,19 +229,12 @@ public:
 
 	CHE_ByteString GetTag() const { return mTag; }
 
-	HE_VOID SetProperty( CHE_PDF_Dictionary * pDict )
+	HE_VOID SetProperty( const CHE_PDF_DictionaryPtr & pDict )
 	{
-		if ( pDict )
-		{
-			if ( mpDictionary )
-			{
-				mpDictionary->Release();
-			}
-			mpDictionary = pDict->Clone();
-		}
+		mpDictionary = pDict;
 	}
 
-	CHE_PDF_Dictionary * GetProperty() const { return mpDictionary; }
+	CHE_PDF_DictionaryPtr GetProperty() const { return mpDictionary; }
 
 	CHE_PDF_ContentObject * Clone() const
 	{
@@ -269,35 +250,29 @@ public:
 private:
 	PDF_MARK_TYPE mMarkType;
 	CHE_ByteString mTag;
-	CHE_PDF_Dictionary * mpDictionary;
+	CHE_PDF_DictionaryPtr mpDictionary;
 };
 
 
 class CHE_PDF_RefImage : public CHE_PDF_NamedContentObject
 {
 public:
-	CHE_PDF_RefImage( const CHE_ByteString & name, CHE_PDF_Reference * pRef, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL )
 		: CHE_PDF_NamedContentObject( name, pAllocator ), mpRef(pRef) {}
 
-	~CHE_PDF_RefImage()
-	{
-		if ( mpRef )
-		{
-			mpRef->Release();
-		}
-	}
+	~CHE_PDF_RefImage() {}
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_RefImage; }
 
 	CHE_PDF_ContentObject * Clone() const
 	{
-		return GetAllocator()->New<CHE_PDF_RefImage>( mName, mpRef ? mpRef->Clone() : NULL, GetAllocator() );
+		return GetAllocator()->New<CHE_PDF_RefImage>( mName, mpRef, GetAllocator() );
 	}
 
-	CHE_PDF_Reference * GetRef() { return mpRef; }
+	CHE_PDF_ReferencePtr GetRef() { return mpRef; }
 
 private:
-	CHE_PDF_Reference * mpRef;
+	CHE_PDF_ReferencePtr mpRef;
 };
 
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject

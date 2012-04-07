@@ -106,7 +106,7 @@
 // 				break;
 // 			case PARSE_WORD_ARRAY_B:
 // 				sParser.SetPos( wordDes.offset );
-// 				pTmpNode = sParser.GetArray();
+// 				pTmpNode = sParser->GetArrayPtr();
 // 				OpdStack.Push( pTmpNode );
 // 				break;
 // 			case PARSE_WORD_DICT_B:
@@ -151,7 +151,7 @@
 // 				OpdStack.Pop( pTmpNode );
 // 				pTmpNode->Release();
 // 				OpdStack.Pop( pTmpNode );
-// 				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
+// 				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetStringPtr() );
 // 				if ( pFontRef == NULL || pFontRef->GetType() != OBJ_TYPE_REFERENCE )
 // 				{
 // 					pCurFont = NULL;
@@ -167,7 +167,7 @@
 // 			{
 // 				OpdStack.Pop( pTmpNode );
 // 				CHE_ByteString str( GetAllocator() );
-// 				str = ((CHE_PDF_String*)pTmpNode)->GetString();
+// 				str = ((CHE_PDF_String*)pTmpNode)->GetStringPtr();
 // 				CHE_WideString wstr( GetAllocator() );
 // 				if ( pCurFont == NULL )
 // 				{
@@ -198,7 +198,7 @@
 // 					{
 // 						continue;
 // 					}
-// 					CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetString();
+// 					CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetStringPtr();
 // 					CHE_WideString wstr( GetAllocator() );
 // 					pCurFont->GetUnicodeString( str, wstr );
 // 					if ( wstr.GetLength() > 0 )
@@ -252,7 +252,7 @@
 // // 	}else if ( pFontDict->GetType() == OBJ_TYPE_REFERENCE )
 // // 	{
 // // 		CHE_PDF_IndirectObject * pInObj = pIHE_InObj->GetInObj( ((CHE_PDF_Reference*)pFontDict)->GetRefNuml() );
-// // 		pFontDict = pInObj->GetDict();
+// // 		pFontDict = pInObj->GetDictPtr();
 // // 		if ( pFontDict == NULL )
 // // 		{
 // // 			return 0;
@@ -310,7 +310,7 @@
 // // 				break;
 // // 			case PARSE_WORD_ARRAY_B:
 // // 				sParser.SetPos( wordDes.offset );
-// // 				pTmpNode = sParser.GetArray();
+// // 				pTmpNode = sParser->GetArrayPtr();
 // // 				OpdStack.Push( pTmpNode );
 // // 				break;
 // // 			case PARSE_WORD_DICT_B:
@@ -355,7 +355,7 @@
 // // 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
 // // 				pTmpNode->Release();
 // // 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
-// // 				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetString() );
+// // 				CHE_PDF_Reference * pFontRef =  (CHE_PDF_Reference *)pFontDict->GetElement( ((CHE_PDF_Name*)pTmpNode)->GetStringPtr() );
 // // 				if ( pFontRef == NULL || pFontRef->GetType() != OBJ_TYPE_REFERENCE )
 // // 				{
 // // 					pCurFontCharCodeMgr = NULL;
@@ -376,7 +376,7 @@
 // // 				wsprintfW( wStr, L" Tj " );
 // // 				buf.Write( wStr, wcslen(wStr) );
 // // 				OpdStack.Pop( (HE_LPVOID*)&pTmpNode );
-// // 				CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetString();
+// // 				CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetStringPtr();
 // // 				if ( pCurFontCharCodeMgr == NULL )
 // // 				{
 // // 					continue;
@@ -473,7 +473,7 @@
 // // 					{
 // // 						continue;
 // // 					}
-// // 					CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetString();
+// // 					CHE_ByteString str = ((CHE_PDF_String*)pTmpNode)->GetStringPtr();
 // // 					if ( pCurFontCharCodeMgr->GetFontType() == PDFFONT_TYPE0 )
 // // 					{
 // // 						if ( pCurFontCharCodeMgr->GetEncodingType() == PDFENCODING_GBK_UCS2 )

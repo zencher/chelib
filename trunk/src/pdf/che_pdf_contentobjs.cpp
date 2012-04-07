@@ -88,7 +88,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		}
 		else if ( pObj->GetType() == OBJ_TYPE_ARRAY )
 		{
-			CHE_PDF_ArrayPtr pArray = pObj.GetArrayPtr();
+			CHE_PDF_ArrayPtr pArray = pObj->GetArrayPtr();
 			CHE_PDF_ObjectPtr pObj;
 			for ( HE_DWORD i = 0; i < pArray->GetCount(); ++i )
 			{
@@ -109,7 +109,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
-					tmpStr = tmpArray[i]->GetString()->GetString();
+					tmpStr = tmpArray[i]->GetStringPtr()->GetStringPtr();
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); ++index )
 					{
 						charCode = HE_BYTE( tmpStr[index] );
@@ -124,7 +124,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 				}
 				else if ( tmpArray[i]->GetType() == OBJ_TYPE_NUMBER )
 				{
-					kerning = tmpArray[i]->GetNumber()->GetInteger();
+					kerning = tmpArray[i]->GetNumberPtr()->GetInteger();
 				}
 			}
 		}
@@ -134,7 +134,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
-					tmpStr = tmpArray[i]->GetString()->GetString();
+					tmpStr = tmpArray[i]->GetStringPtr()->GetStringPtr();
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); index+=2 )
 					{
 						charCode = HE_BYTE( tmpStr[index] );
@@ -155,7 +155,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 				}
 				else if ( tmpArray[i]->GetType() == OBJ_TYPE_NUMBER )
 				{
-					kerning = tmpArray[i]->GetNumber()->GetInteger();
+					kerning = tmpArray[i]->GetNumberPtr()->GetInteger();
 				}
 			}
 		}

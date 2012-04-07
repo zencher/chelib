@@ -144,7 +144,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 		return NULL;
 // 	}
 // 	CHE_PDF_IndirectObject * pInFontDictObj = AppendIndirectObj_Dict();
-// 	CHE_PDF_Dictionary * pFontDict = pInFontDictObj->GetObj()->GetDict();
+// 	CHE_PDF_Dictionary * pFontDict = pInFontDictObj->GetObj()->GetDictPtr();
 // 	if ( pFontDict == NULL )
 // 	{
 // 		return NULL;
@@ -199,7 +199,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 		break;
 // 	}
 // 	CHE_PDF_IndirectObject * pInWidthArrayObj = AppendIndirectObj_Array();
-// 	CHE_PDF_Array * pWidthsArr = pInWidthArrayObj->GetObj()->GetArray();
+// 	CHE_PDF_Array * pWidthsArr = pInWidthArrayObj->GetObj()->GetArrayPtr();
 // 	if ( pWidthsArr )
 // 	{
 // 		for ( HE_DWORD i = 0; i < 256; i++ )
@@ -241,7 +241,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 		return NULL;
 // 	}
 // 	CHE_PDF_IndirectObject * pInFontDictObj = AppendIndirectObj_Dict();
-// 	CHE_PDF_Dictionary * pFontDict = pInFontDictObj->GetObj()->GetDict();
+// 	CHE_PDF_Dictionary * pFontDict = pInFontDictObj->GetObj()->GetDictPtr();
 // 	if ( pFontDict == NULL )
 // 	{
 // 		return NULL;
@@ -403,7 +403,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 				CHE_PDF_Stream * pStm = AddStream();
 // 				pFontDescriptor->SetAtReference( "FontFile2", pStm->GetObjNum() );
 // 				pStm->SetRawData( pByte, pRead->GetSize(), STREAM_FILTER_FLATE );
-// 				pStm->GetDict()->SetAtInteger( "Length1", pRead->GetSize() );
+// 				pStm->GetDictPtr()->SetAtInteger( "Length1", pRead->GetSize() );
 // 				HE_DestoryIHERead( pRead );
 // 				GetAllocator()->DeleteArray<HE_BYTE>( pByte );
 // 			}
@@ -460,7 +460,7 @@ HE_DWORD CHE_PDF_Creator::OutPutObject( const CHE_PDF_ObjectPtr & pObj )
 	return offset;
 }
 
-HE_DWORD CHE_PDF_Creator::OutPutInObject( const HE_PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr )
+HE_DWORD CHE_PDF_Creator::OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr )
 {
 	if ( ! objPtr )
 	{
@@ -575,7 +575,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 		}
 	case OBJ_TYPE_BOOLEAN:
 		{
-			CHE_PDF_BooleanPtr ptr = pObj.GetBooleanPtr();
+			CHE_PDF_BooleanPtr ptr = pObj->GetBooleanPtr();
 			if( ptr->GetValue() != FALSE )
 			{
 				pWrite->WriteBlock( (HE_LPVOID)gpStrBoolObjTrue, glStrBoolObjTrue );
@@ -586,13 +586,13 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 		}
 	case OBJ_TYPE_STRING:
 		{
-			CHE_PDF_StringPtr ptr = pObj.GetStringPtr();
-			HE_LPVOID pData = (HE_LPVOID)( ptr->GetString().GetData() );
-			HE_DWORD length = ptr->GetString().GetLength();
+			CHE_PDF_StringPtr ptr = pObj->GetStringPtr();
+			HE_LPVOID pData = (HE_LPVOID)( ptr->GetStringPtr().GetData() );
+			HE_DWORD length = ptr->GetStringPtr().GetLength();
 			HE_BOOL bHex = FALSE;
 			for ( HE_DWORD i = 0; i < length; i++ )
 			{
-				if ( ptr->GetString()[i] < 0 ) //´ýÍêÉÆ
+				if ( ptr->GetStringPtr()[i] < 0 ) //´ýÍêÉÆ
 				{
 					bHex  = TRUE;
 					break;
@@ -609,7 +609,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 				HE_DWORD tmpVal = 0;
 				for ( HE_DWORD i = 0; i < length; i++ )
 				{
-					tmpVal = ptr->GetString()[i];
+					tmpVal = ptr->GetStringPtr()[i];
 					sprintf( tmpByte, "%08X", tmpVal );
 					pWrite->WriteBlock( (HE_LPVOID)(tmpByte+6), 2 );
 				}
@@ -619,9 +619,9 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 		}
 	case OBJ_TYPE_NAME:
 		{
-			CHE_PDF_NamePtr ptr = pObj.GetNamePtr();
-			HE_BYTE * pData = (HE_BYTE*)( ptr->GetString().GetData() );
-			HE_DWORD length = ptr->GetString().GetLength();
+			CHE_PDF_NamePtr ptr = pObj->GetNamePtr();
+			HE_BYTE * pData = (HE_BYTE*)( ptr->GetStringPtr().GetData() );
+			HE_DWORD length = ptr->GetStringPtr().GetLength();
 			pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
 			char tmpStr[16];
 			for ( HE_DWORD i = 0; i < length; ++i )
@@ -638,7 +638,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 		}
 	case OBJ_TYPE_NUMBER:
 		{
-			CHE_PDF_NumberPtr ptr = pObj.GetNumberPtr();
+			CHE_PDF_NumberPtr ptr = pObj->GetNumberPtr();
 			if ( ptr->IsInteger() == TRUE )
 			{
 				sprintf( tempStr, "%d", ptr->GetInteger() );
@@ -656,14 +656,14 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 		}
 	case OBJ_TYPE_REFERENCE:
 		{
-			CHE_PDF_ReferencePtr ptr = pObj.GetReferencePtr();
+			CHE_PDF_ReferencePtr ptr = pObj->GetRefPtr();
 			sprintf( tempStr, "%d 0 R", ptr->GetRefNum() );
 			pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			break;
 		}
 	case OBJ_TYPE_ARRAY:
 		{
-			CHE_PDF_ArrayPtr ptr = pObj.GetArrayPtr();
+			CHE_PDF_ArrayPtr ptr = pObj->GetArrayPtr();
 			CHE_PDF_ObjectPtr pElement;
 			pWrite->WriteBlock( (HE_LPVOID)gpStrArrayObjLeft, 1 );
 			for ( HE_DWORD i = 0; i < ptr->GetCount(); i++ )
@@ -680,7 +680,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 		}
 	case OBJ_TYPE_DICTIONARY:
 		{
-			CHE_PDF_DictionaryPtr ptr = pObj.GetDictPtr();
+			CHE_PDF_DictionaryPtr ptr = pObj->GetDictPtr();
 			CHE_PDF_ObjectPtr pElement;
 			pWrite->WriteBlock( (HE_LPVOID)gpStrDictObjLeft, 2 );
 
@@ -709,10 +709,10 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 		}
 	case OBJ_TYPE_STREAM:
 		{
-			CHE_PDF_StreamPtr ptr = pObj.GetStreamPtr();
-			if( ptr->GetDict() )
+			CHE_PDF_StreamPtr ptr = pObj->GetStreamPtr();
+			if( ptr->GetDictPtr() )
 			{
-				OutPutObject( pWrite, ptr->GetDict(), pEncrypt );
+				OutPutObject( pWrite, ptr->GetDictPtr(), pEncrypt );
 				pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
 			}
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjBegin, glStrStreamObjBegin );

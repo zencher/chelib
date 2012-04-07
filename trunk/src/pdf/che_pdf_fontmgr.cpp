@@ -32,7 +32,7 @@ CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( const CHE_PDF_ReferencePtr & pReferenc
 		{
 			return NULL;
 		}
-		CHE_PDF_DictionaryPtr pDict = pTmpObj.GetDictPtr();
+		CHE_PDF_DictionaryPtr pDict = pTmpObj->GetDictPtr();
 		if ( pDict )
 		{
 			CHE_PDF_Font * pTmpFont = GetAllocator()->New<CHE_PDF_Font>( pDict, GetAllocator() );

@@ -41,23 +41,23 @@ public:
 
 	HE_BOOL					Authenticate( const CHE_ByteString & password ) const;
 
-	CHE_PDF_ObjectPtr		GetObject( const HE_PDF_RefInfo & refInfo );
+	CHE_PDF_ObjectPtr		GetObject( const PDF_RefInfo & refInfo );
 
-	HE_PDF_RefInfo			CreateNullObject( CHE_PDF_NullPtr & ptrRet );
+	PDF_RefInfo			CreateNullObject( CHE_PDF_NullPtr & ptrRet );
 	
-	HE_PDF_RefInfo			CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet );
+	PDF_RefInfo			CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet );
 
-	HE_PDF_RefInfo			CreateNumberObject( CHE_PDF_NumberPtr & ptrRet );
+	PDF_RefInfo			CreateNumberObject( CHE_PDF_NumberPtr & ptrRet );
 
-	HE_PDF_RefInfo			CreateStringObject( CHE_PDF_StringPtr & ptrRet );
+	PDF_RefInfo			CreateStringObject( CHE_PDF_StringPtr & ptrRet );
 
-	HE_PDF_RefInfo			CreateNameObject( CHE_PDF_NamePtr & ptrRet );
+	PDF_RefInfo			CreateNameObject( CHE_PDF_NamePtr & ptrRet );
 
-	HE_PDF_RefInfo			CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet );
+	PDF_RefInfo			CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet );
 
-	HE_PDF_RefInfo			CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet );
+	PDF_RefInfo			CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet );
 
-	HE_PDF_RefInfo			CreateStreamObject( CHE_PDF_StreamPtr & ptrRet );
+	PDF_RefInfo			CreateStreamObject( CHE_PDF_StreamPtr & ptrRet );
 
 private:
 

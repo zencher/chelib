@@ -9,11 +9,11 @@ class CHE_PDF_CollectorNode
 {
 public:
 	CHE_PDF_CollectorNode() { m_RefInfo.objNum = 0; m_RefInfo.genNum = 0; }
-	CHE_PDF_CollectorNode( HE_PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & ObjPtr )
+	CHE_PDF_CollectorNode( PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & ObjPtr )
 		: mObjPtr( ObjPtr ) { m_RefInfo.objNum = refInfo.objNum; m_RefInfo.genNum = refInfo.genNum; }
 	CHE_PDF_CollectorNode & operator = ( const CHE_PDF_CollectorNode & node );
 
-	HE_PDF_RefInfo m_RefInfo;
+	PDF_RefInfo m_RefInfo;
 	CHE_PDF_ObjectPtr mObjPtr;
 };
 
@@ -30,13 +30,13 @@ public:
 
 	HE_DWORD GetCount() { return m_QuickReq.GetCount(); }
 
-	HE_BOOL Add( const HE_PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & ObjPtr )
+	HE_BOOL Add( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & ObjPtr )
 	{
 		if ( ! ObjPtr )
 		{
 			return FALSE;
 		}
-// 		HE_PDF_RefInfo refInfo;
+// 		PDF_RefInfo refInfo;
 // 		refInfo.objNum = pInObj->GetObjNum();
 // 		refInfo.genNum = pInObj->GetGenNum();
 		if ( m_QuickReq.Append( CHE_PDF_CollectorNode( refInfo, ObjPtr ) )  )
@@ -47,12 +47,12 @@ public:
 		return FALSE;
 	}
 
-	HE_BOOL IsExist( HE_PDF_RefInfo refInfo )
+	HE_BOOL IsExist( PDF_RefInfo refInfo )
 	{
 		return m_QuickReq.IsExist( CHE_PDF_CollectorNode( refInfo, CHE_PDF_ObjectPtr() ) );
 	}
 
-	CHE_PDF_ObjectPtr GetObj( HE_PDF_RefInfo refInfo )
+	CHE_PDF_ObjectPtr GetObj( PDF_RefInfo refInfo )
 	{
 		CHE_PDF_CollectorNode node( refInfo, CHE_PDF_ObjectPtr() );
 		if ( m_QuickReq.Find( node ) )

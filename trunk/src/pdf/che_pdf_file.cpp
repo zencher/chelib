@@ -57,7 +57,7 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 	HE_DWORD offset = 0;
 	CHE_PDF_XREF_Entry entry;
 	CHE_PDF_XREF_Table xref( GetAllocator() );
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	CHE_PDF_ObjectPtr ObjPtr;
 
 	pCreator->OutPutFileHead( GetPDFVersion() );
@@ -82,12 +82,12 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 			{
 				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
 				{
-					CHE_PDF_DictionaryPtr pDict = ObjPtr.GetStreamPtr()->GetDict();
+					CHE_PDF_DictionaryPtr pDict = ObjPtr->GetStreamPtr()->GetDictPtr();
 					CHE_PDF_NamePtr pName;
-					pName = pDict->GetElement( "Type", OBJ_TYPE_NAME ).GetNamePtr();
+					pName = pDict->GetElement( "Type", OBJ_TYPE_NAME )->GetNamePtr();
 					if ( pName )
 					{
-						if ( ( pName->GetString() == "ObjStm" ) || ( pName->GetString() == "XRef" ) )
+						if ( ( pName->GetStringPtr() == "ObjStm" ) || ( pName->GetStringPtr() == "XRef" ) )
 						{
 							mXRefTable.MoveNext();
 							continue;
@@ -110,12 +110,12 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 	CHE_PDF_ReferencePtr pRef;
 	CHE_PDF_DictionaryPtr pDict = mXRefTable.GetTrailer();
 	CHE_PDF_DictionaryPtr pNewDict = CHE_PDF_Dictionary::Create( GetAllocator() );
-	pRef = pDict->GetElement( "Root", OBJ_TYPE_REFERENCE ).GetReferencePtr();
+	pRef = pDict->GetElement( "Root", OBJ_TYPE_REFERENCE )->GetRefPtr();
 	if ( pRef )
 	{
 		pNewDict->SetAtObj( "Root", pRef );
 	}
-	pRef = pDict->GetElement( "Info", OBJ_TYPE_REFERENCE ).GetReferencePtr();
+	pRef = pDict->GetElement( "Info", OBJ_TYPE_REFERENCE )->GetRefPtr();
 	if ( pRef )
 	{
 		pNewDict->SetAtObj( "Info", pRef );
@@ -154,7 +154,7 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 // 	HE_DWORD nextObjNum = mXRefTable.GetMaxObjNum()+1;
 // 	CHE_PDF_XREF_Entry entry;
 // 	CHE_PDF_XREF_Table xref( GetAllocator() );
-// 	HE_PDF_RefInfo refInfo;
+// 	PDF_RefInfo refInfo;
 // 	CHE_PDF_IndirectObject * pInObj = NULL;
 // 	CHE_Queue< HE_DWORD > objNumQueue;
 // 	CHE_Queue< HE_DWORD > objOffset;
@@ -182,17 +182,17 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 // 				//跳过不需要输出的对象流对象和交叉索引流对象
 // 				if ( pInObj->GetObj()->GetType() == OBJ_TYPE_STREAM )
 // 				{
-// 					CHE_PDF_Dictionary * pDict = pInObj->GetObj()->GetStream()->GetDict();
+// 					CHE_PDF_Dictionary * pDict = pInObj->GetObj()->GetStream()->GetDictPtr();
 // 					CHE_PDF_Object * pObj = NULL;
 // 					CHE_PDF_Name * pName = NULL;
 // 					//CHE_PDF_ObjectCollector objCollecor;
 // 					pObj = pDict->GetElement( "Type", OBJ_TYPE_NAME/*, objCollecor*/ );
 // 					if ( pObj )
 // 					{
-// 						pName = pObj->GetName();
+// 						pName = pObj->GetNamePtr();
 // 						if ( pName )
 // 						{
-// 							if ( pName->GetString() == "ObjStm" )
+// 							if ( pName->GetStringPtr() == "ObjStm" )
 // 							{
 // 								mXRefTable.MoveNext();
 // 								continue;
@@ -219,7 +219,7 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 // 	}
 // 	if ( pRef )
 // 	{
-// 		HE_PDF_RefInfo refInfo = pRef->GetRefInfo();
+// 		PDF_RefInfo refInfo = pRef->GetRefInfo();
 // 		CHE_PDF_IndirectObject * pInObj = GetInObject( refInfo );
 // 
 // 		offset = pCreator->OutPutInObject( pInObj );
@@ -523,7 +523,7 @@ HE_BOOL CHE_PDF_File::Authenticate( const CHE_ByteString & password ) const
 	return FALSE;
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const HE_PDF_RefInfo & refInfo )
+CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const PDF_RefInfo & refInfo )
 {
 	CHE_PDF_ObjectPtr ObjPtr = mObjCollector.GetObj( refInfo );
 	if ( ObjPtr )
@@ -547,7 +547,7 @@ CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const HE_PDF_RefInfo & refInfo )
 				return ObjPtr;
 			}
 		}else{
-			HE_PDF_RefInfo stmRefInfo;
+			PDF_RefInfo stmRefInfo;
 			stmRefInfo.objNum = entry.GetParentObjNum();
 			stmRefInfo.genNum = 0;
 			ObjPtr = GetObject( stmRefInfo );
@@ -555,7 +555,7 @@ CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const HE_PDF_RefInfo & refInfo )
 			{
 				return ObjPtr;
 			}
-			CHE_PDF_StreamPtr pStm = ObjPtr.GetStreamPtr();
+			CHE_PDF_StreamPtr pStm = ObjPtr->GetStreamPtr();
 			if ( ! pStm )
 			{
 				return pStm;
@@ -595,7 +595,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_File::GetRootDict()
 	CHE_PDF_DictionaryPtr dictPtr = mXRefTable.GetTrailer();
 	if ( dictPtr )
 	{
-		return dictPtr->GetElement( "Root", OBJ_TYPE_DICTIONARY ).GetDictPtr();
+		return dictPtr->GetElement( "Root", OBJ_TYPE_DICTIONARY )->GetDictPtr();
 	}
 	return dictPtr;
 }
@@ -605,7 +605,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_File::GetInfoDict()
 	CHE_PDF_DictionaryPtr dictPtr = mXRefTable.GetTrailer();
 	if ( dictPtr )
 	{
-		return dictPtr->GetElement( "Info", OBJ_TYPE_DICTIONARY ).GetDictPtr();
+		return dictPtr->GetElement( "Info", OBJ_TYPE_DICTIONARY )->GetDictPtr();
 	}
 	return dictPtr;
 }
@@ -616,7 +616,7 @@ CHE_PDF_ArrayPtr CHE_PDF_File::GetIDArray()
 	CHE_PDF_DictionaryPtr dictPtr = mXRefTable.GetTrailer();
 	if ( dictPtr )
 	{
-		return dictPtr->GetElement( "ID", OBJ_TYPE_ARRAY ).GetArrayPtr();
+		return dictPtr->GetElement( "ID", OBJ_TYPE_ARRAY )->GetArrayPtr();
 	}
 	return arrayPtr;
 }
@@ -638,9 +638,9 @@ HE_VOID CHE_PDF_File::CreateCatalogDict()
 // 	if ( pTmpDict )
 // 	{
 // 		CHE_PDF_IndirectObject * pCatalogDictInObj = CreateInObj_Dict();
-// 		CHE_PDF_DictionaryPtr pCatalogDict = pCatalogDictInObj->GetObj().GetDictPtr();
+// 		CHE_PDF_DictionaryPtr pCatalogDict = pCatalogDictInObj->GetObj()->GetDictPtr();
 // 		CHE_PDF_IndirectObject * pPagesDictInObj = CreateInObj_Dict();
-// 		CHE_PDF_DictionaryPtr pPagesDict = pPagesDictInObj->GetObj().GetDictPtr();
+// 		CHE_PDF_DictionaryPtr pPagesDict = pPagesDictInObj->GetObj()->GetDictPtr();
 // 		pPagesDict->SetAtName( "Type", "Pages" );
 // 		CHE_PDF_ArrayPtr pArray = CHE_PDF_Array::Create( GetAllocator() );
 // 		pPagesDict->SetAtArray( "Kids", pArray );
@@ -651,10 +651,10 @@ HE_VOID CHE_PDF_File::CreateCatalogDict()
 // 	}	 
 }
 
-HE_PDF_RefInfo CHE_PDF_File::CreateNullObject( CHE_PDF_NullPtr & ptrRet )
+PDF_RefInfo CHE_PDF_File::CreateNullObject( CHE_PDF_NullPtr & ptrRet )
 {
 	CHE_PDF_XREF_Entry entry;
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 
@@ -669,10 +669,10 @@ HE_PDF_RefInfo CHE_PDF_File::CreateNullObject( CHE_PDF_NullPtr & ptrRet )
 	return refInfo;
 }
 
-HE_PDF_RefInfo CHE_PDF_File::CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet )
+PDF_RefInfo CHE_PDF_File::CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet )
 {
 	CHE_PDF_XREF_Entry entry;
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 
@@ -687,10 +687,10 @@ HE_PDF_RefInfo CHE_PDF_File::CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet )
 	return refInfo;
 }
 
-HE_PDF_RefInfo CHE_PDF_File::CreateNumberObject( CHE_PDF_NumberPtr & ptrRet )
+PDF_RefInfo CHE_PDF_File::CreateNumberObject( CHE_PDF_NumberPtr & ptrRet )
 {
 	CHE_PDF_XREF_Entry entry;
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 
@@ -705,10 +705,10 @@ HE_PDF_RefInfo CHE_PDF_File::CreateNumberObject( CHE_PDF_NumberPtr & ptrRet )
 	return refInfo;
 }
 
-HE_PDF_RefInfo CHE_PDF_File::CreateStringObject( CHE_PDF_StringPtr & ptrRet )
+PDF_RefInfo CHE_PDF_File::CreateStringObject( CHE_PDF_StringPtr & ptrRet )
 {
 	CHE_PDF_XREF_Entry entry;
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 
@@ -723,10 +723,10 @@ HE_PDF_RefInfo CHE_PDF_File::CreateStringObject( CHE_PDF_StringPtr & ptrRet )
 	return refInfo;
 }
 
-HE_PDF_RefInfo CHE_PDF_File::CreateNameObject( CHE_PDF_NamePtr & ptrRet )
+PDF_RefInfo CHE_PDF_File::CreateNameObject( CHE_PDF_NamePtr & ptrRet )
 {
 	CHE_PDF_XREF_Entry entry;
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 
@@ -741,10 +741,10 @@ HE_PDF_RefInfo CHE_PDF_File::CreateNameObject( CHE_PDF_NamePtr & ptrRet )
 	return refInfo;
 }
 
-HE_PDF_RefInfo CHE_PDF_File::CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet )
+PDF_RefInfo CHE_PDF_File::CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet )
 {
 	CHE_PDF_XREF_Entry entry;
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 
@@ -759,10 +759,10 @@ HE_PDF_RefInfo CHE_PDF_File::CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet )
 	return refInfo;
 }
 
-HE_PDF_RefInfo CHE_PDF_File::CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet )
+PDF_RefInfo CHE_PDF_File::CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet )
 {
 	CHE_PDF_XREF_Entry entry;
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 
@@ -777,10 +777,10 @@ HE_PDF_RefInfo CHE_PDF_File::CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet )
 	return refInfo;
 }
 
-HE_PDF_RefInfo CHE_PDF_File::CreateStreamObject( CHE_PDF_StreamPtr & ptrRet )
+PDF_RefInfo CHE_PDF_File::CreateStreamObject( CHE_PDF_StreamPtr & ptrRet )
 {
 	CHE_PDF_XREF_Entry entry;
-	HE_PDF_RefInfo refInfo;
+	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 

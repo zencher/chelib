@@ -140,7 +140,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_ContentResMgr::GetSubDict( PDF_CONTENTRES_TYPE typ
 	}
 	if ( pTmp )
 	{
-		return pTmp.GetDictPtr();
+		return pTmp->GetDictPtr();
 	}else{
 		return CreateSubDict( type );
 	}

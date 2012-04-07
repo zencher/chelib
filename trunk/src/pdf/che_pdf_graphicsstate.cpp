@@ -115,12 +115,12 @@ HE_BOOL CHE_PDF_ExtGState::PushExtStateName( const CHE_ByteString & name, CHE_PD
 	CHE_PDF_ObjectPtr pTmpObj = pDict->GetElement( "CA", OBJ_TYPE_NUMBER );
 	if ( pTmpObj )
 	{
-		mStrokeAlpha = pTmpObj->GetNumber()->GetFloat();
+		mStrokeAlpha = pTmpObj->GetNumberPtr()->GetFloat();
 	}
 	pTmpObj = pDict->GetElement( "ca", OBJ_TYPE_NUMBER );
 	if ( pTmpObj )
 	{
-		mFillAlpha = pTmpObj->GetNumber()->GetFloat();
+		mFillAlpha = pTmpObj->GetNumberPtr()->GetFloat();
 	}
 	return TRUE;
 }

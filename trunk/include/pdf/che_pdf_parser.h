@@ -54,7 +54,7 @@ public:
 	HE_DWORD			ReadBytes( HE_LPBYTE pBuffer, HE_DWORD length );
 	HE_BOOL				GetWord( CHE_PDF_ParseWordDes & des );
 	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
-	CHE_PDF_ArrayPtr	GetArray();
+	CHE_PDF_ArrayPtr	GetArrayPtr();
 	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）	*/
 	CHE_PDF_DictionaryPtr	GetDictionary();
 
@@ -100,7 +100,7 @@ public:
 	HE_VOID						SetReadPos( HE_DWORD pos) { m_sParser.SetPos( pos ); }
 
 	CHE_PDF_ObjectPtr			GetObject();
-	CHE_PDF_ObjectPtr			GetObjectInObjStm( CHE_PDF_StreamPtr & pStream, const HE_PDF_RefInfo & ObjrefInfo, HE_DWORD index );
+	CHE_PDF_ObjectPtr			GetObjectInObjStm( CHE_PDF_StreamPtr & pStream, const PDF_RefInfo & ObjrefInfo, HE_DWORD index );
 
 private:
 	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XREF_Table * pXrefTable, CHE_Allocator * pAllocator = NULL );

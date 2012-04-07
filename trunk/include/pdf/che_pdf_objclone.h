@@ -8,9 +8,9 @@
 class IHE_ObjectCloneMgr
 {
 public:
-	virtual HE_BOOL				IsCloned( HE_PDF_RefInfo OriNunbers ) = 0;
-	virtual HE_PDF_RefInfo		GetMapObjNum( HE_PDF_RefInfo OriObjNumbers ) = 0;
-	virtual HE_VOID				SetMap( HE_PDF_RefInfo OriObjNumbers, HE_PDF_RefInfo NewObjNumbers ) = 0;
+	virtual HE_BOOL				IsCloned( PDF_RefInfo OriNunbers ) = 0;
+	virtual PDF_RefInfo		GetMapObjNum( PDF_RefInfo OriObjNumbers ) = 0;
+	virtual HE_VOID				SetMap( PDF_RefInfo OriObjNumbers, PDF_RefInfo NewObjNumbers ) = 0;
 };
 
 class ObjectCloneMgrData
@@ -23,8 +23,8 @@ public:
 		mNewObjNumbers.objNum = 0;
 		mNewObjNumbers.genNum = 0;
 	}
-	HE_PDF_RefInfo mObjNumbers;
-	HE_PDF_RefInfo mNewObjNumbers;
+	PDF_RefInfo mObjNumbers;
+	PDF_RefInfo mNewObjNumbers;
 
 	ObjectCloneMgrData & operator = ( const ObjectCloneMgrData data )
 	{
@@ -45,7 +45,7 @@ bool operator < ( const ObjectCloneMgrData & data1, const ObjectCloneMgrData & d
 class CHE_ObjectCloneMgr : public IHE_ObjectCloneMgr
 {
 public:
-	HE_BOOL IsCloned( HE_PDF_RefInfo OriObjNumbers )
+	HE_BOOL IsCloned( PDF_RefInfo OriObjNumbers )
 	{
 		ObjectCloneMgrData data;
 		data.mObjNumbers.objNum = OriObjNumbers.objNum;
@@ -53,7 +53,7 @@ public:
 		return mDataList.Find( data );
 	}
 
-	HE_PDF_RefInfo GetMapObjNum( HE_PDF_RefInfo OriObjNumbers )
+	PDF_RefInfo GetMapObjNum( PDF_RefInfo OriObjNumbers )
 	{
 		ObjectCloneMgrData data;
 		data.mObjNumbers.objNum = OriObjNumbers.objNum;
@@ -62,7 +62,7 @@ public:
 		return data.mNewObjNumbers;
 	}
 
-	HE_VOID	SetMap( HE_PDF_RefInfo OriObjNumers, HE_PDF_RefInfo NewObjNumbers )
+	HE_VOID	SetMap( PDF_RefInfo OriObjNumers, PDF_RefInfo NewObjNumbers )
 	{
 		ObjectCloneMgrData data;
 		data.mObjNumbers = OriObjNumers;
@@ -75,6 +75,6 @@ public:
 
 CHE_PDF_DictionaryPtr	CloneDirectDictObj( const CHE_PDF_DictionaryPtr & pDict, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
 CHE_PDF_ArrayPtr		CloneDirectArrayObj( const CHE_PDF_ArrayPtr & pArray, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
-HE_PDF_RefInfo			CloneIndirectObject( const CHE_PDF_ReferencePtr & pRefObj, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
+PDF_RefInfo			CloneIndirectObject( const CHE_PDF_ReferencePtr & pRefObj, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
 
 #endif

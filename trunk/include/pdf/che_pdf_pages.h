@@ -19,12 +19,12 @@ public:
 
 	CHE_PDF_Page *					GetPage( HE_DWORD index );
 
-	HE_PDF_RefInfo					GetPageRefInfo( HE_DWORD index );
+	PDF_RefInfo					GetPageRefInfo( HE_DWORD index );
 
 private:
 	HE_DWORD						mPageCount;
 	HE_DWORD						mCurPageIndex;
-	std::vector<HE_PDF_RefInfo>		mPageObjList;
+	std::vector<PDF_RefInfo>		mPageObjList;
 	CHE_Stack<CHE_PDF_ReferencePtr>	mPageNodeStack;
 	CHE_PDF_File *					mpFile;
 };

@@ -9,6 +9,7 @@
 
 #include <vector>
 
+class CHE_PDF_Object;
 class CHE_PDF_Null;
 class CHE_PDF_Boolean;
 class CHE_PDF_Number;
@@ -30,6 +31,48 @@ class CHE_PDF_ReferencePtr;
 class CHE_PDF_ArrayPtr;
 class CHE_PDF_DictionaryPtr;
 class CHE_PDF_StreamPtr;
+
+
+
+
+inline HE_BOOL IsPdfNull( CHE_PDF_Object * pObj );
+
+inline HE_BOOL IsPdfBoolean( CHE_PDF_Object * pObj );
+
+inline HE_BOOL IsPdfNumber( CHE_PDF_Object * pObj );
+
+inline HE_BOOL IsPdfName( CHE_PDF_Object * pObj );
+
+inline HE_BOOL IsPdfString( CHE_PDF_Object * pObj );
+
+inline HE_BOOL IsPdfDict( CHE_PDF_Object * pObj );
+
+inline HE_BOOL IsPdfArray( CHE_PDF_Object * pObj );
+
+inline HE_BOOL IsPdfRef( CHE_PDF_Object * pObj );
+
+inline HE_BOOL IsPdfStream( CHE_PDF_Object * pObj );
+
+HE_BOOL IsPdfNullPtr( const CHE_PDF_ObjectPtr & objPtr );
+
+HE_BOOL IsPdfBooleanPtr( const CHE_PDF_ObjectPtr & objPtr );
+
+HE_BOOL IsPdfNumberPtr( const CHE_PDF_ObjectPtr & objPtr );
+
+HE_BOOL IsPdfNamePtr( const CHE_PDF_ObjectPtr & objPtr );
+
+HE_BOOL IsPdfStringPtr( const CHE_PDF_ObjectPtr & objPtr );
+
+HE_BOOL IsPdfDictPtr( const CHE_PDF_ObjectPtr & objPtr );
+
+HE_BOOL IsPdfArrayPtr( const CHE_PDF_ObjectPtr & objPtr );
+
+HE_BOOL IsPdfRefPtr( const CHE_PDF_ObjectPtr & objPtr );
+
+HE_BOOL IsPdfStreamPtr( const CHE_PDF_ObjectPtr & objPtr );
+
+
+
 
 class CHE_PDF_RefCount
 {
@@ -58,23 +101,23 @@ public:
 
 	HE_VOID							Release();
 
-	inline CHE_PDF_Null *			GetNull() const;
+	inline CHE_PDF_NullPtr			GetNullPtr() const;
 
-	inline CHE_PDF_Boolean *		GetBoolean() const;
+	inline CHE_PDF_BooleanPtr		GetBooleanPtr() const;
 
-	inline CHE_PDF_Number *			GetNumber() const;
+	inline CHE_PDF_NumberPtr		GetNumberPtr() const;
 
-	inline CHE_PDF_String *			GetString() const;
+	inline CHE_PDF_StringPtr		GetStringPtr() const;
 
-	inline CHE_PDF_Name *			GetName() const;
+	inline CHE_PDF_NamePtr			GetNamePtr() const;
 
-	inline CHE_PDF_Array*			GetArray() const;
+	inline CHE_PDF_ArrayPtr			GetArrayPtr() const;
 
-	inline CHE_PDF_Dictionary *		GetDict() const;
+	inline CHE_PDF_DictionaryPtr	GetDictPtr() const;
 
-	inline CHE_PDF_Reference *		GetReference() const;
+	inline CHE_PDF_ReferencePtr		GetRefPtr() const;
 
-	inline CHE_PDF_Stream *			GetStream() const;
+	inline CHE_PDF_StreamPtr		GetStreamPtr() const;
 
 protected:
 
@@ -106,25 +149,9 @@ public:
 
 	operator HE_BOOL() const { return mpObj ? TRUE : FALSE ; }
 
-	inline CHE_PDF_Object *			operator->() const { return mpObj; }
+	inline CHE_PDF_Object *	operator->() const { return mpObj; }
 
-	HE_VOID					reset( CHE_PDF_Object * pObj = NULL );
-
-	CHE_PDF_BooleanPtr		GetBooleanPtr() const;
-
-	CHE_PDF_NumberPtr		GetNumberPtr() const;
-
-	CHE_PDF_StringPtr		GetStringPtr() const;
-
-	CHE_PDF_NamePtr			GetNamePtr() const;
-
-	CHE_PDF_ArrayPtr			GetArrayPtr() const;
-
-	CHE_PDF_DictionaryPtr	GetDictPtr() const;
-
-	CHE_PDF_ReferencePtr		GetReferencePtr() const;
-
-	CHE_PDF_StreamPtr		GetStreamPtr() const;
+	HE_VOID	reset( CHE_PDF_Object * pObj = NULL );
 
 protected:
 
@@ -134,55 +161,55 @@ protected:
 class CHE_PDF_NullPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Null * operator->() const { return mpObj ? mpObj->GetNull() : NULL ; }
+	CHE_PDF_Null * operator->() const { return IsPdfNull( mpObj ) ? (CHE_PDF_Null*)( mpObj )  : NULL ; }
 };
 
 class CHE_PDF_BooleanPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Boolean * operator->() const { return mpObj ? mpObj->GetBoolean() : NULL ; }
+	CHE_PDF_Boolean * operator->() const { return IsPdfBoolean( mpObj ) ? (CHE_PDF_Boolean*)( mpObj ) : NULL ; }
 };
 
 class CHE_PDF_NumberPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Number * operator->() const { return mpObj ? mpObj->GetNumber() : NULL ; }
+	CHE_PDF_Number * operator->() const { return IsPdfNumber( mpObj ) ? (CHE_PDF_Number*)( mpObj ) : NULL ; }
 };
 
 class CHE_PDF_StringPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_String * operator->() const { return mpObj ? mpObj->GetString() : NULL ; }
+	CHE_PDF_String * operator->() const { return IsPdfString( mpObj ) ? (CHE_PDF_String*)( mpObj ) : NULL ; }
 };
 
 class CHE_PDF_NamePtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Name * operator->() const { return mpObj ? mpObj->GetName() : NULL ; }
+	CHE_PDF_Name * operator->() const { return IsPdfName( mpObj ) ? (CHE_PDF_Name*)( mpObj ) : NULL ; }
 };
 
 class CHE_PDF_ReferencePtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Reference * operator->() const { return mpObj ? mpObj->GetReference() : NULL ; }
+	CHE_PDF_Reference * operator->() const { return IsPdfRef( mpObj ) ? (CHE_PDF_Reference*)( mpObj ) : NULL ; }
 };
 
 class CHE_PDF_ArrayPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Array * operator->() const { return mpObj ? mpObj->GetArray() : NULL ; }
+	CHE_PDF_Array * operator->() const { return IsPdfArray( mpObj ) ? (CHE_PDF_Array*)( mpObj ) : NULL ; }
 };
 
 class CHE_PDF_DictionaryPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Dictionary * operator->() const { return mpObj ? mpObj->GetDict() : NULL ; }
+	CHE_PDF_Dictionary * operator->() const { return IsPdfDict( mpObj ) ? (CHE_PDF_Dictionary*)( mpObj ) : NULL ; }
 };
 
 class CHE_PDF_StreamPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Stream * operator->() const { return mpObj ? mpObj->GetStream() : NULL ; }
+	CHE_PDF_Stream * operator->() const { return IsPdfStream( mpObj ) ? (CHE_PDF_Stream*)( mpObj ) : NULL ; }
 };
 
 class CHE_PDF_Null	: public CHE_PDF_Object
@@ -271,7 +298,7 @@ public:
 
 	static CHE_PDF_StringPtr		Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
 
-	CHE_ByteString &				GetString();
+	CHE_ByteString &				GetStringPtr();
 
 	HE_VOID							SetString( CHE_ByteString & name );
 
@@ -297,7 +324,7 @@ public:
 
 	static CHE_PDF_NamePtr			Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
 
-	CHE_ByteString					GetString() { return mName; }
+	CHE_ByteString					GetStringPtr() { return mName; }
 
 	HE_VOID							SetString( CHE_ByteString & name ) { mName = name; };
 
@@ -314,7 +341,7 @@ private:
 	friend class CHE_PDF_Object;
 };
 
-struct HE_PDF_RefInfo
+struct PDF_RefInfo
 {
 	HE_DWORD objNum;
 	HE_DWORD genNum;
@@ -334,9 +361,9 @@ public:
 
 	HE_VOID							SetGenNum( HE_DWORD genNum ) { mRefGenNum = genNum; }
 
-	HE_PDF_RefInfo					GetRefInfo() { HE_PDF_RefInfo refInfo; refInfo.objNum = mRefObjNum; refInfo.genNum = mRefGenNum; return refInfo; }
+	PDF_RefInfo					GetRefInfo() { PDF_RefInfo refInfo; refInfo.objNum = mRefObjNum; refInfo.genNum = mRefGenNum; return refInfo; }
 
-	HE_VOID							SetRefInfo( HE_PDF_RefInfo refInfo )  { mRefObjNum = refInfo.objNum; mRefGenNum = refInfo.genNum; }
+	HE_VOID							SetRefInfo( PDF_RefInfo refInfo )  { mRefObjNum = refInfo.objNum; mRefGenNum = refInfo.genNum; }
 
 	CHE_PDF_ObjectPtr				GetRefObj();
 
@@ -463,7 +490,7 @@ public:
 
 	HE_VOID							SetDict( const CHE_PDF_DictionaryPtr & ptr );
 
-	CHE_PDF_DictionaryPtr			GetDict() const { return mDictPtr; }
+	CHE_PDF_DictionaryPtr			GetDictPtr() const { return mDictPtr; }
 
 	HE_DWORD						GetRawSize() const { return m_dwSize; }
 
@@ -525,23 +552,5 @@ private:
 
 	CHE_PDF_StreamPtr				mStreamPtr;
 };
-
-BOOL IsPdfNull( const CHE_PDF_ObjectPtr & objPtr );
-
-BOOL IsPdfBoolean( const CHE_PDF_ObjectPtr & objPtr );
-
-BOOL IsPdfNumber( const CHE_PDF_ObjectPtr & objPtr );
-
-BOOL IsPdfName( const CHE_PDF_ObjectPtr & objPtr );
-
-BOOL IsPdfString( const CHE_PDF_ObjectPtr & objPtr );
-
-BOOL IsPdfDictionary( const CHE_PDF_ObjectPtr & objPtr );
-
-BOOL IsPdfArray( const CHE_PDF_ObjectPtr & objPtr );
-
-BOOL IsPdfReference( const CHE_PDF_ObjectPtr & objPtr );
-
-BOOL IsPdfStream( const CHE_PDF_ObjectPtr & objPtr );
 
 #endif

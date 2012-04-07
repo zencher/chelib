@@ -87,7 +87,7 @@ public:
 
 	bool SetName( const CHE_ByteString & name ) { mName = name; }
 
-	CHE_ByteString GetName() { return mName; }
+	CHE_ByteString GetNamePtr() { return mName; }
 
 protected:
 	CHE_ByteString mName;

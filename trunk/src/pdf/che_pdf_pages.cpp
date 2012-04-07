@@ -13,13 +13,13 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CH
 		return;
 	}
 
-	mPageCount = pObj->GetNumber()->GetInteger();
+	mPageCount = pObj->GetNumberPtr()->GetInteger();
 	
-	CHE_PDF_ArrayPtr pKidArray = pPagesDict->GetElement( "Kids", OBJ_TYPE_ARRAY ).GetArrayPtr();
+	CHE_PDF_ArrayPtr pKidArray = pPagesDict->GetElement( "Kids", OBJ_TYPE_ARRAY )->GetArrayPtr();
 	if ( pKidArray )
 	{
 		CHE_PDF_ReferencePtr pRef;
-		HE_PDF_RefInfo refInfo;
+		PDF_RefInfo refInfo;
 		if ( pKidArray->GetCount() == mPageCount )
 		{
 			for ( HE_DWORD i = 0; i < mPageCount; i++ )
@@ -27,7 +27,7 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CH
 				pObj = pKidArray->GetElement( i );
 				if ( pObj && pObj->GetType() == OBJ_TYPE_REFERENCE )
 				{
-					pRef = pObj.GetReferencePtr();
+					pRef = pObj->GetRefPtr();
 					refInfo.objNum = pRef->GetRefNum();
 					refInfo.genNum = pRef->GetGenNum();
 					mPageObjList.push_back( refInfo );
@@ -40,7 +40,7 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CH
 				pObj = pKidArray->GetElement( i );
 				if ( pObj && pObj->GetType() == OBJ_TYPE_REFERENCE )
 				{
-					mPageNodeStack.Push( pObj.GetReferencePtr() );
+					mPageNodeStack.Push( pObj->GetRefPtr() );
 				}
 			}
 			mCurPageIndex = 0;	
@@ -65,19 +65,19 @@ CHE_PDF_Page * CHE_PDF_PageTree::GetPage( HE_DWORD index )
 {
 	if ( mpFile )
 	{
-		HE_PDF_RefInfo refRet = GetPageRefInfo( index );
+		PDF_RefInfo refRet = GetPageRefInfo( index );
 		CHE_PDF_ObjectPtr pObj = mpFile->GetObject( refRet );
 		if ( pObj && pObj->GetType() == OBJ_TYPE_DICTIONARY )
 		{
-			return GetAllocator()->New<CHE_PDF_Page>( pObj.GetDictPtr(), this, GetAllocator() );
+			return GetAllocator()->New<CHE_PDF_Page>( pObj->GetDictPtr(), this, GetAllocator() );
 		}
 	}
 	return NULL;
 }
 
-HE_PDF_RefInfo CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index )
+PDF_RefInfo CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index )
 {
-	HE_PDF_RefInfo refInfoRet;
+	PDF_RefInfo refInfoRet;
 	refInfoRet.objNum = 0;
 	refInfoRet.genNum = 0;
 	if ( index >= mPageCount )
@@ -98,7 +98,7 @@ HE_PDF_RefInfo CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index )
 			pObj = pRef->GetRefObj( OBJ_TYPE_DICTIONARY );
 			if ( pObj )
 			{ 
-				pDict = pObj.GetDictPtr();
+				pDict = pObj->GetDictPtr();
 				pObj = pDict->GetElement( "Type", OBJ_TYPE_NAME );
 				if ( !pObj )
 				{
@@ -106,8 +106,8 @@ HE_PDF_RefInfo CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index )
 					refInfoRet.genNum = 0;
 					return refInfoRet;
 				}
-				pName = pObj.GetNamePtr();
-				if ( pName->GetString() == "Page" )
+				pName = pObj->GetNamePtr();
+				if ( pName->GetStringPtr() == "Page" )
 				{
 					refInfoRet.objNum = pRef->GetRefNum();
 					refInfoRet.genNum = pRef->GetGenNum();
@@ -117,18 +117,18 @@ HE_PDF_RefInfo CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index )
 					{
 						return refInfoRet;
 					}
-				}else if ( pName->GetString() == "Pages" )
+				}else if ( pName->GetStringPtr() == "Pages" )
 				{
 					pObj = pDict->GetElement( "Kids", OBJ_TYPE_ARRAY );
 					if ( pObj )
 					{
-						pArray = pObj.GetArrayPtr();
+						pArray = pObj->GetArrayPtr();
 						for ( HE_DWORD i = pArray->GetCount(); i > 0; i-- )
 						{
 							pObj = pArray->GetElement( i-1, OBJ_TYPE_REFERENCE );
 							if ( pObj )
 							{
-								mPageNodeStack.Push( pObj.GetReferencePtr() );
+								mPageNodeStack.Push( pObj->GetRefPtr() );
 							}
 						}
 					}

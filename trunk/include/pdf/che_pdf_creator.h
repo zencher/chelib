@@ -23,7 +23,7 @@ public:
 
 	HE_DWORD					OutPutObject( const CHE_PDF_ObjectPtr & pObj );
 
-	HE_DWORD					OutPutInObject( const HE_PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr );
+	HE_DWORD					OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr );
 
 	HE_DWORD					OutPutXRefTable( CHE_PDF_XREF_Table & xref );
 

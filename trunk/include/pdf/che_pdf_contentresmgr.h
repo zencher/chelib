@@ -25,7 +25,7 @@ public:
 
 	HE_VOID SetDict( const CHE_PDF_DictionaryPtr & pDict ) { mpResDict = pDict; }
 
-	CHE_PDF_DictionaryPtr GetDict() { return mpResDict; }
+	CHE_PDF_DictionaryPtr GetDictPtr() { return mpResDict; }
 
 	CHE_ByteString CreateName( PDF_CONTENTRES_TYPE type, const CHE_PDF_ObjectPtr & pObj );
 

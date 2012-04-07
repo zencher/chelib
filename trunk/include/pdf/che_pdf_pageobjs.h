@@ -167,7 +167,7 @@
 // 	HE_FLOAT	GetMatrixD() { return m_fMatrixD; }
 // 	HE_FLOAT	GetMatrixE() { return m_fMatrixE; }
 // 	HE_FLOAT	GetMatrixF() { return m_fMatrixF; }
-// 	CHE_WideString	*	GetString() { return &m_str; }
+// 	CHE_WideString	*	GetStringPtr() { return &m_str; }
 // 
 // private:
 // 	HE_FLOAT	m_fPosiX;

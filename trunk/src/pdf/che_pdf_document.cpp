@@ -62,21 +62,21 @@ HE_VOID CHE_PDF_Document::NewPage( HE_DWORD width, HE_DWORD height )
 // 	pObj = mpFile->GetTrailerDict()->GetElement( "Root", OBJ_TYPE_DICTIONARY );
 // 	if ( pObj )
 // 	{
-// 		pObj = pObj.GetDictPtr()->GetElement( "Catalog", OBJ_TYPE_DICTIONARY );
+// 		pObj = pObj->GetDictPtr()->GetElement( "Catalog", OBJ_TYPE_DICTIONARY );
 // 	}
 // 	if ( pObj )
 // 	{
-// 		pObj = pObj.GetDictPtr()->GetElement( "Pages", OBJ_TYPE_DICTIONARY );
+// 		pObj = pObj->GetDictPtr()->GetElement( "Pages", OBJ_TYPE_DICTIONARY );
 // 	}
 // 	if ( pObj )
 // 	{
-// 		pPagesDict = pObj.GetDictPtr();
+// 		pPagesDict = pObj->GetDictPtr();
 // 	}
 // 	if ( pPagesDict )
 // 	{
 // 		CHE_PDF_ArrayPtr pKidsArray;
 // 		CHE_PDF_ReferencePtr pKidsRef;
-// 		pKidsArray = pPageDict->GetElement( "Kids", OBJ_TYPE_ARRAY ).GetArrayPtr();
+// 		pKidsArray = pPageDict->GetElement( "Kids", OBJ_TYPE_ARRAY )->GetArrayPtr();
 // 		if ( pKidsArray )
 // 		{
 // 		}
@@ -84,10 +84,10 @@ HE_VOID CHE_PDF_Document::NewPage( HE_DWORD width, HE_DWORD height )
 // 		{
 // 			pKidsRef = pObj->GetReference();
 // 			pObj = pKidsRef->GetRefObj();
-// 			pKidsArray = pObj->GetArray();
+// 			pKidsArray = pObj->GetArrayPtr();
 // 		}else if ( IsPdfArray( pObj ) )
 // 		{
-// 			pKidsArray = pObj->GetArray();
+// 			pKidsArray = pObj->GetArrayPtr();
 // 		}
 // 		if ( pKidsArray )
 // 		{
@@ -103,7 +103,7 @@ HE_VOID CHE_PDF_Document::NewPage( HE_DWORD width, HE_DWORD height )
 // 				pCountRef = pObj->GetReference();
 // 			}else if ( IsPdfNumber( pObj ) )
 // 			{
-// 				pCountNumber = pObj->GetNumber();
+// 				pCountNumber = pObj->GetNumberPtr();
 // 			}
 // 			if ( pCountNumber )
 // 			{
@@ -111,7 +111,7 @@ HE_VOID CHE_PDF_Document::NewPage( HE_DWORD width, HE_DWORD height )
 // 			}
 // 
 // 
-// 			CHE_PDF_Dictionary * pDict = pInObj->GetObj()->GetDict();
+// 			CHE_PDF_Dictionary * pDict = pInObj->GetObj()->GetDictPtr();
 // 			if ( pDict )
 // 			{
 // 				pDict->SetAtName( "Type", "Page" );
@@ -139,7 +139,7 @@ HE_BOOL CHE_PDF_Document::ParsePageTree()
 		pObj = pDict->GetElement( "Pages", OBJ_TYPE_DICTIONARY );
 		if ( pObj )
 		{
-			pDict = pObj.GetDictPtr();
+			pDict = pObj->GetDictPtr();
 		}
 		if ( pDict )
 		{

@@ -12,15 +12,20 @@ public:
 
 	~CHE_PDF_Document();
 
+	PDF_VERSION					GetVersion() { mpFile->GetPDFVersion(); }
+
 	HE_DWORD					GetPageCount() const;
 
-	CHE_PDF_PageTree *			GetPageTree() { return mpPageTree; }
+	CHE_PDF_PageTree *			GetPageTree() const { return mpPageTree; }
 
 	CHE_PDF_Page *				GetPage( HE_DWORD index );
 
-	HE_VOID						NewPage( HE_DWORD width, HE_DWORD height );
+	HE_BOOL						SetVersion( PDF_VERSION version ) { mpFile->SetPDFVersion( version ); }
 
+	HE_BOOL						SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str );
+	
 private:
+
 	CHE_PDF_Document( CHE_PDF_File * mpFile, CHE_Allocator * pAllocator );
 
 	HE_BOOL						ParsePageTree();

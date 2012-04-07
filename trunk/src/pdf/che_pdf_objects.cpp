@@ -422,7 +422,7 @@ CHE_PDF_StringPtr CHE_PDF_String::Create( const CHE_ByteString & str, CHE_Alloca
 	return ptr;
 }
 
-CHE_ByteString & CHE_PDF_String::GetStringPtr()
+CHE_ByteString & CHE_PDF_String::GetString()
 {
 	return mString;
 }

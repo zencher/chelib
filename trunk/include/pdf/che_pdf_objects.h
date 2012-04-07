@@ -298,7 +298,7 @@ public:
 
 	static CHE_PDF_StringPtr		Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
 
-	CHE_ByteString &				GetStringPtr();
+	CHE_ByteString &				GetString();
 
 	HE_VOID							SetString( CHE_ByteString & name );
 
@@ -324,7 +324,7 @@ public:
 
 	static CHE_PDF_NamePtr			Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
 
-	CHE_ByteString					GetStringPtr() { return mName; }
+	CHE_ByteString					GetString() { return mName; }
 
 	HE_VOID							SetString( CHE_ByteString & name ) { mName = name; };
 

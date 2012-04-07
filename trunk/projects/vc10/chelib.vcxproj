@@ -33,7 +33,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_japan.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_korea.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentbuilder.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentresmgr.h" />
@@ -81,7 +80,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_graphicsState.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_graphicsstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
@@ -156,7 +155,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

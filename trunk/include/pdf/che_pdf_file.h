@@ -27,6 +27,8 @@ public:
 
 	PDF_VERSION				GetPDFVersion() const;
 
+	HE_VOID					SetPDFVersion( PDF_VERSION version );
+
 	CHE_PDF_DictionaryPtr	GetTrailerDict() const;
 
 	CHE_PDF_DictionaryPtr	GetRootDict();
@@ -43,28 +45,30 @@ public:
 
 	CHE_PDF_ObjectPtr		GetObject( const PDF_RefInfo & refInfo );
 
-	PDF_RefInfo			CreateNullObject( CHE_PDF_NullPtr & ptrRet );
+	PDF_RefInfo				CreateNullObject( CHE_PDF_NullPtr & ptrRet );
 	
-	PDF_RefInfo			CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet );
+	PDF_RefInfo				CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet );
 
-	PDF_RefInfo			CreateNumberObject( CHE_PDF_NumberPtr & ptrRet );
+	PDF_RefInfo				CreateNumberObject( CHE_PDF_NumberPtr & ptrRet );
 
-	PDF_RefInfo			CreateStringObject( CHE_PDF_StringPtr & ptrRet );
+	PDF_RefInfo				CreateStringObject( CHE_PDF_StringPtr & ptrRet );
 
-	PDF_RefInfo			CreateNameObject( CHE_PDF_NamePtr & ptrRet );
+	PDF_RefInfo				CreateNameObject( CHE_PDF_NamePtr & ptrRet );
 
-	PDF_RefInfo			CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet );
+	PDF_RefInfo				CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet );
 
-	PDF_RefInfo			CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet );
+	PDF_RefInfo				CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet );
 
-	PDF_RefInfo			CreateStreamObject( CHE_PDF_StreamPtr & ptrRet );
+	PDF_RefInfo				CreateStreamObject( CHE_PDF_StreamPtr & ptrRet );
 
 private:
 
 	PDF_VERSION				mVersion;
 
 	CHE_PDF_Parser *		mpParser;
+
 	CHE_PDF_Collector		mObjCollector;
+
 	CHE_PDF_XREF_Table		mXRefTable;
 };
 

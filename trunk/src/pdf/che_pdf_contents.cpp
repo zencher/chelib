@@ -547,7 +547,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 		{
 			return;
 		}
-		if ( pTypeName->GetStringPtr() != "XObject" )
+		if ( pTypeName->GetString() != "XObject" )
 		{
 			return;
 		}
@@ -561,7 +561,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 		{
 			return;
 		}
-		if ( pSubtypeName->GetStringPtr() == "Image" )
+		if ( pSubtypeName->GetString() == "Image" )
 		{
 			CHE_PDF_ObjectPtr pObj = mpContentResMgr->GetResObj( CONTENTRES_XOBJECT, mName );
 			if ( pObj && IsPdfRefPtr( pObj ) )
@@ -569,7 +569,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 				CHE_PDF_RefImage * pImage = GetAllocator()->New<CHE_PDF_RefImage>( mName, pObj->GetRefPtr(), GetAllocator() );
 				mpConstructor->Operator_Append( pImage );
 			}
-		}else if ( pSubtypeName->GetStringPtr() == "Form" )
+		}else if ( pSubtypeName->GetString() == "Form" )
 		{
 			CHE_PDF_Form * pForm = GetAllocator()->New<CHE_PDF_Form>( mName, GetAllocator() );
 			CHE_PDF_ObjectPtr pTmpObj;

@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_document.h"
+#include <cassert>
 
 CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 {
@@ -9,12 +10,11 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 		{
 			if ( pPDFFile )
 			{
-				if ( pPDFFile->GetTrailerDict() )
+				if ( ! pPDFFile->GetTrailerDict() )
 				{
-					pDocument->ParsePageTree();
-				}else{
 					pDocument->CreateCatalogDict();
-				}		 
+				}
+				pDocument->ParsePageTree();
 			}
 		}
 		return pDocument;
@@ -51,83 +51,70 @@ CHE_PDF_Page * CHE_PDF_Document::GetPage( HE_DWORD index )
 	return NULL;
 }
 
-HE_VOID CHE_PDF_Document::NewPage( HE_DWORD width, HE_DWORD height )
+HE_BOOL CHE_PDF_Document::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str )
 {
-// 	if ( mpFile == NULL )
-// 	{
-// 		return;
-// 	}
-// 	CHE_PDF_ObjectPtr pObj;
-// 	CHE_PDF_DictionaryPtr pPagesDict;
-// 	pObj = mpFile->GetTrailerDict()->GetElement( "Root", OBJ_TYPE_DICTIONARY );
-// 	if ( pObj )
-// 	{
-// 		pObj = pObj->GetDictPtr()->GetElement( "Catalog", OBJ_TYPE_DICTIONARY );
-// 	}
-// 	if ( pObj )
-// 	{
-// 		pObj = pObj->GetDictPtr()->GetElement( "Pages", OBJ_TYPE_DICTIONARY );
-// 	}
-// 	if ( pObj )
-// 	{
-// 		pPagesDict = pObj->GetDictPtr();
-// 	}
-// 	if ( pPagesDict )
-// 	{
-// 		CHE_PDF_ArrayPtr pKidsArray;
-// 		CHE_PDF_ReferencePtr pKidsRef;
-// 		pKidsArray = pPageDict->GetElement( "Kids", OBJ_TYPE_ARRAY )->GetArrayPtr();
-// 		if ( pKidsArray )
-// 		{
-// 		}
-// 		if ( IsPdfReference( pObj ) )
-// 		{
-// 			pKidsRef = pObj->GetReference();
-// 			pObj = pKidsRef->GetRefObj();
-// 			pKidsArray = pObj->GetArrayPtr();
-// 		}else if ( IsPdfArray( pObj ) )
-// 		{
-// 			pKidsArray = pObj->GetArrayPtr();
-// 		}
-// 		if ( pKidsArray )
-// 		{
-// 			CHE_PDF_IndirectObject * pInObj = mpFile->CreateInObj_Dict();
-// 			CHE_PDF_Reference * pRef = CHE_PDF_Reference::Create( pInObj->GetObjNum(), pInObj->GetGenNum(), mpFile, GetAllocator() );
-// 			pKidsArray->Append( pRef );
-// 
-// 			CHE_PDF_Number * pCountNumber = NULL;
-// 			CHE_PDF_Reference * pCountRef = NULL;
-// 			pObj = pPageDict->GetElement( "Count" );
-// 			if ( IsPdfReference( pObj ) )
-// 			{
-// 				pCountRef = pObj->GetReference();
-// 			}else if ( IsPdfNumber( pObj ) )
-// 			{
-// 				pCountNumber = pObj->GetNumberPtr();
-// 			}
-// 			if ( pCountNumber )
-// 			{
-// 				pCountNumber->SetValue( (HE_INT32)( pCountNumber->GetInteger() + 1 ) );
-// 			}
-// 
-// 
-// 			CHE_PDF_Dictionary * pDict = pInObj->GetObj()->GetDictPtr();
-// 			if ( pDict )
-// 			{
-// 				pDict->SetAtName( "Type", "Page" );
-// 				CHE_PDF_Array * pArray = CHE_PDF_Array::Create( GetAllocator() );
-// 				CHE_PDF_Number * pNumber = CHE_PDF_Number::Create( (HE_INT32)(0), GetAllocator() );
-// 				pArray->Append( pNumber );
-// 				pNumber = CHE_PDF_Number::Create( (HE_INT32)(0), GetAllocator() );
-// 				pArray->Append( pNumber );
-// 				pNumber = CHE_PDF_Number::Create( (HE_INT32)(width), GetAllocator() );
-// 				pArray->Append( pNumber );
-// 				pNumber = CHE_PDF_Number::Create( (HE_INT32)(height), GetAllocator() );
-// 				pArray->Append( pNumber );
-// 				pDict->SetAtArray( "MediaBox", pArray );
-// 			}
-// 		}
-// 	}
+	if ( str.GetLength() == 0 )
+	{
+		return FALSE;
+	}
+	if ( infoType > 8 || infoType < 0 )
+	{
+		return FALSE;
+	}
+	CHE_PDF_ObjectPtr ObjPtr;
+	CHE_PDF_DictionaryPtr InfoDictPtr;
+
+	ObjPtr = mpFile->GetTrailerDict()->GetElement( "Info", OBJ_TYPE_DICTIONARY );
+	if ( ObjPtr )
+	{
+		InfoDictPtr = ObjPtr->GetDictPtr();
+	}else{
+		PDF_RefInfo refInfo = mpFile->CreateDictObject( InfoDictPtr );
+		if ( InfoDictPtr )
+		{
+			mpFile->GetTrailerDict()->SetAtReference( "Info", refInfo.objNum, refInfo.genNum, mpFile );
+		}
+	}
+
+	
+	if ( ! InfoDictPtr )
+	{
+		return FALSE;
+	}
+
+	switch( infoType )
+	{
+	case DOCUMENT_INFO_TITLE:
+		InfoDictPtr->SetAtString( "Title", str );
+		break;
+	case DOCUMENT_INFO_AUTHOR:
+		InfoDictPtr->SetAtString( "Author", str );
+		break;
+	case DOCUMENT_INFO_SUBJECT:
+		InfoDictPtr->SetAtString( "Subject", str );
+		break;
+	case DOCUMENT_INFO_KEYWORDS:
+		InfoDictPtr->SetAtString( "Keywords", str );
+		break;
+	case DOCUMENT_INFO_CREATOR:
+		InfoDictPtr->SetAtString( "Creator", str );
+		break;
+	case DOCUMENT_INFO_PRODUCER:
+		InfoDictPtr->SetAtString( "Producer", str );
+		break;
+	case DOCUMENT_INFO_CREATIONDATE:
+		InfoDictPtr->SetAtString( "CreationDate", str );
+		break;
+	case DOCUMENT_INFO_MODDATE:
+		InfoDictPtr->SetAtString( "ModDate", str );
+		break;
+	case DOCUMENT_INFO_TRAPPED:
+		InfoDictPtr->SetAtString( "Trapped", str );
+		break;
+	default:
+		return FALSE;
+	}
+	return TRUE;
 }
 
 HE_BOOL CHE_PDF_Document::ParsePageTree()

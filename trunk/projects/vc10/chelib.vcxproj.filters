@@ -98,9 +98,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h">
-      <Filter>头文件\PDF</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_cns.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
@@ -157,12 +154,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
@@ -172,37 +163,16 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_graphicsState.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_pageobjs.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_resource.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_text.cpp">
@@ -214,22 +184,49 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp">
+    <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp">
+    <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_contentbuilder.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp">
+    <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_graphicsstate.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_pageobjs.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_resource.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
   </ItemGroup>

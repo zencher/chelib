@@ -1513,7 +1513,7 @@ HE_BOOL CHE_PDF_Parser::ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict
 		{
 			return FALSE;
 		}
-		if ( pObj->GetNamePtr()->GetStringPtr() == "Standard" )
+		if ( pObj->GetNamePtr()->GetString() == "Standard" )
 		{
 			CHE_ByteString id1( GetAllocator() );
 			HE_BYTE O[32];
@@ -1704,7 +1704,7 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_DictionaryPt
 		mpXRefTable->AddTrailerDict( pDict ); 
 	}
 	CHE_PDF_ObjectPtr pElement =  pDict->GetElement( "Type" );
-	if ( !pElement || pElement->GetType() != OBJ_TYPE_NAME || pElement->GetNamePtr()->GetStringPtr() != "XRef" )
+	if ( !pElement || pElement->GetType() != OBJ_TYPE_NAME || pElement->GetNamePtr()->GetString() != "XRef" )
 	{
 		m_sParser.SetPos( orgOffset );
 		return 0;

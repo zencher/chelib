@@ -546,7 +546,6 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 HE_VOID	CHE_PDF_Creator::OutPutFileTailer( HE_DWORD startxref )
 {
 	HE_CHAR tempStr[128];
-	mpWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, glStrNewLine );
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefStartMark, glStrXrefStartMark );
 	sprintf( tempStr, "%d\n", startxref );
 	mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
@@ -587,12 +586,13 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 	case OBJ_TYPE_STRING:
 		{
 			CHE_PDF_StringPtr ptr = pObj->GetStringPtr();
-			HE_LPVOID pData = (HE_LPVOID)( ptr->GetStringPtr().GetData() );
-			HE_DWORD length = ptr->GetStringPtr().GetLength();
+			CHE_ByteString str = ptr->GetString();
+			HE_LPBYTE pData = (HE_LPBYTE)( str.GetData() );
+			HE_DWORD length = str.GetLength();
 			HE_BOOL bHex = FALSE;
 			for ( HE_DWORD i = 0; i < length; i++ )
 			{
-				if ( ptr->GetStringPtr()[i] < 0 ) //´ýÍêÉÆ
+				if ( pData[i] < 0 ) //´ýÍêÉÆ
 				{
 					bHex  = TRUE;
 					break;
@@ -609,7 +609,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 				HE_DWORD tmpVal = 0;
 				for ( HE_DWORD i = 0; i < length; i++ )
 				{
-					tmpVal = ptr->GetStringPtr()[i];
+					tmpVal = pData[i];
 					sprintf( tmpByte, "%08X", tmpVal );
 					pWrite->WriteBlock( (HE_LPVOID)(tmpByte+6), 2 );
 				}
@@ -620,8 +620,8 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 	case OBJ_TYPE_NAME:
 		{
 			CHE_PDF_NamePtr ptr = pObj->GetNamePtr();
-			HE_BYTE * pData = (HE_BYTE*)( ptr->GetStringPtr().GetData() );
-			HE_DWORD length = ptr->GetStringPtr().GetLength();
+			HE_LPBYTE pData = (HE_LPBYTE)( ptr->GetString().GetData() );
+			HE_DWORD length = ptr->GetString().GetLength();
 			pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
 			char tmpStr[16];
 			for ( HE_DWORD i = 0; i < length; ++i )

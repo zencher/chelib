@@ -109,7 +109,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
-					tmpStr = tmpArray[i]->GetStringPtr()->GetStringPtr();
+					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); ++index )
 					{
 						charCode = HE_BYTE( tmpStr[index] );
@@ -134,7 +134,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
-					tmpStr = tmpArray[i]->GetStringPtr()->GetStringPtr();
+					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); index+=2 )
 					{
 						charCode = HE_BYTE( tmpStr[index] );

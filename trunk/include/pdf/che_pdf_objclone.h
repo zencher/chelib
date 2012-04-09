@@ -9,7 +9,7 @@ class IHE_ObjectCloneMgr
 {
 public:
 	virtual HE_BOOL				IsCloned( PDF_RefInfo OriNunbers ) = 0;
-	virtual PDF_RefInfo		GetMapObjNum( PDF_RefInfo OriObjNumbers ) = 0;
+	virtual PDF_RefInfo			GetMapObjNum( PDF_RefInfo OriObjNumbers ) = 0;
 	virtual HE_VOID				SetMap( PDF_RefInfo OriObjNumbers, PDF_RefInfo NewObjNumbers ) = 0;
 };
 
@@ -23,8 +23,6 @@ public:
 		mNewObjNumbers.objNum = 0;
 		mNewObjNumbers.genNum = 0;
 	}
-	PDF_RefInfo mObjNumbers;
-	PDF_RefInfo mNewObjNumbers;
 
 	ObjectCloneMgrData & operator = ( const ObjectCloneMgrData data )
 	{
@@ -34,6 +32,10 @@ public:
 		mNewObjNumbers.objNum = data.mNewObjNumbers.genNum;
 		return *this;
 	}
+
+	PDF_RefInfo mObjNumbers;
+
+	PDF_RefInfo mNewObjNumbers;
 };
 
 bool operator == ( const ObjectCloneMgrData & data1, const ObjectCloneMgrData & data2 );
@@ -73,8 +75,10 @@ public:
 	CHE_SkipList< ObjectCloneMgrData > mDataList;
 };
 
-CHE_PDF_DictionaryPtr	CloneDirectDictObj( const CHE_PDF_DictionaryPtr & pDict, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
-CHE_PDF_ArrayPtr		CloneDirectArrayObj( const CHE_PDF_ArrayPtr & pArray, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
-PDF_RefInfo			CloneIndirectObject( const CHE_PDF_ReferencePtr & pRefObj, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
+CHE_PDF_DictionaryPtr	CloneDirectDictObj( const CHE_PDF_DictionaryPtr & DictPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
+
+CHE_PDF_ArrayPtr		CloneDirectArrayObj( const CHE_PDF_ArrayPtr & ArrayPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
+
+PDF_RefInfo				CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr = NULL );
 
 #endif

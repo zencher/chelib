@@ -188,7 +188,10 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 	PDF_RefInfo refInfo;
 	CHE_Queue< HE_DWORD > objNumQueue;
 	CHE_Queue< HE_DWORD > objOffset;
+
 	CHE_PDF_ObjectPtr ObjPtr;
+	CHE_PDF_NamePtr NamePtr;
+	CHE_PDF_DictionaryPtr DictPtr;
 
 	pCreator->OutPutFileHead( GetPDFVersion() );
 
@@ -213,16 +216,15 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 				//跳过不需要输出的对象流对象和交叉索引流对象
 				if ( IsPdfStreamPtr( ObjPtr ) )
 				{
-					CHE_PDF_DictionaryPtr tmpDictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
-					CHE_PDF_NamePtr tmpNamePtr;
-
-					ObjPtr = tmpDictPtr->GetElement( "Type", OBJ_TYPE_NAME );
-					if ( ObjPtr )
+					DictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
+					
+					CHE_PDF_ObjectPtr tmpObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
+					if ( tmpObjPtr )
 					{
-						tmpNamePtr = ObjPtr->GetNamePtr();
-						if ( tmpNamePtr )
+						NamePtr = tmpObjPtr->GetNamePtr();
+						if ( NamePtr )
 						{
-							if ( tmpNamePtr->GetString() == "ObjStm" || tmpNamePtr->GetString() == "XRef" )
+							if ( NamePtr->GetString() == "ObjStm" || NamePtr->GetString() == "XRef" )
 							{
 								mXRefTable.MoveNext();
 								continue;
@@ -402,34 +404,34 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 		++objCount;
 	}
 
-	CHE_PDF_DictionaryPtr DictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
+	CHE_PDF_DictionaryPtr StmDictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
 	CHE_PDF_StreamPtr StmPtr = CHE_PDF_Stream::Create( 0, 0, NULL, GetAllocator() );
 
 	refInfo.objNum = xref.GetMaxObjNum() + 1;
 	refInfo.genNum = 0;
 	
-	StmPtr->SetDict( DictPtr );
+	StmPtr->SetDict( StmDictPtr );
 
-	DictPtr->SetAtName( "Type", "XRef" );
+	StmDictPtr->SetAtName( "Type", "XRef" );
 
 	ObjPtr = trailerDictPtr->GetElement( "Root", OBJ_TYPE_REFERENCE );
 	if ( ObjPtr )
 	{
-		DictPtr->SetAtObj( "Root", ObjPtr->Clone() );
+		StmDictPtr->SetAtObj( "Root", ObjPtr->Clone() );
 	}
 	ObjPtr = trailerDictPtr->GetElement( "Info", OBJ_TYPE_REFERENCE );
 	if ( ObjPtr )
 	{
-		DictPtr->SetAtObj( "Info", ObjPtr->Clone() );
+		StmDictPtr->SetAtObj( "Info", ObjPtr->Clone() );
 	}
-	DictPtr->SetAtInteger( "Size", objCount );
+	StmDictPtr->SetAtInteger( "Size", objCount );
 	CHE_PDF_ArrayPtr ArrayPtr = CHE_PDF_Array::Create( GetAllocator() );
 	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)1, GetAllocator() ) );
 	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)3, GetAllocator() ) );
 	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)1, GetAllocator() ) );
-	DictPtr->SetAtArray( "W", ArrayPtr );
+	StmDictPtr->SetAtArray( "W", ArrayPtr );
 	ArrayPtr  = CHE_PDF_Array::Create( GetAllocator() );
-	DictPtr->SetAtArray( "Index", ArrayPtr );
+	StmDictPtr->SetAtArray( "Index", ArrayPtr );
 
 	CHE_DynBuffer tmpBuf( 1024, 1024, GetAllocator() );
 

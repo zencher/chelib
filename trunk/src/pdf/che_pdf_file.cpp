@@ -15,18 +15,26 @@ HE_BOOL CHE_PDF_File::Open( IHE_Read * pRead )
 	{
 		return FALSE;
 	}
+
 	if ( mpParser )
 	{
 		mpParser->GetAllocator()->Delete( mpParser );
 		mObjCollector.Clear();
 		mXRefTable.Clear();
 	}
+
 	mpParser = CHE_PDF_Parser::Create( this, pRead, &mXRefTable, GetAllocator() );
+	
 	if ( mpParser )
 	{
+		mpParser->GetStartxref( 1024 );
+		mpParser->ParseXRef();
+
 		mVersion = mpParser->GetPDFVersion();
+		
 		return TRUE;
 	}
+
 	return FALSE;
 }
 
@@ -92,11 +100,11 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 			{
 				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
 				{
-					DictPtr =  ObjPtr->GetStreamPtr()->GetDictPtr();
-					ObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
-					if ( ObjPtr )
+					DictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
+					CHE_PDF_ObjectPtr tmpObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
+					if ( tmpObjPtr )
 					{
-						NamePtr = ObjPtr->GetNamePtr();
+						NamePtr = tmpObjPtr->GetNamePtr();
 					}
 					if ( NamePtr )
 					{

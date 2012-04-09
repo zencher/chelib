@@ -1306,8 +1306,6 @@ CHE_PDF_Parser * CHE_PDF_Parser::Create( CHE_PDF_File * pFile, IHE_Read * pRead,
 	if ( pParserRet )
 	{
 		pParserRet->m_sParser.InitParser( pParserRet->m_pIHE_FileRead );
-		pParserRet->GetStartxref( 1024 );
-		pParserRet->ParseXRef();
 	}
 	return pParserRet;
 }
@@ -1527,7 +1525,7 @@ HE_BOOL CHE_PDF_Parser::ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict
 				pObj = pIDArray->GetElement( 0 );
 				if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_STRING )
 				{
-					id1 = pObj->GetStringPtr()->GetStringPtr();
+					id1 = pObj->GetStringPtr()->GetString();
 				}
 			}
 			//»ñÈ¡Length
@@ -1558,7 +1556,7 @@ HE_BOOL CHE_PDF_Parser::ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict
 			pObj = pEncryptDict->GetElement( "U" );
 			if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_STRING )
 			{
-				CHE_ByteString str = pObj->GetStringPtr()->GetStringPtr();
+				CHE_ByteString str = pObj->GetStringPtr()->GetString();
 				for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
 				{
 					U[i] = str[i];
@@ -1568,7 +1566,7 @@ HE_BOOL CHE_PDF_Parser::ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict
 			pObj = pEncryptDict->GetElement( "O" );
 			if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_STRING )
 			{
-				CHE_ByteString str = pObj->GetStringPtr()->GetStringPtr();
+				CHE_ByteString str = pObj->GetStringPtr()->GetString();
 				for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
 				{
 					O[i] = str[i];

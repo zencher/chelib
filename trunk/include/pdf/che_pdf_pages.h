@@ -19,7 +19,7 @@ public:
 
 	CHE_PDF_Page *					GetPage( HE_DWORD index );
 
-	PDF_RefInfo						GetPageRefInfo( HE_DWORD index );
+	HE_BOOL							GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet );
 
 	HE_VOID							AppendPage( HE_DWORD width, HE_DWORD height );
 
@@ -44,11 +44,24 @@ private:
 class CHE_PDF_Page : public CHE_Object
 {
 public:
-	~CHE_PDF_Page();
+	
+	CHE_PDF_DictionaryPtr	GetPageDict() { return mpPageDict; }
+
+	CHE_PDF_DictionaryPtr	GetResourcesDict();
+
+	CHE_PDF_ArrayPtr		GetMediaBoxArray();
+
+	CHE_PDF_ArrayPtr		GetCropBoxArray();
+
+	HE_DWORD				GetRotate();
+	
+	static HE_BOOL			ReleasePage( CHE_PDF_Page * pPage );
 
 private:
-	CHE_PDF_Page( const CHE_PDF_DictionaryPtr pPageDict, CHE_PDF_PageTree * pPages, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Page( const CHE_PDF_DictionaryPtr pPageDict, CHE_Allocator * pAllocator = NULL )
 		: CHE_Object( pAllocator ), mpPageDict( pPageDict ) {}
+
+	~CHE_PDF_Page() {}
 
 	CHE_PDF_DictionaryPtr	mpPageDict;
 

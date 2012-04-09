@@ -11,8 +11,8 @@
 #include "PdfSplitterDlg.h"
 #include "ProcessDlg.h"
 
-
-#include "../../../../trunk/include/pdf/che_pdf_parser.h"
+#include "../../../../trunk/include/pdf/che_pdf_file.h"
+#include "../../../../trunk/include/pdf/che_pdf_document.h"
 
 using namespace Gdiplus;
 
@@ -111,7 +111,9 @@ public:
 	std::wstring			mTargetFile;
 	std::wstring			mNewFile;
 	IHE_Read *				mpFileRead;
-	CHE_PDF_Parser			mParser;
+	CHE_PDF_File			mFile;
+	CHE_PDF_Document *		mpDocument;	
+	CHE_PDF_PageTree *		mpPageTree;
 	std::string				mPasswrod;
 
 	float					mfViewPoint;

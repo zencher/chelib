@@ -32,6 +32,8 @@ CPdfSpliterApp::CPdfSpliterApp()
 	mfViewPoint = 0.0;
 	mItemCount = 0;
 	mCurItem = 0;
+	mpDocument = NULL;
+	mpPageTree = NULL;
 }
 
 
@@ -192,8 +194,9 @@ void CPdfSpliterApp::LoadDocument()
 		mpFileRead = HE_CreateFileRead( tmpStr, FILEREAD_MODE_DEFAULT, 4096 );
 		if ( mpFileRead )
 		{
-			mParser.Open( theApp.mpFileRead );
-			mParser.GetPageCount();
+			mFile.Open( mpFileRead );
+			mpDocument = CHE_PDF_Document::CreateDocument( &mFile );
+			mpPageTree = mpDocument->GetPageTree();
 		}
 		mbLoadOver = true;
 	}
@@ -223,7 +226,10 @@ void CPdfSpliterApp::CloseDocument()
 	mpMainDlg->UpdateFileInfoArea();
 	if ( mpFileRead )
 	{
-		mParser.Close();
+		//todo
+		//释放文档对象和页面树
+
+		mFile.Close();
 		HE_DestoryIHERead( mpFileRead );
 		mpFileRead = NULL;
 		mbLoadOver = false;

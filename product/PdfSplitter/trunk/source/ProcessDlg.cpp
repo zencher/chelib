@@ -14,13 +14,15 @@ static void EventCancelBtnClick( CHE_WD_Area * pArea )
 
 DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 {
+	//flag for working
 	theApp.mbWork = true;
 
-	CHE_PDF_Creator creator;
-	if ( creator.NewDocument() == FALSE )
-	{
-		return 0;
-	}
+	CHE_PDF_File newFile;
+	newFile.SetPDFVersion( theApp.mFile.GetPDFVersion() );
+
+	CHE_PDF_Document * pNewDocument = CHE_PDF_Document::CreateDocument( &newFile );
+
+	CHE_PDF_PageTree * pNewPageTree = pNewDocument->GetPageTree();
 
 	CHE_ObjectCloneMgr ObjCloneMgr;
 
@@ -49,71 +51,77 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 				theApp.mpProcessDlg->mpMainArea->Refresh();
 			}
 			iCurPage++;
-			CHE_PDF_Dictionary * pFirstPageDict = theApp.mParser.GetObject( theApp.mParser.GetPageObjNum( iIndex + i ) )->ToDict();
-			if ( pFirstPageDict == NULL )
+
+			CHE_PDF_DictionaryPtr OldPageDictPtr;
+			CHE_PDF_Page * pOldPage = theApp.mpPageTree->GetPage( i );
+			if ( pOldPage == NULL )
 			{
 				return 0;
 			}
-			CHE_PDF_Dictionary * pNewPageDict = creator.NewPage( 0, 0 );
-			if ( pNewPageDict == NULL )
+			OldPageDictPtr = pOldPage->GetPageDict();
+
+			pNewPageTree->AppendPage( 0, 0 );
+
+			CHE_PDF_DictionaryPtr NewPageDictPtr;
+			CHE_PDF_Page * pNewPage = pNewPageTree->GetPage( i );
+			if ( pNewPage == NULL )
 			{
 				return 0;
 			}
+			NewPageDictPtr = pNewPage->GetPageDict();
 
-			creator.SetVersion( theApp.mParser.GetPDFVersion() );
-
-			CHE_PDF_Object * pTmpObj = NULL;
 			CHE_ByteString key;
-			for ( HE_DWORD i = 0; i < pFirstPageDict->GetCount(); i++ )
+			CHE_PDF_ObjectPtr tmpObjPtr;
+			for ( HE_DWORD i = 0; i < OldPageDictPtr->GetCount(); i++ )
 			{
-				pTmpObj = pFirstPageDict->GetElementByIndex( i );
-				pFirstPageDict->GetKeyByIndex( i, key );
-				if ( key == "Type" || key == "Parent"  )
+				tmpObjPtr = OldPageDictPtr->GetElementByIndex( i );
+				OldPageDictPtr->GetKeyByIndex( i, key );
+				if ( !tmpObjPtr || key == "Type" || key == "Parent" )
 				{
 					continue;
 				}
-				switch( pTmpObj->GetType() )
+				switch( tmpObjPtr->GetType() )
 				{
 				case OBJ_TYPE_NULL:
-					pNewPageDict->SetAtNull( key );
+					NewPageDictPtr->SetAtNull( key );
 					break;
 				case OBJ_TYPE_BOOLEAN:
-					pNewPageDict->SetAtBoolean( key, pTmpObj->ToBoolean()->GetValue() );
+					NewPageDictPtr->SetAtBoolean( key, tmpObjPtr->GetBooleanPtr()->GetValue() );
 					break;
 				case OBJ_TYPE_NUMBER:
-					if ( pTmpObj->ToNumber()->IsInteger() )
+					if ( tmpObjPtr->GetNumberPtr()->IsInteger() )
 					{
-						pNewPageDict->SetAtInteger( key, pTmpObj->ToNumber()->GetInteger() );
+						NewPageDictPtr->SetAtInteger( key, tmpObjPtr->GetNumberPtr()->GetInteger() );
 					}else{
-						pNewPageDict->SetAtFloatNumber( key, pTmpObj->ToNumber()->GetFloat() );
+						NewPageDictPtr->SetAtFloatNumber( key, tmpObjPtr->GetNumberPtr()->GetFloat() );
 					}
 					break;
 				case OBJ_TYPE_STRING:
-					pNewPageDict->SetAtString( key, pTmpObj->ToString()->GetString() );
+					NewPageDictPtr->SetAtString( key, tmpObjPtr->GetStringPtr()->GetString() );
 					break;
 				case OBJ_TYPE_NAME:
-					pNewPageDict->SetAtName( key, pTmpObj->ToName()->GetString() );
+					NewPageDictPtr->SetAtName( key, tmpObjPtr->GetNamePtr()->GetString() );
 					break;
 				case OBJ_TYPE_ARRAY:
-					pNewPageDict->SetAtArray( key, CloneDirectArrayObj( pTmpObj->ToArray(), &creator, &ObjCloneMgr ) );
+					NewPageDictPtr->SetAtArray( key, CloneDirectArrayObj( tmpObjPtr->GetArrayPtr(), &newFile, &ObjCloneMgr ) );
 					break;
 				case OBJ_TYPE_DICTIONARY:
-					pNewPageDict->SetAtDictionary( key, CloneDirectDictObj( pTmpObj->ToDict(), &creator, &ObjCloneMgr ) );
+					NewPageDictPtr->SetAtDictionary( key, CloneDirectDictObj( tmpObjPtr->GetDictPtr(), &newFile, &ObjCloneMgr ) );
 					break;
 				case OBJ_TYPE_REFERENCE:
 					{
-						HE_PDF_InObjectNumbers numbers = CloneIndirectObject( pTmpObj->ToReference(), &creator, &ObjCloneMgr );
-						if ( numbers.objNum == 0 )
-						{
-							int x = 0;
-						}
-						pNewPageDict->SetAtReference( key, numbers.objNum, numbers.genNum, NULL );
+						PDF_RefInfo refInfo = CloneIndirectObj( tmpObjPtr->GetRefPtr(), &newFile, &ObjCloneMgr );
+						NewPageDictPtr->SetAtReference( key, refInfo.objNum, refInfo.genNum, &newFile );
 						break;
 					}
 				default:
 					break;
 				}
 			}
+
+			//release pages
+			CHE_PDF_Page::ReleasePage( pOldPage );
+			CHE_PDF_Page::ReleasePage( pNewPage );
 		}
 	}
 
@@ -124,7 +132,7 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 	WideCharToMultiByte( CP_ACP, 0, theApp.mNewFile.c_str(), -1, tmpStr, 1024, NULL, NULL );
 	IHE_Write * pWrite = HE_CreateFileWrite( tmpStr );
 
-	creator.Save( pWrite );
+	newFile.Save( pWrite );
 
 	HE_DestoryIHEWrite( pWrite );
 

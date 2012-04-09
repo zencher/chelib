@@ -175,8 +175,8 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 {
 	gpDlg = this;
 	mPageBegin = 1;
-	mPageEnd = theApp.mParser.GetPageCount();
-	mPageCount = theApp.mParser.GetPageCount();
+	mPageEnd = theApp.mpPageTree->GetPageCount();
+	mPageCount = theApp.mpPageTree->GetPageCount();
 
 	CHE_WD_Appearance * pTmpApper = NULL;
 	CHE_WD_AppearImage * pTmpImage = NULL;

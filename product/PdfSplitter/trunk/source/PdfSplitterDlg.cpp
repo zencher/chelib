@@ -130,7 +130,7 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 		CHE_ByteString str;
 		bool bPasswordError = false;
 		str = "";
-		while ( ! theApp.mParser.Authenticate( str ) )
+		while ( ! theApp.mFile.Authenticate( str ) )
 		{
 			CPasswordDlg dlg;
 			if ( bPasswordError )
@@ -149,7 +149,7 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 		pTmpAppear = theApp.mpMainDlg->mpFilePageCountInfo->GetBackGroundAppear();
 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
 		wchar_t tmpwstr[512];
-		wsprintf( tmpwstr, L"总计：%d 页", theApp.mParser.GetPageCount() );
+		wsprintf( tmpwstr, L"总计：%d 页", theApp.mpDocument->GetPageCount() );
 		pTmpText->SetText( tmpwstr );
 		pTmpAppear = theApp.mpMainDlg->mpFileSizeInfo->GetBackGroundAppear();
 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
@@ -1251,7 +1251,7 @@ void CPdfSpliterDlg::OnDestroy()
 {
 	CDialogEx::OnDestroy();
 	KillTimer( mTimerId );
-	theApp.mParser.Close();
+	theApp.mFile.Close();
 	if( theApp.mpFileRead )
 	{
 		HE_DestoryIHERead( theApp.mpFileRead );

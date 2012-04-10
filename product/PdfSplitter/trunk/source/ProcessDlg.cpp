@@ -119,6 +119,15 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 				}
 			}
 
+			CHE_PDF_DictionaryPtr tmpDict = CloneDirectDictObj( pOldPage->GetResourcesDict(), &newFile, &ObjCloneMgr );
+			NewPageDictPtr->SetAtDictionary( "Resources", tmpDict );
+
+			CHE_PDF_ArrayPtr tmpArray = CloneDirectArrayObj( pOldPage->GetMediaBoxArray(), &newFile, &ObjCloneMgr );
+			NewPageDictPtr->SetAtArray( "MediaBox", tmpArray );
+
+			HE_INT32 rotate = pOldPage->GetRotate();
+			NewPageDictPtr->SetAtInteger( "Rotate", rotate );
+
 			//release pages
 			CHE_PDF_Page::ReleasePage( pOldPage );
 			CHE_PDF_Page::ReleasePage( pNewPage );

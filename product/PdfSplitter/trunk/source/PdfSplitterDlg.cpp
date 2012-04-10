@@ -427,7 +427,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 		gpListItemLine = new CHE_WD_AppearPath;
 		gpListItemLine->AddLine( 0, 48, 630, 48 );
 		gpListItemLine->SetOperator( APPEAR_PATH_STROKE );
-		gpListItemLine->SetStrokeColor( 0xFF88888888 );
+		gpListItemLine->SetStrokeColor( 0x88888888 );
 		gpListItemLine->SetLineWidth( 1 );
 	}
 	if ( ! gpListItemIcon1 )

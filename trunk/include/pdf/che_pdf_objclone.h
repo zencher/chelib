@@ -29,7 +29,7 @@ public:
 		mObjNumbers.objNum = data.mObjNumbers.objNum;
 		mObjNumbers.genNum = data.mObjNumbers.genNum;
 		mNewObjNumbers.objNum = data.mNewObjNumbers.objNum;
-		mNewObjNumbers.objNum = data.mNewObjNumbers.genNum;
+		mNewObjNumbers.genNum = data.mNewObjNumbers.genNum;
 		return *this;
 	}
 
@@ -67,8 +67,10 @@ public:
 	HE_VOID	SetMap( PDF_RefInfo OriObjNumers, PDF_RefInfo NewObjNumbers )
 	{
 		ObjectCloneMgrData data;
-		data.mObjNumbers = OriObjNumers;
-		data.mNewObjNumbers = NewObjNumbers;
+		data.mObjNumbers.objNum = OriObjNumers.objNum;
+		data.mObjNumbers.genNum = OriObjNumers.genNum;
+		data.mNewObjNumbers.objNum = NewObjNumbers.objNum;
+		data.mNewObjNumbers.genNum = NewObjNumbers.genNum;
 		mDataList.Append( data );   
 	}
 

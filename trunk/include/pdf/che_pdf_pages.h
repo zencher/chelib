@@ -27,9 +27,9 @@ private:
 
 	CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
 
-	HE_DWORD						mPageCount;
+	HE_VOID							ParseAllPageRefInfo();
 
-	HE_DWORD						mCurPageIndex;
+	HE_DWORD						mPageCount;
 
 	std::vector<PDF_RefInfo>		mPageObjList;
 
@@ -53,7 +53,7 @@ public:
 
 	CHE_PDF_ArrayPtr		GetCropBoxArray();
 
-	HE_DWORD				GetRotate();
+	HE_INT32				GetRotate();
 	
 	static HE_BOOL			ReleasePage( CHE_PDF_Page * pPage );
 

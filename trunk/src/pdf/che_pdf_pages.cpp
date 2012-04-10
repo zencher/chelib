@@ -2,50 +2,51 @@
 
 #include <cassert>
 
-CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), mPageCount(0), mCurPageIndex(0), mpFile(pFile)
+CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & PagesDictPtr, CHE_PDF_File * pFile, CHE_Allocator * pAllocator )
+	: CHE_Object( pAllocator ), mPageCount(0), mpFile(pFile)
 {
-	if ( !pPagesDict )
+	if ( !PagesDictPtr )
 	{
 		return;
 	}
-	CHE_PDF_ObjectPtr pObj =  pPagesDict->GetElement( "Count", OBJ_TYPE_NUMBER );
-	if ( !pObj )
+	CHE_PDF_ObjectPtr ObjPtr =  PagesDictPtr->GetElement( "Count", OBJ_TYPE_NUMBER );
+	if ( ! ObjPtr )
 	{
 		return;
 	}
 
-	mPageCount = pObj->GetNumberPtr()->GetInteger();
+	mPageCount = ObjPtr->GetNumberPtr()->GetInteger();
 	
-	CHE_PDF_ArrayPtr pKidArray = pPagesDict->GetElement( "Kids", OBJ_TYPE_ARRAY )->GetArrayPtr();
-	if ( pKidArray )
+	ObjPtr = PagesDictPtr->GetElement( "Kids", OBJ_TYPE_ARRAY );
+	if ( ObjPtr )
 	{
-		CHE_PDF_ReferencePtr pRef;
 		PDF_RefInfo refInfo;
-		if ( pKidArray->GetCount() == mPageCount )
+		CHE_PDF_ReferencePtr RefPtr;
+		CHE_PDF_ArrayPtr KidsArrayPtr = ObjPtr->GetArrayPtr();
+
+		if ( KidsArrayPtr->GetCount() == mPageCount )
 		{
-			for ( HE_DWORD i = 0; i < mPageCount; i++ )
+			for ( HE_DWORD i = 0; i < mPageCount; ++i )
 			{
-				pObj = pKidArray->GetElement( i );
-				if ( pObj && pObj->GetType() == OBJ_TYPE_REFERENCE )
+				ObjPtr = KidsArrayPtr->GetElement( i );
+				if ( IsPdfArrayPtr( ObjPtr ) )
 				{
-					pRef = pObj->GetRefPtr();
-					refInfo.objNum = pRef->GetRefNum();
-					refInfo.genNum = pRef->GetGenNum();
+					RefPtr = ObjPtr->GetRefPtr();
+					refInfo = RefPtr->GetRefInfo();
 					mPageObjList.push_back( refInfo );
 				}
 			}
-			mCurPageIndex = mPageCount-1;
-		}else{
-			for ( HE_DWORD i = 0; i < pKidArray->GetCount(); i++ )
+		}
+		else
+		{
+			for ( HE_DWORD i = KidsArrayPtr->GetCount() ; i > 0; --i )
 			{
-				pObj = pKidArray->GetElement( i );
-				if ( pObj && pObj->GetType() == OBJ_TYPE_REFERENCE )
+				ObjPtr = KidsArrayPtr->GetElement( i - 1 );
+				if ( IsPdfRefPtr( ObjPtr ) )
 				{
-					mPageNodeStack.Push( pObj->GetRefPtr() );
+					mPageNodeStack.Push( ObjPtr->GetRefPtr() );
 				}
 			}
-			mCurPageIndex = 0;	
 		}
 	}
 }
@@ -128,14 +129,11 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet )
 
 				if ( namePtr->GetString() == "Page" )
 				{
-					refRet.objNum = refPtr->GetRefNum();
-					refRet.genNum = refPtr->GetGenNum();
+					refRet = refPtr->GetRefInfo();
 
 					mPageObjList.push_back( refRet );
 
-					mCurPageIndex++;
-					
-					if ( mCurPageIndex-1 == index )
+					if ( mPageObjList.size() == index + 1 )
 					{
 						return TRUE;
 					}
@@ -167,6 +165,8 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet )
 HE_VOID CHE_PDF_PageTree::AppendPage( HE_DWORD width, HE_DWORD height )
 {
 	assert( mpFile );
+
+	ParseAllPageRefInfo();
 
 	CHE_PDF_ObjectPtr ObjPtr;
 	CHE_PDF_DictionaryPtr pagesDictPtr;
@@ -226,6 +226,18 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_DWORD width, HE_DWORD height )
 			}
 		}
 	}
+}
+
+HE_VOID CHE_PDF_PageTree::ParseAllPageRefInfo()
+{
+	if ( mPageNodeStack.IsEmpty() )
+	{
+		return;
+	}
+
+	//Get the last page ref info to make all page ref be get
+	PDF_RefInfo refRet;
+	GetPageRefInfo( mPageCount-1, refRet );
 }
 
 CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict()
@@ -314,9 +326,9 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetCropBoxArray()
 	return cropBox;
 }
 
-HE_DWORD CHE_PDF_Page::GetRotate()
+HE_INT32 CHE_PDF_Page::GetRotate()
 {
-	HE_DWORD ret = 0;
+	HE_INT32 ret = 0;
 
 	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "Rotate", OBJ_TYPE_NUMBER );
 	if ( objPtr )

@@ -29,7 +29,7 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & PagesDictPtr, 
 			for ( HE_DWORD i = 0; i < mPageCount; ++i )
 			{
 				ObjPtr = KidsArrayPtr->GetElement( i );
-				if ( IsPdfArrayPtr( ObjPtr ) )
+				if ( IsPdfRefPtr( ObjPtr ) )
 				{
 					RefPtr = ObjPtr->GetRefPtr();
 					refInfo = RefPtr->GetRefInfo();

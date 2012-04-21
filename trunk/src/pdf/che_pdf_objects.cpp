@@ -90,6 +90,16 @@ HE_VOID CHE_PDF_Object::Release()
 	}
 }
 
+HE_VOID CHE_PDF_Object::SetModified( HE_BOOL bValue )
+{
+	mModified = bValue;
+}
+
+HE_BOOL	CHE_PDF_Object::IsModified()
+{
+	return mModified;
+}
+
 CHE_PDF_NullPtr CHE_PDF_Object::GetNullPtr() const
 {
 	CHE_PDF_NullPtr ptr;
@@ -430,6 +440,8 @@ CHE_ByteString & CHE_PDF_String::GetString()
 HE_VOID	CHE_PDF_String::SetString( CHE_ByteString & name )
 {
 	mString = name;
+
+	SetModified( TRUE );
 }
 
 CHE_PDF_StringPtr CHE_PDF_String::Clone()
@@ -625,6 +637,9 @@ HE_BOOL CHE_PDF_Array::Append( const CHE_PDF_ObjectPtr & ptr )
 	if ( ptr )
 	{
 		mArray.push_back( ptr );
+
+		SetModified( TRUE );
+
 		return TRUE;
 	}
 	return FALSE;
@@ -648,6 +663,23 @@ CHE_PDF_ArrayPtr CHE_PDF_Array::Clone()
 		}
 	}
 	return ptr;
+}
+
+HE_BOOL CHE_PDF_Array::IsModified()
+{
+	if ( mModified )
+	{
+		return TRUE;
+	}
+	for ( size_t i = 0; i < mArray.size(); ++i )
+	{
+		if ( mArray[i]->IsModified() )
+		{
+			mModified = TRUE;
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 CHE_PDF_DictionaryPtr CHE_PDF_Dictionary::Create( CHE_Allocator * pAllocator /*= NULL*/ )
@@ -708,6 +740,8 @@ HE_VOID CHE_PDF_Dictionary::SetAtObj( const CHE_ByteString & key, const CHE_PDF_
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -726,6 +760,8 @@ HE_VOID	CHE_PDF_Dictionary::SetAtNull( const CHE_ByteString & key )
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -744,6 +780,8 @@ HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( const CHE_ByteString & key, BOOL value
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -762,6 +800,8 @@ HE_VOID	CHE_PDF_Dictionary::SetAtInteger( const CHE_ByteString & key, HE_INT32 v
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -780,6 +820,8 @@ HE_VOID	CHE_PDF_Dictionary::SetAtFloatNumber( const CHE_ByteString & key, HE_FLO
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -798,6 +840,8 @@ HE_VOID	CHE_PDF_Dictionary::SetAtString( const CHE_ByteString & key, const CHE_B
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -816,6 +860,8 @@ HE_VOID	CHE_PDF_Dictionary::SetAtName( const CHE_ByteString & key, const CHE_Byt
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -833,6 +879,8 @@ HE_VOID	CHE_PDF_Dictionary::SetAtArray( const CHE_ByteString & key, const CHE_PD
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -850,6 +898,8 @@ HE_VOID CHE_PDF_Dictionary::SetAtDictionary( const CHE_ByteString & key, const C
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -868,6 +918,8 @@ HE_VOID	CHE_PDF_Dictionary::SetAtReference( const CHE_ByteString & key, HE_DWORD
 		}
 		mKeys.push_back( key );
 		mPtrs.push_back( ptr );
+
+		SetModified( TRUE );
 	}
 }
 
@@ -891,6 +943,23 @@ CHE_PDF_DictionaryPtr CHE_PDF_Dictionary::Clone()
 		}
 	}
 	return ptr;
+}
+
+HE_BOOL CHE_PDF_Dictionary::IsModified()
+{
+	if ( mModified )
+	{
+		return TRUE;
+	}
+	for ( size_t i = 0; i < mPtrs.size(); ++i )
+	{
+		if ( mPtrs[i]->IsModified() )
+		{
+			mModified = TRUE;
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ )
@@ -1023,9 +1092,21 @@ CHE_PDF_StreamPtr CHE_PDF_Stream::Clone()
 	return ptr;
 }
 
+HE_BOOL	CHE_PDF_Stream::IsModified()
+{
+	if ( mModified || mDictPtr->IsModified() )
+	{
+		mModified = TRUE;
+		return TRUE;
+	}
+	return FALSE;
+}
+
 HE_VOID	CHE_PDF_Stream::SetDict( const CHE_PDF_DictionaryPtr & pDict )
 {
 	mDictPtr = pDict;
+
+	SetModified( TRUE );
 }
 
 HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYTE filter/* = STREAM_FILTER_NULL*/ )
@@ -1132,7 +1213,11 @@ HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYT
 	default:
 		break;
 	}
+	
 	mDictPtr->SetAtInteger( "Length", m_dwSize );
+
+	SetModified( TRUE );
+
 	return TRUE;
 }
 
@@ -1250,7 +1335,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 			CHE_ByteString str( GetAllocator() );
 			for ( HE_DWORD i = 0; i < lFilterCount; i++ )
 			{
-				str = pFilterNameArr[i]->GetStringPtr();
+				str = pFilterNameArr[i]->GetNamePtr()->GetString();
 				if ( str == "ASCIIHexDecode" || str == "AHx" )
 				{
 					CHE_PDF_HexFilter filter( GetAllocator() );

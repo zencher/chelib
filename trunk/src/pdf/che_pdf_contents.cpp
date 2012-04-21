@@ -193,7 +193,7 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		case PARSE_WORD_DICT_B:
 			{
 				sParser.SetPos( wordDes.offset );
-				pTmpNode = sParser.GetDictionary();
+				pTmpNode = sParser.GetDictionaryPtr();
 				mpObj = pTmpNode;
 				break;
 			}
@@ -711,7 +711,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 	{
 		if ( mpColorSpace->GetType() == OBJ_TYPE_NAME )
 		{
-			CHE_ByteString str = mpColorSpace->GetNamePtr()->GetStringPtr();
+			CHE_ByteString str = mpColorSpace->GetNamePtr()->GetString();
 			pColorspace = GetColorSpace( str, GetAllocator() );
 			if ( pColorspace == NULL )
 			{

@@ -23,14 +23,21 @@ HE_BOOL CHE_PDF_File::Open( IHE_Read * pRead )
 		mXRefTable.Clear();
 	}
 
+
+
 	mpParser = CHE_PDF_Parser::Create( this, pRead, &mXRefTable, GetAllocator() );
 	
 	if ( mpParser )
 	{
-		mpParser->GetStartxref( 1024 );
-		mpParser->ParseXRef();
-
 		mVersion = mpParser->GetPDFVersion();
+
+		if ( mVersion == PDF_VERSION_UNKNOWN )
+		{
+			return FALSE;
+		}
+
+		mpParser->GetStartxref( 1024 );
+		mpParser->ParseXRef();		
 		
 		return TRUE;
 	}

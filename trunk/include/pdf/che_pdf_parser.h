@@ -56,7 +56,7 @@ public:
 	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
 	CHE_PDF_ArrayPtr	GetArrayPtr();
 	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）	*/
-	CHE_PDF_DictionaryPtr	GetDictionary();
+	CHE_PDF_DictionaryPtr	GetDictionaryPtr();
 
 private:
 	HE_VOID				SubmitBufferStr( CHE_ByteString & str );

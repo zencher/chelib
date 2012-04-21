@@ -4218,7 +4218,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocat
 		return;
 	}
 	CHE_ByteString str( GetAllocator() );
-	str = pTmpObj->GetNamePtr()->GetStringPtr();
+	str = pTmpObj->GetNamePtr()->GetString();
 	if ( str != "Font" )
 	{
 		return;
@@ -4229,7 +4229,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocat
 	{
 		return;
 	}
-	str = pTmpObj->GetNamePtr()->GetStringPtr();
+	str = pTmpObj->GetNamePtr()->GetString();
 	if ( str == "Type0" )
 	{
 		m_FontType = FONT_TYPE0;
@@ -4262,7 +4262,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocat
 		{
 			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
 			{
-				str = pTmpObj->GetNamePtr()->GetStringPtr();
+				str = pTmpObj->GetNamePtr()->GetString();
 				if ( str == "MacRomanEncoding" )
 				{
 					m_EncodingType = FONT_ENCODING_MACROMAN;
@@ -4286,7 +4286,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocat
 				pTmpObj = pEncodingDict->GetElement( "BaseEncoding", OBJ_TYPE_NAME );
 				if ( pTmpObj )
 				{
-					str = pTmpObj->GetNamePtr()->GetStringPtr();
+					str = pTmpObj->GetNamePtr()->GetString();
 					if ( str == "MacRomanEncoding" )
 					{
 						m_EncodingType = FONT_ENCODING_MACROMAN;
@@ -4340,7 +4340,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocat
 							iIndex = pObj->GetNumberPtr()->GetInteger();
 						}else if ( pObj->GetType() == OBJ_TYPE_NAME )
 						{
-							CHE_ByteString strTmp = pObj->GetNamePtr()->GetStringPtr();
+							CHE_ByteString strTmp = pObj->GetNamePtr()->GetString();
 							if ( HE_GetCodeFromName( strTmp, m_EncodingType, tmpByte ) )
 							{
 								*(m_pEncodingTable + iIndex) = tmpByte;
@@ -4358,7 +4358,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocat
 			{
 				break;
 			}
-			str = pTmpObj->GetNamePtr()->GetStringPtr();
+			str = pTmpObj->GetNamePtr()->GetString();
 			if ( str == "Identity-H" || str == "Identity-V" )
 			{
 				m_EncodingType = FONT_ENCODING_SELFDEF;
@@ -4389,7 +4389,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocat
 					break;
 				}
 				CHE_PDF_StringPtr pSt = pTmpObj->GetStringPtr();
-				CHE_ByteString cmapNuame = pSt->GetStringPtr();
+				CHE_ByteString cmapNuame = pSt->GetString();
 				cmapNuame += "-";
 				pTmpObj = pCIDSystemInfoDict->GetElement( "Ordering", OBJ_TYPE_STRING );
 				if ( ! pTmpObj )
@@ -4397,7 +4397,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocat
 					break;
 				}
 				pSt = pTmpObj->GetStringPtr();
-				cmapNuame += pSt->GetStringPtr();
+				cmapNuame += pSt->GetString();
 				if ( cmapNuame == "Adobe-CNS1" )
 				{
 					cmapNuame = "Adobe-CNS1-UCS2";
@@ -4552,7 +4552,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 							{
 								continue;
 							}
-							CHE_ByteString strTmp = pStrObj->GetStringPtr();
+							CHE_ByteString strTmp = pStrObj->GetString();
 							tmpValue = HE_HexStrToValue( strTmp );
 							tmpMap->Append( i, (HE_LPVOID)tmpValue );
 							lCodeCount++;

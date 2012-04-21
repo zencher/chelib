@@ -8,6 +8,7 @@
 #include "che_pdf_encrypt.h"
 
 #include <vector>
+#include <intrin.h>
 
 class CHE_PDF_Object;
 class CHE_PDF_Null;
@@ -82,13 +83,13 @@ public:
 
 	inline	operator HE_DWORD() { return mRefCount; }
 
-	inline HE_VOID	AddRef() { ++mRefCount; }
+	inline HE_VOID	AddRef() { _InterlockedIncrement( &mRefCount ); }
 
-	inline HE_VOID	DecRef() { --mRefCount; }
+	inline HE_VOID	DecRef() { _InterlockedDecrement( &mRefCount ); }
 
 private:
 
-	HE_DWORD		mRefCount;
+	HE_LONG		mRefCount;
 };
 
 class CHE_PDF_Object : public CHE_Object
@@ -100,6 +101,10 @@ public:
 	CHE_PDF_ObjectPtr				Clone();
 
 	HE_VOID							Release();
+
+	HE_VOID							SetModified( HE_BOOL );
+
+	virtual	HE_BOOL					IsModified();
 
 	inline CHE_PDF_NullPtr			GetNullPtr() const;
 
@@ -117,17 +122,17 @@ public:
 
 	inline CHE_PDF_ReferencePtr		GetRefPtr() const;
 
-	inline CHE_PDF_StreamPtr		GetStreamPtr() const;
+	inline CHE_PDF_StreamPtr		GetStreamPtr() const;				
 
 protected:
 
 	CHE_PDF_Object( PDF_OBJ_TYPE type, CHE_Allocator * pAllocator = NULL );
 
-	HE_BOOL				mModified;
+	HE_BOOL							mModified;
 
-	PDF_OBJ_TYPE		mType;
+	PDF_OBJ_TYPE					mType;
 
-	CHE_PDF_RefCount	mRefs;
+	CHE_PDF_RefCount				mRefs;
 
 	friend class CHE_Allocator;
 
@@ -236,7 +241,7 @@ public:
 
 	HE_BOOL							GetValue() { return mbValue; }
 
-	HE_VOID							SetValue( HE_BOOL value ) { mbValue = value; }
+	HE_VOID							SetValue( HE_BOOL value ) { mbValue = value; SetModified( TRUE ); }
 
 	CHE_PDF_BooleanPtr				Clone();
 
@@ -268,9 +273,9 @@ public:
 
 	HE_FLOAT						GetFloat() const { return mbInteger ? (HE_FLOAT)mInteger : mFloat; }
 
-	HE_VOID							SetValue( HE_INT32 value ) { mbInteger = TRUE; mInteger = value; }
+	HE_VOID							SetValue( HE_INT32 value ) { mbInteger = TRUE; mInteger = value; SetModified( TRUE ); }
 
-	HE_VOID							SetValue( HE_FLOAT value ) { mbInteger = FALSE; mFloat = value; }
+	HE_VOID							SetValue( HE_FLOAT value ) { mbInteger = FALSE; mFloat = value; SetModified( TRUE ); }
 
 	CHE_PDF_NumberPtr				Clone();
 
@@ -326,7 +331,7 @@ public:
 
 	CHE_ByteString					GetString() { return mName; }
 
-	HE_VOID							SetString( CHE_ByteString & name ) { mName = name; };
+	HE_VOID							SetString( CHE_ByteString & name ) { mName = name; SetModified( TRUE ); };
 
 	CHE_PDF_NamePtr					Clone();
 	
@@ -355,15 +360,15 @@ public:
 
 	HE_DWORD						GetRefNum() const { return mRefObjNum; }
 
-	HE_VOID							SetRefNum( HE_DWORD objNum ) { mRefObjNum = objNum; }
+	HE_VOID							SetRefNum( HE_DWORD objNum ) { mRefObjNum = objNum; SetModified( TRUE ); }
 
 	HE_DWORD						GetGenNum() const { return mRefGenNum; }
 
-	HE_VOID							SetGenNum( HE_DWORD genNum ) { mRefGenNum = genNum; }
+	HE_VOID							SetGenNum( HE_DWORD genNum ) { mRefGenNum = genNum; SetModified( TRUE ); }
 
-	PDF_RefInfo					GetRefInfo() { PDF_RefInfo refInfo; refInfo.objNum = mRefObjNum; refInfo.genNum = mRefGenNum; return refInfo; }
+	PDF_RefInfo						GetRefInfo() { PDF_RefInfo refInfo; refInfo.objNum = mRefObjNum; refInfo.genNum = mRefGenNum; return refInfo; }
 
-	HE_VOID							SetRefInfo( PDF_RefInfo refInfo )  { mRefObjNum = refInfo.objNum; mRefGenNum = refInfo.genNum; }
+	HE_VOID							SetRefInfo( PDF_RefInfo refInfo )  { mRefObjNum = refInfo.objNum; mRefGenNum = refInfo.genNum; SetModified( TRUE ); }
 
 	CHE_PDF_ObjectPtr				GetRefObj();
 
@@ -405,6 +410,8 @@ public:
 	CHE_PDF_ObjectPtr				GetElementByType( PDF_OBJ_TYPE Type );
 
 	CHE_PDF_ArrayPtr				Clone();
+
+	HE_BOOL							IsModified();
 
 private:
 
@@ -454,6 +461,8 @@ public:
 
 	CHE_PDF_DictionaryPtr			Clone();
 
+	HE_BOOL							IsModified();
+
 private:
 	CHE_PDF_Dictionary( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object( OBJ_TYPE_DICTIONARY, pAllocator ) {}
 
@@ -499,6 +508,8 @@ public:
 	HE_BOOL							SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYTE filter = STREAM_FILTER_NULL );
 
 	CHE_PDF_StreamPtr				Clone();
+
+	HE_BOOL							IsModified();
 
 private:
 	CHE_PDF_Stream(	HE_LPBYTE pData, HE_DWORD size, const CHE_PDF_DictionaryPtr & pDict, HE_DWORD objNum, HE_DWORD genNum, 

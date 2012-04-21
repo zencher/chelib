@@ -33,6 +33,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_japan.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_korea.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentbuilder.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentresmgr.h" />

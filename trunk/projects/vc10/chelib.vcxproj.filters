@@ -77,9 +77,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_pageobjs.h">
-      <Filter>头文件\PDF</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_pages.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
@@ -87,12 +84,6 @@
       <Filter>头文件\PDF</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer.h">
-      <Filter>头文件\PDF</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_resource.h">
-      <Filter>头文件\PDF</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_text.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h">
@@ -178,9 +169,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_text.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
@@ -223,13 +211,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_pageobjs.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_resource.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
   </ItemGroup>

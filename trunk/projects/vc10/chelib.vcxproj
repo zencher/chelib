@@ -51,12 +51,9 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_matrix.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_pageobjs.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_pages.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_resource.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_text.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
   </ItemGroup>
   <ItemGroup>
@@ -85,12 +82,9 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_pageobjs.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_resource.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_text.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -23,6 +23,26 @@ CHE_PDF_ColorSpace * GetColorSpace( const CHE_ByteString & name, CHE_Allocator *
 	return pColorSpace;
 }
 
+CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ObjectPtr & ObjPtr, CHE_Allocator * pAllocator )
+{
+	if ( ! ObjPtr )
+	{
+		return NULL;
+	}
+	switch ( ObjPtr->GetType() )
+	{
+	case OBJ_TYPE_NAME:
+		return GetColorSpace( ObjPtr->GetNamePtr(), pAllocator );
+	case OBJ_TYPE_ARRAY:
+		return GetColorSpace( ObjPtr->GetArrayPtr(), pAllocator );
+	case OBJ_TYPE_REFERENCE:
+		return GetColorSpace( ObjPtr->GetRefPtr(), pAllocator );
+	default:;
+	}
+
+	return NULL;
+}
+
 CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_NamePtr & pName, CHE_Allocator * pAllocator )
 {
 	if ( !pName )
@@ -52,7 +72,7 @@ CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ArrayPtr & pArray, CHE_Allocat
 	{
 		return NULL;
 	}
-	CHE_ByteString name = pObj->GetNamePtr()->GetStringPtr();
+	CHE_ByteString name = pObj->GetNamePtr()->GetString();
 	CHE_PDF_ColorSpace * pColorSpace = NULL;
 	if ( name == "CalGray" )
 	{

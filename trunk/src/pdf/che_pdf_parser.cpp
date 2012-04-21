@@ -855,430 +855,287 @@ CHE_PDF_ArrayPtr CHE_PDF_SyntaxParser::GetArrayPtr()
 
 	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
 
-	if ( !GetWord( wordDes ) )
-	{
-		return CHE_PDF_ArrayPtr();
-	}
-	if ( wordDes.type != PARSE_WORD_ARRAY_B )
+	if ( ! GetWord( wordDes ) || wordDes.type != PARSE_WORD_ARRAY_B )
 	{
 		return CHE_PDF_ArrayPtr();
 	}
 
-	HE_BOOL bKey = FALSE;
-	CHE_ByteString key( GetAllocator() );
-	CHE_Stack<CHE_PDF_ObjectPtr> stack( GetAllocator() );
-	CHE_Stack<CHE_ByteString> stackName( GetAllocator() );
-	CHE_PDF_ObjectPtr pCurObj = CHE_PDF_Array::Create( GetAllocator() );
+	CHE_PDF_ArrayPtr arrayPtrRet = CHE_PDF_Array::Create( GetAllocator() );
+
+	HE_DWORD preOffset = 0;
+	HE_BOOL	bOver = FALSE;
 	
-	while ( TRUE )
+	while ( ! bOver )
 	{
-		if ( bKey )
-		{
-			if ( !GetWord( wordDes ) )
-			{
-				return CHE_PDF_ArrayPtr();
-			}
-			if ( wordDes.type == PARSE_WORD_NAME )
-			{
-				key = wordDes.str;
-			}else if ( wordDes.type == PARSE_WORD_DICT_E  )
-			{
-				if ( stack.IsEmpty() == FALSE )
-				{
-					CHE_PDF_DictionaryPtr pDict = pCurObj->GetDictPtr();
-					stack.Pop( pCurObj );
-					if ( pCurObj->GetType() == OBJ_TYPE_ARRAY )
-					{
-						pCurObj->GetArrayPtr()->Append( pDict );
-						//((CHE_PDF_Array*)pCurObj)->Append( pDict );
-					}else if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						stackName.Pop( key );
-						pCurObj->GetDictPtr()->SetAtDictionary( key, pDict );
-						//((CHE_PDF_Dictionary*)pCurObj)->SetAtDictionary( key, pDict );
-					}
-				}
-				if ( pCurObj->GetType() == OBJ_TYPE_ARRAY )
-				{
-					bKey = FALSE;
-				}else{
-					bKey = TRUE;
-				}
-				continue;
-			}
-		}
-		if ( bKey == FALSE )
-		{
-			if ( !GetWord( wordDes ) )
-			{
-				return CHE_PDF_ArrayPtr();
-			}
-			if ( wordDes.type == PARSE_WORD_INTEGER )	//整数和引用
-			{
-				HE_DWORD objNum = 0, genNum = 0;
-				objNum = wordDes.str.GetInteger();
+		preOffset = GetPos();
 
-				HE_DWORD lPos = GetPos();
-				if ( !GetWord( wordDes ) )
+		if ( ! GetWord( wordDes ) )
+		{
+			bOver = TRUE;
+
+			continue;
+		}
+
+		switch ( wordDes.type )
+		{
+		case PARSE_WORD_INTEGER:
+			{
+				HE_INT32 integer = 0;
+				HE_DWORD objNum = 0, genNum = 0;
+				HE_DWORD tmpOffset = GetPos();
+
+				integer = wordDes.str.GetInteger();
+				objNum = (HE_DWORD)( integer );
+
+				if ( GetWord( wordDes ) && wordDes.type == PARSE_WORD_INTEGER )
 				{
-					return CHE_PDF_ArrayPtr();
-				}
-				if ( wordDes.type == PARSE_WORD_INTEGER )
-				{
-					genNum = wordDes.str.GetInteger();
-					if ( !GetWord( wordDes ) )
+					genNum = (HE_DWORD)( wordDes.str.GetInteger() );
+
+					if ( GetWord( wordDes ) && wordDes.str == "R" )
 					{
-						return CHE_PDF_ArrayPtr();
-					}
-					if ( wordDes.str == "R" )
-					{
-						if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-						{
-							pCurObj->GetDictPtr()->SetAtReference( key, objNum, genNum, GetFile() );
-						}else{
-							CHE_PDF_ReferencePtr pTmp = CHE_PDF_Reference::Create( objNum, genNum, GetFile(), GetAllocator() );
-							pCurObj->GetArrayPtr()->Append( pTmp );
-						}
-					}else{
-						SetPos( lPos );
-						if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-						{
-							pCurObj->GetDictPtr()->SetAtInteger( key, objNum );
-						}else{
-							CHE_PDF_NumberPtr pTmp = CHE_PDF_Number::Create( (HE_INT32)objNum, GetAllocator() );
-							pCurObj->GetArrayPtr()->Append( pTmp );
-						}
-					}
-				}else{
-					SetPos( lPos );
-					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						pCurObj->GetDictPtr()->SetAtInteger( key, objNum );
-					}else{
-						CHE_PDF_NumberPtr pTmp = CHE_PDF_Number::Create( (HE_INT32)objNum, GetAllocator() );
-						pCurObj->GetArrayPtr()->Append( pTmp );
+						CHE_PDF_ReferencePtr pTmp = CHE_PDF_Reference::Create( objNum, genNum, GetFile(), GetAllocator() );
+
+						arrayPtrRet->Append( pTmp );
+
+						break;
 					}
 				}
-			}else if ( wordDes.type == PARSE_WORD_FLOAT )	//浮点
+
+				SetPos( tmpOffset );
+
+				CHE_PDF_NumberPtr pTmp = CHE_PDF_Number::Create( integer, GetAllocator() );
+
+				arrayPtrRet->Append( pTmp );
+
+				break;
+			}
+		case PARSE_WORD_FLOAT:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					pCurObj->GetDictPtr()->SetAtFloatNumber( key, wordDes.str.GetFloat() );
-				}else{
-					CHE_PDF_NumberPtr pTmp = CHE_PDF_Number::Create( wordDes.str.GetFloat(), GetAllocator() );
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else if ( wordDes.type == PARSE_WORD_STRING )	//字符串
+				CHE_PDF_NumberPtr pTmp = CHE_PDF_Number::Create( wordDes.str.GetFloat(), GetAllocator() );
+
+				arrayPtrRet->Append( pTmp );
+
+				break;
+			}
+		case PARSE_WORD_STRING:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					pCurObj->GetDictPtr()->SetAtString( key, wordDes.str );
-				}else{
-					CHE_PDF_StringPtr pTmp = CHE_PDF_String::Create( wordDes.str,  GetAllocator() );
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else if ( wordDes.type == PARSE_WORD_NAME )
+				CHE_PDF_StringPtr pTmp = CHE_PDF_String::Create( wordDes.str,  GetAllocator() );
+
+				arrayPtrRet->Append( pTmp );
+
+				break;
+			}
+		case PARSE_WORD_NAME:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					pCurObj->GetDictPtr()->SetAtName( key, wordDes.str );
-				}else{
-					CHE_PDF_NamePtr pTmp = CHE_PDF_Name::Create( wordDes.str, GetAllocator() );
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else if ( wordDes.type == PARSE_WORD_ARRAY_B )	//数组
+				CHE_PDF_NamePtr pTmp = CHE_PDF_Name::Create( wordDes.str, GetAllocator() );
+
+				arrayPtrRet->Append( pTmp );
+
+				break;
+			}
+		case PARSE_WORD_ARRAY_B:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					stackName.Push( key );
-				}
-				stack.Push( pCurObj );
-				pCurObj = CHE_PDF_Array::Create( GetAllocator() );
-			}else if ( wordDes.type == PARSE_WORD_ARRAY_E )	//数组
+				SetPos( preOffset );
+
+				CHE_PDF_ArrayPtr tmpPtr = GetArrayPtr();
+
+				arrayPtrRet->Append( tmpPtr );
+
+				break;
+			}
+		case PARSE_WORD_ARRAY_E:
 			{
-				if ( stack.IsEmpty() == FALSE )
-				{
-					CHE_PDF_ObjectPtr pTmp = pCurObj;
-					stack.Pop( pCurObj );
-					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						stackName.Pop( key );
-						pCurObj->GetDictPtr()->SetAtObj( key, pTmp );
-					}else{
-						pCurObj->GetArrayPtr()->Append( pTmp );
-					}
-				}else{
-					return pCurObj->GetArrayPtr();
-				}
-			}else if ( wordDes.type == PARSE_WORD_DICT_B )	//字典
+				bOver = TRUE;
+
+				break;
+			}
+		case PARSE_WORD_DICT_B:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					stackName.Push( key );
-				}
-				stack.Push( pCurObj );
-				pCurObj = CHE_PDF_Dictionary::Create( GetAllocator() );
-			}else if ( wordDes.type == PARSE_WORD_DICT_E )	//字典	只出现在array的情况
+				SetPos( preOffset );
+
+				CHE_PDF_DictionaryPtr tmpPtr = GetDictionaryPtr();
+
+				arrayPtrRet->Append( tmpPtr );
+
+				break;
+			}
+		case  PARSE_WORD_UNKNOWN:
+		default:
 			{
-				CHE_PDF_ObjectPtr pTmp = pCurObj;
-				stack.Pop( pCurObj );
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					stackName.Pop( key );
-					pCurObj->GetDictPtr()->SetAtObj( key, pTmp );
-				}else{
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else{	//布尔和其他
 				if ( wordDes.str == "false" )
 				{
-					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						pCurObj->GetDictPtr()->SetAtBoolean( key, false );
-					}else{
-						CHE_PDF_BooleanPtr pTmp = CHE_PDF_Boolean::Create( FALSE, GetAllocator() );
-						pCurObj->GetArrayPtr()->Append( pTmp );
-					}
-				}else if ( wordDes.str == "true" )
+					CHE_PDF_BooleanPtr tmpPtr = CHE_PDF_Boolean::Create( FALSE, GetAllocator() );
+					
+					arrayPtrRet->Append( tmpPtr );
+				}
+				else if ( wordDes.str == "true" )
 				{
-					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						pCurObj->GetDictPtr()->SetAtBoolean( key, true );
-					}else{
-						CHE_PDF_BooleanPtr pTmp = CHE_PDF_Boolean::Create( TRUE, GetAllocator() );
-						pCurObj->GetArrayPtr()->Append( pTmp );
-					}
-				}else{
-					return CHE_PDF_ArrayPtr();
+					CHE_PDF_BooleanPtr tmpPtr = CHE_PDF_Boolean::Create( TRUE, GetAllocator() );
+				
+					arrayPtrRet->Append( tmpPtr );	
+				}
+				else if ( wordDes.str == "null" )
+				{
+					CHE_PDF_NullPtr tmpPtr = CHE_PDF_Null::Create( GetAllocator() );
+
+					arrayPtrRet->Append( tmpPtr );
 				}
 			}
 		}
-		if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-		{
-			if ( bKey == TRUE )
-			{
-				bKey = FALSE;
-			}else{
-				bKey = TRUE;
-			}
-		}else{
-			bKey = FALSE;
-		}
 	}
-	return pCurObj->GetArrayPtr();
+
+	arrayPtrRet->SetModified( FALSE );
+
+	return arrayPtrRet;
 }
 
-CHE_PDF_DictionaryPtr CHE_PDF_SyntaxParser::GetDictionary()
+CHE_PDF_DictionaryPtr CHE_PDF_SyntaxParser::GetDictionaryPtr()
 {
 	if ( m_pFileAccess == NULL )
 	{
 		return CHE_PDF_DictionaryPtr();
 	}
+
 	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
 
-	GetWord( wordDes );
-	if ( wordDes.type != PARSE_WORD_DICT_B )
+	if ( ! GetWord( wordDes ) || wordDes.type != PARSE_WORD_DICT_B )
 	{
 		return CHE_PDF_DictionaryPtr();
 	}
 
 	HE_BOOL bKey = TRUE;
+	HE_BOOL bOver = FALSE;
+	HE_DWORD preOffset = 0;
 	CHE_ByteString key( GetAllocator() );
-	CHE_Stack<CHE_PDF_ObjectPtr> stack( GetAllocator() );
-	CHE_Stack<CHE_ByteString> stackName( GetAllocator() );
-	CHE_PDF_ObjectPtr pCurObj = CHE_PDF_Dictionary::Create( GetAllocator() );
+	CHE_PDF_DictionaryPtr dictRet = CHE_PDF_Dictionary::Create( GetAllocator() );
 
-	while ( TRUE )
+	while ( ! bOver )
 	{
+		preOffset = GetPos();
+
+		if ( ! GetWord( wordDes ) )
+		{
+			bOver = TRUE;
+			
+			continue;
+		}
+
 		if ( bKey )
 		{
-			if ( !GetWord( wordDes ) )
+			if ( wordDes.type != PARSE_WORD_NAME )
 			{
-				return CHE_PDF_DictionaryPtr();
+				bOver = TRUE;
+				
+				continue;
 			}
-			if ( wordDes.type == PARSE_WORD_NAME )
+			else
 			{
 				key = wordDes.str;
-			}else if (  wordDes.type == PARSE_WORD_DICT_E  )
-			{
-				if ( stack.IsEmpty() == FALSE )
-				{
-					CHE_PDF_DictionaryPtr pDict = pCurObj->GetDictPtr();
-					stack.Pop( pCurObj );
-					if ( pCurObj->GetType() == OBJ_TYPE_ARRAY )
-					{
-						pCurObj->GetArrayPtr()->Append( pDict );
-					}else if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						stackName.Pop( key );
-						pCurObj->GetDictPtr()->SetAtDictionary( key, pDict );
-					}
-				}else{
-					return pCurObj->GetDictPtr();
-				}
-				if ( pCurObj->GetType() == OBJ_TYPE_ARRAY )
-				{
-					bKey = FALSE;
-				}else{
-					bKey = TRUE;
-				}
+				
+				bKey = FALSE;
+
 				continue;
 			}
 		}
-		if ( bKey == FALSE )
-		{
-			if ( !GetWord( wordDes ) )
-			{
-				return CHE_PDF_DictionaryPtr();
-			}
-			if ( wordDes.type == PARSE_WORD_INTEGER )	//整数和引用
-			{
-				HE_DWORD objNum = 0, genNum = 0;
-				objNum = wordDes.str.GetInteger();
 
-				HE_DWORD lPos = GetPos();
-				GetWord( wordDes );
-				if ( wordDes.type == PARSE_WORD_INTEGER )
+		switch ( wordDes.type )
+		{
+		case PARSE_WORD_INTEGER:
+			{
+				HE_INT32 integer = 0;
+				HE_DWORD objNum = 0, genNum = 0;
+				HE_DWORD tmpOffset = GetPos();
+
+				integer = wordDes.str.GetInteger();
+				objNum = (HE_DWORD)( integer );
+				
+				if ( GetWord( wordDes ) && wordDes.type == PARSE_WORD_INTEGER )
 				{
-					genNum = wordDes.str.GetInteger();
-					GetWord( wordDes );
-					if ( wordDes.str == "R" )
+					genNum = (HE_DWORD)( wordDes.str.GetInteger() );
+
+					if ( GetWord( wordDes ) && wordDes.str == "R" )
 					{
-						if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-						{
-							pCurObj->GetDictPtr()->SetAtReference( key, objNum, genNum, GetFile() );
-						}else{
-							CHE_PDF_ReferencePtr pTmp = CHE_PDF_Reference::Create( objNum, genNum, GetFile(), GetAllocator() );
-							pCurObj->GetArrayPtr()->Append( pTmp );
-						}
-					}else{
-						if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-						{
-							return CHE_PDF_DictionaryPtr();
-						}else{
-							CHE_PDF_NumberPtr pTmp = CHE_PDF_Number::Create( (HE_INT32)objNum, GetAllocator() );
-							pCurObj->GetArrayPtr()->Append( pTmp );
-							SetPos( lPos );
-						}
-					}
-				}else{
-					SetPos( lPos );
-					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						pCurObj->GetDictPtr()->SetAtInteger( key, objNum );
-					}else{
-						CHE_PDF_NumberPtr pTmp = CHE_PDF_Number::Create( (HE_INT32)objNum, GetAllocator() );
-						pCurObj->GetArrayPtr()->Append( pTmp );
+						dictRet->SetAtReference( key, objNum, genNum, GetFile() );
+
+						break;
 					}
 				}
-			}else if ( wordDes.type == PARSE_WORD_FLOAT )	//浮点
+
+				SetPos( tmpOffset );
+
+				dictRet->SetAtInteger( key, integer );
+
+				break;
+			}
+		case PARSE_WORD_FLOAT:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					pCurObj->GetDictPtr()->SetAtFloatNumber( key, wordDes.str.GetFloat() );
-				}else{
-					CHE_PDF_NumberPtr pTmp = CHE_PDF_Number::Create( wordDes.str.GetFloat(), GetAllocator() );
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else if ( wordDes.type == PARSE_WORD_STRING )	//字符串
+				dictRet->SetAtFloatNumber( key, wordDes.str.GetFloat() );
+
+				break;
+			}
+		case PARSE_WORD_STRING:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					pCurObj->GetDictPtr()->SetAtString( key, wordDes.str );
-				}else{
-					CHE_PDF_StringPtr pTmp = CHE_PDF_String::Create( wordDes.str, GetAllocator() );
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else if ( wordDes.type == PARSE_WORD_NAME )
+				dictRet->SetAtString( key, wordDes.str );
+
+				break;
+			}
+		case PARSE_WORD_NAME:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					pCurObj->GetDictPtr()->SetAtName( key, wordDes.str );
-				}else{
-					CHE_PDF_NamePtr pTmp = CHE_PDF_Name::Create( wordDes.str, GetAllocator() );
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else if ( wordDes.type == PARSE_WORD_ARRAY_B )	//数组
+				dictRet->SetAtName( key, wordDes.str );
+
+				break;
+			}
+		case PARSE_WORD_ARRAY_B:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					stackName.Push( key );
-				}
-				stack.Push( pCurObj );
-				pCurObj = CHE_PDF_Array::Create( GetAllocator() );
-			}else if ( wordDes.type == PARSE_WORD_ARRAY_E )	//数组
+				SetPos( preOffset );
+
+				CHE_PDF_ArrayPtr tmpPtr = GetArrayPtr();
+
+				dictRet->SetAtArray( key, tmpPtr );
+
+				break;
+			}
+		case PARSE_WORD_DICT_B:
 			{
-				CHE_PDF_ObjectPtr pTmp = pCurObj;
-				stack.Pop( pCurObj );
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					stackName.Pop( key );
-					pCurObj->GetDictPtr()->SetAtObj( key, pTmp );
-				}else{
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else if ( wordDes.type == PARSE_WORD_DICT_B )	//字典
+				SetPos( preOffset );
+
+				CHE_PDF_DictionaryPtr tmpPtr = GetDictionaryPtr();
+
+				dictRet->SetAtDictionary( key, tmpPtr );
+
+				break;
+			}
+		case PARSE_WORD_DICT_E:
 			{
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					stackName.Push( key );
-				}
-				stack.Push( pCurObj );
-				pCurObj = CHE_PDF_Dictionary::Create( GetAllocator() );
-			}else if ( wordDes.type == PARSE_WORD_DICT_E )	//字典	只出现在array的情况
+				bOver = TRUE;
+
+				break;
+			}
+		case PARSE_WORD_UNKNOWN:
+		default:
 			{
-				CHE_PDF_ObjectPtr pTmp = pCurObj;
-				stack.Pop( pCurObj );
-				if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-				{
-					stackName.Pop( key );
-					pCurObj->GetDictPtr()->SetAtObj( key, pTmp );
-				}else{
-					pCurObj->GetArrayPtr()->Append( pTmp );
-				}
-			}else{	//布尔和其他
 				if ( wordDes.str == "false" )
 				{
-					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						pCurObj->GetDictPtr()->SetAtBoolean( key, false );
-					}else{
-						CHE_PDF_BooleanPtr pTmp = CHE_PDF_Boolean::Create( FALSE, GetAllocator() );
-						pCurObj->GetArrayPtr()->Append( pTmp );
-					}
-				}else if ( wordDes.str == "true" )
-				{
-					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						pCurObj->GetDictPtr()->SetAtBoolean( key, true );
-					}else{
-						CHE_PDF_BooleanPtr pTmp = CHE_PDF_Boolean::Create( TRUE, GetAllocator() );
-						pCurObj->GetArrayPtr()->Append( pTmp );
-					}
-				}else if ( wordDes.str == "null" ){
-					if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-					{
-						pCurObj->GetDictPtr()->SetAtNull( key );
-					}else{
-						CHE_PDF_NullPtr pTmp = CHE_PDF_Null::Create( GetAllocator() );
-						pCurObj->GetArrayPtr()->Append( pTmp );
-					}
+					dictRet->SetAtBoolean( key, FALSE );
 				}
+				else if ( wordDes.str == "true" )
+				{
+					dictRet->SetAtBoolean( key, TRUE );
+				}
+				else if ( wordDes.str == "null" )
+				{
+					dictRet->SetAtNull( key ); 
+				}
+				break;
 			}
 		}
-		if ( pCurObj->GetType() == OBJ_TYPE_DICTIONARY )
-		{
-			if ( bKey == TRUE )
-			{
-				bKey = FALSE;
-			}else{
-				bKey = TRUE;
-			}
-		}else{
-			bKey = FALSE;
-		}
+		
+		bKey = TRUE;
 	}
-	return pCurObj->GetDictPtr();
+
+	dictRet->SetModified( FALSE );
+
+	return dictRet;
 }
 
 HE_VOID CHE_PDF_SyntaxParser::SubmitBufferStr( CHE_ByteString & str )
@@ -1625,7 +1482,7 @@ HE_DWORD CHE_PDF_Parser::ParseXRefTable( HE_DWORD offset, CHE_PDF_DictionaryPtr 
 			lBeginNum = wordDes.str.GetInteger();
 		}else if ( wordDes.type == PARSE_WORD_UNKNOWN && wordDes.str == "trailer" )
 		{
-			pTrailerDictRet = m_sParser.GetDictionary();
+			pTrailerDictRet = m_sParser.GetDictionaryPtr();
  			mpXRefTable->AddTrailerDict( pTrailerDictRet );
 		}else{
 			break;
@@ -1970,7 +1827,7 @@ HE_DWORD CHE_PDF_Parser::FullParseForXRef()	//分析整个文件来获取对象信息 // 还需
 		}
 		if ( wordDes.str == "trailer" )
 		{
-			mpXRefTable->AddTrailerDict( m_sParser.GetDictionary() ); 
+			mpXRefTable->AddTrailerDict( m_sParser.GetDictionaryPtr() ); 
 			continue;
 		}
 		if ( wordDes.str == "obj" )
@@ -2025,7 +1882,7 @@ HE_DWORD CHE_PDF_Parser::FullParseForXRef()	//分析整个文件来获取对象信息 // 还需
 				}else if ( wordDes.str == "<<" )
 				{
 					m_sParser.SeekToPrevWord();
-					CHE_PDF_DictionaryPtr pDict = m_sParser.GetDictionary();
+					CHE_PDF_DictionaryPtr pDict = m_sParser.GetDictionaryPtr();
 					if ( m_sParser.GetWord( wordDes ) == FALSE )
 					{
 						return xrefEntryCount;
@@ -2085,15 +1942,17 @@ CHE_PDF_ObjectPtr CHE_PDF_Parser::GetObject()
 	{
 	case PARSE_WORD_INTEGER:
 		{
+			HE_INT32 integer = 0;
 			HE_DWORD refObjNum = 0;
 			HE_DWORD refGenNum = 0;
 			HE_DWORD tmpPos = 0;
-			refObjNum = wordDes.str.GetInteger();
+			integer = wordDes.str.GetInteger();
+			refObjNum = (HE_DWORD)( integer );
 			tmpPos = m_sParser.GetPos();
 			m_sParser.GetWord( wordDes );
 			if ( wordDes.type == PARSE_WORD_INTEGER )
 			{
-				refGenNum = wordDes.str.GetInteger();
+				refGenNum = (HE_DWORD)( wordDes.str.GetInteger() );
 				m_sParser.GetWord( wordDes );
 				if ( wordDes.str == "R" )
 				{
@@ -2102,7 +1961,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Parser::GetObject()
 				}
 			}
 			m_sParser.SetPos( tmpPos );
-			pCurObj = CHE_PDF_Number::Create( (HE_INT32)refObjNum, GetAllocator() );
+			pCurObj = CHE_PDF_Number::Create( integer, GetAllocator() );
 			break;
 		}
 	case PARSE_WORD_FLOAT:
@@ -2129,7 +1988,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Parser::GetObject()
 	case PARSE_WORD_DICT_B:
 		{
 			m_sParser.SetPos( pos );
-			pCurObj = m_sParser.GetDictionary();
+			pCurObj = m_sParser.GetDictionaryPtr();
 			if ( ! pCurObj )
 			{
 				break;
@@ -2302,7 +2161,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Parser::GetObjectInObjStm( CHE_PDF_StreamPtr & pStream
 				if ( wordDes.type == PARSE_WORD_DICT_B )
 				{
 					sParser.SetPos( pos );
-					pCurObj = sParser.GetDictionary();
+					pCurObj = sParser.GetDictionaryPtr();
 				}else if ( wordDes.type == PARSE_WORD_FLOAT )
 				{
 					pCurObj = CHE_PDF_Number::Create( wordDes.str.GetInteger(), GetAllocator() );

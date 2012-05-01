@@ -57,6 +57,8 @@ public:
 
 	HE_FLOAT GetFloat() const;
 
+	HE_VOID Clear();
+
 	//如下能够前后颠倒的操作，还需要在全局的空间里面定义全局的函数。
 	CHE_ByteString operator+( HE_CHAR ch );
 	CHE_ByteString operator+( HE_LPCSTR lpStr );
@@ -79,7 +81,6 @@ public:
 	friend bool operator!=( HE_LPCSTR lpStr, CHE_ByteString& str );
 	
 private:
-	HE_VOID Clear();
 
 	HE_ByteStringData* m_lpData;
 };
@@ -141,7 +142,9 @@ public:
 	HE_INT32 GetInteger() const;
 
 	HE_FLOAT GetFloat() const;
-	
+
+	HE_VOID Clear();
+
 	//如下能够前后颠倒的操作，还需要在全局的空间里面定义全局的函数。
 	CHE_WideString operator+( const CHE_WideString& wstr );
 	CHE_WideString operator+( HE_WCHAR wch );
@@ -164,7 +167,6 @@ public:
 	friend bool operator!=( HE_LPCWSTR lpWstr, CHE_WideString& wstr );
 	
 private:
-	HE_VOID Clear();
 	
 	HE_WideStringData* m_lpData;
 };

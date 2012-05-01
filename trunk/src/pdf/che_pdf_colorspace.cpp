@@ -127,3 +127,43 @@ CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ReferencePtr & pRef, CHE_Alloc
 	}
 	return NULL;
 }
+
+CHE_ByteString GetColorSpaceName( CHE_PDF_ColorSpace * pColorSpace )
+{
+	if ( pColorSpace == NULL )
+	{
+		return "";
+	}
+
+	switch ( pColorSpace->GetType() )
+	{
+	case COLORSAPCE_DEVICE_GRAY:
+		return "DeviceGray";
+	case COLORSAPCE_DEVICE_RGB:
+		return "DeviceRGB";
+	case COLORSAPCE_DEVICE_CMYK:
+		return "DeviceCMYK";
+	case COLORSAPCE_CIEBASE_CALGRAY:
+		return "CalGray";
+	case COLORSAPCE_CIEBASE_CALRGB:
+		return "CalRGB";
+	case COLORSAPCE_CIEBASE_CALCMYK:
+		return "CalCMYK";
+	case COLORSAPCE_CIEBASE_CALLAB:
+		return "Lab";
+	case COLORSAPCE_CIEBASE_ICCBASED:
+		return "ICCBased";
+	case COLORSAPCE_SPECIAL_PATTERN:
+		return "Pattern";
+	case COLORSAPCE_SPECIAL_INDEXED:
+		return "Indexed";
+	case COLORSAPCE_SPECIAL_SEPARATION:
+		return "Separation";
+	case COLORSAPCE_SPECIAL_DEVICEN:
+		return "DeviceN";
+	default:
+		break;
+	}
+
+	return "";
+}

@@ -60,4 +60,6 @@ CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ArrayPtr & pArray, CHE_Allocat
 
 CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL );
 
+CHE_ByteString GetColorSpaceName( CHE_PDF_ColorSpace * pColorSpace );
+
 #endif

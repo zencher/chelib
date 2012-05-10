@@ -169,6 +169,7 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_DWORD width, HE_DWORD height )
 	ParseAllPageRefInfo();
 
 	CHE_PDF_ObjectPtr ObjPtr;
+	CHE_PDF_ReferencePtr ParentRefPtr;
 	CHE_PDF_DictionaryPtr pagesDictPtr;
 	CHE_PDF_DictionaryPtr trailerDictPtr = mpFile->GetTrailerDict();
 
@@ -177,8 +178,16 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_DWORD width, HE_DWORD height )
 	ObjPtr = trailerDictPtr->GetElement( "Root", OBJ_TYPE_DICTIONARY );
 	if ( ObjPtr )
 	{
+		CHE_PDF_ObjectPtr tmpObjPtr;
+		tmpObjPtr = ObjPtr->GetDictPtr()->GetElement( "Pages", OBJ_TYPE_REFERENCE );
+		if ( tmpObjPtr )
+		{
+			ParentRefPtr = tmpObjPtr->GetRefPtr();
+		}
+
 		ObjPtr = ObjPtr->GetDictPtr()->GetElement( "Pages", OBJ_TYPE_DICTIONARY );
 	}
+
 	if ( ObjPtr )
 	{
 		pagesDictPtr = ObjPtr->GetDictPtr();
@@ -210,6 +219,12 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_DWORD width, HE_DWORD height )
 				}
 
 				pageDictPtr->SetAtName( "Type", "Page" );
+
+				if ( ParentRefPtr )
+				{
+					pageDictPtr->SetAtReference( "Parent", ParentRefPtr->GetRefNum(), ParentRefPtr->GetGenNum(), mpFile );
+				}
+
 				CHE_PDF_ArrayPtr tmpArrayPtr = CHE_PDF_Array::Create( GetAllocator() );
 				CHE_PDF_NumberPtr tmpNumberPtr = CHE_PDF_Number::Create( (HE_INT32)(0), GetAllocator() );
 				tmpArrayPtr->Append( tmpNumberPtr );

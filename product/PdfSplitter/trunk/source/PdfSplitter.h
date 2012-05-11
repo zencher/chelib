@@ -106,8 +106,16 @@ public:
 
 	void CloseDocument();
 
+	void CreateRegEntry();
+
+	void WriteRegInfo();
+
+	bool CheckRefInfo();
+
 	bool					mbLoadOver;
 	bool					mbWork;
+	bool					mbLoadError;
+	bool					mbRegister;
 	std::wstring			mTargetFile;
 	std::wstring			mNewFile;
 	IHE_Read *				mpFileRead;
@@ -115,6 +123,8 @@ public:
 	CHE_PDF_Document *		mpDocument;	
 	CHE_PDF_PageTree *		mpPageTree;
 	std::string				mPasswrod;
+	std::string				mName;
+	std::string				mKey;
 
 	float					mfViewPoint;
 	std::vector<CListItem>	mPageList;

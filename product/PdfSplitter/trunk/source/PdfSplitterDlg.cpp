@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "PdfSplitter.h"
 #include "PdfSplitterDlg.h"
+#include "Welcome.h"
 #include "FileLoadDlg.h"
 #include "SelectionModeDlg.h"
 #include "PageSelectionDlg.h"
@@ -12,9 +13,6 @@
 #include "ProcessDlg.h"
 #include "PasswordDlg.h"
 #include "afxdialogex.h"
-
-// #include "../../../../trunk//include/pdf/che_pdf_creator.h"
-// #include "../../../../trunk//include/pdf/che_pdf_objclone.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -50,21 +48,17 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-
 CHE_WD_AppearPath * gpListItemHoverRect = NULL;
 CHE_WD_AppearPath * gpListItemSelectRect = NULL;
 CHE_WD_AppearPath * gpListItemLine = NULL;
 
 CHE_WD_AppearImage * gpListItemIcon1 = NULL;
 CHE_WD_AppearImage * gpListItemIcon2 = NULL;
-CHE_WD_AppearImage * gpListItemIcon3 = NULL;
-CHE_WD_AppearImage * gpListItemIcon4 = NULL;
 
 
 DWORD WINAPI ThreadLoadFile( LPVOID lpParameter )
 {
 	theApp.LoadDocument();
-	theApp.mpMainDlg->UpdateToolBtn();
 	return 0;
 }
 
@@ -127,6 +121,15 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 		CFileLoadDlg loadDlg;
 		loadDlg.DoModal();
 
+		if ( theApp.mbLoadError )
+		{
+			theApp.mpProcessDlg->MessageBox( L"This is not a PDF Files ", L"Error", MB_OK | MB_ICONERROR );
+			theApp.mbLoadError = false;
+			return;
+		}
+
+		theApp.mpMainDlg->UpdateToolBtn();
+
 		CHE_ByteString str;
 		bool bPasswordError = false;
 		str = "";
@@ -149,7 +152,7 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 		pTmpAppear = theApp.mpMainDlg->mpFilePageCountInfo->GetBackGroundAppear();
 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
 		wchar_t tmpwstr[512];
-		wsprintf( tmpwstr, L"总计：%d 页", theApp.mpDocument->GetPageCount() );
+		wsprintf( tmpwstr, L"Total：%d Page(s)", theApp.mpDocument->GetPageCount() );
 		pTmpText->SetText( tmpwstr );
 		pTmpAppear = theApp.mpMainDlg->mpFileSizeInfo->GetBackGroundAppear();
 		pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
@@ -187,9 +190,40 @@ static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 					theApp.mpMainDlg->UpdateList();
 					theApp.mpMainDlg->UpdateToolBtn();
 				}
+				break;
+			}
+		case 3:
+			{
+				CListItem listItem;
+				listItem.type = SINGLE_PAGE;
+				for ( size_t i = 0; i < theApp.mpPageTree->GetPageCount(); i+=2 )
+				{
+					listItem.pageIndex = i+1;
+					listItem.pageCount = 1;
+					theApp.AddPageListItem( listItem );
+				}
+				theApp.mpMainDlg->UpdateList();
+				theApp.mpMainDlg->UpdateToolBtn();
+				break;
+			}
+		case 4:
+			{
+				CListItem listItem;
+				listItem.type = SINGLE_PAGE;
+				for ( size_t i = 1; i < theApp.mpPageTree->GetPageCount(); i+=2 )
+				{
+					listItem.pageIndex = i+1;
+					listItem.pageCount = 1;
+					theApp.AddPageListItem( listItem );
+				}
+				theApp.mpMainDlg->UpdateList();
+				theApp.mpMainDlg->UpdateToolBtn();
+				break;
 			}
 		}
 	}
+
+	theApp.mpMainDlg->mpBrowseBtn->OnMouseOut();
 }
 
 
@@ -244,7 +278,34 @@ static void EventAddBtnClick( CHE_WD_Area * pArea )
 			}
 			break;
 		}
-
+	case 3:
+		{
+			CListItem listItem;
+			listItem.type = SINGLE_PAGE;
+			for ( size_t i = 0; i < theApp.mpPageTree->GetPageCount(); i+=2 )
+			{
+				listItem.pageIndex = i+1;
+				listItem.pageCount = 1;
+				theApp.AddPageListItem( listItem );
+			}
+			theApp.mpMainDlg->UpdateList();
+			theApp.mpMainDlg->UpdateToolBtn();
+			break;
+		}
+	case 4:
+		{
+			CListItem listItem;
+			listItem.type = SINGLE_PAGE;
+			for ( size_t i = 1; i < theApp.mpPageTree->GetPageCount(); i+=2 )
+			{
+				listItem.pageIndex = i+1;
+				listItem.pageCount = 1;
+				theApp.AddPageListItem( listItem );
+			}
+			theApp.mpMainDlg->UpdateList();
+			theApp.mpMainDlg->UpdateToolBtn();
+			break;
+		}
 	}
 	pArea->OnMouseOut();
 }
@@ -323,13 +384,12 @@ static void EventStartBtn( CHE_WD_Area * pArea )
 {
 	if( ! theApp.mPageList.size() )
 	{
-		theApp.mpMainDlg->MessageBox( L"请先选着需要输出的页面！", L"错误", MB_OK | MB_ICONINFORMATION );
+		theApp.mpMainDlg->MessageBox( L"Please select the pages want to split.", L"Error", MB_OK | MB_ICONINFORMATION );
 		return;
 	}
 
 	theApp.mpProcessDlg = new CProcessDlg;
 	theApp.mpProcessDlg->DoModal();
-	//theApp.mpMainDlg->MessageBox(  L"分割完成！", L"消息", MB_OK | MB_ICONINFORMATION );
 }
 
 static void EventListItemMouseOver( CHE_WD_Area * pArea )
@@ -433,7 +493,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	if ( ! gpListItemIcon1 )
 	{
 		gpListItemIcon1 = new CHE_WD_AppearImage;
-		gpListItemIcon1->SetPositionX( 10 );
+		gpListItemIcon1->SetPositionX( 25 );
 		gpListItemIcon1->SetPositionY( 10 );
 		gpListItemIcon1->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 		gpListItemIcon1->SetImageFile( L"images\\listItemIcon1.png" );
@@ -441,26 +501,10 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	if ( ! gpListItemIcon2 )
 	{
 		gpListItemIcon2 = new CHE_WD_AppearImage;
-		gpListItemIcon2->SetPositionX( 10 );
+		gpListItemIcon2->SetPositionX( 25 );
 		gpListItemIcon2->SetPositionY( 10 );
 		gpListItemIcon2->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 		gpListItemIcon2->SetImageFile( L"images\\listItemIcon2.png" );
-	}
-	if ( ! gpListItemIcon3 )
-	{
-		gpListItemIcon3 = new CHE_WD_AppearImage;
-		gpListItemIcon3->SetPositionX( 10 );
-		gpListItemIcon3->SetPositionY( 10 );
-		gpListItemIcon3->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-		gpListItemIcon3->SetImageFile( L"images\\listItemIcon3.png" );
-	}
-	if ( ! gpListItemIcon4 )
-	{
-		gpListItemIcon4 = new CHE_WD_AppearImage;
-		gpListItemIcon4->SetPositionX( 10 );
-		gpListItemIcon4->SetPositionY( 10 );
-		gpListItemIcon4->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-		gpListItemIcon4->SetImageFile( L"images\\listItemIcon4.png" );
 	}
 
 	CHE_WD_Appearance * pTmpApper = NULL;
@@ -495,14 +539,14 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpMainArea->SetBackGroundAppear( pTmpApper );
 
 	mpTextBarTitle = new CHE_WD_Area( 0, 0, mpInterActive );
-	mpTextBarTitle->SetWidth( 158 );
-	mpTextBarTitle->SetHeight( 34 );
-	mpTextBarTitle->SetPositionX( 15 );
+	mpTextBarTitle->SetWidth( 227 );
+	mpTextBarTitle->SetHeight( 29 );
+	mpTextBarTitle->SetPositionX( 6 );
 	mpTextBarTitle->SetPositionY( 2 );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\textbarTitle.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_FIT );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpTextBarTitle->SetBackGroundAppear( pTmpApper );
 	mpMainArea->AppendChild( mpTextBarTitle );
@@ -580,7 +624,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpFileSizeInfo = new CHE_WD_Area( 0, 0, mpInterActive );
 	mpFileSizeInfo->SetWidth( 150 );
 	mpFileSizeInfo->SetHeight( 15 );
-	mpFileSizeInfo->SetPositionX( 130 );
+	mpFileSizeInfo->SetPositionX( 180 );
 	mpFileSizeInfo->SetPositionY( 80 );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpText = new CHE_WD_AppearText();
@@ -859,6 +903,9 @@ BEGIN_MESSAGE_MAP(CPdfSpliterDlg, CDialogEx)
 	ON_COMMAND(ID_CMD_CLOSE, &CPdfSpliterDlg::OnCloseCmd)
 	ON_COMMAND(ID_CMD_QUIT, &CPdfSpliterDlg::OnQuitCmd)
 	ON_COMMAND(ID_CMD_WEB, &CPdfSpliterDlg::OnWebCmd)
+	ON_COMMAND(ID_USERGUIDE, &CPdfSpliterDlg::OnUserGuide)
+	ON_COMMAND(ID_BUY, &CPdfSpliterDlg::OnBuy)
+	ON_COMMAND(ID_REGISTER, &CPdfSpliterDlg::OnRegister)
 	ON_COMMAND(ID_CMD_ABOUT, &CPdfSpliterDlg::OnAboutCmd)
 END_MESSAGE_MAP()
 
@@ -874,9 +921,13 @@ BOOL CPdfSpliterDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	ULONG_PTR m_gdiplusToken;
-	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+	if ( theApp.mbRegister == false )
+	{
+		CString str;
+		GetWindowText( str );
+		str += " (Unregistered)";
+		this->SetWindowText( str );
+	}
 
 	CWnd *		pWnd = GetDlgItem( IDC_MAIN );
 	CPaintDC	dc( pWnd );
@@ -938,13 +989,15 @@ int CPdfSpliterDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
+
 	return 0;
 }
 
 
 void CPdfSpliterDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	mpMainArea->ExecuteFrame();	Invalidate(FALSE);
+	mpMainArea->ExecuteFrame();
+	Invalidate(FALSE);
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -1031,7 +1084,7 @@ void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 	pAppear->mItems.push_back( gpListItemLine );
 	
 	pText = new CHE_WD_AppearText;
-	pText->SetPositionX( 140 );
+	pText->SetPositionX( 75 );
 	pText->SetPositionY( 0 );
 	pText->SetWidth( 200 );
 	pText->SetHeight( 48 );
@@ -1044,13 +1097,13 @@ void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 	case SINGLE_PAGE:
 		{
 			pAppear->mItems.push_back( gpListItemIcon1 );
-			wsprintf( tmpStr, L"第 %d 页", item.pageIndex );
+			wsprintf( tmpStr, L"Page : %d", item.pageIndex );
 			break;
 		}
 	case PAGE_RANGE:
 		{
 			pAppear->mItems.push_back( gpListItemIcon2 );
-			wsprintf( tmpStr, L"第 %d 页 到 第 %d 页", item.pageIndex, item.pageIndex + item.pageCount - 1 );
+			wsprintf( tmpStr, L"Page : %d - %d", item.pageIndex, item.pageIndex + item.pageCount - 1 );
 			break;
 		}
 	default:;
@@ -1232,6 +1285,11 @@ void CPdfSpliterDlg::UpdateToolBtn()
 	mpStartBtn->Refresh();
 }
 
+void CPdfSpliterDlg::SetWindowsTitleNormal()
+{
+	SetWindowText( L"Peroit PDF Splitter" );
+}
+
 void CPdfSpliterDlg::OnOK()
 {
 	//CDialogEx::OnOk();
@@ -1241,10 +1299,6 @@ void CPdfSpliterDlg::OnOK()
 void CPdfSpliterDlg::OnCancel()
 {
 	EndDialog( 0 );
-// 	if ( MessageBox( L"是否确定要退出？", L"确定", MB_YESNO | MB_ICONQUESTION ) == IDYES )
-// 	{
-// 		EndDialog(0);
-// 	}
 }
 
 void CPdfSpliterDlg::OnDestroy()
@@ -1290,11 +1344,30 @@ void CPdfSpliterDlg::OnQuitCmd()
 
 void CPdfSpliterDlg::OnWebCmd()
 {
-	ShellExecute( GetSafeHwnd(), L"open", L"http://www.putaogun.com", NULL, NULL, SW_SHOWNORMAL );
+	ShellExecute( GetSafeHwnd(), L"open", L"http://www.peroit.com", NULL, NULL, SW_SHOWNORMAL );
 }
 
 void CPdfSpliterDlg::OnAboutCmd()
 {
 	CAboutDlg dlg;
 	dlg.DoModal();
+}
+
+void CPdfSpliterDlg::OnBuy()
+{
+	ShellExecute( GetSafeHwnd(), L"open", L"http://www.peroit.com/pdfSplitter/Buy", NULL, NULL, SW_SHOWNORMAL );
+}
+
+void CPdfSpliterDlg::OnUserGuide()
+{
+	ShellExecute( GetSafeHwnd(), L"open", L"http://www.peroit.com/pdfSplitter/UserGuide", NULL, NULL, SW_SHOWNORMAL );
+}
+
+void CPdfSpliterDlg::OnRegister()
+{
+	CRegsitrationDlg dlg;
+	if ( dlg.DoModal() == 0 )
+	{
+		SetWindowsTitleNormal();
+	}
 }

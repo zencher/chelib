@@ -56,10 +56,10 @@ BOOL CPasswordDlg::OnInitDialog()
 	CWnd * pWnd = GetDlgItem( IDC_INFO );
 	if ( !mbErrorFlag )
 	{
-		pWnd->SetWindowText( L"这是一个受保护的文档，请输入文档打开口令。" );
+		pWnd->SetWindowText( L"This is a protected document, please enter the Password." );
 	}else
 	{
-		pWnd->SetWindowText( L"文档打开口令错误，请重新输入。" );
+		pWnd->SetWindowText( L"Password error, please re-enter." );
 	}
 
 	return TRUE;

@@ -44,7 +44,6 @@ public:
 
 	CHE_WD_Area *	mpMainArea;
 	CHE_WD_Area *	mpProcess;
-	CHE_WD_Button *	mpCancelBtn;
 
 	unsigned int	mTimerId;
 

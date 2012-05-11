@@ -5,6 +5,11 @@
 
 CSelectionModeDlg * gpDlg = NULL;
 
+static void EventCancelBtn( CHE_WD_Area * pArea )
+{
+	gpDlg->EndDialog( 0 );
+}
+
 static void EventSinglePageBtn( CHE_WD_Area * pArea )
 {
 	gpDlg->EndDialog( 1 );
@@ -15,9 +20,14 @@ static void EventPageRangeBtn( CHE_WD_Area * pArea )
 	gpDlg->EndDialog( 2 );
 }
 
-static void EventCancelBtn( CHE_WD_Area * pArea )
+static void EventOddPagesBtn( CHE_WD_Area * pArea )
 {
-	gpDlg->EndDialog( 0 );
+	gpDlg->EndDialog( 3 );
+}
+
+static void EventEvenPagesBtn( CHE_WD_Area * pArea )
+{
+	gpDlg->EndDialog( 4 );
 }
 
 IMPLEMENT_DYNAMIC(CSelectionModeDlg, CDialogEx)
@@ -41,7 +51,7 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	mpBtnSinglePage = new CHE_WD_Button( mpInterActive );
 	mpBtnSinglePage->SetWidth( 73 );
 	mpBtnSinglePage->SetHeight( 72 );
-	mpBtnSinglePage->SetPositionX( 50 );
+	mpBtnSinglePage->SetPositionX( 30 );
 	mpBtnSinglePage->SetPositionY( 30 );
 	mpBtnSinglePage->SetClickEvent( EventSinglePageBtn );
 	pTmpApper = new CHE_WD_Appearance();
@@ -61,7 +71,7 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	mpBtnPageRange = new CHE_WD_Button( mpInterActive );
 	mpBtnPageRange->SetWidth( 73 );
 	mpBtnPageRange->SetHeight( 72 );
-	mpBtnPageRange->SetPositionX( 140 );
+	mpBtnPageRange->SetPositionX( 130 );
 	mpBtnPageRange->SetPositionY( 30 );
 	mpBtnPageRange->SetClickEvent( EventPageRangeBtn );
 	pTmpApper = new CHE_WD_Appearance();
@@ -76,13 +86,71 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpApper->mItems.push_back( pTmpImage );
 	mpBtnPageRange->SetMouseOverAppear( pTmpApper );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\BtnPageRangeDisable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	mpBtnPageRange->SetDisableAppear( pTmpApper );
 	mpMainArea->AppendChild( mpBtnPageRange );
+
+	mpBtnOddPages = new CHE_WD_Button( mpInterActive );
+	mpBtnOddPages->SetWidth( 73 );
+	mpBtnOddPages->SetHeight( 72 );
+	mpBtnOddPages->SetPositionX( 230 );
+	mpBtnOddPages->SetPositionY( 30 );
+	mpBtnOddPages->SetClickEvent( EventOddPagesBtn );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\BtnOddPages.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	mpBtnOddPages->SetBackGroundAppear( pTmpApper );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\BtnOddPagesHOver.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	mpBtnOddPages->SetMouseOverAppear( pTmpApper );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\BtnOddPagesDisable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	mpBtnOddPages->SetDisableAppear( pTmpApper );
+	mpMainArea->AppendChild( mpBtnOddPages );
+
+	mpBtnEvenPages = new CHE_WD_Button( mpInterActive );
+	mpBtnEvenPages->SetWidth( 73 );
+	mpBtnEvenPages->SetHeight( 72 );
+	mpBtnEvenPages->SetPositionX( 330 );
+	mpBtnEvenPages->SetPositionY( 30 );
+	mpBtnEvenPages->SetClickEvent( EventEvenPagesBtn );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\BtnEvenPages.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	mpBtnEvenPages->SetBackGroundAppear( pTmpApper );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\BtnEvenPagesHOver.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	mpBtnEvenPages->SetMouseOverAppear( pTmpApper );
+	pTmpApper = new CHE_WD_Appearance();
+	pTmpImage = new CHE_WD_AppearImage();
+	pTmpImage->SetImageFile( L"images\\BtnEvenPagesDisable.png" );
+	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpApper->mItems.push_back( pTmpImage );
+	mpBtnEvenPages->SetDisableAppear( pTmpApper );
+	mpMainArea->AppendChild( mpBtnEvenPages );
 
 	mpBtnCancel = new CHE_WD_Button( mpInterActive );
 	mpBtnCancel->SetWidth( 88 );
 	mpBtnCancel->SetHeight( 27 );
-	mpBtnCancel->SetPositionX( 380 );
-	mpBtnCancel->SetPositionY( 100 );
+	mpBtnCancel->SetPositionX( 330 );
+	mpBtnCancel->SetPositionY( 120 );
 	pTmpApper = new CHE_WD_Appearance();
 	pTmpImage = new CHE_WD_AppearImage();
 	pTmpImage->SetImageFile( L"images\\CancelBtn.png" );
@@ -97,11 +165,18 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	mpBtnCancel->SetMouseOverAppear( pTmpApper );
 	mpBtnCancel->SetClickEvent( EventCancelBtn );
 	mpMainArea->AppendChild( mpBtnCancel );
+
+	if ( theApp.mpPageTree->GetPageCount() <= 1 )
+	{
+		mpBtnPageRange->SetEnable( false );
+		mpBtnOddPages->SetEnable( false );
+		mpBtnEvenPages->SetEnable( false );
+	}
 }
 
 CSelectionModeDlg::~CSelectionModeDlg()
 {
-	CHE_WD_Area * pTmpArea = mpMainArea->GetChild( 0 );
+	CHE_WD_Button * pTmpArea = (CHE_WD_Button *)( mpMainArea->GetChild( 0 ) );
 	CHE_WD_Appearance * pTmpAppear = pTmpArea->GetBackGroundAppear();
 	delete pTmpAppear->mItems[0];
 	delete pTmpAppear;
@@ -110,16 +185,44 @@ CSelectionModeDlg::~CSelectionModeDlg()
 	delete pTmpAppear;
 	delete pTmpArea;
 
-	pTmpArea = mpMainArea->GetChild( 1 );
+
+	pTmpArea = (CHE_WD_Button *)( mpMainArea->GetChild( 1 ) );
 	pTmpAppear = pTmpArea->GetBackGroundAppear();
 	delete pTmpAppear->mItems[0];
 	delete pTmpAppear;
 	pTmpAppear = pTmpArea->GetMouseOverAppear();
 	delete pTmpAppear->mItems[0];
 	delete pTmpAppear;
+	pTmpAppear = pTmpArea->GetDisableAppear();
+	delete pTmpAppear->mItems[0];
+	delete pTmpAppear;
 	delete pTmpArea;
 
-	pTmpArea = mpMainArea->GetChild( 2 );
+	pTmpArea = (CHE_WD_Button *)( mpMainArea->GetChild( 2 ) );
+	pTmpAppear = pTmpArea->GetBackGroundAppear();
+	delete pTmpAppear->mItems[0];
+	delete pTmpAppear;
+	pTmpAppear = pTmpArea->GetMouseOverAppear();
+	delete pTmpAppear->mItems[0];
+	delete pTmpAppear;
+	pTmpAppear = pTmpArea->GetDisableAppear();
+	delete pTmpAppear->mItems[0];
+	delete pTmpAppear;
+	delete pTmpArea;
+
+	pTmpArea = (CHE_WD_Button *)( mpMainArea->GetChild( 3 ) );
+	pTmpAppear = pTmpArea->GetBackGroundAppear();
+	delete pTmpAppear->mItems[0];
+	delete pTmpAppear;
+	pTmpAppear = pTmpArea->GetMouseOverAppear();
+	delete pTmpAppear->mItems[0];
+	delete pTmpAppear;
+	pTmpAppear = pTmpArea->GetDisableAppear();
+	delete pTmpAppear->mItems[0];
+	delete pTmpAppear;
+	delete pTmpArea;
+
+	pTmpArea = (CHE_WD_Button *)( mpMainArea->GetChild( 4 ) );
 	pTmpAppear = pTmpArea->GetBackGroundAppear();
 	delete pTmpAppear->mItems[0];
 	delete pTmpAppear;

@@ -53,7 +53,7 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 			iCurPage++;
 
 			CHE_PDF_DictionaryPtr OldPageDictPtr;
-			CHE_PDF_Page * pOldPage = theApp.mpPageTree->GetPage( i );
+			CHE_PDF_Page * pOldPage = theApp.mpPageTree->GetPage( iIndex + i );
 			if ( pOldPage == NULL )
 			{
 				return 0;
@@ -63,7 +63,7 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 			pNewPageTree->AppendPage( 0, 0 );
 
 			CHE_PDF_DictionaryPtr NewPageDictPtr;
-			CHE_PDF_Page * pNewPage = pNewPageTree->GetPage( i );
+			CHE_PDF_Page * pNewPage = pNewPageTree->GetPage( pNewPageTree->GetPageCount() - 1 );
 			if ( pNewPage == NULL )
 			{
 				return 0;
@@ -240,29 +240,6 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 
 	mpMainArea->AppendChild( mpProcess );
 
-	mpCancelBtn = new CHE_WD_Button( mpInterActive );
-	mpCancelBtn->SetPositionX( 215 );
-	mpCancelBtn->SetPositionY( 80 );
-	mpCancelBtn->SetWidth( 96 );
-	mpCancelBtn->SetHeight( 32 );
-	mpCancelBtn->SetClickEvent( EventCancelBtnClick );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\cancelTextBtn.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	mpCancelBtn->SetBackGroundAppear( pTmpApper );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\cancelTextBtnHover.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	mpCancelBtn->SetMouseOverAppear( pTmpApper );
-
-	mpCancelBtn->SetVisable( false );
-
-	mpMainArea->AppendChild( mpCancelBtn );
-
 	mProcessBarValue = 0;
 }
 
@@ -288,11 +265,6 @@ CProcessDlg::~CProcessDlg()
 	delete pTmpAppear;
 	delete pOtherTmpArea;
 	pOtherTmpArea = pTmpArea->GetChild( 2 );
-	pTmpAppear = pOtherTmpArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-	delete pOtherTmpArea;
-	pOtherTmpArea = pTmpArea->GetChild( 3 );
 	pTmpAppear = pOtherTmpArea->GetBackGroundAppear();
 	delete pTmpAppear->mItems[0];
 	delete pTmpAppear;
@@ -457,7 +429,7 @@ void CProcessDlg::UpdateProcessBar()
 	pTmpText = (CHE_WD_AppearText*)( pTmpAppear->mItems[0] );
 	if ( mProcessBarValue == 100 )
 	{
-		pTmpText->SetText( L"正在写文件，即将完成。" );
+		pTmpText->SetText( L"Writing file, Please Wait!" );
 	}else{
 		wsprintf( tmpStr, L"%d%%", mProcessBarValue );
 		pTmpText->SetText( tmpStr );

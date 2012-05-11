@@ -24,6 +24,8 @@ private:
 	CHE_WD_Area *	mpMainArea;
 	CHE_WD_Button * mpBtnSinglePage;
 	CHE_WD_Button * mpBtnPageRange;
+	CHE_WD_Button * mpBtnOddPages;
+	CHE_WD_Button * mpBtnEvenPages;
 	CHE_WD_Button * mpBtnCancel;
 
 	void DrawMainArea(void);

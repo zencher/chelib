@@ -78,6 +78,8 @@ public:
 	void UpdateFileInfoArea();
 	void UpdateNewFileArea();
 
+	void SetWindowsTitleNormal();
+
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
@@ -96,4 +98,7 @@ public:
 	afx_msg void OnQuitCmd();
 	afx_msg void OnWebCmd();
 	afx_msg void OnAboutCmd();
+	afx_msg void OnBuy();
+	afx_msg void OnUserGuide();
+	afx_msg void OnRegister();
 };

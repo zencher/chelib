@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include "PdfSplitter.h"
+#include "Welcome.h"
 #include "PdfSplitterDlg.h"
 
 #ifdef _DEBUG
@@ -26,6 +27,8 @@ CPdfSpliterApp::CPdfSpliterApp()
 	// Place all significant initialization in InitInstance
 	mbLoadOver = false;
 	mbWork = false;
+	mbLoadError = false;
+	mbRegister = false;
 	mpMainDlg = NULL;
 	mpProcessDlg = NULL;
 	mpFileRead = NULL;
@@ -70,7 +73,46 @@ BOOL CPdfSpliterApp::InitInstance()
 	// Change the registry key under which our settings are stored
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
-	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	SetRegistryKey(_T("Peroit PDF Splitter"));
+
+// 	check reigster information
+	long retVal = 0;
+	HKEY hRegKey;
+	char tmpStr[1024];
+	
+	retVal = RegOpenKeyEx( HKEY_CURRENT_USER, L"SOFTWARE\\Peroit Studio\\PDF Splitter", 0, KEY_READ, &hRegKey );
+	if ( ERROR_SUCCESS == retVal )
+	{
+		DWORD valueType = REG_SZ;
+		DWORD valueSize = 1023;
+
+		retVal = RegQueryValueExA( hRegKey, "User", 0, &valueType, (BYTE*)&tmpStr, &valueSize );
+		if ( ERROR_SUCCESS == retVal )
+		{
+			theApp.mName = tmpStr;
+		}
+
+		valueType = REG_SZ;
+		valueSize = 1023;
+
+		retVal = RegQueryValueExA( hRegKey, "Key", 0, &valueType, (BYTE*)&tmpStr, &valueSize );
+		if ( ERROR_SUCCESS == retVal )
+		{
+			theApp.mKey = tmpStr; 
+		}
+	}else{
+		CreateRegEntry();
+	}
+
+	ULONG_PTR m_gdiplusToken;
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+
+	if ( ! theApp.CheckRefInfo() )
+	{
+		CWelcomeDlg dlg;
+		dlg.DoModal();
+	}
 
 	mpMainDlg = new CPdfSpliterDlg;
 	m_pMainWnd = mpMainDlg;
@@ -194,9 +236,14 @@ void CPdfSpliterApp::LoadDocument()
 		mpFileRead = HE_CreateFileRead( tmpStr, FILEREAD_MODE_DEFAULT, 4096 );
 		if ( mpFileRead )
 		{
-			mFile.Open( mpFileRead );
-			mpDocument = CHE_PDF_Document::CreateDocument( &mFile );
-			mpPageTree = mpDocument->GetPageTree();
+			if ( mFile.Open( mpFileRead ) )
+			{
+				mpDocument = CHE_PDF_Document::CreateDocument( &mFile );
+				mpPageTree = mpDocument->GetPageTree();
+			}else{
+				mbLoadError = true;
+				CloseDocument();
+			}
 		}
 		mbLoadOver = true;
 	}
@@ -234,6 +281,101 @@ void CPdfSpliterApp::CloseDocument()
 		mpFileRead = NULL;
 		mbLoadOver = false;
 	}
+}
+
+void CPdfSpliterApp::CreateRegEntry()
+{
+	HKEY hRegKey;
+	DWORD dwOpt = REG_CREATED_NEW_KEY;
+	long retVal = 0;
+
+	retVal = RegCreateKeyEx( HKEY_CURRENT_USER, L"SOFTWARE\\Peroit Studio\\PDF Splitter", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hRegKey, &dwOpt );
+	if ( retVal == ERROR_SUCCESS )
+	{
+		RegCloseKey( hRegKey );
+	}
+}
+
+void CPdfSpliterApp::WriteRegInfo()
+{
+	HKEY hRegKey;
+	long retVal = 0;
+
+	retVal = RegOpenKeyEx( HKEY_CURRENT_USER, L"SOFTWARE\\Peroit Studio\\PDF Splitter", 0, KEY_WRITE, &hRegKey );
+	if ( ERROR_SUCCESS != retVal )
+	{
+		CreateRegEntry();
+
+		retVal = RegOpenKeyEx( HKEY_CURRENT_USER, L"SOFTWARE\\Peroit Studio\\PDF Splitter", 0, KEY_WRITE, &hRegKey );
+	}
+
+	if ( ERROR_SUCCESS != retVal )
+	{
+		return;
+	}
+
+	DWORD valueType = REG_SZ;
+	DWORD valueSize = 0;
+
+	valueSize = theApp.mName.length();
+	retVal = RegSetValueExA( hRegKey, "User", 0, valueType, (BYTE*)( theApp.mName.c_str() ), valueSize );
+
+	valueSize = theApp.mKey.length();
+	retVal = RegSetValueExA( hRegKey, "Key", 0, valueType, (BYTE*)( theApp.mKey.c_str() ), valueSize );
+
+	RegCloseKey( hRegKey );
+}
+
+//为了将代码搞乱的一下内联函数
+
+bool CPdfSpliterApp::CheckRefInfo()
+{
+	if ( mKey.length() == 0 )
+	{
+		return false;
+	}
+	if ( mName.length() == 0 )
+	{
+		return false;
+	}
+
+	unsigned char name[1024];
+	char key[1024];
+
+	memset( name, 0, 1024 );
+	memset( key, 0, 1024 );
+
+	for ( size_t i = 0; i < mName.length(); ++i )
+	{
+		name[i] = (unsigned char)( mName[i] );
+	}
+
+	for ( size_t i = 0; i < mKey.length(); ++i )
+	{
+		key[i] = mKey[i];
+	}
+
+	for ( size_t i = 0; i < 1024; ++i )
+	{
+		name[i] = (unsigned char)( name[i] + i );
+	}
+
+	for ( size_t i = 0; i < 1023; ++i )
+	{
+		name[i] = (unsigned char)( name[i] * name[i] );
+	}
+
+	char tmpStr[1024];
+	memset( tmpStr, 0, 1024 );
+	sprintf( tmpStr, "%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X", name[0], name[1], name[2], name[3], name[4], name[5], name[6], name[7], name[8], name[9], name[10], name[11] );
+
+	if ( strcmp( tmpStr, key ) == 0 )
+	{
+		mbRegister = true;
+		return true;
+	}
+	
+	return false;
 }
 
 void MyIHE_WD_InterActive::Invalidate()
@@ -558,4 +700,3 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 		mpGraphics->EndContainer(container);
 	}
 }
-

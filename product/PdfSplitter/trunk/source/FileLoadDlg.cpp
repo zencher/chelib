@@ -36,7 +36,7 @@ CFileLoadDlg::CFileLoadDlg(CWnd* pParent /*=NULL*/)
 	pTmpText = new CHE_WD_AppearText;
 	pTmpText->SetHoriAlign( APPEAR_TEXT_HALIGNMENT_CENTER );
 	pTmpText->SetVertAlign(  APPEAR_TEXT_VALIGNMENT_TOP );
-	pTmpText->SetText( L"正在加载，请稍等。" );
+	pTmpText->SetText( L"Loading file, please wait!" );
 	pTmpText->SetSize( 12 );
 	pTmpText->SetWidth( 500 );
 	pTmpText->SetHeight( 50 );

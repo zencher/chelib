@@ -94,16 +94,16 @@ CPageSelectionDlg::CPageSelectionDlg(CWnd* pParent /*=NULL*/)
 	pTmpText = new CHE_WD_AppearText;
 	pTmpText->SetColor( 0xFF000000 );
 	pTmpText->SetSize( 12 );
-	pTmpText->SetText( L"Ñ¡È¡  µÚ" );
+	pTmpText->SetText( L"Page" );
 	pTmpText->SetPositionX( 35 );
-	pTmpText->SetPositionY( 20 );
+	pTmpText->SetPositionY( 15 );
 	pTmpText->SetWidth( 80 );
 	pTmpText->SetHeight( 30 );
 	pTmpApper->mItems.push_back( pTmpText );
 	pTmpText = new CHE_WD_AppearText;
 	pTmpText->SetColor( 0xFF000000 );
 	pTmpText->SetSize( 12 );
-	pTmpText->SetText( L"Ò³" );
+	pTmpText->SetText( L"" );
 	pTmpText->SetPositionX( 150 );
 	pTmpText->SetPositionY( 20 );
 	pTmpText->SetWidth( 60 );
@@ -348,6 +348,7 @@ BOOL CPageSelectionDlg::OnInitDialog()
 	mGraphics->SetSmoothingMode( SmoothingModeAntiAlias );
 	mpInterActive->SetGraphics( mGraphics );
 	mpMainArea->OnDraw();
+
 	return TRUE;
 }
 

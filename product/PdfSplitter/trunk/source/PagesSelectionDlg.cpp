@@ -189,7 +189,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
 	pTmpApper->mItems.push_back( pTmpImage );
 	pTmpText = new CHE_WD_AppearText;
-	pTmpText->SetText( L"ÆðÊ¼Ò³" );
+	pTmpText->SetText( L"From" );
 	pTmpText->SetSize( 12 );
 	pTmpText->SetPositionX( 20 );
 	pTmpText->SetPositionY( 18 );
@@ -198,7 +198,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	pTmpText->SetColor( 0xFF000000 );
 	pTmpApper->mItems.push_back( pTmpText );
 	pTmpText = new CHE_WD_AppearText;
-	pTmpText->SetText( L"ÖÕÖ¹Ò³" );
+	pTmpText->SetText( L"To" );
 	pTmpText->SetSize( 12 );
 	pTmpText->SetPositionX( 165 );
 	pTmpText->SetPositionY( 18 );

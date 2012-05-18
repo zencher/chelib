@@ -309,6 +309,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_99C1E5FC7BF147B7A484B6252C8AEEEE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9B333187BF1440048F2D4883B4A32A96"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1523,6 +1529,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_99C1E5FC7BF147B7A484B6252C8AEEEE"
+            {
+            "SourcePath" = "8:..\\commonFiles\\resData.dat"
+            "TargetName" = "8:resData.dat"
+            "Tag" = "8:"
+            "Folder" = "8:_CD15913ED58E4251AA6B0D7544EDDFF6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9B333187BF1440048F2D4883B4A32A96"
             {
             "SourcePath" = "8:..\\commonFiles\\images\\BtnEvenPagesHOver.png"
@@ -2093,7 +2119,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:PDF Splitter"
         "ProductCode" = "8:{7E596E3F-DFE6-43CA-A065-5526447BDF53}"
-        "PackageCode" = "8:{81EB118F-2401-4233-8568-2F907D6AD0AC}"
+        "PackageCode" = "8:{DAF3FA7F-527B-4F31-A284-5B955E0FD78A}"
         "UpgradeCode" = "8:{352ABB6E-34D2-4534-A53E-90895D4BE6E0}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -2104,7 +2130,7 @@
         "Manufacturer" = "8:Peroit Studio"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:PDF Splitter"
+        "Title" = "8:Peroit PDF Splitter"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Peroit Studio"
         "Keywords" = "8:"
@@ -2229,7 +2255,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_8ADF612FBC8C47269727AEF67628C906"
             {
-            "Name" = "8:PDF Splitter"
+            "Name" = "8:Peroit PDF Splitter"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"

@@ -34,6 +34,8 @@ public:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnDropFiles(HDROP hDropInfo);
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -46,6 +48,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
 CHE_WD_AppearPath * gpListItemHoverRect = NULL;
@@ -61,7 +64,6 @@ DWORD WINAPI ThreadLoadFile( LPVOID lpParameter )
 	theApp.LoadDocument();
 	return 0;
 }
-
 
 static void EventBrowseBtnClick( CHE_WD_Area * pArea )
 {
@@ -899,6 +901,7 @@ BEGIN_MESSAGE_MAP(CPdfSpliterDlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_WM_ERASEBKGND()
 	ON_WM_ACTIVATE()
+	ON_WM_DROPFILES()
 	ON_COMMAND(ID_CMD_OPEN, &CPdfSpliterDlg::OnOpenCmd)
 	ON_COMMAND(ID_CMD_CLOSE, &CPdfSpliterDlg::OnCloseCmd)
 	ON_COMMAND(ID_CMD_QUIT, &CPdfSpliterDlg::OnQuitCmd)
@@ -1370,4 +1373,194 @@ void CPdfSpliterDlg::OnRegister()
 	{
 		SetWindowsTitleNormal();
 	}
+}
+
+void CPdfSpliterDlg::OnDropFiles( HDROP hDropInfo )
+{
+ 	int count = DragQueryFile( hDropInfo, 0xFFFFFFFF, NULL, 0 );
+ 
+	char fileName[1024];
+	char SecFileName[5];
+	wchar_t szFileName[1024];
+
+	int i , pathlength; 
+	
+	for ( i = 0; i < count; ++i ) 
+	{ 
+		pathlength = DragQueryFile( hDropInfo, i, NULL, 0 );
+
+		if ( pathlength < 1024 )
+		{ 
+			DragQueryFile( hDropInfo, i, szFileName, 1024 );
+
+			memset( fileName, 0, 1024 );
+
+			WideCharToMultiByte( CP_ACP, 0, szFileName, -1, fileName, 1024, NULL, NULL );
+
+			int tmpStrlen = strlen( fileName );
+
+			strcpy( SecFileName, fileName + tmpStrlen - 4 );
+
+			for ( int j = 0; j < 4; ++j )
+			{
+				SecFileName[j] = toupper( SecFileName[j] );
+			}
+
+			if ( strcmp( SecFileName, ".PDF" ) == 0 )
+			{
+				theApp.CloseDocument();
+
+				theApp.mTargetFile = szFileName;
+
+				unsigned int i = 0;
+
+				for ( i = theApp.mTargetFile.size()-1; i != 0; --i )
+				{
+					if ( L'.' == szFileName[i] )
+					{
+						szFileName[i++] = L'_';
+						szFileName[i++] = L'N';
+						szFileName[i++] = L'e';
+						szFileName[i++] = L'w';
+						szFileName[i++] = L'.';
+						szFileName[i++] = L'p';
+						szFileName[i++] = L'd';
+						szFileName[i++] = L'f';
+						szFileName[i++] = L'\0';
+						break;
+					}
+				}
+				theApp.mNewFile = szFileName;
+				CHE_WD_Appearance * pTmpAppear = theApp.mpMainDlg->mpTextBar2->GetBackGroundAppear();
+				CHE_WD_AppearText * pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[1] );
+				pTmpText->SetText(  theApp.mNewFile.c_str() );
+				theApp.mpMainDlg->mpTextBar2->Refresh();
+
+				pTmpAppear = theApp.mpMainDlg->mpFilePathText->GetBackGroundAppear();
+				pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+				pTmpText->SetText(  theApp.mTargetFile.c_str() );
+				theApp.mpMainDlg->mpFilePathText->Refresh();
+				CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
+				CFileLoadDlg loadDlg;
+				loadDlg.DoModal();
+
+				if ( theApp.mbLoadError )
+				{
+					theApp.mpProcessDlg->MessageBox( L"This is not a PDF Files ", L"Error", MB_OK | MB_ICONERROR );
+					theApp.mbLoadError = false;
+					return;
+				}
+
+				theApp.mpMainDlg->UpdateToolBtn();
+
+				CHE_ByteString str;
+				bool bPasswordError = false;
+				str = "";
+				while ( ! theApp.mFile.Authenticate( str ) )
+				{
+					CPasswordDlg dlg;
+					if ( bPasswordError )
+					{
+						dlg.SetErrorFlag();
+					}
+					if ( dlg.DoModal() == 1 )
+					{
+						theApp.CloseDocument();
+						return;
+					}
+					bPasswordError = true;
+					str = theApp.mPasswrod.c_str();
+				}
+
+				pTmpAppear = theApp.mpMainDlg->mpFilePageCountInfo->GetBackGroundAppear();
+				pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+				wchar_t tmpwstr[512];
+				wsprintf( tmpwstr, L"Total：%d Page(s)", theApp.mpDocument->GetPageCount() );
+				pTmpText->SetText( tmpwstr );
+				pTmpAppear = theApp.mpMainDlg->mpFileSizeInfo->GetBackGroundAppear();
+				pTmpText = (CHE_WD_AppearText *)( pTmpAppear->mItems[0] );
+				if ( theApp.mpFileRead->GetSize() <= 10485 )
+				{
+					swprintf( tmpwstr, L"%4.2f KB", theApp.mpFileRead->GetSize() * 1.0 / 1024 ) ;
+				}else{
+					swprintf( tmpwstr, L"%4.2f MB", theApp.mpFileRead->GetSize() * 1.0 / ( 1024 * 1024 ) ) ;
+				}
+				pTmpText->SetText( tmpwstr );
+				theApp.mpMainDlg->mpInterActive->Invalidate();
+
+				CSelectionModeDlg selectModeDlg;
+				unsigned int iRet = selectModeDlg.DoModal();
+				switch ( iRet )
+				{
+				default:
+				case 0:
+					break;
+				case 1:
+					{
+						CPageSelectionDlg pageDlg;
+						if ( pageDlg.DoModal() == 1 )
+						{
+							theApp.mpMainDlg->UpdateList();
+							theApp.mpMainDlg->UpdateToolBtn();
+						}
+						break;
+					}
+				case 2:
+					{
+						CPagesSelectionDlg pageDlg;
+						if ( pageDlg.DoModal() == 1 )
+						{
+							theApp.mpMainDlg->UpdateList();
+							theApp.mpMainDlg->UpdateToolBtn();
+						}
+						break;
+					}
+				case 3:
+					{
+						CListItem listItem;
+						listItem.type = SINGLE_PAGE;
+						for ( size_t i = 0; i < theApp.mpPageTree->GetPageCount(); i+=2 )
+						{
+							listItem.pageIndex = i+1;
+							listItem.pageCount = 1;
+							theApp.AddPageListItem( listItem );
+						}
+						theApp.mpMainDlg->UpdateList();
+						theApp.mpMainDlg->UpdateToolBtn();
+						break;
+					}
+				case 4:
+					{
+						CListItem listItem;
+						listItem.type = SINGLE_PAGE;
+						for ( size_t i = 1; i < theApp.mpPageTree->GetPageCount(); i+=2 )
+						{
+							listItem.pageIndex = i+1;
+							listItem.pageCount = 1;
+							theApp.AddPageListItem( listItem );
+						}
+						theApp.mpMainDlg->UpdateList();
+						theApp.mpMainDlg->UpdateToolBtn();
+						break;
+					}
+				}
+
+				theApp.mpMainDlg->mpBrowseBtn->OnMouseOut();
+
+				break;
+			}
+		}
+	}
+
+	DragFinish( hDropInfo );
+
+	CDialogEx::OnDropFiles(hDropInfo);
+}
+
+
+void CAboutDlg::OnDropFiles(HDROP hDropInfo)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+
+	CDialogEx::OnDropFiles(hDropInfo);
 }

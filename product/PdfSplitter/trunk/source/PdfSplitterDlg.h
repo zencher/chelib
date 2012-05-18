@@ -101,4 +101,5 @@ public:
 	afx_msg void OnBuy();
 	afx_msg void OnUserGuide();
 	afx_msg void OnRegister();
+	afx_msg void OnDropFiles(HDROP hDropInfo);
 };

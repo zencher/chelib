@@ -3,8 +3,10 @@
 #include "ProcessDlg.h"
 #include "afxdialogex.h"
 
-#include "../../../../trunk//include/pdf/che_pdf_creator.h"
-#include "../../../../trunk//include/pdf/che_pdf_objclone.h"
+#include "../../../../trunk/include/pdf/che_pdf_creator.h"
+#include "../../../../trunk/include/pdf/che_pdf_objclone.h"
+#include "../../../../trunk/include/pdf/che_pdf_image.h"
+#include "../../../../trunk/include/pdf/che_pdf_contentresmgr.h"
 
 CProcessDlg * gpDlg = NULL;
 
@@ -132,6 +134,44 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 			CHE_PDF_Page::ReleasePage( pOldPage );
 			CHE_PDF_Page::ReleasePage( pNewPage );
 		}
+	}
+
+	if ( ! theApp.CheckRefInfo() )
+	{
+		pNewPageTree->AppendPage( 600, 800 );
+
+		CHE_PDF_Page * pAdPage = pNewPageTree->GetPage( pNewPageTree->GetPageCount() - 1 );
+
+		CHE_PDF_DictionaryPtr dictPtr = pAdPage->GetPageDict();
+
+		CHE_PDF_DictionaryPtr resDict = CHE_PDF_Dictionary::Create();
+
+		dictPtr->SetAtDictionary( "Resources", resDict );
+
+		FILE * pImageFile = NULL;
+		pImageFile = fopen( "resData.dat", "rb" );
+		fseek( pImageFile, 0, SEEK_END );
+		HE_DWORD imageSize = ftell( pImageFile );
+		HE_LPBYTE pBuf = new HE_BYTE[imageSize];
+		fseek( pImageFile, 0, SEEK_SET ); 
+		fread( pBuf, 1, imageSize, pImageFile );
+
+		CHE_PDF_ReferencePtr refPtr = CHE_PDF_Image::InsertImageToFile( &newFile, IMAGE_JPEG, 8, 600, 800, pBuf, imageSize );
+
+		CHE_PDF_ContentResMgr resMgr( resDict );
+
+		resMgr.CreateName( CONTENTRES_XOBJECT, refPtr );
+
+		CHE_PDF_StreamPtr streamPtr;
+
+		PDF_RefInfo refInfo = newFile.CreateStreamObject( streamPtr );
+
+		if ( streamPtr )
+		{
+			streamPtr->SetRawData( (HE_LPBYTE)"600 0 0 800 0 0 cm\n/XOBJ Do", 27/*, STREAM_FILTER_FLATE*/ );
+		}
+
+		dictPtr->SetAtReference( "Contents", refInfo.objNum, refInfo.genNum, &newFile );
 	}
 
 	theApp.mpProcessDlg->mpMainArea->Refresh();

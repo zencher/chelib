@@ -15,6 +15,12 @@
     <Filter Include="头文件\PDF">
       <UniqueIdentifier>{b8490f1c-7584-4064-97ed-7d7b1c842b90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\WDM">
+      <UniqueIdentifier>{686c123a-3843-434c-9f73-9e40841c4d0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\WDM">
+      <UniqueIdentifier>{eacbe4b1-f01d-4c6b-b32f-034d028ffed0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h">
@@ -125,6 +131,12 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_image.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\wdm\che_wdm.h">
+      <Filter>头文件\WDM</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -213,6 +225,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp">
       <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\wdm\che_wdm.cpp">
+      <Filter>源文件\WDM</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

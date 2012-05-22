@@ -48,6 +48,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_fontmgr.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_graphics.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_graphicsState.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_image.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_matrix.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
@@ -55,6 +56,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
+    <ClInclude Include="..\..\include\wdm\che_wdm.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp" />
@@ -79,6 +81,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_graphicsstate.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
@@ -86,6 +89,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp" />
+    <ClCompile Include="..\..\src\wdm\che_wdm.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{93D59D50-47AB-4B6D-856D-4B5CD72E7E9F}</ProjectGuid>
@@ -150,7 +154,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -180,7 +184,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

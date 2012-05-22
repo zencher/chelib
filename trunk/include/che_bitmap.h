@@ -79,7 +79,7 @@ public:
 	HE_DWORD				Pitch() const { return ( ( ( m_lWidth * m_Depth ) + 31 ) & ~31 ) >> 3; } ;
 	HE_BITMAP_DEPTH			Depth() const { return m_Depth; };
 	HE_BITMAP_DIRECTION		Direction() const { return m_Direction; } ;
-	HE_BOOL					IsCompression() const { return m_Compression; } ;
+	HE_BOOL					IsCompression() const { return ( m_Compression > 0 ) ? TRUE : FALSE; } ;
 	HE_BITMAP_COMPRESSION	GetCompressionType() const { return m_Compression; } ;
 
 	//palette

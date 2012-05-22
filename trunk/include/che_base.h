@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <malloc.h>
 #include <windows.h>
+#include <intrin.h>
 #undef GetObject
 
 class CHE_Allocator
@@ -234,5 +235,23 @@ IHE_Read*	HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode = FILEREAD_MODE_DE
 IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize, CHE_Allocator * pAllocator = NULL );
 
 HE_VOID		HE_DestoryIHERead( IHE_Read * pIHERead );
+
+
+class CHE_RefCount
+{
+public:
+
+	CHE_RefCount() : mRefCount(0) {}
+
+	inline	operator HE_DWORD() { return mRefCount; }
+
+	inline HE_VOID	AddRef() { _InterlockedIncrement( &mRefCount ); }
+
+	inline HE_VOID	DecRef() { _InterlockedDecrement( &mRefCount ); }
+
+private:
+
+	HE_LONG		mRefCount;
+};
 
 #endif

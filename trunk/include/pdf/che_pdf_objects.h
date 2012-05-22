@@ -8,7 +8,6 @@
 #include "che_pdf_encrypt.h"
 
 #include <vector>
-#include <intrin.h>
 
 class CHE_PDF_Object;
 class CHE_PDF_Null;
@@ -73,25 +72,6 @@ HE_BOOL IsPdfRefPtr( const CHE_PDF_ObjectPtr & objPtr );
 HE_BOOL IsPdfStreamPtr( const CHE_PDF_ObjectPtr & objPtr );
 
 
-
-
-class CHE_PDF_RefCount
-{
-public:
-
-	CHE_PDF_RefCount() : mRefCount(0) {}
-
-	inline	operator HE_DWORD() { return mRefCount; }
-
-	inline HE_VOID	AddRef() { _InterlockedIncrement( &mRefCount ); }
-
-	inline HE_VOID	DecRef() { _InterlockedDecrement( &mRefCount ); }
-
-private:
-
-	HE_LONG		mRefCount;
-};
-
 class CHE_PDF_Object : public CHE_Object
 {
 public:
@@ -132,7 +112,7 @@ protected:
 
 	PDF_OBJ_TYPE					mType;
 
-	CHE_PDF_RefCount				mRefs;
+	CHE_RefCount					mRefs;
 
 	friend class CHE_Allocator;
 

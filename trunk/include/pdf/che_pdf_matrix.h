@@ -110,6 +110,25 @@ public:
 		return val;
 	}
 
+	bool operator == ( const CHE_PDF_Matrix & matrix ) const
+	{
+		if ( fabsf( a - matrix.a ) <= FLT_EPSILON &&
+			 fabsf( b - matrix.b ) <= FLT_EPSILON &&
+			 fabsf( c - matrix.c ) <= FLT_EPSILON &&
+			 fabsf( d - matrix.d ) <= FLT_EPSILON && 
+			 fabsf( e - matrix.e ) <= FLT_EPSILON &&
+			 fabsf( f - matrix.f ) <= FLT_EPSILON )
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	bool operator != ( const CHE_PDF_Matrix & matrix ) const
+	{
+		return ! operator==( matrix );
+	}
+
 	float a;
 	float b;
 	float c;

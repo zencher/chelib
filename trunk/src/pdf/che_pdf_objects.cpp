@@ -472,7 +472,7 @@ CHE_PDF_NamePtr CHE_PDF_Name::Clone()
 CHE_PDF_ReferencePtr CHE_PDF_Reference::Create( HE_DWORD refNum, HE_DWORD genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_ReferencePtr ptr;
-	if ( pAllocator )
+	if ( pAllocator == NULL )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -685,7 +685,7 @@ HE_BOOL CHE_PDF_Array::IsModified()
 CHE_PDF_DictionaryPtr CHE_PDF_Dictionary::Create( CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_DictionaryPtr ptr;
-	if ( pAllocator )
+	if ( pAllocator == NULL )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -765,7 +765,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtNull( const CHE_ByteString & key )
 	}
 }
 
-HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( const CHE_ByteString & key, BOOL value )
+HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( const CHE_ByteString & key, HE_BOOL value )
 {
 	if ( key.GetLength() > 0 )
 	{
@@ -1063,6 +1063,7 @@ CHE_PDF_Stream::CHE_PDF_Stream(	HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encryp
 	m_FileOffset = 0;
 	m_dwSize = 0;
 	m_pDataBuf = NULL;
+	mDictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
 }
 
 CHE_PDF_Stream::~CHE_PDF_Stream()

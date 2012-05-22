@@ -92,7 +92,7 @@ public:
 	CHE_PDF_Font * GetFont() const { return mpFont; }
 	HE_FLOAT GetCharSpace() const { return mCharSpace; }
 	HE_FLOAT GetWordSpace() const { return mWordSpace; }
-	HE_FLOAT GetLeading() const { return mLeading; }
+	//HE_FLOAT GetLeading() const { return mLeading; }
 	HE_FLOAT GetScaling() const { return mScaling; }
 	HE_FLOAT GetRise() const { return mRise; }
 	CHE_ByteString GetFontResName() const { return mFontName; }
@@ -103,7 +103,7 @@ public:
 	HE_VOID SetFont( CHE_PDF_Font * pFont ) { mpFont = pFont; }
 	HE_VOID SetCharSpace( HE_FLOAT charSpace ) { mCharSpace = charSpace; }
 	HE_VOID SetWordSpace( HE_FLOAT wordSpace ) { mWordSpace = wordSpace; }
-	HE_VOID SetLeading( HE_FLOAT leading ) { mLeading = leading; }
+	//HE_VOID SetLeading( HE_FLOAT leading ) { mLeading = leading; }
 	HE_VOID SetScaling( HE_FLOAT scaling ) { mScaling = scaling; }
 	HE_VOID SetRise( HE_FLOAT rise ) { mRise = rise; }
 	HE_VOID SetFontResName( const CHE_ByteString & resName ) { mFontName = resName; }
@@ -155,8 +155,9 @@ public:
 
 	CHE_PDF_ClipState * Clone() const;
 
-private:
 	std::list<CHE_PDF_ClipStateItem*> mClipElementList;
+
+private:
 };
 
 class CHE_PDF_ExtGState : public CHE_Object
@@ -165,12 +166,17 @@ public:
 	CHE_PDF_ExtGState( CHE_Allocator * pAllocator = NULL )
 		: CHE_Object(pAllocator), mStrokeAlpha(1), mFillAlpha(1) {}
 
-	HE_BOOL PushExtStateName( const CHE_ByteString & name, CHE_PDF_Dictionary * pDict );
+	HE_BOOL PushExtStateName( const CHE_ByteString & name, CHE_PDF_DictionaryPtr dictPtr );
+
+	HE_FLOAT GetStrokeAlpha() { return mStrokeAlpha; }
+
+	HE_FLOAT GetFillAlpha() { return mFillAlpha; }
 
 	CHE_PDF_ExtGState * Clone() const;
 
-private:
 	std::list<CHE_ByteString> mExtDictNameList;
+
+private:
 	HE_FLOAT mStrokeAlpha;
 	HE_FLOAT mFillAlpha;
 };
@@ -188,14 +194,14 @@ private:
 #define GSTATE_FLAG_TextMatirx			0x00000400
 #define GSTATE_FLAG_CharSpace			0x00000800
 #define GSTATE_FLAG_WordSpace			0x00001000
-#define GSTATE_FLAG_Leading				0x00002000
-#define GSTATE_FLAG_Scaling				0x00003000
-#define GSTATE_FLAG_Rise				0x00008000
-#define GSTATE_FLAG_RenderMode			0x00010000
-#define GSTATE_FLAG_FillAlpha			0x00020000
-#define GSTATE_FLAG_StrokeAlpha			0x00040000
-#define GSTATE_FLAG_RenderIntents		0x00080000
-#define GSTATE_FLAG_Flatness			0x00100000
+//#define GSTATE_FLAG_Leading			0x00002000
+#define GSTATE_FLAG_Scaling				0x00002000
+#define GSTATE_FLAG_Rise				0x00004000
+#define GSTATE_FLAG_RenderMode			0x00008000
+#define GSTATE_FLAG_FillAlpha			0x00010000
+#define GSTATE_FLAG_StrokeAlpha			0x00020000
+#define GSTATE_FLAG_RenderIntents		0x00040000
+#define GSTATE_FLAG_Flatness			0x00080000
 
 class CHE_PDF_GState : public CHE_Object
 {
@@ -225,7 +231,7 @@ public:
 	HE_BOOL GetTextFontSize( HE_FLOAT & fontSizeRet ) const;
 	HE_BOOL GetTextCharSpace( HE_FLOAT & charSpaceRet ) const;
 	HE_BOOL GetTextWordSpace( HE_FLOAT & wordSpaceRet ) const;
-	HE_BOOL GetTextLeading( HE_FLOAT & leadingRet ) const;
+	//HE_BOOL GetTextLeading( HE_FLOAT & leadingRet ) const;
 	HE_BOOL GetTextScaling( HE_FLOAT & scalingRet ) const;
 	HE_BOOL GetTextRise( HE_FLOAT & riseRet ) const;
 	CHE_PDF_Font * GetTextFont() const;
@@ -252,12 +258,12 @@ public:
 	HE_VOID SetTextFontResName( const CHE_ByteString & resName );
 	HE_VOID SetTextCharSpace( const HE_FLOAT & charSpace );
 	HE_VOID SetTextWordSpace( const HE_FLOAT & wordSpace );
-	HE_VOID SetTextLeading( const HE_FLOAT & leading );
+	//HE_VOID SetTextLeading( const HE_FLOAT & leading );
 	HE_VOID SetTextScaling( const HE_FLOAT & scaling );
 	HE_VOID SetTextRise( const HE_FLOAT & rise );
 	HE_VOID SetTextRenderMode( const PDF_GSTATE_TEXTRENDERMODE & rm );
 	HE_BOOL PushClipElement( CHE_PDF_ContentObject * pElement );
-	HE_BOOL PushExtGState( const CHE_ByteString & resName, CHE_PDF_Dictionary * pDict );
+	HE_BOOL PushExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr );
 
 private:
 	CHE_PDF_StrokeState *		MakeStrokeState();
@@ -278,5 +284,26 @@ private:
 	CHE_PDF_ClipState *			mpClipState;
 	CHE_PDF_ExtGState *			mpExtState;
 };
+
+HE_BOOL IsDefLineWidth( const HE_FLOAT & lineWidth );
+HE_BOOL IsDefLineCap( const PDF_GSTATE_LINECAP & lineCap );
+HE_BOOL IsDefLineJoin( const PDF_GSTATE_LINEJOIN & lineJoin );
+HE_BOOL IsDefMiterLimit( const HE_FLOAT & miterLimit );
+HE_BOOL IsDefLineDash( const PDF_GSTATE_DASHPATTERN & lineDash );
+
+HE_BOOL IsDefMatrix( const CHE_PDF_Matrix & textMatrix );
+
+HE_BOOL IsDefTextCharSpace( const HE_FLOAT & charSpace );
+HE_BOOL IsDefTextWrodSpace( const HE_FLOAT & wordSpace );
+HE_BOOL IsDefTextRise( const HE_FLOAT & textRise );
+HE_BOOL IsDefTextScaling( const HE_FLOAT & textScaling );
+HE_BOOL IsDefTextRenderMode( const PDF_GSTATE_TEXTRENDERMODE & rm );
+
+HE_BOOL IsDefFlatness( const HE_FLOAT & flatness );
+HE_BOOL IsDefRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri );
+
+HE_BOOL IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace );
+HE_BOOL IsDefColor( const CHE_PDF_Color & color );
+
 
 #endif

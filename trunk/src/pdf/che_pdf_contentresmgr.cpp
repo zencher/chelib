@@ -41,6 +41,11 @@ CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, cons
 			nameRet = RequestName( pSubDict, "F" );
 			break;
 		}
+	case CONTENTRES_PROPERTIES:
+		{
+			nameRet = RequestName( pSubDict, "MP" );
+			break;
+		}
 	default:
 		break;
 	}
@@ -93,6 +98,7 @@ CHE_PDF_ObjectPtr CHE_PDF_ContentResMgr::GetResObj( const CHE_ByteString & name 
 	{
 		return pRet;	
 	}
+	pRet = GetResObj( CONTENTRES_PROPERTIES, name );
 	return pRet;
 }
 
@@ -133,6 +139,11 @@ CHE_PDF_DictionaryPtr CHE_PDF_ContentResMgr::GetSubDict( PDF_CONTENTRES_TYPE typ
 	case CONTENTRES_FONT:
 		{
 			pTmp = mpResDict->GetElement( "Font", OBJ_TYPE_DICTIONARY );
+			break;
+		}
+	case CONTENTRES_PROPERTIES:
+		{
+			pTmp = mpResDict->GetElement( "Properties", OBJ_TYPE_DICTIONARY );
 			break;
 		}
 	default:
@@ -180,6 +191,11 @@ CHE_PDF_DictionaryPtr CHE_PDF_ContentResMgr::CreateSubDict( PDF_CONTENTRES_TYPE 
 	case CONTENTRES_FONT:
 		{
 			mpResDict->SetAtDictionary( "Font", pTmpDict );
+			break;
+		}
+	case CONTENTRES_PROPERTIES:
+		{
+			mpResDict->SetAtDictionary( "Properties", pTmpDict );
 			break;
 		}
 	default:

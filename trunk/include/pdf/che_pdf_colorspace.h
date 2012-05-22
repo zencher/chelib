@@ -33,6 +33,8 @@ public:
 
 	CHE_PDF_ObjectPtr GetObj() const { return mpObj; }
 
+	HE_BOOL IsDeviceColorSpace();
+
 	CHE_PDF_ColorSpace * Clone() const
 	{
 		CHE_PDF_ColorSpace * pRet = GetAllocator()->New<CHE_PDF_ColorSpace>( mType, GetAllocator() );

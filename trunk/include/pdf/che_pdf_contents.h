@@ -26,7 +26,7 @@ public:
 	virtual HE_VOID State_LineDash( const PDF_GSTATE_DASHPATTERN & dashPattern ) = 0;
 	virtual HE_VOID State_RenderIntents( const PDF_GSTATE_RENDERINTENTS & ri ) = 0;
 	virtual HE_VOID State_Flatness( const HE_FLOAT & flatness ) = 0;
-	virtual HE_VOID State_ExtGState( const CHE_ByteString & resName, CHE_PDF_Dictionary * pDict ) = 0;
+	virtual HE_VOID State_ExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr ) = 0;
 	virtual HE_VOID State_FillColor( CHE_PDF_Color * pColor ) = 0;
 	virtual HE_VOID State_StrokeColor( CHE_PDF_Color * pColor ) = 0;
 	virtual HE_VOID State_FillColorSpace( CHE_PDF_ColorSpace * pColorSpace ) = 0;

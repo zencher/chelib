@@ -114,7 +114,14 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 			}
 		case PARSE_WORD_NAME:
 			{
-				mName = wordDes.str;
+				if ( mName.GetLength() > 0 )
+				{
+					mString = wordDes.str;
+				}
+				else
+				{
+					mName = wordDes.str;
+				}
 				if ( mbInlineImage )
 				{
 					if ( mParamFalg > 0 )
@@ -159,7 +166,7 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		case PARSE_WORD_STRING:
 			{
 				mString = wordDes.str;
-				mpObj = CHE_PDF_String::Create( mString, GetAllocator() );
+				mpObj = CHE_PDF_String::Create( wordDes.str, GetAllocator() );
 				break;
 			}
 		case PARSE_WORD_ARRAY_B:
@@ -289,11 +296,15 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		//清除无用的操作数
 		mOpdFloatStack.clear();
 		mpObj.reset();
+		mName.Clear();
+		mString.Clear();
 	}
 
 	//清除无用的操作数
 	mOpdFloatStack.clear();
 	mpObj.reset();
+	mName.Clear();
+	mString.Clear();
 
 	pRead->Release();
 	HE_DestoryIHERead( pRead );
@@ -363,7 +374,22 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BDC()
 		CHE_PDF_Mark * pMark = GetAllocator()->New<CHE_PDF_Mark>( GetAllocator() );
 		pMark->SetMarkType( Mark_BDC );
 		pMark->SetTag( mName );
-		pMark->SetProperty( mpObj->GetDictPtr() );
+		if ( mpObj )
+		{
+			pMark->SetProperty( mpObj->GetDictPtr() );
+		}
+		else if ( mString.GetLength() > 0 )
+		{
+			CHE_PDF_ObjectPtr objPtr = mpContentResMgr->GetResObj( CONTENTRES_PROPERTIES, mString );
+			if ( IsPdfRefPtr( objPtr ) )
+			{
+				objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+			}
+			if ( IsPdfDictPtr( objPtr ) )
+			{
+				pMark->SetProperty( objPtr->GetDictPtr() );
+			}
+		}
 		mpConstructor->Operator_Append( pMark );
 	}
 }
@@ -386,8 +412,6 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BMC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BT()
 {
-	CHE_PDF_TextBegin * pTextBegin = GetAllocator()->New<CHE_PDF_TextBegin>( GetAllocator() );
-	mpConstructor->Operator_Append( pTextBegin );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BX()
@@ -507,7 +531,22 @@ HE_VOID CHE_PDF_ContentsParser::Handle_DP()
 		CHE_PDF_Mark * pMark = GetAllocator()->New<CHE_PDF_Mark>( GetAllocator() );
 		pMark->SetMarkType( Mark_DP );
 		pMark->SetTag( mName );
-		pMark->SetProperty( mpObj->GetDictPtr() );
+		if ( mpObj )
+		{
+			pMark->SetProperty( mpObj->GetDictPtr() );
+		}
+		else if ( mString.GetLength() > 0 )
+		{
+			CHE_PDF_ObjectPtr objPtr = mpContentResMgr->GetResObj( CONTENTRES_PROPERTIES, mString );
+			if ( IsPdfRefPtr( objPtr ) )
+			{
+				objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+			}
+			if ( IsPdfDictPtr( objPtr ) )
+			{
+				pMark->SetProperty( objPtr->GetDictPtr() );
+			}
+		}
 		mpConstructor->Operator_Append( pMark );
 	}
 }
@@ -618,8 +657,6 @@ HE_VOID CHE_PDF_ContentsParser::Handle_EMC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_ET()
 {
-	CHE_PDF_TextEnd * pTextEnd = GetAllocator()->New<CHE_PDF_TextEnd>( GetAllocator() );
-	mpConstructor->Operator_Append( pTextEnd );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_EX()
@@ -863,7 +900,16 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
 		mpConstructor->State_StrokeColor( pColor );
 	}else if ( mName.GetLength() > 0 )
 	{
-		//todo pattern color
+		CHE_PDF_ObjectPtr objPtr;
+		objPtr = mpContentResMgr->GetResObj( CONTENTRES_PATTERN, mName );
+		if ( IsPdfRefPtr( objPtr ) )
+		{
+			CHE_PDF_ColorSpace * pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, mName, objPtr->GetRefPtr()->Clone(), GetAllocator() );
+			if ( pColorSpace )
+			{
+				mpConstructor->State_StrokeColorSpace( pColorSpace );
+			}
+		}
 	}
 }
 
@@ -1271,7 +1317,27 @@ HE_VOID CHE_PDF_ContentsParser::Handle_gs()
 {
 	if ( mName.GetLength() > 0 )
 	{
-		mpConstructor->State_ExtGState( mName, NULL );
+		CHE_PDF_ObjectPtr objPtr;
+		CHE_PDF_DictionaryPtr dictPtr;
+		objPtr = mpContentResMgr->GetResObj( CONTENTRES_EXTGSTATE, mName );
+		if ( objPtr )
+		{
+			if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
+			{
+				objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+				if ( objPtr )
+				{
+					dictPtr = objPtr->GetDictPtr();
+				}
+			}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
+			{
+				dictPtr = objPtr->GetDictPtr();
+			}
+			if ( dictPtr )
+			{
+				mpConstructor->State_ExtGState( mName, dictPtr );
+			}
+		}
 	}
 }
 
@@ -1477,7 +1543,16 @@ HE_VOID CHE_PDF_ContentsParser::Handle_scn()
 		mpConstructor->State_FillColor( pColor );
 	}else if ( mName.GetLength() > 0 )
 	{
-		//todo pattern color
+		CHE_PDF_ObjectPtr objPtr;
+		objPtr = mpContentResMgr->GetResObj( CONTENTRES_PATTERN, mName );
+		if ( IsPdfRefPtr( objPtr ) )
+		{
+			CHE_PDF_ColorSpace * pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, mName, objPtr->GetRefPtr()->Clone(), GetAllocator() );
+			if ( pColorSpace )
+			{
+				mpConstructor->State_FillColorSpace( pColorSpace );
+			}
+		}
 	}
 }
 
@@ -1551,7 +1626,7 @@ class CContentListConstructor : public IHE_PDF_ContentListConstructor
 {
 public:
 	CContentListConstructor( CHE_PDF_ContentObjectList * pList, const CHE_PDF_Matrix & matrix, CHE_Allocator * pAllocator = NULL )
-		: mpList(pList), mpGState(NULL), mExtMatrix(matrix), IHE_PDF_ContentListConstructor( pAllocator )
+		: mpList(pList), mpGState(NULL), mExtMatrix(matrix), mTextLeading(0), IHE_PDF_ContentListConstructor( pAllocator )
 	{
 		mpGState = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
 	}
@@ -1624,9 +1699,9 @@ public:
 		GetGState()->SetFlatness( flatness );
 	}
 
-	HE_VOID State_ExtGState( const CHE_ByteString & resName, CHE_PDF_Dictionary * pDict )
+	HE_VOID State_ExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr )
 	{
-		GetGState()->PushExtGState( resName, pDict );
+		GetGState()->PushExtGState( resName, dictPtr );
 	}
 
 	HE_VOID State_FillColor( CHE_PDF_Color * pColor )
@@ -1685,7 +1760,8 @@ public:
 
 	HE_VOID State_TextLeading( const HE_FLOAT & leading )
 	{
-		GetGState()->SetTextLeading( leading );
+		mTextLeading = leading;
+		//GetGState()->SetTextLeading( leading );
 	}
 
 	HE_VOID State_TextRise( const HE_FLOAT & rise )
@@ -1710,37 +1786,28 @@ public:
 
 	HE_VOID Operator_TD( const HE_FLOAT & tx, const HE_FLOAT & ty )
 	{
-		HE_FLOAT leading = 0;
-		leading = -ty;
-		GetGState()->SetTextLeading( leading );
+		mTextLeading = -ty;
 		Operator_Td( tx, ty );
 	}
 
 	HE_VOID Operator_Tstar()
 	{
-		HE_FLOAT leading = 0;
-		GetGState()->GetTextLeading( leading );
-		Operator_Td( 0, leading );
+		Operator_Td( 0, mTextLeading );
 	}
 	
 	HE_VOID Operator_PushGState()
 	{
-		CHE_PDF_PushGState * pNode = GetAllocator()->New<CHE_PDF_PushGState>();
 		if ( mpGState )
 		{
-			pNode->SetGState( mpGState->Clone() );
 			mGStateStack.push_back( mpGState->Clone() );
 		}else
 		{
 			mGStateStack.push_back( NULL );
 		}
-		mpList->Append( pNode );
 	}
 	
 	HE_VOID Operator_PopGState()
 	{
-		CHE_PDF_PopGState * pNode = GetAllocator()->New<CHE_PDF_PopGState>();
-		mpList->Append( pNode );
 		if ( mpGState )
 		{
 			mpGState->GetAllocator()->Delete( mpGState );
@@ -1795,18 +1862,14 @@ public:
 			case ContentType_InlineImage:
 			case ContentType_Form:
 			case ContentType_Shading:
-			case ContentType_TextBegin:
 				{
 					pObject->SetGState( mpGState->Clone() );
 					break;
 				}
 			case ContentType_Mark:
-			case ContentType_TextEnd:
 				{
 					break;
 				}
-			case ContentType_PopGState:
-			case ContentType_PushGState:
 			default:
 				return;
 			}
@@ -1847,6 +1910,7 @@ private:
 	std::vector<CHE_PDF_GState*> mGStateStack;
 	CHE_PDF_GState * mpGState;
 	CHE_PDF_Matrix mExtMatrix;
+	HE_FLOAT mTextLeading;
 };
 
 IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * plist,

@@ -1,5 +1,20 @@
 #include "../../include/pdf/che_pdf_colorspace.h"
 
+HE_BOOL CHE_PDF_ColorSpace::IsDeviceColorSpace()
+{
+	switch ( GetType() )
+	{
+	case COLORSAPCE_DEVICE_GRAY:
+	case COLORSAPCE_DEVICE_RGB:
+	case COLORSAPCE_DEVICE_CMYK:
+		return TRUE;
+	default:
+		break;
+	}
+
+	return FALSE;;
+}
+
 CHE_PDF_ColorSpace * GetColorSpace( const CHE_ByteString & name, CHE_Allocator * pAllocator )
 {
 	CHE_PDF_ColorSpace * pColorSpace = NULL;

@@ -96,9 +96,9 @@ CHE_PDF_ClipState * CHE_PDF_ClipState::Clone() const
 	return pRet;
 }
 
-HE_BOOL CHE_PDF_ExtGState::PushExtStateName( const CHE_ByteString & name, CHE_PDF_Dictionary * pDict )
+HE_BOOL CHE_PDF_ExtGState::PushExtStateName( const CHE_ByteString & name, CHE_PDF_DictionaryPtr dictPtr )
 {
-	if ( !pDict )
+	if ( ! dictPtr )
 	{
 		return FALSE;
 	}
@@ -112,12 +112,12 @@ HE_BOOL CHE_PDF_ExtGState::PushExtStateName( const CHE_ByteString & name, CHE_PD
 		}
 	}
 	mExtDictNameList.push_front( name );
-	CHE_PDF_ObjectPtr pTmpObj = pDict->GetElement( "CA", OBJ_TYPE_NUMBER );
+	CHE_PDF_ObjectPtr pTmpObj = dictPtr->GetElement( "CA", OBJ_TYPE_NUMBER );
 	if ( pTmpObj )
 	{
 		mStrokeAlpha = pTmpObj->GetNumberPtr()->GetFloat();
 	}
-	pTmpObj = pDict->GetElement( "ca", OBJ_TYPE_NUMBER );
+	pTmpObj = dictPtr->GetElement( "ca", OBJ_TYPE_NUMBER );
 	if ( pTmpObj )
 	{
 		mFillAlpha = pTmpObj->GetNumberPtr()->GetFloat();
@@ -375,15 +375,15 @@ HE_BOOL CHE_PDF_GState::GetTextWordSpace( HE_FLOAT & wordSpaceRet ) const
 	return FALSE;
 }
 
-HE_BOOL CHE_PDF_GState::GetTextLeading( HE_FLOAT & leadingRet ) const
-{
-	if ( mFlag & GSTATE_FLAG_Leading )
-	{
-		leadingRet = mpTextState->GetLeading();
-		return TRUE;
-	}
-	return FALSE;
-}
+// HE_BOOL CHE_PDF_GState::GetTextLeading( HE_FLOAT & leadingRet ) const
+// {
+// 	if ( mFlag & GSTATE_FLAG_Leading )
+// 	{
+// 		leadingRet = mpTextState->GetLeading();
+// 		return TRUE;
+// 	}
+// 	return FALSE;
+// }
 
 HE_BOOL CHE_PDF_GState::GetTextScaling( HE_FLOAT & scalingRet ) const
 {
@@ -560,11 +560,11 @@ HE_VOID CHE_PDF_GState::SetTextWordSpace( const HE_FLOAT & wordSpace )
 	mFlag |= GSTATE_FLAG_WordSpace;
 }
 
-HE_VOID CHE_PDF_GState::SetTextLeading( const HE_FLOAT & leading )
-{
-	MakeTextState()->SetLeading( leading );
-	mFlag |= GSTATE_FLAG_Leading;
-}
+// HE_VOID CHE_PDF_GState::SetTextLeading( const HE_FLOAT & leading )
+// {
+// 	MakeTextState()->SetLeading( leading );
+// 	mFlag |= GSTATE_FLAG_Leading;
+// }
 
 HE_VOID CHE_PDF_GState::SetTextScaling( const HE_FLOAT & scaling )
 {
@@ -597,7 +597,126 @@ HE_BOOL CHE_PDF_GState::PushClipElement( CHE_PDF_ContentObject * pElement )
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, CHE_PDF_Dictionary * pDict )
+HE_BOOL CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr )
 {
+	MakeExtGState()->PushExtStateName( resName, dictPtr );
+
+	return TRUE;
+}
+
+HE_BOOL IsEqual( const HE_FLOAT & val1, const HE_FLOAT & val2 )
+{
+	if ( fabsf( val1 - val2 ) <= FLT_EPSILON )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL IsDefLineWidth( const HE_FLOAT & lineWidth )
+{
+	return IsEqual( lineWidth, 0 );
+}
+
+HE_BOOL IsDefLineCap( const PDF_GSTATE_LINECAP & lineCap )
+{
+	if ( lineCap == LineCap_Butt )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL IsDefLineJoin( const PDF_GSTATE_LINEJOIN & lineJoin )
+{
+	if ( lineJoin == LineJoin_Miter )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL IsDefMiterLimit( const HE_FLOAT & miterLimit )
+{
+	return IsEqual( miterLimit, 10 );
+}
+
+HE_BOOL IsDefLineDash( const PDF_GSTATE_DASHPATTERN & lineDash )
+{
+	if ( IsEqual( lineDash.dashPhase, 0 ) && ( lineDash.dashArray.size() == 0 ) )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL IsDefMatrix( const CHE_PDF_Matrix & textMatrix )
+{
+	if ( IsEqual( textMatrix.a, 1 ) && IsEqual( textMatrix.b, 0 ) && IsEqual( textMatrix.c, 0 ) &&
+		 IsEqual( textMatrix.d, 1 ) && IsEqual( textMatrix.e, 0 ) && IsEqual( textMatrix.f, 0 ) )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL IsDefTextCharSpace( const HE_FLOAT & charSpace )
+{
+	return IsEqual( charSpace, 0 );	
+}
+
+HE_BOOL IsDefTextWrodSpace( const HE_FLOAT & wordSpace )
+{
+	return IsEqual( wordSpace, 0 );
+}
+
+HE_BOOL IsDefTextRise( const HE_FLOAT & textRise )
+{
+	return IsEqual( textRise, 0 );
+}
+
+HE_BOOL IsDefTextScaling( const HE_FLOAT & textScaling )
+{
+	return IsEqual( textScaling, 100 );
+}
+
+HE_BOOL IsDefTextRenderMode( const PDF_GSTATE_TEXTRENDERMODE & rm )
+{
+	if ( rm == TextRenderMode_Fill )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL IsDefFlatness( const HE_FLOAT & flatness )
+{
+	return IsEqual( flatness, 0 );
+}
+
+HE_BOOL IsDefRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri )
+{
+	if ( ri == RI_AbsoluteColorimetric )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace )
+{
+	if ( colorSpace.GetType() == COLORSAPCE_DEVICE_GRAY )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL IsDefColor( const CHE_PDF_Color & color )
+{
+	if ( color.mConponents.size() == 1 && IsEqual( color.mConponents[0], 0 ) )
+	{
+		return TRUE;
+	}
 	return FALSE;
 }

@@ -39,7 +39,7 @@ typedef unsigned long  HE_DWORD;
 typedef unsigned long *  HE_LPDWORD;
 
 //Boolean variable (should be TRUE or FALSE).
-typedef int  HE_BOOL;
+typedef bool HE_BOOL;
  
 //8-bit Windows (ANSI) character. 
 typedef char  HE_CHAR;
@@ -84,8 +84,8 @@ typedef float  HE_FLOAT;
 
 typedef double HE_DOUBLE;
 
-#define FALSE 0
-#define TRUE 1
+#define FALSE false
+#define TRUE true
 
 #ifndef NULL
 #define NULL 0

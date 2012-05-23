@@ -84,8 +84,8 @@ typedef float  HE_FLOAT;
 
 typedef double HE_DOUBLE;
 
-#define FALSE false
-#define TRUE true
+#define FALSE 0
+#define TRUE 1
 
 #ifndef NULL
 #define NULL 0

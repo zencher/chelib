@@ -248,7 +248,7 @@ CHE_PDF_ObjectPtr CHE_PDF_ObjectPtr::operator = ( const CHE_PDF_ObjectPtr & ptr 
 
 HE_VOID CHE_PDF_ObjectPtr::reset( CHE_PDF_Object * pObj /*= NULL*/ )
 {
-	if ( mpObj != pObj && pObj != NULL )
+	if ( mpObj != pObj )
 	{
 		if ( mpObj )
 		{
@@ -263,10 +263,6 @@ HE_VOID CHE_PDF_ObjectPtr::reset( CHE_PDF_Object * pObj /*= NULL*/ )
 		{
 			mpObj->mRefs.AddRef();
 		}
-	}
-	else
-	{
-		mpObj = NULL;
 	}
 }
 

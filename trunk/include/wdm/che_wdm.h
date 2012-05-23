@@ -95,10 +95,10 @@ public:
 	HE_VOID								SetScaleY( HE_FLOAT scaleY ) { mScaleY = scaleY; }
 	HE_FLOAT							GetScaleY() const { return mScaleY; }
 	
-	HE_VOID								SetPositX( HE_INT32 x ) { mPosiX = x; }
+	HE_VOID								SetPosiX( HE_INT32 x ) { mPosiX = x; }
 	HE_INT32							GetPosiX() const { return mPosiX; }
 	
-	HE_VOID								SetPositY( HE_INT32 y ) { mPosiY = y; }
+	HE_VOID								SetPosiY( HE_INT32 y ) { mPosiY = y; }
 	HE_INT32							GetPosiY() const { return mPosiY; }
 	
 	HE_VOID								SetExtData( HE_LPVOID pExtData ) { mExtData = pExtData; }
@@ -141,8 +141,6 @@ class CHE_WDM_AppearImage : public CHE_WDM_AppearItem
 public:
 	static CHE_WDM_AppearImagePtr		Create( CHE_Allocator * pAllocator = NULL );
 
-	~CHE_WDM_AppearImage();
-
 	WDM_APPEAR_ITEM_TYPE				GetType() { return APPEAR_ITEM_IMAGE; }
 
 	HE_VOID								SetStyle( WDM_APPEAR_IMAGE_STYLE style ) { mStyle = style; }
@@ -155,6 +153,8 @@ protected:
 	CHE_WDM_AppearImage( CHE_Allocator * pAllocator = NULL )
 		: CHE_WDM_AppearItem( pAllocator ), mFile( NULL ), mStyle( APPEAR_IMAGE_STYLE_SINGLE ) {}
 
+	~CHE_WDM_AppearImage();
+
 	WDM_APPEAR_IMAGE_STYLE				mStyle;
 	HE_LPWSTR							mFile;
 
@@ -165,15 +165,13 @@ protected:
 class CHE_WDM_AppearTextPtr : public CHE_WDM_AppearItemPtr
 {
 public:
-	CHE_WDM_AppearText *	operator->() const;
+	CHE_WDM_AppearText * operator->() const;
 };
 
 class CHE_WDM_AppearText : public CHE_WDM_AppearItem
 {
 public:
 	static CHE_WDM_AppearTextPtr		Create( CHE_Allocator * pAllocator = NULL );
-
-	~CHE_WDM_AppearText();
 
 	WDM_APPEAR_ITEM_TYPE				GetType() { return APPEAR_ITEM_TEXT; }
 
@@ -201,6 +199,8 @@ public:
 protected:
 	CHE_WDM_AppearText( CHE_Allocator * pAllocator = NULL )
 		: CHE_WDM_AppearItem( pAllocator ), mText( NULL ), mFontFile( NULL ), mSize( 1 ), mColor( 0xFF000000 ) {}
+
+	~CHE_WDM_AppearText();
 
 	HE_LPWSTR							mText;
 	HE_LPWSTR							mFontFile;
@@ -293,6 +293,8 @@ private:
 		: CHE_WDM_AppearItem( pAllocator ), mLineWidth( 1 ), mFillColor( 0xFF000000 ), mStrokeColor( 0xFF000000 ), 
 		mOperator( APPEAR_PATH_FILL_STROKE ), mFillMode( APPEAR_PATH_FILL_NONZERO ) {};
 
+	~CHE_WDM_AppearPath() {}
+
 	HE_FLOAT							mLineWidth;
 	HE_DWORD							mFillColor;
 	HE_DWORD							mStrokeColor;
@@ -346,31 +348,6 @@ public:
 	virtual HE_VOID						KillTimer() = 0;
 };
 
-// class CHE_WDM_Area;
-// 
-// class CHE_WDM_AreaPtr
-// {
-// public:
-// 	CHE_WDM_AreaPtr() : mpArea( NULL ) {}
-// 
-// 	CHE_WDM_AreaPtr( const CHE_WDM_AreaPtr & ptr );
-// 
-// 	~CHE_WDM_AreaPtr();
-// 
-// 	CHE_WDM_AreaPtr operator = ( const CHE_WDM_AreaPtr & ptr );
-// 
-// 	bool operator!() const { return mpArea ? FALSE : TRUE ; }
-// 
-// 	operator HE_BOOL() const { return mpArea ? TRUE : FALSE ; }
-// 
-// 	inline CHE_WDM_Area * operator->() const { return mpArea; }
-// 
-// 	HE_VOID	reset( CHE_WDM_Area * pArea = NULL );
-// 
-// private:
-// 	CHE_WDM_Area * mpArea;
-// };
-
 class CHE_WDM_Area : public CHE_Object
 {
 public:
@@ -400,7 +377,7 @@ public:
 	HE_VOID								DisableClip() { mbClip = FALSE; }
 	HE_BOOL								IsClipEnable() const { return mbClip; }
 
-	HE_BOOL								SetVisable( HE_BOOL bVisable ) { mbVisable = bVisable; };
+	HE_VOID								SetVisable( HE_BOOL bVisable ) { mbVisable = bVisable; };
 	HE_BOOL								IsVisable() const { return mbVisable; }
 
 	HE_VOID								SetEnable( HE_BOOL bEnable );
@@ -437,11 +414,12 @@ public:
 	HE_VOID								SetCapture( CHE_WDM_Area * pChild );
 	HE_VOID								ReleaseCapture();
 
+	CHE_WDM_Area *						GetParent() const { return mParent; }
+
 protected:
 	CHE_WDM_Area( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator = NULL );
 
 	HE_VOID								SetParent( CHE_WDM_Area * pParent ) { mParent = pParent; }
-	CHE_WDM_Area *						GetParent() const { return mParent; }
 
 	HE_VOID								SetInterActive( IHE_WDM_InterActive * pInterActive ) { mInterActive = pInterActive; }
 	IHE_WDM_InterActive *				GetInterActive() { return mInterActive; }
@@ -469,124 +447,93 @@ private:
 	CHE_WDM_Area *						mpMouseOverArea;
 
 	friend class CHE_Allocator;
-
-// 	CHE_RefCount						mRefs;
-// 
-// 	friend class CHE_Allocator;
-// 	friend class CHE_WDM_AreaPtr;
 };
 
-// class CHE_WD_AnimationData
-// {
-// public:
-// 	CHE_WD_AnimationData(): mAlpha(1), mScaleX(1), mScaleY(1), mPositionX(0), mPositionY(0) {}
-// 
-// 	float					mAlpha;
-// 	float					mScaleX;
-// 	float					mScaleY;
-// 	int						mPositionX;
-// 	int						mPositionY;
-// };
-//  
-// class CHE_WD_Animation
-// {
-// public:
-// 	CHE_WD_Animation() {};
-// 	~CHE_WD_Animation() {};
-// 
-// 	bool SetTarget( CHE_WD_AppearItem * pAppear );
-// 	void SetBeginState( const CHE_WD_AnimationData & state ) { mBeginState = state; }
-// 	void SetEndState( const CHE_WD_AnimationData & state ) { mEndState = state; }
-// 	void SetFrames( unsigned int frames ) { mFramesCount = frames; }
-// 	void Init();
-// 	void Execute();
-// 	bool IsOver();
-// 
-// protected:
-// 	unsigned int					mFramesCount;
-// 	unsigned int					mCurFrame;
-// 	CHE_WD_AppearItem *				mAppearItem;
-// 	CHE_WD_AnimationData			mEndState;
-// 	CHE_WD_AnimationData			mBeginState;
-// 	CHE_WD_AnimationData			mStateOffset;
-// };
-// 
-// class CHE_WD_Appearance
-// {
-// public:
-// 	std::vector<CHE_WD_AppearItem*> mItems;
-// };
-//
+class CHE_WDM_AnimationData
+{
+public:
+	CHE_WDM_AnimationData() : mAlpha(1), mScaleX(1), mScaleY(1), mPosiX(0), mPosiY(0) {}
+
+	HE_FLOAT							mAlpha;
+	HE_FLOAT							mScaleX;
+	HE_FLOAT							mScaleY;
+	HE_INT32							mPosiX;
+	HE_INT32							mPosiY;
+};
 
 
-// enum AREA_POSITION_X_TYPE
-// {
-// 	AREA_POSITION_X_FIX,
-// 	AREA_POSITION_X_LEFT,
-// 	AREA_POSITION_X_CENTER,
-// 	AREA_POSITION_X_RIGHT
-// };
-// 
-// enum AREA_POSITION_Y_TYPE
-// {
-// 	AREA_POSITION_Y_FIX,
-// 	AREA_POSITION_Y_TOP,
-// 	AREA_POSITION_Y_CENTER,
-// 	AREA_POSITION_Y_BOTTOM
-// };
-// 
-// enum AREA_WIDTH_TYPE
-// {
-// 	AREA_WIDTH_FIX,
-// 	AREA_WIDTH_FILL
-// };
-// 
-// enum AREA_HEIGHT_TYPE
-// {
-// 	AREA_HEIGHT_FIX,
-// 	AREA_HEIGHT_FILL
-// };
-// 
+class CHE_WDM_AreaAnimation
+{
+public:
+	CHE_WDM_AreaAnimation()
+		: mbLoop( FALSE ), mFramesCount( 0 ), mCurFrame( 0 ), mIndex( 0 ), mFramesToGo( 0 ), mpArea( NULL ) {};
 
-// class CHE_WD_Area
-// {
-// public:
-// 
-// 	//外观设置
-// 	void SetNormalAppear( CHE_WD_Appearance * appr ) { mpNormalAppear = appr; }
-// 	CHE_WD_Appearance * GetNormalAppear() { return mpNormalAppear; }
-// 	void SetBackGroundAppear( CHE_WD_Appearance * appr ) { mpBackgroundAppear = appr; }
-// 	CHE_WD_Appearance * GetBackGroundAppear() { return mpBackgroundAppear; }
-// 	void SetMouseOverAppear( CHE_WD_Appearance * appr ) { mpMouseOverAppear = appr; }
-// 	CHE_WD_Appearance * GetMouseOverAppear() { return mpMouseOverAppear; }
-// 	void SetMouseLButtonDownAppear( CHE_WD_Appearance * appr ) { mpMouseLButtonDownAppear = appr; }
-// 	CHE_WD_Appearance * GetMouseLButtonDownAppear() { return mpMouseLButtonDownAppear; }
-// 	void SetMouseRButtonDownAppear( CHE_WD_Appearance * appr ) { mpMouseRButtonDownAppear = appr; }
-// 	CHE_WD_Appearance * GetMouseRButtonDownAppear() { return mpMouseRButtonDownAppear; }
-// 
-// 
-// 	//动画过程
-// 	void SetDefaultAnimation( CHE_WD_Animation * pAnimation ) { mpDefaultAnimation = pAnimation; }
-// 	void SetMouseOverAnimation( CHE_WD_Animation * pAnimation ) { mpMouseOverAnimation = pAnimation; }
-// 	void SetMouseLButtonDownAnimation( CHE_WD_Animation * pAnimation ) { mpMouseLButtonDownAnimation = pAnimation; }
-// 	void SetMouseRButtonDownAnimation( CHE_WD_Animation * pAnimation ) { mpMouseRButtonDownAnimation = pAnimation; }
-// 
-// 	//帧执行
-// 	void ExecuteFrame();
-// 
-// 	//事件接口
-// };
+	~CHE_WDM_AreaAnimation() {};
+
+	HE_BOOL								SetTarget( CHE_WDM_Area * pArea );
+	HE_VOID								SetState( const CHE_WDM_AnimationData & state ) { mState = state; }
+	HE_VOID								SetLoop( HE_BOOL bLoop ) { mbLoop = bLoop; }
+
+	HE_VOID								InsertFrames( HE_DWORD frames, const CHE_WDM_AnimationData & state );
+
+	HE_VOID								Init();
+	HE_VOID								Execute();
+
+	HE_BOOL								IsOver();
+	HE_BOOL								IsLoop() const { return mbLoop; }
+
+protected:
+	HE_BOOL								mbLoop;
+
+	HE_DWORD							mFramesCount;
+	HE_DWORD							mCurFrame;
+	HE_DWORD							mIndex;
+	HE_DWORD							mFramesToGo;
+
+	CHE_WDM_Area	*					mpArea;
+	CHE_WDM_AnimationData				mState;
+	CHE_WDM_AnimationData				mStateOffset;
+
+	std::vector<CHE_WDM_AnimationData>	mAnimations;
+	std::vector<HE_DWORD>				mAnimationFrames;
+};
+
+class CHE_WDM_AppearAnimation : public CHE_WDM_AreaAnimation
+{
+public:
+	HE_VOID							SetAppear( const CHE_WDM_AppearItemPtr & appearPtr ) { mAppearPtr = appearPtr; }
+
+	HE_VOID							Init();
+	HE_VOID							Execute();
+
+protected:
+	CHE_WDM_AppearItemPtr			mAppearPtr;
+};
+
+class CHE_WDM_AnimationMgr
+{
+public:
+	HE_VOID Execute();
+
+	HE_VOID	StartAreaAnimation( const CHE_WDM_AreaAnimation & animation );
+
+	HE_VOID	StartAppearAnimation( const CHE_WDM_AppearAnimation & animation );
+
+public:
+	std::vector<CHE_WDM_AreaAnimation>		mAreaAnimations;
+	std::vector<CHE_WDM_AppearAnimation>	mAppearAnimations;
+};
 
 typedef void (*EventFunction)( CHE_WDM_Area * pArea );
 
 class CHE_WDM_Button : public CHE_WDM_Area
 {
 public:
-	static CHE_WDM_Button * Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
+	static CHE_WDM_Button *			Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
 
-	HE_VOID SetClickEvent( EventFunction eventFunc ) { mClickEventFunc = eventFunc; }
+	HE_VOID							SetClickEvent( EventFunction eventFunc ) { mClickEventFunc = eventFunc; }
 
-	virtual HE_VOID OnMouseLBUp( HE_INT32 x, HE_INT32 y );
+	virtual HE_VOID					OnMouseLBUp( HE_INT32 x, HE_INT32 y );
 
 protected:
 	CHE_WDM_Button( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
@@ -597,58 +544,45 @@ protected:
 	friend class CHE_Allocator;
 };
 
-// class CHE_WD_MouseEventBtn : public CHE_WD_Button
-// {
-// public:
-// 	CHE_WD_MouseEventBtn( IHE_WDM_InterActive * pInteractive )
-// 		: CHE_WD_Button( pInteractive ), mMouseOverEventFunc(NULL), mMouseOutEventFunc(NULL) {};
-// 	~CHE_WD_MouseEventBtn() {};
-// 
-// 	void SetMouseOverEvent( EventFunction eventFunc ) { mMouseOverEventFunc = eventFunc; }
-// 	void SetMouseOutEvent( EventFunction eventFunc ) { mMouseOutEventFunc = eventFunc; }
-// 
-// 	void OnMouseOver()
-// 	{
-// 		if ( mMouseOverEventFunc )
-// 		{
-// 			mMouseOverEventFunc( this );
-// 		}
-// 		CHE_WD_Button::OnMouseOver();
-// 	}
-// 
-// 	void OnMouseOut()
-// 	{
-// 		if ( mMouseOutEventFunc )
-// 		{
-// 			mMouseOutEventFunc( this );
-// 		}
-// 		CHE_WD_Button::OnMouseOut();
-// 	}
-// 
-// protected:
-// 	EventFunction mMouseOverEventFunc;
-// 	EventFunction mMouseOutEventFunc;
-// };
+class CHE_WDM_MouseEventBtn : public CHE_WDM_Button
+{
+public:
+	static CHE_WDM_MouseEventBtn *	Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
+
+	~CHE_WDM_MouseEventBtn() {};
+
+	HE_VOID							SetMouseOverEvent( EventFunction eventFunc ) { mMouseOverEventFunc = eventFunc; }
+	HE_VOID							SetMouseOutEvent( EventFunction eventFunc ) { mMouseOutEventFunc = eventFunc; }
+
+	HE_VOID							OnMouseOver();
+	HE_VOID							OnMouseOut();
+
+protected:
+	CHE_WDM_MouseEventBtn( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
+		: CHE_WDM_Button( pInteractive, pAllocator ), mMouseOverEventFunc(NULL), mMouseOutEventFunc(NULL) {};
+
+	EventFunction mMouseOverEventFunc;
+	EventFunction mMouseOutEventFunc;
+
+	friend class CHE_Allocator;
+};
 
 class CHE_WDM_DragArea : public CHE_WDM_Area
 {
 public:
-	static CHE_WDM_DragArea * Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
+	static CHE_WDM_DragArea *		Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
 
-	HE_VOID OnMouseLBDown( HE_INT32 x, HE_INT32 y );
+	HE_VOID							OnMouseLBDown( HE_INT32 x, HE_INT32 y );
+	HE_VOID							OnMouseLBUp( HE_INT32 x, HE_INT32 y );
+	HE_VOID							OnMouseMove( HE_INT32 x, HE_INT32 y );
 
-	HE_VOID OnMouseLBUp( HE_INT32 x, HE_INT32 y );
-
-	HE_VOID SetRange( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom );
-
-	HE_VOID OnMouseMove( HE_INT32 x, HE_INT32 y );
-
-	HE_VOID SetDragEvent( EventFunction eventFunc ) { mEventFunc = eventFunc; }
+	HE_VOID							SetRange( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom );
+	HE_VOID							SetDragEvent( EventFunction eventFunc ) { mEventFunc = eventFunc; }
 
 protected:
-	CHE_WDM_DragArea( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator ) : CHE_WDM_Area( pInteractive ),
-		mOffsetX( 0 ), mOffsetY( 0 ), mRangeLeft( 0 ), mRangeTop( 0 ), mRangeRight( 0 ),
-		mRangeBottom( 0 ), mEventFunc( NULL ) {};
+	CHE_WDM_DragArea( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
+		: CHE_WDM_Area( pInteractive ), mOffsetX( 0 ), mOffsetY( 0 ), mRangeLeft( 0 ), 
+		mRangeTop( 0 ), mRangeRight( 0 ), mRangeBottom( 0 ), mEventFunc( NULL ) {};
 
 	HE_INT32 mOffsetX;
 	HE_INT32 mOffsetY;

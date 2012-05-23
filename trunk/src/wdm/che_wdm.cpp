@@ -194,7 +194,7 @@ CHE_WDM_Area* CHE_WDM_Area::Create( IHE_WDM_InterActive * pInterActive, CHE_Allo
 // 	mParent( NULL ), mInterActive( NULL ), mpCaptureChild( NULL ), mpMouseOverArea( NULL ) {}
 
 CHE_WDM_Area::CHE_WDM_Area( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), mbLBD( FALSE ), mbRBD( FALSE ), mbMO( FALSE ), mbClip( TRUE ),
+	: CHE_Object( pAllocator ), mbLBD( FALSE ), mbRBD( FALSE ), mbMO( FALSE ), mbClip( FALSE ),
 	mbVisable( TRUE ), mbEnable( TRUE ), mWidth( 0 ), mHeight( 0 ), mPosX( 0 ), mPosY( 0 ),
 	mParent( NULL ), mInterActive( pInteractive ), mpCaptureChild( NULL ), mpMouseOverArea( NULL ) {}
 
@@ -863,6 +863,33 @@ HE_VOID CHE_WDM_Button::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 	}
 }
 
+HE_VOID	CHE_WDM_MouseEventBtn::OnMouseOver()
+{
+	if ( mMouseOverEventFunc )
+	{
+		mMouseOverEventFunc( this );
+	}
+	CHE_WDM_Button::OnMouseOver();
+}
+
+HE_VOID	CHE_WDM_MouseEventBtn::OnMouseOut()
+{
+	if ( mMouseOutEventFunc )
+	{
+		mMouseOutEventFunc( this );
+	}
+	CHE_WDM_Button::OnMouseOut();
+}
+
+CHE_WDM_MouseEventBtn * CHE_WDM_MouseEventBtn::Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator )
+{
+	if ( pAllocator == NULL )
+	{
+		pAllocator = GetDefaultAllocator();
+	}
+	return pAllocator->New<CHE_WDM_MouseEventBtn>( pInterActive, pAllocator );
+}
+
 CHE_WDM_DragArea * CHE_WDM_DragArea::Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator )
 {
 	if ( pAllocator == NULL )
@@ -935,58 +962,185 @@ HE_VOID CHE_WDM_DragArea::OnMouseMove( HE_INT32 x, HE_INT32 y )
 	}	
 }
 
-// HE_BOOL CHE_WD_Animation::SetTarget( CHE_WD_AppearItem * pAppear )
-// {
-// 	if ( pAppear )
-// 	{
-// 		mAppearItem = pAppear;
-// 		return TRUE;
-// 	}
-// 	return FALSE;
-// }
-// 
-// HE_VOID CHE_WD_Animation::Init()
-// {
-// 	mCurFrame = 0;
-// 	if ( mAppearItem )
-// 	{
-// 		mAppearItem->SetAlpha( mBeginState.mAlpha );
-// 		mAppearItem->SetPosiX( mBeginState.mPositionX );
-// 		mAppearItem->SetPosiY( mBeginState.mPositionY );
-// 		mAppearItem->SetScaleX( mBeginState.mScaleX );
-// 		mAppearItem->SetScaleY( mBeginState.mScaleY );
-// 		mStateOffset.mAlpha = (mEndState.mAlpha-mBeginState.mAlpha)/mFramesCount;
-// 		mStateOffset.mPositionX = (mEndState.mPositionX-mBeginState.mPositionX) * 1.0 / mFramesCount;
-// 		mStateOffset.mPositionY = (mEndState.mPositionY-mBeginState.mPositionY) * 1.0 / mFramesCount;
-// 		mStateOffset.mScaleX = (mEndState.mScaleX-mBeginState.mScaleX)/mFramesCount;
-// 		mStateOffset.mScaleY = (mEndState.mScaleY-mBeginState.mScaleY)/mFramesCount;
-// 	}
-// }
-// 
-// HE_VOID CHE_WD_Animation::Execute()
-// {
-// 	if ( mCurFrame < mFramesCount )
-// 	{
-// 		if ( mAppearItem )
-// 		{
-// 			mAppearItem->SetAlpha( mAppearItem->GetAlpha() + mStateOffset.mAlpha );
-// 			mAppearItem->SetPosiX( mAppearItem->GetPosiX() + mStateOffset.mPositionX );
-// 			mAppearItem->SetPosiY( mAppearItem->GetPosiY() + mStateOffset.mPositionY );
-// 			mAppearItem->SetScaleX( mAppearItem->GetScaleX() + mStateOffset.mScaleX );
-// 			mAppearItem->SetScaleY( mAppearItem->GetScaleY() + mStateOffset.mScaleY );
-// 		}
-// 		mCurFrame++;
-// 	}
-// }
-// 
-// HE_BOOL CHE_WD_Animation::IsOver()
-// {
-// 	if( mCurFrame == mFramesCount )
-// 	{
-// 		return TRUE;
-// 	}
-// 	return FALSE;
-// }
+HE_BOOL CHE_WDM_AreaAnimation::SetTarget( CHE_WDM_Area * pArea )
+{
+	if ( pArea )
+	{
+		mpArea = pArea;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_VOID CHE_WDM_AreaAnimation::Init()
+{
+	mCurFrame = 0;
+	mIndex = 0;
+	mFramesToGo = 0;
+	if ( mAnimationFrames.size() > 0 )
+	{
+		mFramesToGo = mAnimationFrames[0];
+		mStateOffset.mPosiX = ( mAnimations[0].mPosiX - mState.mPosiX ) * 1.0 / mFramesToGo;
+		mStateOffset.mPosiY = ( mAnimations[0].mPosiY - mState.mPosiY ) * 1.0 / mFramesToGo;
+		//mStateOffset.mAlpha = ( mAnimations[0].mAlpha - mState.mAlpha ) / mFramesToGo;
+		//mStateOffset.mScaleX = ( mAnimations[0].mScaleX - mState.mScaleX ) / mFramesToGo;
+		//mStateOffset.mScaleY = ( mAnimations[0].mScaleY - mState.mScaleY ) / mFramesToGo;
+	}
+	if ( mpArea )
+	{
+		mpArea->SetPosiX( mState.mPosiX );
+		mpArea->SetPosiY( mState.mPosiY );
+		//mpArea->SetAlpha( mState.mAlpha );
+		//mpArea->SetScaleX( mState.mScaleX );
+		//mpArea->SetScaleY( mState.mScaleY );
+	}
+}
+
+HE_VOID CHE_WDM_AreaAnimation::InsertFrames( HE_DWORD frames, const CHE_WDM_AnimationData & state )
+{
+	if ( frames > 0 )
+	{
+		mAnimationFrames.push_back( frames );
+		mAnimations.push_back( state );
+		mFramesCount += frames;
+	}
+}
+
+HE_VOID CHE_WDM_AreaAnimation::Execute()
+{
+	if ( mCurFrame < mFramesCount && mpArea )
+	{
+		if ( mFramesToGo > 0 )
+		{
+			--mFramesToGo;
+			mpArea->SetPosiX( mpArea->GetPosiX() + mStateOffset.mPosiX );
+			mpArea->SetPosiY( mpArea->GetPosiY() + mStateOffset.mPosiY );
+			//mpArea->SetAlpha( mpArea->GetAlpha() + mStateOffset.mAlpha );
+			//mpArea->SetScaleX( mpArea->GetScaleX() + mStateOffset.mScaleX );
+			//mpArea->SetScaleY( mpArea->GetScaleY() + mStateOffset.mScaleY );
+			mpArea->Refresh();
+		}
+		if ( mFramesToGo == 0 && mIndex < mAnimations.size() - 1 )
+		{
+			++mIndex;
+			mFramesToGo = mAnimationFrames[mIndex];
+			mStateOffset.mPosiX = ( mAnimations[mIndex].mPosiX - mpArea->GetPosiX() ) * 1.0 / mFramesToGo;
+			mStateOffset.mPosiY = ( mAnimations[mIndex].mPosiY - mpArea->GetPosiY() ) * 1.0 / mFramesToGo;
+			//mStateOffset.mAlpha = ( mAnimations[mIndex].mAlpha - mpArea->GetAlpha() ) / mFramesToGo;
+			//mStateOffset.mScaleX = ( mAnimations[mIndex].mScaleX - mpArea->GetScaleX() ) / mFramesToGo;
+			//mStateOffset.mScaleY = ( mAnimations[mIndex].mScaleY - mpArea->GetScaleY() ) / mFramesToGo;
+		}
+		mCurFrame++;
+	}
+}
+
+HE_BOOL CHE_WDM_AreaAnimation::IsOver()
+{
+	if( mCurFrame == mFramesCount )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_VOID CHE_WDM_AppearAnimation::Init()
+{
+	mCurFrame = 0;
+	mIndex = 0;
+	mFramesToGo = 0;
+	if ( mAnimationFrames.size() > 0 )
+	{
+		mFramesToGo = mAnimationFrames[0];
+		mStateOffset.mPosiX = ( mAnimations[0].mPosiX - mState.mPosiX ) * 1.0 / mFramesToGo;
+		mStateOffset.mPosiY = ( mAnimations[0].mPosiY - mState.mPosiY ) * 1.0 / mFramesToGo;
+		mStateOffset.mAlpha = ( mAnimations[0].mAlpha - mState.mAlpha ) / mFramesToGo;
+		mStateOffset.mScaleX = ( mAnimations[0].mScaleX - mState.mScaleX ) / mFramesToGo;
+		mStateOffset.mScaleY = ( mAnimations[0].mScaleY - mState.mScaleY ) / mFramesToGo;
+	}
+	if ( mAppearPtr )
+	{
+		mAppearPtr->SetAlpha( mState.mAlpha );
+		mAppearPtr->SetPosiX( mState.mPosiX );
+		mAppearPtr->SetPosiY( mState.mPosiY );
+		mAppearPtr->SetScaleX( mState.mScaleX );
+		mAppearPtr->SetScaleY( mState.mScaleY );
+	}
+}
+
+HE_VOID CHE_WDM_AppearAnimation::Execute()
+{
+	if ( mCurFrame < mFramesCount && mpArea )
+	{
+		if ( mFramesToGo > 0 )
+		{
+			--mFramesToGo;
+			mAppearPtr->SetPosiX( mAppearPtr->GetPosiX() + mStateOffset.mPosiX );
+			mAppearPtr->SetPosiY( mAppearPtr->GetPosiY() + mStateOffset.mPosiY );
+			mAppearPtr->SetAlpha( mAppearPtr->GetAlpha() + mStateOffset.mAlpha );
+			mAppearPtr->SetScaleX( mAppearPtr->GetScaleX() + mStateOffset.mScaleX );
+			mAppearPtr->SetScaleY( mAppearPtr->GetScaleY() + mStateOffset.mScaleY );
+			mpArea->Refresh();
+		}
+		if ( mFramesToGo == 0 && mIndex < mAnimations.size() - 1 )
+		{
+			++mIndex;
+			mFramesToGo = mAnimationFrames[mIndex];
+			mStateOffset.mPosiX = ( mAnimations[mIndex].mPosiX - mAppearPtr->GetPosiX() ) * 1.0 / mFramesToGo;
+			mStateOffset.mPosiY = ( mAnimations[mIndex].mPosiY - mAppearPtr->GetPosiY() ) * 1.0 / mFramesToGo;
+			mStateOffset.mAlpha = ( mAnimations[mIndex].mAlpha - mAppearPtr->GetAlpha() ) / mFramesToGo;
+			mStateOffset.mScaleX = ( mAnimations[mIndex].mScaleX - mAppearPtr->GetScaleX() ) / mFramesToGo;
+			mStateOffset.mScaleY = ( mAnimations[mIndex].mScaleY - mAppearPtr->GetScaleX() ) / mFramesToGo;
+		}
+		mCurFrame++;
+	}
+}
+
+HE_VOID	CHE_WDM_AnimationMgr::StartAreaAnimation( const CHE_WDM_AreaAnimation & animation )
+{
+	mAreaAnimations.push_back( animation );
+	mAreaAnimations[mAreaAnimations.size()-1].Init();
+}
+
+HE_VOID	CHE_WDM_AnimationMgr::StartAppearAnimation( const CHE_WDM_AppearAnimation & animation )
+{
+	mAppearAnimations.push_back( animation );
+	mAppearAnimations[mAppearAnimations.size()-1].Init();
+}
+
+HE_VOID CHE_WDM_AnimationMgr::Execute()
+{
+	std::vector<CHE_WDM_AreaAnimation>::iterator it;
+	for ( it = mAreaAnimations.begin(); it != mAreaAnimations.end(); ++it )
+	{
+		it->Execute();
+		if ( it->IsOver() )
+		{
+			if ( ! it->IsLoop() )
+			{
+				mAreaAnimations.erase( it );
+			}
+			else{
+				it->Init();
+			}
+		}
+	}
+
+	std::vector<CHE_WDM_AppearAnimation>::iterator tmpIt;
+	for ( tmpIt = mAppearAnimations.begin(); tmpIt != mAppearAnimations.end(); ++tmpIt )
+	{
+		tmpIt->Execute();
+		if ( tmpIt->IsOver() )
+		{
+			if ( ! tmpIt->IsLoop() )
+			{
+				mAppearAnimations.erase( tmpIt );
+			}
+			else{
+				tmpIt->Init();
+			}
+		}
+	}
+}
 
 CHE_WDM_AppearItemPtr::CHE_WDM_AppearItemPtr( const CHE_WDM_AppearItemPtr & ptr )
 	: mpItem( NULL )
@@ -1048,7 +1202,7 @@ CHE_WDM_AppearItemPtr CHE_WDM_AppearItemPtr::operator = ( const CHE_WDM_AppearIt
 
 HE_VOID	CHE_WDM_AppearItemPtr::reset( CHE_WDM_AppearItem * pItem )
 {
-	if ( mpItem != pItem && pItem != NULL )
+	if ( mpItem != pItem )
 	{
 		if ( mpItem )
 		{
@@ -1064,10 +1218,6 @@ HE_VOID	CHE_WDM_AppearItemPtr::reset( CHE_WDM_AppearItem * pItem )
 		{
 			mpItem->mRefs.AddRef();
 		}
-	}
-	else
-	{
-		mpItem = NULL;
 	}
 }
 

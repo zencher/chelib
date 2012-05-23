@@ -10,7 +10,7 @@
 
 CProcessDlg * gpDlg = NULL;
 
-static void EventCancelBtnClick( CHE_WD_Area * pArea )
+static void EventCancelBtnClick( CHE_WDM_Area * pArea )
 {
 }
 
@@ -200,82 +200,84 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	mClientWidth = 0;
 	mClientHeight = 0;
 
-	CHE_WD_Appearance * pTmpApper = NULL;
-	CHE_WD_AppearImage * pTmpImage = NULL;
-	CHE_WD_AppearText * pTmpText = NULL;
+	CHE_WDM_AppearImagePtr imagePtr;
+	CHE_WDM_AppearTextPtr textPtr;
 
-	mpInterActive = new MyIHE_WD_InterActive( this, theApp.m_hInstance );
-	mpMainArea = new CHE_WD_Area( 0, 0, mpInterActive );
-	pTmpApper = new CHE_WD_Appearance;
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\background.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
-	pTmpApper->mItems.push_back( pTmpImage );
-	mpMainArea->SetBackGroundAppear( pTmpApper );
+	mpInterActive = new MyIHE_WDM_InterActive( this, theApp.m_hInstance );
+	mpMainArea = CHE_WDM_Area::Create( mpInterActive );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\background.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
+	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
-	mpProcess = new CHE_WD_Area( 0, 0, mpInterActive );
+	mpProcess = CHE_WDM_Area::Create( mpInterActive );
 	mpProcess->SetWidth( 486 );
 	mpProcess->SetHeight( 27 );
-	mpProcess->SetPositionX( 30 );
-	mpProcess->SetPositionY( 40 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\processbg.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	mpProcess->SetBackGroundAppear( pTmpApper );
-	CHE_WD_Area * pTmpArea = new CHE_WD_Area( 0, 0, mpInterActive );
+	mpProcess->SetPosiX( 30 );
+	mpProcess->SetPosiY( 40 );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\processbg.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	mpProcess->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+
+	CHE_WDM_Area * pTmpArea = CHE_WDM_Area::Create( mpInterActive );
 	pTmpArea->SetWidth( 14 );
 	pTmpArea->SetHeight( 27 );
-	pTmpArea->SetPositionX( 31 );
-	pTmpArea->SetPositionY( 40 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\processleft.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpArea->SetBackGroundAppear( pTmpApper );
+	pTmpArea->SetPosiX( 31 );
+	pTmpArea->SetPosiY( 40 );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\processleft.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+
 	mpProcess->AppendChild( pTmpArea );
-	pTmpArea = new CHE_WD_Area( 0, 0, mpInterActive );
+
+	pTmpArea = CHE_WDM_Area::Create( mpInterActive );
 	pTmpArea->SetWidth( 100 );
 	pTmpArea->SetHeight( 27 );
-	pTmpArea->SetPositionX( 45 );
-	pTmpArea->SetPositionY( 40 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\process.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpArea->SetBackGroundAppear( pTmpApper );
+	pTmpArea->SetPosiX( 45 );
+	pTmpArea->SetPosiY( 40 );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\process.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 	pTmpArea->EnableClip();
+
 	mpProcess->AppendChild( pTmpArea );
-	pTmpArea = new CHE_WD_Area( 0, 0, mpInterActive );
+
+	pTmpArea = CHE_WDM_Area::Create( mpInterActive );
 	pTmpArea->SetWidth( 13 );
 	pTmpArea->SetHeight( 27 );
-	pTmpArea->SetPositionX( 144 );
-	pTmpArea->SetPositionY( 40 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\processright.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpArea->SetBackGroundAppear( pTmpApper );
+	pTmpArea->SetPosiX( 144 );
+	pTmpArea->SetPosiY( 40 );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\processright.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+
 	mpProcess->AppendChild( pTmpArea );
-	pTmpArea = new CHE_WD_Area( 0, 0, mpInterActive );
+
+	pTmpArea = CHE_WDM_Area::Create( mpInterActive );
 	pTmpArea->SetWidth( 486 );
 	pTmpArea->SetHeight( 27 );
-	pTmpArea->SetPositionX( 30 );
-	pTmpArea->SetPositionY( 40 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpText = new CHE_WD_AppearText();
-	pTmpText->SetSize( 12 );
-	pTmpText->SetColor( 0xFFFFFFFF );
-	pTmpText->SetPositionX( 0 );
-	pTmpText->SetPositionY( 0 );
-	pTmpText->SetWidth( 486 );
-	pTmpText->SetHeight( 27 );
-	pTmpApper->mItems.push_back( pTmpText );
-	pTmpArea->SetBackGroundAppear( pTmpApper );
+	pTmpArea->SetPosiX( 30 );
+	pTmpArea->SetPosiY( 40 );
+	
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetSize( 12 );
+	textPtr->SetColor( 0xFFFFFFFF );
+	textPtr->SetPosiX( 0 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetWidth( 486 );
+	textPtr->SetHeight( 27 );
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_CENTER, LAYOUT_ALIGN_CENTER ) );
+	pTmpArea->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+
 	mpProcess->AppendChild( pTmpArea );
 
 	mpMainArea->AppendChild( mpProcess );
@@ -285,43 +287,10 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 
 CProcessDlg::~CProcessDlg()
 {
-	CHE_WD_Appearance * pTmpAppear = mpMainArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-
-	CHE_WD_Area * pTmpArea = mpMainArea->GetChild( 0 );
-	pTmpAppear = pTmpArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-
-	CHE_WD_Area * pOtherTmpArea = pTmpArea->GetChild( 0 );
-	pTmpAppear = pOtherTmpArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-	delete pOtherTmpArea;
-	pOtherTmpArea = pTmpArea->GetChild( 1 );
-	pTmpAppear = pOtherTmpArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-	delete pOtherTmpArea;
-	pOtherTmpArea = pTmpArea->GetChild( 2 );
-	pTmpAppear = pOtherTmpArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-	delete pOtherTmpArea;
-
-	delete pTmpArea;
-
-	pTmpArea = mpMainArea->GetChild( 1 );
-	pTmpAppear = pTmpArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-	pTmpAppear = pTmpArea->GetMouseOverAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-	delete pTmpArea;
-
+	mMemdc.SelectObject( &mpOldBitmap );
+	::delete mGraphics;
 	delete mpInterActive;
+	delete mpMainArea;
 }
 
 void CProcessDlg::DoDataExchange(CDataExchange* pDX)
@@ -406,20 +375,20 @@ void CProcessDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 void CProcessDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonDown( point.x, point.y );
+	mpMainArea->OnMouseLBDown( point.x, point.y );
 	CDialogEx::OnLButtonDblClk(nFlags, point);
 }
 
 void CProcessDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonDown( point.x, point.y );
+	mpMainArea->OnMouseLBDown( point.x, point.y );
 	SetCapture();
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
 
 void CProcessDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonUp( point.x, point.y );
+	mpMainArea->OnMouseLBUp( point.x, point.y );
 	ReleaseCapture();
 	CDialogEx::OnLButtonUp(nFlags, point);
 }
@@ -459,20 +428,18 @@ void CProcessDlg::UpdateProcessBar()
 {
 	unsigned int iTmp = mProcessBarValue / 100.0 * 457;
 	mpProcess->GetChild(1)->SetWidth( iTmp );
-	mpProcess->GetChild(2)->SetPositionX( iTmp + 45 );
-	CHE_WD_Area * pTmpArea = NULL;
-	CHE_WD_Appearance * pTmpAppear = NULL;
-	CHE_WD_AppearText * pTmpText = NULL;
+	mpProcess->GetChild(2)->SetPosiX( iTmp + 45 );
+	CHE_WDM_Area * pTmpArea = NULL;
+	CHE_WDM_AppearTextPtr textPtr;
 	wchar_t tmpStr[32];
 	pTmpArea = mpProcess->GetChild( mpProcess->GetChildrenCount() - 1 );
-	pTmpAppear = pTmpArea->GetBackGroundAppear();
-	pTmpText = (CHE_WD_AppearText*)( pTmpAppear->mItems[0] );
+	textPtr =  pTmpArea->GetAppear().mBackground[0].GetTextPtr();
 	if ( mProcessBarValue == 100 )
 	{
-		pTmpText->SetText( L"Writing file, Please Wait!" );
+		textPtr->SetText( L"Writing file, Please Wait!" );
 	}else{
 		wsprintf( tmpStr, L"%d%%", mProcessBarValue );
-		pTmpText->SetText( tmpStr );
+		textPtr->SetText( tmpStr );
 	}
 }
 

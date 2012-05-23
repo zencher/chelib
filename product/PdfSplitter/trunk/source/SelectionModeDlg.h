@@ -20,13 +20,13 @@ private:
 	CBitmap *	mpOldBitmap;
 	Gdiplus::Graphics *	mGraphics;
 
-	MyIHE_WD_InterActive * mpInterActive;
-	CHE_WD_Area *	mpMainArea;
-	CHE_WD_Button * mpBtnSinglePage;
-	CHE_WD_Button * mpBtnPageRange;
-	CHE_WD_Button * mpBtnOddPages;
-	CHE_WD_Button * mpBtnEvenPages;
-	CHE_WD_Button * mpBtnCancel;
+	MyIHE_WDM_InterActive * mpInterActive;
+	CHE_WDM_Area *	mpMainArea;
+	CHE_WDM_Button * mpBtnSinglePage;
+	CHE_WDM_Button * mpBtnPageRange;
+	CHE_WDM_Button * mpBtnOddPages;
+	CHE_WDM_Button * mpBtnEvenPages;
+	CHE_WDM_Button * mpBtnCancel;
 
 	void DrawMainArea(void);
 

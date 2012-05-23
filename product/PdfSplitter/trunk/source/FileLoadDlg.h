@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CWNDMD.h"
 #include "PdfSplitter.h"
 
 class CFileLoadDlg : public CDialogEx
@@ -20,21 +19,20 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	UINT				mClientWidth;
-	UINT				mClientHeight;
+	UINT						mClientWidth;
+	UINT						mClientHeight;
 
-	CDC					mMemdc;
-	CBitmap				mBitmap;
-	CBitmap *			mpOldBitmap;
-	Gdiplus::Graphics *	mGraphics;
+	CDC							mMemdc;
+	CBitmap						mBitmap;
+	CBitmap *					mpOldBitmap;
+	Gdiplus::Graphics *			mGraphics;
 
-	MyIHE_WD_InterActive *	mpInterActive;
-	CHE_WD_Area *			mpMainArea;
-	CHE_WD_Animation *		mpAnimation;
+	MyIHE_WDM_InterActive *		mpInterActive;
+	CHE_WDM_Area *				mpMainArea;
+	CHE_WDM_AnimationMgr		mAnimations;
 
-	unsigned int			mTimerId;
-
-	void		DrawMainArea(void);
+	unsigned int				mTimerId;
+	void						DrawMainArea(void);
 
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);

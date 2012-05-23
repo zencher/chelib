@@ -5,21 +5,20 @@
 #endif
 
 #include <GdiPlus.h>
+using namespace Gdiplus;
 
 #include "../project/resource.h"
-#include "CWNDMD.h"
-#include "PdfSplitterDlg.h"
 #include "ProcessDlg.h"
+#include "PdfSplitterDlg.h"
 
+#include "../../../../trunk/include/wdm/che_wdm.h"
 #include "../../../../trunk/include/pdf/che_pdf_file.h"
 #include "../../../../trunk/include/pdf/che_pdf_document.h"
 
-using namespace Gdiplus;
-
-class MyIHE_WD_InterActive : public IHE_WD_InterActive
+class MyIHE_WDM_InterActive : public IHE_WDM_InterActive
 {
 public:
-	MyIHE_WD_InterActive( CDialogEx * pDlg, HINSTANCE hInstance )
+	MyIHE_WDM_InterActive( CDialogEx * pDlg, HINSTANCE hInstance )
 	{
 		mpDlg = pDlg;
 		mhInstance = hInstance;
@@ -32,21 +31,23 @@ public:
 		mbDirtyRect = false;
 	}
 
+	~MyIHE_WDM_InterActive();
+
 	void SetGraphics( Graphics * pGraphics ) { mpGraphics = pGraphics; }
 
 	void SetClip( int left, int top, int right, int bottom );
 
-	void SetClip( CHE_WD_Area * pArea );
+	void SetClip( CHE_WDM_Area * pArea );
 
 	void ResetClip();
 
-	void Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppear );
+	void Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE type );
 
 	void Invalidate();
-	
+
 	void InvalidateRect( int left, int top, int right, int bottom );
 
-	void SetTimer( unsigned int );
+	void SetTimer( HE_DWORD );
 
 	void KillTimer();
 
@@ -68,13 +69,14 @@ private:
 	HINSTANCE mhInstance;
 	CDialogEx * mpDlg;
 	Graphics * mpGraphics;
-	std::vector<GraphicsContainer> mContainerStack; 
+	std::vector<GraphicsContainer> mContainerStack;
 	bool mbRefleshAll;
 	bool mbDirtyRect;
 	int mLeft;
 	int mTop;
 	int mRight;
 	int mBottom;
+	std::vector<Image *> mImageCache;
 };
 
 enum CListItemType

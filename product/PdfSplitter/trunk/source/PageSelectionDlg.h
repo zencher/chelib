@@ -25,12 +25,12 @@ public:
 	CBitmap *	mpOldBitmap;
 	Gdiplus::Graphics *	mGraphics;
 
-	MyIHE_WD_InterActive * mpInterActive;
-	CHE_WD_Area *	mpMainArea;
-	CHE_WD_Area *	mpNumberBox;
-	CHE_WD_Area *	mpScrollBar;
-	CHE_WD_Button * mpOkBtn;
-	CHE_WD_Button * mpCancelBtn;
+	MyIHE_WDM_InterActive * mpInterActive;
+	CHE_WDM_Area *	mpMainArea;
+	CHE_WDM_Area *	mpNumberBox;
+	CHE_WDM_Area *	mpScrollBar;
+	CHE_WDM_Button * mpOkBtn;
+	CHE_WDM_Button * mpCancelBtn;
 
 private:
 	void DrawMainArea(void);

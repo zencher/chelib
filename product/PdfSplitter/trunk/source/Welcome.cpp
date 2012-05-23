@@ -7,12 +7,12 @@ IMPLEMENT_DYNAMIC(CWelcomeDlg, CDialogEx)
 
 CWelcomeDlg * gpWelComeDlg = NULL;
 
-static void EventClickBuyBtn( CHE_WD_Area * pArea )
+static void EventClickBuyBtn( CHE_WDM_Area * pArea )
 {
 	ShellExecute( NULL, L"open", L"http://www.peroit.com/pdfSplitter/Buy", NULL, NULL, SW_SHOWNORMAL );
 };
 
-static void EventClickActiveBtn( CHE_WD_Area * pArea )
+static void EventClickActiveBtn( CHE_WDM_Area * pArea )
 {
 	CRegsitrationDlg dlg;
 	if ( dlg.DoModal() == 0 )
@@ -21,7 +21,7 @@ static void EventClickActiveBtn( CHE_WD_Area * pArea )
 	}
 }
 
-static void EventClickTryBtn( CHE_WD_Area * pArea )
+static void EventClickTryBtn( CHE_WDM_Area * pArea )
 {
 	gpWelComeDlg->EndDialog( 0 );
 }
@@ -34,98 +34,95 @@ CWelcomeDlg::CWelcomeDlg(CWnd* pParent /*=NULL*/)
 
 	gpWelComeDlg = this;
 
-	CHE_WD_Appearance * pTmpApper = NULL;
-	CHE_WD_AppearImage * pTmpImage = NULL;
-	mpInterActive = new MyIHE_WD_InterActive( this, theApp.m_hInstance );
-	mpMainArea = new CHE_WD_Area( 0, 0, mpInterActive );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\background.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
-	pTmpApper->mItems.push_back( pTmpImage );
-	mpMainArea->SetBackGroundAppear( pTmpApper );
+	mpInterActive = new MyIHE_WDM_InterActive( this, theApp.m_hInstance );
+	mpMainArea = CHE_WDM_Area::Create( mpInterActive );
 
-	CHE_WD_Area * pImageArea = new CHE_WD_Area( 0, 0, mpInterActive );
+	CHE_WDM_AppearImagePtr imagePtr;
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\background.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
+
+	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\welcome.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+
+	CHE_WDM_Area * pImageArea = CHE_WDM_Area::Create( mpInterActive );
+	
 	pImageArea->SetWidth( 530 );
 	pImageArea->SetHeight( 150 );
-	pImageArea->SetPositionX( 0 );
-	pImageArea->SetPositionY( 0 );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\welcome.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pImageArea->SetBackGroundAppear( pTmpApper );
+	pImageArea->SetPosiX( 0 );
+	pImageArea->SetPosiY( 0 );
+	
+	pImageArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+
 	mpMainArea->AppendChild( pImageArea );
 
-	CHE_WD_Button * pTmpButtn = new CHE_WD_Button( mpInterActive );
+	CHE_WDM_Button * pTmpButtn = CHE_WDM_Button::Create( mpInterActive );
 	pTmpButtn->SetWidth( 96 );
 	pTmpButtn->SetHeight( 35 );
-	pTmpButtn->SetPositionX( 60 );
-	pTmpButtn->SetPositionY( 170 );
+	pTmpButtn->SetPosiX( 60 );
+	pTmpButtn->SetPosiY( 170 );
 	pTmpButtn->SetClickEvent( EventClickBuyBtn );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\BuyBtn.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpButtn->SetBackGroundAppear( pTmpApper );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\BuyBtnHover.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpButtn->SetMouseOverAppear( pTmpApper );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\BuyBtn.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpButtn->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\BuyBtnHover.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	
+	pTmpButtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
 	mpMainArea->AppendChild( pTmpButtn );
 
-	pTmpButtn = new CHE_WD_Button( mpInterActive );
+	pTmpButtn = CHE_WDM_Button::Create( mpInterActive );
 	pTmpButtn->SetWidth( 96 );
 	pTmpButtn->SetHeight( 35 );
-	pTmpButtn->SetPositionX( 210 );
-	pTmpButtn->SetPositionY( 170 );
+	pTmpButtn->SetPosiX( 210 );
+	pTmpButtn->SetPosiY( 170 );
 	pTmpButtn->SetClickEvent( EventClickActiveBtn );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\ActiveBtn.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpButtn->SetBackGroundAppear( pTmpApper );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\ActiveBtnHover.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpButtn->SetMouseOverAppear( pTmpApper );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\ActiveBtn.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpButtn->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\ActiveBtnHover.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpButtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
+
 	mpMainArea->AppendChild( pTmpButtn );
 
-	pTmpButtn = new CHE_WD_Button( mpInterActive );
+	pTmpButtn = CHE_WDM_Button::Create( mpInterActive );
 	pTmpButtn->SetWidth( 96 );
 	pTmpButtn->SetHeight( 35 );
-	pTmpButtn->SetPositionX( 360 );
-	pTmpButtn->SetPositionY( 170 );
+	pTmpButtn->SetPosiX( 360 );
+	pTmpButtn->SetPosiY( 170 );
 	pTmpButtn->SetClickEvent( EventClickTryBtn );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\TryBtn.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpButtn->SetBackGroundAppear( pTmpApper );
-	pTmpApper = new CHE_WD_Appearance();
-	pTmpImage = new CHE_WD_AppearImage();
-	pTmpImage->SetImageFile( L"images\\TryBtnHover.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpButtn->SetMouseOverAppear( pTmpApper );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\TryBtn.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpButtn->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\TryBtnHover.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	pTmpButtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
+
 	mpMainArea->AppendChild( pTmpButtn );
 }
 
 CWelcomeDlg::~CWelcomeDlg()
 {
-	CHE_WD_Appearance * pTmpAppear = mpMainArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear;
-
- 	delete mpInterActive;
+	mMemdc.SelectObject( &mpOldBitmap );
+	::delete mGraphics;
+	delete mpInterActive;
+	delete mpMainArea;
 }
 
 void CWelcomeDlg::DoDataExchange(CDataExchange* pDX)
@@ -196,20 +193,20 @@ void CWelcomeDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 void CWelcomeDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonDown( point.x, point.y );
+	mpMainArea->OnMouseLBDown( point.x, point.y );
 	CDialogEx::OnLButtonDblClk(nFlags, point);
 }
 
 void CWelcomeDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonDown( point.x, point.y );
+	mpMainArea->OnMouseLBDown( point.x, point.y );
 	SetCapture();
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
 
 void CWelcomeDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonUp( point.x, point.y );
+	mpMainArea->OnMouseLBUp( point.x, point.y );
 	ReleaseCapture();
 	CDialogEx::OnLButtonUp(nFlags, point);
 }

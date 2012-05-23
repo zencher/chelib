@@ -32,11 +32,10 @@ private:
 	CBitmap		mBitmap;
 	CBitmap *	mpOldBitmap;
 	Gdiplus::Graphics *	mGraphics;
-
-	MyIHE_WD_InterActive * mpInterActive;
+	MyIHE_WDM_InterActive * mpInterActive;
 
 public:
-	CHE_WD_Area *	mpMainArea;
+	CHE_WDM_Area *	mpMainArea;
 
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

@@ -1,8 +1,7 @@
 #pragma once
-#include "CWNDMD.h"
 #include "PdfSplitter.h"
 
-class MyIHE_WD_InterActive;
+class MyIHE_WDM_InterActive;
 
 class CListItem
 {
@@ -17,6 +16,7 @@ class CPdfSpliterDlg : public CDialogEx
 {
 public:
 	CPdfSpliterDlg(CWnd* pParent = NULL);
+	~CPdfSpliterDlg();
 
 	enum { IDD = IDD_PDFSPLITER_DIALOG };
 
@@ -45,24 +45,24 @@ private:
 	Gdiplus::Graphics *	mGraphics;
 
 public:
-	MyIHE_WD_InterActive * mpInterActive;
+	MyIHE_WDM_InterActive * mpInterActive;
 
-	CHE_WD_Area *	mpMainArea;
-	CHE_WD_Area *	mpTextBarTitle;
-	CHE_WD_Area *	mpTextBar;
-	CHE_WD_Area *	mpFilePathText;
-	CHE_WD_Area *	mpFileSizeInfo;
-	CHE_WD_Area *	mpFilePageCountInfo;
-	CHE_WD_Area *	mpListBoxItems;
-	CHE_WD_Area *	mpListScrollBar;
-	CHE_WD_Area *	mpTextBar2;
-	CHE_WD_Button * mpBrowseBtn;
-	CHE_WD_Button * mpToolBtnAdd;
-	CHE_WD_Button * mpToolBtnClear;
-	CHE_WD_Button * mpToolBtnUp;
-	CHE_WD_Button * mpToolBtnDown;
-	CHE_WD_Button * mpStartBtn;
-	CHE_WD_Button * mpTextBar2Btn;
+	CHE_WDM_Area *	mpMainArea;
+	CHE_WDM_Area *	mpTextBarTitle;
+	CHE_WDM_Area *	mpTextBar;
+	CHE_WDM_Area *	mpFilePathText;
+	CHE_WDM_Area *	mpFileSizeInfo;
+	CHE_WDM_Area *	mpFilePageCountInfo;
+	CHE_WDM_Area *	mpListBoxItems;
+	CHE_WDM_Area *	mpListScrollBar;
+	CHE_WDM_Area *	mpTextBar2;
+	CHE_WDM_Button * mpBrowseBtn;
+	CHE_WDM_Button * mpToolBtnAdd;
+	CHE_WDM_Button * mpToolBtnClear;
+	CHE_WDM_Button * mpToolBtnUp;
+	CHE_WDM_Button * mpToolBtnDown;
+	CHE_WDM_Button * mpStartBtn;
+	CHE_WDM_Button * mpTextBar2Btn;
 	
 
 	unsigned int	mTimerId;

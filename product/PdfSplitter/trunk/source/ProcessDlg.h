@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../../../../trunk/include/wdm/che_wdm.h"
+
+class MyIHE_WDM_InterActive;
 
 // CProcessDlg ¶Ô»°¿ò
 
@@ -33,7 +36,7 @@ private:
 	CBitmap *	mpOldBitmap;
 	Gdiplus::Graphics *	mGraphics;
 
-	MyIHE_WD_InterActive * mpInterActive;
+	MyIHE_WDM_InterActive * mpInterActive;
 
 	unsigned int mProcessBarValue;
 
@@ -42,8 +45,8 @@ public:
 
 	void UpdateProcessBar();
 
-	CHE_WD_Area *	mpMainArea;
-	CHE_WD_Area *	mpProcess;
+	CHE_WDM_Area *	mpMainArea;
+	CHE_WDM_Area *	mpProcess;
 
 	unsigned int	mTimerId;
 

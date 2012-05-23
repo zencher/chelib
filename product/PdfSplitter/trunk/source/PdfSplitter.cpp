@@ -49,6 +49,8 @@ CPdfSpliterApp theApp;
 
 BOOL CPdfSpliterApp::InitInstance()
 {
+	_CrtSetBreakAlloc( 1340 );
+
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.
@@ -59,7 +61,12 @@ BOOL CPdfSpliterApp::InitInstance()
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
+	ULONG_PTR m_gdiplusToken;
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+
 	CWinApp::InitInstance();
+
 
 
 	// Create the shell manager, in case the dialog contains
@@ -104,18 +111,14 @@ BOOL CPdfSpliterApp::InitInstance()
 		CreateRegEntry();
 	}
 
-	ULONG_PTR m_gdiplusToken;
-	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
-
 	if ( ! theApp.CheckRefInfo() )
 	{
 		CWelcomeDlg dlg;
 		dlg.DoModal();
 	}
 
-	mpMainDlg = new CPdfSpliterDlg;
-	m_pMainWnd = mpMainDlg;
+	CPdfSpliterDlg mainDlg;
+	mpMainDlg = &mainDlg;
 	INT_PTR nResponse = mpMainDlg->DoModal();
 	if (nResponse == IDOK)
 	{
@@ -378,7 +381,17 @@ bool CPdfSpliterApp::CheckRefInfo()
 	return false;
 }
 
-void MyIHE_WD_InterActive::Invalidate()
+
+MyIHE_WDM_InterActive::~MyIHE_WDM_InterActive()
+{
+	for ( size_t i = 0; i < mImageCache.size(); ++i )
+	{
+		Image * pImage = mImageCache[i];
+		::delete pImage;
+	}
+}
+
+void MyIHE_WDM_InterActive::Invalidate()
 {
 	if ( mpDlg )
 	{
@@ -387,7 +400,7 @@ void MyIHE_WD_InterActive::Invalidate()
 	}
 }
 
-void MyIHE_WD_InterActive::InvalidateRect( int left, int top, int right, int bottom )
+void MyIHE_WDM_InterActive::InvalidateRect( int left, int top, int right, int bottom )
 {
 	if ( !mbDirtyRect )
 	{
@@ -420,7 +433,7 @@ void MyIHE_WD_InterActive::InvalidateRect( int left, int top, int right, int bot
 	}
 }
 
-void MyIHE_WD_InterActive::SetTimer( unsigned int u )
+void MyIHE_WDM_InterActive::SetTimer( HE_DWORD u )
 {
 	if ( mpDlg )
 	{
@@ -428,7 +441,7 @@ void MyIHE_WD_InterActive::SetTimer( unsigned int u )
 	}
 }
 
-void MyIHE_WD_InterActive::KillTimer()
+void MyIHE_WDM_InterActive::KillTimer()
 {
 	if ( mpDlg )
 	{
@@ -436,16 +449,16 @@ void MyIHE_WD_InterActive::KillTimer()
 	}
 }
 
-void MyIHE_WD_InterActive::SetClip( CHE_WD_Area * pArea )
+void MyIHE_WDM_InterActive::SetClip( CHE_WDM_Area * pArea )
 {
 	GraphicsContainer container = mpGraphics->BeginContainer();
 	mContainerStack.push_back( container );
-	Rect clipRect( pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
+	Rect clipRect( pArea->GetPosiX(), pArea->GetPosiY(), pArea->GetWidth(), pArea->GetHeight() );
 	Region clipRegion( clipRect ); 
 	mpGraphics->SetClip( &clipRegion );
 }
 
-void MyIHE_WD_InterActive::SetClip( int left, int top, int right, int bottom )
+void MyIHE_WDM_InterActive::SetClip( int left, int top, int right, int bottom )
 {
 	GraphicsContainer container = mpGraphics->BeginContainer();
 	mContainerStack.push_back( container );
@@ -454,7 +467,7 @@ void MyIHE_WD_InterActive::SetClip( int left, int top, int right, int bottom )
 	mpGraphics->SetClip( &clipRegion );
 }
 
-void MyIHE_WD_InterActive::ResetClip()
+void MyIHE_WDM_InterActive::ResetClip()
 {
 	if ( mContainerStack.size() > 0 )
 	{
@@ -464,9 +477,42 @@ void MyIHE_WD_InterActive::ResetClip()
 	//mpGraphics->ResetClip();
 }
 
-void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppear )
+void MyIHE_WDM_InterActive::Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE type )
 {
-	if ( pArea && pAppear && mpGraphics )
+	if ( ! pArea || ! mpGraphics )
+	{
+		return;
+	}
+
+	CHE_WDM_Appearance & appear = pArea->GetAppear();
+
+	std::vector<CHE_WDM_AppearItemPtr> * pAppearItemArr = NULL;
+
+	switch ( type )
+	{
+	case AREA_APPEAR_NORMAL:
+		pAppearItemArr = &( appear.mNormal );
+		break;
+	case AREA_APPEAR_DISABLE:
+		pAppearItemArr = &( appear.mDisable );
+		break;
+	case AREA_APPEAR_BACKGROUND:
+		pAppearItemArr = &( appear.mBackground );
+		break;
+	case AREA_APPEAR_MOUSEOVER:
+		pAppearItemArr = &( appear.mMouseOver );
+		break;
+	case AREA_APPEAR_MOUSELBDOWN:
+		pAppearItemArr = &( appear.mMouseLButtonDown );
+		break;
+	case AREA_APPEAR_MOUSERBDOWN:
+		pAppearItemArr = &( appear.mMouseRButtonDown );
+		break;
+	default:
+		break;
+	}
+
+	if ( pAppearItemArr && pAppearItemArr->size() > 0 )
 	{
 		GraphicsContainer container = mpGraphics->BeginContainer();
 		if ( mbDirtyRect )
@@ -475,47 +521,48 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 			Region clipRegion( clipRect );
 			mpGraphics->SetClip( &clipRegion );
 		}
- 		if ( pArea->IsClipEnable() )
- 		{
- 			Rect clipRect( pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
- 			Region clipRegion( clipRect );
- 			mpGraphics->SetClip( &clipRegion );
- 		}
-		for ( size_t i = 0; i < pAppear->mItems.size(); ++i )
+		if ( pArea->IsClipEnable() )
 		{
-			CHE_WD_AppearItem * tmp = pAppear->mItems[i];
+			Rect clipRect( pArea->GetPosiX(), pArea->GetPosiY(), pArea->GetWidth(), pArea->GetHeight() );
+			Region clipRegion( clipRect );
+			mpGraphics->SetClip( &clipRegion );
+		}
+		for ( size_t i = 0; i < pAppearItemArr->size(); ++i )
+		{
+			CHE_WDM_AppearItemPtr tmp = (*pAppearItemArr)[i];
 			if( tmp == NULL )
 			{
 				continue;
 			}
 			switch( tmp->GetType() )
 			{
-			case APPEAR_TYPE_TEXT:
+			case APPEAR_ITEM_TEXT:
 				{
-					CHE_WD_AppearText * pTmp = (CHE_WD_AppearText *)tmp;
+					CHE_WDM_AppearTextPtr pTmp = tmp.GetTextPtr();
 					StringFormat strFormat;
-					switch ( pTmp->GetHoriAlign() )
+					CHE_WDM_Layout layout = pTmp->GetLayout();
+					switch ( layout.GetVertLayout() )
 					{
-					case APPEAR_TEXT_HALIGNMENT_LEFT:
+					case LAYOUT_ALIGN_LEFT_OR_TOP:
 						strFormat.SetAlignment( StringAlignmentNear );
 						break;
-					case APPEAR_TEXT_HALIGNMENT_CENTER:
+					case LAYOUT_ALIGN_CENTER:
 						strFormat.SetAlignment( StringAlignmentCenter );
 						break;
-					case APPEAR_TEXT_HALIGNMENT_RIGHT:
+					case LAYOUT_ALIGN_RIGHT_OR_BOTTOM:
 						strFormat.SetAlignment( StringAlignmentFar );
 						break;
 					default:;
 					}
-					switch( pTmp->GetVertAlign() )
+					switch( layout.GetHoriLayout() )
 					{
-					case APPEAR_TEXT_VALIGNMENT_TOP:
+					case LAYOUT_ALIGN_LEFT_OR_TOP:
 						strFormat.SetLineAlignment( StringAlignmentNear );
 						break;
-					case APPEAR_TEXT_VALIGNMENT_CENTER:
+					case LAYOUT_ALIGN_CENTER:
 						strFormat.SetLineAlignment( StringAlignmentCenter );
 						break;
-					case APPEAR_TEXT_VALIGNMENT_BOTTOM:
+					case LAYOUT_ALIGN_RIGHT_OR_BOTTOM:
 						strFormat.SetLineAlignment( StringAlignmentFar );
 						break;
 					default:;
@@ -528,25 +575,21 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 						FontFamily * pFontFamily = ::new FontFamily[fontFamilyCount];
 						fontCollection.GetFamilies( fontFamilyCount, pFontFamily, &fontFamilyCount );
 						Gdiplus::Font font( &(pFontFamily[0]), pTmp->GetSize(), FontStyleRegular, UnitPixel );
-						RectF rectF(	pArea->GetPositionX() + pTmp->GetPositionX(),
-										pArea->GetPositionY()+pTmp->GetPositionY(),
-										pTmp->GetWidth(), pTmp->GetHeight() );
+						RectF rectF( pArea->GetPosiX() + pTmp->GetPosiX(), pArea->GetPosiY()+pTmp->GetPosiY(), pTmp->GetWidth(), pTmp->GetHeight() );
 						SolidBrush solidBrush( Color( pTmp->GetAlpha() * ( (pTmp->GetColor()>>24) & 0xFF ), (pTmp->GetColor()>>16) & 0xFF, (pTmp->GetColor()>>8) & 0xFF, (pTmp->GetColor()) & 0xFF ) );
 						mpGraphics->DrawString( pTmp->GetText(), -1, &font, rectF, &strFormat, &solidBrush );
 						delete [] pFontFamily;
 					}else{
 						FontFamily fontFamily( L"Arial" );
 						Gdiplus::Font font( &fontFamily, pTmp->GetSize(), FontStyleRegular, UnitPixel );
-						RectF rectF(	pArea->GetPositionX() + pTmp->GetPositionX(),
-										pArea->GetPositionY()+pTmp->GetPositionY(),
-										pTmp->GetWidth(), pTmp->GetHeight() );
+						RectF rectF(	pArea->GetPosiX() + pTmp->GetPosiX(), pArea->GetPosiY() + pTmp->GetPosiY(), pTmp->GetWidth(), pTmp->GetHeight() );
 						SolidBrush solidBrush( Color( pTmp->GetAlpha() * ( (pTmp->GetColor()>>24) & 0xFF ), (pTmp->GetColor()>>16) & 0xFF, (pTmp->GetColor()>>8) & 0xFF, (pTmp->GetColor()) & 0xFF ) );
 						mpGraphics->DrawString( pTmp->GetText(), -1, &font, rectF, &strFormat, &solidBrush );
 					}break;
 				}
-			case APPEAR_TYPE_PATH:
+			case APPEAR_ITEM_PATH:
 				{
-					CHE_WD_AppearPath * pTmp = (CHE_WD_AppearPath *)tmp;
+					CHE_WDM_AppearPathPtr pTmp = tmp.GetPathPtr();
 					unsigned int fillColorVal = pTmp->GetFillColor();
 					unsigned int strokeColorVal = pTmp->GetStrokeColor();
 					Color fillColor( pTmp->GetAlpha() * ( (fillColorVal>>24) & 0xFF ), (fillColorVal>>16) & 0xFF, (fillColorVal>>8) & 0xFF, fillColorVal & 0xFF );
@@ -555,7 +598,7 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 					Pen pen( strokeColor, pTmp->GetLineWidth() );
 
 					GraphicsPath path;
-					CHE_WD_AppearPathItem pathItem;
+					CHE_WDM_AppearPathItem pathItem;
 					float a = 0, b = 0, c = 0, d = 0, e = 0, f = 0;
 					size_t iCount = pTmp->GetItemCount();
 					for ( unsigned int i = 0; i < iCount; ++i )
@@ -566,22 +609,22 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 						case APPEAR_PATH_ITEM_LINE:
 							{
 								pTmp->GetItem( ++i, pathItem );
-								a = pathItem.GetValue() + pTmp->GetPositionX() + pArea->GetPositionX();
+								a = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
 								pTmp->GetItem( ++i, pathItem );
-								b = pathItem.GetValue() + pTmp->GetPositionY() + pArea->GetPositionY();
+								b = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
 								pTmp->GetItem( ++i, pathItem );
-								c = pathItem.GetValue() + pTmp->GetPositionX() + pArea->GetPositionX();
+								c = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
 								pTmp->GetItem( ++i, pathItem );
-								d = pathItem.GetValue() + pTmp->GetPositionY() + pArea->GetPositionY();
+								d = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
 								path.AddLine( a, b, c, d );
 								break;
 							}
 						case APPEAR_PATH_ITEM_RECT:
 							{
 								pTmp->GetItem( ++i, pathItem );
-								a = pathItem.GetValue() + pTmp->GetPositionX() + pArea->GetPositionX();
+								a = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
 								pTmp->GetItem( ++i, pathItem );
-								b = pathItem.GetValue() + pTmp->GetPositionY() + pArea->GetPositionY();
+								b = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
 								pTmp->GetItem( ++i, pathItem );
 								c = pathItem.GetValue();
 								pTmp->GetItem( ++i, pathItem );
@@ -593,17 +636,17 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 						case APPEAR_PATH_ITEM_CURVE:
 							{
 								pTmp->GetItem( ++i, pathItem );
-								a = pathItem.GetValue() + pTmp->GetPositionX() + pArea->GetPositionX();
+								a = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
 								pTmp->GetItem( ++i, pathItem );
-								b = pathItem.GetValue() + pTmp->GetPositionY() + pArea->GetPositionY();
+								b = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
 								pTmp->GetItem( ++i, pathItem );
-								c = pathItem.GetValue() + pTmp->GetPositionX() + pArea->GetPositionX();
+								c = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
 								pTmp->GetItem( ++i, pathItem );
-								d = pathItem.GetValue() + pTmp->GetPositionY() + pArea->GetPositionY();
+								d = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
 								pTmp->GetItem( ++i, pathItem );
-								e = pathItem.GetValue() + pTmp->GetPositionX() + pArea->GetPositionX();
+								e = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
 								pTmp->GetItem( ++i, pathItem );
-								f = pathItem.GetValue() + pTmp->GetPositionY() + pArea->GetPositionY();
+								f = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
 								PointF point[3];
 								point[0].X = a;
 								point[0].Y = b;
@@ -647,13 +690,14 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 					}
 					break;
 				}
-			case APPEAR_TYPE_IMAGE:
+			case APPEAR_ITEM_IMAGE:
 				{
-					CHE_WD_AppearImage * pTmp = (CHE_WD_AppearImage *)tmp;
+					CHE_WDM_AppearImagePtr pTmp = tmp.GetImagePtr();
 					Image * tmpImage = NULL;
 					if ( pTmp->GetExtData() == NULL )
 					{
-						tmpImage = ::new Image( pTmp->GetFile() );
+						tmpImage = ::new Image( pTmp->GetImageFile() );
+						mImageCache.push_back( tmpImage );
 						pTmp->SetExtData( (void*)( tmpImage ) );
 					}else{
 						tmpImage = (Image*)( pTmp->GetExtData() );
@@ -670,7 +714,7 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 								0, 0, 0, 0, 1 };
 							imageAtr.SetColorMatrix( &colorMatrix );
 							mpGraphics->DrawImage(	tmpImage, 
-								Rect( pArea->GetPositionX() + pTmp->GetPositionX(), pArea->GetPositionY() + pTmp->GetPositionY(), tmpImage->GetWidth(), tmpImage->GetHeight() ),
+								Rect( pArea->GetPosiX() + pTmp->GetPosiX(), pArea->GetPosiY() + pTmp->GetPosiY(), tmpImage->GetWidth(), tmpImage->GetHeight() ),
 								(INT)0,
 								0,
 								tmpImage->GetWidth(),
@@ -682,12 +726,12 @@ void MyIHE_WD_InterActive::Draw( CHE_WD_Area * pArea, CHE_WD_Appearance * pAppea
 					case APPEAR_IMAGE_STYLE_TILTING:
 						{
 							TextureBrush brush( tmpImage );
-							mpGraphics->FillRectangle( &brush, pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
+							mpGraphics->FillRectangle( &brush, pArea->GetPosiX(), pArea->GetPosiY(), pArea->GetWidth(), pArea->GetHeight() );
 							break;
 						}
 					case APPEAR_IMAGE_STYLE_FIT:
 						{
-							mpGraphics->DrawImage( tmpImage, pArea->GetPositionX(), pArea->GetPositionY(), pArea->GetWidth(), pArea->GetHeight() );
+							mpGraphics->DrawImage( tmpImage, pArea->GetPosiX(), pArea->GetPosiY(), pArea->GetWidth(), pArea->GetHeight() );
 							break;
 						}
 					default:;

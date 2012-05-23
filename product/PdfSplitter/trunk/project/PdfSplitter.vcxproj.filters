@@ -22,9 +22,6 @@
     <ClCompile Include="..\source\FileLoadDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\CWNDMD.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\ProcessDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -43,9 +40,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\source\CWNDMD.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\source\FileLoadDlg.h">

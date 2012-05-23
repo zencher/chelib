@@ -10,68 +10,68 @@ IMPLEMENT_DYNAMIC(CFileLoadDlg, CDialogEx)
 CFileLoadDlg::CFileLoadDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CFileLoadDlg::IDD, pParent)
 {
-	CHE_WD_Appearance * pTmpApper = NULL;
-	CHE_WD_AppearImage * pTmpImage = NULL;
-	CHE_WD_AppearText * pTmpText = NULL;
-	mpInterActive = new MyIHE_WD_InterActive( this, theApp.m_hInstance );
-	mpMainArea = new CHE_WD_Area( 0, 0, mpInterActive );
-	pTmpApper = new CHE_WD_Appearance;
-	pTmpImage = new CHE_WD_AppearImage;
-	pTmpImage->SetImageFile( L"images\\background.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
-	pTmpApper->mItems.push_back( pTmpImage );
+	CHE_WDM_AppearImagePtr imagePtr;
+	CHE_WDM_AppearTextPtr textPtr;
+	mpInterActive = new MyIHE_WDM_InterActive( this, theApp.m_hInstance );
 
-	pTmpImage = new CHE_WD_AppearImage;
-	pTmpImage->SetImageFile( L"images\\loadingProcessBar01.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpImage->SetPositionX( 60 );
-	pTmpImage->SetPositionY( 60 );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpImage = new CHE_WD_AppearImage;
-	pTmpImage->SetImageFile( L"images\\loadingProcessBar00.png" );
-	pTmpImage->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pTmpImage->SetPositionX( 60 );
-	pTmpImage->SetPositionY( 60 );
-	pTmpApper->mItems.push_back( pTmpImage );
-	pTmpText = new CHE_WD_AppearText;
-	pTmpText->SetHoriAlign( APPEAR_TEXT_HALIGNMENT_CENTER );
-	pTmpText->SetVertAlign(  APPEAR_TEXT_VALIGNMENT_TOP );
-	pTmpText->SetText( L"Loading file, please wait!" );
-	pTmpText->SetSize( 12 );
-	pTmpText->SetWidth( 500 );
-	pTmpText->SetHeight( 50 );
-	pTmpText->SetPositionX( 0 );
-	pTmpText->SetPositionY( 20 );
-	pTmpApper->mItems.push_back( pTmpText );
- 	mpMainArea->SetBackGroundAppear( pTmpApper );
+	mpMainArea = CHE_WDM_Area::Create( mpInterActive );
 
-	mpAnimation = new CHE_WD_Animation;
-	mpAnimation->SetTarget( pTmpImage );
-	CHE_WD_AnimationData Data;
-	Data.mPositionX = 60;
-	Data.mPositionY = 60;
-	mpAnimation->SetBeginState( Data );
-	Data.mPositionX = 220;
-	Data.mPositionY = 60;
-	mpAnimation->SetEndState( Data );
-	mpAnimation->SetFrames( 48 );
-	mpMainArea->SetDefaultAnimation( mpAnimation );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\background.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
+	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
-	mTimerId = 0;
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\loadingProcessBar01.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	imagePtr->SetPosiX( 60 );
+	imagePtr->SetPosiY( 60 );
+	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\loadingProcessBar00.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	imagePtr->SetPosiX( 60 );
+	imagePtr->SetPosiY( 60 );
+	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_CENTER, LAYOUT_ALIGN_LEFT_OR_TOP ) );
+	textPtr->SetText( L"Loading file, please wait!" );
+	textPtr->SetSize( 12 );
+	textPtr->SetWidth( 500 );
+	textPtr->SetHeight( 50 );
+	textPtr->SetPosiX( 0 );
+	textPtr->SetPosiY( 20 );
+ 	mpMainArea->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+
+	CHE_WDM_AppearAnimation animation;
+	animation.SetTarget( mpMainArea );
+	animation.SetAppear( imagePtr );
+	animation.SetLoop( TRUE );
+	CHE_WDM_AnimationData data;
+	data.mPosiX = 60;
+	data.mPosiY = 60;
+	animation.SetState( data );
+
+	data.mPosiX = 220;
+	data.mPosiY = 60;
+	animation.InsertFrames( 48, data );
+
+	data.mPosiX = 60;
+	data.mPosiY = 60;
+	animation.InsertFrames( 48, data );
+
+	mAnimations.StartAppearAnimation( animation );
 }
 
 
 CFileLoadDlg::~CFileLoadDlg()
 {
-	CHE_WD_Appearance * pTmpAppear = mpMainArea->GetBackGroundAppear();
-	delete pTmpAppear->mItems[0];
-	delete pTmpAppear->mItems[1];
-	delete pTmpAppear->mItems[2];
-	delete pTmpAppear->mItems[3];
-	delete pTmpAppear;
-	delete mpAnimation;
-	delete mpMainArea;
+	mMemdc.SelectObject( &mpOldBitmap );
+	::delete mGraphics;
 	delete mpInterActive;
+	delete mpMainArea;
 }
 
 
@@ -117,7 +117,7 @@ void CFileLoadDlg::OnTimer(UINT_PTR nIDEvent)
 	{
 		this->EndDialog( 0 );
 	}
-	mpMainArea->ExecuteFrame();
+	mAnimations.Execute();
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -167,21 +167,21 @@ void CFileLoadDlg::DrawMainArea(void)
 
 void CFileLoadDlg::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonDown( point.x, point.y );
+	mpMainArea->OnMouseLBDown( point.x, point.y );
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
 
 
 void CFileLoadDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonDown( point.x, point.y );
+	mpMainArea->OnMouseLBDown( point.x, point.y );
 	CDialogEx::OnLButtonDblClk(nFlags, point);
 }
 
 
 void CFileLoadDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	mpMainArea->OnMouseLButtonUp( point.x, point.y );
+	mpMainArea->OnMouseLBUp( point.x, point.y );
 	CDialogEx::OnLButtonUp(nFlags, point);
 }
 

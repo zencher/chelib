@@ -110,7 +110,6 @@
     <None Include="res\PdfSplitter.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\source\CWNDMD.h" />
     <ClInclude Include="..\source\FileLoadDlg.h" />
     <ClInclude Include="..\source\PageSelectionDlg.h" />
     <ClInclude Include="..\source\PagesSelectionDlg.h" />
@@ -125,7 +124,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\CWNDMD.cpp" />
     <ClCompile Include="..\source\FileLoadDlg.cpp" />
     <ClCompile Include="..\source\PageSelectionDlg.cpp" />
     <ClCompile Include="..\source\PagesSelectionDlg.cpp" />

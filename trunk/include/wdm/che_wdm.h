@@ -5,6 +5,7 @@
 #include <list>
 
 #include "../che_base.h"
+#include "../che_string.h"
 
 enum WDM_Layout_Type
 {
@@ -355,6 +356,9 @@ public:
 
 	virtual	~CHE_WDM_Area();
 
+	HE_VOID								SetName( const CHE_ByteString & name ) { mName = name; }
+	CHE_ByteString &					GetName() { return mName; }
+
 	HE_VOID								SetWidth( HE_INT32 width );
 	HE_INT32							GetWidth() const { return mWidth; }
 
@@ -405,6 +409,8 @@ public:
 	virtual HE_VOID						OnMouseLBUp( HE_INT32 x, HE_INT32 y );
 	virtual HE_VOID						OnMouseRBDown( HE_INT32 x, HE_INT32 y );
 	virtual HE_VOID						OnMouseRBUp( HE_INT32 x, HE_INT32 y );
+	virtual HE_VOID						OnMouseLDBClick( HE_INT32 x, HE_INT32 y );
+	virtual HE_VOID						OnMouseRDBClick( HE_INT32 x, HE_INT32 y );
 	virtual HE_VOID						OnDraw();
 	virtual HE_VOID						OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom );
 
@@ -445,6 +451,8 @@ private:
 	std::vector<CHE_WDM_Area*>			mChildren;
 	CHE_WDM_Area *						mpCaptureChild;
 	CHE_WDM_Area *						mpMouseOverArea;
+
+	CHE_ByteString						mName;
 
 	friend class CHE_Allocator;
 };
@@ -533,13 +541,18 @@ public:
 
 	HE_VOID							SetClickEvent( EventFunction eventFunc ) { mClickEventFunc = eventFunc; }
 
+	HE_VOID							SetDBClickEvent( EventFunction eventFunc ) { mDBClickEventFunc = eventFunc; }
+
 	virtual HE_VOID					OnMouseLBUp( HE_INT32 x, HE_INT32 y );
+
+	virtual HE_VOID					OnMouseLDBClick( HE_INT32 x, HE_INT32 y );
 
 protected:
 	CHE_WDM_Button( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
-		: CHE_WDM_Area( pInteractive, pAllocator ), mClickEventFunc(NULL) {};
+		: CHE_WDM_Area( pInteractive, pAllocator ), mClickEventFunc(NULL), mDBClickEventFunc(NULL) {};
 
 	EventFunction mClickEventFunc;
+	EventFunction mDBClickEventFunc;
 
 	friend class CHE_Allocator;
 };

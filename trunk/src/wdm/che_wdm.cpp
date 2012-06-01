@@ -166,18 +166,6 @@ HE_BOOL CHE_WDM_AppearPath::GetItem( HE_DWORD index, CHE_WDM_AppearPathItem & it
 	return TRUE;
 }
 
-// CHE_WDM_AreaPtr CHE_WDM_Area::Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL )
-// {
-// 	CHE_WDM_AreaPtr ptr;
-// 	if ( pAllocator == NULL )
-// 	{
-// 		pAllocator =  GetDefaultAllocator();
-// 	}
-// 	CHE_WDM_Area * pArea = pAllocator->New<CHE_WDM_Area>( pInterActive, pAllocator );
-// 	ptr.reset( pArea );
-// 	return ptr;
-// }
-
 CHE_WDM_Area* CHE_WDM_Area::Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator )
 {
 	if ( pAllocator == NULL )
@@ -188,15 +176,11 @@ CHE_WDM_Area* CHE_WDM_Area::Create( IHE_WDM_InterActive * pInterActive, CHE_Allo
 	return pArea;
 }
 
-// CHE_WDM_Area::CHE_WDM_Area()
-// 	: CHE_Object( NULL ), mbLBD( FALSE ), mbRBD( FALSE ), mbMO( FALSE ), mbClip( TRUE ), 
-// 	mbVisable( TRUE ), mbEnable( TRUE ), mWidth( 0 ), mHeight( 0 ), mPosX( 0 ), mPosY( 0 ),
-// 	mParent( NULL ), mInterActive( NULL ), mpCaptureChild( NULL ), mpMouseOverArea( NULL ) {}
-
 CHE_WDM_Area::CHE_WDM_Area( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
 	: CHE_Object( pAllocator ), mbLBD( FALSE ), mbRBD( FALSE ), mbMO( FALSE ), mbClip( FALSE ),
 	mbVisable( TRUE ), mbEnable( TRUE ), mWidth( 0 ), mHeight( 0 ), mPosX( 0 ), mPosY( 0 ),
-	mParent( NULL ), mInterActive( pInteractive ), mpCaptureChild( NULL ), mpMouseOverArea( NULL ) {}
+	mParent( NULL ), mInterActive( pInteractive ), mpCaptureChild( NULL ), mpMouseOverArea( NULL ),
+	mName( pAllocator ) {}
 
 CHE_WDM_Area::~CHE_WDM_Area()
 {
@@ -428,6 +412,7 @@ CHE_WDM_Area * CHE_WDM_Area::PopChild( HE_DWORD index )
 		{
 			pTmp = *it;
 			mChildren.erase( it );
+			pTmp->SetParent( NULL );
 			return pTmp;
 		}
 	}
@@ -475,38 +460,6 @@ HE_VOID CHE_WDM_Area::ClearChild()
 	mChildren.clear();
 }
 
-
-// HE_VOID CHE_WDM_Area::ExecuteFrame()
-// {
-// 	if ( mCurAnimation )
-// 	{
-// 		if ( mCurAnimation->IsOver() )
-// 		{
-// 			mCurAnimation = NULL;
-// 		}else{
-// 			mCurAnimation->Execute();
-// 		}
-// 	}else if ( mpDefaultAnimation )
-// 	{
-// 		mCurAnimation = mpDefaultAnimation;
-// 		mCurAnimation->Init();
-// 		mCurAnimation->Execute();
-// 	}
-// 	if ( mInterActive )
-// 	{
-// 		mInterActive->Invalidate();
-// 	}
-// 	CHE_WDM_Area * pTmp = NULL;
-// 	for ( size_t i = 0; i < mChildren.size(); ++i )
-// 	{
-// 		pTmp = mChildren[i];
-// 		if ( pTmp )
-// 		{
-// 			pTmp->ExecuteFrame();
-// 		}
-// 	}
-// }
-
 HE_VOID CHE_WDM_Area::OnMouseMove( HE_INT32 x, HE_INT32 y )
 {
 	if ( !mbEnable )
@@ -527,7 +480,7 @@ HE_VOID CHE_WDM_Area::OnMouseMove( HE_INT32 x, HE_INT32 y )
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
 		pTmp = mChildren[i-1];
-		if ( pTmp )
+		if ( pTmp && pTmp->IsEnable() )
 		{
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
@@ -569,11 +522,6 @@ HE_VOID CHE_WDM_Area::OnMouseOver()
 	{
 		GetParent()->SetFocus( this );
 	}
-// 	if ( mpMouseOverAnimation )
-// 	{
-// 		mCurAnimation = mpMouseOverAnimation;
-// 		mpMouseOverAnimation->Init();
-// 	}
 	mbMO = TRUE;
 	if ( mInterActive )
 	{
@@ -583,10 +531,6 @@ HE_VOID CHE_WDM_Area::OnMouseOver()
 
 HE_VOID CHE_WDM_Area::OnMouseOut()
 {
-	if ( !mbEnable )
-	{
-		return;
-	}
 	if ( GetParent() )
 	{
 		GetParent()->ReleaseFocus();
@@ -616,7 +560,7 @@ HE_VOID CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
 		pTmp = mChildren[i-1];
-		if ( pTmp )
+		if ( pTmp && pTmp->IsEnable() )
 		{
 			if ( x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 				 y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
@@ -626,11 +570,6 @@ HE_VOID CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 			}
 		}
 	}
-// 	if ( mpMouseLButtonDownAnimation )
-// 	{
-// 		mCurAnimation = mpMouseLButtonDownAnimation;
-// 		mpMouseLButtonDownAnimation->Init();
-// 	}
 	mbLBD = TRUE;
 	if ( mInterActive )
 	{
@@ -653,7 +592,7 @@ HE_VOID CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
 		pTmp = mChildren[i-1];
-		if ( pTmp )
+		if ( pTmp && pTmp->IsEnable() )
 		{
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
@@ -684,7 +623,7 @@ HE_VOID CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
 		pTmp = mChildren[i-1];
-		if ( pTmp )
+		if ( pTmp && pTmp->IsEnable() )
 		{
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
@@ -694,11 +633,6 @@ HE_VOID CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
 			}
 		}
 	}
-// 	if ( mpMouseRButtonDownAnimation )
-// 	{
-// 		mCurAnimation = mpMouseRButtonDownAnimation;
-// 		mpMouseRButtonDownAnimation->Init();
-// 	}
 	mbRBD = TRUE;
 	if ( mInterActive )
 	{
@@ -720,7 +654,7 @@ HE_VOID CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
 		pTmp = mChildren[i-1];
-		if ( pTmp )
+		if ( pTmp && pTmp->IsEnable() )
 		{
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
@@ -734,6 +668,50 @@ HE_VOID CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
 	if ( mInterActive )
 	{
 		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+	}
+}
+
+HE_VOID CHE_WDM_Area::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
+{
+	if ( !mbEnable )
+	{
+		return;
+	}
+	CHE_WDM_Area * pTmp = NULL;
+	for ( size_t i = mChildren.size(); i > 0; --i )
+	{
+		pTmp = mChildren[i-1];
+		if ( pTmp && pTmp->IsEnable() )
+		{
+			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
+					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
+			{
+				pTmp->OnMouseLDBClick( x, y );
+				return;
+			}
+		}
+	}
+}
+
+HE_VOID CHE_WDM_Area::OnMouseRDBClick( HE_INT32 x, HE_INT32 y )
+{
+	if ( !mbEnable )
+	{
+		return;
+	}
+	CHE_WDM_Area * pTmp = NULL;
+	for ( size_t i = mChildren.size(); i > 0; --i )
+	{
+		pTmp = mChildren[i-1];
+		if ( pTmp && pTmp->IsEnable() )
+		{
+			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
+					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
+			{
+				pTmp->OnMouseRDBClick( x, y );
+				return;
+			}
+		}
 	}
 }
 
@@ -860,6 +838,18 @@ HE_VOID CHE_WDM_Button::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 			mClickEventFunc( this );
 		}
 		CHE_WDM_Area::OnMouseLBUp( x, y );
+	}
+}
+
+HE_VOID	CHE_WDM_Button::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
+{
+	if ( IsEnable() )
+	{
+		if ( mDBClickEventFunc )
+		{
+			mDBClickEventFunc( this );
+		}
+		CHE_WDM_Area::OnMouseLDBClick( x, y );
 	}
 }
 
@@ -990,6 +980,7 @@ HE_VOID CHE_WDM_AreaAnimation::Init()
 	{
 		mpArea->SetPosiX( mState.mPosiX );
 		mpArea->SetPosiY( mState.mPosiY );
+		mpArea->Refresh();
 		//mpArea->SetAlpha( mState.mAlpha );
 		//mpArea->SetScaleX( mState.mScaleX );
 		//mpArea->SetScaleY( mState.mScaleY );
@@ -1013,6 +1004,7 @@ HE_VOID CHE_WDM_AreaAnimation::Execute()
 		if ( mFramesToGo > 0 )
 		{
 			--mFramesToGo;
+			mpArea->Refresh();
 			mpArea->SetPosiX( mpArea->GetPosiX() + mStateOffset.mPosiX );
 			mpArea->SetPosiY( mpArea->GetPosiY() + mStateOffset.mPosiY );
 			//mpArea->SetAlpha( mpArea->GetAlpha() + mStateOffset.mAlpha );
@@ -1074,6 +1066,7 @@ HE_VOID CHE_WDM_AppearAnimation::Execute()
 		if ( mFramesToGo > 0 )
 		{
 			--mFramesToGo;
+			mpArea->Refresh();
 			mAppearPtr->SetPosiX( mAppearPtr->GetPosiX() + mStateOffset.mPosiX );
 			mAppearPtr->SetPosiY( mAppearPtr->GetPosiY() + mStateOffset.mPosiY );
 			mAppearPtr->SetAlpha( mAppearPtr->GetAlpha() + mStateOffset.mAlpha );
@@ -1117,7 +1110,8 @@ HE_VOID CHE_WDM_AnimationMgr::Execute()
 		{
 			if ( ! it->IsLoop() )
 			{
-				mAreaAnimations.erase( it );
+				it = mAreaAnimations.erase( it );
+				break;
 			}
 			else{
 				it->Init();

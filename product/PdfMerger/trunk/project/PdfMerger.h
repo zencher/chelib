@@ -86,6 +86,30 @@ private:
 // See PdfMerger.cpp for the implementation of this class
 //
 
+enum CListItemType
+{
+	ALL_PAGES,
+	SINGLE_PAGE,
+	PAGE_RANGE,
+	EVEN_PAGES,
+	ODD_PAGES
+};
+
+class CListItem
+{
+public:
+	CListItemType type;
+	IHE_Read * pFileRead;
+	CHE_PDF_File * pPDFFile;
+	CHE_PDF_PageTree * pPageTree;
+	std::wstring fileName;
+	unsigned int pageIndex;
+	unsigned int pageCount;
+};
+
+class CPdfMergerDlg;
+class CProcessDlg;
+
 class CPdfMergerApp : public CWinApp
 {
 public:
@@ -100,6 +124,41 @@ public:
 // Implementation
 
 	DECLARE_MESSAGE_MAP()
+
+public:
+	void LoadDocument();
+	void CloseDocument();
+	bool IsExistInFileList( const std::wstring & filePaht, size_t & indexRet );
+	void ClearPageListItem();
+	void DelCurPageListItem();
+	void UpCurPageListItem();
+	void DownCurPagaListItem();
+
+	CPdfMergerDlg *					mpMainDlg;
+	CProcessDlg *					mpProcessDlg;
+
+	bool							mbLoadOver;
+	bool							mbWork;
+	bool							mbLoadError;
+	bool							mbRegister;
+
+	std::vector<std::wstring>		mFileNameCache;
+	std::vector<std::wstring>		mFilePathCache;
+	std::vector<IHE_Read*>			mIFileReadCache;
+	std::vector<CHE_PDF_File*>		mPDFFileCache;
+	std::vector<CHE_PDF_Document *>	mDocumentCache;
+	std::vector<CHE_PDF_PageTree *> mPageTreeCache;
+	std::vector<std::string>		mPasswrodCache;
+	CHE_PDF_File*					mCurFile;
+	std::wstring					mLoadFileName;
+	std::wstring					mLoadFilePath;
+	std::string						mCurPassword;
+	std::wstring					mOutPutFile;
+
+	std::vector<CListItem>			mList;
+	size_t							mCurItem;
+	CHE_WDM_Area *					mpMouseOverItem;
+	float							mfViewPoint;
 };
 
 extern CPdfMergerApp theApp;

@@ -26,6 +26,16 @@ CPdfMergerApp::CPdfMergerApp()
 
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
+
+	mbLoadOver = false;
+	mbWork = false;
+	mbLoadError = false;
+	mbRegister = false;
+	mpMainDlg = NULL;
+	mpProcessDlg = NULL;
+	mfViewPoint = 0.0;
+	mCurItem = 0;
+	mpMouseOverItem = NULL;
 }
 
 
@@ -60,6 +70,7 @@ BOOL CPdfMergerApp::InitInstance()
 
 	CPdfMergerDlg dlg;
 	m_pMainWnd = &dlg;
+	mpMainDlg = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{
@@ -443,5 +454,163 @@ void MyIHE_WDM_InterActive::Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE typ
 			}
 		}
 		mpGraphics->EndContainer(container);
+	}
+}
+
+void CPdfMergerApp::LoadDocument()
+{
+	theApp.mbLoadError = false;
+	theApp.mbLoadOver = false;
+
+	if ( mLoadFilePath.size() > 0 )
+	{
+		char tmpStr[1024];
+		memset( tmpStr, 0, 1024 );
+		WideCharToMultiByte( CP_ACP, 0, mLoadFilePath.c_str(), -1, tmpStr, 1024, NULL, NULL );
+
+		IHE_Read * pTmpRead = HE_CreateFileRead( tmpStr, FILEREAD_MODE_DEFAULT, 4096 );
+		if ( pTmpRead )
+		{
+			CHE_PDF_File * pFile = new CHE_PDF_File;
+			mCurFile = pFile;
+			if ( pFile->Open( pTmpRead ) )
+			{
+				CHE_PDF_Document * pDocumennt = CHE_PDF_Document::CreateDocument( pFile );
+				CHE_PDF_PageTree * pPageTree = pDocumennt->GetPageTree();
+
+				theApp.mFilePathCache.push_back( mLoadFilePath );
+				theApp.mFileNameCache.push_back( mLoadFileName );
+				theApp.mIFileReadCache.push_back( pTmpRead );
+				theApp.mPDFFileCache.push_back( pFile );
+				theApp.mDocumentCache.push_back( pDocumennt );
+				theApp.mPageTreeCache.push_back( pPageTree );
+			}else{
+				mbLoadError = true;
+				CloseDocument();
+			}
+		}
+		mLoadFilePath.clear();
+		mLoadFileName.clear();
+	}
+
+	mbLoadOver = true;
+}
+
+void CPdfMergerApp::CloseDocument()
+{
+
+}
+
+bool CPdfMergerApp::IsExistInFileList( const std::wstring & filePaht, size_t & indexRet )
+{
+	bool bFound = false;
+	std::vector<std::wstring>::iterator it;
+	indexRet = 0;
+	for ( it = theApp.mFileNameCache.begin(); it != theApp.mFileNameCache.end(); ++it, ++indexRet )
+	{
+		if ( wcscmp( (*it).c_str(), theApp.mLoadFileName.c_str() ) == 0 )
+		{
+			bFound = true;
+			break;
+		}
+	}
+	return bFound;
+}
+
+
+void CPdfMergerApp::ClearPageListItem()
+{
+	mpMainDlg->CancelSelection();
+	unsigned int iCount = mList.size();
+	unsigned int i = 0;
+	for ( ; i < iCount; ++i )
+	{
+		mpMainDlg->DeleteListItem( 0 );
+	}
+	mCurItem = 0;
+	mList.clear();
+	mpMainDlg->UpdateSelection();
+	mpMainDlg->UpdateBtn();
+	mpMainDlg->UpdateList();
+}
+
+void CPdfMergerApp::DelCurPageListItem()
+{
+	if ( mpMainDlg->mpDelBtn->GetParent() )
+	{
+		mpMainDlg->mpDelBtn->GetParent()->PopChild( 0 );
+	}
+	CHE_WDM_Area * pTarget = mpMouseOverItem;
+	CHE_WDM_Area * pTmp = NULL;
+	if ( pTarget )
+	{
+		bool bFlag = false;
+		unsigned int i = 0;
+		unsigned int iCount = mpMainDlg->mpItemList->GetChildrenCount();
+		std::vector< CListItem >::iterator it = mList.begin();
+		for ( ; i < iCount; ++i, ++it )
+		{
+			pTmp = mpMainDlg->mpItemList->GetChild( i );
+			if ( pTmp == pTarget )
+			{
+				bFlag = true;
+				break;
+			}
+		}
+		if ( bFlag )
+		{
+			mpMainDlg->CancelSelection();
+			mList.erase( it );
+			if ( i >= mList.size() )
+			{
+				mpMainDlg->mpDelBtn->SetVisable( false );
+				mpMainDlg->mpDelBtn->SetEnable( false );
+				mpMainDlg->mpDelBtn->Refresh();
+			}
+			if ( mCurItem > mList.size() )
+			{
+				--mCurItem;
+			}
+			if ( mList.size() == 0 )
+			{
+				mCurItem = 0;
+			}
+			mpMainDlg->DeleteListItem( i );
+			mpMainDlg->UpdateSelection();
+			mpMainDlg->UpdateBtn();
+			mpMainDlg->UpdateList();
+		}
+	}
+}
+
+void CPdfMergerApp::UpCurPageListItem()
+{
+	if ( 1 < mCurItem && mCurItem <= mList.size() )
+	{
+		mpMainDlg->CancelSelection();
+		mpMainDlg->mpItemList->ChildToLower( mCurItem-1 );
+		CListItem item = mList[mCurItem-2];
+		mList[mCurItem-2] = mList[mCurItem-1];
+		mList[mCurItem-1] = item;
+		mCurItem--;
+		mpMainDlg->UpdateSelection();
+		mpMainDlg->UpdateBtn();
+		mpMainDlg->UpdateList();
+	}
+}
+
+void CPdfMergerApp::DownCurPagaListItem()
+{
+	if ( 0 < mCurItem && mCurItem < mList.size() )
+	{
+		mpMainDlg->CancelSelection();
+		mpMainDlg->mpItemList->ChildToUpper( mCurItem-1 );
+		CListItem item = mList[mCurItem];
+		mList[mCurItem] = mList[mCurItem-1];
+		mList[mCurItem-1] = item;
+		mCurItem++;
+		mpMainDlg->UpdateSelection();
+		mpMainDlg->UpdateBtn();
+		mpMainDlg->UpdateList();
 	}
 }

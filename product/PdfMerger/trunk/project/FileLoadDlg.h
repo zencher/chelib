@@ -21,18 +21,20 @@ protected:
 private:
 	UINT						mClientWidth;
 	UINT						mClientHeight;
-
 	CDC							mMemdc;
 	CBitmap						mBitmap;
 	CBitmap *					mpOldBitmap;
 	Gdiplus::Graphics *			mGraphics;
-
 	MyIHE_WDM_InterActive *		mpInterActive;
 	CHE_WDM_Area *				mpMainArea;
 	CHE_WDM_AnimationMgr		mAnimations;
-
 	unsigned int				mTimerId;
+	CHE_WDM_AppearTextPtr		mText;
+
 	void						DrawMainArea(void);
+
+public:
+	void						ShowText( std::wstring & str ); 
 
 public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);

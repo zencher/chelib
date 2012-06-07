@@ -5,6 +5,8 @@
 #include "stdafx.h"
 #include "PdfMerger.h"
 #include "PdfMergerDlg.h"
+#include "PasswordDlg.h"
+#include "FileLoadDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -53,6 +55,10 @@ BOOL CPdfMergerApp::InitInstance()
 	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
 
 	CWinApp::InitInstance();
+
+	ChangeWindowMessageFilter( WM_DROPFILES, MSGFLT_ADD );
+	ChangeWindowMessageFilter( WM_COPYDATA, MSGFLT_ADD );
+	ChangeWindowMessageFilter( 0x0049, MSGFLT_ADD );
 
 
 	// Create the shell manager, in case the dialog contains
@@ -462,36 +468,106 @@ void CPdfMergerApp::LoadDocument()
 	theApp.mbLoadError = false;
 	theApp.mbLoadOver = false;
 
-	if ( mLoadFilePath.size() > 0 )
+	for ( size_t i = 0; i < theApp.mFileNameToLoad.size(); ++i )
 	{
-		char tmpStr[1024];
-		memset( tmpStr, 0, 1024 );
-		WideCharToMultiByte( CP_ACP, 0, mLoadFilePath.c_str(), -1, tmpStr, 1024, NULL, NULL );
-
-		IHE_Read * pTmpRead = HE_CreateFileRead( tmpStr, FILEREAD_MODE_DEFAULT, 4096 );
-		if ( pTmpRead )
+		size_t index = 0;
+		bool bFound = false;
+		bFound = theApp.IsExistInFileList( theApp.mFilePathToLoad[i], index );
+		if ( ! bFound )
 		{
-			CHE_PDF_File * pFile = new CHE_PDF_File;
-			mCurFile = pFile;
-			if ( pFile->Open( pTmpRead ) )
+			if ( theApp.mFilePathToLoad[i].size() > 0 )
 			{
-				CHE_PDF_Document * pDocumennt = CHE_PDF_Document::CreateDocument( pFile );
-				CHE_PDF_PageTree * pPageTree = pDocumennt->GetPageTree();
+				if ( theApp.mpLoadDlg )
+				{
+					std::wstring str;
+					static wchar_t tmpStr[1024];
+					wsprintf( tmpStr, L"%d/%d %s", i+1, theApp.mFileNameToLoad.size(), theApp.mFileNameToLoad[i].c_str() );
+					str = tmpStr;
+					theApp.mpLoadDlg->ShowText( str );
+				}
 
-				theApp.mFilePathCache.push_back( mLoadFilePath );
-				theApp.mFileNameCache.push_back( mLoadFileName );
-				theApp.mIFileReadCache.push_back( pTmpRead );
-				theApp.mPDFFileCache.push_back( pFile );
-				theApp.mDocumentCache.push_back( pDocumennt );
-				theApp.mPageTreeCache.push_back( pPageTree );
-			}else{
-				mbLoadError = true;
-				CloseDocument();
+				char tmpStr[1024];
+				memset( tmpStr, 0, 1024 );
+				WideCharToMultiByte( CP_ACP, 0, theApp.mFilePathToLoad[i].c_str(), -1, tmpStr, 1024, NULL, NULL );
+
+				IHE_Read * pTmpRead = HE_CreateFileRead( tmpStr, FILEREAD_MODE_DEFAULT, 4096 );
+				if ( pTmpRead )
+				{
+					CHE_PDF_File * pFile = new CHE_PDF_File;
+					if ( pFile->Open( pTmpRead ) )
+					{
+						CHE_PDF_Document * pDocumennt = CHE_PDF_Document::CreateDocument( pFile );
+						CHE_PDF_PageTree * pPageTree = pDocumennt->GetPageTree();
+
+						CHE_ByteString str;
+						bool bPasswordError = false;
+						bool bGiveFile = false;
+						str = "";
+						while ( ! pFile->Authenticate( str ) )
+						{
+							CPasswordDlg dlg;
+							if ( bPasswordError )
+							{
+								dlg.SetErrorFlag();
+							}
+							if ( dlg.DoModal() == 1 )
+							{
+								bGiveFile = true;
+								break;
+							}
+							bPasswordError = true;
+							str = theApp.mCurPassword.c_str();
+						}
+
+						CPDFFileInfo fileInfo;
+						fileInfo.mFileName = theApp.mFileNameToLoad[i];
+						fileInfo.mFilePath = theApp.mFilePathToLoad[i];
+						if ( str.GetLength() > 0 )
+						{
+							fileInfo.mPassword = str.GetData();
+						}
+						fileInfo.mpDocument = pDocumennt;
+						fileInfo.mpPDFFile = pFile;
+						fileInfo.mpFileRead = pTmpRead;
+						fileInfo.mpPageTree = pPageTree;
+						theApp.mFileCache.push_back( fileInfo );
+
+						if ( ! bGiveFile )
+						{
+							CListItem item;
+							item.type = ALL_PAGES;
+							item.pageIndex = 1;
+							item.filePageCount = item.pageCount = fileInfo.mpPageTree->GetPageCount();
+							item.fileName = theApp.mFileNameToLoad[i];
+							item.index = i;
+							item.bytes = pFile->GetFileSize();
+							item.filePageCount = fileInfo.mpPageTree->GetPageCount();
+							theApp.mList.push_back( item );
+							theApp.mpMainDlg->AppendListItem( item );
+						}
+					}
+				}
 			}
+		}else{
+			CListItem item;
+			item.type = ALL_PAGES;
+			item.pageIndex = 1;
+			item.filePageCount = item.pageCount = theApp.mFileCache[i].mpPageTree->GetPageCount();
+			item.fileName = theApp.mFileNameToLoad[i];
+			item.index = i;
+			item.bytes = theApp.mFileCache[i].mpPDFFile->GetFileSize();
+			theApp.mList.push_back( item );
+			theApp.mpMainDlg->AppendListItem( item );
 		}
-		mLoadFilePath.clear();
-		mLoadFileName.clear();
 	}
+
+	theApp.mFileNameToLoad.clear();
+	theApp.mFilePathToLoad.clear();
+
+	theApp.mpMainDlg->mpAddFileBtn->OnMouseOut();
+	theApp.mpMainDlg->mpAddFileBtn->Refresh();
+	theApp.mpMainDlg->UpdateList();
+	theApp.mpMainDlg->UpdateBtn();
 
 	mbLoadOver = true;
 }
@@ -501,14 +577,16 @@ void CPdfMergerApp::CloseDocument()
 
 }
 
-bool CPdfMergerApp::IsExistInFileList( const std::wstring & filePaht, size_t & indexRet )
+//判断某个文件在文件Cache中是否已经存在
+bool CPdfMergerApp::IsExistInFileList( const std::wstring & filePath, size_t & indexRet )
 {
 	bool bFound = false;
-	std::vector<std::wstring>::iterator it;
+	std::vector<CPDFFileInfo>::iterator it;
 	indexRet = 0;
-	for ( it = theApp.mFileNameCache.begin(); it != theApp.mFileNameCache.end(); ++it, ++indexRet )
+
+	for ( it = theApp.mFileCache.begin(); it != theApp.mFileCache.end(); ++it, ++indexRet )
 	{
-		if ( wcscmp( (*it).c_str(), theApp.mLoadFileName.c_str() ) == 0 )
+		if ( wcscmp( (*it).mFilePath.c_str(), filePath.c_str() ) == 0 )
 		{
 			bFound = true;
 			break;
@@ -521,6 +599,10 @@ bool CPdfMergerApp::IsExistInFileList( const std::wstring & filePaht, size_t & i
 void CPdfMergerApp::ClearPageListItem()
 {
 	mpMainDlg->CancelSelection();
+	if ( theApp.mpMainDlg->mpDelBtn->GetParent() )
+	{
+		theApp.mpMainDlg->mpDelBtn->GetParent()->PopChild( 0 );
+	}
 	unsigned int iCount = mList.size();
 	unsigned int i = 0;
 	for ( ; i < iCount; ++i )
@@ -613,4 +695,14 @@ void CPdfMergerApp::DownCurPagaListItem()
 		mpMainDlg->UpdateBtn();
 		mpMainDlg->UpdateList();
 	}
+}
+
+bool CPdfMergerApp::GetCurItem( CListItem & item )
+{
+	if ( mCurItem > 0 && mCurItem <= mList.size() )
+	{
+		item = mList[ mCurItem - 1 ];
+		return true;
+	}
+	return false;
 }

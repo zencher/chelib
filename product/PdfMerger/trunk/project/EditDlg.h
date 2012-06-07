@@ -35,15 +35,50 @@ private:
 	CHE_WDM_Area *	mpMainArea;
 
 public:
-
 	CHE_WDM_AnimationMgr mAnimationMgr;
 
-	CHE_WDM_AppearTextPtr mDropListText;
-	CHE_WDM_Area * mpDropList;
-	CHE_WDM_Area * mpDropListItems;
-	CHE_WDM_Area * mpSinglePageArea;
-	CHE_WDM_Area * mpSingleNumberBox;
+	CListItem *	mpCurItem;
 
+	size_t mNumber1;
+	size_t mNumber2;
+
+	CListItemType mItemType;
+	size_t mPageCount;
+	size_t mPageBegin;
+	size_t mPageEnd;
+	size_t mCurPage;
+
+	CHE_WDM_Area * mpFileInfo;
+	CHE_WDM_Button * mpModeBtn;
+
+	bool mbBG2;
+	CHE_WDM_Button * mpBG2;
+	CHE_WDM_Area * mpBG3;
+
+	CHE_WDM_Area * mpBtnArea;
+	CHE_WDM_Button * mpSMode1;
+	CHE_WDM_Button * mpSMode2;
+	CHE_WDM_Button * mpSMode3;
+	CHE_WDM_Button * mpSMode4;
+	CHE_WDM_Button * mpSMode5;
+	CHE_WDM_AppearImagePtr mSModeImage1;
+	CHE_WDM_AppearImagePtr mSModeImage2;
+	CHE_WDM_AppearImagePtr mSModeImage3;
+	CHE_WDM_AppearImagePtr mSModeImage4;
+	CHE_WDM_AppearImagePtr mSModeImage5;
+
+	CHE_WDM_Area * mpNumberBox1;
+	CHE_WDM_Area * mpNumberBox2;
+
+	CHE_WDM_Area * mpSinglePageArea;
+	CHE_WDM_Area * mpSinglePageScrollBar;
+	CHE_WDM_DragArea * mpSingleDragBox;
+
+	CHE_WDM_Area * mpPageRangeArea;
+	CHE_WDM_Area * mpPageRangeScrollBar;
+	CHE_WDM_Area * mpPageRangeScrollFill;
+	CHE_WDM_DragArea * mpPageRangeBeginDragBox;
+	CHE_WDM_DragArea * mpPageRangeEndDragBox;
 
 public:
 	afx_msg void OnPaint();
@@ -55,4 +90,11 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+
+	void HideAllWeight();
+	void ShowSinglePageWeight();
+	void ShowPageRangeWeight();
+	void ShowAllPagesWeight();
+	void ShowEvenPagesWeight();
+	void ShowOddPageWeight();
 };

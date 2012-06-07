@@ -53,6 +53,7 @@ public:
 	void UpdateSelection(void);
 	void UpdateBtn();
 	void UpdateList();
+	void UpdateCurItem();
 
 	CHE_WDM_Button * mpAddFileBtn;
 	CHE_WDM_Button * mpOptionsBtn;
@@ -66,6 +67,8 @@ public:
 	CHE_WDM_Area * mpFilePath;
 	CHE_WDM_Button * mpBrowseBtn;
 	CHE_WDM_Button * mpStartBtn;
+
+	CHE_WDM_Area * mpCurItem;
 
 	CHE_WDM_AppearPathPtr listItemHoverRect;
 	CHE_WDM_AppearPathPtr listItemLine;
@@ -91,4 +94,5 @@ public:
 	afx_msg void OnHelpHowtouse();
 	afx_msg void OnHelpRegister();
 	afx_msg void OnHelpOfficalwebsite();
+	afx_msg void OnDropFiles(HDROP hDropInfo);
 };

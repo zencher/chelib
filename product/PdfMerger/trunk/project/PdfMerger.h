@@ -86,6 +86,25 @@ private:
 // See PdfMerger.cpp for the implementation of this class
 //
 
+class CPDFFileInfo
+{
+public:
+	CPDFFileInfo() : mpFileRead( NULL ), mpPDFFile( NULL ), mpDocument( NULL ), mpPageTree( NULL ) {}
+
+	~CPDFFileInfo()
+	{
+		int x = 0;
+	}
+
+	std::wstring		mFileName;
+	std::wstring		mFilePath;
+	std::string			mPassword;
+	IHE_Read *			mpFileRead;
+	CHE_PDF_File *		mpPDFFile;
+	CHE_PDF_Document *	mpDocument;
+	CHE_PDF_PageTree *	mpPageTree;
+};
+
 enum CListItemType
 {
 	ALL_PAGES,
@@ -98,17 +117,21 @@ enum CListItemType
 class CListItem
 {
 public:
+	CListItem() : type( ALL_PAGES ), pageIndex( 0 ), pageCount( 0 ), filePageCount(0), bytes( 0 ), index( 0 ) {}
+
 	CListItemType type;
-	IHE_Read * pFileRead;
-	CHE_PDF_File * pPDFFile;
-	CHE_PDF_PageTree * pPageTree;
-	std::wstring fileName;
 	unsigned int pageIndex;
 	unsigned int pageCount;
+	std::wstring fileName;
+	size_t filePageCount;
+	size_t bytes;
+	size_t index;
 };
 
 class CPdfMergerDlg;
+class CFileLoadDlg;
 class CProcessDlg;
+
 
 class CPdfMergerApp : public CWinApp
 {
@@ -121,20 +144,20 @@ public:
 
 	std::vector<std::wstring> fileList;
 
-// Implementation
-
 	DECLARE_MESSAGE_MAP()
 
 public:
-	void LoadDocument();
-	void CloseDocument();
-	bool IsExistInFileList( const std::wstring & filePaht, size_t & indexRet );
-	void ClearPageListItem();
-	void DelCurPageListItem();
-	void UpCurPageListItem();
-	void DownCurPagaListItem();
+	void							LoadDocument();
+	void							CloseDocument();
+	bool							IsExistInFileList( const std::wstring & filePaht, size_t & indexRet );
+	void							ClearPageListItem();
+	void							DelCurPageListItem();
+	void							UpCurPageListItem();
+	void							DownCurPagaListItem();
+	bool							GetCurItem( CListItem & item );
 
 	CPdfMergerDlg *					mpMainDlg;
+	CFileLoadDlg *					mpLoadDlg;
 	CProcessDlg *					mpProcessDlg;
 
 	bool							mbLoadOver;
@@ -142,18 +165,13 @@ public:
 	bool							mbLoadError;
 	bool							mbRegister;
 
-	std::vector<std::wstring>		mFileNameCache;
-	std::vector<std::wstring>		mFilePathCache;
-	std::vector<IHE_Read*>			mIFileReadCache;
-	std::vector<CHE_PDF_File*>		mPDFFileCache;
-	std::vector<CHE_PDF_Document *>	mDocumentCache;
-	std::vector<CHE_PDF_PageTree *> mPageTreeCache;
-	std::vector<std::string>		mPasswrodCache;
-	CHE_PDF_File*					mCurFile;
-	std::wstring					mLoadFileName;
-	std::wstring					mLoadFilePath;
+	std::vector<std::wstring>		mFileNameToLoad;
+	std::vector<std::wstring>		mFilePathToLoad;
+
 	std::string						mCurPassword;
-	std::wstring					mOutPutFile;
+
+	std::vector<CPDFFileInfo>		mFileCache;
+	std::string						mOutPutFile;
 
 	std::vector<CListItem>			mList;
 	size_t							mCurItem;

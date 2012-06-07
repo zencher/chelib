@@ -23,7 +23,8 @@ DWORD WINAPI ThreadLoadFile( LPVOID lpParameter )
 
 void EventAddFiles( CHE_WDM_Area * pArea )
 {
-	static wchar_t fileName[1024], fileTitleName[1024];
+	//构造打开文件对话框需要的数据结构
+	static wchar_t fileName[1024*4], fileTitleName[1024*4];
 	static OPENFILENAME ofn;
 	ofn.lStructSize		= sizeof ( OPENFILENAME );
 	ofn.hwndOwner		= theApp.m_pMainWnd->GetSafeHwnd();
@@ -32,75 +33,56 @@ void EventAddFiles( CHE_WDM_Area * pArea )
 	ofn.nMaxCustFilter	= 0;
 	ofn.nFilterIndex	= 1;
 	ofn.lpstrFile		= fileName;
-	ofn.nMaxFile		= MAX_PATH;
+	ofn.nMaxFile		= 1024*4;
 	ofn.lpstrFileTitle	= fileTitleName;
-	ofn.nMaxFileTitle	= MAX_PATH;
-	ofn.Flags			= OFN_NOCHANGEDIR ;
-	ofn.nFileOffset		= 16 ;
-	ofn.nFileExtension	= 0 ;
-	ofn.lCustData		= NULL ;
-	ofn.lpfnHook		= NULL ;
-	ofn.lpTemplateName	= NULL ;
+	ofn.nMaxFileTitle	= 1024*4;
+	ofn.Flags			= OFN_NOCHANGEDIR | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
+	ofn.nFileOffset		= 16;
+	ofn.nFileExtension	= 0;
+	ofn.lCustData		= NULL;
+	ofn.lpfnHook		= NULL;
+	ofn.lpTemplateName	= NULL;
 
 	if ( GetOpenFileName( &ofn ) )
 	{
-		theApp.CloseDocument();
+		//处理获得的数据，将文件路径和文件保存备用
 
-		theApp.mLoadFilePath = fileName;
-		theApp.mLoadFileName = fileTitleName;
+		std::wstring dirPath;
+		std::wstring tmpStr;
 
-		size_t index = 0;
-		bool bFound = false;
-		bFound = theApp.IsExistInFileList( theApp.mLoadFilePath, index );
+		fileName[ofn.nFileOffset-1] = '\0';
+		dirPath = fileName;
+		dirPath += '\\';
 
-		if ( ! bFound )
+		wchar_t * pWCHAR = fileName + ofn.nFileOffset;
+		while ( true )
 		{
-			CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
-			CFileLoadDlg loadDlg;
-			loadDlg.DoModal();
-
-			CHE_ByteString str;
-			bool bPasswordError = false;
-			str = "";
-			while ( ! theApp.mCurFile->Authenticate( str ) )
+			if ( *pWCHAR != '\0' )
 			{
-				CPasswordDlg dlg;
-				if ( bPasswordError )
+				tmpStr += *pWCHAR;
+			}else{
+				theApp.mFileNameToLoad.push_back( tmpStr );
+				std::wstring tmp = dirPath;
+				tmp += tmpStr;
+				theApp.mFilePathToLoad.push_back( tmp );
+				tmpStr.clear();
+				
+				if ( *(pWCHAR + 1) == '\0' )
 				{
-					dlg.SetErrorFlag();
+					break;
 				}
-				if ( dlg.DoModal() == 1 )
-				{
-					return;
-				}
-				bPasswordError = true;
-				str = theApp.mCurPassword.c_str();
 			}
-			theApp.mPasswrodCache.push_back( theApp.mCurPassword );
-			index =  theApp.mFileNameCache.size()-1;
-
-			if ( theApp.mbLoadError )
-			{
-				theApp.m_pMainWnd->MessageBox( L"This is not a PDF Files ", L"Error", MB_OK | MB_ICONERROR );
-				theApp.mbLoadError = false;
-				return;
-			}
+			++pWCHAR;
 		}
 
-		CListItem item;
-		item.type = ALL_PAGES;
-		item.fileName = theApp.mFileNameCache[index];
-		item.pageCount = theApp.mPageTreeCache[index]->GetPageCount();
-		item.pageIndex = 0;
-		item.pPageTree = theApp.mPageTreeCache[index];
-		item.pPDFFile = theApp.mPDFFileCache[index];
-		item.pFileRead = theApp.mIFileReadCache[index];
-		theApp.mList.push_back( item );
+		//根据文件名和文件路径进行加载和登记操作
 
-		theApp.mpMainDlg->mpAddFileBtn->OnMouseOut();
-		theApp.mpMainDlg->mpAddFileBtn->Refresh();
-		theApp.mpMainDlg->AppendListItem( item );
-		theApp.mpMainDlg->UpdateList();
+		CFileLoadDlg loadDlg;
+		theApp.mpLoadDlg = &loadDlg;
+		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
+		loadDlg.DoModal();
+		theApp.mpLoadDlg = NULL;
+
 		theApp.mpMainDlg->UpdateBtn();
 	}
 }
@@ -108,7 +90,12 @@ void EventAddFiles( CHE_WDM_Area * pArea )
 void EventEditBtnClick( CHE_WDM_Area * pArea )
 {
 	CEditDlg dlg;
-	dlg.DoModal();
+	if ( dlg.DoModal() == 0 )
+	{
+		theApp.mpMainDlg->CancelSelection();
+		theApp.mpMainDlg->UpdateCurItem();
+		theApp.mpMainDlg->UpdateSelection();
+	}
 }
 
 void EventClearBtnClick( CHE_WDM_Area * pArea )
@@ -136,6 +123,7 @@ void EventDownBtnClick( CHE_WDM_Area * pArea )
 
 void EventListItemClick( CHE_WDM_Area * pArea )
 {
+	theApp.mpMainDlg->mpCurItem = pArea;
 	unsigned int iCount = theApp.mpMainDlg->mpItemList->GetChildrenCount();
 	CHE_WDM_Area * pTmpArea = NULL;
 
@@ -233,10 +221,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-// 	listItemHoverRect = CHE_WDM_AppearPath::Create();
-// 	listItemHoverRect->AddRect( 1, 1, 600, 47 );
-// 	listItemHoverRect->SetOperator( APPEAR_PATH_STROKE );
-// 	listItemHoverRect->SetStrokeColor( 0x65EEEEEE );
+	mpCurItem = NULL;
 
 	listItemLine = CHE_WDM_AppearPath::Create();
 	listItemLine->AddLine( 0, 49, 630, 49 );
@@ -255,17 +240,17 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	listIcon1->SetImageFile( L"images\\PageIcon.png" );
 
 	listIcon2 = CHE_WDM_AppearImage::Create();
-	listIcon2->SetPosiX( 15 );
+	listIcon2->SetPosiX( 12 );
 	listIcon2->SetPosiY( 12 );
 	listIcon2->SetImageFile( L"images\\PagesIcon.png" );
 
 	listIcon3 = CHE_WDM_AppearImage::Create();
-	listIcon3->SetPosiX( 15 );
+	listIcon3->SetPosiX( 10 );
 	listIcon3->SetPosiY( 12 );
 	listIcon3->SetImageFile( L"images\\EvenPagesIcon.png" );
 
 	listIcon4 = CHE_WDM_AppearImage::Create();
-	listIcon4->SetPosiX( 15 );
+	listIcon4->SetPosiX( 10 );
 	listIcon4->SetPosiY( 12 );
 	listIcon4->SetImageFile( L"images\\OddPagesIcon.png" );
 
@@ -540,6 +525,7 @@ BEGIN_MESSAGE_MAP(CPdfMergerDlg, CDialogEx)
 	ON_COMMAND(ID_HELP_HOWTOUSE, &CPdfMergerDlg::OnHelpHowtouse)
 	ON_COMMAND(ID_HELP_REGISTER, &CPdfMergerDlg::OnHelpRegister)
 	ON_COMMAND(ID_HELP_OFFICALWEBSITE, &CPdfMergerDlg::OnHelpOfficalwebsite)
+	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
 
@@ -735,18 +721,18 @@ void CPdfMergerDlg::AppendListItem( const CListItem & item )
 	textPtr = CHE_WDM_AppearText::Create();
 	textPtr->SetSize( 12 );
 	textPtr->SetPosiX( 55 );
-	textPtr->SetPosiY( 15 );
-	textPtr->SetWidth( 400 );
+	textPtr->SetPosiY( 18 );
+	textPtr->SetWidth( 380 );
 	textPtr->SetHeight( 15 );
 	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_FIX, LAYOUT_ALIGN_CENTER ) );
 	textPtr->SetText( item.fileName.c_str() );	
 	pTmpArea->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 	textPtr = CHE_WDM_AppearText::Create();
-	textPtr->SetSize( 14 );
-	textPtr->SetPosiX( 480 );
-	textPtr->SetPosiY( 0 );
-	textPtr->SetWidth( 200 );
-	textPtr->SetHeight( 48 );
+	textPtr->SetSize( 12 );
+	textPtr->SetPosiX( 460 );
+	textPtr->SetPosiY( 18 );
+	textPtr->SetWidth( 150 );
+	textPtr->SetHeight( 15 );
 	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_FIX, LAYOUT_ALIGN_CENTER ) );
 	wchar_t tmpStr[128];
 	switch( item.type )
@@ -766,7 +752,7 @@ void CPdfMergerDlg::AppendListItem( const CListItem & item )
 	case PAGE_RANGE:
 		{
 			pTmpArea->AppendAppearItem( listIcon2, AREA_APPEAR_BACKGROUND );
-			wsprintf( tmpStr, L"Pages : %d - %d", item.pageIndex, item.pageIndex + item.pageCount - 1 );
+			wsprintf( tmpStr, L"Pages : %d-%d", item.pageIndex, item.pageIndex + item.pageCount - 1 );
 			break;
 		}
 	case EVEN_PAGES:
@@ -785,7 +771,6 @@ void CPdfMergerDlg::AppendListItem( const CListItem & item )
 	}
 	textPtr->SetText( tmpStr );	
 	pTmpArea->AppendAppearItem( listItemLine, AREA_APPEAR_BACKGROUND );
-	//pTmpArea->AppendAppearItem( listItemHoverRect, AREA_APPEAR_MOUSEOVER );
 	pTmpArea->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 	mpItemList->AppendChild( pTmpArea );
 }
@@ -900,6 +885,74 @@ void CPdfMergerDlg::UpdateSelection(void)
 	}
 }
 
+void CPdfMergerDlg::UpdateCurItem()
+{
+	if ( mpCurItem )
+	{
+		mpCurItem->GetAppear().mBackground.clear();
+
+		CListItem * pItem = &( theApp.mList[ theApp.mCurItem - 1 ] );
+		
+		CHE_WDM_AppearTextPtr textPtr;
+		textPtr = CHE_WDM_AppearText::Create();
+		textPtr->SetSize( 12 );
+		textPtr->SetPosiX( 55 );
+		textPtr->SetPosiY( 18 );
+		textPtr->SetWidth( 380 );
+		textPtr->SetHeight( 15 );
+		textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_FIX, LAYOUT_ALIGN_CENTER ) );
+		textPtr->SetText( pItem->fileName.c_str() );	
+		mpCurItem->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+		textPtr = CHE_WDM_AppearText::Create();
+		textPtr->SetSize( 12 );
+		textPtr->SetPosiX( 460 );
+		textPtr->SetPosiY( 18 );
+		textPtr->SetWidth( 150 );
+		textPtr->SetHeight( 15 );
+		textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_FIX, LAYOUT_ALIGN_CENTER ) );
+		wchar_t tmpStr[128];
+		switch( pItem->type )
+		{
+		case ALL_PAGES:
+			{
+				mpCurItem->AppendAppearItem( listIcon2, AREA_APPEAR_BACKGROUND );
+				wsprintf( tmpStr, L"All Pages" );
+				break;
+			}
+		case SINGLE_PAGE:
+			{
+				mpCurItem->AppendAppearItem( listIcon1, AREA_APPEAR_BACKGROUND );
+				wsprintf( tmpStr, L"Page : %d", pItem->pageIndex );
+				break;
+			}
+		case PAGE_RANGE:
+			{
+				mpCurItem->AppendAppearItem( listIcon2, AREA_APPEAR_BACKGROUND );
+				wsprintf( tmpStr, L"Pages : %d-%d", pItem->pageIndex, pItem->pageIndex + pItem->pageCount - 1 );
+				break;
+			}
+		case EVEN_PAGES:
+			{
+				mpCurItem->AppendAppearItem( listIcon3, AREA_APPEAR_BACKGROUND );
+				wsprintf( tmpStr, L"All Even Pages" );
+				break;
+			}
+		case ODD_PAGES:
+			{
+				mpCurItem->AppendAppearItem( listIcon4, AREA_APPEAR_BACKGROUND );
+				wsprintf( tmpStr, L"All Odd Pages" );
+				break;
+			}
+		default:;
+		}
+		textPtr->SetText( tmpStr );	
+		mpCurItem->AppendAppearItem( listItemLine, AREA_APPEAR_BACKGROUND );
+		mpCurItem->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+
+		mpCurItem->Refresh();
+	}
+}
+
 
 void CPdfMergerDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
@@ -949,4 +1002,65 @@ void CPdfMergerDlg::OnHelpRegister()
 void CPdfMergerDlg::OnHelpOfficalwebsite()
 {
 	ShellExecute( GetSafeHwnd(), L"open", L"http://www.peroit.com", NULL, NULL, SW_SHOWNORMAL );
+}
+
+
+void CPdfMergerDlg::OnDropFiles(HDROP hDropInfo)
+{
+	int count = DragQueryFile( hDropInfo, 0xFFFFFFFF, NULL, 0 );
+
+	char fileName[1024];
+	char SecFileName[5];
+	wchar_t szFileName[1024];
+	int pathlength; 
+
+	for ( int i = 0; i < count; ++i ) 
+	{ 
+		pathlength = DragQueryFile( hDropInfo, i, NULL, 0 );
+		if ( pathlength < 1024 )
+		{
+			DragQueryFile( hDropInfo, i, szFileName, 1024 );
+			
+			memset( fileName, 0, 1024 );
+			WideCharToMultiByte( CP_ACP, 0, szFileName, -1, fileName, 1024, NULL, NULL );
+			int tmpStrlen = strlen( fileName );
+			strcpy( SecFileName, fileName + tmpStrlen - 4 );
+			for ( int j = 0; j < 4; ++j )
+			{
+				SecFileName[j] = toupper( SecFileName[j] );
+			}
+
+			if ( strcmp( SecFileName, ".PDF" ) == 0 )
+			{
+				std::wstring tmpStr = szFileName;
+				theApp.mFilePathToLoad.push_back( tmpStr );
+				for ( size_t i = tmpStr.size()-1; i != 0; --i )
+				{
+					if ( L'\\' == szFileName[i] )
+					{
+						tmpStr = szFileName+i+1;
+						theApp.mFileNameToLoad.push_back( tmpStr );
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	DragFinish( hDropInfo );
+
+	if ( theApp.mFileNameToLoad.size() > 0 && theApp.mFilePathToLoad.size() > 0 )
+	{
+		CFileLoadDlg loadDlg;
+		theApp.mpLoadDlg = &loadDlg;
+		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
+		loadDlg.DoModal();
+		theApp.mpLoadDlg = NULL;
+		theApp.mpMainDlg->UpdateBtn();
+	}else{
+		theApp.mFilePathToLoad.clear();
+		theApp.mFileNameToLoad.clear();
+	}
+
+	CDialogEx::OnDropFiles(hDropInfo);
 }

@@ -35,20 +35,19 @@ private:
 	CBitmap		mBitmap;
 	CBitmap *	mpOldBitmap;
 	Gdiplus::Graphics *	mGraphics;
-
 	MyIHE_WDM_InterActive * mpInterActive;
-
 	unsigned int mProcessBarValue;
 
 public:
 	void SetProcessBarValue( unsigned int val );
-
 	void UpdateProcessBar();
-
-	CHE_WDM_Area *	mpMainArea;
-	CHE_WDM_Area *	mpProcess;
+	void ShowTips();
 
 	unsigned int	mTimerId;
+	CHE_WDM_Area *	mpMainArea;
+	CHE_WDM_Area *	mpProcess;
+	CHE_WDM_Area *	mpTipArea;
+	CHE_WDM_AnimationMgr mAnimationMgr;
 
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

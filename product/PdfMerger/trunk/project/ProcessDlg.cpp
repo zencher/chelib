@@ -14,7 +14,12 @@ static void EventCancelBtnClick( CHE_WDM_Area * pArea )
 {
 }
 
-DWORD WINAPI ThreadSplit( LPVOID lpParameter )
+static void EventCloseDialog( CHE_WDM_Area * pArea )
+{
+	gpDlg->EndDialog( 0 );
+}
+
+DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 {
 	//flag for working
 	theApp.mbWork = true;
@@ -43,7 +48,9 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 	{
 		unsigned int iIndex = (*it).pageIndex;
 		unsigned int iCount = (*it).pageCount;
-		
+		CListItemType type = (*it).type;
+		CPDFFileInfo * pFileInfo = &( theApp.mFileCache[ (*it).index ] );
+
 		CHE_ObjectCloneMgr ObjCloneMgr;
 
 		for ( unsigned int i = 0; i < iCount; i++ )
@@ -56,11 +63,19 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 			iCurPage++;
 
 			CHE_PDF_DictionaryPtr OldPageDictPtr;
-			CHE_PDF_Page * pOldPage = (*it).pPageTree->GetPage( iIndex + i );
-			if ( pOldPage == NULL )
+			
+			CHE_PDF_Page * pOldPage = NULL;
+			
+			if ( type == EVEN_PAGES )
 			{
-				return 0;
+				pOldPage = pFileInfo->mpPageTree->GetPage( i * 2 );
+			}else if ( type == ODD_PAGES )
+			{
+				pOldPage = pFileInfo->mpPageTree->GetPage( i * 2 + 1 );
+			}else{
+				pOldPage = pFileInfo->mpPageTree->GetPage( iIndex + i - 1 );
 			}
+
 			OldPageDictPtr = pOldPage->GetPageDict();
 
 			pNewPageTree->AppendPage( 0, 0 );
@@ -190,6 +205,8 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 
 	theApp.mbWork = false;
 
+	theApp.mpProcessDlg->ShowTips();
+
 	return 0;
 }
 
@@ -285,6 +302,61 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 
 	mpMainArea->AppendChild( mpProcess );
 
+	mpTipArea = CHE_WDM_Area::Create( mpInterActive );
+
+	mpTipArea->SetPosiX( 0 );
+	mpTipArea->SetPosiY( 0 );
+	mpTipArea->SetHeight( 150 );
+	mpTipArea->SetWidth( 550 );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\FinishTip.png" );
+	imagePtr->SetPosiX( 165 );
+	imagePtr->SetPosiY( 10 );
+	mpTipArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	mpMainArea->AppendChild( mpTipArea );
+
+	CHE_WDM_Button * pBtn = CHE_WDM_Button::Create( mpInterActive );
+	pBtn->SetPosiX( 60 );
+	pBtn->SetPosiY( 60 );
+	pBtn->SetWidth( 107 );
+	pBtn->SetHeight( 20 );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\OpenFileBtn.png" );
+	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\OpenFileBtnHover.png" );
+	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
+	mpTipArea->AppendChild( pBtn );
+
+	pBtn = CHE_WDM_Button::Create( mpInterActive );
+	pBtn->SetPosiX( 210 );
+	pBtn->SetPosiY( 60 );
+	pBtn->SetWidth( 122 );
+	pBtn->SetHeight( 20 );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\OpenFolderBtn.png" );
+	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\OpenFolderBtnHover.png" );
+	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
+	mpTipArea->AppendChild( pBtn );
+
+	pBtn = CHE_WDM_Button::Create( mpInterActive );
+	pBtn->SetPosiX( 360 );
+	pBtn->SetPosiY( 60 );
+	pBtn->SetWidth( 118 );
+	pBtn->SetHeight( 18 );
+	pBtn->SetClickEvent( EventCloseDialog );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\CloseDialogBtn.png" );
+	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\CloseDialogBtnHover.png" );
+	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
+	mpTipArea->AppendChild( pBtn );
+
+	mpTipArea->SetPosiY( 150 );
+
 	mProcessBarValue = 0;
 }
 
@@ -317,10 +389,7 @@ END_MESSAGE_MAP()
 
 void CProcessDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	if ( theApp.mbWork == false )
-	{
-		this->EndDialog( 0 );
-	}
+	mAnimationMgr.Execute();
 	CDialogEx::OnTimer(nIDEvent);
 }
 
@@ -329,7 +398,7 @@ int CProcessDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
-	mTimerId = SetTimer( 4, 50, NULL );
+	mTimerId = SetTimer( 4, 10, NULL );
 	return 0;
 }
 
@@ -348,7 +417,7 @@ BOOL CProcessDlg::OnInitDialog()
 	SetProcessBarValue( 0 );
 	mpMainArea->OnDraw();
 
-	CreateThread( NULL, 0, ThreadSplit, 0, 0, 0 );
+	CreateThread( NULL, 0, ThreadMerge, 0, 0, 0 );
 
 	return TRUE;
 }
@@ -446,6 +515,25 @@ void CProcessDlg::UpdateProcessBar()
 		wsprintf( tmpStr, L"%d%%", mProcessBarValue );
 		textPtr->SetText( tmpStr );
 	}
+}
+
+void CProcessDlg::ShowTips()
+{
+	mpProcess->SetEnable( false );
+	mpProcess->SetVisable( false );
+
+	mpTipArea->SetPosiY( 0 );
+	mpTipArea->Refresh();
+
+	CHE_WDM_AnimationData data;
+	data.mPosiX = 0;
+	data.mPosiY = 150;
+	CHE_WDM_AreaAnimation animation;
+	animation.SetTarget( mpTipArea );
+	animation.SetState( data );
+	data.mPosiY = 0;
+	animation.InsertFrames( 20, data );
+	mAnimationMgr.StartAreaAnimation( animation );
 }
 
 void CProcessDlg::OnOK()

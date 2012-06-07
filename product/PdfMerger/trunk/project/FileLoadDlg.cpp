@@ -25,14 +25,14 @@ CFileLoadDlg::CFileLoadDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\loadingProcessBar01.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	imagePtr->SetPosiX( 60 );
-	imagePtr->SetPosiY( 60 );
+	imagePtr->SetPosiY( 90 );
 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\loadingProcessBar00.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	imagePtr->SetPosiX( 60 );
-	imagePtr->SetPosiY( 60 );
+	imagePtr->SetPosiY( 90 );
 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
 	textPtr = CHE_WDM_AppearText::Create();
@@ -40,10 +40,19 @@ CFileLoadDlg::CFileLoadDlg(CWnd* pParent /*=NULL*/)
 	textPtr->SetText( L"Loading file, please wait!" );
 	textPtr->SetSize( 12 );
 	textPtr->SetWidth( 500 );
-	textPtr->SetHeight( 50 );
+	textPtr->SetHeight( 18 );
 	textPtr->SetPosiX( 0 );
 	textPtr->SetPosiY( 20 );
  	mpMainArea->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+
+	mText = CHE_WDM_AppearText::Create();
+	mText->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_CENTER, LAYOUT_ALIGN_LEFT_OR_TOP ) );
+	mText->SetSize( 12 );
+	mText->SetWidth( 500 );
+	mText->SetHeight( 18 );
+	mText->SetPosiX( 0 );
+	mText->SetPosiY( 45 );
+	mpMainArea->AppendAppearItem( mText, AREA_APPEAR_BACKGROUND );
 
 	CHE_WDM_AppearAnimation animation;
 	animation.SetTarget( mpMainArea );
@@ -51,15 +60,15 @@ CFileLoadDlg::CFileLoadDlg(CWnd* pParent /*=NULL*/)
 	animation.SetLoop( TRUE );
 	CHE_WDM_AnimationData data;
 	data.mPosiX = 60;
-	data.mPosiY = 60;
+	data.mPosiY = 90;
 	animation.SetState( data );
 
 	data.mPosiX = 220;
-	data.mPosiY = 60;
+	data.mPosiY = 90;
 	animation.InsertFrames( 48, data );
 
 	data.mPosiX = 60;
-	data.mPosiY = 60;
+	data.mPosiY = 90;
 	animation.InsertFrames( 48, data );
 
 	mAnimations.StartAppearAnimation( animation );
@@ -157,6 +166,14 @@ void CFileLoadDlg::DrawMainArea(void)
 	CPaintDC	dc( pWnd );
 	mpMainArea->OnDraw();
 	dc.BitBlt( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), &mMemdc, 0, 0, SRCCOPY );
+}
+
+void CFileLoadDlg::ShowText( std::wstring & str )
+{
+	if (  mText && mpMainArea )
+	{
+		mText->SetText( str.c_str() );
+	}
 }
 
 

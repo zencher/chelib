@@ -9,6 +9,7 @@
 #include "FileLoadDlg.h"
 #include "PasswordDlg.h"
 #include "ProcessDlg.h"
+#include "Welcome.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -42,6 +43,9 @@ void EventAddFiles( CHE_WDM_Area * pArea )
 	ofn.lCustData		= NULL;
 	ofn.lpfnHook		= NULL;
 	ofn.lpTemplateName	= NULL;
+
+	memset( fileName, 0, 1024 * 4 );
+	memset( fileTitleName, 0, 1024 * 4 );
 
 	if ( GetOpenFileName( &ofn ) )
 	{
@@ -156,10 +160,35 @@ void EventMoveScrollBox( CHE_WDM_Area * pArea )
 
 void EventStartBtnClick( CHE_WDM_Area * pArea )
 {
-	theApp.mpProcessDlg = new CProcessDlg;
-	theApp.mpProcessDlg->DoModal();
-	delete theApp.mpProcessDlg;
-	theApp.mpProcessDlg = NULL;
+	static wchar_t fileName[1024], fileTitleName[1024];
+	static OPENFILENAME ofn;
+	ofn.lStructSize		= sizeof ( OPENFILENAME );
+	ofn.hwndOwner		= theApp.mpMainDlg->GetSafeHwnd();
+	ofn.lpstrFilter		= L"PDF Files(*.pdf)\0*.pdf\0\0";
+	ofn.lpstrDefExt		= L".pdf";
+	ofn.lpstrCustomFilter = NULL;
+	ofn.nMaxCustFilter	= 0;
+	ofn.nFilterIndex	= 1;
+	ofn.lpstrFile		= fileName;
+	ofn.nMaxFile		= MAX_PATH;
+	ofn.lpstrFileTitle	= fileTitleName;
+	ofn.nMaxFileTitle	= MAX_PATH;
+	ofn.Flags			= OFN_NOCHANGEDIR ;
+	ofn.nFileOffset		= 16 ;
+	ofn.nFileExtension	= 0 ;
+	ofn.lCustData		= NULL ;
+	ofn.lpfnHook		= NULL ;
+	ofn.lpTemplateName	= NULL ;
+
+	if ( GetSaveFileName( &ofn ) )
+	{
+		theApp.mNewFile = fileName;
+
+		theApp.mpProcessDlg = new CProcessDlg;
+		theApp.mpProcessDlg->DoModal();
+		delete theApp.mpProcessDlg;
+		theApp.mpProcessDlg = NULL;
+	}
 }
 
 void EventListItemDelBtnClick( CHE_WDM_Area * pArea )
@@ -202,6 +231,8 @@ public:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+//	afx_msg void OnSetFocus(CWnd* pOldWnd);
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -214,6 +245,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+//	ON_WM_SETFOCUS()
 END_MESSAGE_MAP()
 
 CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
@@ -264,12 +296,12 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\background.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\line.png" );
-	imagePtr->SetPosiX( 0 );
-	imagePtr->SetPosiY( 455 );
-	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+// 	imagePtr = CHE_WDM_AppearImage::Create();
+// 	imagePtr->SetImageFile( L"images\\line.png" );
+// 	imagePtr->SetPosiX( 0 );
+// 	imagePtr->SetPosiY( 440 );
+// 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+// 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
 	//headbar
 	CHE_WDM_Area * pTmpArea = CHE_WDM_Area::Create( mpInterActive );
@@ -319,13 +351,13 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	pTmpArea = CHE_WDM_Area::Create( mpInterActive );
 	pTmpArea->SetPosiX( 28 );
 	pTmpArea->SetPosiY( 92 );
-	pTmpArea->SetWidth( 140 );
+	pTmpArea->SetWidth( 300 );
 	pTmpArea->SetHeight( 20 );
 
 	mpEditBtn = CHE_WDM_Button::Create( mpInterActive );
 	mpEditBtn->SetPosiX( 28 );
 	mpEditBtn->SetPosiY( 92 );
-	mpEditBtn->SetWidth( 20 );
+	mpEditBtn->SetWidth( 20 + 35 );
 	mpEditBtn->SetHeight( 20 );
 	mpEditBtn->SetClickEvent( EventEditBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
@@ -337,12 +369,22 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\EditBtnDisable.png" );
 	mpEditBtn->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetText( L"Edit" );
+	textPtr->SetSize( 12 );
+	textPtr->SetPosiX( 25 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetColor( 0xFF222222 );
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	textPtr->SetWidth( 40 );
+	textPtr->SetHeight( 20 );
+	mpEditBtn->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 	pTmpArea->AppendChild( mpEditBtn );
 
 	mpClearBtn = CHE_WDM_Button::Create( mpInterActive );
-	mpClearBtn->SetPosiX( 68 );
+	mpClearBtn->SetPosiX( 68 + 35 );
 	mpClearBtn->SetPosiY( 92 );
-	mpClearBtn->SetWidth( 20 );
+	mpClearBtn->SetWidth( 20 + 35 );
 	mpClearBtn->SetHeight( 20 );
 	mpClearBtn->SetClickEvent( EventClearBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
@@ -354,12 +396,22 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\ClearBtnDisable.png" );
 	mpClearBtn->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetText( L"Clear" );
+	textPtr->SetSize( 12 );
+	textPtr->SetPosiX( 25 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetColor( 0xFF222222 );
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	textPtr->SetWidth( 40 );
+	textPtr->SetHeight( 20 );
+	mpClearBtn->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 	pTmpArea->AppendChild( mpClearBtn );
 
 	mpUpBtn = CHE_WDM_Button::Create( mpInterActive );
-	mpUpBtn->SetPosiX( 108 );
+	mpUpBtn->SetPosiX( 108 + 70 );
 	mpUpBtn->SetPosiY( 92 );
-	mpUpBtn->SetWidth( 20 );
+	mpUpBtn->SetWidth( 20 + 35 );
 	mpUpBtn->SetHeight( 20 );
 	mpUpBtn->SetClickEvent( EventUpBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
@@ -371,12 +423,22 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\UpBtnDisable.png" );
 	mpUpBtn->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetText( L"Up" );
+	textPtr->SetSize( 12 );
+	textPtr->SetPosiX( 25 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetColor( 0xFF222222 );
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	textPtr->SetWidth( 40 );
+	textPtr->SetHeight( 20 );
+	mpUpBtn->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 	pTmpArea->AppendChild( mpUpBtn );
 
 	mpDownBtn = CHE_WDM_Button::Create( mpInterActive );
-	mpDownBtn->SetPosiX( 148 );
+	mpDownBtn->SetPosiX( 148 + 105 );
 	mpDownBtn->SetPosiY( 92 );
-	mpDownBtn->SetWidth( 20 );
+	mpDownBtn->SetWidth( 20 + 35 );
 	mpDownBtn->SetHeight( 20 );
 	mpDownBtn->SetClickEvent( EventDownBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
@@ -388,6 +450,16 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\DownBtnDisable.png" );
 	mpDownBtn->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetText( L"Down" );
+	textPtr->SetSize( 12 );
+	textPtr->SetPosiX( 25 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetColor( 0xFF222222 );
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	textPtr->SetWidth( 40 );
+	textPtr->SetHeight( 20 );
+	mpDownBtn->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 	pTmpArea->AppendChild( mpDownBtn );
 
 	mpMainArea->AppendChild( pTmpArea );
@@ -455,40 +527,57 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\delBtnHover.png" );
 	mpDelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
-	//mpMainArea->AppendChild( mpDelBtn );
 
-	//filePath area
-	mpFilePath = CHE_WDM_Area::Create( mpInterActive );
-	mpFilePath->SetPosiX( 28 );
-	mpFilePath->SetPosiY( 485 );
-	mpFilePath->SetWidth( 500 );
-	mpFilePath->SetHeight( 29 );
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\filePathBox.png" );
-	mpFilePath->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+// 	mpTextBox = CHE_WDM_TextBox::Create( 400, 20, mpInterActive );
+// 	mpTextBox->SetPosiX( 28 );
+// 	mpTextBox->SetPosiY( 460 );
+// 	mpTextBox->SetWidth( 400 );
+// 	mpTextBox->SetHeight( 20 );
+// 	mpMainArea->AppendChild( mpTextBox );
 
-	mpBrowseBtn = CHE_WDM_Button::Create( mpInterActive );
-	mpBrowseBtn->SetPosiX( 470 );
-	mpBrowseBtn->SetPosiY( 485 );
-	mpBrowseBtn->SetWidth( 52 );
-	mpBrowseBtn->SetHeight( 31 );
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\browseBtn.png" );
-	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\browseBtnHover.png" );
-	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\browseBtnDisable.png" );
-	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
-	mpFilePath->AppendChild( mpBrowseBtn );
-	mpMainArea->AppendChild( mpFilePath );
+// 	//filePath area
+// 	mpFilePath = CHE_WDM_Area::Create( mpInterActive );
+// 	mpFilePath->SetPosiX( 28 );
+// 	mpFilePath->SetPosiY( 485 );
+// 	mpFilePath->SetWidth( 500 );
+// 	mpFilePath->SetHeight( 29 );
+// 	imagePtr = CHE_WDM_AppearImage::Create();
+// 	imagePtr->SetImageFile( L"images\\filePathBox.png" );
+// 	mpFilePath->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+// 	
+// 	mfilePathTextPtr = CHE_WDM_AppearText::Create();
+// 	mfilePathTextPtr->SetColor( 0xFF000000 );
+// 	mfilePathTextPtr->SetSize( 12 );
+// 	mfilePathTextPtr->SetWidth( 490 );
+// 	mfilePathTextPtr->SetHeight( 14 );
+// 	mfilePathTextPtr->SetPosiX( 10 );
+// 	mfilePathTextPtr->SetPosiY( 7 );
+// 	mfilePathTextPtr->SetText( theApp.mNewFilePath.c_str() );
+// 	mpFilePath->AppendAppearItem( mfilePathTextPtr, AREA_APPEAR_BACKGROUND );
+//
+// 	mpBrowseBtn = CHE_WDM_Button::Create( mpInterActive );
+// 	mpBrowseBtn->SetPosiX( 470 );
+// 	mpBrowseBtn->SetPosiY( 485 );
+// 	mpBrowseBtn->SetWidth( 52 );
+// 	mpBrowseBtn->SetHeight( 31 );
+// 	mpBrowseBtn->SetClickEvent( EventBrowseBtn );
+// 	imagePtr = CHE_WDM_AppearImage::Create();
+// 	imagePtr->SetImageFile( L"images\\browseBtn.png" );
+// 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
+// 	imagePtr = CHE_WDM_AppearImage::Create();
+// 	imagePtr->SetImageFile( L"images\\browseBtnHover.png" );
+// 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
+// 	imagePtr = CHE_WDM_AppearImage::Create();
+// 	imagePtr->SetImageFile( L"images\\browseBtnDisable.png" );
+// 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
+// 	mpFilePath->AppendChild( mpBrowseBtn );
+// 	mpMainArea->AppendChild( mpFilePath );
 
 
 	//Start Btn Area
 	mpStartBtn = CHE_WDM_Button::Create( mpInterActive );
 	mpStartBtn->SetPosiX( 550 );
-	mpStartBtn->SetPosiY( 478 );
+	mpStartBtn->SetPosiY( 440 );
 	mpStartBtn->SetWidth( 125 );
 	mpStartBtn->SetHeight( 46 );
 	mpStartBtn->SetClickEvent( EventStartBtnClick );
@@ -526,6 +615,11 @@ BEGIN_MESSAGE_MAP(CPdfMergerDlg, CDialogEx)
 	ON_COMMAND(ID_HELP_REGISTER, &CPdfMergerDlg::OnHelpRegister)
 	ON_COMMAND(ID_HELP_OFFICALWEBSITE, &CPdfMergerDlg::OnHelpOfficalwebsite)
 	ON_WM_DROPFILES()
+	ON_WM_CHAR()
+//	ON_WM_SETFOCUS()
+ON_WM_TIMER()
+ON_WM_KEYDOWN()
+ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
 
@@ -535,30 +629,18 @@ BOOL CPdfMergerDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// Add "About..." menu item to system menu.
-
-	// IDM_ABOUTBOX must be in the system command range.
-	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
-	ASSERT(IDM_ABOUTBOX < 0xF000);
-
-	CMenu* pSysMenu = GetSystemMenu(FALSE);
-	if (pSysMenu != NULL)
-	{
-		BOOL bNameValid;
-		CString strAboutMenu;
-		bNameValid = strAboutMenu.LoadString(IDS_ABOUTBOX);
-		ASSERT(bNameValid);
-		if (!strAboutMenu.IsEmpty())
-		{
-			pSysMenu->AppendMenu(MF_SEPARATOR);
-			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
-		}
-	}
-
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
+
+	if ( theApp.mbRegister == false )
+	{
+		CString str;
+		GetWindowText( str );
+		str += " (Unregistered)";
+		this->SetWindowText( str );
+	}
 
 	CWnd *		pWnd = GetDlgItem( IDC_MAIN );
 	CPaintDC	dc( pWnd );
@@ -572,6 +654,8 @@ BOOL CPdfMergerDlg::OnInitDialog()
 
 	UpdateBtn();
 	UpdateList();
+
+	SetTimer( 0, 500, NULL );
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -644,17 +728,17 @@ void CPdfMergerDlg::DrawMainArea()
 
 void CPdfMergerDlg::OnSize(UINT nType, int cx, int cy)
 {
-	CDialogEx::OnSize( nType, 700, 600 );
+	CDialogEx::OnSize( nType, 700, 545 );
 
 	if ( mClientWidth != 700 )
 	{
 		mClientWidth = 700;
-		mClientHeight = 600;
+		mClientHeight = 545;
 
 		mpMainArea->SetWidth( 700 );
-		mpMainArea->SetHeight( 600 );
+		mpMainArea->SetHeight( 545 );
 
-		this->MoveWindow( 0, 0, 700, 600 );
+		this->MoveWindow( 0, 0, 700, 545 );
 
 		CWnd * pWnd = GetDlgItem( IDC_MAIN );
 		if ( pWnd )
@@ -690,6 +774,10 @@ void CPdfMergerDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	CDialogEx::OnLButtonUp(nFlags, point);
 }
 
+void CPdfMergerDlg::SetWindowsTitleNormal()
+{
+	SetWindowText( L"Peroit PDF Merger" );
+}
 
 void CPdfMergerDlg::OnOK()
 {
@@ -717,7 +805,7 @@ void CPdfMergerDlg::AppendListItem( const CListItem & item )
 	pTmpArea->SetHeight( 49 );
  	pTmpArea->SetMouseOverEvent( EventListItemMouseOver );
  	pTmpArea->SetClickEvent( EventListItemClick );
-	pTmpArea->SetDBClickEvent( EventEditBtnClick );
+	//pTmpArea->SetDBClickEvent( EventEditBtnClick );
 	textPtr = CHE_WDM_AppearText::Create();
 	textPtr->SetSize( 12 );
 	textPtr->SetPosiX( 55 );
@@ -783,18 +871,19 @@ void CPdfMergerDlg::UpdateBtn()
 		mpClearBtn->SetEnable( false );
 		mpUpBtn->SetEnable( false );
 		mpDownBtn->SetEnable( false );
-		mpBrowseBtn->SetEnable( false );
+		//mpBrowseBtn->SetEnable( false );
 		mpStartBtn->SetEnable( false );
 	}else{
 		mpEditBtn->SetEnable( false );
 		mpClearBtn->SetEnable( false );
 		mpUpBtn->SetEnable( false );
 		mpDownBtn->SetEnable( false );
-		mpBrowseBtn->SetEnable( false );
+		//mpBrowseBtn->SetEnable( false );
 		mpStartBtn->SetEnable( false );
 		if ( theApp.mList.size() > 0 )
 		{
 			mpClearBtn->SetEnable( true );
+			//mpBrowseBtn->SetEnable( true );
 			mpStartBtn->SetEnable( true );
 		}
 		if ( theApp.mCurItem != 0 )
@@ -816,7 +905,7 @@ void CPdfMergerDlg::UpdateBtn()
 	mpClearBtn->Refresh();
 	mpUpBtn->Refresh();
 	mpDownBtn->Refresh();
-	mpBrowseBtn->Refresh();
+	//mpBrowseBtn->Refresh();
 	mpStartBtn->Refresh();
 }
 
@@ -956,7 +1045,6 @@ void CPdfMergerDlg::UpdateCurItem()
 
 void CPdfMergerDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	mpMainArea->OnMouseLDBClick( point.x, point.y ); 
 	CDialogEx::OnLButtonDblClk(nFlags, point);
 }
@@ -995,7 +1083,11 @@ void CPdfMergerDlg::OnHelpHowtouse()
 
 void CPdfMergerDlg::OnHelpRegister()
 {
-	
+	CRegsitrationDlg dlg;
+	if ( dlg.DoModal() == 0 )
+	{
+		SetWindowsTitleNormal();
+	}
 }
 
 
@@ -1063,4 +1155,81 @@ void CPdfMergerDlg::OnDropFiles(HDROP hDropInfo)
 	}
 
 	CDialogEx::OnDropFiles(hDropInfo);
+}
+
+
+void CPdfMergerDlg::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+//	mpTextBox->OnChar( nChar );
+	CDialogEx::OnChar(nChar, nRepCnt, nFlags);
+}
+
+void CPdfMergerDlg::OnTimer(UINT_PTR nIDEvent)
+{
+//	mpTextBox->OnTimer();
+	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+BOOL CPdfMergerDlg::PreTranslateMessage(MSG* pMsg)
+{
+// 	if ( pMsg->message == WM_CHAR )
+// 	{
+// 		if ( pMsg->wParam > 32 )
+// 		{
+// 			this->OnChar( pMsg->wParam, 0, 0 );
+// 		}
+// 	}else if ( pMsg->message == WM_KEYDOWN )
+// 	{
+// 		this->OnKeyDown( pMsg->wParam, 0, 0 );
+// 	}else if ( pMsg->message == WM_KEYUP )
+// 	{
+// 		this->OnKeyUp( pMsg->wParam, 0, 0 );
+// 	}
+// 	return FALSE;
+	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+
+void CPdfMergerDlg::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+// 	HE_INT32 keyCode = 0;
+// 	switch( nChar )
+// 	{
+// 	case VK_LEFT:
+// 		keyCode = KEYCODE_LEFT;
+// 		break;
+// 	case VK_RIGHT:
+// 		keyCode = KEYCODE_RIGHT;
+// 		break;
+// 	case VK_BACK:
+// 		keyCode = KEYCODE_BACK_SPACE;
+// 	}
+// 	if ( keyCode > 0 )
+// 	{
+// 		mpTextBox->OnKeyDown( keyCode );
+// 	}
+	CDialogEx::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+
+void CPdfMergerDlg::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+// 	HE_INT32 keyCode = 0;
+// 	switch( nChar )
+// 	{
+// 	case VK_LEFT:
+// 		keyCode = KEYCODE_LEFT;
+// 		break;
+// 	case VK_RIGHT:
+// 		keyCode = KEYCODE_RIGHT;
+// 		break;
+// 	case VK_BACK:
+// 		keyCode = KEYCODE_BACK_SPACE;
+// 	}
+// 	if ( keyCode > 0 )
+// 	{
+// 		mpTextBox->OnKeyUp( keyCode );
+// 	}
+	CDialogEx::OnKeyUp(nChar, nRepCnt, nFlags);
 }

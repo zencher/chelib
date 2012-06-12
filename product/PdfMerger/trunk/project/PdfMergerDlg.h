@@ -55,6 +55,8 @@ public:
 	void UpdateList();
 	void UpdateCurItem();
 
+	void SetWindowsTitleNormal();
+
 	CHE_WDM_Button * mpAddFileBtn;
 	CHE_WDM_Button * mpOptionsBtn;
 	CHE_WDM_Button * mpEditBtn;
@@ -64,9 +66,12 @@ public:
 	CHE_WDM_Button * mpDelBtn;
 	CHE_WDM_Area * mpItemList;
 	CHE_WDM_Area * mpScrollBar;
-	CHE_WDM_Area * mpFilePath;
-	CHE_WDM_Button * mpBrowseBtn;
 	CHE_WDM_Button * mpStartBtn;
+	//CHE_WDM_TextBox * mpTextBox;
+
+	//CHE_WDM_Area * mpFilePath;
+	//CHE_WDM_Button * mpBrowseBtn;
+	//CHE_WDM_AppearTextPtr mfilePathTextPtr;
 
 	CHE_WDM_Area * mpCurItem;
 
@@ -78,6 +83,7 @@ public:
 	CHE_WDM_AppearImagePtr listIcon2;
 	CHE_WDM_AppearImagePtr listIcon3;
 	CHE_WDM_AppearImagePtr listIcon4;
+
 
 public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -95,4 +101,10 @@ public:
 	afx_msg void OnHelpRegister();
 	afx_msg void OnHelpOfficalwebsite();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
+//	afx_msg void OnSetFocus(CWnd* pOldWnd);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
 };

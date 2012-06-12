@@ -19,6 +19,21 @@ static void EventCloseDialog( CHE_WDM_Area * pArea )
 	gpDlg->EndDialog( 0 );
 }
 
+static void EventOpenFile( CHE_WDM_Area* pArea )
+{
+	ShellExecute( gpDlg->GetSafeHwnd(), L"open", theApp.mNewFile.c_str(), NULL, NULL, SW_SHOWNORMAL );
+
+	gpDlg->EndDialog( 0 );
+}
+
+static void EventOpenFolder( CHE_WDM_Area * pArea )
+{
+	std::wstring cmdStr = L"/select,";
+	cmdStr += theApp.mNewFile;
+	ShellExecute( gpDlg->GetSafeHwnd(), L"open", L"Explorer.exe", cmdStr.c_str(), NULL, SW_SHOWNORMAL );
+	gpDlg->EndDialog( 0 );
+}
+
 DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 {
 	//flag for working
@@ -192,12 +207,10 @@ DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 
 	theApp.mpProcessDlg->mpMainArea->Refresh();
 
-// 	char tmpStr[1024];
-// 	memset( tmpStr, 0, 1024 );
-// 	WideCharToMultiByte( CP_ACP, 0, theApp.mNewFile.c_str(), -1, tmpStr, 1024, NULL, NULL );
-//	IHE_Write * pWrite = HE_CreateFileWrite( tmpStr );
-
-	IHE_Write * pWrite = HE_CreateFileWrite( "d:\\sdfa.pdf" );
+	char tmpStr[1024];
+	memset( tmpStr, 0, 1024 );
+	WideCharToMultiByte( CP_ACP, 0, theApp.mNewFile.c_str(), -1, tmpStr, 1024, NULL, NULL );
+	IHE_Write * pWrite = HE_CreateFileWrite( tmpStr );
 
 	newFile.Save( pWrite );
 
@@ -235,7 +248,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	mpProcess->SetWidth( 486 );
 	mpProcess->SetHeight( 27 );
 	mpProcess->SetPosiX( 30 );
-	mpProcess->SetPosiY( 40 );
+	mpProcess->SetPosiY( 45 );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\processbg.png" );
@@ -246,7 +259,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pTmpArea->SetWidth( 15 );
 	pTmpArea->SetHeight( 26 );
 	pTmpArea->SetPosiX( 30 );
-	pTmpArea->SetPosiY( 40 );
+	pTmpArea->SetPosiY( 45 );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\processleft.png" );
@@ -259,7 +272,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pTmpArea->SetWidth( 100 );
 	pTmpArea->SetHeight( 27 );
 	pTmpArea->SetPosiX( 45 );
-	pTmpArea->SetPosiY( 40 );
+	pTmpArea->SetPosiY( 45 );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\process.png" );
@@ -273,7 +286,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pTmpArea->SetWidth( 15 );
 	pTmpArea->SetHeight( 26 );
 	pTmpArea->SetPosiX( 144 );
-	pTmpArea->SetPosiY( 40 );
+	pTmpArea->SetPosiY( 45 );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\processright.png" );
@@ -286,7 +299,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pTmpArea->SetWidth( 485 );
 	pTmpArea->SetHeight( 27 );
 	pTmpArea->SetPosiX( 30 );
-	pTmpArea->SetPosiY( 40 );
+	pTmpArea->SetPosiY( 45 );
 	
 	textPtr = CHE_WDM_AppearText::Create();
 	textPtr->SetSize( 12 );
@@ -320,6 +333,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pBtn->SetPosiY( 60 );
 	pBtn->SetWidth( 107 );
 	pBtn->SetHeight( 20 );
+	pBtn->SetClickEvent( EventOpenFile );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\OpenFileBtn.png" );
 	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -333,6 +347,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pBtn->SetPosiY( 60 );
 	pBtn->SetWidth( 122 );
 	pBtn->SetHeight( 20 );
+	pBtn->SetClickEvent( EventOpenFolder );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\OpenFolderBtn.png" );
 	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -522,7 +537,7 @@ void CProcessDlg::ShowTips()
 	mpProcess->SetEnable( false );
 	mpProcess->SetVisable( false );
 
-	mpTipArea->SetPosiY( 0 );
+	mpTipArea->SetPosiY( 150 );
 	mpTipArea->Refresh();
 
 	CHE_WDM_AnimationData data;

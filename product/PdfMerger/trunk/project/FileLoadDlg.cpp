@@ -24,34 +24,34 @@ CFileLoadDlg::CFileLoadDlg(CWnd* pParent /*=NULL*/)
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\loadingProcessBar01.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	imagePtr->SetPosiX( 60 );
-	imagePtr->SetPosiY( 90 );
+	imagePtr->SetPosiX( 65 );
+	imagePtr->SetPosiY( 70 );
 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\loadingProcessBar00.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	imagePtr->SetPosiX( 60 );
-	imagePtr->SetPosiY( 90 );
+	imagePtr->SetPosiX( 65 );
+	imagePtr->SetPosiY( 70 );
 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
-	textPtr = CHE_WDM_AppearText::Create();
-	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_CENTER, LAYOUT_ALIGN_LEFT_OR_TOP ) );
-	textPtr->SetText( L"Loading file, please wait!" );
-	textPtr->SetSize( 12 );
-	textPtr->SetWidth( 500 );
-	textPtr->SetHeight( 18 );
-	textPtr->SetPosiX( 0 );
-	textPtr->SetPosiY( 20 );
- 	mpMainArea->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+// 	textPtr = CHE_WDM_AppearText::Create();
+// 	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_CENTER, LAYOUT_ALIGN_LEFT_OR_TOP ) );
+// 	textPtr->SetText( L"Loading file, please wait!" );
+// 	textPtr->SetSize( 12 );
+// 	textPtr->SetWidth( 500 );
+// 	textPtr->SetHeight( 18 );
+// 	textPtr->SetPosiX( 0 );
+// 	textPtr->SetPosiY( 15 );
+//  mpMainArea->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 
 	mText = CHE_WDM_AppearText::Create();
-	mText->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_CENTER, LAYOUT_ALIGN_LEFT_OR_TOP ) );
+	mText->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_CENTER, LAYOUT_ALIGN_CENTER ) );
 	mText->SetSize( 12 );
 	mText->SetWidth( 500 );
-	mText->SetHeight( 18 );
+	mText->SetHeight( 15 );
 	mText->SetPosiX( 0 );
-	mText->SetPosiY( 45 );
+	mText->SetPosiY( 35 );
 	mpMainArea->AppendAppearItem( mText, AREA_APPEAR_BACKGROUND );
 
 	CHE_WDM_AppearAnimation animation;
@@ -59,16 +59,16 @@ CFileLoadDlg::CFileLoadDlg(CWnd* pParent /*=NULL*/)
 	animation.SetAppear( imagePtr );
 	animation.SetLoop( TRUE );
 	CHE_WDM_AnimationData data;
-	data.mPosiX = 60;
-	data.mPosiY = 90;
+	data.mPosiX = 65;
+	data.mPosiY = 70;
 	animation.SetState( data );
 
 	data.mPosiX = 220;
-	data.mPosiY = 90;
+	data.mPosiY = 70;
 	animation.InsertFrames( 48, data );
 
-	data.mPosiX = 60;
-	data.mPosiY = 90;
+	data.mPosiX = 65;
+	data.mPosiY = 70;
 	animation.InsertFrames( 48, data );
 
 	mAnimations.StartAppearAnimation( animation );
@@ -135,7 +135,7 @@ void CFileLoadDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CFileLoadDlg::OnSize(UINT nType, int cx, int cy)
 {
-	mClientWidth = 490;
+	mClientWidth = 500;
 	mClientHeight = 170;
 
 	CDialogEx::OnSize( nType, mClientWidth, mClientHeight );

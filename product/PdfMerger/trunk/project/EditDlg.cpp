@@ -104,11 +104,12 @@ static void UpdateScroll2_End()
 
 static void EventUpBtnClick1( CHE_WDM_Area * pArea )
 {
-	if ( gpDlg->mNumber1 >= gpDlg->mNumber2-1 )
+	if ( gpDlg->mNumber1 >= gpDlg->mPageCount )
 	{
 		return;
 	}
 	gpDlg->mNumber1++;
+	gpDlg->mCurPage = gpDlg->mNumber1;
 	UpdataNumberBox();
 	UpdateScroll1();
 	UpdateScroll2_Begin();
@@ -121,6 +122,7 @@ static void EventDownBtnClick1( CHE_WDM_Area * pArea )
 		return;
 	}
 	gpDlg->mNumber1--;
+	gpDlg->mCurPage = gpDlg->mNumber1;
 	UpdataNumberBox();
 	UpdateScroll1();
 	UpdateScroll2_Begin();
@@ -173,6 +175,10 @@ static void EventDragScroolBlock_PageRange_Begin( CHE_WDM_Area * pArea )
 	{
 		gpDlg->mNumber1 = tmpPageIndex;
 		gpDlg->mPageBegin = gpDlg->mNumber1;
+	}else if ( tmpPageIndex >= gpDlg->mNumber2 )
+	{
+		gpDlg->mNumber1 = gpDlg->mNumber2-1;
+		gpDlg->mPageBegin = gpDlg->mNumber1;
 	}
 	gpDlg->mpPageRangeArea->Refresh();
 	UpdataNumberBox();
@@ -188,36 +194,63 @@ static void EventDragScroolBlock_PageRange_End( CHE_WDM_Area * pArea )
 	gpDlg->mpPageRangeBeginDragBox->SetRange( 50, 158, EndPosi-45, 158 );
 	unsigned int tmpPosi = pArea->GetPosiX();
 	unsigned int tmpPageIndex = (unsigned int)( 1.5 + ( tmpPosi - 80 ) * 1.0 / ( 469 * 1.0 / (gpDlg->mPageCount - 1) ) );
-	if ( ( tmpPageIndex <= gpDlg->mPageCount ) && ( tmpPageIndex > gpDlg->mNumber1 )  )
+	if ( ( tmpPageIndex <= gpDlg->mPageCount ) && tmpPageIndex > gpDlg->mNumber1 )
 	{
 		gpDlg->mNumber2 = tmpPageIndex;
 		gpDlg->mPageEnd = gpDlg->mNumber2;
+	}else if ( tmpPageIndex > gpDlg->mPageCount )
+	{
+		gpDlg->mNumber2 = gpDlg->mPageCount;
+		gpDlg->mPageEnd = gpDlg->mNumber2;
+	}else if ( tmpPageIndex <= gpDlg->mNumber1 )
+	{
+		gpDlg->mNumber2 = gpDlg->mNumber1+1;
+		gpDlg->mPageEnd = gpDlg->mNumber2;
 	}
+
 	gpDlg->mpPageRangeArea->Refresh();
 	UpdataNumberBox();
 }
 
+static void EventSModeBtnOver()
+{
+	gpDlg->mpSMode1->SetEnable( true );
+
+	gpDlg->mpSMode2->SetEnable( true );
+
+	if ( gpDlg->mPageCount > 1 )
+	{
+		gpDlg->mpSMode3->SetEnable( true );
+
+		gpDlg->mpSMode4->SetEnable( true );
+
+		gpDlg->mpSMode5->SetEnable( true );
+	}
+}
+
 static void EventSModeClick( CHE_WDM_Area * pArea )
 {
+	gpDlg->mTipText->SetText( L"" );
+
 	if ( gpDlg->mbBG2 == false )
 	{
-		gpDlg->mpSMode1->SetEnable( true );
+		gpDlg->mpSMode1->SetEnable( false );
 		gpDlg->mpSMode1->SetVisable( true );
 		gpDlg->mpSMode1->SetPosiX( 100 );
 
-		gpDlg->mpSMode2->SetEnable( true );
+		gpDlg->mpSMode2->SetEnable( false );
 		gpDlg->mpSMode2->SetVisable( true );
 		gpDlg->mpSMode2->SetPosiX( 190 );
 
-		gpDlg->mpSMode3->SetEnable( true );
+		gpDlg->mpSMode3->SetEnable( false );
 		gpDlg->mpSMode3->SetVisable( true );
 		gpDlg->mpSMode3->SetPosiX( 280 );
 
-		gpDlg->mpSMode4->SetEnable( true );
+		gpDlg->mpSMode4->SetEnable( false );
 		gpDlg->mpSMode4->SetVisable( true );
 		gpDlg->mpSMode4->SetPosiX( 370 );
 
-		gpDlg->mpSMode5->SetEnable( true );
+		gpDlg->mpSMode5->SetEnable( false );
 		gpDlg->mpSMode5->SetVisable( true );
 		gpDlg->mpSMode5->SetPosiX( 460 );
 
@@ -235,6 +268,7 @@ static void EventSModeClick( CHE_WDM_Area * pArea )
 		data.mPosiY = 140;
 		animation.SetTarget( gpDlg->mpBtnArea );
 		animation.SetState( data );
+		animation.SetOverFunction( EventSModeBtnOver );
 		data.mPosiY = 70;
 		animation.InsertFrames( 20, data );
 		gpDlg->mAnimationMgr.StartAreaAnimation( animation );
@@ -276,6 +310,9 @@ static void EventModeBtnOver()
 
 static void EventModeBtnClick( CHE_WDM_Area * pArea )
 {
+	gpDlg->mTipText->SetText( L"" );
+	gpDlg->mpBG2->Refresh();
+
 	gpDlg->mpSMode1->SetEnable( false );
 	gpDlg->mpSMode1->SetVisable( false );
 	gpDlg->mpSMode1->SetPosiX( 100 );
@@ -344,27 +381,30 @@ static void EventModeBtnClick( CHE_WDM_Area * pArea )
 
 static void EventClickBG2( CHE_WDM_Area * pArea )
 {
+	gpDlg->mTipText->SetText( L"" );
+	gpDlg->mpBG2->Refresh();
+
 	if ( gpDlg->mbBG2 == true )
 	{
 		gpDlg->mbBG2 = false;
 
-		gpDlg->mpSMode1->SetEnable( true );
+		gpDlg->mpSMode1->SetEnable( false );
 		gpDlg->mpSMode1->SetVisable( true );
 		gpDlg->mpSMode1->SetPosiX( 100 );
 
-		gpDlg->mpSMode2->SetEnable( true );
+		gpDlg->mpSMode2->SetEnable( false );
 		gpDlg->mpSMode2->SetVisable( true );
 		gpDlg->mpSMode2->SetPosiX( 190 );
 
-		gpDlg->mpSMode3->SetEnable( true );
+		gpDlg->mpSMode3->SetEnable( false );
 		gpDlg->mpSMode3->SetVisable( true );
 		gpDlg->mpSMode3->SetPosiX( 280 );
 
-		gpDlg->mpSMode4->SetEnable( true );
+		gpDlg->mpSMode4->SetEnable( false );
 		gpDlg->mpSMode4->SetVisable( true );
 		gpDlg->mpSMode4->SetPosiX( 370 );
 
-		gpDlg->mpSMode5->SetEnable( true );
+		gpDlg->mpSMode5->SetEnable( false );
 		gpDlg->mpSMode5->SetVisable( true );
 		gpDlg->mpSMode5->SetPosiX( 460 );
 
@@ -380,6 +420,37 @@ static void EventClickBG2( CHE_WDM_Area * pArea )
 		gpDlg->mAnimationMgr.StartAreaAnimation( animation );
 		gpDlg->mpBG2->Refresh();
 	}
+}
+
+static void EventSModeBtnMouseOver( CHE_WDM_Area * pArea )
+{
+	if ( pArea == NULL )
+	{
+		return;
+	}
+	if ( pArea == gpDlg->mpSMode1 )
+	{
+		gpDlg->mTipText->SetText( L"Out put a whole file." );
+	}else if ( pArea == gpDlg->mpSMode2 )
+	{
+		gpDlg->mTipText->SetText( L"Select a single page to out put." );
+	}else if ( pArea == gpDlg->mpSMode3 )
+	{
+		gpDlg->mTipText->SetText( L"Select a page range to out put." ); 
+	}else if ( pArea == gpDlg->mpSMode4 )
+	{
+		gpDlg->mTipText->SetText( L"Out put all even pages." );
+	}else if ( pArea == gpDlg->mpSMode5 )
+	{
+		gpDlg->mTipText->SetText( L"Out put all odd pages." );
+	}
+	gpDlg->mpBG2->Refresh();
+}
+
+static void EventSModeBtnMouseOut( CHE_WDM_Area * pArea )
+{
+	gpDlg->mTipText->SetText( L"" );
+	gpDlg->mpBG2->Refresh();
 }
 
 // CEditDlg ¶Ô»°¿ò
@@ -400,6 +471,15 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\background.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	mMainTipText = CHE_WDM_AppearText::Create();
+	mMainTipText->SetPosiX( 130 );
+	mMainTipText->SetPosiY( 95 );
+	mMainTipText->SetWidth( 500 );
+	mMainTipText->SetHeight( 20 );
+	mMainTipText->SetSize( 12 );
+	mMainTipText->SetColor( 0xFF000000 );
+	mMainTipText->SetLayout(  CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	mpMainArea->AppendAppearItem( mMainTipText, AREA_APPEAR_BACKGROUND );
 
 	mpCurItem = &( theApp.mList[ theApp.mCurItem - 1 ] );
 	assert( mpCurItem );
@@ -413,6 +493,10 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 	}else{
 		mNumber1 = mpCurItem->pageIndex;
 		mNumber2 = mpCurItem->pageIndex + mpCurItem->pageCount - 1;
+	}
+	if ( mNumber1 == mNumber2 )
+	{
+		mNumber2 += 1;
 	}
 	mPageBegin = mNumber1;
 	mPageEnd = mNumber2;
@@ -477,13 +561,16 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 	mpModeBtn = CHE_WDM_Button::Create( mpInterActive );
 	mpModeBtn->SetPosiX( 30 );
 	mpModeBtn->SetPosiY( 80 );
-	mpModeBtn->SetWidth( 52 );
-	mpModeBtn->SetHeight( 55 );
+	mpModeBtn->SetWidth( 82 );
+	mpModeBtn->SetHeight( 50 );
 	mpModeBtn->SetClickEvent( EventSModeClick );
-// 	imagePtr = CHE_WDM_AppearImage::Create();
-// 	imagePtr->SetImageFile(  L"images\\SMode1.png" );
-// 	mpModeBtn->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 	mpMainArea->AppendChild( mpModeBtn );
+
+	mModeBtnGB = CHE_WDM_AppearImage::Create();
+	mModeBtnGB->SetImageFile( L"images\\ModeBtn.png" );
+
+	mModeBtnGBHL = CHE_WDM_AppearImage::Create();
+	mModeBtnGBHL->SetImageFile( L"images\\ModeBtnHL.png" );
 		
 	//ok btn
 	CHE_WDM_Button * pBtn = CHE_WDM_Button::Create( mpInterActive );
@@ -522,7 +609,7 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 
 	textPtr = CHE_WDM_AppearText::Create();
 	mpNumberBox1 = CHE_WDM_Area::Create( mpInterActive );
-	mpNumberBox1->SetPosiX( 180 );
+	mpNumberBox1->SetPosiX( 200 );
 	mpNumberBox1->SetPosiY( 93 );
 	mpNumberBox1->SetWidth( 71 );
 	mpNumberBox1->SetHeight( 26 );
@@ -539,7 +626,7 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 	mpMainArea->AppendChild( mpNumberBox1 );
 
 	CHE_WDM_Button * pTmpBtn = CHE_WDM_Button::Create( mpInterActive );
-	pTmpBtn->SetPosiX( 233 );
+	pTmpBtn->SetPosiX( 253 );
 	pTmpBtn->SetPosiY( 93 );
 	pTmpBtn->SetWidth( 18 );
 	pTmpBtn->SetHeight( 11 );
@@ -549,7 +636,7 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 	pTmpBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
 	mpNumberBox1->AppendChild( pTmpBtn );
 	pTmpBtn = CHE_WDM_Button::Create( mpInterActive );
-	pTmpBtn->SetPosiX( 233 );
+	pTmpBtn->SetPosiX( 253 );
 	pTmpBtn->SetPosiY( 105 );
 	pTmpBtn->SetWidth( 18 );
 	pTmpBtn->SetHeight( 12 );
@@ -701,13 +788,32 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 	mpBG2->SetPosiX( 0 );
 	mpBG2->SetPosiY( 0 );
 	mpBG2->SetWidth( 630 );
-	mpBG2->SetHeight( 340 );
+	mpBG2->SetHeight( 280 );
 	mpBG2->SetClickEvent( EventClickBG2 );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\bg2.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
 	imagePtr->SetAlpha( 0 );
 	mpBG2->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	mTipText = CHE_WDM_AppearText::Create();
+	mTipText->SetPosiX( 0 );
+	mTipText->SetPosiY( 155 );
+	mTipText->SetWidth( 630 );
+	mTipText->SetHeight( 20 );
+	mTipText->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_CENTER, LAYOUT_ALIGN_CENTER ) );
+	mTipText->SetSize( 12 );
+	mTipText->SetColor( 0xFFFFFFFF );
+	mpBG2->AppendAppearItem( mTipText, AREA_APPEAR_BACKGROUND );
+	CHE_WDM_AppearTextPtr tmpText = CHE_WDM_AppearText::Create();
+	tmpText->SetPosiX( 10 );
+	tmpText->SetPosiY( 220 );
+	tmpText->SetWidth( 630 );
+	tmpText->SetHeight( 20 );
+	tmpText->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	tmpText->SetSize( 12 );
+	tmpText->SetColor( 0xFFFFFFFF );
+	tmpText->SetText( L"Click the ICON to select mode. Click the black area to cancel." );
+	mpBG2->AppendAppearItem( tmpText, AREA_APPEAR_BACKGROUND );
 	mpBG2->SetEnable( false );
 	mpBG2->SetVisable( false );
 	mpMainArea->AppendChild( mpBG2 );
@@ -718,13 +824,19 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 	mpBG3->SetWidth( 630 );
 	mpBG3->SetHeight( 75 );
 	mpBG3->EnableClip();
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\background.png" );
-	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
-	mpBG3->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	CHE_WDM_AppearPathPtr pathPtr = CHE_WDM_AppearPath::Create();
+	pathPtr->AddRect( 0, 0, 630, 75 );
+	pathPtr->SetFillColor( 0xFFFFFFFF );
+	pathPtr->SetOperator( APPEAR_PATH_FILL );
+	mpBG3->AppendAppearItem( pathPtr, AREA_APPEAR_BACKGROUND );
 	mpBG3->SetEnable( false );
 	mpBG3->SetVisable( false );
 	mpMainArea->AppendChild( mpBG3 );
+
+	mNotAMark = CHE_WDM_AppearImage::Create();
+	mNotAMark->SetImageFile( L"images\\notamark.png" );
+	mNotAMark->SetPosiX( 3 );
+	mNotAMark->SetPosiY( 18 );
 
 	mpBtnArea = CHE_WDM_Area::Create( mpInterActive );
 	mpBtnArea->SetPosiX( 0 );
@@ -734,59 +846,94 @@ CEditDlg::CEditDlg(CWnd* pParent /*=NULL*/)
 	mpBtnArea->EnableClip();
 	mpBG3->AppendChild( mpBtnArea );
 
-	mpSMode1 = CHE_WDM_Button::Create( mpInterActive );
+	mpSMode1 = CHE_WDM_MouseEventBtn::Create( mpInterActive );
 	mpSMode1->SetPosiX( 100 );
 	mpSMode1->SetPosiY( 70 );
 	mpSMode1->SetWidth( 52 );
 	mpSMode1->SetHeight( 55 );
 	mpSMode1->SetClickEvent( EventModeBtnClick );
+	mpSMode1->SetMouseOverEvent( EventSModeBtnMouseOver );
+	mpSMode1->SetMouseOutEvent( EventSModeBtnMouseOut );
 	mSModeImage1 = CHE_WDM_AppearImage::Create();
-	mSModeImage1->SetImageFile( L"images\\SMode1.png" );
-	mpSMode1->AppendAppearItem( mSModeImage1, AREA_APPEAR_BACKGROUND );
+	mSModeImage1->SetImageFile( L"images\\FileIcon.png" );
+	mSModeImage1->SetPosiX( 20 );
+	mSModeImage1->SetPosiY( 6 );
+	mpSMode1->AppendAppearItem( mSModeImage1, AREA_APPEAR_NORMAL );
 	mpBtnArea->AppendChild( mpSMode1 );
 
-	mpSMode2 = CHE_WDM_Button::Create( mpInterActive );
+	mpSMode2 = CHE_WDM_MouseEventBtn::Create( mpInterActive );
 	mpSMode2->SetPosiX( 190 );
 	mpSMode2->SetPosiY( 70 );
 	mpSMode2->SetWidth( 52 );
 	mpSMode2->SetHeight( 55 );
 	mpSMode2->SetClickEvent( EventModeBtnClick );
+	mpSMode2->SetMouseOverEvent( EventSModeBtnMouseOver );
+	mpSMode2->SetMouseOutEvent( EventSModeBtnMouseOut );
 	mSModeImage2 = CHE_WDM_AppearImage::Create();
-	mSModeImage2->SetImageFile( L"images\\SMode2.png" );
-	mpSMode2->AppendAppearItem( mSModeImage2, AREA_APPEAR_BACKGROUND );
+	mSModeImage2->SetImageFile( L"images\\PageIcon.png" );
+	mSModeImage2->SetPosiX( 23 );
+	mSModeImage2->SetPosiY( 12 );
+	mpSMode2->AppendAppearItem( mSModeImage2, AREA_APPEAR_NORMAL );
 	mpBtnArea->AppendChild( mpSMode2 );
 
-	mpSMode3 = CHE_WDM_Button::Create( mpInterActive );
+	mpSMode3 = CHE_WDM_MouseEventBtn::Create( mpInterActive );
 	mpSMode3->SetPosiX( 280 );
 	mpSMode3->SetPosiY( 70 );
 	mpSMode3->SetWidth( 52 );
 	mpSMode3->SetHeight( 55 );
 	mpSMode3->SetClickEvent( EventModeBtnClick );
+	mpSMode3->SetMouseOverEvent( EventSModeBtnMouseOver );
+	mpSMode3->SetMouseOutEvent( EventSModeBtnMouseOut );
 	mSModeImage3 = CHE_WDM_AppearImage::Create();
-	mSModeImage3->SetImageFile( L"images\\SMode3.png" );
-	mpSMode3->AppendAppearItem( mSModeImage3, AREA_APPEAR_BACKGROUND );
+	mSModeImage3->SetImageFile( L"images\\PagesIcon.png" );
+	mSModeImage3->SetPosiX( 20 );
+	mSModeImage3->SetPosiY( 12 );
+	mpSMode3->AppendAppearItem( mSModeImage3, AREA_APPEAR_NORMAL );
+	if ( mPageCount == 1 )
+	{
+		mpSMode3->AppendAppearItem( mNotAMark, AREA_APPEAR_NORMAL );
+		mpSMode3->SetEnable( false );
+	}
 	mpBtnArea->AppendChild( mpSMode3 );
 
-	mpSMode4 = CHE_WDM_Button::Create( mpInterActive );
+	mpSMode4 = CHE_WDM_MouseEventBtn::Create( mpInterActive );
 	mpSMode4->SetPosiX( 370 );
 	mpSMode4->SetPosiY( 70 );
 	mpSMode4->SetWidth( 52 );
 	mpSMode4->SetHeight( 55 );
 	mpSMode4->SetClickEvent( EventModeBtnClick );
+	mpSMode4->SetMouseOverEvent( EventSModeBtnMouseOver );
+	mpSMode4->SetMouseOutEvent( EventSModeBtnMouseOut );
 	mSModeImage4 = CHE_WDM_AppearImage::Create();
-	mSModeImage4->SetImageFile( L"images\\SMode4.png" );
-	mpSMode4->AppendAppearItem( mSModeImage4, AREA_APPEAR_BACKGROUND );
+	mSModeImage4->SetImageFile( L"images\\EvenPagesIcon.png" );
+	mSModeImage4->SetPosiX( 16 );
+	mSModeImage4->SetPosiY( 12 );
+	mpSMode4->AppendAppearItem( mSModeImage4, AREA_APPEAR_NORMAL );
+	if ( mPageCount == 1 )
+	{
+		mpSMode4->AppendAppearItem( mNotAMark, AREA_APPEAR_NORMAL );
+		mpSMode4->SetEnable( false );
+	}
 	mpBtnArea->AppendChild( mpSMode4 );
 
-	mpSMode5 = CHE_WDM_Button::Create( mpInterActive );
+	mpSMode5 = CHE_WDM_MouseEventBtn::Create( mpInterActive );
 	mpSMode5->SetPosiX( 460 );
 	mpSMode5->SetPosiY( 70 );
 	mpSMode5->SetWidth( 52 );
 	mpSMode5->SetHeight( 55 );
 	mpSMode5->SetClickEvent( EventModeBtnClick );
+	mpSMode5->SetMouseOverEvent( EventSModeBtnMouseOver );
+	mpSMode5->SetMouseOutEvent( EventSModeBtnMouseOut );
 	mSModeImage5 = CHE_WDM_AppearImage::Create();
-	mSModeImage5->SetImageFile( L"images\\SMode5.png" );
-	mpSMode5->AppendAppearItem( mSModeImage5, AREA_APPEAR_BACKGROUND );
+	mSModeImage5->SetImageFile( L"images\\OddPagesIcon.png" );
+	mSModeImage5->SetPosiX( 16 );
+	mSModeImage5->SetPosiY( 12 );
+	mpSMode5->AppendAppearItem( mSModeImage5, AREA_APPEAR_NORMAL );
+	if ( mPageCount == 1 )
+	{
+		mpSMode5->AppendAppearItem( mNotAMark, AREA_APPEAR_NORMAL );
+		mpSMode5->SetEnable( false );
+	}
 	mpBtnArea->AppendChild( mpSMode5 );
 }
 
@@ -977,8 +1124,14 @@ void CEditDlg::ShowSinglePageWeight()
 	mpNumberBox1->SetEnable( true );
 	mpSinglePageArea->SetVisable( true );
 	mpSinglePageArea->SetEnable( true );
-	mpModeBtn->GetAppear().mBackground.clear();
-	mpModeBtn->AppendAppearItem( mSModeImage2, AREA_APPEAR_BACKGROUND );
+	mpModeBtn->GetAppear().mNormal.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_NORMAL );
+	mpModeBtn->AppendAppearItem( mSModeImage2, AREA_APPEAR_NORMAL );
+	mpModeBtn->GetAppear().mMouseOver.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mSModeImage2, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mModeBtnGBHL, AREA_APPEAR_MOUSEOVER );
+	mMainTipText->SetText( L"       Page" );
 }
 
 void CEditDlg::ShowPageRangeWeight()
@@ -990,27 +1143,52 @@ void CEditDlg::ShowPageRangeWeight()
 	mpNumberBox2->SetEnable( true );
 	mpPageRangeArea->SetVisable( true );
 	mpPageRangeArea->SetEnable( true );
-	mpModeBtn->GetAppear().mBackground.clear();
-	mpModeBtn->AppendAppearItem( mSModeImage3, AREA_APPEAR_BACKGROUND );
+	mpModeBtn->GetAppear().mNormal.clear();
+	mpModeBtn->GetAppear().mNormal.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_NORMAL );
+	mpModeBtn->AppendAppearItem( mSModeImage3, AREA_APPEAR_NORMAL );
+	mpModeBtn->GetAppear().mMouseOver.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mSModeImage3, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mModeBtnGBHL, AREA_APPEAR_MOUSEOVER );
+	mMainTipText->SetText( L"From Page                                         To Page" );
 }
 
 void CEditDlg::ShowAllPagesWeight()
 {
 	HideAllWeight();
-	mpModeBtn->GetAppear().mBackground.clear();
-	mpModeBtn->AppendAppearItem( mSModeImage1, AREA_APPEAR_BACKGROUND );
+	mpModeBtn->GetAppear().mNormal.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_NORMAL );
+	mpModeBtn->AppendAppearItem( mSModeImage1, AREA_APPEAR_NORMAL );
+	mpModeBtn->GetAppear().mMouseOver.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mSModeImage1, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mModeBtnGBHL, AREA_APPEAR_MOUSEOVER );
+	mMainTipText->SetText( L"Out put all pages of file." );
 }
 
 void CEditDlg::ShowEvenPagesWeight()
 {
 	HideAllWeight();
-	mpModeBtn->GetAppear().mBackground.clear();
-	mpModeBtn->AppendAppearItem( mSModeImage4, AREA_APPEAR_BACKGROUND );
+	mpModeBtn->GetAppear().mNormal.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_NORMAL );
+	mpModeBtn->AppendAppearItem( mSModeImage4, AREA_APPEAR_NORMAL );
+	mpModeBtn->GetAppear().mMouseOver.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mSModeImage4, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mModeBtnGBHL, AREA_APPEAR_MOUSEOVER );
+	mMainTipText->SetText( L"Out put all even pages of file." );
 }
 
 void CEditDlg::ShowOddPageWeight()
 {
 	HideAllWeight();
-	mpModeBtn->GetAppear().mBackground.clear();
-	mpModeBtn->AppendAppearItem( mSModeImage5, AREA_APPEAR_BACKGROUND );
+	mpModeBtn->GetAppear().mNormal.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_NORMAL );
+	mpModeBtn->AppendAppearItem( mSModeImage5, AREA_APPEAR_NORMAL );
+	mpModeBtn->GetAppear().mMouseOver.clear();
+	mpModeBtn->AppendAppearItem( mModeBtnGB, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mSModeImage5, AREA_APPEAR_MOUSEOVER );
+	mpModeBtn->AppendAppearItem( mModeBtnGBHL, AREA_APPEAR_MOUSEOVER );
+	mMainTipText->SetText( L"Out put all odd pages of file." );
 }

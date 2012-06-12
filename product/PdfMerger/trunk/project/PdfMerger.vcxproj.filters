@@ -51,6 +51,9 @@
     <ClInclude Include="ProcessDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Welcome.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PdfMerger.cpp">
@@ -72,6 +75,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ProcessDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Welcome.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -50,22 +50,28 @@ public:
 
 	CHE_WDM_Area * mpFileInfo;
 	CHE_WDM_Button * mpModeBtn;
+	CHE_WDM_AppearImagePtr mModeBtnGB;
+	CHE_WDM_AppearImagePtr mModeBtnGBHL;
 
 	bool mbBG2;
 	CHE_WDM_Button * mpBG2;
 	CHE_WDM_Area * mpBG3;
 
+	CHE_WDM_AppearTextPtr mMainTipText;
+	CHE_WDM_AppearTextPtr mTipText;
+
 	CHE_WDM_Area * mpBtnArea;
-	CHE_WDM_Button * mpSMode1;
-	CHE_WDM_Button * mpSMode2;
-	CHE_WDM_Button * mpSMode3;
-	CHE_WDM_Button * mpSMode4;
-	CHE_WDM_Button * mpSMode5;
+	CHE_WDM_MouseEventBtn * mpSMode1;
+	CHE_WDM_MouseEventBtn * mpSMode2;
+	CHE_WDM_MouseEventBtn * mpSMode3;
+	CHE_WDM_MouseEventBtn * mpSMode4;
+	CHE_WDM_MouseEventBtn * mpSMode5;
 	CHE_WDM_AppearImagePtr mSModeImage1;
 	CHE_WDM_AppearImagePtr mSModeImage2;
 	CHE_WDM_AppearImagePtr mSModeImage3;
 	CHE_WDM_AppearImagePtr mSModeImage4;
 	CHE_WDM_AppearImagePtr mSModeImage5;
+	CHE_WDM_AppearImagePtr mNotAMark;
 
 	CHE_WDM_Area * mpNumberBox1;
 	CHE_WDM_Area * mpNumberBox2;

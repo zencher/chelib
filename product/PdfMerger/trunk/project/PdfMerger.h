@@ -14,6 +14,7 @@ using namespace Gdiplus;
 #include "../project/resource.h"
 
 #include "../../../../trunk/include/wdm/che_wdm.h"
+#include "../../../../trunk/include/wdm/che_wdm_textbox.h"
 #include "../../../../trunk/include/pdf/che_pdf_file.h"
 #include "../../../../trunk/include/pdf/che_pdf_document.h"
 
@@ -43,15 +44,23 @@ public:
 
 	void ResetClip();
 
+	void Draw( CHE_WDM_Area * pArea, CHE_WDM_AppearItemPtr ptr );
+
 	void Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE type );
 
 	void Invalidate();
 
 	void InvalidateRect( int left, int top, int right, int bottom );
 
-	void SetTimer( HE_DWORD );
+	void SetTimer( CHE_WDM_Area * pArea, HE_DWORD elapse );
 
-	void KillTimer();
+	void KillTimer( CHE_WDM_Area * pArea );
+
+	HE_BOOL	MeasureString( CHE_WDM_AppearTextPtr ptr, HE_DWORD & width, HE_DWORD & height );
+
+	HE_BOOL MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_DWORD count, HE_DWORD & width, HE_DWORD & height );
+
+	HE_FLOAT GetFontHeight( CHE_WDM_AppearTextPtr ptr );
 
 	int GetLeft() { return mLeft; }
 
@@ -155,6 +164,9 @@ public:
 	void							UpCurPageListItem();
 	void							DownCurPagaListItem();
 	bool							GetCurItem( CListItem & item );
+	void							WriteRegInfo();
+	void							CreateRegEntry();
+	bool							CheckRefInfo();
 
 	CPdfMergerDlg *					mpMainDlg;
 	CFileLoadDlg *					mpLoadDlg;
@@ -169,6 +181,8 @@ public:
 	std::vector<std::wstring>		mFilePathToLoad;
 
 	std::string						mCurPassword;
+	std::string						mName;
+	std::string						mKey;
 
 	std::vector<CPDFFileInfo>		mFileCache;
 	std::string						mOutPutFile;
@@ -177,6 +191,10 @@ public:
 	size_t							mCurItem;
 	CHE_WDM_Area *					mpMouseOverItem;
 	float							mfViewPoint;
+
+	std::wstring					mNewFile;
+
+	CHE_WDM_Area *					mpAreaTimer;
 };
 
 extern CPdfMergerApp theApp;

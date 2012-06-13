@@ -10,6 +10,9 @@
 #include "PasswordDlg.h"
 #include "ProcessDlg.h"
 #include "Welcome.h"
+#include "OptionsDlg.h"
+#include "OptionPropertyPage.h"
+#include "OptionSecurity.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -89,6 +92,14 @@ void EventAddFiles( CHE_WDM_Area * pArea )
 
 		theApp.mpMainDlg->UpdateBtn();
 	}
+}
+
+static void EventOptionBtnClick( CHE_WDM_Area * pArea )
+{
+	COptionsDlg dlg( L"Options" );
+	// 	AddPage( &mPropertyPage );
+// 	AddPage( &mSecurityPage );
+	dlg.DoModal();
 }
 
 void EventEditBtnClick( CHE_WDM_Area * pArea )
@@ -296,12 +307,6 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\background.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-// 	imagePtr = CHE_WDM_AppearImage::Create();
-// 	imagePtr->SetImageFile( L"images\\line.png" );
-// 	imagePtr->SetPosiX( 0 );
-// 	imagePtr->SetPosiY( 440 );
-// 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-// 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
 	//headbar
 	CHE_WDM_Area * pTmpArea = CHE_WDM_Area::Create( mpInterActive );
@@ -333,6 +338,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpOptionsBtn->SetPosiY( 20 );
 	mpOptionsBtn->SetWidth( 118 );
 	mpOptionsBtn->SetHeight( 47 );
+	mpOptionsBtn->SetClickEvent( EventOptionBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\OptionsBtn.png" );
 	mpOptionsBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );

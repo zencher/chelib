@@ -168,6 +168,8 @@ public:
 	void							CreateRegEntry();
 	bool							CheckRefInfo();
 
+	void							ReleaseCache();
+
 	CPdfMergerDlg *					mpMainDlg;
 	CFileLoadDlg *					mpLoadDlg;
 	CProcessDlg *					mpProcessDlg;
@@ -185,7 +187,6 @@ public:
 	std::string						mKey;
 
 	std::vector<CPDFFileInfo>		mFileCache;
-	std::string						mOutPutFile;
 
 	std::vector<CListItem>			mList;
 	size_t							mCurItem;
@@ -193,8 +194,10 @@ public:
 	float							mfViewPoint;
 
 	std::wstring					mNewFile;
-
-	CHE_WDM_Area *					mpAreaTimer;
+	std::wstring					mFileInfoTitle;
+	std::wstring					mFileInfoSubject;
+	std::wstring					mFileInfoAuthor;
+	std::wstring					mFileInfoKeywords;
 };
 
 extern CPdfMergerApp theApp;

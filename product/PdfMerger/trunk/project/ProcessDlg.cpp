@@ -167,6 +167,7 @@ DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 		}
 	}
 
+//zctodo
 // 	if ( ! theApp.CheckRefInfo() )
 // 	{
 // 		pNewPageTree->AppendPage( 600, 800 );
@@ -205,9 +206,39 @@ DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 // 		dictPtr->SetAtReference( "Contents", refInfo.objNum, refInfo.genNum, &newFile );
 // 	}
 
-	theApp.mpProcessDlg->mpMainArea->Refresh();
+	newFile.SetInfo( DOCUMENT_INFO_PRODUCER, "Peroit PDF Merger 1.0" );
 
 	char tmpStr[1024];
+	if ( theApp.mFileInfoTitle.size() > 0 )
+	{
+		memset( tmpStr, 0, 1024 );
+		WideCharToMultiByte( CP_ACP, 0, theApp.mFileInfoTitle.c_str(), -1, tmpStr, 1024, NULL, NULL );
+		newFile.SetInfo( DOCUMENT_INFO_TITLE, tmpStr );
+	}
+
+	if ( theApp.mFileInfoSubject.size() > 0 )
+	{
+		memset( tmpStr, 0, 1024 );
+		WideCharToMultiByte( CP_ACP, 0, theApp.mFileInfoSubject.c_str(), -1, tmpStr, 1024, NULL, NULL );
+		newFile.SetInfo( DOCUMENT_INFO_SUBJECT, tmpStr );
+	}
+
+	if ( theApp.mFileInfoAuthor.size() > 0 )
+	{
+		memset( tmpStr, 0, 1024 );
+		WideCharToMultiByte( CP_ACP, 0, theApp.mFileInfoAuthor.c_str(), -1, tmpStr, 1024, NULL, NULL );
+		newFile.SetInfo( DOCUMENT_INFO_AUTHOR, tmpStr );
+	}
+
+	if ( theApp.mFileInfoKeywords.size() > 0 )
+	{
+		memset( tmpStr, 0, 1024 );
+		WideCharToMultiByte( CP_ACP, 0, theApp.mFileInfoKeywords.c_str(), -1, tmpStr, 1024, NULL, NULL );
+		newFile.SetInfo( DOCUMENT_INFO_KEYWORDS, tmpStr );
+	}
+
+	theApp.mpProcessDlg->mpMainArea->Refresh();
+
 	memset( tmpStr, 0, 1024 );
 	WideCharToMultiByte( CP_ACP, 0, theApp.mNewFile.c_str(), -1, tmpStr, 1024, NULL, NULL );
 	IHE_Write * pWrite = HE_CreateFileWrite( tmpStr );

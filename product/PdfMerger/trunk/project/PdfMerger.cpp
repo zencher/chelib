@@ -851,13 +851,28 @@ void CPdfMergerApp::LoadDocument()
 	theApp.mbLoadError = false;
 	theApp.mbLoadOver = false;
 
+	//if ( mFileCache.size() > 10 )
+	//{
+		ReleaseCache();
+	//}
+
 	for ( size_t i = 0; i < theApp.mFileNameToLoad.size(); ++i )
 	{
 		size_t index = 0;
 		bool bFound = false;
 		bFound = theApp.IsExistInFileList( theApp.mFilePathToLoad[i], index );
-		if ( ! bFound )
+		if ( bFound )
 		{
+			CListItem item;
+			item.type = ALL_PAGES;
+			item.pageIndex = 1;
+			item.filePageCount = item.pageCount = theApp.mFileCache[index].mpPageTree->GetPageCount();
+			item.fileName = theApp.mFileNameToLoad[index];
+			item.index = index;
+			item.bytes = theApp.mFileCache[index].mpPDFFile->GetFileSize();
+			theApp.mList.push_back( item );
+			theApp.mpMainDlg->AppendListItem( item );
+		}else{
 			if ( theApp.mFilePathToLoad[i].size() > 0 )
 			{
 				if ( theApp.mpLoadDlg )
@@ -881,7 +896,7 @@ void CPdfMergerApp::LoadDocument()
 					{
 						CHE_ByteString str;
 						bool bPasswordError = false;
-						bool bGiveFile = false;
+						bool bGiveupFile = false;
 						str = "";
 						while ( ! pFile->Authenticate( str ) )
 						{
@@ -892,15 +907,21 @@ void CPdfMergerApp::LoadDocument()
 							}
 							if ( dlg.DoModal() == 1 )
 							{
-								bGiveFile = true;
+								bGiveupFile = true;
 								break;
 							}
 							bPasswordError = true;
 							str = theApp.mCurPassword.c_str();
 						}
 
-						if ( ! bGiveFile )
+						if ( bGiveupFile )
 						{
+							pFile->Close();
+							pFile->GetAllocator()->Delete( pFile );
+							HE_DestoryIHERead( pTmpRead );
+							pTmpRead = NULL;
+							continue;
+						}else{
 							CHE_PDF_Document * pDocumennt = CHE_PDF_Document::CreateDocument( pFile );
 							CHE_PDF_PageTree * pPageTree = pDocumennt->GetPageTree();
 
@@ -922,29 +943,15 @@ void CPdfMergerApp::LoadDocument()
 							item.pageIndex = 1;
 							item.filePageCount = item.pageCount = fileInfo.mpPageTree->GetPageCount();
 							item.fileName = theApp.mFileNameToLoad[i];
-							item.index = i;
+							item.index = theApp.mFileCache.size()-1;
 							item.bytes = pFile->GetFileSize();
 							item.filePageCount = fileInfo.mpPageTree->GetPageCount();
 							theApp.mList.push_back( item );
-							theApp.mpMainDlg->AppendListItem( item );
-						}else{
-							HE_DestoryIHERead( pTmpRead );
-							pTmpRead = NULL;
-							continue;
+							theApp.mpMainDlg->AppendListItem( item );					
 						}
 					}
 				}
 			}
-		}else{
-			CListItem item;
-			item.type = ALL_PAGES;
-			item.pageIndex = 1;
-			item.filePageCount = item.pageCount = theApp.mFileCache[i].mpPageTree->GetPageCount();
-			item.fileName = theApp.mFileNameToLoad[i];
-			item.index = i;
-			item.bytes = theApp.mFileCache[i].mpPDFFile->GetFileSize();
-			theApp.mList.push_back( item );
-			theApp.mpMainDlg->AppendListItem( item );
 		}
 	}
 
@@ -1187,4 +1194,36 @@ bool CPdfMergerApp::CheckRefInfo()
 	}
 
 	return false;
+}
+
+void CPdfMergerApp::ReleaseCache()
+{
+	std::vector<int> flag;
+	flag.assign( mFileCache.size(), 0 );
+
+	std::vector<CListItem>::iterator it;
+	for ( it = mList.begin(); it != mList.end(); ++it )
+	{
+		flag[(*it).index] = 1;
+	}
+
+	for ( size_t i = 0; i < flag.size(); ++i )
+	{
+		if ( flag[i] == 0 )
+		{
+			if ( mFileCache[i].mpPDFFile != NULL )
+			{
+				mFileCache[i].mFileName = L"";
+				mFileCache[i].mFilePath = L"";
+				mFileCache[i].mPassword = "";
+				mFileCache[i].mpDocument->GetAllocator()->Delete( mFileCache[i].mpDocument );
+				mFileCache[i].mpDocument = NULL;
+				mFileCache[i].mpPDFFile->Close();
+				mFileCache[i].mpPDFFile->GetAllocator()->Delete( mFileCache[i].mpPDFFile );
+				mFileCache[i].mpPDFFile = NULL;
+				HE_DestoryIHERead( mFileCache[i].mpFileRead );
+				mFileCache[i].mpFileRead = NULL;
+			}
+		}
+	}
 }

@@ -99,13 +99,15 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
     <None Include="res\PdfMerger.ico" />
     <None Include="res\PdfMerger.rc2" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditDlg.h" />
     <ClInclude Include="FileLoadDlg.h" />
+    <ClInclude Include="OptionPropertyPage.h" />
+    <ClInclude Include="OptionsDlg.h" />
+    <ClInclude Include="OptionSecurity.h" />
     <ClInclude Include="PasswordDlg.h" />
     <ClInclude Include="PdfMerger.h" />
     <ClInclude Include="PdfMergerDlg.h" />
@@ -118,6 +120,9 @@
   <ItemGroup>
     <ClCompile Include="EditDlg.cpp" />
     <ClCompile Include="FileLoadDlg.cpp" />
+    <ClCompile Include="OptionPropertyPage.cpp" />
+    <ClCompile Include="OptionsDlg.cpp" />
+    <ClCompile Include="OptionSecurity.cpp" />
     <ClCompile Include="PasswordDlg.cpp" />
     <ClCompile Include="PdfMerger.cpp" />
     <ClCompile Include="PdfMergerDlg.cpp" />

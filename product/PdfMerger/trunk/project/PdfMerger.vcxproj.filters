@@ -15,7 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
     <None Include="res\PdfMerger.rc2">
       <Filter>资源文件</Filter>
     </None>
@@ -54,6 +53,15 @@
     <ClInclude Include="Welcome.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="OptionPropertyPage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionSecurity.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="OptionsDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PdfMerger.cpp">
@@ -78,6 +86,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Welcome.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionPropertyPage.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionSecurity.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="OptionsDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -21,7 +21,7 @@ int main( int argc, char* argv[] )
 
 	for ( size_t i = 0; i < 1024; ++i )
 	{
-		name[i] = (unsigned char)( name[i] + i );
+		name[i] = (unsigned char)( name[i] + ~i );
 	}
 
 	for ( size_t i = 0; i < 1023; ++i )

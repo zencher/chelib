@@ -94,7 +94,7 @@ IHE_CrtFileWrite::IHE_CrtFileWrite( HE_LPCSTR filename, HE_BYTE mode, CHE_Alloca
 		{
 			m_pFile = fopen( filename, "wb+" );
 		}else{
-			m_pFile = fopen( filename, "r+b" );
+			m_pFile = fopen( filename, "rb+" );
 		}
 	}
 }

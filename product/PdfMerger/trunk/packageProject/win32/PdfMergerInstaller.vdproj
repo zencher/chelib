@@ -117,6 +117,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_508809B88DB1424186162E2F678E52EB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5478CEE0163647179F64FE6BE919321C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -850,6 +856,26 @@
             "TargetName" = "8:bg2.png"
             "Tag" = "8:"
             "Folder" = "8:_029113113CEB41519BAB2292E819DF0D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_508809B88DB1424186162E2F678E52EB"
+            {
+            "SourcePath" = "8:..\\commonFiles\\resData.dat"
+            "TargetName" = "8:resData.dat"
+            "Tag" = "8:"
+            "Folder" = "8:_C251A56937F9488B8141D9FE2A6CB4F1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1994,7 +2020,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:PDF Merger"
         "ProductCode" = "8:{73809B27-CB8E-4C94-9E2D-5F5E07978F85}"
-        "PackageCode" = "8:{D144452F-341C-4EA2-9148-2506758275AD}"
+        "PackageCode" = "8:{CA9165D2-FB5D-4795-95C2-12431CB28BAD}"
         "UpgradeCode" = "8:{076C1544-924C-4446-B631-DF23BAAA1F60}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

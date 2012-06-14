@@ -29,6 +29,8 @@ public:
 
 	HE_VOID					SetPDFVersion( PDF_VERSION version );
 
+	HE_BOOL					SetInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str );
+
 	CHE_PDF_DictionaryPtr	GetTrailerDict() const;
 
 	CHE_PDF_DictionaryPtr	GetRootDict();
@@ -36,6 +38,7 @@ public:
 	CHE_PDF_DictionaryPtr	GetInfoDict();
 
 	CHE_PDF_ArrayPtr		GetIDArray();
+
 
 	HE_VOID					CreateTrailerDict();
 

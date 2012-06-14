@@ -630,6 +630,71 @@ HE_VOID CHE_PDF_File::SetPDFVersion( PDF_VERSION version )
 	mVersion = version;
 }
 
+HE_BOOL CHE_PDF_File::SetInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str )
+{
+	if ( str.GetLength() == 0 )
+	{
+		return FALSE;
+	}
+	if ( infoType > 8 || infoType < 0 )
+	{
+		return FALSE;
+	}
+	CHE_PDF_ObjectPtr ObjPtr;
+	CHE_PDF_DictionaryPtr InfoDictPtr;
+
+	ObjPtr = GetTrailerDict()->GetElement( "Info", OBJ_TYPE_DICTIONARY );
+	if ( ObjPtr )
+	{
+		InfoDictPtr = ObjPtr->GetDictPtr();
+	}else{
+		PDF_RefInfo refInfo = CreateDictObject( InfoDictPtr );
+		if ( InfoDictPtr )
+		{
+			GetTrailerDict()->SetAtReference( "Info", refInfo.objNum, refInfo.genNum, this );
+		}
+	}
+
+	if ( ! InfoDictPtr )
+	{
+		return FALSE;
+	}
+
+	switch( infoType )
+	{
+	case DOCUMENT_INFO_TITLE:
+		InfoDictPtr->SetAtString( "Title", str );
+		break;
+	case DOCUMENT_INFO_AUTHOR:
+		InfoDictPtr->SetAtString( "Author", str );
+		break;
+	case DOCUMENT_INFO_SUBJECT:
+		InfoDictPtr->SetAtString( "Subject", str );
+		break;
+	case DOCUMENT_INFO_KEYWORDS:
+		InfoDictPtr->SetAtString( "Keywords", str );
+		break;
+	case DOCUMENT_INFO_CREATOR:
+		InfoDictPtr->SetAtString( "Creator", str );
+		break;
+	case DOCUMENT_INFO_PRODUCER:
+		InfoDictPtr->SetAtString( "Producer", str );
+		break;
+	case DOCUMENT_INFO_CREATIONDATE:
+		InfoDictPtr->SetAtString( "CreationDate", str );
+		break;
+	case DOCUMENT_INFO_MODDATE:
+		InfoDictPtr->SetAtString( "ModDate", str );
+		break;
+	case DOCUMENT_INFO_TRAPPED:
+		InfoDictPtr->SetAtString( "Trapped", str );
+		break;
+	default:
+		return FALSE;
+	}
+	return TRUE;
+}
+
 CHE_PDF_DictionaryPtr CHE_PDF_File::GetTrailerDict() const
 {
 	return mXRefTable.GetTrailer();

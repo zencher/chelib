@@ -167,44 +167,102 @@ DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 		}
 	}
 
-//zctodo
-// 	if ( ! theApp.CheckRefInfo() )
-// 	{
-// 		pNewPageTree->AppendPage( 600, 800 );
-// 
-// 		CHE_PDF_Page * pAdPage = pNewPageTree->GetPage( pNewPageTree->GetPageCount() - 1 );
-// 
-// 		CHE_PDF_DictionaryPtr dictPtr = pAdPage->GetPageDict();
-// 
-// 		CHE_PDF_DictionaryPtr resDict = CHE_PDF_Dictionary::Create();
-// 
-// 		dictPtr->SetAtDictionary( "Resources", resDict );
-// 
-// 		FILE * pImageFile = NULL;
-// 		pImageFile = fopen( "resData.dat", "rb" );
-// 		fseek( pImageFile, 0, SEEK_END );
-// 		HE_DWORD imageSize = ftell( pImageFile );
-// 		HE_LPBYTE pBuf = new HE_BYTE[imageSize];
-// 		fseek( pImageFile, 0, SEEK_SET ); 
-// 		fread( pBuf, 1, imageSize, pImageFile );
-// 
-// 		CHE_PDF_ReferencePtr refPtr = CHE_PDF_Image::InsertImageToFile( &newFile, IMAGE_JPEG, 8, 600, 800, pBuf, imageSize );
-// 
-// 		CHE_PDF_ContentResMgr resMgr( resDict );
-// 
-// 		resMgr.CreateName( CONTENTRES_XOBJECT, refPtr );
-// 
-// 		CHE_PDF_StreamPtr streamPtr;
-// 
-// 		PDF_RefInfo refInfo = newFile.CreateStreamObject( streamPtr );
-// 
-// 		if ( streamPtr )
-// 		{
-// 			streamPtr->SetRawData( (HE_LPBYTE)"600 0 0 800 0 0 cm\n/XOBJ Do", 27/*, STREAM_FILTER_FLATE*/ );
-// 		}
-// 
-// 		dictPtr->SetAtReference( "Contents", refInfo.objNum, refInfo.genNum, &newFile );
-// 	}
+	if ( ! theApp.CheckRefInfo() )
+	{
+		IHE_Read * pTmpRead = HE_CreateFileRead( "resData.dat" );
+		if ( pTmpRead )
+		{
+			CHE_PDF_File file;
+			if ( file.Open( pTmpRead ) )
+			{
+				CHE_PDF_Document * pDoc = CHE_PDF_Document::CreateDocument( &file );
+				
+				if ( pDoc )
+				{
+					CHE_PDF_PageTree * pPageTree = pDoc->GetPageTree();
+
+					CHE_ObjectCloneMgr ObjCloneMgr;
+					CHE_PDF_DictionaryPtr OldPageDictPtr;
+
+					CHE_PDF_Page * pOldPage= pPageTree->GetPage( 0 );
+
+					OldPageDictPtr = pOldPage->GetPageDict();
+
+					pNewPageTree->AppendPage( 0, 0 );
+
+					CHE_PDF_DictionaryPtr NewPageDictPtr;
+					CHE_PDF_Page * pNewPage = pNewPageTree->GetPage( pNewPageTree->GetPageCount() - 1 );
+					if ( pNewPage == NULL )
+					{
+						return 0;
+					}
+					NewPageDictPtr = pNewPage->GetPageDict();
+
+					CHE_ByteString key;
+					CHE_PDF_ObjectPtr tmpObjPtr;
+					for ( HE_DWORD i = 0; i < OldPageDictPtr->GetCount(); i++ )
+					{
+						tmpObjPtr = OldPageDictPtr->GetElementByIndex( i );
+						OldPageDictPtr->GetKeyByIndex( i, key );
+						if ( !tmpObjPtr || key == "Type" || key == "Parent" )
+						{
+							continue;
+						}
+						switch( tmpObjPtr->GetType() )
+						{
+						case OBJ_TYPE_NULL:
+							NewPageDictPtr->SetAtNull( key );
+							break;
+						case OBJ_TYPE_BOOLEAN:
+							NewPageDictPtr->SetAtBoolean( key, tmpObjPtr->GetBooleanPtr()->GetValue() );
+							break;
+						case OBJ_TYPE_NUMBER:
+							if ( tmpObjPtr->GetNumberPtr()->IsInteger() )
+							{
+								NewPageDictPtr->SetAtInteger( key, tmpObjPtr->GetNumberPtr()->GetInteger() );
+							}else{
+								NewPageDictPtr->SetAtFloatNumber( key, tmpObjPtr->GetNumberPtr()->GetFloat() );
+							}
+							break;
+						case OBJ_TYPE_STRING:
+							NewPageDictPtr->SetAtString( key, tmpObjPtr->GetStringPtr()->GetString() );
+							break;
+						case OBJ_TYPE_NAME:
+							NewPageDictPtr->SetAtName( key, tmpObjPtr->GetNamePtr()->GetString() );
+							break;
+						case OBJ_TYPE_ARRAY:
+							NewPageDictPtr->SetAtArray( key, CloneDirectArrayObj( tmpObjPtr->GetArrayPtr(), &newFile, &ObjCloneMgr ) );
+							break;
+						case OBJ_TYPE_DICTIONARY:
+							NewPageDictPtr->SetAtDictionary( key, CloneDirectDictObj( tmpObjPtr->GetDictPtr(), &newFile, &ObjCloneMgr ) );
+							break;
+						case OBJ_TYPE_REFERENCE:
+							{
+								PDF_RefInfo refInfo = CloneIndirectObj( tmpObjPtr->GetRefPtr(), &newFile, &ObjCloneMgr );
+								NewPageDictPtr->SetAtReference( key, refInfo.objNum, refInfo.genNum, &newFile );
+								break;
+							}
+						default:
+							break;
+						}
+					}
+
+					CHE_PDF_DictionaryPtr tmpDict = CloneDirectDictObj( pOldPage->GetResourcesDict(), &newFile, &ObjCloneMgr );
+					NewPageDictPtr->SetAtDictionary( "Resources", tmpDict );
+
+					CHE_PDF_ArrayPtr tmpArray = CloneDirectArrayObj( pOldPage->GetMediaBoxArray(), &newFile, &ObjCloneMgr );
+					NewPageDictPtr->SetAtArray( "MediaBox", tmpArray );
+
+					HE_INT32 rotate = pOldPage->GetRotate();
+					NewPageDictPtr->SetAtInteger( "Rotate", rotate );
+
+					//release pages
+					CHE_PDF_Page::ReleasePage( pOldPage );
+					CHE_PDF_Page::ReleasePage( pNewPage );
+				}
+			}
+		}
+	}
 
 	newFile.SetInfo( DOCUMENT_INFO_PRODUCER, "Peroit PDF Merger 1.0" );
 

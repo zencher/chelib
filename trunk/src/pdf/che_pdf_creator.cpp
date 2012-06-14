@@ -446,7 +446,7 @@ HE_VOID CHE_PDF_Creator::OutPutFileHead( PDF_VERSION version )
 		mpWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion17, glStrPDFVersion );
 		break;
 	}
-	mpWrite->WriteBlock( (HE_LPVOID)"%\255\255\255\255\n", 6 );
+	mpWrite->WriteBlock( (HE_LPVOID)"%\255\255\255\255\255\255\n", 8 );
 }
 
 HE_DWORD CHE_PDF_Creator::OutPutObject( const CHE_PDF_ObjectPtr & pObj )
@@ -513,8 +513,13 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
 				while( entryList.Pop( tmpEntry ) )
 				{
-					sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
-					mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+					if ( tmpEntry.GetObjNum() == 0 )
+					{
+						mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
+					}else{
+						sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
+						mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+					}
 				}
 				entryList.Push( entry );
 				lBeginNum = entry.GetObjNum();
@@ -556,6 +561,7 @@ HE_VOID CHE_PDF_Creator::OutPutTailerDict( const CHE_PDF_DictionaryPtr & pDcit )
 {
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrTrailerMark, glStrTrailerMark );
 	OutPutObject( mpWrite, pDcit, mpEncrypt );
+	mpWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, glStrNewLine );
 }
 
 HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectPtr & pObj, CHE_PDF_Encrypt * pEncrypt /*= NULL*/ )
@@ -709,21 +715,36 @@ HE_VOID CHE_PDF_Creator::OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectP
 		}
 	case OBJ_TYPE_STREAM:
 		{
-			CHE_PDF_StreamPtr ptr = pObj->GetStreamPtr();
-			if( ptr->GetDictPtr() )
+			CHE_PDF_StreamPtr stmPtr = pObj->GetStreamPtr();
+			CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+			if( ! dictPtr )
 			{
-				OutPutObject( pWrite, ptr->GetDictPtr(), pEncrypt );
-				pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
+				break;
 			}
+
+			CHE_PDF_ObjectPtr tmpPtr = dictPtr->GetElement( "Filter" );
+			if ( ! tmpPtr )
+			{
+				CHE_PDF_StreamAcc stmAcc;
+				CHE_DynBuffer buf;
+				stmAcc.Attach( stmPtr );
+				buf.Write( stmAcc.GetData(), stmAcc.GetSize() );
+				stmAcc.Detach();
+				stmPtr->SetRawData( buf.GetData(), buf.GetSize(), STREAM_FILTER_FLATE );
+			}
+
+			OutPutObject( pWrite, stmPtr->GetDictPtr(), pEncrypt );
+			pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
+
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjBegin, glStrStreamObjBegin );
-			HE_LPBYTE pBytes = GetDefaultAllocator()->NewArray<HE_BYTE>( ptr->GetRawSize() + 16 );
-			ptr->GetRawData( 0, pBytes, ptr->GetRawSize() );
+			HE_LPBYTE pBytes = GetDefaultAllocator()->NewArray<HE_BYTE>( stmPtr->GetRawSize() + 16 );
+			stmPtr->GetRawData( 0, pBytes, stmPtr->GetRawSize() );
 			HE_DWORD length = 0;
 			if ( pEncrypt )
 			{
-				pEncrypt->Encrypt( pBytes, ptr->GetRawSize(), ptr->GetObjNum(), ptr->GetGenNum() );
+				pEncrypt->Encrypt( pBytes, stmPtr->GetRawSize(), stmPtr->GetObjNum(), stmPtr->GetGenNum() );
 			}
-			pWrite->WriteBlock( (HE_LPVOID)( pBytes ), ptr->GetRawSize() );
+			pWrite->WriteBlock( (HE_LPVOID)( pBytes ), stmPtr->GetRawSize() );
 			GetDefaultAllocator()->DeleteArray<HE_BYTE>( pBytes );
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjEnd, glStrStreamObjEnd );
 			break;

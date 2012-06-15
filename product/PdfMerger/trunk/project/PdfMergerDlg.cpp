@@ -97,8 +97,6 @@ void EventAddFiles( CHE_WDM_Area * pArea )
 static void EventOptionBtnClick( CHE_WDM_Area * pArea )
 {
 	COptionsDlg dlg( L"Options" );
-	// 	AddPage( &mPropertyPage );
-// 	AddPage( &mSecurityPage );
 	dlg.DoModal();
 }
 
@@ -811,7 +809,7 @@ void CPdfMergerDlg::AppendListItem( const CListItem & item )
 	pTmpArea->SetHeight( 49 );
  	pTmpArea->SetMouseOverEvent( EventListItemMouseOver );
  	pTmpArea->SetClickEvent( EventListItemClick );
-	//pTmpArea->SetDBClickEvent( EventEditBtnClick );
+	pTmpArea->SetDBClickEvent( EventEditBtnClick );
 	textPtr = CHE_WDM_AppearText::Create();
 	textPtr->SetSize( 12 );
 	textPtr->SetPosiX( 55 );

@@ -264,6 +264,8 @@ DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 		}
 	}
 
+	newFile.SetInfo( DOCUMENT_INFO_CREATOR, "Peroit PDF Merger 1.0" );
+
 	newFile.SetInfo( DOCUMENT_INFO_PRODUCER, "Peroit PDF Merger 1.0" );
 
 	char tmpStr[1024];

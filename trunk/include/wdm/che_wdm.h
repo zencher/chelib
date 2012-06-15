@@ -344,10 +344,75 @@ public:
 	virtual HE_VOID						ResetClip() = 0;
 
 	virtual HE_VOID						Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE ) = 0;
+	virtual HE_VOID						Draw( CHE_WDM_Area * pArea, CHE_WDM_AppearItemPtr appearPtr ) = 0;
 
-	virtual HE_VOID						SetTimer(HE_DWORD ) = 0;
-	virtual HE_VOID						KillTimer() = 0;
+	virtual HE_VOID						SetTimer( CHE_WDM_Area * pArea, HE_DWORD elapse ) = 0;
+	virtual HE_VOID						KillTimer( CHE_WDM_Area * pArea ) = 0;
+
+	virtual HE_BOOL						MeasureString( CHE_WDM_AppearTextPtr ptr, HE_DWORD & width, HE_DWORD & height ) = 0;
+	virtual HE_BOOL						MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_DWORD count, HE_DWORD & width, HE_DWORD & height ) = 0;
+	virtual HE_FLOAT					GetFontHeight( CHE_WDM_AppearTextPtr ptr ) = 0;
 };
+
+
+// #define KEYCODE_0		0
+// #define KEYCODE_1		1
+// #define KEYCODE_2		2
+// #define KEYCODE_3		3
+// #define KEYCODE_4		4
+// #define KEYCODE_5		5
+// #define KEYCODE_6		6
+// #define KEYCODE_7		7
+// #define KEYCODE_8		8
+// #define KEYCODE_9		9
+#define KEYCODE_ADD				10	//表示数字键盘上的“ + ”键。
+#define KEYCODE_ALT				11	//表示键盘上 “ ALT ”键。
+#define KEYCODE_BACK_QUOTE		12	//表示键盘上 “ ` ”
+#define KEYCODE_BACK_SLASH		13	//表示键盘上 “ \ ”键。 
+#define KEYCODE_BACK_SPACE		14	//表示键盘上 “ BACKSPACE “键。 
+#define KEYCODE_CAPS_LOCK		15	//表示键盘上 “ CAPS LOCK ”键。 
+#define KEYCODE_CLOSE_BRACKET	16	//表示键盘上 “ ] ”键。 
+#define KEYCODE_COMMAN			17	//表示键盘上 “ , ”键。 
+#define KEYCODE_CONTROL			18	//表示键盘上 “ CTRL ”键。 
+#define KEYCODE_DECIMAL			19	//表示数字键盘上 “ . ”键。 
+#define KEYCODE_DELETE			20	//表示键盘上 “ DELETE ”键。 
+#define KEYCODE_DIVIDE			21	//表示键盘上 “ / ”键。 
+#define KEYCODE_DOWN			22	//表示键盘上 “向下箭头”键。 
+#define KEYCODE_END				23	//表示键盘上 “ END ”键。 
+#define KEYCODE_ENTER			24	//表示键盘上 “ ENTER ”键。 
+#define KEYCODE_EQUALS			25	//表示键盘上 “＝”键。 
+#define KEYCODE_ESCAPE			26	//表示键盘上 “ ESC ”键。 
+#define KEYCODE_F1				27				
+#define KEYCODE_F2				28
+#define KEYCODE_F3				29
+#define KEYCODE_F4				30
+#define KEYCODE_F5				31
+#define KEYCODE_F6				32
+#define KEYCODE_F7				33
+#define KEYCODE_F8				34
+#define KEYCODE_F9				35
+#define KEYCODE_F10				36
+#define KEYCODE_F11				37
+#define KEYCODE_F12				38
+#define KEYCODE_HOME			39	//表示键盘上 “ HOME ”键。 
+#define KEYCODE_INSERT			40	//表示键盘上 “ INSTERT ”键。 
+#define KEYCODE_LEFT			41	//表示键盘上 “向左箭头”键。 
+#define KEYCODE_MULTIPLY		42	//表示键盘上 “ * ”键。 
+//#define KEYCODE_NUMPAD0 到 #define KEYCODE_NUMPAD9     表示数字键盘上 “ 0 ”到“ 9 ”键。 
+#define KEYCODE_OPEN_BRACKET	52	//表示键盘上 “ [ ”键。 
+#define KEYCODE_PAGE_DOWN		53	//表示键盘上 “ PAGE DOWN ”键。 
+#define KEYCODE_PAGE_UP			54	//表示键盘上 “ PAGE UP ”键。 
+#define KEYCODE_PAUSE			55	//表示键盘上 “ PAUSE ”键。 
+#define KEYCODE_PRINTSCREEN		56	//表示键盘上 “ PRINT SCREEN ”键。 
+#define KEYCODE_RIGHT			57	//表示键盘上 “向右箭头”键。 
+#define KEYCODE_SCROLL_LOCK		58	//表示键盘上 “ SCROLL LOCK ”键。 
+#define KEYCODE_SEMICOLON		59	//表示键盘上 “；”键。 
+#define KEYCODE_SHIFT			60	//表示键盘上 “ SHIFT ”键。 
+#define KEYCODE_SPACE			61	//表示键盘上 “ SPACEBAR ”键。 
+#define KEYCODE_SUBTRACT		62	//表示键盘上 “－”键。 
+#define KEYCODE_TAB				63	//表示键盘上 “ TAB ”键。 
+#define KEYCODE_UP				64	//表示键盘上 “向上箭头”键。
+
 
 class CHE_WDM_Area : public CHE_Object
 {
@@ -402,17 +467,21 @@ public:
 	HE_BOOL								ChildToLower( HE_DWORD index );
 	HE_BOOL								ChildToUpper( HE_DWORD index );
 
-	virtual HE_VOID						OnMouseMove( HE_INT32 x, HE_INT32 y );
-	virtual HE_VOID						OnMouseOver();
-	virtual HE_VOID						OnMouseOut();
-	virtual HE_VOID						OnMouseLBDown( HE_INT32 x, HE_INT32 y );
-	virtual HE_VOID						OnMouseLBUp( HE_INT32 x, HE_INT32 y );
-	virtual HE_VOID						OnMouseRBDown( HE_INT32 x, HE_INT32 y );
-	virtual HE_VOID						OnMouseRBUp( HE_INT32 x, HE_INT32 y );
-	virtual HE_VOID						OnMouseLDBClick( HE_INT32 x, HE_INT32 y );
-	virtual HE_VOID						OnMouseRDBClick( HE_INT32 x, HE_INT32 y );
-	virtual HE_VOID						OnDraw();
-	virtual HE_VOID						OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom );
+	virtual HE_BOOL						OnMouseMove( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL						OnMouseOver();
+	virtual HE_BOOL						OnMouseOut();
+	virtual HE_BOOL						OnMouseLBDown( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL						OnMouseLBUp( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL						OnMouseRBDown( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL						OnMouseRBUp( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL						OnMouseLDBClick( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL						OnMouseRDBClick( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL						OnKeyDown( HE_INT32 /*keyCode*/ ) { return FALSE; }
+	virtual HE_BOOL						OnKeyUp( HE_INT32 /*keyCode*/ ) { return FALSE; }
+	virtual HE_BOOL						OnChar( HE_WCHAR /*charCode*/ ) { return FALSE; }
+	virtual HE_BOOL						OnTimer() { return FALSE; }
+	virtual HE_BOOL						OnDraw();
+	virtual HE_BOOL						OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom );
 
 	HE_VOID								SetFocus( CHE_WDM_Area * pChild );
 	HE_VOID								ReleaseFocus();
@@ -469,19 +538,21 @@ public:
 	HE_INT32							mPosiY;
 };
 
+typedef HE_VOID (*Function)();
 
 class CHE_WDM_AreaAnimation
 {
 public:
 	CHE_WDM_AreaAnimation()
-		: mbLoop( FALSE ), mFramesCount( 0 ), mCurFrame( 0 ), mIndex( 0 ), mFramesToGo( 0 ), mpArea( NULL ) {};
+		: mbLoop( FALSE ), mFramesCount( 0 ), mCurFrame( 0 ), mIndex( 0 ), mFramesToGo( 0 ), mpArea( NULL ), mpOverFunction( NULL ) {};
 
 	~CHE_WDM_AreaAnimation() {};
 
 	HE_BOOL								SetTarget( CHE_WDM_Area * pArea );
 	HE_VOID								SetState( const CHE_WDM_AnimationData & state ) { mState = state; }
 	HE_VOID								SetLoop( HE_BOOL bLoop ) { mbLoop = bLoop; }
-
+	HE_VOID								SetOverFunction( Function pFunction ) { mpOverFunction = pFunction; }
+	HE_VOID								CallFunction();
 	HE_VOID								InsertFrames( HE_DWORD frames, const CHE_WDM_AnimationData & state );
 
 	HE_VOID								Init();
@@ -501,6 +572,7 @@ protected:
 	CHE_WDM_Area	*					mpArea;
 	CHE_WDM_AnimationData				mState;
 	CHE_WDM_AnimationData				mStateOffset;
+	Function							mpOverFunction;
 
 	std::vector<CHE_WDM_AnimationData>	mAnimations;
 	std::vector<HE_DWORD>				mAnimationFrames;
@@ -532,7 +604,7 @@ public:
 	std::vector<CHE_WDM_AppearAnimation>	mAppearAnimations;
 };
 
-typedef void (*EventFunction)( CHE_WDM_Area * pArea );
+typedef HE_VOID (*EventFunction)( CHE_WDM_Area * pArea );
 
 class CHE_WDM_Button : public CHE_WDM_Area
 {
@@ -543,9 +615,9 @@ public:
 
 	HE_VOID							SetDBClickEvent( EventFunction eventFunc ) { mDBClickEventFunc = eventFunc; }
 
-	virtual HE_VOID					OnMouseLBUp( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL					OnMouseLBUp( HE_INT32 x, HE_INT32 y );
 
-	virtual HE_VOID					OnMouseLDBClick( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL					OnMouseLDBClick( HE_INT32 x, HE_INT32 y );
 
 protected:
 	CHE_WDM_Button( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
@@ -567,8 +639,8 @@ public:
 	HE_VOID							SetMouseOverEvent( EventFunction eventFunc ) { mMouseOverEventFunc = eventFunc; }
 	HE_VOID							SetMouseOutEvent( EventFunction eventFunc ) { mMouseOutEventFunc = eventFunc; }
 
-	HE_VOID							OnMouseOver();
-	HE_VOID							OnMouseOut();
+	virtual HE_BOOL					OnMouseOver();
+	virtual HE_BOOL					OnMouseOut();
 
 protected:
 	CHE_WDM_MouseEventBtn( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
@@ -585,9 +657,9 @@ class CHE_WDM_DragArea : public CHE_WDM_Area
 public:
 	static CHE_WDM_DragArea *		Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
 
-	HE_VOID							OnMouseLBDown( HE_INT32 x, HE_INT32 y );
-	HE_VOID							OnMouseLBUp( HE_INT32 x, HE_INT32 y );
-	HE_VOID							OnMouseMove( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL					OnMouseLBDown( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL					OnMouseLBUp( HE_INT32 x, HE_INT32 y );
+	virtual HE_BOOL					OnMouseMove( HE_INT32 x, HE_INT32 y );
 
 	HE_VOID							SetRange( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom );
 	HE_VOID							SetDragEvent( EventFunction eventFunc ) { mEventFunc = eventFunc; }

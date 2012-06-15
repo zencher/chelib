@@ -57,6 +57,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm.h" />
+    <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp" />
@@ -90,6 +91,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp" />
     <ClCompile Include="..\..\src\wdm\che_wdm.cpp" />
+    <ClCompile Include="..\..\src\wdm\che_wdm_textbox.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{93D59D50-47AB-4B6D-856D-4B5CD72E7E9F}</ProjectGuid>

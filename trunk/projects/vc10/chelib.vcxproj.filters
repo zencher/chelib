@@ -137,6 +137,9 @@
     <ClInclude Include="..\..\include\wdm\che_wdm.h">
       <Filter>头文件\WDM</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h">
+      <Filter>头文件\WDM</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -230,6 +233,9 @@
       <Filter>源文件\PDF</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\wdm\che_wdm.cpp">
+      <Filter>源文件\WDM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\wdm\che_wdm_textbox.cpp">
       <Filter>源文件\WDM</Filter>
     </ClCompile>
   </ItemGroup>

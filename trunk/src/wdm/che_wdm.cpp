@@ -460,19 +460,19 @@ HE_VOID CHE_WDM_Area::ClearChild()
 	mChildren.clear();
 }
 
-HE_VOID CHE_WDM_Area::OnMouseMove( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_Area::OnMouseMove( HE_INT32 x, HE_INT32 y )
 {
 	if ( !mbEnable )
 	{
-		return;
+		return FALSE;
 	}
 
 	if ( mpCaptureChild )
 	{
-		mpCaptureChild->OnMouseMove( x, y );
-		return;
+		return mpCaptureChild->OnMouseMove( x, y );
 	}
 
+	HE_BOOL bHandled = FALSE;
 	HE_BOOL bChildrenGet = FALSE;
 
 	CHE_WDM_Area * pTmp = NULL;
@@ -493,31 +493,45 @@ HE_VOID CHE_WDM_Area::OnMouseMove( HE_INT32 x, HE_INT32 y )
 					mpMouseOverArea->OnMouseOut();
 					pTmp->OnMouseOver();
 				}
-				pTmp->OnMouseMove( x, y );
+				bHandled = pTmp->OnMouseMove( x, y );
 				bChildrenGet = TRUE;
 				break;
 			}
 		}
 	}
+
+	mbMO = TRUE;
 	if ( !bChildrenGet )
-	{
-		mbMO = TRUE;
+	{	
 		if ( mpMouseOverArea != NULL )
 		{
 			mpMouseOverArea->OnMouseOut();
 			OnMouseOver();
 		}
-	}else{
-		mbMO = FALSE;
 	}
+
+// 	if ( !bChildrenGet )
+// 	{
+// 		mbMO = TRUE;
+// 		if ( mpMouseOverArea != NULL )
+// 		{
+// 			mpMouseOverArea->OnMouseOut();
+// 			OnMouseOver();
+// 		}
+// 	}else{
+// 		mbMO = FALSE;
+// 	}
+
+	return bHandled;
 }
 
-HE_VOID CHE_WDM_Area::OnMouseOver()
+HE_BOOL CHE_WDM_Area::OnMouseOver()
 {
 	if ( !mbEnable )
 	{
-		return;
+		return FALSE;
 	}
+
 	if ( GetParent() )
 	{
 		GetParent()->SetFocus( this );
@@ -527,9 +541,11 @@ HE_VOID CHE_WDM_Area::OnMouseOver()
 	{
 		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
 	}
+
+	return FALSE;
 }
 
-HE_VOID CHE_WDM_Area::OnMouseOut()
+HE_BOOL CHE_WDM_Area::OnMouseOut()
 {
 	if ( GetParent() )
 	{
@@ -543,19 +559,20 @@ HE_VOID CHE_WDM_Area::OnMouseOut()
 	{
 		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
 	}
+	return FALSE;
 }
 
-HE_VOID CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 {
 	if ( !mbEnable )
 	{
-		return;
+		return FALSE;
 	}
 	if ( mpCaptureChild )
 	{
-		mpCaptureChild->OnMouseLBDown( x, y );
-		return;
+		return mpCaptureChild->OnMouseLBDown( x, y );
 	}
+	HE_BOOL bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -565,8 +582,8 @@ HE_VOID CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 			if ( x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 				 y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
 			{
-				pTmp->OnMouseLBDown( x, y );
-				return;
+				bHandled = pTmp->OnMouseLBDown( x, y );
+				break;
 			}
 		}
 	}
@@ -575,19 +592,23 @@ HE_VOID CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 	{
 		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
 	}
+	
+	return bHandled;
 }
 
-HE_VOID CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 {
 	if ( !mbEnable )
 	{
-		return;
+		return FALSE;
 	}
+	
 	if ( mpCaptureChild )
 	{
-		mpCaptureChild->OnMouseLBUp( x, y );
-		return;
+		return mpCaptureChild->OnMouseLBUp( x, y );
 	}
+
+	HE_BOOL bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -597,8 +618,8 @@ HE_VOID CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
 			{
-				pTmp->OnMouseLBUp( x, y );
-				return;
+				bHandled = pTmp->OnMouseLBUp( x, y );
+				break;
 			}
 		}
 	}
@@ -607,18 +628,20 @@ HE_VOID CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 	{
 		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
 	}
+	return bHandled;
 }
 
-HE_VOID CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
 {
 	if ( !mbEnable )
 	{
-		return;
+		return FALSE;
 	}
 	if ( mpCaptureChild )
 	{
-		mpCaptureChild->OnMouseRBDown( x, y );
+		return mpCaptureChild->OnMouseRBDown( x, y );
 	}
+	HE_BOOL bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -628,8 +651,8 @@ HE_VOID CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
 			{
-				pTmp->OnMouseRBDown( x, y );
-				return;
+				bHandled = pTmp->OnMouseRBDown( x, y );
+				break;
 			}
 		}
 	}
@@ -638,18 +661,20 @@ HE_VOID CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
 	{
 		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
 	}
+	return bHandled;
 }
 
-HE_VOID CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
 {
 	if ( !mbEnable )
 	{
-		return;
+		return FALSE;
 	}
 	if ( mpCaptureChild )
 	{
-		mpCaptureChild->OnMouseRBUp( x, y );
+		return mpCaptureChild->OnMouseRBUp( x, y );
 	}
+	HE_BOOL bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -659,8 +684,8 @@ HE_VOID CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
 			{
-				pTmp->OnMouseRBUp( x, y );
-				return;
+				bHandled = pTmp->OnMouseRBUp( x, y );
+				break;
 			}
 		}
 	}
@@ -669,14 +694,16 @@ HE_VOID CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
 	{
 		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
 	}
+	return bHandled;
 }
 
-HE_VOID CHE_WDM_Area::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_Area::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
 {
 	if ( !mbEnable )
 	{
-		return;
+		return FALSE;
 	}
+	HE_BOOL bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -686,19 +713,21 @@ HE_VOID CHE_WDM_Area::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
 			{
-				pTmp->OnMouseLDBClick( x, y );
-				return;
+				bHandled = pTmp->OnMouseLDBClick( x, y );
+				break;
 			}
 		}
 	}
+	return bHandled;
 }
 
-HE_VOID CHE_WDM_Area::OnMouseRDBClick( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_Area::OnMouseRDBClick( HE_INT32 x, HE_INT32 y )
 {
 	if ( !mbEnable )
 	{
-		return;
+		return FALSE;
 	}
+	HE_BOOL bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -708,18 +737,19 @@ HE_VOID CHE_WDM_Area::OnMouseRDBClick( HE_INT32 x, HE_INT32 y )
 			if (	x >= pTmp->GetPosiX() && x < pTmp->GetPosiX() + pTmp->GetWidth() &&
 					y >= pTmp->GetPosiY() && y < pTmp->GetPosiY() + pTmp->GetHeight() )
 			{
-				pTmp->OnMouseRDBClick( x, y );
-				return;
+				bHandled = pTmp->OnMouseRDBClick( x, y );
+				break;
 			}
 		}
 	}
+	return bHandled;
 }
 
-HE_VOID CHE_WDM_Area::OnDraw()
+HE_BOOL CHE_WDM_Area::OnDraw()
 {
 	if ( ! mbVisable )
 	{
-		return;
+		return FALSE;
 	}
 	if ( mInterActive )
 	{
@@ -761,26 +791,31 @@ HE_VOID CHE_WDM_Area::OnDraw()
 			mInterActive->ResetClip();
 		}
 	}
+	return TRUE;
 }
 
-HE_VOID CHE_WDM_Area::OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom )
+HE_BOOL CHE_WDM_Area::OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom )
 {
 	if ( !mbVisable )
 	{
-		return;
+		return FALSE;
 	}
 	if ( mInterActive )
 	{
+		mInterActive->SetClip( left, top, right, bottom );
 		if ( mbClip )
 		{
 			mInterActive->SetClip( this );
 		}
-		if ( ( ( left < GetPosiX() && right < GetPosiX() ) ||
-			( left > ( GetPosiX() + GetWidth() ) && ( right > ( GetPosiX() + GetWidth() ) ) ) &&
-			( ( top < GetPosiY() && bottom < GetPosiX() ) || 
-			( top > ( GetPosiY() + GetHeight() ) && ( bottom > ( GetPosiY() + GetHeight() ) ) ) ) ) )
+		if (	( ( GetPosiX() < left ) && ( ( GetPosiX() + GetWidth() ) <left ) )
+			||
+			( ( GetPosiX() > right ) && ( ( GetPosiX() + GetWidth() ) > right ) )
+			||
+			( ( GetPosiY() < top) && ( ( GetPosiY() + GetHeight() )<top ) )
+			||
+			( ( GetPosiY() > bottom ) && ( ( GetPosiY() + GetHeight() ) > bottom ) )
+			)
 		{
-
 		}else{
 			if ( mAppearance.mBackground.size() > 0 )
 			{
@@ -816,7 +851,9 @@ HE_VOID CHE_WDM_Area::OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_IN
 		{
 			mInterActive->ResetClip();
 		}
+		mInterActive->ResetClip();
 	}
+	return TRUE;
 }
 
 CHE_WDM_Button * CHE_WDM_Button::Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator )
@@ -829,46 +866,66 @@ CHE_WDM_Button * CHE_WDM_Button::Create( IHE_WDM_InterActive * pInterActive, CHE
 	return pButtun;
 }
 
-HE_VOID CHE_WDM_Button::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_Button::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 {
 	if ( IsEnable() )
 	{
+		if ( CHE_WDM_Area::OnMouseLBUp( x, y ) )
+		{
+			return TRUE;
+		}
 		if ( mClickEventFunc )
 		{
 			mClickEventFunc( this );
 		}
-		CHE_WDM_Area::OnMouseLBUp( x, y );
+		return TRUE;
 	}
+	return FALSE;
 }
 
-HE_VOID	CHE_WDM_Button::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
+HE_BOOL	CHE_WDM_Button::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
 {
 	if ( IsEnable() )
 	{
+		if ( CHE_WDM_Area::OnMouseLDBClick( x, y ) )
+		{
+			return TRUE;
+		}
 		if ( mDBClickEventFunc )
 		{
 			mDBClickEventFunc( this );
 		}
-		CHE_WDM_Area::OnMouseLDBClick( x, y );
+		return TRUE;
 	}
+	return FALSE;
 }
 
-HE_VOID	CHE_WDM_MouseEventBtn::OnMouseOver()
+HE_BOOL	CHE_WDM_MouseEventBtn::OnMouseOver()
 {
-	if ( mMouseOverEventFunc )
+	if ( IsEnable() )
 	{
-		mMouseOverEventFunc( this );
+		if ( mMouseOverEventFunc )
+		{
+			mMouseOverEventFunc( this );
+		}
+		CHE_WDM_Button::OnMouseOver();
+		return TRUE;
 	}
-	CHE_WDM_Button::OnMouseOver();
+	return FALSE;
 }
 
-HE_VOID	CHE_WDM_MouseEventBtn::OnMouseOut()
+HE_BOOL	CHE_WDM_MouseEventBtn::OnMouseOut()
 {
-	if ( mMouseOutEventFunc )
+	if ( IsEnable() )
 	{
-		mMouseOutEventFunc( this );
+		if ( mMouseOutEventFunc )
+		{
+			mMouseOutEventFunc( this );
+		}
+		CHE_WDM_Button::OnMouseOut();
+		return TRUE;
 	}
-	CHE_WDM_Button::OnMouseOut();
+	return FALSE;
 }
 
 CHE_WDM_MouseEventBtn * CHE_WDM_MouseEventBtn::Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator )
@@ -890,18 +947,20 @@ CHE_WDM_DragArea * CHE_WDM_DragArea::Create( IHE_WDM_InterActive * pInterActive,
 	return pArea;
 }
 
-HE_VOID CHE_WDM_DragArea::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_DragArea::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 {
 	mOffsetX = x - GetPosiX();
 	mOffsetY = y - GetPosiY();
 	GetParent()->SetCapture( this );
 	CHE_WDM_Area::OnMouseLBDown( x, y );
+	return TRUE;
 }
 
-HE_VOID CHE_WDM_DragArea::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_DragArea::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 {
 	GetParent()->ReleaseCapture();
 	CHE_WDM_Area::OnMouseLBUp( x, y );
+	return TRUE;
 }
 
 HE_VOID CHE_WDM_DragArea::SetRange( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom )
@@ -912,7 +971,7 @@ HE_VOID CHE_WDM_DragArea::SetRange( HE_INT32 left, HE_INT32 top, HE_INT32 right,
 	mRangeBottom = bottom;
 }
 
-HE_VOID CHE_WDM_DragArea::OnMouseMove( HE_INT32 x, HE_INT32 y )
+HE_BOOL CHE_WDM_DragArea::OnMouseMove( HE_INT32 x, HE_INT32 y )
 {
 	if ( IsMouseLBDown() )
 	{
@@ -945,11 +1004,12 @@ HE_VOID CHE_WDM_DragArea::OnMouseMove( HE_INT32 x, HE_INT32 y )
 			mEventFunc( this );
 		}
 	}
-	CHE_WDM_Area::OnMouseMove( x, y );
+	//CHE_WDM_Area::OnMouseMove( x, y );
 	if ( GetInterActive() )
 	{
 		GetInterActive()->Invalidate();
-	}	
+	}
+	return TRUE;
 }
 
 HE_BOOL CHE_WDM_AreaAnimation::SetTarget( CHE_WDM_Area * pArea )
@@ -984,6 +1044,14 @@ HE_VOID CHE_WDM_AreaAnimation::Init()
 		//mpArea->SetAlpha( mState.mAlpha );
 		//mpArea->SetScaleX( mState.mScaleX );
 		//mpArea->SetScaleY( mState.mScaleY );
+	}
+}
+
+HE_VOID CHE_WDM_AreaAnimation::CallFunction()
+{
+	if ( mpOverFunction )
+	{
+		mpOverFunction();
 	}
 }
 
@@ -1108,6 +1176,8 @@ HE_VOID CHE_WDM_AnimationMgr::Execute()
 		it->Execute();
 		if ( it->IsOver() )
 		{
+			it->CallFunction();
+
 			if ( ! it->IsLoop() )
 			{
 				it = mAreaAnimations.erase( it );

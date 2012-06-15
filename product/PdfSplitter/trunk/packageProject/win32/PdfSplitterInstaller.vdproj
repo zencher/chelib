@@ -399,6 +399,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C4CC9276A2A74E988AA0FA608830075F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C568DDFB382647CCA4C2F732645AE519"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1829,6 +1835,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C4CC9276A2A74E988AA0FA608830075F"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\PdfMerger\\trunk\\packageProject\\win32\\barner.bmp"
+            "TargetName" = "8:barner.bmp"
+            "Tag" = "8:"
+            "Folder" = "8:_CD15913ED58E4251AA6B0D7544EDDFF6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C568DDFB382647CCA4C2F732645AE519"
             {
             "SourcePath" = "8:..\\commonFiles\\images\\delBtnHover.png"
@@ -2080,7 +2106,7 @@
                 {
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_9AE3EF69003143739740758F281043D3"
                     {
-                    "Name" = "8:Peroit"
+                    "Name" = "8:Peroit Studio"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -2089,7 +2115,7 @@
                         {
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_F5BEBA0C7F424482AF96A164B838F7AE"
                             {
-                            "Name" = "8:PDF Splitter"
+                            "Name" = "8:Peroit PDF Splitter"
                             "AlwaysCreate" = "11:TRUE"
                             "Condition" = "8:"
                             "Transitive" = "11:TRUE"
@@ -2241,7 +2267,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_3DE865C56A5746F0B9791B969974EAB7"
             {
-            "Name" = "8:PDF Splitter"
+            "Name" = "8:Peroit PDF Splitter"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"

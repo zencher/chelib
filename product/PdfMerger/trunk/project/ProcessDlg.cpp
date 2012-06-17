@@ -84,7 +84,7 @@ DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 			if ( type == EVEN_PAGES )
 			{
 				pOldPage = pFileInfo->mpPageTree->GetPage( i * 2 );
-			}else if ( type == ODD_PAGES )
+			}else if ( type == EVEN_PAGES )
 			{
 				pOldPage = pFileInfo->mpPageTree->GetPage( i * 2 + 1 );
 			}else{
@@ -424,7 +424,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pBtn->SetPosiY( 60 );
 	pBtn->SetWidth( 107 );
 	pBtn->SetHeight( 20 );
-	pBtn->SetClickEvent( EventOpenFile );
+	pBtn->SetMouseLBUEvent( EventOpenFile );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\OpenFileBtn.png" );
 	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -438,7 +438,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pBtn->SetPosiY( 60 );
 	pBtn->SetWidth( 122 );
 	pBtn->SetHeight( 20 );
-	pBtn->SetClickEvent( EventOpenFolder );
+	pBtn->SetMouseLBUEvent( EventOpenFolder );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\OpenFolderBtn.png" );
 	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -452,7 +452,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	pBtn->SetPosiY( 60 );
 	pBtn->SetWidth( 118 );
 	pBtn->SetHeight( 18 );
-	pBtn->SetClickEvent( EventCloseDialog );
+	pBtn->SetMouseLBUEvent( EventCloseDialog );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\CloseDialogBtn.png" );
 	pBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );

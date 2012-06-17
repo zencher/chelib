@@ -67,6 +67,7 @@ public:
 	CHE_WDM_Area * mpItemList;
 	CHE_WDM_Area * mpScrollBar;
 	CHE_WDM_Button * mpStartBtn;
+
 	//CHE_WDM_TextBox * mpTextBox;
 
 	//CHE_WDM_Area * mpFilePath;

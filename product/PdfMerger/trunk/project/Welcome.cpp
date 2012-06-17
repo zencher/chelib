@@ -64,7 +64,7 @@ CWelcomeDlg::CWelcomeDlg(CWnd* pParent /*=NULL*/)
 	pTmpButtn->SetHeight( 35 );
 	pTmpButtn->SetPosiX( 60 );
 	pTmpButtn->SetPosiY( 170 );
-	pTmpButtn->SetClickEvent( EventClickBuyBtn );
+	pTmpButtn->SetMouseLBUEvent( EventClickBuyBtn );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\BuyBtn.png" );
@@ -83,7 +83,7 @@ CWelcomeDlg::CWelcomeDlg(CWnd* pParent /*=NULL*/)
 	pTmpButtn->SetHeight( 35 );
 	pTmpButtn->SetPosiX( 210 );
 	pTmpButtn->SetPosiY( 170 );
-	pTmpButtn->SetClickEvent( EventClickActiveBtn );
+	pTmpButtn->SetMouseLBUEvent( EventClickActiveBtn );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\ActiveBtn.png" );
@@ -102,7 +102,7 @@ CWelcomeDlg::CWelcomeDlg(CWnd* pParent /*=NULL*/)
 	pTmpButtn->SetHeight( 35 );
 	pTmpButtn->SetPosiX( 360 );
 	pTmpButtn->SetPosiY( 170 );
-	pTmpButtn->SetClickEvent( EventClickTryBtn );
+	pTmpButtn->SetMouseLBUEvent( EventClickTryBtn );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\TryBtn.png" );

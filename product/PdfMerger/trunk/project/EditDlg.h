@@ -49,9 +49,25 @@ public:
 	size_t mCurPage;
 
 	CHE_WDM_Area * mpFileInfo;
+	CHE_WDM_Area * mpToolBar;
+	CHE_WDM_Button * mpToolBtn1;
+	CHE_WDM_Button * mpToolBtn2;
+	CHE_WDM_Button * mpToolBtn3;
+	CHE_WDM_Button * mpToolBtn4;
+	CHE_WDM_Button * mpToolBtn5;
 	CHE_WDM_Button * mpModeBtn;
-	CHE_WDM_AppearImagePtr mModeBtnGB;
-	CHE_WDM_AppearImagePtr mModeBtnGBHL;
+// 	CHE_WDM_AppearImagePtr mModeBtnGB;
+// 	CHE_WDM_AppearImagePtr mModeBtnGBHL;
+
+	CHE_WDM_AppearImagePtr mToolBarBtnBG;
+	CHE_WDM_AppearImagePtr mToolBarBtnHover;
+	CHE_WDM_AppearImagePtr mToolBarBtnActive;
+
+	CHE_WDM_AppearTextPtr mAllPagesText;
+	CHE_WDM_AppearTextPtr mSinglePageText;
+	CHE_WDM_AppearTextPtr mPageRangeText;
+	CHE_WDM_AppearTextPtr mEvenPagesText;
+	CHE_WDM_AppearTextPtr mOddPagesText;
 
 	bool mbBG2;
 	CHE_WDM_Button * mpBG2;

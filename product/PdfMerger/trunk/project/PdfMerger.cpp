@@ -867,7 +867,7 @@ void CPdfMergerApp::LoadDocument()
 			item.type = ALL_PAGES;
 			item.pageIndex = 1;
 			item.filePageCount = item.pageCount = theApp.mFileCache[index].mpPageTree->GetPageCount();
-			item.fileName = theApp.mFileNameToLoad[index];
+			item.fileName = theApp.mFileNameToLoad[i];
 			item.index = index;
 			item.bytes = theApp.mFileCache[index].mpPDFFile->GetFileSize();
 			theApp.mList.push_back( item );

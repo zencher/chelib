@@ -322,7 +322,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpAddFileBtn->SetPosiY( 20 );
 	mpAddFileBtn->SetWidth( 118 );
 	mpAddFileBtn->SetHeight( 47 );
-	mpAddFileBtn->SetClickEvent( EventAddFiles );
+	mpAddFileBtn->SetMouseLBUEvent( EventAddFiles );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\AddFileBtn.png" );
 	mpAddFileBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -336,7 +336,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpOptionsBtn->SetPosiY( 20 );
 	mpOptionsBtn->SetWidth( 118 );
 	mpOptionsBtn->SetHeight( 47 );
-	mpOptionsBtn->SetClickEvent( EventOptionBtnClick );
+	mpOptionsBtn->SetMouseLBUEvent( EventOptionBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\OptionsBtn.png" );
 	mpOptionsBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -363,7 +363,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpEditBtn->SetPosiY( 92 );
 	mpEditBtn->SetWidth( 20 + 35 );
 	mpEditBtn->SetHeight( 20 );
-	mpEditBtn->SetClickEvent( EventEditBtnClick );
+	mpEditBtn->SetMouseLBUEvent( EventEditBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\EditBtn.png" );
 	mpEditBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -390,7 +390,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpClearBtn->SetPosiY( 92 );
 	mpClearBtn->SetWidth( 20 + 35 );
 	mpClearBtn->SetHeight( 20 );
-	mpClearBtn->SetClickEvent( EventClearBtnClick );
+	mpClearBtn->SetMouseLBUEvent( EventClearBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\ClearBtn.png" );
 	mpClearBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -417,7 +417,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpUpBtn->SetPosiY( 92 );
 	mpUpBtn->SetWidth( 20 + 35 );
 	mpUpBtn->SetHeight( 20 );
-	mpUpBtn->SetClickEvent( EventUpBtnClick );
+	mpUpBtn->SetMouseLBUEvent( EventUpBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\UpBtn.png" );
 	mpUpBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -444,7 +444,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpDownBtn->SetPosiY( 92 );
 	mpDownBtn->SetWidth( 20 + 35 );
 	mpDownBtn->SetHeight( 20 );
-	mpDownBtn->SetClickEvent( EventDownBtnClick );
+	mpDownBtn->SetMouseLBUEvent( EventDownBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\DownBtn.png" );
 	mpDownBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -524,7 +524,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpDelBtn->SetHeight( 24 );
  	mpDelBtn->SetVisable( false );
  	mpDelBtn->SetEnable( false );
-	mpDelBtn->SetClickEvent( EventListItemDelBtnClick ); 
+	mpDelBtn->SetMouseLBUEvent( EventListItemDelBtnClick ); 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\delBtn.png" );
 	mpDelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
@@ -564,7 +564,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 // 	mpBrowseBtn->SetPosiY( 485 );
 // 	mpBrowseBtn->SetWidth( 52 );
 // 	mpBrowseBtn->SetHeight( 31 );
-// 	mpBrowseBtn->SetClickEvent( EventBrowseBtn );
+// 	mpBrowseBtn->SetMouseLBUEvent( EventBrowseBtn );
 // 	imagePtr = CHE_WDM_AppearImage::Create();
 // 	imagePtr->SetImageFile( L"images\\browseBtn.png" );
 // 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -584,7 +584,7 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 	mpStartBtn->SetPosiY( 440 );
 	mpStartBtn->SetWidth( 125 );
 	mpStartBtn->SetHeight( 46 );
-	mpStartBtn->SetClickEvent( EventStartBtnClick );
+	mpStartBtn->SetMouseLBUEvent( EventStartBtnClick );
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\StartBtn.png" );
 	mpStartBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
@@ -808,7 +808,7 @@ void CPdfMergerDlg::AppendListItem( const CListItem & item )
 	pTmpArea->SetWidth( 624 );
 	pTmpArea->SetHeight( 49 );
  	pTmpArea->SetMouseOverEvent( EventListItemMouseOver );
- 	pTmpArea->SetClickEvent( EventListItemClick );
+ 	pTmpArea->SetMouseLBDEvent( EventListItemClick );
 	pTmpArea->SetDBClickEvent( EventEditBtnClick );
 	textPtr = CHE_WDM_AppearText::Create();
 	textPtr->SetSize( 12 );

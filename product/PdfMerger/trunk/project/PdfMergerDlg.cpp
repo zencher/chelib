@@ -539,44 +539,6 @@ CPdfMergerDlg::CPdfMergerDlg(CWnd* pParent /*=NULL*/)
 // 	mpTextBox->SetHeight( 20 );
 // 	mpMainArea->AppendChild( mpTextBox );
 
-// 	//filePath area
-// 	mpFilePath = CHE_WDM_Area::Create( mpInterActive );
-// 	mpFilePath->SetPosiX( 28 );
-// 	mpFilePath->SetPosiY( 485 );
-// 	mpFilePath->SetWidth( 500 );
-// 	mpFilePath->SetHeight( 29 );
-// 	imagePtr = CHE_WDM_AppearImage::Create();
-// 	imagePtr->SetImageFile( L"images\\filePathBox.png" );
-// 	mpFilePath->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-// 	
-// 	mfilePathTextPtr = CHE_WDM_AppearText::Create();
-// 	mfilePathTextPtr->SetColor( 0xFF000000 );
-// 	mfilePathTextPtr->SetSize( 12 );
-// 	mfilePathTextPtr->SetWidth( 490 );
-// 	mfilePathTextPtr->SetHeight( 14 );
-// 	mfilePathTextPtr->SetPosiX( 10 );
-// 	mfilePathTextPtr->SetPosiY( 7 );
-// 	mfilePathTextPtr->SetText( theApp.mNewFilePath.c_str() );
-// 	mpFilePath->AppendAppearItem( mfilePathTextPtr, AREA_APPEAR_BACKGROUND );
-//
-// 	mpBrowseBtn = CHE_WDM_Button::Create( mpInterActive );
-// 	mpBrowseBtn->SetPosiX( 470 );
-// 	mpBrowseBtn->SetPosiY( 485 );
-// 	mpBrowseBtn->SetWidth( 52 );
-// 	mpBrowseBtn->SetHeight( 31 );
-// 	mpBrowseBtn->SetMouseLBUEvent( EventBrowseBtn );
-// 	imagePtr = CHE_WDM_AppearImage::Create();
-// 	imagePtr->SetImageFile( L"images\\browseBtn.png" );
-// 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
-// 	imagePtr = CHE_WDM_AppearImage::Create();
-// 	imagePtr->SetImageFile( L"images\\browseBtnHover.png" );
-// 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
-// 	imagePtr = CHE_WDM_AppearImage::Create();
-// 	imagePtr->SetImageFile( L"images\\browseBtnDisable.png" );
-// 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
-// 	mpFilePath->AppendChild( mpBrowseBtn );
-// 	mpMainArea->AppendChild( mpFilePath );
-
 
 	//Start Btn Area
 	mpStartBtn = CHE_WDM_Button::Create( mpInterActive );
@@ -620,10 +582,9 @@ BEGIN_MESSAGE_MAP(CPdfMergerDlg, CDialogEx)
 	ON_COMMAND(ID_HELP_OFFICALWEBSITE, &CPdfMergerDlg::OnHelpOfficalwebsite)
 	ON_WM_DROPFILES()
 	ON_WM_CHAR()
-//	ON_WM_SETFOCUS()
-ON_WM_TIMER()
-ON_WM_KEYDOWN()
-ON_WM_KEYUP()
+	ON_WM_TIMER()
+	ON_WM_KEYDOWN()
+	ON_WM_KEYUP()
 END_MESSAGE_MAP()
 
 
@@ -875,19 +836,16 @@ void CPdfMergerDlg::UpdateBtn()
 		mpClearBtn->SetEnable( false );
 		mpUpBtn->SetEnable( false );
 		mpDownBtn->SetEnable( false );
-		//mpBrowseBtn->SetEnable( false );
 		mpStartBtn->SetEnable( false );
 	}else{
 		mpEditBtn->SetEnable( false );
 		mpClearBtn->SetEnable( false );
 		mpUpBtn->SetEnable( false );
 		mpDownBtn->SetEnable( false );
-		//mpBrowseBtn->SetEnable( false );
 		mpStartBtn->SetEnable( false );
 		if ( theApp.mList.size() > 0 )
 		{
 			mpClearBtn->SetEnable( true );
-			//mpBrowseBtn->SetEnable( true );
 			mpStartBtn->SetEnable( true );
 		}
 		if ( theApp.mCurItem != 0 )
@@ -909,7 +867,6 @@ void CPdfMergerDlg::UpdateBtn()
 	mpClearBtn->Refresh();
 	mpUpBtn->Refresh();
 	mpDownBtn->Refresh();
-	//mpBrowseBtn->Refresh();
 	mpStartBtn->Refresh();
 }
 

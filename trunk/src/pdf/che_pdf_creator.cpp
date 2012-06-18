@@ -513,7 +513,7 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
 				while( entryList.Pop( tmpEntry ) )
 				{
-					if ( tmpEntry.GetObjNum() == 0 )
+					if ( entry.GetObjNum() == 0 )
 					{
 						mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
 					}else{
@@ -540,8 +540,13 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 		mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
 		while( entryList.Pop( tmpEntry ) )
 		{
-			sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
-			mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+			if ( tmpEntry.GetObjNum() == 0 )
+			{
+				mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
+			}else{
+				sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
+				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
+			}
 		}
 	}
 

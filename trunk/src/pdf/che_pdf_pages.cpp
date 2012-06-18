@@ -20,32 +20,14 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & PagesDictPtr, 
 	ObjPtr = PagesDictPtr->GetElement( "Kids", OBJ_TYPE_ARRAY );
 	if ( ObjPtr )
 	{
-		PDF_RefInfo refInfo;
-		CHE_PDF_ReferencePtr RefPtr;
 		CHE_PDF_ArrayPtr KidsArrayPtr = ObjPtr->GetArrayPtr();
 
-		if ( KidsArrayPtr->GetCount() == mPageCount )
+		for ( HE_DWORD i = KidsArrayPtr->GetCount() ; i > 0; --i )
 		{
-			for ( HE_DWORD i = 0; i < mPageCount; ++i )
+			ObjPtr = KidsArrayPtr->GetElement( i - 1 );
+			if ( IsPdfRefPtr( ObjPtr ) )
 			{
-				ObjPtr = KidsArrayPtr->GetElement( i );
-				if ( IsPdfRefPtr( ObjPtr ) )
-				{
-					RefPtr = ObjPtr->GetRefPtr();
-					refInfo = RefPtr->GetRefInfo();
-					mPageObjList.push_back( refInfo );
-				}
-			}
-		}
-		else
-		{
-			for ( HE_DWORD i = KidsArrayPtr->GetCount() ; i > 0; --i )
-			{
-				ObjPtr = KidsArrayPtr->GetElement( i - 1 );
-				if ( IsPdfRefPtr( ObjPtr ) )
-				{
-					mPageNodeStack.Push( ObjPtr->GetRefPtr() );
-				}
+				mPageNodeStack.Push( ObjPtr->GetRefPtr() );
 			}
 		}
 	}

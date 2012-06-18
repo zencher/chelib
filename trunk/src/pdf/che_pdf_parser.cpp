@@ -1311,10 +1311,13 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 			{
 				pIdArray = pObj->GetArrayPtr();
 			}
-			pObj = pDict->GetElement( "Encrypt", OBJ_TYPE_DICTIONARY );
-			if ( pObj )
+			if ( m_pStrEncrypt == NULL )
 			{
-				ParseEncrypt( pObj->GetDictPtr(), pIdArray );
+				pObj = pDict->GetElement( "Encrypt", OBJ_TYPE_DICTIONARY );
+				if ( pObj )
+				{
+					ParseEncrypt( pObj->GetDictPtr(), pIdArray );
+				}
 			}
 			pObj = pDict->GetElement( "Prev", OBJ_TYPE_NUMBER );
 			if ( pObj )
@@ -1830,9 +1833,10 @@ HE_DWORD CHE_PDF_Parser::FullParseForXRef()	//分析整个文件来获取对象信息 // 还需
 			mpXRefTable->AddTrailerDict( m_sParser.GetDictionaryPtr() ); 
 			continue;
 		}
-		if ( wordDes.str == "obj" )
+		if ( wordDes.str == "obj"  )
 		{
 			offset = m_sParser.GetPos();
+			m_sParser.SetPos( wordDes.offset );
 			m_sParser.SeekToPrevWord();
 			m_sParser.SeekToPrevWord();
 			m_sParser.SeekToPrevWord();

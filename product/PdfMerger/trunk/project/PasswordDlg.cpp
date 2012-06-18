@@ -67,6 +67,3 @@ BOOL CPasswordDlg::OnInitDialog()
 
 BEGIN_MESSAGE_MAP(CPasswordDlg, CDialogEx)
 END_MESSAGE_MAP()
-
-
-// CPasswordDlg 消息处理程序

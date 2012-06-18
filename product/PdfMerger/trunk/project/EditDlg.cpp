@@ -155,7 +155,7 @@ static void EventDownBtnClick2( CHE_WDM_Area * pArea )
 static void EventDragScroolBlock_SinglePage( CHE_WDM_Area * pArea )
 {
 	unsigned int tmpPosi = pArea->GetPosiX();
-	gpDlg->mNumber1 = (unsigned int)( 1 + ( tmpPosi - 50 ) * 1.0 / ( 499 * 1.0 / (gpDlg->mPageCount - 1) ) );
+	gpDlg->mNumber1 = (unsigned int)( 1.5 + ( tmpPosi - 50 ) * 1.0 / ( 499 * 1.0 / (gpDlg->mPageCount - 1) ) );
 	gpDlg->mCurPage = gpDlg->mNumber1;
 	gpDlg->mpSinglePageArea->Refresh();
 	UpdataNumberBox();

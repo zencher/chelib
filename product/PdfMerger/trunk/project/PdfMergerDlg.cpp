@@ -767,7 +767,7 @@ void CPdfMergerDlg::AppendListItem( const CListItem & item )
 	pTmpArea->SetPosiX( 28 );
 	pTmpArea->SetPosiY( 121 );
 	pTmpArea->SetWidth( 624 );
-	pTmpArea->SetHeight( 49 );
+	pTmpArea->SetHeight( 48 );
  	pTmpArea->SetMouseOverEvent( EventListItemMouseOver );
  	pTmpArea->SetMouseLBDEvent( EventListItemClick );
 	pTmpArea->SetDBClickEvent( EventEditBtnClick );
@@ -879,14 +879,14 @@ void CPdfMergerDlg::UpdateList()
 	if ( iCount > 6 )
 	{
 		mpScrollBar->SetVisable( true );
-		offset = (iCount - 6) * 47 * theApp.mfViewPoint;
+		offset = (iCount - 6) * 48 * theApp.mfViewPoint;
 	}else
 	{
 		mpScrollBar->SetVisable( false );
 	}
 	for ( unsigned int i = 0; i < iCount; ++i )
 	{
-		newPosition = mpItemList->GetPosiY() + i * 49 - offset;
+		newPosition = mpItemList->GetPosiY() + i * 48 - offset;
 		pTmpItem = mpItemList->GetChild( i );
 		pTmpItem->SetPosiY( newPosition );
 	}

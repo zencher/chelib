@@ -169,6 +169,18 @@ PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File 
 	PDF_RefInfo newRefInfo;
 	CHE_PDF_ObjectPtr newObjPtr;
 	CHE_PDF_ObjectPtr ObjPtr = RefPtr->GetRefObj();
+
+	//某些情况下，由于应用的某个对象确实不存在，原因可能是生成文件的问题，需要做这种容错性处理
+	if ( ! ObjPtr )
+	{
+		CHE_PDF_NullPtr nullPtr;
+		newRefInfo = pFile->CreateNullObject( nullPtr );
+		if ( nullPtr && pMgr )
+		{
+			pMgr->SetMap( refInfo, newRefInfo );
+		}
+		return newRefInfo;
+	}
 	
 	switch ( ObjPtr->GetType() )
 	{

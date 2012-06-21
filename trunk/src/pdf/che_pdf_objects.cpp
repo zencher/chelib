@@ -882,7 +882,7 @@ HE_VOID	CHE_PDF_Dictionary::SetAtArray( const CHE_ByteString & key, const CHE_PD
 
 HE_VOID CHE_PDF_Dictionary::SetAtDictionary( const CHE_ByteString & key, const CHE_PDF_DictionaryPtr & ptr )
 {
-	if ( key.GetLength() > 0 )
+	if ( key.GetLength() > 0 && ptr )
 	{
 		for ( size_t i = 0; i < mKeys.size(); ++i )
 		{

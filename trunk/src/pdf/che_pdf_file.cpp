@@ -586,7 +586,8 @@ CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const PDF_RefInfo & refInfo )
 				mObjCollector.Add( refInfo, ObjPtr );
 				return ObjPtr;
 			}
-		}else{
+		}else if ( entry.GetType() == XREF_ENTRY_TYPE_COMPRESSED )
+		{
 			PDF_RefInfo stmRefInfo;
 			stmRefInfo.objNum = entry.GetParentObjNum();
 			stmRefInfo.genNum = 0;

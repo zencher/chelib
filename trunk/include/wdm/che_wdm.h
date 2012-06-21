@@ -611,9 +611,13 @@ class CHE_WDM_Button : public CHE_WDM_Area
 public:
 	static CHE_WDM_Button *			Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
 
-	HE_VOID							SetClickEvent( EventFunction eventFunc ) { mClickEventFunc = eventFunc; }
+	HE_VOID							SetMouseLBDEvent( EventFunction eventFunc ) { mLBDEventFunc = eventFunc; }
+
+	HE_VOID							SetMouseLBUEvent( EventFunction eventFunc ) { mLBUEventFunc = eventFunc; }
 
 	HE_VOID							SetDBClickEvent( EventFunction eventFunc ) { mDBClickEventFunc = eventFunc; }
+
+	virtual HE_BOOL					OnMouseLBDown( HE_INT32 x, HE_INT32 y );
 
 	virtual HE_BOOL					OnMouseLBUp( HE_INT32 x, HE_INT32 y );
 
@@ -621,9 +625,10 @@ public:
 
 protected:
 	CHE_WDM_Button( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
-		: CHE_WDM_Area( pInteractive, pAllocator ), mClickEventFunc(NULL), mDBClickEventFunc(NULL) {};
+		: CHE_WDM_Area( pInteractive, pAllocator ), mLBDEventFunc(NULL), mLBUEventFunc(NULL), mDBClickEventFunc(NULL) {};
 
-	EventFunction mClickEventFunc;
+	EventFunction mLBDEventFunc;
+	EventFunction mLBUEventFunc;
 	EventFunction mDBClickEventFunc;
 
 	friend class CHE_Allocator;

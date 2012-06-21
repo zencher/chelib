@@ -587,12 +587,14 @@ HE_BOOL CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 			}
 		}
 	}
-	mbLBD = TRUE;
-	if ( mInterActive )
+	if ( ! bHandled )
 	{
-		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+		mbLBD = TRUE;
+		if ( mInterActive )
+		{
+			mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+		}
 	}
-	
 	return bHandled;
 }
 
@@ -623,10 +625,13 @@ HE_BOOL CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 			}
 		}
 	}
-	mbLBD = FALSE;
-	if ( mInterActive )
+	if ( ! bHandled )
 	{
-		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+		mbLBD = FALSE;
+// 		if ( mInterActive )
+// 		{
+// 			mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+// 		}
 	}
 	return bHandled;
 }
@@ -656,10 +661,13 @@ HE_BOOL CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
 			}
 		}
 	}
-	mbRBD = TRUE;
-	if ( mInterActive )
+	if ( !bHandled )
 	{
-		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+		mbRBD = TRUE;
+		if ( mInterActive )
+		{
+			mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+		}
 	}
 	return bHandled;
 }
@@ -689,10 +697,13 @@ HE_BOOL CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
 			}
 		}
 	}
-	mbRBD = FALSE;
-	if ( mInterActive )
+	if ( bHandled )
 	{
-		mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+		mbRBD = FALSE;
+		if ( mInterActive )
+		{
+			mInterActive->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+		}
 	}
 	return bHandled;
 }
@@ -866,17 +877,35 @@ CHE_WDM_Button * CHE_WDM_Button::Create( IHE_WDM_InterActive * pInterActive, CHE
 	return pButtun;
 }
 
+HE_BOOL CHE_WDM_Button::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
+{
+	if ( IsEnable() )
+	{
+		if ( CHE_WDM_Area::OnMouseLBDown( x, y ) )
+		{
+			return TRUE;
+		}
+		if ( mLBDEventFunc )
+		{
+			mLBDEventFunc( this );
+		}
+		return TRUE;
+	}
+	return FALSE;
+}
+
 HE_BOOL CHE_WDM_Button::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 {
 	if ( IsEnable() )
 	{
+		/*HE_BOOL bLBD = IsMouseLBDown();*/
 		if ( CHE_WDM_Area::OnMouseLBUp( x, y ) )
 		{
 			return TRUE;
 		}
-		if ( mClickEventFunc )
+		if ( /*bLBD &&*/ mLBUEventFunc )
 		{
-			mClickEventFunc( this );
+			mLBUEventFunc( this );
 		}
 		return TRUE;
 	}
@@ -1003,11 +1032,12 @@ HE_BOOL CHE_WDM_DragArea::OnMouseMove( HE_INT32 x, HE_INT32 y )
 		{
 			mEventFunc( this );
 		}
-	}
-	//CHE_WDM_Area::OnMouseMove( x, y );
-	if ( GetInterActive() )
-	{
-		GetInterActive()->Invalidate();
+
+		//CHE_WDM_Area::OnMouseMove( x, y );
+		if ( GetInterActive() )
+		{
+			GetInterActive()->InvalidateRect( GetPosiX(), GetPosiY(), GetPosiX() + GetWidth(), GetPosiY() + GetHeight() );
+		}
 	}
 	return TRUE;
 }

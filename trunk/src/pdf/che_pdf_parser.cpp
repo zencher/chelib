@@ -1618,6 +1618,20 @@ HE_DWORD  CHE_PDF_Parser::ParseXRefStream( HE_DWORD offset, CHE_PDF_DictionaryPt
 	HE_DWORD lEntrySize = lW1 + lW2 + lW3;
 	HE_DWORD lItemOfSecCount = 0;
 
+// 	FILE * pFile = fopen( "d:\\xrefstream.txt", "wb+" );
+// 	HE_LPBYTE tmpByte = (HE_LPBYTE)( streamAcc.GetData() );
+// 	for ( HE_DWORD offset = 0; offset < streamSize; offset+=lEntrySize )
+// 	{
+// 		for ( HE_DWORD index = 0; index < lEntrySize; ++index )
+// 		{
+// 			fprintf( pFile, "%02X", *(tmpByte + offset + index) );
+// 		}
+// 		fprintf( pFile, "\n" );
+// 	}
+// 	fclose( pFile );
+
+
+
 //  	std::vector<HE_DWORD> XrefVerify1;
 //  	std::vector<HE_DWORD> XrefVerify2;
 
@@ -2046,14 +2060,6 @@ CHE_PDF_ObjectPtr CHE_PDF_Parser::GetObject()
 						pCurObj = CHE_PDF_Stream::Create( m_pIHE_FileRead, offset, length, pCurObj->GetDictPtr(), objNum, genNum, m_pStmEncrypt, GetAllocator() );
 					}
 				}
-			}else if (	wordDes.str == "endobj" || 
-						(	wordDes.str[0] == 'e' && wordDes.str[1] == 'n' && wordDes.str[2] == 'd' &&
-							wordDes.str[3] == 'o' && wordDes.str[4] == 'b' && wordDes.str[5] == 'j' ) )
-			{
-				if ( pCurObj )
-				{
-					return pCurObj;
-				}
 			}
 			break;
 		}
@@ -2077,17 +2083,9 @@ CHE_PDF_ObjectPtr CHE_PDF_Parser::GetObject()
 		}
 	}
 
-	m_sParser.GetWord( wordDes );
-	if (	wordDes.str == "endobj" || 
-			(	wordDes.str[0] == 'e' && wordDes.str[1] == 'n' && wordDes.str[2] == 'd' &&
-				wordDes.str[3] == 'o' && wordDes.str[4] == 'b' && wordDes.str[5] == 'j' ) )
+	if ( pCurObj )
 	{
-		if ( pCurObj )
-		{
-			return pCurObj;
-		}else{
-			return CHE_PDF_ObjectPtr();
-		}
+		return pCurObj;
 	}
 	return CHE_PDF_ObjectPtr();
 }

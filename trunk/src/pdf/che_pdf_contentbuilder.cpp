@@ -190,7 +190,7 @@ HE_BOOL CHE_PDF_ContentString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, C
 			HE_BOOL bHex = FALSE;
 			for ( HE_DWORD i = 0; i < length; i++ )
 			{
-				if ( pData[i] > 127 || pData[i] < 32 ) //待完善
+				if ( pData[i] > 127 || pData[i] < 32 || pData[i] == '(' || pData[i] == ')' ) //待完善
 				{
 					bHex  = TRUE;
 					break;
@@ -310,6 +310,94 @@ HE_BOOL CHE_PDF_ContentString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, C
 		return FALSE;
 	}
 
+	return TRUE;
+}
+
+HE_BOOL CHE_PDF_ContentString::ExtGStateToBuf( const CHE_PDF_ExtGState * pExtGState1, const CHE_PDF_ExtGState * pExtGState2, CHE_DynBuffer & buf )
+{
+	if ( pExtGState1 == NULL && pExtGState2 == NULL )
+	{
+		return FALSE;
+	}
+
+	if ( pExtGState1 != NULL && pExtGState2 == NULL )
+	{
+		return FALSE;
+	}
+
+	if ( pExtGState1 == NULL && pExtGState2 != NULL )
+	{
+		std::list<CHE_ByteString>::const_iterator it = pExtGState2->mExtDictNameList.begin();
+		for ( ; it != pExtGState2->mExtDictNameList.end(); ++it )
+		{
+			StringToBuf( "/", buf );
+			StringToBuf( *it, buf );
+			StringToBuf( " gs\n", buf );
+		}
+		return TRUE;
+	}
+
+	if ( pExtGState1->mExtDictNameList.size() >= pExtGState2->mExtDictNameList.size() )
+ 	{
+		return FALSE;
+	}
+
+	std::list<CHE_ByteString>::const_iterator it1, it2;
+	it1 = pExtGState1->mExtDictNameList.begin();
+	it2 = pExtGState2->mExtDictNameList.begin();
+
+	for ( ; it1 != pExtGState1->mExtDictNameList.end(); ++it1, ++it2 );
+
+	for ( ; it2 != pExtGState2->mExtDictNameList.end(); ++it2 )
+	{
+		StringToBuf( "/", buf );
+		StringToBuf( *it2, buf );
+		StringToBuf( " gs\n", buf );
+	}
+	return TRUE;
+}
+
+HE_BOOL ClipStateToBuf( const CHE_PDF_ClipState * pClipState1, const CHE_PDF_ClipState * pClipState2 )
+{
+// 	if ( pClipState1 == NULL && pClipState2 == NULL )
+// 	{
+// 		return FALSE;
+// 	}
+// 
+// 	if ( pClipState1 != NULL && pClipState2 == NULL )
+// 	{
+// 		return FALSE;
+// 	}
+// 
+// 	if ( pExtGState1 == NULL && pExtGState2 != NULL )
+// 	{
+// 		std::list<CHE_ByteString>::const_iterator it = pExtGState2->mExtDictNameList.begin();
+// 		for ( ; it != pExtGState2->mExtDictNameList.end(); ++it )
+// 		{
+// 			StringToBuf( "/", buf );
+// 			StringToBuf( *it, buf );
+// 			StringToBuf( " gs\n", buf );
+// 		}
+// 		return TRUE;
+// 	}
+// 
+// 	if ( pExtGState1->mExtDictNameList.size() >= pExtGState2->mExtDictNameList.size() )
+// 	{
+// 		return FALSE;
+// 	}
+// 
+// 	std::list<CHE_ByteString>::const_iterator it1, it2;
+// 	it1 = pExtGState1->mExtDictNameList.begin();
+// 	it2 = pExtGState2->mExtDictNameList.begin();
+// 
+// 	for ( ; it1 != pExtGState1->mExtDictNameList.end(); ++it1, ++it2 );
+// 
+// 	for ( ; it2 != pExtGState2->mExtDictNameList.end(); ++it2 )
+// 	{
+// 		StringToBuf( "/", buf );
+// 		StringToBuf( *it2, buf );
+// 		StringToBuf( " gs\n", buf );
+// 	}
 	return TRUE;
 }
 
@@ -433,7 +521,7 @@ HE_BOOL CHE_PDF_ContentString::PathToBuf( CHE_PDF_Path * pPath, CHE_DynBuffer & 
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_ContentString::TextToBuf( CHE_PDF_Text * pText, CHE_DynBuffer & buf )
+HE_BOOL CHE_PDF_ContentString::TextToBuf( CHE_PDF_Text * pText, CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & stack )
 {
 	if ( ! pText )
 	{
@@ -441,10 +529,6 @@ HE_BOOL CHE_PDF_ContentString::TextToBuf( CHE_PDF_Text * pText, CHE_DynBuffer & 
 	}
 
 	CHE_PDF_ObjectPtr objPtr = pText->GetText();
-
-	CHE_PDF_GState * pGState = pText->GetGState();
-	
-	TextStateToBuf( pGState, buf );
 
 	if ( IsPdfStringPtr( objPtr ) )
 	{
@@ -650,31 +734,38 @@ HE_BOOL CHE_PDF_ContentString::FormToBuf( CHE_PDF_Form * pForm, CHE_DynBuffer & 
 	return FALSE;
 }
 
-HE_BOOL CHE_PDF_ContentString::TextStateToBuf( CHE_PDF_GState * pState, CHE_DynBuffer & buf )
+HE_BOOL CHE_PDF_ContentString::TextStateToBuf( CHE_PDF_GState * pState, CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & stack )
 {
 	if ( ! pState )
 	{
 		return FALSE;
 	}
 
-	HE_FLOAT val = 0;
-	CHE_ByteString name;
-	CHE_PDF_Matrix textMatrix;
-	PDF_GSTATE_TEXTRENDERMODE textRenderMode = TextRenderMode_Fill;
+	HE_FLOAT					val = 0;
+	CHE_ByteString				name;
+	CHE_PDF_Matrix				textMatrix;
+	PDF_GSTATE_TEXTRENDERMODE	textRenderMode = TextRenderMode_Fill;
 
-	if ( pState->GetTextCharSpace( val ) /*&& ! IsDefTextCharSpace( val )*/ )
+	pState->GetTextCharSpace( val );
+
+	if ( ! IsDefTextCharSpace( val ) )
 	{
 		FloatToBuf( val, buf );
 		StringToBuf( " Tc\n", buf );
 	}
 
-	if ( pState->GetTextWordSpace( val ) /*&& ! IsDefTextWrodSpace( val )*/ )
+	pState->GetTextWordSpace( val );
+
+	if ( ! IsDefTextWrodSpace( val ) )
 	{
 		FloatToBuf( val, buf );
 		StringToBuf( " Tw\n", buf );
 	}
 
-	if ( pState->GetTextFontResName( name ) && pState->GetTextFontSize( val ) )
+	pState->GetTextFontResName( name );
+	pState->GetTextFontSize( val );
+
+	if ( name.GetLength() > 0 )
 	{
 		StringToBuf( "/", buf );
 		StringToBuf( name, buf );
@@ -683,25 +774,33 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( CHE_PDF_GState * pState, CHE_DynB
 		StringToBuf( " Tf\n", buf );
 	}
 
-	if ( pState->GetTextMatrix( textMatrix ) /*&& ! IsDefMatrix( textMatrix )*/ )
+	pState->GetTextMatrix( textMatrix );
+
+	if ( ! IsDefMatrix( textMatrix ) )
 	{
 		PdfMatrixToBuf( textMatrix, buf );
 		StringToBuf( " Tm\n", buf );
 	}
 
-	if ( pState->GetTextScaling( val ) /*&& ! IsDefTextScaling( val )*/ )
+	pState->GetTextScaling( val );
+
+	if ( ! IsDefTextScaling( val ) )
 	{
 		FloatToBuf( val, buf );
 		StringToBuf( " Tz\n", buf );
 	}
 
-	if ( pState->GetTextRise( val ) /*&& ! IsDefTextRise( val )*/ )
+	 pState->GetTextRise( val );
+
+	if ( ! IsDefTextRise( val ) )
 	{
 		FloatToBuf( val, buf );
 		StringToBuf( " Ts\n", buf );
 	}
 
-	if ( pState->GetTextRenderMode( textRenderMode ) /*&& ! IsDefTextRenderMode( textRenderMode )*/ )
+	pState->GetTextRenderMode( textRenderMode );
+
+	if ( ! IsDefTextRenderMode( textRenderMode ) )
 	{
 		HE_DWORD tmpVal = (HE_DWORD)( textRenderMode );
 		DWORDToBuf( tmpVal, buf );
@@ -711,11 +810,11 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( CHE_PDF_GState * pState, CHE_DynB
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_ContentString::TextStateToBuf( CHE_PDF_GState * pCurGSData, CHE_PDF_GState * pTargetGSData, CHE_DynBuffer & buf )
+HE_BOOL CHE_PDF_ContentString::TextStateToBuf( CHE_PDF_GState * pCurGSData, CHE_PDF_GState * pTargetGSData, CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & stack )
 {
 	if ( pCurGSData == NULL )
 	{
-		return TextStateToBuf( pTargetGSData,  buf );
+		return TextStateToBuf( pTargetGSData,  buf, stack );
 	}
 
 	if ( pTargetGSData == NULL )
@@ -723,90 +822,147 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( CHE_PDF_GState * pCurGSData, CHE_
 		return FALSE;
 	}
 
-// 	HE_FLOAT val = 0, tmpVal = 0;
-// 	CHE_ByteString name;
-// 	CHE_PDF_Matrix textMatrix;
-// 	PDF_GSTATE_TEXTRENDERMODE textRenderMode = TextRenderMode_Fill;
-// 
-// 	if ( pCurGSData->GetTextCharSpace( val ) )
-// 	{
-// 		
-// 	}
-// 	else if ( pCurState->GetTextCharSpace( val ) && ! IsDefTextCharSpace( val ) )
-// 	{
-// 		FloatToBuf( val, buf );
-// 		StringToBuf( " Tc\n", buf );
-// 	}
-// 
-// 	if ( pState->GetTextWordSpace( val ) && ! IsDefTextWrodSpace( val ) )
-// 	{
-// 		FloatToBuf( val, buf );
-// 		StringToBuf( " Tw\n", buf );
-// 	}
-// 
-// 	if ( pState->GetTextFontResName( name ) && pState->GetTextFontSize( val ) )
-// 	{
-// 		StringToBuf( "/", buf );
-// 		StringToBuf( name, buf );
-// 		SpaceToBuf( buf );
-// 		FloatToBuf( val, buf );
-// 		StringToBuf( " Tf\n", buf );
-// 	}
-// 
-// 	if ( pState->GetTextMatrix( textMatrix ) && ! IsDefMatrix( textMatrix ) )
-// 	{
-// 		PdfMatrixToBuf( textMatrix, buf );
-// 		StringToBuf( " Tm\n", buf );
-// 	}
-// 
-// 	if ( pState->GetTextScaling( val ) && ! IsDefTextScaling( val ) )
-// 	{
-// 		FloatToBuf( val, buf );
-// 		StringToBuf( " Tz\n", buf );
-// 	}
-// 
-// 	if ( pState->GetTextRise( val ) && ! IsDefTextRise( val ) )
-// 	{
-// 		FloatToBuf( val, buf );
-// 		StringToBuf( " Ts\n", buf );
-// 	}
-// 
-// 	if ( pState->GetTextRenderMode( textRenderMode ) && ! IsDefTextRenderMode( textRenderMode ))
-// 	{
-// 		HE_DWORD tmpVal = (HE_DWORD)( textRenderMode );
-// 		DWORDToBuf( tmpVal, buf );
-// 		StringToBuf( " Tr\n", buf );
-// 	}
+	HE_FLOAT					curVal = 0, targetVal = 0;
+	CHE_ByteString				curName, targetName;
+	CHE_PDF_Matrix				curMatrix, targetMatrix;
+	PDF_GSTATE_TEXTRENDERMODE	curRM = TextRenderMode_Fill, targetRM = TextRenderMode_Fill;
+
+	pCurGSData->GetTextCharSpace( curVal );
+	pTargetGSData->GetTextCharSpace( targetVal );
+
+	if ( ! IsFloatEqual( curVal, targetVal ) )
+	{
+		FloatToBuf( targetVal, buf );
+		StringToBuf( " Tc\n", buf );
+	}
+
+	pCurGSData->GetTextWordSpace( curVal );
+	pTargetGSData->GetTextWordSpace( targetVal );
+
+	if ( ! IsFloatEqual( curVal, targetVal ) )
+	{
+		FloatToBuf( targetVal, buf );
+		StringToBuf( " Tw\n", buf );
+	}
+
+	pCurGSData->GetTextFontResName( curName );
+	pTargetGSData->GetTextFontResName( targetName );
+	pCurGSData->GetTextFontSize( curVal );
+	pTargetGSData->GetTextFontSize( targetVal );
+
+	if ( curName != targetName || ! IsFloatEqual( curVal, targetVal ) )
+	{
+		StringToBuf( "/", buf );
+		StringToBuf( targetName, buf );
+		SpaceToBuf( buf );
+		FloatToBuf( targetVal, buf );
+		StringToBuf( " Tf\n", buf );
+	}
+	
+	pCurGSData->GetTextMatrix( curMatrix );
+	pTargetGSData->GetTextMatrix( targetMatrix );
+
+	if ( curMatrix != targetMatrix )
+	{
+		PdfMatrixToBuf( targetMatrix, buf );
+		StringToBuf( " Tm\n", buf );
+	}
+
+	pCurGSData->GetTextScaling( curVal );
+	pTargetGSData->GetTextScaling( targetVal );
+
+	if ( ! IsFloatEqual( curVal, targetVal ) )
+	{
+		FloatToBuf( targetVal, buf );
+		StringToBuf( " Tz\n", buf );
+	}
+
+	pCurGSData->GetTextRise( curVal );
+	pTargetGSData->GetTextRise( targetVal );
+ 
+	if ( ! IsFloatEqual( curVal, targetVal ) )
+	{
+		FloatToBuf( targetVal, buf );
+		StringToBuf( " Ts\n", buf );
+	}
+
+	pCurGSData->GetTextRenderMode( curRM );
+	pTargetGSData->GetTextRenderMode( targetRM );
+
+	if ( curRM != targetRM )
+	{
+		HE_DWORD tmpVal = (HE_DWORD)( targetRM );
+		DWORDToBuf( tmpVal, buf );
+		StringToBuf( " Tr\n", buf );
+	}
 
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuffer & buf )
+HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & stack )
 {
+	static CHE_PDF_GState defGState;
+
 	if ( ! pGSData )
 	{
-		return FALSE;
+		pGSData = &defGState;
 	}
 
-	HE_FLOAT floatVal = 0;
-	PDF_GSTATE_LINECAP lineCap = LineCap_Butt;
-	PDF_GSTATE_LINEJOIN lineJoin = LineJoin_Miter;
-	PDF_GSTATE_DASHPATTERN lineDash;
-	PDF_GSTATE_RENDERINTENTS ri = RI_AbsoluteColorimetric;
+	HE_BOOL						bNeedStackPush = FALSE;
+	HE_FLOAT					floatVal = 0;
+	PDF_GSTATE_LINECAP			lineCap = LineCap_Butt;
+	PDF_GSTATE_LINEJOIN			lineJoin = LineJoin_Miter;
+	PDF_GSTATE_DASHPATTERN		lineDash;
+	PDF_GSTATE_RENDERINTENTS	ri = RI_AbsoluteColorimetric;
 
-	if ( pGSData->GetLineWidth( floatVal ) && ! IsDefLineWidth( floatVal ) )
+	CHE_PDF_ExtGState * pExtState = pGSData->GetExtGState();
+	if ( pExtState && pExtState->mExtDictNameList.size() > 0 )
+	{
+		bNeedStackPush = TRUE;
+	}
+	CHE_PDF_ClipState * pClipState = pGSData->GetClipState();
+	if ( pClipState && pClipState->mClipElementList.size() > 0 )
+	{
+		bNeedStackPush = TRUE;
+	}
+	if ( bNeedStackPush )
+	{
+		StringToBuf( "q\n", buf );
+		stack.Push( NULL );
+	}
+
+	if ( pExtState )
+	{
+		CHE_ByteString resName;
+		std::list<CHE_ByteString>::iterator it = pExtState->mExtDictNameList.begin();
+		for ( ; it != pExtState->mExtDictNameList.end(); ++it )
+		{
+			resName = *it;
+			StringToBuf( "/", buf );
+			StringToBuf( resName, buf );
+			StringToBuf( " gs\n", buf );
+		}
+	}
+
+	pGSData->GetLineWidth( floatVal );
+
+	if ( ! IsDefLineWidth( floatVal ) )
 	{
 		FloatToBuf( floatVal, buf );
 		StringToBuf( " w\n", buf );
 	}
 
-	if ( pGSData->GetMiterLimit( floatVal ) && ! IsDefMiterLimit( floatVal ) )
+	pGSData->GetMiterLimit( floatVal );
+
+	if ( ! IsDefMiterLimit( floatVal ) )
 	{
 		FloatToBuf( floatVal, buf );
 		StringToBuf( " M\n", buf );
 	}
 	
-	if ( pGSData->GetLineCap( lineCap ) && ! IsDefLineCap( lineCap ) )
+	pGSData->GetLineCap( lineCap );
+
+	if ( ! IsDefLineCap( lineCap ) )
 	{
 		switch ( lineCap )
 		{
@@ -827,7 +983,9 @@ HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuf
 		}
 	}
 
-	if ( pGSData->GetLineJoin( lineJoin ) && ! IsDefLineJoin( lineJoin ) )
+	pGSData->GetLineJoin( lineJoin );
+
+	if ( ! IsDefLineJoin( lineJoin ) )
 	{
 		switch ( lineJoin )
 		{
@@ -846,7 +1004,9 @@ HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuf
 		}
 	}
 
-	if ( pGSData->GetLineDash( lineDash ) && ! IsDefLineDash( lineDash ) )
+	pGSData->GetLineDash( lineDash );
+
+	if ( ! IsDefLineDash( lineDash ) )
 	{
 		StringToBuf( "[", buf );
 		for ( size_t i = 0; lineDash.dashArray.size(); ++i )
@@ -895,7 +1055,10 @@ HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuf
 	CHE_PDF_ColorSpace colorSpace( COLORSAPCE_DEVICE_GRAY );
 	CHE_PDF_Color color;
 
-	if ( pGSData->GetFillColorSpace( colorSpace ) && ! IsDefColorSpace( colorSpace ) )
+	pGSData->GetFillColorSpace( colorSpace );
+	pGSData->GetFillColor( color );
+
+	if ( ! IsDefColorSpace( colorSpace ) || ! IsDefColor( color ) )
 	{
 		if ( ! colorSpace.IsDeviceColorSpace() )
 		{
@@ -903,7 +1066,7 @@ HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuf
 			StringToBuf( " cs\n", buf );
 		}
 
-		if ( pGSData->GetFillColor( color ) )
+		if ( color.mConponents.size() > 0 )
 		{
 			ColorToBuf( color,  buf );
 
@@ -937,7 +1100,10 @@ HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuf
 		}
 	}
 
-	if ( pGSData->GetStrokeColorSpace( colorSpace ) && ! IsDefColorSpace( colorSpace ) )
+	pGSData->GetStrokeColorSpace( colorSpace );
+	pGSData->GetStrokeColor( color );
+
+	if ( ! IsDefColorSpace( colorSpace ) || ! IsDefColor( color ) )
 	{
 		if ( ! colorSpace.IsDeviceColorSpace() )
 		{
@@ -945,7 +1111,7 @@ HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuf
 			StringToBuf( " cs\n", buf );
 		}
 
-		if ( pGSData->GetStrokeColor( color ) )
+		if ( color.mConponents.size() > 0 )
 		{
 			ColorToBuf( color,  buf );
 
@@ -979,26 +1145,8 @@ HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuf
 		}
 	}
 
-	CHE_PDF_ExtGState * pExtState = pGSData->GetExtGState();
-	if ( pExtState )
-	{
-		CHE_ByteString resName;
-
-		std::list<CHE_ByteString>::iterator it = pExtState->mExtDictNameList.begin();
-
-		for ( ; it != pExtState->mExtDictNameList.end(); ++it )
-		{
-			resName = *it;
-			StringToBuf( "/", buf );
-			StringToBuf( resName, buf );
-			StringToBuf( " gs\n", buf );
-		}
-	}
-
 	CHE_PDF_Matrix curMatrix;
 
-	CHE_PDF_ClipState * pClipState = pGSData->GetClipState();
-	
 	if ( pClipState )
 	{
 		CHE_PDF_Matrix clipMatrix;
@@ -1022,339 +1170,460 @@ HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuf
 					PdfMatrixToBuf( clipMatrix, buf );
 					StringToBuf( " cm\n", buf );
 				}
-
-// 				pClipElement = it->GetElement();
-// 
-// 				if ( pc )
-// 				{
-// 				}
-
+				
 				curMatrix = clipMatrix;
+			}
+
+			pClipElement = (*it)->GetElement();
+			if ( pClipElement )
+			{
+				if ( pClipElement->GetType() == ContentType_Text )
+				{
+					//zctodo
+				}else if ( pClipElement->GetType() == ContentType_Path )
+				{
+					CHE_PDF_Path * pPath = (CHE_PDF_Path*)( pClipElement );
+					PathDataToBuf( pPath, buf );
+					if ( pPath->GetFillMode() == Mode_Nonzero )
+					{
+						StringToBuf( " W\n", buf );
+					}else if ( pPath->GetFillMode() == Mode_EvenOdd )
+					{
+						StringToBuf( " W\n", buf );
+					}
+				}
 			}
 		}
 	}
 
 	CHE_PDF_Matrix ctm;
 	ctm = pGSData->GetMatrix();
-	if ( ! IsDefMatrix( ctm ) )
+	if ( ctm != curMatrix  )
 	{
 		PdfMatrixToBuf( ctm, buf );
 		StringToBuf( " cm\n", buf );
 	}
-
 	return TRUE; 
 }
 
-HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pCurGSData, CHE_PDF_GState * pTargetGSData, CHE_DynBuffer & buf )
+HE_BOOL CHE_PDF_ContentString::GSDataToBuf( CHE_PDF_GState * pCurGSData, CHE_PDF_GState * pTargetGSData,
+											CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & stack )
 {
+	static CHE_PDF_GState defGState;
+	
 	if ( ! pTargetGSData )
 	{
-		return FALSE;
+		pTargetGSData = &defGState;
 	}
 
 	if ( ! pCurGSData )
 	{
-		return GSDataToBuf( pTargetGSData, buf );
+		return GSDataToBuf( pTargetGSData, buf, stack );
 	}
 
-// 	HE_FLOAT floatVal = 0, tmpFloatVal = 0;
-// 	PDF_GSTATE_LINECAP lineCap = LineCap_Butt, tmpLineCap = LineCap_Butt;
-// 	PDF_GSTATE_LINEJOIN lineJoin = LineJoin_Miter, tmpLineJoin = LineJoin_Miter;
-// 	PDF_GSTATE_DASHPATTERN lineDash, tmpLineDash;
-// 	PDF_GSTATE_RENDERINTENTS ri = RI_AbsoluteColorimetric, tmpRi = RI_AbsoluteColorimetric;
-// 
-// 	if ( pCurGSData->GetLineWidth( floatVal ) )
-// 	{
-// 		if ( pTargetGSData->GetLineWidth( tmpFloatVal ) )
-// 		{
-// 			if ( ! fabsf( floatVal - tmpFloatVal)  <= FLT_EPSILON )
-// 			{
-// 				FloatToBuf( floatVal, buf );
-// 				StringToBuf( " w\n", buf );
-// 			}
-// 		}else{
-// 			pTargetGSData->SetLineWidth( floatVal );
-// 		}
-// 	}
-// 	else if ( pTargetGSData->GetLineWidth( floatVal ) && ! IsDefLineWidth( floatVal ) )
-// 	{
-// 		FloatToBuf( floatVal, buf );
-// 		StringToBuf( " w\n", buf );
-// 	}
-// 
-// 	if ( pCurGSData->GetMiterLimit( floatVal ) )
-// 	{
-// 		if ( pTargetGSData->GetMiterLimit( tmpFloatVal ) )
-// 		{
-// 			if ( ! fabsf( floatVal - tmpFloatVal)  <= FLT_EPSILON )
-// 			{
-// 				FloatToBuf( floatVal, buf );
-// 				StringToBuf( " M\n", buf );
-// 			}
-// 		}else{
-// 			pTargetGSData->SetMiterLimit( floatVal );
-// 		}
-// 	}
-// 	else if ( pTargetGSData->GetMiterLimit( floatVal ) && ! IsDefMiterLimit( floatVal ) )
-// 	{
-// 		FloatToBuf( floatVal, buf );
-// 		StringToBuf( " M\n", buf );
-// 	}
+	HE_FLOAT					curVal = 0, targetVal = 0;
+	PDF_GSTATE_LINECAP			curLineCap = LineCap_Butt, targetLineCap = LineCap_Butt;
+	PDF_GSTATE_LINEJOIN			curLineJoin = LineJoin_Miter, targetLineJoin = LineJoin_Miter;
+	PDF_GSTATE_DASHPATTERN		curLineDash, targetLineDash;
+	PDF_GSTATE_RENDERINTENTS	curRI = RI_AbsoluteColorimetric, targetRI = RI_AbsoluteColorimetric;
 
-// 	if ( pCurGSData->GetLineCap( lineCap ) )
-// 	{
-// 		if ( pTargetGSData->GetLineCap( tmpLineCap ) )
-// 		{
-// 			if ( ! fabsf( floatVal - tmpFloatVal)  <= FLT_EPSILON )
-// 			{
-// 				FloatToBuf( floatVal, buf );
-// 				StringToBuf( " M\n", buf );
-// 			}
-// 		}else{
-// 			pTargetGSData->SetMiterLimit( floatVal );
-// 		}
-// 	}
-// 	else if ( pTargetGSData->GetMiterLimit( floatVal ) && ! IsDefMiterLimit( floatVal ) )
-// 	{
-// 		FloatToBuf( floatVal, buf );
-// 		StringToBuf( " M\n", buf );
-// 	}
+	//clip的处理
 
-// 	if ( pGSData->GetLineCap( lineCap ) && ! IsDefLineCap( lineCap ) )
-// 	{
-// 		switch ( lineCap )
-// 		{
-// 		case LineCap_Butt:
-// 			IntegerToBuf( 0, buf );
-// 			StringToBuf( " J\n", buf );
-// 			break;
-// 		case LineCap_Round:
-// 			IntegerToBuf( 1, buf );
-// 			StringToBuf( " J\n", buf );
-// 			break;
-// 		case LineCap_Square:
-// 			IntegerToBuf( 2, buf );
-// 			StringToBuf( " J\n", buf );
-// 			break;
-// 		default:
-// 			break;
-// 		}
-// 	}
-// 
-// 	if ( pGSData->GetLineJoin( lineJoin ) && ! IsDefLineJoin( lineJoin ) )
-// 	{
-// 		switch ( lineJoin )
-// 		{
-// 		case LineJoin_Miter:
-// 			IntegerToBuf( 0, buf );
-// 			StringToBuf( " j\n", buf );
-// 			break;
-// 		case LineJoin_Round:
-// 			IntegerToBuf( 1, buf );
-// 			StringToBuf( " j\n", buf );
-// 		case LineJoin_Bevel:
-// 			IntegerToBuf( 2, buf );
-// 			StringToBuf( " j\n", buf );
-// 		default:
-// 			break;
-// 		}
-// 	}
-// 
-// 	if ( pGSData->GetLineDash( lineDash ) && ! IsDefLineDash( lineDash ) )
-// 	{
-// 		StringToBuf( "[", buf );
-// 		for ( size_t i = 0; lineDash.dashArray.size(); ++i )
-// 		{
-// 			StringToBuf( " ", buf );
-// 			FloatToBuf( lineDash.dashArray[i], buf );
-// 		}
-// 		StringToBuf( " ] ", buf );
-// 		FloatToBuf( lineDash.dashPhase, buf );
-// 		StringToBuf( " d\n", buf );
-// 	}
-// 
-// 	ri = pGSData->GetRenderIntents();
-// 	if ( ! IsDefRenderIntents( ri ) )
-// 	{
-// 		switch ( ri )
-// 		{
-// 		case RI_AbsoluteColorimetric:
-// 			IntegerToBuf( 0, buf );
-// 			StringToBuf( " ri\n", buf );
-// 			break;
-// 		case RI_RelativeColorimetric:
-// 			IntegerToBuf( 1, buf );
-// 			StringToBuf( " ri\n", buf );
-// 			break;
-// 		case RI_Saturation:
-// 			IntegerToBuf( 2, buf );
-// 			StringToBuf( " ri\n", buf );
-// 			break;
-// 		case RI_Perceptual:
-// 			IntegerToBuf( 3, buf );
-// 			StringToBuf( " ri\n", buf );
-// 			break;
-// 		default:
-// 			break;
-// 		}
-// 	}
-// 
-// 	floatVal = pGSData->GetFlatness();
-// 	if ( ! IsDefFlatness( floatVal )  )
-// 	{
-// 		FloatToBuf( floatVal, buf );
-// 		StringToBuf( " i\n", buf );
-// 	}
-// 
-// 	CHE_PDF_ColorSpace colorSpace( COLORSAPCE_DEVICE_GRAY );
-// 	CHE_PDF_Color color;
-// 
-// 	if ( pGSData->GetFillColorSpace( colorSpace ) && ! IsDefColorSpace( colorSpace ) )
-// 	{
-// 		if ( ! colorSpace.IsDeviceColorSpace() )
-// 		{
-// 			ColorSpaceToBuf( colorSpace, buf );
-// 			StringToBuf( " cs\n", buf );
-// 		}
-// 
-// 		if ( pGSData->GetFillColor( color ) )
-// 		{
-// 			ColorToBuf( color,  buf );
-// 
-// 			switch (  colorSpace.GetType() )
-// 			{
-// 			case COLORSAPCE_DEVICE_GRAY:
-// 				StringToBuf( "g\n", buf );
-// 				break;
-// 			case COLORSAPCE_DEVICE_RGB:
-// 				StringToBuf( "rg\n", buf );
-// 				break;
-// 			case COLORSAPCE_DEVICE_CMYK:
-// 				StringToBuf( "k\n", buf );
-// 				break;
-// 			case COLORSAPCE_CIEBASE_CALGRAY:
-// 			case COLORSAPCE_CIEBASE_CALRGB:
-// 			case COLORSAPCE_CIEBASE_CALCMYK:
-// 			case COLORSAPCE_CIEBASE_CALLAB:
-// 				StringToBuf( "sc\n", buf );
-// 				break;
-// 			case COLORSAPCE_CIEBASE_ICCBASED:
-// 			case COLORSAPCE_SPECIAL_INDEXED:
-// 			case COLORSAPCE_SPECIAL_SEPARATION:
-// 			case COLORSAPCE_SPECIAL_DEVICEN:
-// 				StringToBuf( "scn\n", buf );
-// 				break;
-// 			case COLORSAPCE_SPECIAL_PATTERN:
-// 				StringToBuf( colorSpace.GetResName(), buf );
-// 				break;
-// 			}
-// 		}
-// 	}
-// 
-// 	if ( pGSData->GetStrokeColorSpace( colorSpace ) && ! IsDefColorSpace( colorSpace ) )
-// 	{
-// 		if ( ! colorSpace.IsDeviceColorSpace() )
-// 		{
-// 			ColorSpaceToBuf( colorSpace, buf );
-// 			StringToBuf( " cs\n", buf );
-// 		}
-// 
-// 		if ( pGSData->GetStrokeColor( color ) )
-// 		{
-// 			ColorToBuf( color,  buf );
-// 
-// 			switch (  colorSpace.GetType() )
-// 			{
-// 			case COLORSAPCE_DEVICE_GRAY:
-// 				StringToBuf( "G\n", buf );
-// 				break;
-// 			case COLORSAPCE_DEVICE_RGB:
-// 				StringToBuf( "RG\n", buf );
-// 				break;
-// 			case COLORSAPCE_DEVICE_CMYK:
-// 				StringToBuf( "K\n", buf );
-// 				break;
-// 			case COLORSAPCE_CIEBASE_CALGRAY:
-// 			case COLORSAPCE_CIEBASE_CALRGB:
-// 			case COLORSAPCE_CIEBASE_CALCMYK:
-// 			case COLORSAPCE_CIEBASE_CALLAB:
-// 				StringToBuf( "SC\n", buf );
-// 				break;
-// 			case COLORSAPCE_CIEBASE_ICCBASED:
-// 			case COLORSAPCE_SPECIAL_INDEXED:
-// 			case COLORSAPCE_SPECIAL_SEPARATION:
-// 			case COLORSAPCE_SPECIAL_DEVICEN:
-// 				StringToBuf( "SCN\n", buf );
-// 				break;
-// 			case COLORSAPCE_SPECIAL_PATTERN:
-// 				StringToBuf( colorSpace.GetResName(), buf );
-// 				break;
-// 			}
-// 		}
-// 	}
-// 
-// 	CHE_PDF_ExtGState * pExtState = pGSData->GetExtGState();
-// 	if ( pExtState )
-// 	{
-// 		CHE_ByteString resName;
-// 
-// 		std::list<CHE_ByteString>::iterator it = pExtState->mExtDictNameList.begin();
-// 
-// 		for ( ; it != pExtState->mExtDictNameList.end(); ++it )
-// 		{
-// 			resName = *it;
-// 			StringToBuf( "/", buf );
-// 			StringToBuf( resName, buf );
-// 			StringToBuf( " gs\n", buf );
-// 		}
-// 	}
-// 
-// 	CHE_PDF_Matrix curMatrix;
-// 
-// 	CHE_PDF_ClipState * pClipState = pGSData->GetClipState();
-// 
-// 	if ( pClipState )
-// 	{
-// 		CHE_PDF_Matrix clipMatrix;
-// 
-// 		std::list<CHE_PDF_ClipStateItem*>::iterator it;
-// 
-// 		CHE_PDF_ContentObject * pClipElement = NULL;
-// 
-// 		for ( it = pClipState->mClipElementList.begin(); it != pClipState->mClipElementList.end(); ++it )
-// 		{
-// 			clipMatrix = (*it)->GetMatrix();
-// 			if ( clipMatrix != curMatrix )
-// 			{
-// 				CHE_PDF_Matrix revertMatrix;
-// 				clipMatrix.Invert( revertMatrix );
-// 				revertMatrix.Concat( clipMatrix );
-// 				clipMatrix = revertMatrix;
-// 
-// 				if ( ! IsDefMatrix( clipMatrix ) )
-// 				{
-// 					PdfMatrixToBuf( clipMatrix, buf );
-// 					StringToBuf( " cm\n", buf );
-// 				}
-// 
-// 				// 				pClipElement = it->GetElement();
-// 				// 
-// 				// 				if ( pc )
-// 				// 				{
-// 				// 				}
-// 
-// 				curMatrix = clipMatrix;
-// 			}
-// 		}
-// 	}
-// 
-// 	CHE_PDF_Matrix ctm;
-// 	ctm = pGSData->GetMatrix();
-// 	if ( ! IsDefMatrix( ctm ) )
-// 	{
-// 		PdfMatrixToBuf( ctm, buf );
-// 		StringToBuf( " cm\n", buf );
-// 	}
+	//第一步：判断clip信息是否相同，如果相同，则不进行任何输出和处理，如果不相同，进入第二步
+
+	//第二步：判断新clip是否是在旧clip的基础上进行的再次操作，如果不是，跳到第三步，如果是，则不需要图形状态出栈，跳到第四步
+
+	//第三步：连续图形状态出栈，直到可以输出clip信息，刚好能够达到目标clip为止
+
+	//第四步：在输出clip信息之前，进行当前图形状态的入栈操作，然后输出clip信息
+
+	//extgstate的处理
+
+	//第一步：判断extgstate的信息是否相同，如果相同，则不进行任何输出和处理，如果不相同，进入第二步
+	
+	//第二步：判断extgstate是否是在旧的extgstate上面进行的再次操作，如果不是，跳到第三步，如果是，则不需要图形状态出栈，跳到第四步
+
+	//第三步：连续图形状态出栈，知道可以输出extgstate信息，能够达到目标的積xtgstate为止
+
+	//第四步：在输出extgstate之前，进行图形状态的入栈操作，然后输出extgstate信息
+
+	//如何将上面两个内容整合呢？
+
+
+	CHE_PDF_ExtGState * pCurExtGState = pCurGSData->GetExtGState();
+	CHE_PDF_ExtGState * pTargetExtGState = pTargetGSData->GetExtGState();
+
+	if ( ! IsExtGStateEqual( pCurExtGState, pTargetExtGState ) )
+	{
+		if ( IsExtGStateContinue( pCurExtGState, pTargetExtGState ) )
+		{
+			stack.Push( pCurGSData );
+			if ( pCurGSData )
+			{
+				pCurGSData = pCurGSData->Clone();
+			}
+			StringToBuf( "q\n", buf );
+			CHE_PDF_ContentString::ExtGStateToBuf( pCurExtGState, pTargetExtGState, buf );
+		}else{
+			while( stack.Pop( pCurGSData ) )
+			{
+				StringToBuf( "Q\n", buf );
+
+				pCurExtGState = ( pCurGSData ) ? pCurGSData->GetExtGState() : NULL; 
+				
+				if (	pCurGSData == NULL || IsExtGStateEqual( pCurExtGState, pTargetExtGState ) ||
+						IsExtGStateContinue( pCurExtGState, pTargetExtGState ) )
+				{
+					break;
+				}
+			}
+			stack.Push( pCurGSData );
+			if ( pCurGSData )
+			{
+				pCurGSData = pCurGSData->Clone();
+			}
+			StringToBuf( "q\n", buf );
+			CHE_PDF_ContentString::ExtGStateToBuf( pCurExtGState, pTargetExtGState, buf );
+		}
+	}
+
+	CHE_PDF_ClipState * pCurClipState = pCurGSData->GetClipState();
+	CHE_PDF_ClipState * pTargetClipState = pTargetGSData->GetClipState();
+
+	CHE_PDF_Matrix curMatrix = pCurGSData->GetMatrix();
+
+	if ( ! IsClipStateEqual( pCurClipState, pTargetClipState ) )
+	{
+		if ( IsClipStateContinue( pCurClipState, pTargetClipState ) )
+		{
+			//zctodo
+		}else{
+			while( stack.Pop( pCurGSData ) )
+			{
+				StringToBuf( "Q\n", buf );
+
+				pCurClipState = ( pCurGSData ) ? pCurGSData->GetClipState() : NULL; 
+
+				if (	pCurGSData == NULL || pCurClipState == NULL || IsClipStateEqual( pCurClipState, pTargetClipState ) ||
+						IsClipStateContinue( pCurClipState, pTargetClipState ) )
+				{
+					break;
+				}
+			}
+			stack.Push( pCurGSData );
+			if ( pCurGSData )
+			{
+				pCurGSData = pCurGSData->Clone();
+			}
+			StringToBuf( "q\n", buf );
+
+			if ( pTargetClipState )
+			{
+				CHE_PDF_Matrix clipMatrix;
+
+				std::list<CHE_PDF_ClipStateItem*>::iterator it;
+
+				CHE_PDF_ContentObject * pClipElement = NULL;
+
+				for ( it = pTargetClipState->mClipElementList.begin(); it != pTargetClipState->mClipElementList.end(); ++it )
+				{
+					clipMatrix = (*it)->GetMatrix();
+					if ( clipMatrix != curMatrix )
+					{
+						CHE_PDF_Matrix revertMatrix;
+						clipMatrix.Invert( revertMatrix );
+						revertMatrix.Concat( clipMatrix );
+						clipMatrix = revertMatrix;
+
+						if ( ! IsDefMatrix( clipMatrix ) )
+						{
+							PdfMatrixToBuf( clipMatrix, buf );
+							StringToBuf( " cm\n", buf );
+						}
+
+						pClipElement = (*it)->GetElement();
+						if ( pClipElement )
+						{
+							if ( pClipElement->GetType() == ContentType_Text )
+							{
+								//zctodo
+							}else if ( pClipElement->GetType() == ContentType_Path )
+							{
+								CHE_PDF_Path * pPath = (CHE_PDF_Path*)( pClipElement );
+								PathDataToBuf( pPath, buf );
+								if ( pPath->GetFillMode() == Mode_Nonzero )
+								{
+									StringToBuf( " W\n", buf );
+								}else if ( pPath->GetFillMode() == Mode_EvenOdd )
+								{
+									StringToBuf( " W\n", buf );
+								}
+							}
+						}
+
+						curMatrix = clipMatrix;
+					}
+				}
+			}
+		}
+	}
+
+	if ( ! pCurGSData )
+	{
+		pCurGSData = &defGState;
+	}
+
+	pCurGSData->GetLineWidth( curVal );
+	pTargetGSData->GetLineWidth( targetVal );
+
+	if ( ! IsFloatEqual( curVal, targetVal ) )
+	{
+		FloatToBuf( targetVal, buf );
+		StringToBuf( " w\n", buf );
+	}
+
+	pCurGSData->GetMiterLimit( curVal );
+	pTargetGSData->GetMiterLimit( targetVal );
+
+	if ( ! IsFloatEqual( curVal, targetVal ) )
+	{
+		FloatToBuf( targetVal, buf );
+		StringToBuf( " M\n", buf );
+	}
+
+	pCurGSData->GetLineCap( curLineCap );
+	pTargetGSData->GetLineCap( targetLineCap );
+
+	if ( curLineCap != targetLineCap )
+	{
+		switch ( targetLineCap )
+		{
+		case LineCap_Butt:
+			IntegerToBuf( 0, buf );
+			StringToBuf( " J\n", buf );
+			break;
+		case LineCap_Round:
+			IntegerToBuf( 1, buf );
+			StringToBuf( " J\n", buf );
+			break;
+		case LineCap_Square:
+			IntegerToBuf( 2, buf );
+			StringToBuf( " J\n", buf );
+			break;
+		default:
+			break;
+		}
+	}
+
+	pCurGSData->GetLineJoin( curLineJoin );
+	pTargetGSData->GetLineJoin( targetLineJoin );
+
+	if ( curLineJoin != targetLineJoin )
+	{
+		switch ( targetLineJoin )
+		{
+		case LineJoin_Miter:
+			IntegerToBuf( 0, buf );
+			StringToBuf( " j\n", buf );
+			break;
+		case LineJoin_Round:
+			IntegerToBuf( 1, buf );
+			StringToBuf( " j\n", buf );
+			break;
+		case LineJoin_Bevel:
+			IntegerToBuf( 2, buf );
+			StringToBuf( " j\n", buf );
+		default:
+			break;
+		}
+	}
+
+	pCurGSData->GetLineDash( curLineDash );
+	pTargetGSData->GetLineDash( targetLineDash );
+
+	if (	! IsFloatEqual( curLineDash.dashPhase, targetLineDash.dashPhase ) ||
+			curLineDash.dashArray.size() != targetLineDash.dashArray.size() )
+	{
+		StringToBuf( "[", buf );
+		for ( size_t i = 0; targetLineDash.dashArray.size(); ++i )
+		{
+			StringToBuf( " ", buf );
+			FloatToBuf( targetLineDash.dashArray[i], buf );
+		}
+		StringToBuf( " ] ", buf );
+		FloatToBuf( targetLineDash.dashPhase, buf );
+		StringToBuf( " d\n", buf );
+	}else{
+		HE_BOOL bSame = TRUE;
+		for ( HE_DWORD i = 0; i < targetLineDash.dashArray.size(); ++i )
+		{
+			if ( ! IsFloatEqual( curLineDash.dashArray[i], targetLineDash.dashArray[i] ) )
+			{
+				bSame = FALSE;
+				break;
+			}
+		}
+		if ( ! bSame )
+		{
+			StringToBuf( "[", buf );
+			for ( size_t i = 0; targetLineDash.dashArray.size(); ++i )
+			{
+				StringToBuf( " ", buf );
+				FloatToBuf( targetLineDash.dashArray[i], buf );
+			}
+			StringToBuf( " ] ", buf );
+			FloatToBuf( targetLineDash.dashPhase, buf );
+			StringToBuf( " d\n", buf );
+		}
+	}
+
+	curRI = pCurGSData->GetRenderIntents();
+	targetRI = pTargetGSData->GetRenderIntents();
+
+	if ( curRI != targetRI )
+	{
+		switch ( targetRI )
+		{
+		case RI_AbsoluteColorimetric:
+			IntegerToBuf( 0, buf );
+			StringToBuf( " ri\n", buf );
+			break;
+		case RI_RelativeColorimetric:
+			IntegerToBuf( 1, buf );
+			StringToBuf( " ri\n", buf );
+			break;
+		case RI_Saturation:
+			IntegerToBuf( 2, buf );
+			StringToBuf( " ri\n", buf );
+			break;
+		case RI_Perceptual:
+			IntegerToBuf( 3, buf );
+			StringToBuf( " ri\n", buf );
+			break;
+		default:
+			break;
+		}
+	}
+
+	curVal = pCurGSData->GetFlatness();
+	targetVal = pTargetGSData->GetFlatness();
+
+	if ( ! IsFloatEqual( curVal, targetVal ) )
+	{
+		FloatToBuf( targetVal, buf );
+		StringToBuf( " i\n", buf );
+	}
+
+	CHE_PDF_ColorSpace curCS( COLORSAPCE_DEVICE_GRAY ), targetCS( COLORSAPCE_DEVICE_GRAY );
+	CHE_PDF_Color curColor, targetColor;
+
+	pCurGSData->GetFillColorSpace( curCS );
+	pTargetGSData->GetFillColorSpace( targetCS );
+	pCurGSData->GetFillColor( curColor );
+	pTargetGSData->GetFillColor( targetColor );
+
+	if ( ! IsColorSpaceEqual( curCS, targetCS ) || ! IsColorEqual( curColor, targetColor ) )
+	{
+		if ( ! targetCS.IsDeviceColorSpace() )
+		{
+			ColorSpaceToBuf( targetCS, buf );
+			StringToBuf( " cs\n", buf );
+		}
+		if ( targetColor.mConponents.size() > 0 )
+		{
+			ColorToBuf( targetColor,  buf );
+
+			switch (  targetCS.GetType() )
+			{
+			case COLORSAPCE_DEVICE_GRAY:
+				StringToBuf( "g\n", buf );
+				break;
+			case COLORSAPCE_DEVICE_RGB:
+				StringToBuf( "rg\n", buf );
+				break;
+			case COLORSAPCE_DEVICE_CMYK:
+				StringToBuf( "k\n", buf );
+				break;
+			case COLORSAPCE_CIEBASE_CALGRAY:
+			case COLORSAPCE_CIEBASE_CALRGB:
+			case COLORSAPCE_CIEBASE_CALCMYK:
+			case COLORSAPCE_CIEBASE_CALLAB:
+				StringToBuf( "sc\n", buf );
+				break;
+			case COLORSAPCE_CIEBASE_ICCBASED:
+			case COLORSAPCE_SPECIAL_INDEXED:
+			case COLORSAPCE_SPECIAL_SEPARATION:
+			case COLORSAPCE_SPECIAL_DEVICEN:
+				StringToBuf( "scn\n", buf );
+				break;
+			case COLORSAPCE_SPECIAL_PATTERN:
+				StringToBuf( targetCS.GetResName(), buf );
+				StringToBuf( "scn\n", buf );
+				break;
+			}
+		}
+	}
+
+	pCurGSData->GetStrokeColorSpace( curCS );
+	pTargetGSData->GetStrokeColorSpace( targetCS );
+	pCurGSData->GetStrokeColor( curColor );
+	pTargetGSData->GetStrokeColor( targetColor );
+
+	if ( ! IsColorSpaceEqual( curCS, targetCS ) || ! IsColorEqual( curColor, targetColor ) )
+	{
+		ColorToBuf( targetColor,  buf );
+
+		if ( targetColor.mConponents.size() > 0 )
+		{
+			switch (  targetCS.GetType() )
+			{
+			case COLORSAPCE_DEVICE_GRAY:
+				StringToBuf( "G\n", buf );
+				break;
+			case COLORSAPCE_DEVICE_RGB:
+				StringToBuf( "RG\n", buf );
+				break;
+			case COLORSAPCE_DEVICE_CMYK:
+				StringToBuf( "K\n", buf );
+				break;
+			case COLORSAPCE_CIEBASE_CALGRAY:
+			case COLORSAPCE_CIEBASE_CALRGB:
+			case COLORSAPCE_CIEBASE_CALCMYK:
+			case COLORSAPCE_CIEBASE_CALLAB:
+				StringToBuf( "SC\n", buf );
+				break;
+			case COLORSAPCE_CIEBASE_ICCBASED:
+			case COLORSAPCE_SPECIAL_INDEXED:
+			case COLORSAPCE_SPECIAL_SEPARATION:
+			case COLORSAPCE_SPECIAL_DEVICEN:
+				StringToBuf( "SCN\n", buf );
+				break;
+			case COLORSAPCE_SPECIAL_PATTERN:
+				StringToBuf( targetCS.GetResName(), buf );
+				StringToBuf( "SCN\n", buf );
+				break;
+			}
+		}
+	}
+
+	CHE_PDF_Matrix targetMatrix = pTargetGSData->GetMatrix();
+
+	if ( curMatrix != targetMatrix )
+	{
+		if ( ! IsDefMatrix( curMatrix ) )
+		{
+			CHE_PDF_Matrix revertMatrix;
+			revertMatrix.Invert( curMatrix );
+			//outPutMatrix.Concat( revertMatrix );
+			//revertMatrix.Concat( curMatirx );
+			targetMatrix.Concat( revertMatrix );
+			//PdfMatrixToBuf( revertMatrix, buf );
+			//StringToBuf( " cm\n", buf );
+		}
+
+		PdfMatrixToBuf( targetMatrix, buf );
+		StringToBuf( " cm\n", buf );
+	}
 
 	return TRUE;
 }
@@ -1372,17 +1641,17 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 
 	ContentObjectList::iterator it;
 
+	CHE_PDF_GState * pCurGState = NULL;
+	CHE_PDF_GState * pItemGState = NULL;
+
+	CHE_Stack<CHE_PDF_GState*> gstateStack;
+
 	for ( it = pList->Begin(); it != pList->End(); ++it )
 	{
 		itemType = (*it)->GetType();
-		if ( itemType == ContentType_Text )
+
+		if ( itemType !=  ContentType_Text )
 		{
-			if ( ! bTextBlock )
-			{
-				bTextBlock = TRUE;
-				CHE_PDF_ContentString::TextBlockBeginToBuf( buf );
-			}
-		}else{
 			if ( bTextBlock )
 			{
 				bTextBlock = FALSE;
@@ -1390,15 +1659,31 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 			}
 		}
 
-		CHE_PDF_GState * pCurGState = (*it)->GetGState();
+		//由于Mark是不存在所谓的图形状态的，所以，此时不应该输出，也不应该改变当前的图形状态
+		if ( itemType != ContentType_Mark )
+		{
+			pItemGState = (*it)->GetGState();
 
-		CHE_PDF_ContentString::GSDataToBuf( pCurGState, buf );
+			CHE_PDF_ContentString::GSDataToBuf( pCurGState, pItemGState, buf, gstateStack );
+		}
+
+		if ( itemType == ContentType_Text )
+		{
+			if ( ! bTextBlock )
+			{
+				bTextBlock = TRUE;
+				CHE_PDF_ContentString::TextBlockBeginToBuf( buf );
+			}
+		}
 
 		switch ( itemType )
 		{
 		case ContentType_Text:
-			CHE_PDF_ContentString::TextToBuf( (CHE_PDF_Text*)( *it ), buf );
-			break;
+			{
+				CHE_PDF_ContentString::TextStateToBuf( pCurGState, pItemGState, buf, gstateStack );
+				CHE_PDF_ContentString::TextToBuf( (CHE_PDF_Text*)( *it ), buf, gstateStack );
+				break;
+			}
 		case ContentType_Path:
 			CHE_PDF_ContentString::PathToBuf( (CHE_PDF_Path*)( *it ), buf );
 			break;
@@ -1419,6 +1704,21 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 		default:
 			break;
 		}
+
+		if ( pCurGState != NULL )
+		{
+			pCurGState->GetAllocator()->Delete( pCurGState );
+			pCurGState = NULL;
+		}
+		if ( pItemGState != NULL )
+		{
+			pCurGState = pItemGState->Clone();
+		}
+	}
+
+	while ( gstateStack.Pop( pCurGState ) )
+	{
+		CHE_PDF_ContentString::StringToBuf( "Q\n", buf );
 	}
 
 	return TRUE;

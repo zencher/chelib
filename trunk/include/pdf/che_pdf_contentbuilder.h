@@ -10,7 +10,7 @@ class CHE_PDF_ContentString
 public:
 	static HE_BOOL PathToBuf( CHE_PDF_Path * pPath, CHE_DynBuffer & buf );
 
-	static HE_BOOL TextToBuf( CHE_PDF_Text * pText, CHE_DynBuffer & buf );
+	static HE_BOOL TextToBuf( CHE_PDF_Text * pText, CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & stack );
 
 	static HE_VOID TextBlockBeginToBuf( CHE_DynBuffer & buf );
 
@@ -26,17 +26,24 @@ public:
 
 	static HE_BOOL FormToBuf( CHE_PDF_Form * pForm, CHE_DynBuffer & buf );
 
-	static HE_BOOL TextStateToBuf( CHE_PDF_GState * pState, CHE_DynBuffer & buf );
+	static HE_BOOL TextStateToBuf(	CHE_PDF_GState * pState, CHE_DynBuffer & buf,
+									CHE_Stack<CHE_PDF_GState*> & gstack );
 
-	static HE_BOOL TextStateToBuf( CHE_PDF_GState * pCurGSData, CHE_PDF_GState * pTargetGSData, CHE_DynBuffer & buf );
+	static HE_BOOL TextStateToBuf(	CHE_PDF_GState * pCurGSData, CHE_PDF_GState * pTargetGSData,
+									CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & gstack );
 
-	static HE_BOOL GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuffer & buf );
+	static HE_BOOL GSDataToBuf( CHE_PDF_GState * pGSData, CHE_DynBuffer & buf,
+								CHE_Stack<CHE_PDF_GState*> & gstack );
 
-	static HE_BOOL GSDataToBuf( CHE_PDF_GState * pCurGSData, CHE_PDF_GState * pTargetGSData, CHE_DynBuffer & buf );
+	static HE_BOOL GSDataToBuf( CHE_PDF_GState * pCurGSData, CHE_PDF_GState * pTargetGSData,
+								CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & gstack );
 
 	static HE_BOOL PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & objPtr, CHE_DynBuffer & buf );
 
-private:
+	static HE_BOOL ExtGStateToBuf( const CHE_PDF_ExtGState * pExtGState1, const CHE_PDF_ExtGState * pExtGState2, CHE_DynBuffer & buf );
+
+	static HE_BOOL ClipStateToBuf( const CHE_PDF_ClipState * pClipState1, const CHE_PDF_ClipState * pClipState2 );
+
 	static HE_BOOL PathDataToBuf( CHE_PDF_Path * pPath, CHE_DynBuffer & buf );
 
 	static HE_BOOL FloatToBuf( HE_FLOAT val, CHE_DynBuffer & buf );

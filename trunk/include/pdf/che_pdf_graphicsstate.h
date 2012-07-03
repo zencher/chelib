@@ -168,11 +168,15 @@ public:
 
 	HE_BOOL PushExtStateName( const CHE_ByteString & name, CHE_PDF_DictionaryPtr dictPtr );
 
-	HE_FLOAT GetStrokeAlpha() { return mStrokeAlpha; }
+	HE_FLOAT GetStrokeAlpha() const { return mStrokeAlpha; }
 
-	HE_FLOAT GetFillAlpha() { return mFillAlpha; }
+	HE_FLOAT GetFillAlpha() const { return mFillAlpha; }
 
 	CHE_PDF_ExtGState * Clone() const;
+
+	bool operator == ( const CHE_PDF_ExtGState & gs ) const;
+
+	bool operator != ( const CHE_PDF_ExtGState & gs ) const;
 
 	std::list<CHE_ByteString> mExtDictNameList;
 
@@ -194,7 +198,6 @@ private:
 #define GSTATE_FLAG_TextMatirx			0x00000400
 #define GSTATE_FLAG_CharSpace			0x00000800
 #define GSTATE_FLAG_WordSpace			0x00001000
-//#define GSTATE_FLAG_Leading			0x00002000
 #define GSTATE_FLAG_Scaling				0x00002000
 #define GSTATE_FLAG_Rise				0x00004000
 #define GSTATE_FLAG_RenderMode			0x00008000
@@ -218,25 +221,31 @@ public:
 	CHE_PDF_Matrix GetMatrix() const { return mMatrix; }; 
 	PDF_GSTATE_RENDERINTENTS GetRenderIntents() const { return mRenderIntents; }
 	HE_FLOAT GetFlatness() const { return mFlatness; }
-	HE_BOOL	GetFillColor( CHE_PDF_Color & colorRet ) const;
-	HE_BOOL GetStrokeColor( CHE_PDF_Color & colorRet ) const;
-	HE_BOOL GetFillColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) const;
-	HE_BOOL GetStrokeColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) const;
-	HE_BOOL	GetLineWidth( HE_FLOAT & lineWidthRet ) const;
-	HE_BOOL GetMiterLimit( HE_FLOAT & miterLimitRet ) const;
-	HE_BOOL GetLineCap( PDF_GSTATE_LINECAP & lineCapRet ) const;
-	HE_BOOL GetLineJoin( PDF_GSTATE_LINEJOIN & lineJoinRet ) const;
-	HE_BOOL GetLineDash( PDF_GSTATE_DASHPATTERN & lineDash ) const;
-	HE_BOOL GetTextMatrix( CHE_PDF_Matrix & matrixRet ) const;
-	HE_BOOL GetTextFontSize( HE_FLOAT & fontSizeRet ) const;
-	HE_BOOL GetTextCharSpace( HE_FLOAT & charSpaceRet ) const;
-	HE_BOOL GetTextWordSpace( HE_FLOAT & wordSpaceRet ) const;
-	//HE_BOOL GetTextLeading( HE_FLOAT & leadingRet ) const;
-	HE_BOOL GetTextScaling( HE_FLOAT & scalingRet ) const;
-	HE_BOOL GetTextRise( HE_FLOAT & riseRet ) const;
+
+	/*
+	*	@breif	获取图形状态的填充颜色
+	*	@param	用于接收返回值的颜色对象的引用
+	*	@return HE_VOID
+	*	@remark	如果该图形状态中没有包含填充颜色的信息，则返回一个当前颜色空间下面的默认颜色
+	*/
+	HE_VOID	GetFillColor( CHE_PDF_Color & colorRet ) const;
+	HE_VOID GetStrokeColor( CHE_PDF_Color & colorRet ) const;
+	HE_VOID GetFillColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) const;
+	HE_VOID GetStrokeColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) const;
+	HE_VOID	GetLineWidth( HE_FLOAT & lineWidthRet ) const;
+	HE_VOID GetMiterLimit( HE_FLOAT & miterLimitRet ) const;
+	HE_VOID GetLineCap( PDF_GSTATE_LINECAP & lineCapRet ) const;
+	HE_VOID GetLineJoin( PDF_GSTATE_LINEJOIN & lineJoinRet ) const;
+	HE_VOID GetLineDash( PDF_GSTATE_DASHPATTERN & lineDash ) const;
+	HE_VOID GetTextMatrix( CHE_PDF_Matrix & matrixRet ) const;
+	HE_VOID GetTextFontSize( HE_FLOAT & fontSizeRet ) const;
+	HE_VOID GetTextCharSpace( HE_FLOAT & charSpaceRet ) const;
+	HE_VOID GetTextWordSpace( HE_FLOAT & wordSpaceRet ) const;
+	HE_VOID GetTextScaling( HE_FLOAT & scalingRet ) const;
+	HE_VOID GetTextRise( HE_FLOAT & riseRet ) const;
 	CHE_PDF_Font * GetTextFont() const;
-	HE_BOOL GetTextFontResName( CHE_ByteString & resNameRet ) const;
-	HE_BOOL GetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE & rm ) const;
+	HE_VOID GetTextFontResName( CHE_ByteString & resNameRet ) const;
+	HE_VOID GetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE & rm ) const;
 	CHE_PDF_ClipState * GetClipState() { return mpClipState; }
 	CHE_PDF_ExtGState * GetExtGState() { return mpExtState; }
 
@@ -285,6 +294,8 @@ private:
 	CHE_PDF_ExtGState *			mpExtState;
 };
 
+HE_BOOL	IsFloatEqual( const HE_FLOAT &, const HE_FLOAT & );
+
 HE_BOOL IsDefLineWidth( const HE_FLOAT & lineWidth );
 HE_BOOL IsDefLineCap( const PDF_GSTATE_LINECAP & lineCap );
 HE_BOOL IsDefLineJoin( const PDF_GSTATE_LINEJOIN & lineJoin );
@@ -305,5 +316,13 @@ HE_BOOL IsDefRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri );
 HE_BOOL IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace );
 HE_BOOL IsDefColor( const CHE_PDF_Color & color );
 
+HE_BOOL	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 );
+HE_BOOL IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 );
+
+HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_ExtGState * pExtGS2 );
+HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_ExtGState * pExtGS2 );
+
+HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 );
+HE_BOOL IsClipStateContinue( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 );
 
 #endif

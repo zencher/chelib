@@ -454,7 +454,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
 			{
 				CHE_PDF_NamePtr pName = pTmpObj->GetNamePtr();
-				CHE_ByteString name = pName->GetStringPtr();
+				CHE_ByteString name = pName->GetString();
 				if ( name == "DeviceGray" || name == "G" )
 				{
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
@@ -657,6 +657,9 @@ HE_VOID CHE_PDF_ContentsParser::Handle_EMC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_ET()
 {
+	//每一次ET之后，新BT开始的Tm都会成为默认矩阵
+	mpConstructor->State_TextMatirx( CHE_PDF_Matrix() );
+	mpConstructor->State_TextRise( 0 );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_EX()
@@ -796,21 +799,21 @@ HE_VOID CHE_PDF_ContentsParser::Handle_J()
 {
 	if ( CheckOpdCount( 1 ) )
 	{
-		PDF_GSTATE_LINEJOIN lineJoin = LineJoin_Miter;
+		PDF_GSTATE_LINECAP lineCap = LineCap_Butt;
 		switch ( unsigned int( mOpdFloatStack[0] ) )
 		{
 		default:
 		case 0:
-			lineJoin = LineJoin_Miter;
+			lineCap = LineCap_Butt;
 			break;
 		case 1:
-			lineJoin = LineJoin_Round;
+			lineCap = LineCap_Round;
 			break;
 		case 2:
-			lineJoin = LineJoin_Bevel;
+			lineCap = LineCap_Square;
 			break;
 		}
-		mpConstructor->State_LineJoin( lineJoin );
+		mpConstructor->State_LineCap( lineCap );
 	}
 }
 
@@ -1217,7 +1220,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 					return;
 				}
 				CHE_PDF_NamePtr namePtr = pTmpObj->GetNamePtr();
-				CHE_ByteString name = namePtr->GetStringPtr();
+				CHE_ByteString name = namePtr->GetString();
 				if ( name == "DeviceGray" || name == "G" )
 				{
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
@@ -1363,21 +1366,21 @@ HE_VOID CHE_PDF_ContentsParser::Handle_j()
 {
 	if ( CheckOpdCount( 1 ) )
 	{
-		PDF_GSTATE_LINEJOIN lineJion = LineJoin_Miter;
+		PDF_GSTATE_LINEJOIN lineJoin = LineJoin_Miter;
 		switch ( unsigned int( mOpdFloatStack[0] ) )
 		{
 		default:
 		case 0:
-			lineJion = LineJoin_Miter;
+			lineJoin = LineJoin_Miter;
 			break;
 		case 1:
-			lineJion = LineJoin_Round;
+			lineJoin = LineJoin_Round;
 			break;
 		case 2:
-			lineJion = LineJoin_Bevel;
+			lineJoin = LineJoin_Bevel;
 			break;
 		}
-		mpConstructor->State_LineJoin( lineJion );
+		mpConstructor->State_LineJoin( lineJoin );
 	}
 }
 

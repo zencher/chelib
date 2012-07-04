@@ -1313,10 +1313,20 @@ HE_DWORD CHE_PDF_Parser::ParseXRef()
 			}
 			if ( m_pStrEncrypt == NULL )
 			{
-				pObj = pDict->GetElement( "Encrypt", OBJ_TYPE_DICTIONARY );
+				pObj = pDict->GetElement( "Encrypt", OBJ_TYPE_REFERENCE );
 				if ( pObj )
 				{
+					mEncryptRef = pObj->GetRefPtr();
+				}
+				pObj = pDict->GetElement( "Encrypt", OBJ_TYPE_DICTIONARY );
+				if ( pObj ) 
+				{
 					ParseEncrypt( pObj->GetDictPtr(), pIdArray );
+				}
+				pObj = pDict->GetElement( "ID", OBJ_TYPE_ARRAY );
+				if ( pObj )
+				{
+					mIDArrayPtr = pObj->GetArrayPtr();
 				}
 			}
 			pObj = pDict->GetElement( "Prev", OBJ_TYPE_NUMBER );

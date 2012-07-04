@@ -102,6 +102,8 @@ public:
 	CHE_PDF_ObjectPtr			GetObject();
 	CHE_PDF_ObjectPtr			GetObjectInObjStm( CHE_PDF_StreamPtr & pStream, const PDF_RefInfo & ObjrefInfo, HE_DWORD index );
 
+/*	CHE_PDF_ReferencePtr		GetEncryptRef() const { return mpEncryptRef; } */
+
 private:
 	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XREF_Table * pXrefTable, CHE_Allocator * pAllocator = NULL );
 
@@ -125,6 +127,9 @@ private:
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;
 	CHE_PDF_Encrypt	*			m_pStmEncrypt;
 	CHE_PDF_Encrypt	*			m_pEefEncrypt;
+
+	CHE_PDF_ReferencePtr		mEncryptRef;
+	CHE_PDF_ArrayPtr			mIDArrayPtr;
 
 	friend class CHE_PDF_File;
 	friend class CHE_Allocator;

@@ -154,6 +154,16 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 		newTriailerDict->SetAtObj( "Info", ObjPtr->GetRefPtr() );
 	}
 
+	if ( mpParser && mpParser->mEncryptRef )
+	{
+		newTriailerDict->SetAtReference( "Encrypt", mpParser->mEncryptRef->GetRefInfo().objNum, mpParser->mEncryptRef->GetRefInfo().genNum, this );
+	}
+
+	if ( mpParser && mpParser->mIDArrayPtr )
+	{
+		newTriailerDict->SetAtArray( "ID", mpParser->mIDArrayPtr->Clone() );
+	}
+
 	newTriailerDict->SetAtInteger( "Size", objCount );
 
 	pCreator->OutPutTailerDict( newTriailerDict );

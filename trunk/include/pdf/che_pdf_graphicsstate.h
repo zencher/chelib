@@ -246,8 +246,8 @@ public:
 	CHE_PDF_Font * GetTextFont() const;
 	HE_VOID GetTextFontResName( CHE_ByteString & resNameRet ) const;
 	HE_VOID GetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE & rm ) const;
-	CHE_PDF_ClipState * GetClipState() { return mpClipState; }
-	CHE_PDF_ExtGState * GetExtGState() { return mpExtState; }
+	CHE_PDF_ClipState * GetClipState() const { return mpClipState; }
+	CHE_PDF_ExtGState * GetExtGState() const { return mpExtState; }
 
 	HE_VOID SetMatrix( const CHE_PDF_Matrix & matirx ) { mMatrix = matirx; }
 	HE_VOID SetRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri ) { mFlag &= GSTATE_FLAG_RenderIntents; mRenderIntents = ri; }

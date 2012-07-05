@@ -87,7 +87,7 @@ public:
 
 	bool SetName( const CHE_ByteString & name ) { mName = name; }
 
-	CHE_ByteString GetName() { return mName; }
+	CHE_ByteString GetName() const { return mName; }
 
 protected:
 	CHE_ByteString mName;
@@ -120,6 +120,11 @@ public:
 	{
 		CHE_PDF_Text * pTextRet = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		pTextRet->mItems = mItems;
+		pTextRet->mExtMatrixl = mExtMatrixl;
+		if ( mpGState )
+		{
+			pTextRet->mpGState = mpGState->Clone();
+		}
 		if ( mpObj )
 		{
 			pTextRet->mpObj = mpObj->Clone();

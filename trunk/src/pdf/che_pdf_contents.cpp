@@ -412,6 +412,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BMC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BT()
 {
+	mpConstructor->State_TextMatirx( CHE_PDF_Matrix() );
+	mpConstructor->State_TextRise( 0 );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BX()
@@ -657,9 +659,6 @@ HE_VOID CHE_PDF_ContentsParser::Handle_EMC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_ET()
 {
-	//每一次ET之后，新BT开始的Tm都会成为默认矩阵
-	mpConstructor->State_TextMatirx( CHE_PDF_Matrix() );
-	mpConstructor->State_TextRise( 0 );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_EX()
@@ -877,6 +876,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_S()
 		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
+	}
 }
 HE_VOID CHE_PDF_ContentsParser::Handle_SC()
 {
@@ -951,7 +955,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tc()
 {
 	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->State_TextWordSpace( mOpdFloatStack[0] );
+		mpConstructor->State_TextCharSpace( mOpdFloatStack[0] );
 	}
 }
 
@@ -1042,7 +1046,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tr()
 			textRm = TextRenderMode_FillStrokeClip;
 			break;
 		case 7:
-			textRm = TextRenderMode_Invisible;
+			textRm = TextRenderMode_Clip;
 			break;
 		}
 		mpConstructor->State_TextRenderMode( textRm );
@@ -1075,23 +1079,30 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tz()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_W()
 {
+	if ( mpClipPath )
+	{
+		mpClipPath->GetAllocator()->Delete( mpClipPath );
+		mpClipPath = NULL;
+	}
 	if ( mpPath )
 	{
-		CHE_PDF_Path * pTmpPath = (CHE_PDF_Path *)( mpPath->Clone() );
-		pTmpPath->SetFillMode( Mode_Nonzero );
-		mpConstructor->Operator_Clip( pTmpPath );
+		mpClipPath = (CHE_PDF_Path *)( mpPath->Clone() );
+		mpClipPath->SetFillMode( Mode_Nonzero );
 	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Wstar()
 {
+	if ( mpClipPath )
+	{
+		mpClipPath->GetAllocator()->Delete( mpClipPath );
+		mpClipPath = NULL;
+	}
 	if ( mpPath )
 	{
-		CHE_PDF_Path * pTmpPath = (CHE_PDF_Path *)( mpPath->Clone() );
-		pTmpPath->SetFillMode( Mode_EvenOdd );
-		mpConstructor->Operator_Clip( pTmpPath );
+		mpClipPath = (CHE_PDF_Path *)( mpPath->Clone() );
+		mpClipPath->SetFillMode( Mode_EvenOdd );
 	}
-	
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_b()
@@ -1106,6 +1117,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_b()
 		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_bstar()
@@ -1119,6 +1135,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_bstar()
 		mpPath->SetPaintType( Paint_FillStroke );
 		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
+	}
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
 	}
 }
 
@@ -1291,6 +1312,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_f()
 		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_fstar()
@@ -1301,6 +1327,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_fstar()
 		mpPath->SetPaintType( Paint_Fill );
 		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
+	}
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
 	}
 }
 
@@ -1436,11 +1467,14 @@ HE_VOID CHE_PDF_ContentsParser::Handle_m()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_n()
 {
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
+	}
 	if ( mpPath )
 	{
-		mpPath->SetFillMode( Mode_Nonzero );
-		mpPath->SetPaintType( Paint_None );
-		mpConstructor->Operator_Append( mpPath );
+		mpPath->GetAllocator()->Delete( mpPath );
 		mpPath = NULL;
 	}
 }
@@ -1518,6 +1552,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_s()
 		mpPath->SetPaintType( Paint_Stroke );
 		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
+	}
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
 	}
 }
 
@@ -1662,8 +1701,9 @@ public:
 
 	HE_VOID State_ConcatMatrix( const CHE_PDF_Matrix & matrix )
 	{
-		CHE_PDF_Matrix tmpMatirx = GetGState()->GetMatrix();
-		tmpMatirx.Concat( matrix );
+		CHE_PDF_Matrix tmpMatirx = matrix;
+		CHE_PDF_Matrix curMatrix = GetGState()->GetMatrix();
+		tmpMatirx.Concat( curMatrix );
 		GetGState()->SetMatrix( tmpMatirx );
 	}
 
@@ -1783,8 +1823,8 @@ public:
 		GetGState()->GetTextMatrix( matrix );
 		tmpMatrix.e = tx;
 		tmpMatrix.f = ty;
-		matrix.Concat( tmpMatrix );
-		GetGState()->SetTextMatrix( matrix );
+		tmpMatrix.Concat( matrix );
+		GetGState()->SetTextMatrix( tmpMatrix );
 	}
 
 	HE_VOID Operator_TD( const HE_FLOAT & tx, const HE_FLOAT & ty )
@@ -1795,7 +1835,7 @@ public:
 
 	HE_VOID Operator_Tstar()
 	{
-		Operator_Td( 0, mTextLeading );
+		Operator_Td( 0, -mTextLeading );
 	}
 	
 	HE_VOID Operator_PushGState()
@@ -1842,6 +1882,7 @@ public:
 					if ( mpGState )
 					{
 						PDF_GSTATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
+						mpGState->GetTextRenderMode( rm );
 						switch ( rm )
 						{
 						case TextRenderMode_FillClip:
@@ -1853,10 +1894,15 @@ public:
 							}
 						case TextRenderMode_Clip:
 							{
+								pObject->SetGState( mpGState->Clone() );
 								Operator_Clip( pObject );
 								return;
 							}
-						default: break;
+						case TextRenderMode_Fill:
+						case TextRenderMode_Stroke:
+						case TextRenderMode_FillStroke:
+							break;
+						default: return;
 						}
 					}
 				}
@@ -1878,7 +1924,6 @@ public:
 			}
 			mpList->Append( pObject );
 
-			//extMatrix
 			CHE_PDF_Matrix tmpMatrix = pObject->GetExtMatrix();
 			tmpMatrix.Concat( mExtMatrix );
 			pObject->SetExtMatrix( tmpMatrix );

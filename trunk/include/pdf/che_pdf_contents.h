@@ -64,7 +64,7 @@ public:
 	CHE_PDF_ContentsParser( CHE_PDF_ContentResMgr * pResMgr, CHE_PDF_FontMgr * pFontMgr, 
 							IHE_PDF_ContentListConstructor * pConstructor, CHE_Allocator * pAllocator = NULL )
 		:	CHE_Object( pAllocator ), mpContentResMgr(pResMgr), mpFontMgr(pFontMgr), mpConstructor(pConstructor), 
-			mpPath(NULL), mCurX(0), mCurY(0), mString(pAllocator), mName(pAllocator), mParamFalg(0),
+			mpPath(NULL), mpClipPath(NULL), mCurX(0), mCurY(0), mString(pAllocator), mName(pAllocator), mParamFalg(0),
 			mbInlineImage(FALSE), mbInterpolate(FALSE), mbMask(FALSE), mWidth(0), mHeight(0), mBpc(0) {}
 
 	~CHE_PDF_ContentsParser()
@@ -165,6 +165,7 @@ private:
 	CHE_PDF_ObjectPtr		mpObj;
 
 	CHE_PDF_Path *			mpPath;
+	CHE_PDF_Path *			mpClipPath;
 	HE_FLOAT				mCurX;
 	HE_FLOAT				mCurY;
 

@@ -64,15 +64,20 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 	}
 
 	CHE_PDF_Creator * pCreator = CHE_PDF_Creator::Create( pWrite, GetAllocator() );
-
 	if ( pCreator == NULL )
 	{
 		return FALSE;
 	}
 
+	if ( mpParser && mpParser->m_pStrEncrypt )
+	{
+		pCreator->SetEncrypt( mpParser->m_pStrEncrypt );
+	}
+
 	HE_DWORD				objCount = 0;
 	HE_DWORD				offset = 0;
 	PDF_RefInfo				refInfo;
+	HE_BOOL					bEncrypt = TRUE;
 
 	CHE_PDF_ObjectPtr		ObjPtr;
 	CHE_PDF_NamePtr			NamePtr;
@@ -101,6 +106,15 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 			refInfo.objNum = entry.GetObjNum();
 			refInfo.genNum = 0;
 
+			if (	mpParser && mpParser->mEncryptRef &&
+					mpParser->mEncryptRef->GetRefInfo().objNum == refInfo.objNum &&
+					mpParser->mEncryptRef->GetRefInfo().genNum == refInfo.genNum )
+			{
+				bEncrypt = FALSE;
+			}else{
+				bEncrypt = TRUE;
+			}
+
 			ObjPtr = GetObject( refInfo );
 
 			if ( ObjPtr )
@@ -123,7 +137,7 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 					}
 				}
 
-				offset = pCreator->OutPutInObject( refInfo, ObjPtr );
+				offset = pCreator->OutPutInObject( refInfo, ObjPtr, bEncrypt );
 
 				entry.Type = XREF_ENTRY_TYPE_COMMON;
 				entry.ObjNum = refInfo.objNum;
@@ -302,7 +316,7 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 				}else if ( entry.GetGenNum() == 0  )
 				{
 					offset = pBufWrite->GetCurOffset();
-					CHE_PDF_Creator::OutPutObject( pBufWrite, ObjPtr );
+					CHE_PDF_Creator::OutPutObject( pBufWrite, refInfo, ObjPtr );
 					pBufWrite->WriteByte( '\n' );
 					objNumQueue.Push( refInfo.objNum );
 					objOffset.Push( offset );

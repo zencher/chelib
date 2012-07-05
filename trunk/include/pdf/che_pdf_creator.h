@@ -12,18 +12,20 @@ class CHE_PDF_Creator : public CHE_Object
 public:
 	static CHE_PDF_Creator *	Create( IHE_Write * pWrite, CHE_Allocator * pAllocator = NULL );
 
-	static HE_VOID				OutPutObject( IHE_Write * pWrite, const CHE_PDF_ObjectPtr & pObj, CHE_PDF_Encrypt * pEncrypt = NULL );
+	static HE_VOID				OutPutObject( IHE_Write * pWrite, const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj, CHE_PDF_Encrypt * pEncrypt = NULL );
 
 	~CHE_PDF_Creator();
+
+	HE_BOOL						SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { mpEncrypt = pEncrypt; return TRUE; }
 
 	HE_BOOL						SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,
 											HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue );
 
 	HE_VOID						OutPutFileHead( PDF_VERSION version );
 
-	HE_DWORD					OutPutObject( const CHE_PDF_ObjectPtr & pObj );
+	HE_DWORD					OutPutObject( const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj );
 
-	HE_DWORD					OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr );
+	HE_DWORD					OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr, HE_BOOL bEncrypt = FALSE );
 
 	HE_DWORD					OutPutXRefTable( CHE_PDF_XREF_Table & xref );
 

@@ -1213,6 +1213,11 @@ HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYT
 	
 	mDictPtr->SetAtInteger( "Length", m_dwSize );
 
+	if ( m_pEncrypt && m_pEncrypt->IsPasswordOK() )
+	{
+		m_pEncrypt->Decrypt( m_pDataBuf, m_dwSize, GetObjNum(), GetGenNum() );
+	}
+
 	SetModified( TRUE );
 
 	return TRUE;
@@ -1280,10 +1285,10 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 				m_dwSize = length;
 				m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( length );
 				pStream->GetRawData( 0, m_pDataBuf, length );
-				if ( pStream->m_pEncrypt && pStream->m_pEncrypt->IsPasswordOK() == TRUE )
-				{
-					pStream->m_pEncrypt->Decrypt( m_pDataBuf, length, pStream->GetObjNum(), pStream->GetGenNum() );
-				}
+// 				if ( pStream->m_pEncrypt && pStream->m_pEncrypt->IsPasswordOK() == TRUE )
+// 				{
+// 					pStream->m_pEncrypt->Decrypt( m_pDataBuf, length, pStream->GetObjNum(), pStream->GetGenNum() );
+// 				}
 				return TRUE;
 			}else{
 				if ( pFilter->GetType() == OBJ_TYPE_ARRAY )

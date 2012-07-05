@@ -140,6 +140,15 @@
     <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h">
       <Filter>头文件\WDM</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\wdm\che_wdm_scrollbar.h">
+      <Filter>头文件\WDM</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_contentstring.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_objectstring.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -237,6 +246,15 @@
     </ClCompile>
     <ClCompile Include="..\..\src\wdm\che_wdm_textbox.cpp">
       <Filter>源文件\WDM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\wdm\che_wdm_scrollbar.cpp">
+      <Filter>源文件\WDM</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_contentstring.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_objectstring.cpp">
+      <Filter>源文件\PDF</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

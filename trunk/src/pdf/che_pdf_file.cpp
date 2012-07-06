@@ -116,7 +116,6 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 			}
 
 			ObjPtr = GetObject( refInfo );
-
 			if ( ObjPtr )
 			{
 				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
@@ -132,6 +131,7 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 						if ( ( NamePtr->GetString() == "ObjStm" ) || ( NamePtr->GetString() == "XRef" ) )
 						{
 							mXRefTable.MoveNext();
+							NamePtr.reset();
 							continue;
 						}
 					}

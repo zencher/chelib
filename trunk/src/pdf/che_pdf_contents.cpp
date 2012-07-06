@@ -489,7 +489,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 					return;
 				}
 				CHE_PDF_NamePtr pName = pTmpObj->GetNamePtr();
-				CHE_ByteString name = pName->GetStringPtr();
+				CHE_ByteString name = pName->GetString();
 				if ( name == "DeviceGray" || name == "G" )
 				{
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
@@ -510,13 +510,13 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALRGB, mName, pArray->Clone(), GetAllocator() );
 				}else if ( name == "CalCMYK" )
 				{
-					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALLAB, mName, pArray->Clone(), GetAllocator() );
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALCMYK, mName, pArray->Clone(), GetAllocator() );
 				}else if ( name == "Lab" )
 				{
-					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_ICCBASED, mName, pArray->Clone(), GetAllocator() );
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALLAB, mName, pArray->Clone(), GetAllocator() );
 				}else if ( name == "ICCBased" )
 				{
-					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, mName, pArray->Clone(), GetAllocator() );
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_ICCBASED, mName, pArray->Clone(), GetAllocator() ); //zctodo ICCBased 应该继续判断具体的颜色空间的类型
 				}else if ( name == "Indexed" || name == "I" )
 				{
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, mName, pArray->Clone(), GetAllocator() );
@@ -1228,7 +1228,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 			if ( pTmpObj->GetType() == OBJ_TYPE_NAME )
 			{
 				CHE_PDF_NamePtr namePtr = pTmpObj->GetNamePtr();
-				CHE_ByteString name = namePtr->GetStringPtr();
+				CHE_ByteString name = namePtr->GetString();
 				if ( name == "DeviceGray" || name == "G" )
 				{
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, GetAllocator() );
@@ -1272,13 +1272,13 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALRGB, mName, arrayPtr, GetAllocator() );
 				}else if ( name == "CalCMYK" )
 				{
-					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALLAB, mName, arrayPtr, GetAllocator() );
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALCMYK, mName, arrayPtr, GetAllocator() );
 				}else if ( name == "Lab" )
 				{
-					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_ICCBASED, mName, arrayPtr, GetAllocator() );
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALLAB, mName, arrayPtr, GetAllocator() );
 				}else if ( name == "ICCBased" )
 				{
-					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, mName, arrayPtr, GetAllocator() );
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_ICCBASED, mName, arrayPtr, GetAllocator() );
 				}else if ( name == "Indexed" || name == "I" )
 				{
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, mName, arrayPtr, GetAllocator() );

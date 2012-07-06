@@ -72,7 +72,13 @@ public:
 		mOpdFloatStack.clear();
 		if ( mpPath )
 		{ 
-			GetAllocator()->Delete<CHE_PDF_Path>( mpPath );
+			mpPath->GetAllocator()->Delete( mpPath );
+			mpPath = NULL;
+		}
+		if ( mpClipPath )
+		{
+			mpClipPath->GetAllocator()->Delete( mpClipPath );
+			mpClipPath = NULL;
 		}
 	}
 

@@ -399,7 +399,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColorSpace( CHE_PDF_ColorSpace & colorSpaceRet 
 {
 	if ( mFlag & GSTATE_FLAG_StrokeColorSpace )
 	{
-		colorSpaceRet = *mpFillColorSpace;
+		colorSpaceRet = *mpStrokeColorSpace;
 		return;
 	}
 	CHE_PDF_ColorSpace csRet( COLORSAPCE_DEVICE_GRAY );
@@ -544,6 +544,22 @@ HE_VOID CHE_PDF_GState::GetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE & rm ) cons
 		return;
 	}
 	rm = TextRenderMode_Fill;
+}
+
+HE_VOID CHE_PDF_GState::SetMatrix( const CHE_PDF_Matrix & matirx )
+{
+	mMatrix = matirx;
+}
+
+HE_VOID CHE_PDF_GState::SetRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri )
+{
+	mFlag |= GSTATE_FLAG_RenderIntents;
+	mRenderIntents = ri;
+}
+HE_VOID CHE_PDF_GState::SetFlatness( const HE_FLOAT & flatness )
+{
+	mFlag |= GSTATE_FLAG_Flatness;
+	mFlatness = flatness;
 }
 
 HE_BOOL CHE_PDF_GState::SetFillColor( CHE_PDF_Color * pColor )

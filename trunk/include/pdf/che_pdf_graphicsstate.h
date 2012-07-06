@@ -249,9 +249,9 @@ public:
 	CHE_PDF_ClipState * GetClipState() const { return mpClipState; }
 	CHE_PDF_ExtGState * GetExtGState() const { return mpExtState; }
 
-	HE_VOID SetMatrix( const CHE_PDF_Matrix & matirx ) { mMatrix = matirx; }
-	HE_VOID SetRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri ) { mFlag &= GSTATE_FLAG_RenderIntents; mRenderIntents = ri; }
-	HE_VOID SetFlatness( const HE_FLOAT & flatness ) { mFlag &= GSTATE_FLAG_Flatness; mFlatness = flatness; }
+	HE_VOID SetMatrix( const CHE_PDF_Matrix & matirx );
+	HE_VOID SetRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri );
+	HE_VOID SetFlatness( const HE_FLOAT & flatness );
 	HE_BOOL SetFillColor( CHE_PDF_Color * pColor );
 	HE_BOOL SetStrokeColor( CHE_PDF_Color * pColor );
 	HE_BOOL SetFillColorSpace( CHE_PDF_ColorSpace * pColorSpace );

@@ -782,6 +782,11 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( CHE_PDF_ParseWordDes & des )
 					{
 						des.offset = m_lFilePos;
 					}
+					if ( m_bBegin )
+					{
+						m_bBegin = FALSE;
+						m_WordBuffer[m_lBufferPos++] = '0';
+					}
 					m_WordBuffer[m_lBufferPos++] = byte;
 					break;
 				}

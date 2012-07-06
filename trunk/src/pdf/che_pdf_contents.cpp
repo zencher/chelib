@@ -1083,7 +1083,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tz()
 {
 	if ( CheckOpdCount( 1 ) )
 	{
-		mpConstructor->State_TextRise( mOpdFloatStack[0] );
+		mpConstructor->State_TextScaling( mOpdFloatStack[0] );
 	}
 }
 

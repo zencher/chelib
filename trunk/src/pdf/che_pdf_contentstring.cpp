@@ -822,6 +822,13 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 		}
 	}
 
+	CHE_PDF_Matrix curMatrix;
+
+	if ( pClipState != NULL )
+	{
+		ClipStateToBuf( curMatrix, pClipState, buf, bInTextBlock );
+	}
+
 	pGSData->GetLineWidth( floatVal );
 
 	if ( ! IsDefLineWidth( floatVal ) )
@@ -1019,13 +1026,6 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 		}
 	}
 
- 	CHE_PDF_Matrix curMatrix = pGSData->GetMatrix();
-
-	if ( pClipState != NULL )
-	{
-		ClipStateToBuf( curMatrix, pClipState, buf, bInTextBlock );
-	}
-
 	CHE_PDF_Matrix target = pGSData->GetMatrix();
 	if ( target != curMatrix )
 	{
@@ -1126,6 +1126,11 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 		}
 	}
 
+	if ( pCurGSData == NULL )
+	{
+		pCurGSData = &defGState;
+	}
+
 	CHE_PDF_ClipState * pCurClipState = pCurGSData->GetClipState();
 	CHE_PDF_ClipState * pTargetClipState = pTargetGSData->GetClipState();
 
@@ -1155,7 +1160,10 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 				pCurGSData = pCurGSData->Clone();
 
 				curMatrix = pCurGSData->GetMatrix();
+			}else{
+				curMatrix = CHE_PDF_Matrix();
 			}
+
 			CHE_PDF_ObjectString::StringToBuf( "q\n", buf );
 
 			ClipStateToBuf( curMatrix, pTargetClipState, buf, bInTextBlock );

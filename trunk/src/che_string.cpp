@@ -1062,7 +1062,8 @@ HE_BOOL	CHE_WideString::SetData( HE_WCHAR * pData, HE_DWORD size )
 {
 	if ( pData == NULL || size == 0 )
 	{
-		return FALSE;
+		Clear();
+		return TRUE;
 	}
 	if ( m_lpData == NULL )
 	{

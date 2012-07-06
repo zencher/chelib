@@ -354,6 +354,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_B()
 		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
 	}
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_Bstar()
@@ -364,6 +369,11 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Bstar()
 		mpPath->SetPaintType( Paint_FillStroke );
 		mpConstructor->Operator_Append( mpPath );
 		mpPath = NULL;
+	}
+	if ( mpClipPath )
+	{
+		mpConstructor->Operator_Clip( mpClipPath );
+		mpClipPath = NULL;
 	}
 }
 

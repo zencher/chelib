@@ -1371,6 +1371,12 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 
 	if ( ! IsColorSpaceEqual( curCS, targetCS ) || ! IsColorEqual( curColor, targetColor ) )
 	{
+		if ( ! targetCS.IsDeviceColorSpace() )
+		{
+			ColorSpaceToBuf( targetCS, buf );
+			CHE_PDF_ObjectString::StringToBuf( " CS\n", buf );
+		}
+
 		ColorToBuf( targetColor,  buf );
 
 		switch (  targetCS.GetType() )

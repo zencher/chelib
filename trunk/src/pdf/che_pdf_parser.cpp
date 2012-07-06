@@ -1208,21 +1208,39 @@ HE_DWORD CHE_PDF_Parser::GetFileSize() const
 
 PDF_VERSION CHE_PDF_Parser::GetPDFVersion() const
 {
+	HE_DWORD offset = 0;
+	HE_DWORD fileSize = m_pIHE_FileRead->GetSize();
+	HE_BOOL bHeadFound = FALSE;
+
+	while( offset < 1024 && offset < fileSize )
+	{
+		if ( m_pIHE_FileRead->ReadByte( offset ) == '%' )
+		{
+			bHeadFound = TRUE;
+			break;
+		}
+		++offset;
+	}
+	if ( ! bHeadFound )
+	{
+		return PDF_VERSION_UNKNOWN;
+	}
+
 	char buffer[8];
 	memset( buffer, 0, 8 );
-	if ( m_pIHE_FileRead->ReadBlock( buffer, 0, 8 ) )
+	if ( m_pIHE_FileRead->ReadBlock( buffer, offset, 8 ) )
 	{
-		if ( buffer[0] == '%'
-			 && buffer[1] == 'P'
-			 && buffer[2] == 'D'
-			 && buffer[3] == 'F'
-			 && buffer[4] == '-'
-			 && buffer[5] == '1'
-			 && buffer[6] == '.' )
+		if ( buffer[0] == '%' &&
+			 buffer[1] == 'P' &&
+			 buffer[2] == 'D' &&
+			 buffer[3] == 'F' &&
+			 buffer[4] == '-' &&
+			 buffer[5] == '1' &&
+			 buffer[6] == '.' )
 		{
 			if (  '0' <= buffer[7] && buffer[7] <= '7'  )
 			{
-				return (PDF_VERSION)(10 + buffer[7] - '0');
+				return (PDF_VERSION)(10 + buffer[6] - '0');
 			}else{
 				return PDF_VERSION_UNKNOWN;
 			}	

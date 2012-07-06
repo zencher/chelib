@@ -228,7 +228,8 @@ HE_BOOL	CHE_ByteString::SetData( HE_BYTE * pData, HE_DWORD size )
 {
 	if ( pData == NULL || size == 0 )
 	{
-		return FALSE;
+		Clear();
+		return TRUE;
 	}
 	if ( m_lpData == NULL )
 	{

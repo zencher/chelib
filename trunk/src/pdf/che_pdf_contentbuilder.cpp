@@ -12,54 +12,40 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 	}
 
 	HE_BOOL bTextBlock = FALSE;
-
 	PDF_CONTENTOBJ_TYPE itemType;
-
 	ContentObjectList::iterator it;
-
 	CHE_PDF_GState * pCurGState = NULL;
 	CHE_PDF_GState * pItemGState = NULL;
-
 	CHE_Stack<CHE_PDF_GState*> gstateStack;
 
 	for ( it = pList->Begin(); it != pList->End(); ++it )
 	{
 		itemType = (*it)->GetType();
 
-		if ( itemType !=  ContentType_Text )
+		if ( itemType != ContentType_Text && bTextBlock )
 		{
-			if ( bTextBlock )
-			{
-				bTextBlock = FALSE;
-				CHE_PDF_ContentString::TextBlockEndToBuf( buf );
-			}
+			bTextBlock = FALSE;
+			CHE_PDF_ContentString::TextBlockEndToBuf( buf );
 		}
 
-		//由于Mark是不存在所谓的图形状态的，所以，此时不应该输出，也不应该改变当前的图形状态
 		if ( itemType != ContentType_Mark )
 		{
 			pItemGState = (*it)->GetGState();
-
 			CHE_PDF_ContentString::GStateToBuf( pCurGState, pItemGState, buf, gstateStack, bTextBlock );
 		}
 
-		if ( itemType == ContentType_Text )
+		if ( itemType == ContentType_Text && ! bTextBlock )
 		{
-			if ( ! bTextBlock )
-			{
-				bTextBlock = TRUE;
-				CHE_PDF_ContentString::TextBlockBeginToBuf( buf );
-			}
+			bTextBlock = TRUE;
+			CHE_PDF_ContentString::TextBlockBeginToBuf( buf );
+			CHE_PDF_ContentString::TextStateToBuf( pCurGState, pItemGState, buf, TRUE );
 		}
 
 		switch ( itemType )
 		{
 		case ContentType_Text:
-			{
-				CHE_PDF_ContentString::TextStateToBuf( pCurGState, pItemGState, buf );
-				CHE_PDF_ContentString::TextToBuf( (CHE_PDF_Text*)( *it ), buf );
-				break;
-			}
+			CHE_PDF_ContentString::TextToBuf( (CHE_PDF_Text*)( *it ), buf );
+			break;
 		case ContentType_Path:
 			CHE_PDF_ContentString::PathToBuf( (CHE_PDF_Path*)( *it ), buf );
 			break;
@@ -83,7 +69,7 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 
 		if ( pCurGState != NULL )
 		{
-			pCurGState->GetAllocator()->Delete( pCurGState );
+			//pCurGState->GetAllocator()->Delete( pCurGState );
 			pCurGState = NULL;
 		}
 		if ( pItemGState != NULL )

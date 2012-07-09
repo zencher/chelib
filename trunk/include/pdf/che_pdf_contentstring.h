@@ -105,14 +105,14 @@ public:
 	/*
 	*	@brief 输出文本图形状态指令
 	*/
-	static HE_BOOL TextStateToBuf(	const CHE_PDF_GState * pTextState, CHE_DynBuffer & buf );
+	static HE_BOOL TextStateToBuf(	const CHE_PDF_GState * pTextState, CHE_DynBuffer & buf, HE_BOOL bTm = FALSE );
 
 
 
 	/*
 	*	@brief 比较两个文本图形状态的差异，并输出相关指令使得当前图形状态为目标图形状态
 	*/
-	static HE_BOOL TextStateToBuf(	const CHE_PDF_GState * pCurGSData, const CHE_PDF_GState * pTargetGSData, CHE_DynBuffer & buf );
+	static HE_BOOL TextStateToBuf(	const CHE_PDF_GState * pCurGSData, const CHE_PDF_GState * pTargetGSData, CHE_DynBuffer & buf, HE_BOOL bTm = FALSE );
 
 
 

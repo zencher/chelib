@@ -288,14 +288,12 @@ private:
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_DWORD width, HE_DWORD hight, HE_DWORD bps, HE_LPBYTE pBytes,
-							HE_DWORD size, CHE_PDF_ColorSpace * pColorspace = NULL, CHE_Allocator * pAllocator = NULL )
-							: CHE_PDF_ContentObject( pAllocator )
+	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_DWORD width, HE_DWORD hight, HE_DWORD bps, HE_LPBYTE pBytes, HE_DWORD size,
+							CHE_PDF_ObjectPtr objPtr = CHE_PDF_ObjectPtr(), CHE_PDF_ColorSpace * pColorspace = NULL, 
+							CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ), mbMask( bMask ),
+							mWidth( width ), mHeight( hight ), mBitps( bps ), mpData( NULL), mDataSize( 0 ),
+							mDecodeObjPtr( objPtr ), mpColorspace( pColorspace  )
 	{
-		mWidth = width;
-		mHeight = hight;
-		mBitps = bps;
-		mpColorspace = pColorspace;
 		if ( pBytes )
 		{
 			mDataSize = size;
@@ -325,7 +323,12 @@ public:
 		{
 			pTmpColorSpace = mpColorspace->Clone();
 		}
-		return GetAllocator()->New<CHE_PDF_InlineImage>( mbMask, mWidth, mHeight, mBitps, mpData, mDataSize, pTmpColorSpace, GetAllocator() );
+		CHE_PDF_ObjectPtr objPtr;
+		if ( mDecodeObjPtr )
+		{
+			objPtr = mDecodeObjPtr->Clone();
+		}
+		return GetAllocator()->New<CHE_PDF_InlineImage>( mbMask, mWidth, mHeight, mBitps, mpData, mDataSize, objPtr, pTmpColorSpace, GetAllocator() );
 	}
 
 	HE_BOOL	IsMask() const { return mbMask; }
@@ -333,6 +336,7 @@ public:
 	HE_DWORD GetHight() const { return mHeight; }
 	HE_DWORD GetBitps() const { return mBitps; }
 	CHE_PDF_ColorSpace * GetColorspace() const { return mpColorspace; }
+	CHE_PDF_ObjectPtr GetDecode() const { return mDecodeObjPtr; }
 
 	HE_LPBYTE GetData() const { return mpData; }
 	HE_DWORD GetDataSize() const { return mDataSize; }
@@ -345,6 +349,7 @@ private:
 	HE_LPBYTE			mpData;
 	HE_DWORD			mDataSize;
 	CHE_PDF_ColorSpace*	mpColorspace;
+	CHE_PDF_ObjectPtr	mDecodeObjPtr;
 };
 
 class CHE_PDF_Form : public CHE_PDF_NamedContentObject

@@ -51,21 +51,22 @@ HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_ArrayPtr & pContentArray )
 		return FALSE;
 	}
 
-	CHE_PDF_StreamPtr pStream;
+	CHE_DynBuffer buf( 1024 * 4, 1024 * 8, GetAllocator() );
 
 	for ( HE_DWORD i = 0; i < pContentArray->GetCount(); ++i ) 
 	{
-		pStream = pContentArray->GetElement( i, OBJ_TYPE_STREAM )->GetStreamPtr();
-
+		CHE_PDF_StreamPtr pStream = pContentArray->GetElement( i, OBJ_TYPE_STREAM )->GetStreamPtr();
 		if ( pStream )
 		{
-			CHE_DynBuffer buf( pStream->GetRawSize() * 2, pStream->GetRawSize(), GetAllocator() );
 			CHE_PDF_StreamAcc streamAcc( GetAllocator() );
 			streamAcc.Attach( pStream );
 			buf.Write( streamAcc.GetData(), streamAcc.GetSize() );
 			streamAcc.Detach();
-			ParseImp( &buf );
 		}
+	}
+	if ( buf.GetSize() > 0 )
+	{
+		ParseImp( &buf );
 	}
 	return TRUE;
 }
@@ -104,6 +105,25 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 			{
 				tmpValue = (HE_FLOAT)( wordDes.str.GetInteger() );
 				mOpdFloatStack.push_back( tmpValue );
+
+				if ( mbInlineImage && mParamFalg > 0 )
+				{
+					switch ( mParamFalg )
+					{
+					case 1:
+						mBpc = wordDes.str.GetInteger();
+						break;
+					case 6:
+						mHeight = wordDes.str.GetInteger();
+						break;
+					case 9:
+						mWidth = wordDes.str.GetInteger();
+						break;
+					default:
+						break;
+					}
+					mParamFalg = 0;
+				}
 				break;
 			}
 		case PARSE_WORD_FLOAT:
@@ -206,6 +226,19 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 			}
 		default:
 			{
+				if ( mbInlineImage && mParamFalg == 7 )
+				{
+					if ( wordDes.str == "true" )
+					{
+						mbMask = true;
+					}
+					else if ( wordDes.str == "false" )
+					{
+						mbMask = false;
+					}
+					mParamFalg = 0;
+					break;
+				}
 				bOpd = FALSE;
 				break;
 			}
@@ -706,14 +739,16 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 	std::vector<HE_BYTE> buffer;
 	while( !bOver )
 	{
-		dwRet = pParser->ReadBytes( byteRet, 1 );
-		if ( byteRet[0] == '\r' || byteRet[0] == '\n' || byteRet[0] == '\t' ||
-			 byteRet[0] == '\f' || byteRet[0] == '\0' || byteRet[0] == ' ' )
+		dwRet = pParser->ReadBytes( byteRet, 2 );
+		if ( byteRet[0] == '\r' && byteRet[1] == '\n' )
+		{ 
+			pParser->Seek( 2 );
+		}if ( byteRet[0] == '\n' || byteRet[0] == '\t' ||
+			  byteRet[0] == '\f' || byteRet[0] == '\0' || byteRet[0] == ' ' )
 		{
 			pParser->Seek( 1 );
-		}else{
-			break;
 		}
+		break;
 	}
 	while( dwRet )
 	{
@@ -745,10 +780,10 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 	{
 		pDict->SetAtObj( "Filter", mpFilter );
 	}
-	if ( mpDecode )
-	{
-		pDict->SetAtObj( "Decode", mpDecode );
-	}
+// 	if ( mpDecode )
+// 	{
+// 		pDict->SetAtObj( "Decode", mpDecode );
+// 	}
 	if ( mpDecodeParam )
 	{
 		pDict->SetAtObj( "DecodeParam", mpDecodeParam );
@@ -796,7 +831,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 		if ( stmAcc.Attach( pStream ) )
 		{
 			CHE_PDF_InlineImage * pImage = GetAllocator()->New<CHE_PDF_InlineImage>(	mbMask, mWidth, mHeight, mBpc,
-																						stmAcc.GetData(), stmAcc.GetSize(),
+																						stmAcc.GetData(), stmAcc.GetSize(), mpDecode,
 																						pColorspace, GetAllocator() );
 			mpConstructor->Operator_Append( pImage );
 		}

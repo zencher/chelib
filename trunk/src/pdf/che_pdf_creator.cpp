@@ -751,16 +751,16 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 				break;
 			}
 
-// 			CHE_PDF_ObjectPtr tmpPtr = dictPtr->GetElement( "Filter" );
-// 			if ( ! tmpPtr )
-// 			{
-// 				CHE_PDF_StreamAcc stmAcc;
-// 				CHE_DynBuffer buf;
-// 				stmAcc.Attach( stmPtr );
-// 				buf.Write( stmAcc.GetData(), stmAcc.GetSize() );
-// 				stmAcc.Detach();
-// 				stmPtr->SetRawData( buf.GetData(), buf.GetSize(), STREAM_FILTER_FLATE );
-// 			}
+			CHE_PDF_ObjectPtr tmpPtr = dictPtr->GetElement( "Filter" );
+			if ( ! tmpPtr )
+			{
+				CHE_PDF_StreamAcc stmAcc;
+				CHE_DynBuffer buf;
+				stmAcc.Attach( stmPtr );
+				buf.Write( stmAcc.GetData(), stmAcc.GetSize() );
+				stmAcc.Detach();
+				stmPtr->SetRawData( buf.GetData(), buf.GetSize(), STREAM_FILTER_FLATE );
+			}
 
 			OutPutObject( pWrite, refInfo, stmPtr->GetDictPtr(), pEncrypt );
 			pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
@@ -774,7 +774,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 				pEncrypt->Encrypt( pBytes, stmPtr->GetRawSize(), stmPtr->GetObjNum(), stmPtr->GetGenNum() );
 			}
 			pWrite->WriteBlock( (HE_LPVOID)( pBytes ), stmPtr->GetRawSize() );
-			GetDefaultAllocator()->DeleteArray<HE_BYTE>( pBytes );
+			GetDefaultAllocator()->DeleteArray( pBytes );
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjEnd, glStrStreamObjEnd );
 			break;
 		}

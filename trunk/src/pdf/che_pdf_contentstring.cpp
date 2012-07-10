@@ -1002,10 +1002,6 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 			case COLORSAPCE_CIEBASE_CALLAB:
 				CHE_PDF_ObjectString::StringToBuf( "sc\n", buf );
 				break;
-			case COLORSAPCE_SPECIAL_PATTERN:
-				CHE_PDF_ObjectString::StringToBuf( "/", buf );
-				CHE_PDF_ObjectString::StringToBuf( fillColorSpace.GetResName(), buf );
-				CHE_PDF_ObjectString::SpaceToBuf( buf );
 			case COLORSAPCE_CIEBASE_ICCBASED:
 			case COLORSAPCE_SPECIAL_INDEXED:
 			case COLORSAPCE_SPECIAL_SEPARATION:
@@ -1013,6 +1009,11 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 				CHE_PDF_ObjectString::StringToBuf( "scn\n", buf );
 				break;
 			}
+		}else if ( fillColorSpace.GetType() == COLORSAPCE_SPECIAL_PATTERN )
+		{
+			CHE_PDF_ObjectString::StringToBuf( "/", buf );
+			CHE_PDF_ObjectString::StringToBuf( fillColorSpace.GetResName(), buf );
+			CHE_PDF_ObjectString::StringToBuf( " scn\n", buf );
 		}
 	}
 
@@ -1277,7 +1278,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 			curLineDash.dashArray.size() != targetLineDash.dashArray.size() )
 	{
 		CHE_PDF_ObjectString::StringToBuf( "[", buf );
-		for ( size_t i = 0; targetLineDash.dashArray.size(); ++i )
+		for ( HE_DWORD i = 0; i < targetLineDash.dashArray.size(); ++i )
 		{
 			CHE_PDF_ObjectString::StringToBuf( " ", buf );
 			CHE_PDF_ObjectString::FloatToBuf( targetLineDash.dashArray[i], buf );
@@ -1383,10 +1384,6 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 			case COLORSAPCE_CIEBASE_CALLAB:
 				CHE_PDF_ObjectString::StringToBuf( "sc\n", buf );
 				break;
-			case COLORSAPCE_SPECIAL_PATTERN:
-				CHE_PDF_ObjectString::StringToBuf( "/", buf );
-				CHE_PDF_ObjectString::StringToBuf( targetFillColorSpace.GetResName(), buf );
-				CHE_PDF_ObjectString::SpaceToBuf( buf );
 			case COLORSAPCE_CIEBASE_ICCBASED:
 			case COLORSAPCE_SPECIAL_INDEXED:
 			case COLORSAPCE_SPECIAL_SEPARATION:
@@ -1394,6 +1391,11 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 				CHE_PDF_ObjectString::StringToBuf( "scn\n", buf );
 				break;
 			}
+		}else if ( targetFillColorSpace.GetType() == COLORSAPCE_SPECIAL_PATTERN )
+		{
+			CHE_PDF_ObjectString::StringToBuf( "/", buf );
+			CHE_PDF_ObjectString::StringToBuf( targetFillColorSpace.GetResName(), buf );
+			CHE_PDF_ObjectString::StringToBuf( " scn\n", buf );
 		}
 	}
 
@@ -1434,10 +1436,6 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 			case COLORSAPCE_CIEBASE_CALLAB:
 				CHE_PDF_ObjectString::StringToBuf( "SC\n", buf );
 				break;
-			case COLORSAPCE_SPECIAL_PATTERN:
-				CHE_PDF_ObjectString::StringToBuf( "/", buf );
-				CHE_PDF_ObjectString::StringToBuf( targetStrokeColorSpace.GetResName(), buf );
-				CHE_PDF_ObjectString::SpaceToBuf( buf );
 			case COLORSAPCE_CIEBASE_ICCBASED:
 			case COLORSAPCE_SPECIAL_INDEXED:
 			case COLORSAPCE_SPECIAL_SEPARATION:
@@ -1445,6 +1443,11 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 				CHE_PDF_ObjectString::StringToBuf( "SCN\n", buf );
 				break;
 			}
+		}else if ( targetStrokeColorSpace.GetType() == COLORSAPCE_SPECIAL_PATTERN )
+		{
+			CHE_PDF_ObjectString::StringToBuf( "/", buf );
+			CHE_PDF_ObjectString::StringToBuf( targetStrokeColorSpace.GetResName(), buf );
+			CHE_PDF_ObjectString::StringToBuf( " SCN\n", buf );
 		}
 	}
 

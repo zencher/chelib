@@ -1568,8 +1568,6 @@ HE_VOID CHE_PDF_ContentsParser::Handle_re()
 		mpPath->mItems.push_back( pathItem );
 		pathItem.value = mOpdFloatStack[3];
 		mpPath->mItems.push_back( pathItem );
-		pathItem.type = PathItem_Close;
-		mpPath->mItems.push_back( pathItem );
 	}
 }
 

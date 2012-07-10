@@ -1335,9 +1335,29 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_d()
 {
-	PDF_GSTATE_DASHPATTERN dashPattern;
-	dashPattern.dashPhase = 0;
-	mpConstructor->State_LineDash( dashPattern );
+	if ( CheckOpdCount( 1 ) )
+	{
+		PDF_GSTATE_DASHPATTERN dashPattern;
+		dashPattern.dashPhase = mOpdFloatStack[0];
+
+		if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
+		{
+			CHE_PDF_ObjectPtr objPtr;
+			CHE_PDF_NumberPtr numberPtr;
+			CHE_PDF_ArrayPtr arrayPtr = mpObj->GetArrayPtr();
+			for ( HE_DWORD i = 0; i < arrayPtr->GetCount(); ++i )
+			{
+				objPtr = arrayPtr->GetElement( i );
+				if ( objPtr && objPtr->GetType() == OBJ_TYPE_NUMBER )
+				{
+					numberPtr = objPtr->GetNumberPtr();
+					dashPattern.dashArray.push_back( numberPtr->GetFloat() );
+				}
+			}
+		}
+		mpConstructor->State_LineDash( dashPattern );
+	}
+	
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_d0()
@@ -1660,10 +1680,10 @@ HE_VOID CHE_PDF_ContentsParser::Handle_v()
 		{
 			CHE_PDF_PathItem pathItem;
 			pathItem.type = PathItem_CurveTo;
+			mpPath->mItems.push_back( pathItem );
 			pathItem.value = mCurX;
 			mpPath->mItems.push_back( pathItem );
 			pathItem.value = mCurY;
-			mpPath->mItems.push_back( pathItem );
 			mpPath->mItems.push_back( pathItem );
 			pathItem.value = mOpdFloatStack[0];
 			mpPath->mItems.push_back( pathItem );
@@ -1693,13 +1713,14 @@ HE_VOID CHE_PDF_ContentsParser::Handle_y()
 		{
 			CHE_PDF_PathItem pathItem;
 			pathItem.type = PathItem_CurveTo;
+			mpPath->mItems.push_back( pathItem );
 			pathItem.value = mOpdFloatStack[0];
 			mpPath->mItems.push_back( pathItem );
 			pathItem.value = mOpdFloatStack[1];
 			mpPath->mItems.push_back( pathItem );
-			pathItem.value = mCurX;
+			pathItem.value = mOpdFloatStack[2];
 			mpPath->mItems.push_back( pathItem );
-			pathItem.value = mCurY;
+			pathItem.value = mOpdFloatStack[3];
 			mpPath->mItems.push_back( pathItem );
 			pathItem.value = mOpdFloatStack[2];
 			mpPath->mItems.push_back( pathItem );

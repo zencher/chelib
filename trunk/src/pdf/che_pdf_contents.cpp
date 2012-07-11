@@ -1947,6 +1947,7 @@ public:
 								Operator_Clip( pObject );
 								return;
 							}
+						case TextRenderMode_Invisible:
 						case TextRenderMode_Fill:
 						case TextRenderMode_Stroke:
 						case TextRenderMode_FillStroke:

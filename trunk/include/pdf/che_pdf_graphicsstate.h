@@ -92,7 +92,6 @@ public:
 	CHE_PDF_Font * GetFont() const { return mpFont; }
 	HE_FLOAT GetCharSpace() const { return mCharSpace; }
 	HE_FLOAT GetWordSpace() const { return mWordSpace; }
-	//HE_FLOAT GetLeading() const { return mLeading; }
 	HE_FLOAT GetScaling() const { return mScaling; }
 	HE_FLOAT GetRise() const { return mRise; }
 	CHE_ByteString GetFontResName() const { return mFontName; }
@@ -103,7 +102,6 @@ public:
 	HE_VOID SetFont( CHE_PDF_Font * pFont ) { mpFont = pFont; }
 	HE_VOID SetCharSpace( HE_FLOAT charSpace ) { mCharSpace = charSpace; }
 	HE_VOID SetWordSpace( HE_FLOAT wordSpace ) { mWordSpace = wordSpace; }
-	//HE_VOID SetLeading( HE_FLOAT leading ) { mLeading = leading; }
 	HE_VOID SetScaling( HE_FLOAT scaling ) { mScaling = scaling; }
 	HE_VOID SetRise( HE_FLOAT rise ) { mRise = rise; }
 	HE_VOID SetFontResName( const CHE_ByteString & resName ) { mFontName = resName; }
@@ -267,12 +265,13 @@ public:
 	HE_VOID SetTextFontResName( const CHE_ByteString & resName );
 	HE_VOID SetTextCharSpace( const HE_FLOAT & charSpace );
 	HE_VOID SetTextWordSpace( const HE_FLOAT & wordSpace );
-	//HE_VOID SetTextLeading( const HE_FLOAT & leading );
 	HE_VOID SetTextScaling( const HE_FLOAT & scaling );
 	HE_VOID SetTextRise( const HE_FLOAT & rise );
 	HE_VOID SetTextRenderMode( const PDF_GSTATE_TEXTRENDERMODE & rm );
 	HE_BOOL PushClipElement( CHE_PDF_ContentObject * pElement );
 	HE_BOOL PushExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr );
+
+	HE_VOID	CopyTextState( CHE_PDF_GState * pGState );
 
 private:
 	CHE_PDF_StrokeState *		MakeStrokeState();

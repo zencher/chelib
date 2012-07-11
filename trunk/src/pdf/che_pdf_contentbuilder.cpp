@@ -22,14 +22,21 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 	{
 		itemType = (*it)->GetType();
 
+		if ( itemType == ContentType_Mark )
+		{
+			continue;
+		}
+
 		if ( itemType != ContentType_Text && bTextBlock )
 		{
+			//当发现输出的不是文本的时候，要先终止文本块
 			bTextBlock = FALSE;
 			CHE_PDF_ContentString::TextBlockEndToBuf( buf );
 		}
 
 		if ( itemType != ContentType_Mark )
 		{
+			//当输出的不是Mark的时候才需要输出图形状态
 			pItemGState = (*it)->GetGState();
 			CHE_PDF_ContentString::GStateToBuf( pCurGState, pItemGState, buf, gstateStack, bTextBlock );
 		}
@@ -44,8 +51,17 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 		switch ( itemType )
 		{
 		case ContentType_Text:
-			CHE_PDF_ContentString::TextToBuf( (CHE_PDF_Text*)( *it ), buf );
-			break;
+			{
+				CHE_PDF_ContentString::TextToBuf( (CHE_PDF_Text*)( *it ), buf );
+
+				//这里需要将文本的图形状态合并到当前图形状态的数据中来
+				if ( pCurGState == NULL )
+				{
+					pCurGState = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
+				}
+				pCurGState->CopyTextState( pItemGState );
+				break;
+			}
 		case ContentType_Path:
 			CHE_PDF_ContentString::PathToBuf( (CHE_PDF_Path*)( *it ), buf );
 			break;
@@ -67,25 +83,41 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 			break;
 		}
 
+		//更新当前图形状态数据（需要合并文本图形状态数据）
+		CHE_PDF_GState * pTmpGState = NULL;
+		if ( pItemGState )
+		{
+			pTmpGState = pItemGState->Clone();
+			pTmpGState->CopyTextState( pCurGState );
+		}
+
 		if ( pCurGState != NULL )
 		{
-			//pCurGState->GetAllocator()->Delete( pCurGState );
+			pCurGState->GetAllocator()->Delete( pCurGState );
 			pCurGState = NULL;
 		}
-		if ( pItemGState != NULL )
-		{
-			pCurGState = pItemGState->Clone();
-		}
+		pCurGState = pTmpGState;
+
 	}
 
+	//善后处理，结束未结束的文本块，补上恰当的Q指令
 	if ( bTextBlock )
 	{
 		bTextBlock = FALSE;
 		CHE_PDF_ContentString::TextBlockEndToBuf( buf );
 	}
-
+	if ( pCurGState )
+	{
+		pCurGState->GetAllocator()->Delete( pCurGState );
+		pCurGState = NULL;
+	}
 	while ( gstateStack.Pop( pCurGState ) )
 	{
+		if ( pCurGState )
+		{
+			pCurGState->GetAllocator()->Delete( pCurGState );
+			pCurGState = NULL;
+		}
 		CHE_PDF_ObjectString::StringToBuf( "Q\n", buf );
 	}
 

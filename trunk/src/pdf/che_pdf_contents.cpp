@@ -456,7 +456,6 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BMC()
 HE_VOID CHE_PDF_ContentsParser::Handle_BT()
 {
 	mpConstructor->State_TextMatirx( CHE_PDF_Matrix() );
-	mpConstructor->State_TextRise( 0 );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BX()
@@ -618,20 +617,6 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 		CHE_PDF_StreamPtr pStm = pTmpObj->GetStreamPtr();
 		CHE_PDF_DictionaryPtr pStmDict = pStm->GetDictPtr();
 		if ( !pStmDict )
-		{
-			return;
-		}
-		pTmpObj = pStmDict->GetElement( "Type", OBJ_TYPE_NAME );
-		if ( !pTmpObj )
-		{
-			return;
-		}
-		CHE_PDF_NamePtr pTypeName = pTmpObj->GetNamePtr();
-		if ( !pTypeName )
-		{
-			return;
-		}
-		if ( pTypeName->GetString() != "XObject" )
 		{
 			return;
 		}

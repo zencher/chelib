@@ -113,7 +113,7 @@ HE_BOOL CHE_PDF_ExtGState::PushExtStateName( const CHE_ByteString & name, CHE_PD
 			break;
 		}
 	}
-	mExtDictNameList.push_front( name );
+	mExtDictNameList.push_back( name );
 	CHE_PDF_ObjectPtr pTmpObj = dictPtr->GetElement( "CA", OBJ_TYPE_NUMBER );
 	if ( pTmpObj )
 	{
@@ -732,6 +732,33 @@ HE_BOOL CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, CHE_PDF_D
 	MakeExtGState()->PushExtStateName( resName, dictPtr );
 
 	return TRUE;
+}
+
+HE_VOID	CHE_PDF_GState::CopyTextState( CHE_PDF_GState * pGState )
+{
+	if ( mpTextState )
+	{
+		mpTextState->GetAllocator()->Delete( mpTextState );
+		mpTextState = NULL;
+		mFlag &= ~GSTATE_FLAG_Font;
+		mFlag &= ~GSTATE_FLAG_TextMatirx;
+		mFlag &= ~GSTATE_FLAG_CharSpace;
+		mFlag &= ~GSTATE_FLAG_WordSpace;
+		mFlag &= ~GSTATE_FLAG_Scaling;
+		mFlag &= ~GSTATE_FLAG_Rise;
+		mFlag &= ~GSTATE_FLAG_RenderMode;
+	}
+	if ( pGState && pGState->mpTextState )
+	{
+		mpTextState = pGState->mpTextState->Clone();
+		mFlag |= pGState->mFlag & GSTATE_FLAG_Font;
+		mFlag |= pGState->mFlag & GSTATE_FLAG_TextMatirx;
+		mFlag |= pGState->mFlag & GSTATE_FLAG_CharSpace;
+		mFlag |= pGState->mFlag & GSTATE_FLAG_WordSpace;
+		mFlag |= pGState->mFlag & GSTATE_FLAG_Scaling;
+		mFlag |= pGState->mFlag & GSTATE_FLAG_Rise;
+		mFlag |= pGState->mFlag & GSTATE_FLAG_RenderMode;
+	}
 }
 
 HE_BOOL IsFloatEqual( const HE_FLOAT & val1, const HE_FLOAT & val2 )

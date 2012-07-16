@@ -146,7 +146,7 @@ CPageSelectionDlg::CPageSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\numberBoxUpBtn.png" ); 
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	pArea->SetClickEvent( EventUpBtnClick );
+	pArea->SetMouseLBDEvent( EventUpBtnClick );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\numberBoxUpBtnHover.png" ); 
@@ -165,7 +165,7 @@ CPageSelectionDlg::CPageSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\numberBoxDownBtn.png" ); 
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	pArea->SetClickEvent( EventDownBtnClick );
+	pArea->SetMouseLBDEvent( EventDownBtnClick );
 
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
@@ -220,7 +220,7 @@ CPageSelectionDlg::CPageSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpOkBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
 
-	mpOkBtn->SetClickEvent( EventOkBtn );
+	mpOkBtn->SetMouseLBDEvent( EventOkBtn );
 
 	mpMainArea->AppendChild( mpOkBtn );
 
@@ -241,7 +241,7 @@ CPageSelectionDlg::CPageSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 
 	mpCancelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
-	mpCancelBtn->SetClickEvent( EventCancelBtn );
+	mpCancelBtn->SetMouseLBDEvent( EventCancelBtn );
 
 	mpMainArea->AppendChild( mpCancelBtn );
 }
@@ -303,20 +303,21 @@ void CPageSelectionDlg::DrawMainArea(void)
 
 void CPageSelectionDlg::OnSize(UINT nType, int cx, int cy)
 {
-	CDialogEx::OnSize(nType, cx, cy);
+	mClientWidth = 500;
+	mClientHeight = 180;
 
-	mClientWidth = cx;
-	mClientHeight = cy;
+	CDialogEx::OnSize( nType, mClientWidth, mClientHeight );
 
-	mpMainArea->SetWidth( cx );
-	mpMainArea->SetHeight( cy );
+	mpMainArea->SetWidth( mClientWidth );
+	mpMainArea->SetHeight( mClientHeight );
 
-	CWnd * pWnd = GetDlgItem( IDC_LOADDLG_MAIN );
+	this->MoveWindow( 0, 0, mClientWidth, mClientHeight );
+
+	CWnd * pWnd = GetDlgItem( IDC_MAIN );
 	if ( pWnd )
 	{
 		pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );
 	}
-	Invalidate(TRUE);
 }
 
 void CPageSelectionDlg::OnLButtonDown(UINT nFlags, CPoint point)

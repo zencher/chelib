@@ -133,15 +133,17 @@ int CFileLoadDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CFileLoadDlg::OnSize(UINT nType, int cx, int cy)
 {
-	CDialogEx::OnSize(nType, cx, cy);
+	mClientWidth = 500;
+	mClientHeight = 150;
 
-	mClientWidth = cx;
-	mClientHeight = cy;
+	CDialogEx::OnSize( nType, mClientWidth, mClientHeight );
 
-	mpMainArea->SetWidth( cx );
-	mpMainArea->SetHeight( cy );
+	mpMainArea->SetWidth( mClientWidth );
+	mpMainArea->SetHeight( mClientHeight );
 
-	CWnd * pWnd = GetDlgItem( IDC_LOADDLG_MAIN );
+	this->MoveWindow( 0, 0, mClientWidth, mClientHeight );
+
+	CWnd * pWnd = GetDlgItem( IDC_MAIN );
 	if ( pWnd )
 	{
 		pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );

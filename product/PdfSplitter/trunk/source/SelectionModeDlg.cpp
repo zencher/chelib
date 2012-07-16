@@ -53,7 +53,7 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	mpBtnSinglePage->SetHeight( 72 );
 	mpBtnSinglePage->SetPosiX( 30 );
 	mpBtnSinglePage->SetPosiY( 30 );
-	mpBtnSinglePage->SetClickEvent( EventSinglePageBtn );
+	mpBtnSinglePage->SetMouseLBDEvent( EventSinglePageBtn );
 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\BtnSinglePage.png" );
@@ -71,7 +71,7 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	mpBtnPageRange->SetHeight( 72 );
 	mpBtnPageRange->SetPosiX( 130 );
 	mpBtnPageRange->SetPosiY( 30 );
-	mpBtnPageRange->SetClickEvent( EventPageRangeBtn );
+	mpBtnPageRange->SetMouseLBDEvent( EventPageRangeBtn );
 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\BtnPageRange.png" );
@@ -94,7 +94,7 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	mpBtnOddPages->SetHeight( 72 );
 	mpBtnOddPages->SetPosiX( 230 );
 	mpBtnOddPages->SetPosiY( 30 );
-	mpBtnOddPages->SetClickEvent( EventOddPagesBtn );
+	mpBtnOddPages->SetMouseLBDEvent( EventOddPagesBtn );
 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\BtnOddPages.png" );
@@ -117,7 +117,7 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	mpBtnEvenPages->SetHeight( 72 );
 	mpBtnEvenPages->SetPosiX( 330 );
 	mpBtnEvenPages->SetPosiY( 30 );
-	mpBtnEvenPages->SetClickEvent( EventEvenPagesBtn );
+	mpBtnEvenPages->SetMouseLBDEvent( EventEvenPagesBtn );
 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\BtnEvenPages.png" );
@@ -150,7 +150,7 @@ CSelectionModeDlg::CSelectionModeDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\CancelBtnHover.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpBtnCancel->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
-	mpBtnCancel->SetClickEvent( EventCancelBtn );
+	mpBtnCancel->SetMouseLBDEvent( EventCancelBtn );
 	mpMainArea->AppendChild( mpBtnCancel );
 
 	if ( theApp.mpPageTree->GetPageCount() <= 1 )
@@ -217,13 +217,29 @@ void CSelectionModeDlg::DrawMainArea(void)
 
 void CSelectionModeDlg::OnSize(UINT nType, int cx, int cy)
 {
-	CDialogEx::OnSize(nType, cx, cy);
+// 	CDialogEx::OnSize(nType, 500, 250);
+// 
+// 	mClientWidth = 500;
+// 	mClientHeight = 250;
+// 
+// 	mpMainArea->SetWidth( 500 );
+// 	mpMainArea->SetHeight( 250 );
+// 
+// 	CWnd * pWnd = GetDlgItem( IDC_MAIN );
+// 	if ( pWnd )
+// 	{
+// 		pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );
+// 	}
 
-	mClientWidth = cx;
-	mClientHeight = cy;
+	mClientWidth = 450;
+	mClientHeight = 190;
 
-	mpMainArea->SetWidth( cx );
-	mpMainArea->SetHeight( cy );
+	CDialogEx::OnSize( nType, mClientWidth, mClientHeight );
+
+	mpMainArea->SetWidth( mClientWidth );
+	mpMainArea->SetHeight( mClientHeight );
+
+	this->MoveWindow( 0, 0, mClientWidth, mClientHeight );
 
 	CWnd * pWnd = GetDlgItem( IDC_MAIN );
 	if ( pWnd )

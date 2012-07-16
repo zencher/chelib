@@ -240,7 +240,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\numberBoxUpBtn.png" ); 
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pButton->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	pButton->SetClickEvent( EventBeginNumberUpBtnClick );
+	pButton->SetMouseLBDEvent( EventBeginNumberUpBtnClick );
 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\numberBoxUpBtnHover.png" ); 
@@ -259,7 +259,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\numberBoxDownBtn.png" ); 
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pButton->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	pButton->SetClickEvent( EventBeginNumberDownBtnClick );
+	pButton->SetMouseLBDEvent( EventBeginNumberDownBtnClick );
 
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
@@ -303,7 +303,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\numberBoxUpBtn.png" ); 
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pButton->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	pButton->SetClickEvent( EventEndNumberUpBtnClick );
+	pButton->SetMouseLBDEvent( EventEndNumberUpBtnClick );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\numberBoxUpBtnHover.png" ); 
@@ -322,7 +322,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\numberBoxDownBtn.png" ); 
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pButton->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	pButton->SetClickEvent( EventEndNumberDownBtnClick );
+	pButton->SetMouseLBDEvent( EventEndNumberDownBtnClick );
 
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\numberBoxDownBtnHover.png" ); 
@@ -354,7 +354,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	pArea->SetHeight( 10 );
 	pArea->SetPosiX( 40 );
 	pArea->SetPosiY( 65 );
-	pArea->EnableClip();
+	pArea->SetClipEnable( TRUE );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\Scrollf.png" ); 
@@ -407,7 +407,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\OkBtnHover.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpOkBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
-	mpOkBtn->SetClickEvent( EventOkBtn );
+	mpOkBtn->SetMouseLBDEvent( EventOkBtn );
 	mpMainArea->AppendChild( mpOkBtn );
 
 	mpCancelBtn = CHE_WDM_Button::Create( mpInterActive );
@@ -425,7 +425,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\CancelBtnHover.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpCancelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
-	mpCancelBtn->SetClickEvent( EventCancelBtn );
+	mpCancelBtn->SetMouseLBDEvent( EventCancelBtn );
 	mpMainArea->AppendChild( mpCancelBtn );
 }
 
@@ -485,15 +485,17 @@ void CPagesSelectionDlg::DrawMainArea(void)
 
 void CPagesSelectionDlg::OnSize(UINT nType, int cx, int cy)
 {
-	CDialogEx::OnSize(nType, cx, cy);
+	mClientWidth = 500;
+	mClientHeight = 180;
 
-	mClientWidth = cx;
-	mClientHeight = cy;
+	CDialogEx::OnSize( nType, mClientWidth, mClientHeight );
 
-	mpMainArea->SetWidth( cx );
-	mpMainArea->SetHeight( cy );
+	mpMainArea->SetWidth( mClientWidth );
+	mpMainArea->SetHeight( mClientHeight );
 
-	CWnd * pWnd = GetDlgItem( IDC_LOADDLG_MAIN );
+	this->MoveWindow( 0, 0, mClientWidth, mClientHeight );
+
+	CWnd * pWnd = GetDlgItem( IDC_MAIN );
 	if ( pWnd )
 	{
 		pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );

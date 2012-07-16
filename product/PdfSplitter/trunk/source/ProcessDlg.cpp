@@ -245,7 +245,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\process.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	pTmpArea->EnableClip();
+	pTmpArea->SetClipEnable( TRUE );
 
 	mpProcess->AppendChild( pTmpArea );
 
@@ -352,15 +352,17 @@ BOOL CProcessDlg::OnInitDialog()
 
 void CProcessDlg::OnSize(UINT nType, int cx, int cy)
 {
-	CDialogEx::OnSize(nType, cx, cy);
+	mClientWidth = 560;
+	mClientHeight = 150;
 
-	mClientWidth = cx;
-	mClientHeight = cy;
+	CDialogEx::OnSize( nType, mClientWidth, mClientHeight );
 
-	mpMainArea->SetWidth( cx );
-	mpMainArea->SetHeight( cy );
+	mpMainArea->SetWidth( mClientWidth );
+	mpMainArea->SetHeight( mClientHeight );
 
-	CWnd * pWnd = GetDlgItem( IDC_PROCESS );
+	this->MoveWindow( 0, 0, mClientWidth, mClientHeight );
+
+	CWnd * pWnd = GetDlgItem( IDC_MAIN );
 	if ( pWnd )
 	{
 		pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );

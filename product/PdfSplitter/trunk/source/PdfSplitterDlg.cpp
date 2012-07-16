@@ -51,7 +51,6 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
-CHE_WDM_AppearPathPtr gpListItemHoverRect;
 CHE_WDM_AppearPathPtr gpListItemSelectRect;
 CHE_WDM_AppearPathPtr gpListItemLine;
 
@@ -110,13 +109,10 @@ static void EventBrowseBtnClick( CHE_WDM_Area * pArea )
 			}
 		}
 		theApp.mNewFile = fileName;
-		CHE_WDM_AppearTextPtr textPtr = theApp.mpMainDlg->mpTextBar2->GetAppear().mBackground[1].GetTextPtr();
-		textPtr->SetText(  theApp.mNewFile.c_str() );
-		theApp.mpMainDlg->mpTextBar2->Refresh();
 
-		textPtr = theApp.mpMainDlg->mpFilePathText->GetAppear().mBackground[0].GetTextPtr();
-		textPtr->SetText(  theApp.mTargetFile.c_str() );
-		theApp.mpMainDlg->mpFilePathText->Refresh();
+		theApp.mpMainDlg->UpdateTargetFileArea();
+		theApp.mpMainDlg->UpdateNewFileArea();
+		theApp.mpMainDlg->ClearFileInfoArea();
 
 		CreateThread( NULL, 0, ThreadLoadFile, 0, 0, 0 );
 		CFileLoadDlg loadDlg;
@@ -130,6 +126,7 @@ static void EventBrowseBtnClick( CHE_WDM_Area * pArea )
 		}
 
 		theApp.mpMainDlg->UpdateToolBtn();
+		theApp.mpMainDlg->UpdateFileInfoArea();
 
 		CHE_ByteString str;
 		bool bPasswordError = false;
@@ -149,78 +146,6 @@ static void EventBrowseBtnClick( CHE_WDM_Area * pArea )
 			bPasswordError = true;
 			str = theApp.mPasswrod.c_str();
 		}
-
-		textPtr = theApp.mpMainDlg->mpFilePageCountInfo->GetAppear().mBackground[0].GetTextPtr();
-		wchar_t tmpwstr[512];
-		wsprintf( tmpwstr, L"Total£º%d Page(s)", theApp.mpDocument->GetPageCount() );
-		textPtr->SetText( tmpwstr );
-
-		textPtr = theApp.mpMainDlg->mpFileSizeInfo->GetAppear().mBackground[0].GetTextPtr();
-		if ( theApp.mpFileRead->GetSize() <= 10485 )
-		{
-			swprintf( tmpwstr, L"%4.2f KB", theApp.mpFileRead->GetSize() * 1.0 / 1024 ) ;
-		}else{
-			swprintf( tmpwstr, L"%4.2f MB", theApp.mpFileRead->GetSize() * 1.0 / ( 1024 * 1024 ) ) ;
-		}
-		textPtr->SetText( tmpwstr );
-		theApp.mpMainDlg->mpInterActive->Invalidate();
-
-		CSelectionModeDlg selectModeDlg;
-		unsigned int iRet = selectModeDlg.DoModal();
-		switch ( iRet )
-		{
-		default:
-		case 0:
-			break;
-		case 1:
-			{
-				CPageSelectionDlg pageDlg;
-				if ( pageDlg.DoModal() == 1 )
-				{
-					theApp.mpMainDlg->UpdateList();
-					theApp.mpMainDlg->UpdateToolBtn();
-				}
-				break;
-			}
-		case 2:
-			{
-				CPagesSelectionDlg pageDlg;
-				if ( pageDlg.DoModal() == 1 )
-				{
-					theApp.mpMainDlg->UpdateList();
-					theApp.mpMainDlg->UpdateToolBtn();
-				}
-				break;
-			}
-		case 3:
-			{
-				CListItem listItem;
-				listItem.type = SINGLE_PAGE;
-				for ( size_t i = 0; i < theApp.mpPageTree->GetPageCount(); i+=2 )
-				{
-					listItem.pageIndex = i+1;
-					listItem.pageCount = 1;
-					theApp.AddPageListItem( listItem );
-				}
-				theApp.mpMainDlg->UpdateList();
-				theApp.mpMainDlg->UpdateToolBtn();
-				break;
-			}
-		case 4:
-			{
-				CListItem listItem;
-				listItem.type = SINGLE_PAGE;
-				for ( size_t i = 1; i < theApp.mpPageTree->GetPageCount(); i+=2 )
-				{
-					listItem.pageIndex = i+1;
-					listItem.pageCount = 1;
-					theApp.AddPageListItem( listItem );
-				}
-				theApp.mpMainDlg->UpdateList();
-				theApp.mpMainDlg->UpdateToolBtn();
-				break;
-			}
-		}
 	}
 
 	theApp.mpMainDlg->mpBrowseBtn->OnMouseOut();
@@ -229,12 +154,12 @@ static void EventBrowseBtnClick( CHE_WDM_Area * pArea )
 
 static void EventListItemClick( CHE_WDM_Area * pArea )
 {
-	unsigned int iCount = theApp.mpMainDlg->mpListBoxItems->GetChildrenCount();
+	unsigned int iCount = theApp.mpMainDlg->mpItemList->GetChildrenCount();
 	CHE_WDM_Area * pTmpArea = NULL;
 	
 	for ( unsigned int i = 0; i < iCount; ++i )
 	{
-		pTmpArea = theApp.mpMainDlg->mpListBoxItems->GetChild( i );
+		pTmpArea = theApp.mpMainDlg->mpItemList->GetChild( i );
 		if ( pTmpArea == pArea )
 		{
 			theApp.mpMainDlg->CancelSelection();
@@ -340,7 +265,7 @@ static void EventMoveScrollBox( CHE_WDM_Area * pArea )
 	static unsigned int point = 0;
 	if ( pArea->GetPosiY() != point )
 	{
-		theApp.mfViewPoint = ( pArea->GetPosiY() - 165 ) * 1.0 /233;
+		theApp.mfViewPoint = ( pArea->GetPosiY() - 131 ) * 1.0 /233;
 		point = pArea->GetPosiY();
 		theApp.mpMainDlg->UpdateList();
 	}
@@ -395,13 +320,17 @@ static void EventStartBtn( CHE_WDM_Area * pArea )
 
 static void EventListItemMouseOver( CHE_WDM_Area * pArea )
 {
-	if ( pArea )
+	if ( theApp.mpMainDlg->mpDelBtn->GetParent() )
 	{
-		CHE_WDM_Area * pTmpBtn = pArea->GetChild( 0 );
-		pTmpBtn->SetVisable( true );
-		pTmpBtn->SetEnable( true );
-		pArea->Refresh();
+		theApp.mpMainDlg->mpDelBtn->GetParent()->PopChild( 0 );
 	}
+	theApp.mpMouseOverItem = pArea;
+	theApp.mpMainDlg->mpDelBtn->SetPosiX( pArea->GetPosiX() + 580 );
+	theApp.mpMainDlg->mpDelBtn->SetPosiY( pArea->GetPosiY() + 15 );
+	pArea->AppendChild( theApp.mpMainDlg->mpDelBtn );
+	theApp.mpMainDlg->mpDelBtn->SetVisable( true );
+	theApp.mpMainDlg->mpDelBtn->SetEnable( true );
+	theApp.mpMainDlg->mpDelBtn->Refresh();
 }
 
 static void EventListItemMouseOut( CHE_WDM_Area * pArea )
@@ -417,45 +346,47 @@ static void EventListItemMouseOut( CHE_WDM_Area * pArea )
 
 static void EventListItemDelBtnClick( CHE_WDM_Area * pArea )
 {
-	if ( pArea )
+	if ( theApp.mpMainDlg->mpDelBtn->GetParent() )
 	{
-		CHE_WDM_Area * pTarget = pArea->GetParent();
-		CHE_WDM_Area * pTmp = NULL;
+		theApp.mpMainDlg->mpDelBtn->GetParent()->PopChild( 0 );
+	}
 
-		if ( pTarget )
+	CHE_WDM_Area * pTarget = theApp.mpMouseOverItem;
+	CHE_WDM_Area * pTmp = NULL;
+
+	if ( pTarget )
+	{
+		bool bFlag = false;
+		unsigned int i = 0;
+		unsigned int iCount = theApp.mpMainDlg->mpItemList->GetChildrenCount();
+		std::vector< CListItem >::iterator it = theApp.mPageList.begin();
+		for ( ; i < iCount; ++i, ++it )
 		{
-			bool bFlag = false;
-			unsigned int i = 0;
-			unsigned int iCount = theApp.mpMainDlg->mpListBoxItems->GetChildrenCount();
-			std::vector< CListItem >::iterator it = theApp.mPageList.begin();
-			for ( ; i < iCount; ++i, ++it )
+			pTmp = theApp.mpMainDlg->mpItemList->GetChild( i );
+			if ( pTmp == pTarget )
 			{
-				pTmp = theApp.mpMainDlg->mpListBoxItems->GetChild( i );
-				if ( pTmp == pTarget )
-				{
-					bFlag = true;
-					break;
-				}
+				bFlag = true;
+				break;
 			}
-			if ( bFlag )
+		}
+		if ( bFlag )
+		{
+			pArea->ReleaseFocus();
+			theApp.mpMainDlg->CancelSelection();
+			theApp.mPageList.erase( it );
+			--theApp.mItemCount;
+			if ( theApp.mCurItem > theApp.mItemCount )
 			{
-				pArea->ReleaseFocus();
-				theApp.mpMainDlg->CancelSelection();
-				theApp.mPageList.erase( it );
-				--theApp.mItemCount;
-				if ( theApp.mCurItem > theApp.mItemCount )
-				{
-					--theApp.mCurItem;
-				}
-				if ( theApp.mItemCount == 0 )
-				{
-					theApp.mCurItem = 0;
-				}
-				theApp.mpMainDlg->DeleteListItem( i );
-				theApp.mpMainDlg->UpdateSelection();
-				theApp.mpMainDlg->UpdateToolBtn();
-				theApp.mpMainDlg->UpdateList();
+				--theApp.mCurItem;
 			}
+			if ( theApp.mItemCount == 0 )
+			{
+				theApp.mCurItem = 0;
+			}
+			theApp.mpMainDlg->DeleteListItem( i );
+			theApp.mpMainDlg->UpdateSelection();
+			theApp.mpMainDlg->UpdateToolBtn();
+			theApp.mpMainDlg->UpdateList();
 		}
 	}
 }
@@ -469,19 +400,12 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mClientWidth = 0;
 	mClientHeight = 0;
 
-	if ( ! gpListItemHoverRect )
-	{
-		gpListItemHoverRect = CHE_WDM_AppearPath::Create();
-		gpListItemHoverRect->AddRect( 0, 1, 630, 47 );
-		gpListItemHoverRect->SetOperator( APPEAR_PATH_FILL );
-		gpListItemHoverRect->SetFillColor( 0x65EEEEEE );
-	}
 	if ( ! gpListItemSelectRect )
 	{
 		gpListItemSelectRect = CHE_WDM_AppearPath::Create();
 		gpListItemSelectRect->AddRect( 0, 1, 630, 47 );
 		gpListItemSelectRect->SetOperator( APPEAR_PATH_FILL );
-		gpListItemSelectRect->SetFillColor( 0x650000FF );
+		gpListItemSelectRect->SetFillColor( 0xFF5e97d5 );
 	}
 	if ( ! gpListItemLine )
 	{
@@ -519,96 +443,74 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_TILTING );
 	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\line.png" );
-	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	imagePtr->SetPosiX( 0 );
-	imagePtr->SetPosiY( 100 );
-	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\line.png" );
-	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	imagePtr->SetPosiX( 0 );
-	imagePtr->SetPosiY( 475 );
-	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetPosiX( 22 );
-	imagePtr->SetPosiY( 120 );
-	imagePtr->SetImageFile( L"images\\listBox.png" );
-	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	mpMainArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-
-	mpTextBarTitle = CHE_WDM_Area::Create( mpInterActive );
-	mpTextBarTitle->SetWidth( 227 );
-	mpTextBarTitle->SetHeight( 29 );
-	mpTextBarTitle->SetPosiX( 6 );
-	mpTextBarTitle->SetPosiY( 2 );
+	mpHeadbar = CHE_WDM_Area::Create( mpInterActive );
+	mpHeadbar->SetWidth( 695 );
+	mpHeadbar->SetHeight( 90 );
+	mpHeadbar->SetPosiX( 0 );
+	mpHeadbar->SetPosiY( 0 );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\textbarTitle.png" );
-	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	mpTextBarTitle->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	
-	mpMainArea->AppendChild( mpTextBarTitle );
+	imagePtr->SetImageFile( L"images\\headbarbg.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_FIT );
+	mpHeadbar->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
 	mpTextBar = CHE_WDM_Area::Create( mpInterActive );
 	mpTextBar->SetWidth( 653 );
-	mpTextBar->SetHeight( 41 );
+	mpTextBar->SetHeight( 40 );
 	mpTextBar->SetPosiX( 15 );
-	mpTextBar->SetPosiY( 30 );
-	
+	mpTextBar->SetPosiY( 15 );
+
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\textbar.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_FIT );
 	mpTextBar->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
 
-	mpMainArea->AppendChild( mpTextBar );
+	mpHeadbar->AppendChild( mpTextBar );
 
 	mpFilePathText = CHE_WDM_Area::Create( mpInterActive );
 	mpFilePathText->SetWidth( 580 );
 	mpFilePathText->SetHeight( 20 );
 	mpFilePathText->SetPosiX( 30 );
-	mpFilePathText->SetPosiY( 42 );
-	
+	mpFilePathText->SetPosiY( 28 );
+
 	textPtr = CHE_WDM_AppearText::Create();
 	textPtr->SetSize( 16 );
 	textPtr->SetPosiX( 0 );
 	textPtr->SetPosiY( 0 );
 	textPtr->SetWidth( 580 );
 	textPtr->SetHeight( 20 );
-	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_FIX, LAYOUT_ALIGN_LEFT_OR_TOP ) );
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
 	mpFilePathText->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 
-	mpMainArea->AppendChild( mpFilePathText );
+	mpHeadbar->AppendChild( mpFilePathText );
 
 	mpBrowseBtn = CHE_WDM_Button::Create( mpInterActive );
 	mpBrowseBtn->SetWidth( 96 );
 	mpBrowseBtn->SetHeight( 36 );
 	mpBrowseBtn->SetPosiX( 575 );
-	mpBrowseBtn->SetPosiY( 35 );
-	
+	mpBrowseBtn->SetPosiY( 20 );
+
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\browseBtn.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	
+
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\browseBtnHover.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
 	mpBrowseBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSELBDOWN );
 
-	mpBrowseBtn->SetClickEvent( EventBrowseBtnClick );
-	mpMainArea->AppendChild( mpBrowseBtn );
+	mpBrowseBtn->SetMouseLBDEvent( EventBrowseBtnClick );
+
+	mpHeadbar->AppendChild( mpBrowseBtn );
 
 	mpFilePageCountInfo = CHE_WDM_Area::Create( mpInterActive );
 	mpFilePageCountInfo->SetWidth( 150 );
 	mpFilePageCountInfo->SetHeight( 15 );
 	mpFilePageCountInfo->SetPosiX( 30 );
-	mpFilePageCountInfo->SetPosiY( 80 );
-	
+	mpFilePageCountInfo->SetPosiY( 60 );
+
 	textPtr = CHE_WDM_AppearText::Create();
 	textPtr->SetPosiX( 0 );
 	textPtr->SetPosiY( 0 );
@@ -619,14 +521,14 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_FIX, LAYOUT_ALIGN_LEFT_OR_TOP ) );
 	mpFilePageCountInfo->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 
-	mpMainArea->AppendChild( mpFilePageCountInfo );
+	mpHeadbar->AppendChild( mpFilePageCountInfo );
 
 	mpFileSizeInfo = CHE_WDM_Area::Create( mpInterActive );
 	mpFileSizeInfo->SetWidth( 150 );
 	mpFileSizeInfo->SetHeight( 15 );
 	mpFileSizeInfo->SetPosiX( 180 );
-	mpFileSizeInfo->SetPosiY( 80 );
-	
+	mpFileSizeInfo->SetPosiY( 60 );
+
 	textPtr = CHE_WDM_AppearText::Create();
 	textPtr->SetPosiX( 0 );
 	textPtr->SetPosiY( 0 );
@@ -637,18 +539,31 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_FIX, LAYOUT_ALIGN_LEFT_OR_TOP ) );
 	mpFileSizeInfo->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 
-	mpMainArea->AppendChild( mpFileSizeInfo );
+	mpHeadbar->AppendChild( mpFileSizeInfo );
+
+	mpMainArea->AppendChild( mpHeadbar );
 
 	mpToolBtnAdd = CHE_WDM_Button::Create( mpInterActive );
-	mpToolBtnAdd->SetWidth( 20 );
+	mpToolBtnAdd->SetWidth( 80 );
 	mpToolBtnAdd->SetHeight( 20 );
-	mpToolBtnAdd->SetPosiX( 40 );
-	mpToolBtnAdd->SetPosiY( 130 );
+	mpToolBtnAdd->SetPosiX( 25 );
+	mpToolBtnAdd->SetPosiY( 95 );
+
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetSize( 12 );
+	textPtr->SetHeight( 20 );
+	textPtr->SetWidth( 50 );
+	textPtr->SetPosiX( 25 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetText( L"Add" );
+	textPtr->SetColor( 0xFF333333 ); 
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	mpToolBtnAdd->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\toolBarBtn1.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	mpToolBtnAdd->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	mpToolBtnAdd->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\toolBarBtn1Hover.png" );
@@ -659,16 +574,32 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\toolBarBtn1Disable.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpToolBtnAdd->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
-	mpToolBtnAdd->SetClickEvent( EventAddBtnClick );
+	mpToolBtnAdd->SetMouseLBDEvent( EventAddBtnClick );
 	mpToolBtnAdd->SetEnable( false );
 
 	mpMainArea->AppendChild( mpToolBtnAdd );
 
 	mpToolBtnClear = CHE_WDM_Button::Create( mpInterActive );
-	mpToolBtnClear->SetWidth( 20 );
+	mpToolBtnClear->SetWidth( 80 );
 	mpToolBtnClear->SetHeight( 20 );
-	mpToolBtnClear->SetPosiX( 80 );
-	mpToolBtnClear->SetPosiY( 130 );
+	mpToolBtnClear->SetPosiX( 100 );
+	mpToolBtnClear->SetPosiY( 95 );
+
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetSize( 12 );
+	textPtr->SetHeight( 20 );
+	textPtr->SetWidth( 50 );
+	textPtr->SetPosiX( 25 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetText( L"Clear" );
+	textPtr->SetColor( 0xFF333333 ); 
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	mpToolBtnClear->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\toolBarBtn2.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	mpToolBtnClear->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\toolBarBtn2.png" );
@@ -685,16 +616,32 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpToolBtnClear->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
 	mpToolBtnClear->SetEnable( false );
-	mpToolBtnClear->SetClickEvent( EventClearBtnClick );
+	mpToolBtnClear->SetMouseLBDEvent( EventClearBtnClick );
 	
 	mpMainArea->AppendChild( mpToolBtnClear );
 
 	mpToolBtnUp = CHE_WDM_Button::Create( mpInterActive );
-	mpToolBtnUp->SetWidth( 20 );
+	mpToolBtnUp->SetWidth( 80 );
 	mpToolBtnUp->SetHeight( 20 );
-	mpToolBtnUp->SetPosiX( 120 );
-	mpToolBtnUp->SetPosiY( 130 );
-	mpToolBtnUp->SetClickEvent( EventUpBtnClick );
+	mpToolBtnUp->SetPosiX( 175 );
+	mpToolBtnUp->SetPosiY( 95 );
+	mpToolBtnUp->SetMouseLBDEvent( EventUpBtnClick );
+
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetSize( 12 );
+	textPtr->SetHeight( 20 );
+	textPtr->SetWidth( 50 );
+	textPtr->SetPosiX( 25 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetText( L"Up" );
+	textPtr->SetColor( 0xFF333333 ); 
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	mpToolBtnUp->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\toolBarBtn3.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	mpToolBtnUp->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\toolBarBtn3.png" );
@@ -711,16 +658,32 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpToolBtnUp->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
 	mpToolBtnUp->SetEnable( false );
-	mpToolBtnUp->SetClickEvent( EventUpBtnClick );
+	mpToolBtnUp->SetMouseLBDEvent( EventUpBtnClick );
 
 	mpMainArea->AppendChild( mpToolBtnUp );
 
 	mpToolBtnDown = CHE_WDM_Button::Create( mpInterActive );
-	mpToolBtnDown->SetWidth( 20 );
+	mpToolBtnDown->SetWidth( 80 );
 	mpToolBtnDown->SetHeight( 20 );
-	mpToolBtnDown->SetPosiX( 160 );
-	mpToolBtnDown->SetPosiY( 130 );
-	mpToolBtnDown->SetClickEvent( EventDownBtnClick );
+	mpToolBtnDown->SetPosiX( 250 );
+	mpToolBtnDown->SetPosiY( 95 );
+	mpToolBtnDown->SetMouseLBDEvent( EventDownBtnClick );
+
+	textPtr = CHE_WDM_AppearText::Create();
+	textPtr->SetSize( 12 );
+	textPtr->SetHeight( 20 );
+	textPtr->SetWidth( 50 );
+	textPtr->SetPosiX( 25 );
+	textPtr->SetPosiY( 0 );
+	textPtr->SetText( L"Down" );
+	textPtr->SetColor( 0xFF333333 ); 
+	textPtr->SetLayout( CHE_WDM_Layout( LAYOUT_ALIGN_LEFT_OR_TOP, LAYOUT_ALIGN_CENTER ) );
+	mpToolBtnDown->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );
+
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\toolBarBtn4.png" );
+	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
+	mpToolBtnDown->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\toolBarBtn4.png" );
@@ -737,61 +700,78 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpToolBtnDown->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
 	mpToolBtnDown->SetEnable( false );
-	mpToolBtnDown->SetClickEvent( EventDownBtnClick );
+	mpToolBtnDown->SetMouseLBDEvent( EventDownBtnClick );
 	
 	mpMainArea->AppendChild( mpToolBtnDown );
 
-	mpListBoxItems = CHE_WDM_Area::Create( mpInterActive );
-	mpListBoxItems->SetWidth( 625 );
-	mpListBoxItems->SetHeight( 290 );
-	mpListBoxItems->SetPosiX( 25 );
-	mpListBoxItems->SetPosiY( 160 );
-	mpListBoxItems->EnableClip();
-	
-	mpMainArea->AppendChild( mpListBoxItems );
-
-	mpListScrollBar = CHE_WDM_Button::Create( mpInterActive );
-	mpListScrollBar->SetWidth( 17 );
-	mpListScrollBar->SetHeight( 283 );
-	mpListScrollBar->SetPosiX( 653 );
-	mpListScrollBar->SetPosiY( 165 );
-
-	CHE_WDM_Area * pArea = CHE_WDM_Area::Create( mpInterActive );
-	pArea->SetWidth( 5 );
-	pArea->SetHeight( 283 );
-	pArea->SetPosiX( 658 );
-	pArea->SetPosiY( 165 );
-
+	//listbox area
+	CHE_WDM_Area * pListBox = CHE_WDM_Area::Create( mpInterActive );
+	pListBox->SetPosiX( 28 );
+	pListBox->SetPosiY( 120 );
+	pListBox->SetWidth( 645 );
+	pListBox->SetHeight( 310 );
 	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\listBox.png" );
+	pListBox->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
+
+	//itemlist area
+	mpItemList = CHE_WDM_Area::Create( mpInterActive );
+	mpItemList->SetPosiX( 28 );
+	mpItemList->SetPosiY( 125 );
+	mpItemList->SetWidth( 624 );
+	mpItemList->SetHeight( 295 );
+	mpItemList->SetClipEnable( TRUE  );
+	pListBox->AppendChild( mpItemList );
+
+	//list scroll bar
+	mpScrollBar = CHE_WDM_Area::Create( mpInterActive );
+	mpScrollBar->SetPosiX( 653 );
+	mpScrollBar->SetPosiY( 120 );
+	mpScrollBar->SetWidth( 21 );
+	mpScrollBar->SetHeight( 310 );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetPosiX( 9 );
+	imagePtr->SetPosiY( 11 );
 	imagePtr->SetImageFile( L"images\\listBoxSrocllLine.png" );
-	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	mpScrollBar->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	pListBox->AppendChild( mpScrollBar );
 
-	mpListScrollBar->AppendChild( pArea );
-
-	CHE_WDM_DragArea * pDragArea = CHE_WDM_DragArea::Create( mpInterActive );
-	pDragArea->SetWidth( 17 );
-	pDragArea->SetHeight( 50 );
-	pDragArea->SetPosiX( 653 );
-	pDragArea->SetPosiY( 165 );
-	pDragArea->SetRange( 653, 165, 653, 398 );
-	pDragArea->SetDragEvent( EventMoveScrollBox );
-
+	//scroll block
+	CHE_WDM_DragArea * pScrollBlock = CHE_WDM_DragArea::Create( mpInterActive );
+	pScrollBlock->SetPosiX( 652 );
+	pScrollBlock->SetPosiY( 131 );
+	pScrollBlock->SetWidth( 21 );
+	pScrollBlock->SetHeight( 50 );
+	pScrollBlock->SetRange( 652, 131, 652, 364 );
+	pScrollBlock->SetDragEvent( EventMoveScrollBox );
 	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetPosiX( 4 );
 	imagePtr->SetImageFile( L"images\\listBoxScrollBox.png" );
-	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
-	pDragArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	pScrollBlock->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	mpScrollBar->AppendChild( pScrollBlock );
 
-	mpListScrollBar->AppendChild( pDragArea );
-	mpListScrollBar->SetVisable( false );
+	mpMainArea->AppendChild( pListBox );
 
-	mpMainArea->AppendChild( mpListScrollBar );
+	mpDelBtn = CHE_WDM_Button::Create( mpInterActive );
+	mpDelBtn->SetPosiX( 0 );
+	mpDelBtn->SetPosiY( 0 );
+	mpDelBtn->SetWidth( 24 );
+	mpDelBtn->SetHeight( 24 );
+	mpDelBtn->SetVisable( false );
+	mpDelBtn->SetEnable( false );
+	mpDelBtn->SetMouseLBUEvent( EventListItemDelBtnClick ); 
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\delBtn.png" );
+	mpDelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
+	imagePtr = CHE_WDM_AppearImage::Create();
+	imagePtr->SetImageFile( L"images\\delBtnHover.png" );
+	mpDelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
 
 	mpStartBtn = CHE_WDM_Button::Create( mpInterActive );
 	mpStartBtn->SetWidth( 125 );
 	mpStartBtn->SetHeight( 46 );
 	mpStartBtn->SetPosiX( 540 );
-	mpStartBtn->SetPosiY( 498 );
+	mpStartBtn->SetPosiY( 448 );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\startBtn.png" );
@@ -809,13 +789,13 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	mpStartBtn->AppendAppearItem( imagePtr, AREA_APPEAR_DISABLE );
 	mpStartBtn->SetEnable( false );
-	mpStartBtn->SetClickEvent( EventStartBtn );
+	mpStartBtn->SetMouseLBDEvent( EventStartBtn );
 
 	mpMainArea->AppendChild( mpStartBtn );
 
 	mpTextBar2 = CHE_WDM_Area::Create( mpInterActive );
 	mpTextBar2->SetPosiX( 21 );
-	mpTextBar2->SetPosiY( 505 );
+	mpTextBar2->SetPosiY( 458 );
 	mpTextBar2->SetWidth( 509 );
 	mpTextBar2->SetHeight( 29 );
 	
@@ -837,10 +817,10 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	CHE_WDM_Button * pTmpBtn = CHE_WDM_Button::Create( mpInterActive );
 	mpTextBar2Btn = pTmpBtn;
 	pTmpBtn->SetPosiX( 474 );
-	pTmpBtn->SetPosiY( 505 );
+	pTmpBtn->SetPosiY( 458 );
 	pTmpBtn->SetWidth( 51 );
 	pTmpBtn->SetHeight( 29 );
-	pTmpBtn->SetClickEvent( EventFileSavePathBrowseBtnClick );
+	pTmpBtn->SetMouseLBDEvent( EventFileSavePathBrowseBtnClick );
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\textBar2Btn.png" );
@@ -869,7 +849,6 @@ CPdfSpliterDlg::~CPdfSpliterDlg()
 	delete mpInterActive;
 	delete mpMainArea;
 
-	gpListItemHoverRect.reset();
 	gpListItemSelectRect.reset();
 	gpListItemLine.reset();
 	gpListItemIcon1.reset();
@@ -937,6 +916,9 @@ BOOL CPdfSpliterDlg::OnInitDialog()
 	mpInterActive->SetGraphics( mGraphics );
 	mpMainArea->OnDraw();
 
+	UpdateToolBtn();
+	UpdateList();
+
 	return TRUE;
 }
 
@@ -1000,18 +982,21 @@ void CPdfSpliterDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CPdfSpliterDlg::OnSize(UINT nType, int cx, int cy)
 {
-	CDialogEx::OnSize(nType, cx, cy);
-
-	mClientWidth = cx;
-	mClientHeight = cy;
-
-	mpMainArea->SetWidth( cx );
-	mpMainArea->SetHeight( cy );
-
-	CWnd * pWnd = GetDlgItem( IDC_MAIN );
-	if ( pWnd )
+	if ( mClientWidth != 700 )
 	{
-		pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );
+		mClientWidth = 700;
+		mClientHeight = 560;
+
+		mpMainArea->SetWidth( 700 );
+		mpMainArea->SetHeight( 560 );
+
+		this->MoveWindow( 0, 0, 700, 560 );
+
+		CWnd * pWnd = GetDlgItem( IDC_MAIN );
+		if ( pWnd )
+		{
+			pWnd->MoveWindow( 0, 0, mpMainArea->GetWidth(), mpMainArea->GetHeight(), TRUE );
+		}
 	}
 }
 
@@ -1074,7 +1059,6 @@ void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 	pTmpItem->SetMouseOverEvent( EventListItemMouseOver );
 	pTmpItem->SetMouseOutEvent( EventListItemMouseOut );
 
-	pTmpItem->AppendAppearItem( gpListItemHoverRect, AREA_APPEAR_MOUSEOVER );
 	pTmpItem->AppendAppearItem( gpListItemLine, AREA_APPEAR_BACKGROUND );
 	
 	textPtr = CHE_WDM_AppearText::Create();
@@ -1103,34 +1087,34 @@ void CPdfSpliterDlg::AppendListItem( const CListItem & item )
 	}
 	textPtr->SetText( tmpStr );
 	pTmpItem->AppendAppearItem( textPtr, AREA_APPEAR_BACKGROUND );	
-	pTmpItem->SetClickEvent( EventListItemClick );
+	pTmpItem->SetMouseLBDEvent( EventListItemClick );
 
-	CHE_WDM_Button * pTmpDelBtn = CHE_WDM_Button::Create( mpInterActive );
-	pTmpDelBtn->SetPosiX( 400 );
-	pTmpDelBtn->SetPosiY( 12 );
-	pTmpDelBtn->SetWidth( 24 );
-	pTmpDelBtn->SetHeight( 24 );
-	pTmpDelBtn->SetVisable( false );
-	pTmpDelBtn->SetEnable( false );
-	pTmpDelBtn->SetClickEvent( EventListItemDelBtnClick ); 
+// 	CHE_WDM_Button * pTmpDelBtn = CHE_WDM_Button::Create( mpInterActive );
+// 	pTmpDelBtn->SetPosiX( 400 );
+// 	pTmpDelBtn->SetPosiY( 12 );
+// 	pTmpDelBtn->SetWidth( 24 );
+// 	pTmpDelBtn->SetHeight( 24 );
+// 	pTmpDelBtn->SetVisable( false );
+// 	pTmpDelBtn->SetEnable( false );
+// 	pTmpDelBtn->SetMouseLBDEvent( EventListItemDelBtnClick ); 
+// 
+// 	CHE_WDM_AppearImagePtr imagePtr = CHE_WDM_AppearImage::Create();
+// 	imagePtr->SetImageFile( L"images\\delBtn.png" );
+// 	pTmpDelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
+// 
+// 	imagePtr = CHE_WDM_AppearImage::Create();
+// 	imagePtr->SetImageFile( L"images\\delBtnHover.png" );
+// 	pTmpDelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
+// 
+// 	pTmpItem->AppendChild( pTmpDelBtn );
 
-	CHE_WDM_AppearImagePtr imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\delBtn.png" );
-	pTmpDelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_NORMAL );
-
-	imagePtr = CHE_WDM_AppearImage::Create();
-	imagePtr->SetImageFile( L"images\\delBtnHover.png" );
-	pTmpDelBtn->AppendAppearItem( imagePtr, AREA_APPEAR_MOUSEOVER );
-
-	pTmpItem->AppendChild( pTmpDelBtn );
-
-	mpListBoxItems->AppendChild( pTmpItem );
+	mpItemList->AppendChild( pTmpItem );
 }
 
 
 void CPdfSpliterDlg::DeleteListItem( unsigned int index )
 {
-	CHE_WDM_Area * pTmp = mpListBoxItems->PopChild( index );
+	CHE_WDM_Area * pTmp = mpItemList->PopChild( index );
 	if ( pTmp )
 	{
 		pTmp->GetAllocator()->Delete( pTmp );
@@ -1140,14 +1124,14 @@ void CPdfSpliterDlg::DeleteListItem( unsigned int index )
 void CPdfSpliterDlg::CancelSelection()
 {
 	CHE_WDM_Area * pTmpArea = NULL;
-	unsigned int iCount = mpListBoxItems->GetChildrenCount();
+	unsigned int iCount = mpItemList->GetChildrenCount();
 	if ( theApp.mCurItem != 0 )
 	{
 		for ( unsigned int i = 0; i < iCount; ++i )
 		{
 			if (  theApp.mCurItem == i + 1 )
 			{
-				pTmpArea = theApp.mpMainDlg->mpListBoxItems->GetChild( i );
+				pTmpArea = theApp.mpMainDlg->mpItemList->GetChild( i );
 				pTmpArea->GetAppear().mBackground.erase(  pTmpArea->GetAppear().mBackground.begin() );
 				break;
 			}
@@ -1161,7 +1145,7 @@ void CPdfSpliterDlg::UpdateSelection(void)
 	unsigned int iCount = theApp.mItemCount;
 	for ( unsigned int i = 0; i < iCount; ++i )
 	{
-		pTmpItem = mpListBoxItems->GetChild( i );
+		pTmpItem = mpItemList->GetChild( i );
 		if ( i + 1 == theApp.mCurItem )
 		{
 			pTmpItem->GetAppear().mBackground.insert( pTmpItem->GetAppear().mBackground.begin(), gpListItemSelectRect );
@@ -1177,18 +1161,18 @@ void CPdfSpliterDlg::UpdateList()
 	unsigned int iCount = theApp.mItemCount;
 	if ( iCount > 6 )
 	{
-		mpListScrollBar->SetVisable( true );
+		mpScrollBar->SetVisable( true );
 		offset = (iCount - 6) * 48 * theApp.mfViewPoint;
 	}else
 	{
-		mpListScrollBar->SetVisable( false );
+		mpScrollBar->SetVisable( false );
 	}
 	for ( unsigned int i = 0; i < iCount; ++i )
 	{
-		newPosition = mpListBoxItems->GetPosiY() + i * 48 - offset;
-		pTmpItem = mpListBoxItems->GetChild( i );
+		newPosition = mpItemList->GetPosiY() + i * 48 - offset;
+		pTmpItem = mpItemList->GetChild( i );
 		pTmpItem->SetPosiY( newPosition );
-		if ( ( newPosition > mpListBoxItems->GetPosiY() + 288 ) || ( newPosition < -48 ) )
+		if ( ( newPosition > mpItemList->GetPosiY() + 288 ) || ( newPosition < -48 ) )
 		{
 			pTmpItem->SetVisable( false );
 		}else{
@@ -1196,8 +1180,8 @@ void CPdfSpliterDlg::UpdateList()
 		}
 
 	}
-	mpListBoxItems->Refresh();
-	mpListScrollBar->Refresh();
+	mpItemList->Refresh();
+	mpScrollBar->Refresh();
 }
 
 void CPdfSpliterDlg::UpdateTargetFileArea()
@@ -1207,19 +1191,42 @@ void CPdfSpliterDlg::UpdateTargetFileArea()
 	mpFilePathText->Refresh();
 }
 
-void CPdfSpliterDlg::UpdateFileInfoArea()
+void CPdfSpliterDlg::ClearFileInfoArea()
 {
-	CHE_WDM_AppearTextPtr pAppearText = mpFileSizeInfo->GetAppear().mBackground[0].GetTextPtr();
+	CHE_WDM_AppearTextPtr pAppearText = mpFilePageCountInfo->GetAppear().mBackground[0].GetTextPtr();
 	pAppearText->SetText( L"" );
+
 	pAppearText = mpFilePageCountInfo->GetAppear().mBackground[0].GetTextPtr();
 	pAppearText->SetText( L"" ); 
+
+	mpFilePageCountInfo->Refresh();
+}
+
+void CPdfSpliterDlg::UpdateFileInfoArea()
+{
+	CHE_WDM_AppearTextPtr textPtr = mpFilePageCountInfo->GetAppear().mBackground[0].GetTextPtr();
+
+	wchar_t tmpwstr[512];
+	wsprintf( tmpwstr, L"Total£º%d Page(s)", theApp.mpDocument->GetPageCount() );
+	textPtr->SetText( tmpwstr );
+
+	textPtr = mpFileSizeInfo->GetAppear().mBackground[0].GetTextPtr();
+	if ( theApp.mpFileRead->GetSize() <= 10485 )
+	{
+		swprintf( tmpwstr, L"%4.2f KB", theApp.mpFileRead->GetSize() * 1.0 / 1024 ) ;
+	}else{
+		swprintf( tmpwstr, L"%4.2f MB", theApp.mpFileRead->GetSize() * 1.0 / ( 1024 * 1024 ) ) ;
+	}
+	textPtr->SetText( tmpwstr );
+
+	mpFileSizeInfo->Refresh();
 	mpFilePageCountInfo->Refresh();
 }
 
 void CPdfSpliterDlg::UpdateNewFileArea()
 {
 	CHE_WDM_AppearTextPtr pAppearText = mpTextBar2->GetAppear().mBackground[1].GetTextPtr();
-	pAppearText->SetText( theApp.mTargetFile.c_str() );
+	pAppearText->SetText( theApp.mNewFile.c_str() );
 	mpTextBar2->Refresh();
 }
 

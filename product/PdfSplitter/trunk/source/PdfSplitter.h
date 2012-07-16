@@ -41,15 +41,23 @@ public:
 
 	void ResetClip();
 
+	void Draw( CHE_WDM_Area * pArea, CHE_WDM_AppearItemPtr ptr );
+
 	void Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE type );
 
 	void Invalidate();
 
 	void InvalidateRect( int left, int top, int right, int bottom );
 
-	void SetTimer( HE_DWORD );
+	void SetTimer( CHE_WDM_Area * pArea, HE_DWORD elapse );
 
-	void KillTimer();
+	void KillTimer( CHE_WDM_Area * pArea );
+
+	HE_BOOL	MeasureString( CHE_WDM_AppearTextPtr ptr, HE_DWORD & width, HE_DWORD & height );
+
+	HE_BOOL MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_DWORD count, HE_DWORD & width, HE_DWORD & height );
+
+	HE_FLOAT GetFontHeight( CHE_WDM_AppearTextPtr ptr );
 
 	int GetLeft() { return mLeft; }
 
@@ -135,6 +143,8 @@ public:
 
 	CPdfSpliterDlg *		mpMainDlg;
 	CProcessDlg *			mpProcessDlg;
+
+	CHE_WDM_Area *			mpMouseOverItem;
 
 
 	DECLARE_MESSAGE_MAP()

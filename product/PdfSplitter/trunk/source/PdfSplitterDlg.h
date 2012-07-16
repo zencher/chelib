@@ -48,22 +48,29 @@ public:
 	MyIHE_WDM_InterActive * mpInterActive;
 
 	CHE_WDM_Area *	mpMainArea;
-	CHE_WDM_Area *	mpTextBarTitle;
+	CHE_WDM_Area *	mpHeadbar;
 	CHE_WDM_Area *	mpTextBar;
 	CHE_WDM_Area *	mpFilePathText;
 	CHE_WDM_Area *	mpFileSizeInfo;
 	CHE_WDM_Area *	mpFilePageCountInfo;
-	CHE_WDM_Area *	mpListBoxItems;
-	CHE_WDM_Area *	mpListScrollBar;
-	CHE_WDM_Area *	mpTextBar2;
-	CHE_WDM_Button * mpBrowseBtn;
+
 	CHE_WDM_Button * mpToolBtnAdd;
 	CHE_WDM_Button * mpToolBtnClear;
 	CHE_WDM_Button * mpToolBtnUp;
 	CHE_WDM_Button * mpToolBtnDown;
+
+	CHE_WDM_Button * mpDelBtn;
+
+	CHE_WDM_Area *	mpItemList;
+	CHE_WDM_Area *	mpScrollBar;
+
+	CHE_WDM_Area *	mpTextBar2;
+	CHE_WDM_Button * mpBrowseBtn;
+	
 	CHE_WDM_Button * mpStartBtn;
 	CHE_WDM_Button * mpTextBar2Btn;
-	
+
+	CHE_WDM_Area *	mpCurItem;
 
 	unsigned int	mTimerId;
 
@@ -77,6 +84,7 @@ public:
 	void UpdateTargetFileArea();
 	void UpdateFileInfoArea();
 	void UpdateNewFileArea();
+	void ClearFileInfoArea();
 
 	void SetWindowsTitleNormal();
 

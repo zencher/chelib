@@ -49,7 +49,7 @@ CPdfSpliterApp theApp;
 
 BOOL CPdfSpliterApp::InitInstance()
 {
-	_CrtSetBreakAlloc( 1340 );
+	//_CrtSetBreakAlloc( 1340 );
 
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
@@ -153,6 +153,10 @@ void CPdfSpliterApp::ClearPageListItem()
 {
 	std::vector< CListItem >::iterator it;
 	mpMainDlg->CancelSelection();
+	if ( theApp.mpMainDlg->mpDelBtn->GetParent() )
+	{
+		theApp.mpMainDlg->mpDelBtn->GetParent()->PopChild( 0 );
+	}
 	unsigned int iCount = mPageList.size();
 	unsigned int i = 0;
 	for ( ; i < iCount; ++i )
@@ -194,6 +198,7 @@ void CPdfSpliterApp::DelCurPageListItem()
 			break;
 		}
 	}
+
 }
 
 void CPdfSpliterApp::UpCurPageListItem()
@@ -201,7 +206,7 @@ void CPdfSpliterApp::UpCurPageListItem()
 	if ( 1 < mCurItem && mCurItem <= mItemCount )
 	{
 		mpMainDlg->CancelSelection();
-		mpMainDlg->mpListBoxItems->ChildToLower( mCurItem-1 );
+		mpMainDlg->mpItemList->ChildToLower( mCurItem-1 );
 		CListItem item = mPageList[mCurItem-2];
 		mPageList[mCurItem-2] = mPageList[mCurItem-1];
 		mPageList[mCurItem-1] = item;
@@ -217,7 +222,7 @@ void CPdfSpliterApp::DownCurPagaListItem()
 	if ( 0 < mCurItem && mCurItem < mItemCount )
 	{
 		mpMainDlg->CancelSelection();
-		mpMainDlg->mpListBoxItems->ChildToUpper( mCurItem-1 );
+		mpMainDlg->mpItemList->ChildToUpper( mCurItem-1 );
 		CListItem item = mPageList[mCurItem];
 		mPageList[mCurItem] = mPageList[mCurItem-1];
 		mPageList[mCurItem-1] = item;
@@ -273,7 +278,7 @@ void CPdfSpliterApp::CloseDocument()
 	mpMainDlg->UpdateList();
 	mpMainDlg->UpdateTargetFileArea();
 	mpMainDlg->UpdateNewFileArea();
-	mpMainDlg->UpdateFileInfoArea();
+	mpMainDlg->ClearFileInfoArea();
 	if ( mpFileRead )
 	{
 		//todo
@@ -433,20 +438,137 @@ void MyIHE_WDM_InterActive::InvalidateRect( int left, int top, int right, int bo
 	}
 }
 
-void MyIHE_WDM_InterActive::SetTimer( HE_DWORD u )
+void MyIHE_WDM_InterActive::SetTimer( CHE_WDM_Area * pArea, HE_DWORD elapse )
 {
-	if ( mpDlg )
-	{
-		mpDlg->SetTimer( 999, u, NULL );
-	}
+	// 	if ( mpDlg )
+	// 	{
+	// 		mpDlg->SetTimer( 0, elapse, NULL );
+	// 	}
 }
 
-void MyIHE_WDM_InterActive::KillTimer()
+void MyIHE_WDM_InterActive::KillTimer( CHE_WDM_Area * pArea )
 {
-	if ( mpDlg )
+	// 	if ( mpDlg )
+	// 	{
+	// 		mpDlg->KillTimer( 999 );
+	// 	}
+}
+
+HE_BOOL	MyIHE_WDM_InterActive::MeasureString( CHE_WDM_AppearTextPtr ptr, HE_DWORD & width, HE_DWORD & height )
+{
+	if ( ! ptr || ! ptr->GetText() )
 	{
-		mpDlg->KillTimer( 999 );
+		return FALSE;
 	}
+
+	PointF pointF;
+	RectF rectF;
+	StringFormat strFormat;
+	CHE_WDM_Layout layout = ptr->GetLayout();
+	switch ( layout.GetVertLayout() )
+	{
+	case LAYOUT_ALIGN_LEFT_OR_TOP:
+		strFormat.SetAlignment( StringAlignmentNear );
+		break;
+	case LAYOUT_ALIGN_CENTER:
+		strFormat.SetAlignment( StringAlignmentCenter );
+		break;
+	case LAYOUT_ALIGN_RIGHT_OR_BOTTOM:
+		strFormat.SetAlignment( StringAlignmentFar );
+		break;
+	default:;
+	}
+	switch( layout.GetHoriLayout() )
+	{
+	case LAYOUT_ALIGN_LEFT_OR_TOP:
+		strFormat.SetLineAlignment( StringAlignmentNear );
+		break;
+	case LAYOUT_ALIGN_CENTER:
+		strFormat.SetLineAlignment( StringAlignmentCenter );
+		break;
+	case LAYOUT_ALIGN_RIGHT_OR_BOTTOM:
+		strFormat.SetLineAlignment( StringAlignmentFar );
+		break;
+	default:;
+	}
+
+	Gdiplus::Font font( L"Arial", ptr->GetSize(), FontStyleRegular, UnitPixel );
+	mpGraphics->MeasureString( ptr->GetText(), wcslen( ptr->GetText() ), &font, pointF, &strFormat, &rectF );	
+	width = rectF.GetRight() - rectF.GetLeft();
+	height = rectF.GetBottom() - rectF.GetTop();
+	return TRUE;
+}
+
+HE_BOOL MyIHE_WDM_InterActive::MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_DWORD count, HE_DWORD & width, HE_DWORD & height )
+{
+	if ( ! ptr || ! ptr->GetText() )
+	{
+		return FALSE;
+	}
+	HE_DWORD charCount = wcslen( ptr->GetText() );
+	if ( count > charCount )
+	{
+		return FALSE;
+	}
+
+	RectF rectF;
+	rectF.X = ptr->GetPosiX();
+	rectF.Y = ptr->GetPosiY();
+	rectF.Width = ptr->GetWidth();
+	rectF.Height = ptr->GetHeight();
+
+	CharacterRange charRanges;
+	charRanges.First = 0;
+	charRanges.Length = count;
+
+	StringFormat strFormat;
+	CHE_WDM_Layout layout = ptr->GetLayout();
+	switch ( layout.GetVertLayout() )
+	{
+	case LAYOUT_ALIGN_LEFT_OR_TOP:
+		strFormat.SetAlignment( StringAlignmentNear );
+		break;
+	case LAYOUT_ALIGN_CENTER:
+		strFormat.SetAlignment( StringAlignmentCenter );
+		break;
+	case LAYOUT_ALIGN_RIGHT_OR_BOTTOM:
+		strFormat.SetAlignment( StringAlignmentFar );
+		break;
+	default:;
+	}
+	switch( layout.GetHoriLayout() )
+	{
+	case LAYOUT_ALIGN_LEFT_OR_TOP:
+		strFormat.SetLineAlignment( StringAlignmentNear );
+		break;
+	case LAYOUT_ALIGN_CENTER:
+		strFormat.SetLineAlignment( StringAlignmentCenter );
+		break;
+	case LAYOUT_ALIGN_RIGHT_OR_BOTTOM:
+		strFormat.SetLineAlignment( StringAlignmentFar );
+		break;
+	default:;
+	}
+	strFormat.SetMeasurableCharacterRanges( 1, &charRanges );
+
+	Region charsRegion;
+	Gdiplus::Font font( L"Arial", ptr->GetSize(), FontStyleRegular, UnitPixel );
+
+	mpGraphics->MeasureCharacterRanges( ptr->GetText(), count, &font, rectF, &strFormat, 1, &charsRegion );
+	charsRegion.GetBounds( &rectF, mpGraphics );
+	width = rectF.GetRight() - rectF.GetLeft();
+	height = rectF.GetBottom() - rectF.GetTop();
+	return TRUE;
+}
+
+HE_FLOAT MyIHE_WDM_InterActive::GetFontHeight( CHE_WDM_AppearTextPtr ptr )
+{
+	if ( ! ptr )
+	{
+		return 0;
+	}
+	Gdiplus::Font font( L"Arial", ptr->GetSize(), FontStyleRegular, UnitPixel );
+	return font.GetHeight( mpGraphics );
 }
 
 void MyIHE_WDM_InterActive::SetClip( CHE_WDM_Area * pArea )
@@ -475,6 +597,237 @@ void MyIHE_WDM_InterActive::ResetClip()
 		mContainerStack.pop_back();
 	}
 	//mpGraphics->ResetClip();
+}
+
+void MyIHE_WDM_InterActive::Draw( CHE_WDM_Area * pArea, CHE_WDM_AppearItemPtr ptr )
+{
+	if ( ! pArea || ! mpGraphics || ! ptr )
+	{
+		return;
+	}
+
+	GraphicsContainer container = mpGraphics->BeginContainer();
+	if ( mbDirtyRect )
+	{
+		Rect clipRect( mLeft, mTop, mRight-mLeft, mBottom-mTop );
+		Region clipRegion( clipRect );
+		mpGraphics->SetClip( &clipRegion );
+	}
+	if ( pArea->IsClipEnable() )
+	{
+		Rect clipRect( pArea->GetPosiX(), pArea->GetPosiY(), pArea->GetWidth(), pArea->GetHeight() );
+		Region clipRegion( clipRect );
+		mpGraphics->SetClip( &clipRegion );
+	}
+
+	switch( ptr->GetType() )
+	{
+	case APPEAR_ITEM_TEXT:
+		{
+			CHE_WDM_AppearTextPtr pTmp = ptr.GetTextPtr();
+			StringFormat strFormat;
+			CHE_WDM_Layout layout = pTmp->GetLayout();
+			switch ( layout.GetVertLayout() )
+			{
+			case LAYOUT_ALIGN_LEFT_OR_TOP:
+				strFormat.SetAlignment( StringAlignmentNear );
+				break;
+			case LAYOUT_ALIGN_CENTER:
+				strFormat.SetAlignment( StringAlignmentCenter );
+				break;
+			case LAYOUT_ALIGN_RIGHT_OR_BOTTOM:
+				strFormat.SetAlignment( StringAlignmentFar );
+				break;
+			default:;
+			}
+			switch( layout.GetHoriLayout() )
+			{
+			case LAYOUT_ALIGN_LEFT_OR_TOP:
+				strFormat.SetLineAlignment( StringAlignmentNear );
+				break;
+			case LAYOUT_ALIGN_CENTER:
+				strFormat.SetLineAlignment( StringAlignmentCenter );
+				break;
+			case LAYOUT_ALIGN_RIGHT_OR_BOTTOM:
+				strFormat.SetLineAlignment( StringAlignmentFar );
+				break;
+			default:;
+			}
+			if ( pTmp->GetFontFile() )
+			{
+				PrivateFontCollection fontCollection;
+				fontCollection.AddFontFile( pTmp->GetFontFile() );
+				INT fontFamilyCount = fontCollection.GetFamilyCount();
+				FontFamily * pFontFamily = ::new FontFamily[fontFamilyCount];
+				fontCollection.GetFamilies( fontFamilyCount, pFontFamily, &fontFamilyCount );
+				Gdiplus::Font font( &(pFontFamily[0]), pTmp->GetSize(), FontStyleRegular, UnitPixel );
+				RectF rectF( pArea->GetPosiX() + pTmp->GetPosiX(), pArea->GetPosiY()+pTmp->GetPosiY(), pTmp->GetWidth(), pTmp->GetHeight() );
+				SolidBrush solidBrush( Color( pTmp->GetAlpha() * ( (pTmp->GetColor()>>24) & 0xFF ), (pTmp->GetColor()>>16) & 0xFF, (pTmp->GetColor()>>8) & 0xFF, (pTmp->GetColor()) & 0xFF ) );
+				mpGraphics->DrawString( pTmp->GetText(), -1, &font, rectF, &strFormat, &solidBrush );
+				delete [] pFontFamily;
+			}else{
+				FontFamily fontFamily( L"Arial" );
+				Gdiplus::Font font( &fontFamily, pTmp->GetSize(), FontStyleRegular, UnitPixel );
+				RectF rectF(	pArea->GetPosiX() + pTmp->GetPosiX(), pArea->GetPosiY() + pTmp->GetPosiY(), pTmp->GetWidth(), pTmp->GetHeight() );
+				SolidBrush solidBrush( Color( pTmp->GetAlpha() * ( (pTmp->GetColor()>>24) & 0xFF ), (pTmp->GetColor()>>16) & 0xFF, (pTmp->GetColor()>>8) & 0xFF, (pTmp->GetColor()) & 0xFF ) );
+				mpGraphics->DrawString( pTmp->GetText(), -1, &font, rectF, &strFormat, &solidBrush );
+			}break;
+		}
+	case APPEAR_ITEM_PATH:
+		{
+			CHE_WDM_AppearPathPtr pTmp = ptr.GetPathPtr();
+			unsigned int fillColorVal = pTmp->GetFillColor();
+			unsigned int strokeColorVal = pTmp->GetStrokeColor();
+			Color fillColor( pTmp->GetAlpha() * ( (fillColorVal>>24) & 0xFF ), (fillColorVal>>16) & 0xFF, (fillColorVal>>8) & 0xFF, fillColorVal & 0xFF );
+			Color strokeColor( pTmp->GetAlpha() * ( (strokeColorVal>>24) & 0xFF ), (strokeColorVal>>16) & 0xFF, (strokeColorVal>>8) & 0xFF, strokeColorVal & 0xFF );
+			SolidBrush brush( fillColor );
+			Pen pen( strokeColor, pTmp->GetLineWidth() );
+
+			GraphicsPath path;
+			CHE_WDM_AppearPathItem pathItem;
+			float a = 0, b = 0, c = 0, d = 0, e = 0, f = 0;
+			size_t iCount = pTmp->GetItemCount();
+			for ( unsigned int i = 0; i < iCount; ++i )
+			{
+				pTmp->GetItem( i, pathItem );
+				switch ( pathItem.GetType() )
+				{
+				case APPEAR_PATH_ITEM_LINE:
+					{
+						pTmp->GetItem( ++i, pathItem );
+						a = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
+						pTmp->GetItem( ++i, pathItem );
+						b = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
+						pTmp->GetItem( ++i, pathItem );
+						c = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
+						pTmp->GetItem( ++i, pathItem );
+						d = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
+						path.AddLine( a, b, c, d );
+						break;
+					}
+				case APPEAR_PATH_ITEM_RECT:
+					{
+						pTmp->GetItem( ++i, pathItem );
+						a = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
+						pTmp->GetItem( ++i, pathItem );
+						b = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
+						pTmp->GetItem( ++i, pathItem );
+						c = pathItem.GetValue();
+						pTmp->GetItem( ++i, pathItem );
+						d = pathItem.GetValue();
+						RectF rectF( a, b, c, d );
+						path.AddRectangle( rectF );
+						break;
+					}
+				case APPEAR_PATH_ITEM_CURVE:
+					{
+						pTmp->GetItem( ++i, pathItem );
+						a = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
+						pTmp->GetItem( ++i, pathItem );
+						b = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
+						pTmp->GetItem( ++i, pathItem );
+						c = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
+						pTmp->GetItem( ++i, pathItem );
+						d = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
+						pTmp->GetItem( ++i, pathItem );
+						e = pathItem.GetValue() + pTmp->GetPosiX() + pArea->GetPosiX();
+						pTmp->GetItem( ++i, pathItem );
+						f = pathItem.GetValue() + pTmp->GetPosiY() + pArea->GetPosiY();
+						PointF point[3];
+						point[0].X = a;
+						point[0].Y = b;
+						point[1].X = c;
+						point[1].Y = d;
+						point[2].X = e;
+						point[2].Y = f;
+						path.AddCurve( point, 3 );
+						break;
+					}
+				default:;
+				}
+			}
+			if ( pTmp->GetFillMode() == APPEAR_PATH_FILL_EVENODD )
+			{
+				path.SetFillMode( FillModeWinding );
+			}
+			else
+			{
+				path.SetFillMode( FillModeAlternate );
+			}
+			switch ( pTmp->GetOperator() )
+			{
+			case APPEAR_PATH_FILL:
+				{
+					mpGraphics->FillPath( &brush, &path );
+					break;
+				}
+			case APPEAR_PATH_STROKE:
+				{
+					mpGraphics->DrawPath( &pen, &path );
+					break;
+				}
+			case APPEAR_PATH_FILL_STROKE:
+				{
+					mpGraphics->FillPath( &brush, &path );
+					mpGraphics->DrawPath( &pen, &path );
+					break;
+				}
+			default:;
+			}
+			break;
+		}
+	case APPEAR_ITEM_IMAGE:
+		{
+			CHE_WDM_AppearImagePtr pTmp = ptr.GetImagePtr();
+			Image * tmpImage = NULL;
+			if ( pTmp->GetExtData() == NULL )
+			{
+				tmpImage = ::new Image( pTmp->GetImageFile() );
+				mImageCache.push_back( tmpImage );
+				pTmp->SetExtData( (void*)( tmpImage ) );
+			}else{
+				tmpImage = (Image*)( pTmp->GetExtData() );
+			}
+			switch ( pTmp->GetStyle() )
+			{
+			case APPEAR_IMAGE_STYLE_SINGLE:
+				{
+					ImageAttributes imageAtr;
+					ColorMatrix colorMatrix = {	1, 0, 0, 0, 0,
+						0, 1, 0, 0, 0,
+						0, 0, 1, 0, 0,
+						0, 0, 0, pTmp->GetAlpha(), 0,
+						0, 0, 0, 0, 1 };
+					imageAtr.SetColorMatrix( &colorMatrix );
+					mpGraphics->DrawImage(	tmpImage, 
+						Rect( pArea->GetPosiX() + pTmp->GetPosiX(), pArea->GetPosiY() + pTmp->GetPosiY(), tmpImage->GetWidth(), tmpImage->GetHeight() ),
+						(INT)0,
+						0,
+						tmpImage->GetWidth(),
+						tmpImage->GetHeight(),
+						UnitPixel,
+						&imageAtr );
+					break;
+				}
+			case APPEAR_IMAGE_STYLE_TILTING:
+				{
+					TextureBrush brush( tmpImage );
+					mpGraphics->FillRectangle( &brush, pArea->GetPosiX(), pArea->GetPosiY(), pArea->GetWidth(), pArea->GetHeight() );
+					break;
+				}
+			case APPEAR_IMAGE_STYLE_FIT:
+				{
+					mpGraphics->DrawImage( tmpImage, pArea->GetPosiX(), pArea->GetPosiY(), pArea->GetWidth(), pArea->GetHeight() );
+					break;
+				}
+			default:;
+			}
+			break;
+		}
+	default:;
+	}
+
+	mpGraphics->EndContainer(container);
 }
 
 void MyIHE_WDM_InterActive::Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE type )

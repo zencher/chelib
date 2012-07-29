@@ -3,6 +3,11 @@
 #include <cstdio>
 #include <memory.h>
 
+#ifdef WIN32
+#include <windows.h>
+#include <intrin.h>
+#endif
+
 CHE_DefCrtAllocator gDefCrtAllocator;
 
 CHE_Object::CHE_Object( CHE_Allocator * pAllocator )
@@ -27,13 +32,21 @@ inline void CHE_DefCrtAllocator::Free( void* data )
 
 inline size_t CHE_DefCrtAllocator::GetSize( void * data )
 {
+#ifdef WIN32
 	return _msize( data );
+#endif
+
+#ifdef __linux__
+	return malloc_usable_size( data );
+#endif
 }
 
 CHE_Allocator * GetDefaultAllocator()
 {
 	return & gDefCrtAllocator;
 }
+
+#ifdef WIN32
 
 CHE_HeapAllocator::CHE_HeapAllocator( size_t initSize )
 {
@@ -62,6 +75,8 @@ inline size_t CHE_HeapAllocator::GetSize( void * data )
 {
 	return HeapSize( m_Heap, 0, data );
 }
+
+#endif
 
 class IHE_CrtFileWrite: public IHE_Write
 {
@@ -584,3 +599,21 @@ class IHE_File : public CHE_Object
 
 	virtual HE_VOID		Release() = 0;
 };
+
+/*inline*/ HE_VOID CHE_RefCount::AddRef()
+{
+#ifdef WIN32
+	_InterlockedIncrement( &mRefCount );
+#else
+	++mRefCount;
+#endif
+}
+
+/*inline*/ HE_VOID CHE_RefCount::DecRef()
+{
+#ifdef WIN32
+	_InterlockedDecrement( &mRefCount );
+#else
+	--mRefCount;
+#endif
+}

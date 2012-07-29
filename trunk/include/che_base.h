@@ -6,9 +6,11 @@
 #include <new>
 #include <cstdlib>
 #include <malloc.h>
+
+#ifdef WIN32
 #include <windows.h>
-#include <intrin.h>
 #undef GetObject
+#endif
 
 class CHE_Allocator
 {
@@ -141,6 +143,8 @@ public:
 
 CHE_Allocator * GetDefaultAllocator();
 
+#ifdef WIN32
+
 class CHE_HeapAllocator : public CHE_Allocator
 {
 public:
@@ -156,6 +160,8 @@ public:
 private:
 	HANDLE m_Heap;
 };
+
+#endif
 
 class CHE_Object
 {
@@ -245,9 +251,9 @@ public:
 
 	inline	operator HE_DWORD() { return mRefCount; }
 
-	inline HE_VOID	AddRef() { _InterlockedIncrement( &mRefCount ); }
+	/*inline*/ HE_VOID	AddRef();
 
-	inline HE_VOID	DecRef() { _InterlockedDecrement( &mRefCount ); }
+	/*inline*/ HE_VOID	DecRef();
 
 private:
 

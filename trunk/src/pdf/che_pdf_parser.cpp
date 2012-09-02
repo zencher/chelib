@@ -1240,7 +1240,7 @@ PDF_VERSION CHE_PDF_Parser::GetPDFVersion() const
 		{
 			if (  '0' <= buffer[7] && buffer[7] <= '7'  )
 			{
-				return (PDF_VERSION)(10 + buffer[6] - '0');
+				return (PDF_VERSION)(10 + buffer[7] - '0');
 			}else{
 				return PDF_VERSION_UNKNOWN;
 			}	

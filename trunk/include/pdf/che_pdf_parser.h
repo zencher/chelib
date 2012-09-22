@@ -93,8 +93,7 @@ public:
 	PDF_VERSION					GetPDFVersion() const;
 
 	//Encryption
-	HE_BOOL						Authenticate( const CHE_ByteString & password ) const 
-									{ return m_pStmEncrypt ? m_pStmEncrypt->Authenticate( password ): TRUE; }
+	HE_BOOL						Authenticate( const CHE_ByteString & password );
 
 	HE_DWORD					GetReadPos() { return m_sParser.GetPos(); }
 	HE_VOID						SetReadPos( HE_DWORD pos) { m_sParser.SetPos( pos ); }

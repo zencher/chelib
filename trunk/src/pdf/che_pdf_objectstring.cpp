@@ -1,4 +1,5 @@
 #include <cassert>
+#include <math.h>
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../include/pdf/che_pdf_objectstring.h"
 

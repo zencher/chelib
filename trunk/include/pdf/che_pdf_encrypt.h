@@ -19,9 +19,8 @@
 #define PDFENCRYPT_PERMISSIONS_DOCACCEMBLY	0x00000400
 #define PDFENCRYPT_PERMISSIONS_HighPrint	0x00000800
 
-#define PDFENCRYPT_ALGORITHM_RC4V1	1
-#define PDFENCRYPT_ALGORITHM_RC4V2	2
-#define PDFENCRYPT_ALGORITHM_AESV2	4
+#define PDFENCRYPT_ALGORITHM_RC4	1
+#define PDFENCRYPT_ALGORITHM_AESV2	2
 
 #define _MAX_KEY_COLUMNS (256/32)
 #define _MAX_ROUNDS      14
@@ -72,11 +71,11 @@ protected:
 class CHE_PDF_Encrypt : public CHE_Object
 {
 public:
-	CHE_PDF_Encrypt( const CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm, HE_BYTE keyLength,
-						HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Encrypt(	const CHE_ByteString id, HE_BYTE O[32], HE_BYTE U[32], HE_BYTE algorithm, HE_BYTE version,
+						HE_BYTE revision, HE_BYTE keyLength, HE_BOOL bMetaData, HE_DWORD pValue, CHE_Allocator * pAllocator = NULL );
 
-	CHE_PDF_Encrypt( const CHE_ByteString id, /*const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,*/
-						HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue,
+	CHE_PDF_Encrypt(	const CHE_ByteString id, /*const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,*/
+						HE_BYTE algorithm, HE_BYTE version, HE_BYTE revision, HE_BYTE keyLength, HE_BOOL bMetaData, HE_DWORD pValue,
 						CHE_Allocator * pAllocator = NULL );
 
 	HE_VOID Init( const CHE_ByteString userPassword, const CHE_ByteString ownerPassword );
@@ -123,6 +122,7 @@ private:
 
 	HE_BOOL				m_bMetaData;
 	HE_BYTE				m_algorithm;
+	HE_BYTE				m_version;
 	HE_BYTE				m_revision;
 	HE_BYTE				m_keyLength;
 	HE_DWORD			m_PValue;

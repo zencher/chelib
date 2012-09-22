@@ -1252,6 +1252,21 @@ PDF_VERSION CHE_PDF_Parser::GetPDFVersion() const
 	}
 }
 
+HE_BOOL CHE_PDF_Parser::Authenticate( const CHE_ByteString & password ) 
+{
+	HE_BOOL bRet = FALSE;
+
+	if ( m_pStrEncrypt )
+	{
+		bRet = m_pStmEncrypt->Authenticate( password );
+		if ( m_pStrEncrypt )
+		{
+			m_sParser.SetEncrypt( m_pStrEncrypt );
+		}
+	}
+	return bRet;
+}
+
 HE_DWORD CHE_PDF_Parser::GetStartxref( HE_DWORD range )
 {
 	if ( m_pIHE_FileRead )
@@ -1411,6 +1426,7 @@ HE_BOOL CHE_PDF_Parser::ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict
 			HE_BYTE U[32];
 			HE_BYTE keyLength = 40;
 			HE_BYTE revision = 2;
+			HE_BYTE version = 0;
 			HE_BOOL bMetaData = TRUE;
 			HE_DWORD pValue = 0;
 			if ( pIDArray != NULL )
@@ -1468,19 +1484,45 @@ HE_BOOL CHE_PDF_Parser::ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict
 			pObj = pEncryptDict->GetElement( "V" );
 			if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_NUMBER )
 			{
-				if ( pObj->GetNumberPtr()->GetInteger() == 4 )
+				version = pObj->GetNumberPtr()->GetInteger();
+				if ( version == 4 )
 				{
-					m_pStrEncrypt = GetAllocator()->New<CHE_PDF_Encrypt>( id1, O, U, PDFENCRYPT_ALGORITHM_AESV2, keyLength, revision, bMetaData, pValue, GetAllocator() );
-					m_pStmEncrypt = m_pStrEncrypt;
-					m_pEefEncrypt = m_pStrEncrypt;
-				}else{
-					m_pStrEncrypt = GetAllocator()->New<CHE_PDF_Encrypt>( id1, O, U, PDFENCRYPT_ALGORITHM_RC4V1, keyLength, revision, bMetaData, pValue, GetAllocator() );
-					m_pStmEncrypt = m_pStrEncrypt;
-					m_pEefEncrypt = m_pStrEncrypt;
+					//判断是否是AESV2算法
+					pObj = pEncryptDict->GetElement( "CF" );
+					if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_DICTIONARY )
+					{
+						pObj = pObj->GetDictPtr()->GetElement( "StdCF", OBJ_TYPE_DICTIONARY );
+						if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_DICTIONARY )
+						{
+							pObj = pObj->GetDictPtr()->GetElement( "CFM", OBJ_TYPE_NAME );
+							if ( pObj != NULL && pObj->GetType() == OBJ_TYPE_NAME )
+							{
+								CHE_ByteString cfm = pObj->GetNamePtr()->GetString();
+								if ( cfm == "AESV2" )
+								{
+									m_pStrEncrypt = GetAllocator()->New<CHE_PDF_Encrypt>( id1, O, U, PDFENCRYPT_ALGORITHM_AESV2, version, revision, keyLength, bMetaData, pValue, GetAllocator() );
+									m_pStmEncrypt = m_pStrEncrypt;
+									m_pEefEncrypt = m_pStrEncrypt;
+
+									m_sParser.SetEncrypt( m_pStrEncrypt );
+
+									m_pStrEncrypt->Authenticate( "" );
+
+									return TRUE;
+								}
+							}
+						}
+					}
 				}
-				m_sParser.SetEncrypt( m_pStrEncrypt );
-				m_pStrEncrypt->Authenticate( "" );
 			}
+			
+			m_pStrEncrypt = GetAllocator()->New<CHE_PDF_Encrypt>( id1, O, U, PDFENCRYPT_ALGORITHM_RC4, version, revision, keyLength, bMetaData, pValue, GetAllocator() );
+			m_pStmEncrypt = m_pStrEncrypt;
+			m_pEefEncrypt = m_pStrEncrypt;
+			m_sParser.SetEncrypt( m_pStrEncrypt );
+
+			m_pStrEncrypt->Authenticate( "" );
+
 			return TRUE;
 		}
 		//非标准的加密处理，未支持
@@ -2022,6 +2064,10 @@ CHE_PDF_ObjectPtr CHE_PDF_Parser::GetObject()
 		}
 	case PARSE_WORD_STRING:
 		{
+			if ( m_pStrEncrypt )
+			{	
+				m_pStrEncrypt->Decrypt( wordDes.str, objNum, genNum );
+			}
 			pCurObj = CHE_PDF_String::Create( wordDes.str, GetAllocator() );
 			break;
 		}

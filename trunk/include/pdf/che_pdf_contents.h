@@ -58,6 +58,9 @@ IHE_PDF_ContentListConstructor * CreateConstructor(		CHE_PDF_ContentObjectList *
 
 HE_VOID DestoryConstructor( IHE_PDF_ContentListConstructor * pConstructor );
 
+
+HE_BOOL GetPageContent( CHE_PDF_DictionaryPtr & pageDict, CHE_PDF_ContentObjectList * pList, CHE_PDF_FontMgr * pFontMgr );
+
 class CHE_PDF_ContentsParser : public CHE_Object
 {
 public:

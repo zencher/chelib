@@ -2036,3 +2036,56 @@ HE_VOID DestoryConstructor( IHE_PDF_ContentListConstructor * pConstructor )
 		pTmpConstructor->GetAllocator()->Delete( pTmpConstructor );
 	}
 }
+
+
+HE_BOOL GetPageContent( CHE_PDF_DictionaryPtr & pageDict, CHE_PDF_ContentObjectList * pList, CHE_PDF_FontMgr * pFontMgr )
+{
+	if ( ! pageDict || pList == NULL )
+	{
+		return FALSE;
+	}
+
+	CHE_PDF_ObjectPtr		pTmpObj;
+
+	CHE_PDF_DictionaryPtr	pResDict;
+	CHE_PDF_StreamPtr		pContentStream;
+	CHE_PDF_ArrayPtr		pContentArray;
+
+	pTmpObj = pageDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
+	if ( ! pTmpObj )
+	{
+		return FALSE;
+	}
+	pResDict = pTmpObj->GetDictPtr();
+
+	pTmpObj = pageDict->GetElement( "Contents" , OBJ_TYPE_ARRAY );
+	if ( pTmpObj )
+	{
+		pContentArray = pTmpObj->GetArrayPtr();
+	}
+	if ( ! pContentArray )
+	{
+		pTmpObj = pageDict->GetElement( "Contents", OBJ_TYPE_STREAM );
+		if ( pTmpObj )
+		{
+			pContentStream = pTmpObj->GetStreamPtr();
+		}
+	}
+
+	pList->GetResMgr().SetDict( pResDict ); 
+
+	IHE_PDF_ContentListConstructor * pConstructor =  CreateConstructor( pList );
+	CHE_PDF_ContentsParser contentsParser( &( pList->GetResMgr() ), pFontMgr, pConstructor );
+	if ( pContentStream )
+	{
+		contentsParser.Parse( pContentStream );
+	}
+	else if ( pContentArray )
+	{
+		contentsParser.Parse( pContentArray );
+	}
+
+	DestoryConstructor( pConstructor );
+
+	return TRUE;
+}

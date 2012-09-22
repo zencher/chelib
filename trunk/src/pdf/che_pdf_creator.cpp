@@ -790,7 +790,7 @@ HE_BOOL CHE_PDF_Creator::SetEncryption(	const CHE_ByteString id, const CHE_ByteS
 	{
 		GetAllocator()->Delete( mpEncrypt );
 	}
-	mpEncrypt = GetAllocator()->New<CHE_PDF_Encrypt>( id, algorithm, keyLength, revision, bMetaData, pValue );
+	mpEncrypt = GetAllocator()->New<CHE_PDF_Encrypt>( id, algorithm, revision, revision, keyLength, bMetaData, pValue ); //ÐèÒªÍêÉÆ
 	mpEncrypt->Init( userPassword, ownerPassword );
 	return mpEncrypt->Authenticate( userPassword );
 }

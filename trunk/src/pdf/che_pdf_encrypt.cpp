@@ -1,4 +1,7 @@
 #include "../../include/pdf/che_pdf_encrypt.h"
+
+#include "../../include/md/che_md_md5.h"
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -1560,223 +1563,6 @@ void CHE_Rijndael::decrypt(const HE_BYTE a[16], HE_BYTE b[16])
   *reinterpret_cast<HE_DWORD*>((b+12)) ^= *reinterpret_cast<HE_DWORD*>(m_expandedKey[0][3]);
 }
 
-#define MD5_HASHBYTES 16
-
-/// Structure representing an MD5 context while ecrypting. (For internal use only)
-typedef struct MD5Context
-{
-  unsigned int buf[4];
-  unsigned int bits[2];
-  unsigned char in[64];
-} MD5_CTX;
-
-static void  MD5Init(MD5_CTX *context);
-static void  MD5Update(MD5_CTX *context, unsigned char const *buf, unsigned len);
-static void  MD5Final(unsigned char digest[MD5_HASHBYTES], MD5_CTX *context);
-static void  MD5Transform(unsigned int buf[4], unsigned int const in[16]);
-
-/*
- * Final wrapup - pad to 64-byte boundary with the bit pattern
- * 1 0* (64-bit count of bits processed, MSB-first)
- */
-static void MD5Final(unsigned char digest[MD5_HASHBYTES], MD5_CTX *ctx)
-{
-  unsigned count;
-  unsigned char *p;
-
-  /* Compute number of bytes mod 64 */
-  count = (ctx->bits[0] >> 3) & 0x3F; 
-
-  /* Set the first char of padding to 0x80.  This is safe since there is
-     always at least one byte free */
-  p = ctx->in + count;
-  *p++ = 0x80;
-
-  /* Bytes of padding needed to make 64 bytes */
-  count = 64 - 1 - count;
-
-  /* Pad out to 56 mod 64 */
-  if (count < 8)
-  {
-    /* Two lots of padding:  Pad the first block to 64 bytes */
-    memset(p, 0, count);
-    MD5Transform(ctx->buf, reinterpret_cast<unsigned int *>(ctx->in));
-
-    /* Now fill the next block with 56 bytes */
-    memset(ctx->in, 0, 56);
-  }
-  else
-  {
-    /* Pad block to 56 bytes */
-    memset(p, 0, count - 8);   
-  }
-
-  /* Append length in bits and transform */
-  reinterpret_cast<unsigned int *>(ctx->in)[14] = ctx->bits[0];
-  reinterpret_cast<unsigned int *>(ctx->in)[15] = ctx->bits[1];
-
-  MD5Transform(ctx->buf, reinterpret_cast<unsigned int *>(ctx->in));
-  memcpy(digest, ctx->buf, MD5_HASHBYTES);
-  memset( reinterpret_cast<char *>(ctx), 0, sizeof(ctx));       /* In case it's sensitive */
-}
-
-static void MD5Init(MD5_CTX *ctx)
-{
-  ctx->buf[0] = 0x67452301;
-  ctx->buf[1] = 0xefcdab89;
-  ctx->buf[2] = 0x98badcfe;
-  ctx->buf[3] = 0x10325476;
-
-  ctx->bits[0] = 0;
-  ctx->bits[1] = 0;
-}
-
-static void MD5Update(MD5_CTX *ctx, unsigned char const *buf, unsigned len)
-{
-  unsigned int t;
-
-  /* Update bitcount */
-
-  t = ctx->bits[0];
-  if ((ctx->bits[0] = t + ( static_cast<unsigned int>(len) << 3)) < t)
-  {
-        ctx->bits[1]++;         /* Carry from low to high */
-  }
-  ctx->bits[1] += len >> 29;
-
-  t = (t >> 3) & 0x3f;        /* Bytes already in shsInfo->data */
-
-  /* Handle any leading odd-sized chunks */
-
-  if (t)
-  {
-    unsigned char *p = static_cast<unsigned char *>(ctx->in) + t;
-
-    t = 64 - t;
-    if (len < t)
-    {
-      memcpy(p, buf, len);
-      return;
-    }
-    memcpy(p, buf, t);
-    MD5Transform(ctx->buf, reinterpret_cast<unsigned int *>(ctx->in));
-    buf += t;
-    len -= t;
-  }
-  /* Process data in 64-byte chunks */
-
-  while (len >= 64)
-  {
-    memcpy(ctx->in, buf, 64);
-    MD5Transform(ctx->buf, reinterpret_cast<unsigned int *>(ctx->in));
-    buf += 64;
-    len -= 64;
-  }
-
-  /* Handle any remaining bytes of data. */
-
-  memcpy(ctx->in, buf, len);
-}
-
-
-/* #define F1(x, y, z) (x & y | ~x & z) */
-#define F1(x, y, z) (z ^ (x & (y ^ z)))   
-#define F2(x, y, z) F1(z, x, y)
-#define F3(x, y, z) (x ^ y ^ z)
-#define F4(x, y, z) (y ^ (x | ~z))
-
-/* This is the central step in the MD5 algorithm. */
-#define MD5STEP(f, w, x, y, z, data, s) \
-        ( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
-
-/*
- * The core of the MD5 algorithm, this alters an existing MD5 hash to
- * reflect the addition of 16 longwords of new data.  MD5Update blocks
- * the data and converts bytes into longwords for this routine.
- */
-static void MD5Transform(unsigned int buf[4], unsigned int const in[16])
-{
-  register unsigned int a, b, c, d;
-
-  a = buf[0];
-  b = buf[1];
-  c = buf[2];
-  d = buf[3];
-
-  MD5STEP(F1, a, b, c, d, in[0] + 0xd76aa478, 7); 
-  MD5STEP(F1, d, a, b, c, in[1] + 0xe8c7b756, 12);
-  MD5STEP(F1, c, d, a, b, in[2] + 0x242070db, 17);
-  MD5STEP(F1, b, c, d, a, in[3] + 0xc1bdceee, 22);
-  MD5STEP(F1, a, b, c, d, in[4] + 0xf57c0faf, 7); 
-  MD5STEP(F1, d, a, b, c, in[5] + 0x4787c62a, 12);
-  MD5STEP(F1, c, d, a, b, in[6] + 0xa8304613, 17);
-  MD5STEP(F1, b, c, d, a, in[7] + 0xfd469501, 22); 
-  MD5STEP(F1, a, b, c, d, in[8] + 0x698098d8, 7);  
-  MD5STEP(F1, d, a, b, c, in[9] + 0x8b44f7af, 12); 
-  MD5STEP(F1, c, d, a, b, in[10] + 0xffff5bb1, 17);
-  MD5STEP(F1, b, c, d, a, in[11] + 0x895cd7be, 22);
-  MD5STEP(F1, a, b, c, d, in[12] + 0x6b901122, 7); 
-  MD5STEP(F1, d, a, b, c, in[13] + 0xfd987193, 12);
-  MD5STEP(F1, c, d, a, b, in[14] + 0xa679438e, 17);
-  MD5STEP(F1, b, c, d, a, in[15] + 0x49b40821, 22);
-
-  MD5STEP(F2, a, b, c, d, in[1] + 0xf61e2562, 5);  
-  MD5STEP(F2, d, a, b, c, in[6] + 0xc040b340, 9);  
-  MD5STEP(F2, c, d, a, b, in[11] + 0x265e5a51, 14);
-  MD5STEP(F2, b, c, d, a, in[0] + 0xe9b6c7aa, 20); 
-  MD5STEP(F2, a, b, c, d, in[5] + 0xd62f105d, 5);  
-  MD5STEP(F2, d, a, b, c, in[10] + 0x02441453, 9); 
-  MD5STEP(F2, c, d, a, b, in[15] + 0xd8a1e681, 14);
-  MD5STEP(F2, b, c, d, a, in[4] + 0xe7d3fbc8, 20); 
-  MD5STEP(F2, a, b, c, d, in[9] + 0x21e1cde6, 5);  
-  MD5STEP(F2, d, a, b, c, in[14] + 0xc33707d6, 9); 
-  MD5STEP(F2, c, d, a, b, in[3] + 0xf4d50d87, 14); 
-  MD5STEP(F2, b, c, d, a, in[8] + 0x455a14ed, 20); 
-  MD5STEP(F2, a, b, c, d, in[13] + 0xa9e3e905, 5);
-  MD5STEP(F2, d, a, b, c, in[2] + 0xfcefa3f8, 9);  
-  MD5STEP(F2, c, d, a, b, in[7] + 0x676f02d9, 14);
-  MD5STEP(F2, b, c, d, a, in[12] + 0x8d2a4c8a, 20);
-
-  MD5STEP(F3, a, b, c, d, in[5] + 0xfffa3942, 4);
-  MD5STEP(F3, d, a, b, c, in[8] + 0x8771f681, 11);
-  MD5STEP(F3, c, d, a, b, in[11] + 0x6d9d6122, 16);
-  MD5STEP(F3, b, c, d, a, in[14] + 0xfde5380c, 23);
-  MD5STEP(F3, a, b, c, d, in[1] + 0xa4beea44, 4);  
-  MD5STEP(F3, d, a, b, c, in[4] + 0x4bdecfa9, 11); 
-  MD5STEP(F3, c, d, a, b, in[7] + 0xf6bb4b60, 16); 
-  MD5STEP(F3, b, c, d, a, in[10] + 0xbebfbc70, 23);
-  MD5STEP(F3, a, b, c, d, in[13] + 0x289b7ec6, 4); 
-  MD5STEP(F3, d, a, b, c, in[0] + 0xeaa127fa, 11); 
-  MD5STEP(F3, c, d, a, b, in[3] + 0xd4ef3085, 16); 
-  MD5STEP(F3, b, c, d, a, in[6] + 0x04881d05, 23); 
-  MD5STEP(F3, a, b, c, d, in[9] + 0xd9d4d039, 4);  
-  MD5STEP(F3, d, a, b, c, in[12] + 0xe6db99e5, 11);
-  MD5STEP(F3, c, d, a, b, in[15] + 0x1fa27cf8, 16);
-  MD5STEP(F3, b, c, d, a, in[2] + 0xc4ac5665, 23); 
-
-  MD5STEP(F4, a, b, c, d, in[0] + 0xf4292244, 6);
-  MD5STEP(F4, d, a, b, c, in[7] + 0x432aff97, 10);
-  MD5STEP(F4, c, d, a, b, in[14] + 0xab9423a7, 15);
-  MD5STEP(F4, b, c, d, a, in[5] + 0xfc93a039, 21); 
-  MD5STEP(F4, a, b, c, d, in[12] + 0x655b59c3, 6); 
-  MD5STEP(F4, d, a, b, c, in[3] + 0x8f0ccc92, 10); 
-  MD5STEP(F4, c, d, a, b, in[10] + 0xffeff47d, 15);
-  MD5STEP(F4, b, c, d, a, in[1] + 0x85845dd1, 21); 
-  MD5STEP(F4, a, b, c, d, in[8] + 0x6fa87e4f, 6);  
-  MD5STEP(F4, d, a, b, c, in[15] + 0xfe2ce6e0, 10);
-  MD5STEP(F4, c, d, a, b, in[6] + 0xa3014314, 15); 
-  MD5STEP(F4, b, c, d, a, in[13] + 0x4e0811a1, 21);
-  MD5STEP(F4, a, b, c, d, in[4] + 0xf7537e82, 6);  
-  MD5STEP(F4, d, a, b, c, in[11] + 0xbd3af235, 10);
-  MD5STEP(F4, c, d, a, b, in[2] + 0x2ad7d2bb, 15); 
-  MD5STEP(F4, b, c, d, a, in[9] + 0xeb86d391, 21); 
-
-  buf[0] += a;
-  buf[1] += b;
-  buf[2] += c;
-  buf[3] += d;
-}
-
 static unsigned char padding[] ="\x28\xBF\x4E\x5E\x4E\x75\x8A\x41\x64\x00\x4E\x56\xFF\xFA\x01\x08\x2E\x2E\x00\xB6\xD0\x68\x3E\x80\x2F\x0C\xA9\xFE\x64\x53\x69\x7A";
 
 
@@ -1851,22 +1637,22 @@ void CHE_PDF_Encrypt::PadPassword( const CHE_ByteString & password, unsigned cha
 
 HE_VOID CHE_PDF_Encrypt::ComputeOwnerKey( HE_BYTE userPad[32], HE_BYTE ownerPad[32], HE_BYTE ownerKeyRet[32], HE_BOOL bAuth )
 {
-	HE_BYTE mkey[MD5_HASHBYTES];
-	HE_BYTE digest[MD5_HASHBYTES];
+	HE_BYTE mkey[16];
+	HE_BYTE digest[16];
 	HE_DWORD lengthInByte = m_keyLength / 8;
 
-	MD5_CTX ctx;
-	MD5Init( &ctx );
-	MD5Update( &ctx, ownerPad, 32 );
-	MD5Final( digest,&ctx );
+	CHE_MD_MD5_Content md5;
+	md5.Init();
+	md5.Update( ownerPad, 32 );
+	md5.Final( digest );
 	
 	if ( (m_revision == 3) || (m_revision == 4) )
 	{
 		for ( HE_DWORD i = 0; i < 50; i++ )
 		{
-			MD5Init( &ctx );
-			MD5Update( &ctx, digest, lengthInByte );
-			MD5Final( digest, &ctx );
+			md5.Init();
+			md5.Update( digest, lengthInByte );
+			md5.Final( digest );
 		}
 		memcpy( ownerKeyRet, userPad, 32 );
 		
@@ -1893,7 +1679,7 @@ HE_VOID CHE_PDF_Encrypt::CreateObjKey( HE_DWORD objNum, HE_DWORD genNum, HE_BYTE
 {
 	HE_DWORD keyLengthInByte = m_keyLength / 8;
 	HE_DWORD objKeyLength = keyLengthInByte + 5;
-	HE_BYTE	tmpkey[MD5_HASHBYTES+5+4];
+	HE_BYTE	tmpkey[16+5+4];
 
 	for ( HE_DWORD j = 0; j < keyLengthInByte; j++)
 	{
@@ -1914,10 +1700,10 @@ HE_VOID CHE_PDF_Encrypt::CreateObjKey( HE_DWORD objNum, HE_DWORD genNum, HE_BYTE
 		tmpkey[keyLengthInByte+8] = 0x54;
 	}
 	
-	MD5_CTX ctx;
-	MD5Init( &ctx );
-	MD5Update( &ctx, tmpkey, objKeyLength );
-	MD5Final( objkey, &ctx );
+	CHE_MD_MD5_Content md5;
+	md5.Init();
+	md5.Update( tmpkey, objKeyLength );
+	md5.Final( objkey );
 	
 	*pObjKeyLengthRet = ( keyLengthInByte < 11 ) ? keyLengthInByte + 5 : 16;  
 }
@@ -1965,18 +1751,19 @@ HE_BOOL CHE_PDF_Encrypt::Authenticate( const CHE_ByteString & password )
 HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encryptionKeyRet[16] )
 {
 	HE_DWORD keyLengthInByte = m_keyLength / 8;
-	
-	MD5_CTX ctx;
-	MD5Init( &ctx );
-	MD5Update( &ctx, userPad, 32 );
-	MD5Update( &ctx, m_OValue, 32 );
+
+	CHE_MD_MD5_Content md5;
+	md5.Init();
+	md5.Update( userPad, 32 );
+	md5.Update( m_OValue, 32 );
 	
 	HE_BYTE ext[4];
 	ext[0] = (HE_BYTE)(  m_PValue        & 0xff );
 	ext[1] = (HE_BYTE)( (m_PValue >>  8) & 0xff );
 	ext[2] = (HE_BYTE)( (m_PValue >> 16) & 0xff );
 	ext[3] = (HE_BYTE)( (m_PValue >> 24) & 0xff );
-	MD5Update( &ctx, ext, 4 );
+	
+	md5.Update( ext, 4 );
 	
 	HE_BYTE * docId = NULL;
 	if ( m_ID.GetLength() > 0 )
@@ -1987,7 +1774,7 @@ HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encr
 		{
 			docId[j] = static_cast<unsigned char>( m_ID[j] );
 		}
-		MD5Update( &ctx, docId, m_ID.GetLength() );
+		md5.Update( docId, m_ID.GetLength() );
 	}
 
 	if ( m_bMetaData == FALSE && m_revision >= 4 )
@@ -1997,17 +1784,17 @@ HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encr
 		ext[1] = 0xFF;
 		ext[2] = 0xFF;
 		ext[3] = 0xFF;
-		MD5Update( &ctx, ext, 4 );
+		md5.Update( ext, 4 );
 	}
-	MD5Final( encryptionKeyRet, &ctx );
+	md5.Final( encryptionKeyRet );
 
 	if ( m_revision >= 3 )
 	{
 		for ( HE_DWORD k = 0; k < 50; k++ )
 		{
-			MD5Init( &ctx );
-			MD5Update( &ctx, encryptionKeyRet, keyLengthInByte );
-			MD5Final( encryptionKeyRet, &ctx );
+			md5.Init();
+			md5.Update( encryptionKeyRet, keyLengthInByte );
+			md5.Final( encryptionKeyRet );
 		}
 	}
 }
@@ -2015,12 +1802,13 @@ HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encr
 HE_VOID CHE_PDF_Encrypt::ComputeUserKey( HE_BYTE encryptionKey[16], HE_BYTE userKeyRet[32] )
 {
 	HE_DWORD keyLengthInByte = m_keyLength / 8;
-	MD5_CTX ctx;
 
 	if ( m_revision >= 3 )
 	{
-		MD5Init( &ctx );
-		MD5Update( &ctx, padding, 32 );
+		CHE_MD_MD5_Content md5;
+
+		md5.Init();
+		md5.Update( padding, 32 );
 
 		if ( m_ID.GetLength() > 0 )
 		{
@@ -2029,11 +1817,12 @@ HE_VOID CHE_PDF_Encrypt::ComputeUserKey( HE_BYTE encryptionKey[16], HE_BYTE user
 			{
 				docId[j] = static_cast<unsigned char>( m_ID[j] );
 			}
-			MD5Update( &ctx, docId, m_ID.GetLength() );
+			md5.Update( docId, m_ID.GetLength() );
 			GetAllocator()->DeleteArray<HE_BYTE>( docId );
 		}
-		HE_BYTE digest[MD5_HASHBYTES];
-		MD5Final( digest, &ctx );
+
+		HE_BYTE digest[16];
+		md5.Final( digest );
 		HE_DWORD k;
 		for ( k = 0; k < 16; k++ )
 		{

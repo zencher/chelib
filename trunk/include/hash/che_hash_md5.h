@@ -1,10 +1,10 @@
-#ifndef _CHE_MD_MD5_H_
-#define _CHE_MD_MD5_H_
+#ifndef _CHE_HASH_MD5_H_
+#define _CHE_HASH_MD5_H_
 
-class CHE_MD_MD5_Content
+class CHE_HASH_MD5_Content
 {
 public:
-	CHE_MD_MD5_Content();
+	CHE_HASH_MD5_Content();
 
 	void				Init();
 	void				Update( unsigned char const * buf, unsigned int len );

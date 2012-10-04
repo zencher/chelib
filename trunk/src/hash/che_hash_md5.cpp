@@ -1,8 +1,8 @@
-#include "../../include/md/che_md_md5.h"
+#include "../../include/hash/che_hash_md5.h"
 #include <memory>
 
 
-CHE_MD_MD5_Content::CHE_MD_MD5_Content()
+CHE_HASH_MD5_Content::CHE_HASH_MD5_Content()
 {
 	memset( mBuf, 0, 4 );
 	memset( mBits, 0, 2 );
@@ -10,7 +10,7 @@ CHE_MD_MD5_Content::CHE_MD_MD5_Content()
 }
 
 
-void CHE_MD_MD5_Content::Init()
+void CHE_HASH_MD5_Content::Init()
 {
 	mBuf[0] = 0x67452301;
 	mBuf[1] = 0xefcdab89;
@@ -21,7 +21,7 @@ void CHE_MD_MD5_Content::Init()
 }
 
 
-void CHE_MD_MD5_Content::Update( unsigned char const * buf, unsigned int len )
+void CHE_HASH_MD5_Content::Update( unsigned char const * buf, unsigned int len )
 {
 	unsigned int t;
 
@@ -69,7 +69,7 @@ void CHE_MD_MD5_Content::Update( unsigned char const * buf, unsigned int len )
 }
 
 
-void CHE_MD_MD5_Content::Final( unsigned char digest[16] )
+void CHE_HASH_MD5_Content::Final( unsigned char digest[16] )
 {
 	unsigned int count;
 	unsigned char *p;
@@ -123,7 +123,7 @@ void CHE_MD_MD5_Content::Final( unsigned char digest[16] )
 #define MD5STEP(f, w, x, y, z, data, s) \
 	( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
 
-void CHE_MD_MD5_Content::Transform( unsigned int buf[4], unsigned int const in[16] )
+void CHE_HASH_MD5_Content::Transform( unsigned int buf[4], unsigned int const in[16] )
 {
 	register unsigned int a, b, c, d;
 

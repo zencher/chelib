@@ -21,6 +21,18 @@
     <Filter Include="源文件\WDM">
       <UniqueIdentifier>{eacbe4b1-f01d-4c6b-b32f-034d028ffed0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\HASH">
+      <UniqueIdentifier>{0c3f96fa-18e0-491f-b8c1-6c5bd04951a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\HASH">
+      <UniqueIdentifier>{6325159a-b37c-4391-998a-45cba8b4b075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\CRYPT">
+      <UniqueIdentifier>{7f7ec09d-96e2-43d5-b209-2dc6b3a28763}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\CRYPT">
+      <UniqueIdentifier>{9b7e57c2-050b-41e8-b009-1fce0b0be2a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h">
@@ -149,6 +161,21 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_objectstring.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_destination.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_outline.h">
+      <Filter>头文件\PDF</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\hash\che_hash_md5.h">
+      <Filter>头文件\HASH</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\crypt\che_crypt_aes.h">
+      <Filter>头文件\CRYPT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\crypt\che_crypt_rc4.h">
+      <Filter>头文件\CRYPT</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -255,6 +282,21 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_objectstring.cpp">
       <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_destination.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hash\che_hash_md5.cpp">
+      <Filter>源文件\HASH</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp">
+      <Filter>源文件\CRYPT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp">
+      <Filter>源文件\CRYPT</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

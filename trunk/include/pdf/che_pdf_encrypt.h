@@ -22,51 +22,7 @@
 #define PDFENCRYPT_ALGORITHM_RC4	1
 #define PDFENCRYPT_ALGORITHM_AESV2	2
 
-#define _MAX_KEY_COLUMNS (256/32)
-#define _MAX_ROUNDS      14
-#define MAX_IV_SIZE      16
-
-// Error codes
-#define RIJNDAEL_SUCCESS 0
-#define RIJNDAEL_UNSUPPORTED_MODE -1
-#define RIJNDAEL_UNSUPPORTED_DIRECTION -2
-#define RIJNDAEL_UNSUPPORTED_KEY_LENGTH -3
-#define RIJNDAEL_BAD_KEY -4
-#define RIJNDAEL_NOT_INITIALIZED -5
-#define RIJNDAEL_BAD_DIRECTION -6
-#define RIJNDAEL_CORRUPTED_DATA -7
-
 class CHE_PDF_Creator;
-
-class  CHE_Rijndael
-{	
-public:
-	enum Direction { Encrypt , Decrypt };
-	enum Mode { ECB , CBC , CFB1 };
-	enum KeyLength { Key16Bytes , Key24Bytes , Key32Bytes };
-	CHE_Rijndael();
-	~CHE_Rijndael();
-protected:
-	enum State { Valid , Invalid };
-	State      m_state;
-	Mode       m_mode;
-	Direction  m_direction;
-	HE_BYTE  m_initVector[MAX_IV_SIZE];
-	HE_DWORD m_uRounds;
-	HE_BYTE  m_expandedKey[_MAX_ROUNDS+1][4][4];
-public:
-	int init(Mode mode,Direction dir,const HE_BYTE *key,KeyLength keyLen,HE_BYTE * initVector = 0);
-	int blockEncrypt(const HE_BYTE *input, int inputLen, HE_BYTE *outBuffer);
-	HE_INT32 padEncrypt(const HE_BYTE *input, HE_INT32 inputOctets, HE_BYTE *outBuffer);
-	int blockDecrypt(const HE_BYTE *input, int inputLen, HE_BYTE *outBuffer);
-	int padDecrypt(const HE_BYTE *input, int inputOctets, HE_BYTE *outBuffer);
-protected:
-	void keySched(HE_BYTE key[_MAX_KEY_COLUMNS][4]);
-	void keyEncToDec();
-	void encrypt(const HE_BYTE a[16], HE_BYTE b[16]);
-	void decrypt(const HE_BYTE a[16], HE_BYTE b[16]);
-};
-
 
 class CHE_PDF_Encrypt : public CHE_Object
 {

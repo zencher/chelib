@@ -6,6 +6,16 @@
 #include "che_pdf_objects.h"
 #include <vector>
 
+
+enum PDF_XREF_ENTRY_TYPE
+{
+	XREF_ENTRY_TYPE_FREE		= 0x00,
+	XREF_ENTRY_TYPE_COMMON		= 0x01,
+	XREF_ENTRY_TYPE_COMPRESSED	= 0x02,
+	XREF_ENTRY_TYPE_NEW			= 0x03
+};
+
+
 class CHE_PDF_XREF_Entry
 {
 public:

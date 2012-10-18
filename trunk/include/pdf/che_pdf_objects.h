@@ -4,10 +4,36 @@
 #include "../che_base.h"
 #include "../che_string.h"
 #include "../che_datastructure.h"
-#include "che_pdf_define.h"
 #include "che_pdf_encrypt.h"
 
 #include <vector>
+
+
+enum PDF_OBJ_TYPE
+{
+	OBJ_TYPE_INVALID		= 0x00,
+	OBJ_TYPE_NULL			= 0x01,
+	OBJ_TYPE_BOOLEAN		= 0x02,
+	OBJ_TYPE_NUMBER			= 0x03,
+	OBJ_TYPE_STRING			= 0x04,
+	OBJ_TYPE_NAME			= 0x05,
+	OBJ_TYPE_ARRAY			= 0x06,
+	OBJ_TYPE_DICTIONARY		= 0x07,
+	OBJ_TYPE_STREAM			= 0x08,
+	OBJ_TYPE_REFERENCE		= 0x09
+};
+
+
+enum PDF_STREAM_FILTER
+{
+	STREAM_FILTER_NULL		= 0x00,
+	STREAM_FILTER_HEX		= 0x01,
+	STREAM_FILTER_ASCII85	= 0x02,
+	STREAM_FILTER_FLATE		= 0x03,
+	STREAM_FILTER_LZW		= 0x04,
+	STREAM_FILTER_RLE		= 0x05
+};
+
 
 class CHE_PDF_Object;
 class CHE_PDF_Null;
@@ -31,8 +57,6 @@ class CHE_PDF_ReferencePtr;
 class CHE_PDF_ArrayPtr;
 class CHE_PDF_DictionaryPtr;
 class CHE_PDF_StreamPtr;
-
-
 
 
 inline HE_BOOL IsPdfNull( CHE_PDF_Object * pObj );

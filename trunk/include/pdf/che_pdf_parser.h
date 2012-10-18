@@ -8,8 +8,34 @@
 #include "che_pdf_xref.h"
 #include "che_pdf_encrypt.h"
 #include "che_pdf_collector.h"
-
 #include <vector>
+
+enum PDF_VERSION 
+{
+	PDF_VERSION_UNKNOWN	= 0x00,
+	PDF_VERSION_1_0		= 0x10,
+	PDF_VERSION_1_1		= 0x11,
+	PDF_VERSION_1_2		= 0x12,
+	PDF_VERSION_1_3		= 0x13,
+	PDF_VERSION_1_4		= 0x14,
+	PDF_VERSION_1_5		= 0x15,
+	PDF_VERSION_1_6		= 0x16,
+	PDF_VERSION_1_7		= 0x17
+};
+
+enum PDF_PARSE_WORD
+{
+	PARSE_WORD_UNKNOWN	= 0x00,
+	PARSE_WORD_INTEGER	= 0x01,
+	PARSE_WORD_FLOAT	= 0x02,
+	PARSE_WORD_STRING	= 0x03,
+	PARSE_WORD_NAME		= 0x04,
+	PARSE_WORD_DICT_B	= 0x05,
+	PARSE_WORD_DICT_E	= 0x06,
+	PARSE_WORD_ARRAY_B	= 0x07,
+	PARSE_WORD_ARRAY_E	= 0x08
+};
+
 
 class CHE_PDF_File;
 

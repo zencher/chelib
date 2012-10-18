@@ -5,6 +5,7 @@
 #include "che_pdf_file.h"
 #include "che_pdf_pages.h"
 
+
 class CHE_PDF_Document : public CHE_Object
 {
 public:

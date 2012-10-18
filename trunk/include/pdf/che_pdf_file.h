@@ -5,6 +5,21 @@
 #include "che_pdf_parser.h"
 #include "che_pdf_collector.h"
 
+
+enum PDF_DOCUMENT_INFO
+{
+	DOCUMENT_INFO_TITLE			= 0x00,
+	DOCUMENT_INFO_AUTHOR		= 0x01,
+	DOCUMENT_INFO_SUBJECT		= 0x02,
+	DOCUMENT_INFO_KEYWORDS		= 0x03,
+	DOCUMENT_INFO_CREATOR		= 0x04,
+	DOCUMENT_INFO_PRODUCER		= 0x05,
+	DOCUMENT_INFO_CREATIONDATE	= 0x06,
+	DOCUMENT_INFO_MODDATE		= 0x07,
+	DOCUMENT_INFO_TRAPPED		= 0x08
+};
+
+
 class CHE_PDF_File : public CHE_Object
 {
 public:

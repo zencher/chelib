@@ -3,7 +3,6 @@
 
 #include "../che_base.h"
 #include "../che_string.h"
-#include "che_pdf_define.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_xref.h"
 #include "che_pdf_encrypt.h"

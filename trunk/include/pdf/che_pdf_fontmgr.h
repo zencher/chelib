@@ -2,7 +2,6 @@
 #define _CHE_PDF_FONT_MGR_H_
 
 #include "../che_base.h"
-#include "che_pdf_define.h"
 #include "che_pdf_font.h"
 
 class CHE_PDF_FontMgr : public CHE_Object

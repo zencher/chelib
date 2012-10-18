@@ -2,7 +2,6 @@
 #define _CHE_PDF_CREATOR_H_
 
 #include "../che_base.h"
-#include "che_pdf_define.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_parser.h"
 #include "che_pdf_collector.h"

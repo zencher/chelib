@@ -96,8 +96,9 @@ protected:
 class CHE_PDF_TextItem
 {
 public:
-	HE_INT32 cid;
-	HE_INT32 ucs;
+	HE_WCHAR charCode;
+	HE_DWORD cid;
+	HE_WCHAR ucs;
 	HE_INT32 kerning;
 	HE_FLOAT offsetX;
 	HE_FLOAT offsetY;

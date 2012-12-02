@@ -100,7 +100,6 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 			}
 		}
 		CHE_ByteString tmpStr;
-		HE_INT32 charCode = 0;
 		HE_INT32 kerning = 0;
 		CHE_PDF_TextItem item;
 		if ( pFont->IsSimpleFont() )
@@ -112,9 +111,10 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); ++index )
 					{
-						charCode = HE_BYTE( tmpStr[index] );
-						item.cid = charCode;
-						item.ucs = pFont->GetUnicode( charCode );
+						item.charCode = HE_BYTE( tmpStr[index] );
+						item.cid = 0;
+						item.ucs = 0;
+						pFont->GetUnicode( item.charCode, item.ucs );
 						item.kerning = kerning;
 						item.offsetX = 0;
 						item.offsetY = 0;
@@ -137,15 +137,17 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
 					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); index+=2 )
 					{
-						charCode = HE_BYTE( tmpStr[index] );
-						charCode = ( charCode << 8 ) + HE_BYTE( tmpStr[index+1] );
-						if ( pFont->GetEncodingType() == FONT_ENCODING_SELFDEF )
+						item.charCode = HE_BYTE( tmpStr[index] );
+						item.charCode = ( item.charCode << 8 ) + HE_BYTE( tmpStr[index+1] );
+						item.cid = 0;
+						item.ucs = 0;
+						if ( pFont->GetCID( item.charCode, item.cid ) )
 						{
-							item.cid = charCode;
-						}else{
-							item.cid = pFont->GetCID( charCode );
+							if ( ! pFont->GetUnicode( item.cid, item.ucs ) )
+							{
+								item.ucs = item.cid;
+							}
 						}
-						item.ucs = pFont->GetUnicode( item.cid );
 						item.kerning = kerning;
 						item.offsetX = 0;
 						item.offsetY = 0;

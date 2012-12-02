@@ -12,7 +12,7 @@ public:
 
 	~CHE_PDF_CMap();
 
-	HE_INT32 LookupCode( HE_INT32 cpt ) const;
+	HE_BOOL LookupCode( HE_DWORD cpt, HE_DWORD & codeRet ) const;
 
 private:
 	CHE_PDF_CMap( PDF_CMAP * pCmap, HE_BOOL bNeedClear = FALSE, CHE_Allocator * pAllocator = NULL )

@@ -182,7 +182,7 @@ PDF_CMAP * Get_Builtin_CMap( HE_CHAR * cmap_name )
 }
 
 
-int LookUp_CMap( PDF_CMAP * cmap, HE_INT32 cpt )
+HE_BOOL LookUp_CMap( PDF_CMAP * cmap, HE_DWORD cpt, HE_DWORD & codeRet )
 {
 	HE_INT32 l = 0;
 	HE_INT32 r = cmap->rlen - 1;
@@ -197,19 +197,25 @@ int LookUp_CMap( PDF_CMAP * cmap, HE_INT32 cpt )
 			l = m + 1;
 		else
 		{
-			HE_INT32 i = cpt - cmap->ranges[m].low + cmap->ranges[m].offset;
+			HE_DWORD i = cpt - cmap->ranges[m].low + cmap->ranges[m].offset;
 			if ( pdf_range_flags( &cmap->ranges[m] ) == CMAP_TABLE )
-				return cmap->table[i];
+			{
+				codeRet = cmap->table[i];
+				return TRUE;
+			}
 			if ( pdf_range_flags( &cmap->ranges[m] ) == CMAP_MULTI )
-				return -1; /* should use lookup_cmap_full */
-			return i;
+			{
+				return FALSE; /* should use lookup_cmap_full */
+			}
+			codeRet = i;
+			return TRUE;
 		}
 	}
 
-	if (cmap->usecmap)
-		return LookUp_CMap(cmap->usecmap, cpt);
+	if ( cmap->usecmap )
+		return LookUp_CMap( cmap->usecmap, cpt, codeRet );
 
-	return -1;
+	return FALSE;
 }
 
 HE_INT32 LookUp_CMap_Full( PDF_CMAP *cmap, HE_INT32 cpt, HE_INT32 *out )
@@ -277,11 +283,11 @@ CHE_PDF_CMap::~CHE_PDF_CMap()
 	}
 }
 
-HE_INT32 CHE_PDF_CMap::LookupCode( HE_INT32 code ) const
+HE_BOOL CHE_PDF_CMap::LookupCode( HE_DWORD code, HE_DWORD & codeRet ) const
 {
 	if ( mpCMap )
 	{
-		return LookUp_CMap( mpCMap, code );
+		return LookUp_CMap( mpCMap, code, codeRet );
 	}
-	return -1;
+	return FALSE;
 }

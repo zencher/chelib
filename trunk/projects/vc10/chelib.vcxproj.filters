@@ -68,9 +68,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_creator.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_define.h">
-      <Filter>头文件\PDF</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>

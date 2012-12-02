@@ -43,7 +43,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_contents.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentstring.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_creator.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_define.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_destination.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_document.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />

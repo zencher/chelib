@@ -4541,6 +4541,9 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 		mType = FONT_TRUETYPE;
 	}
 
+	//get baseFontName.
+	//todo
+
 	switch ( mType )
 	{
 	case FONT_TYPE1:
@@ -4719,6 +4722,12 @@ HE_BOOL CHE_PDF_Font::IsSimpleFont() const
 		return FALSE;
 	}
 	return TRUE;
+}
+
+
+CHE_ByteString CHE_PDF_Font::GetBaseFont() const
+{
+	return mBaseFont;
 }
 
 

@@ -147,6 +147,8 @@ public:
 	PDF_FONT_TYPE			GetType() const;
 	HE_BOOL					IsSimpleFont() const;
 
+	CHE_ByteString			GetBaseFont() const;
+
 	HE_BOOL					GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
 	HE_BOOL					GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
 
@@ -157,6 +159,7 @@ private:
 	CHE_NumToPtrMap *		GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream );
 
 	PDF_FONT_TYPE			mType;
+	CHE_ByteString			mBaseFont;
 	CHE_PDF_DictionaryPtr	mFontDict;
 	CHE_PDF_DictionaryPtr	mFontDescriptorDict;
 
@@ -203,5 +206,6 @@ private:
 // 	dvmtx.y = 880;
 // 	dvmtx.w = -1000;
 };
+
 
 #endif

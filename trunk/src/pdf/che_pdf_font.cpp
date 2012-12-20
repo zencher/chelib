@@ -4486,73 +4486,6 @@ CHE_PDF_FontDescriptor::~CHE_PDF_FontDescriptor()
 }
 
 
-// CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
-// 	:	CHE_Object( pAllocator ), mType( FONT_TYPE1 ), mFontDict( fontDict ), mpEncoding( NULL ),
-// 		mpCIDMap( NULL ), mpUnicodeMap( NULL ), mpToUnicodeMap( NULL )
-// {
-// 
-// 	objPtr = mFontDict->GetElement( "FontDescriptor", OBJ_TYPE_DICTIONARY );
-// 	if ( objPtr )
-// 	{
-// 		mFontDescriptorDict = objPtr->GetDictPtr();
-// // 
-// // 		objPtr = fontDescriptor->GetElement( "Flags", OBJ_TYPE_NUMBER );
-// // 		if ( objPtr ) mFlags = objPtr->GetNumberPtr()->GetInteger();
-// // 
-// // 		objPtr = fontDescriptor->GetElement( "ItalicAngle", OBJ_TYPE_NUMBER );
-// // 		if ( objPtr ) mItalicAngle = objPtr->GetNumberPtr()->GetFloat();
-// // 
-// // 		objPtr = fontDescriptor->GetElement( "Ascent", OBJ_TYPE_NUMBER );
-// // 		if ( objPtr ) mAscent = objPtr->GetNumberPtr()->GetFloat();
-// // 
-// // 		objPtr = fontDescriptor->GetElement( "Descent", OBJ_TYPE_NUMBER );
-// // 		if ( objPtr ) mDescent = objPtr->GetNumberPtr()->GetFloat();
-// // 
-// // 		objPtr = fontDesDict->GetElement( "CapHeight", OBJ_TYPE_NUMBER );
-// // 		if ( objPtr ) mCapHeight = objPtr->GetNumberPtr()->GetFloat();
-// // 
-// // 		objPtr = fontDescriptor->GetElement( "XHeight", OBJ_TYPE_NUMBER );
-// // 		if ( objPtr ) mXHeight = objPtr->GetNumberPtr()->GetFloat();
-// // 
-// // 		objPtr = fontDescriptor->GetElement( "MissingWidth", OBJ_TYPE_NUMBER );
-// // 		if ( objPtr ) mMissingWidth = objPtr->GetNumberPtr()->GetFloat();
-// // 
-// // 		objPtr = fontDescriptor->GetElement( "FontFile", OBJ_TYPE_REFERENCE );
-// // 		if ( ! objPtr )
-// // 		{
-// // 			objPtr = fontDescriptor->GetElement( "FontFile2", OBJ_TYPE_REFERENCE );
-// // 			if ( !objPtr )
-// // 			{
-// // 				objPtr = fontDescriptor->GetElement( "FontFile3", OBJ_TYPE_REFERENCE );
-// // 			}
-// // 		}
-// // 		if ( objPtr )
-// // 		{
-// // 			mEmbeddedFont = TRUE;
-// // 		}
-// 
-// 		// 	mFlags = 0;
-// 		// 	mItalicAngle = 0;
-// 		// 	mAscent = 0;
-// 		// 	mDescent = 0;
-// 		// 	mCapHeight = 0;
-// 		// 	mXHeight = 0;
-// 		// 	mMissingWidth = 0;
-// 		// 	mEmbeddedFont = FALSE;
-// 		// 	mFontType = FONT_TYPE0;
-// 		// 	mEncodingType = FONT_ENCODING_WINANSI;
-// 		// 	mpCIDMap = NULL;
-// 		// 	mpUnicodeMap = NULL;
-// 		// 	mpEncodingTable = NULL;
-// 		// 	mbEncodingToDes = false;
-// 		// 	mpToUnicodeMap = NULL;
-// 		// 	mFace = NULL;
-// 		// 	mEmbedded = FALSE;
-// 	}
-// }
-// 
-
-
 CHE_PDF_Font * CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_Font * pFont = NULL;
@@ -4598,7 +4531,7 @@ CHE_PDF_Font * CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE
 
 CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object( pAllocator ), mType( FONT_TYPE1 ), mBaseFont( pAllocator ), mFontDict( fontDict ),
-	mFace( NULL ), mpToUnicodeMap( NULL ), mpFontDescriptor( NULL )
+	mFace( NULL ), mpToUnicodeMap( NULL ), mpFontDescriptor( NULL ), mpEmbeddedFontFile( NULL ), mFontFileSize( 0 )
 {
 	CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "Subtype", OBJ_TYPE_NAME );
 	if ( objPtr )
@@ -4648,16 +4581,56 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 		mpFontDescriptor = GetAllocator()->New<CHE_PDF_FontDescriptor>( mFontDescriptorDict, GetAllocator() );
 	}
 
-	//FTFace
-	//还有其他情况未处理
-	IHE_SystemFontMgr * pSystemFontMgr = HE_GetSystemFontMgr( GetAllocator() );
-	if ( pSystemFontMgr )
+	if ( mpFontDescriptor )
 	{
-		CHE_ByteString filePath( pAllocator );
-		filePath = pSystemFontMgr->GetFontFilePath( mBaseFont );
+		CHE_PDF_ReferencePtr refPtr = mpFontDescriptor->GetEmbeddedStream();
+		objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
+		if ( objPtr )
+		{
+			CHE_PDF_StreamAcc stmAcc( GetAllocator() );
+			CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+			stmAcc.Attach( stmPtr );
+			if ( stmAcc.GetSize() > 0 )
+			{
+				mFontFileSize = stmAcc.GetSize();
+				mpEmbeddedFontFile = GetAllocator()->NewArray<HE_BYTE>( mFontFileSize );
+				memcpy( mpEmbeddedFontFile, stmAcc.GetData(), mFontFileSize );
+			}
+			stmAcc.Detach();
+		}
 
-		FT_Library ftlib = HE_GetFTLibrary();
-		FT_New_Face( ftlib, filePath.GetData(), 0, &mFace );
+		if ( mpEmbeddedFontFile )
+		{
+			FT_Library ftlib = HE_GetFTLibrary();
+			FT_New_Memory_Face( ftlib, mpEmbeddedFontFile, mFontFileSize, 0, &mFace );
+		}
+	}
+
+	if ( mpEmbeddedFontFile == NULL )
+	{
+		//type1 base 14 font
+		if ( mType == FONT_TYPE1 )
+		{
+			HE_LPBYTE pBuf = NULL;
+			HE_DWORD bufSize = 0;
+			if ( HE_GetType1BaseFontFile( mBaseFont, pBuf, bufSize ) )
+			{
+				FT_Library ftlib = HE_GetFTLibrary();
+				FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, &mFace );
+			}
+		}
+		else
+		{
+			IHE_SystemFontMgr * pSystemFontMgr = HE_GetSystemFontMgr( GetAllocator() );
+			if ( pSystemFontMgr )
+			{
+				CHE_ByteString filePath( pAllocator );
+				filePath = pSystemFontMgr->GetFontFilePath( mBaseFont );
+
+				FT_Library ftlib = HE_GetFTLibrary();
+				FT_New_Face( ftlib, filePath.GetData(), 0, &mFace );
+			}
+		}
 	}
 }
 
@@ -4675,6 +4648,10 @@ CHE_PDF_Font::~CHE_PDF_Font()
 	if ( mFace )
 	{
 		FT_Done_Face( mFace );
+	}
+	if ( mpEmbeddedFontFile )
+	{
+		GetAllocator()->DeleteArray<HE_BYTE>( mpEmbeddedFontFile );
 	}
 }
 

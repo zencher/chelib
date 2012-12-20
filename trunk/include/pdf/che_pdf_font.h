@@ -24,23 +24,27 @@ enum PDF_FONT_TYPE
 	FONT_TYPE3		= 0x04
 };
 
-enum PDF_FONT_TYPE1_STANDARD14
-{
-	FONT_TYPE1_STANDARD14_TIMES_ROMAN			= 0x00,
-	FONT_TYPE1_STANDARD14_TIMES_BOLD			= 0x01,
-	FONT_TYPE1_STANDARD14_TIMES_ITALIC			= 0x02,
-	FONT_TYPE1_STANDARD14_TIMES_BOLDITALIC		= 0x03,
-	FONT_TYPE1_STANDARD14_HELVETICA				= 0x04,
-	FONT_TYPE1_STANDARD14_HELVETICA_BOLD		= 0x05,
-	FONT_TYPE1_STANDARD14_HELVETICA_OBILQUE		= 0x06,
-	FONT_TYPE1_STANDARD14_HELVETICA_BOLDOBILQUE	= 0x07,
-	FONT_TYPE1_STANDARD14_COURIER				= 0x08,
-	FONT_TYPE1_STANDARD14_COURIER_BOLD			= 0x09,
-	FONT_TYPE1_STANDARD14_COURIER_OBILQUE		= 0x0a,
-	FONT_TYPE1_STANDARD14_COURIER_BOLDOBILQUE	= 0x0b,
-	FONT_TYPE1_STANDARD14_SYMBOL				= 0x0c,
-	FONT_TYPE1_STANDARD14_ZAPFDINGBATS			= 0x0d
-};
+// enum PDF_FONT_TYPE1_STANDARD14
+// {
+// 	FONT_TYPE1_STANDARD14_TIMES_ROMAN			= 0x00,
+// 	FONT_TYPE1_STANDARD14_TIMES_BOLD			= 0x01,
+// 	FONT_TYPE1_STANDARD14_TIMES_ITALIC			= 0x02,
+// 	FONT_TYPE1_STANDARD14_TIMES_BOLDITALIC		= 0x03,
+// 	FONT_TYPE1_STANDARD14_HELVETICA				= 0x04,
+// 	FONT_TYPE1_STANDARD14_HELVETICA_BOLD		= 0x05,
+// 	FONT_TYPE1_STANDARD14_HELVETICA_OBILQUE		= 0x06,
+// 	FONT_TYPE1_STANDARD14_HELVETICA_BOLDOBILQUE	= 0x07,
+// 	FONT_TYPE1_STANDARD14_COURIER				= 0x08,
+// 	FONT_TYPE1_STANDARD14_COURIER_BOLD			= 0x09,
+// 	FONT_TYPE1_STANDARD14_COURIER_OBILQUE		= 0x0a,
+// 	FONT_TYPE1_STANDARD14_COURIER_BOLDOBILQUE	= 0x0b,
+// 	FONT_TYPE1_STANDARD14_SYMBOL				= 0x0c,
+// 	FONT_TYPE1_STANDARD14_ZAPFDINGBATS			= 0x0d
+// };
+
+
+HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet );
+
 
 enum PDF_FONT_ENCODING
 {
@@ -120,6 +124,9 @@ class CHE_PDF_FontDescriptor : public CHE_Object
 public:
 	CHE_PDF_FontDescriptor( const CHE_PDF_DictionaryPtr & fontDesDict, CHE_Allocator * pAllocator = NULL ); 
 	~CHE_PDF_FontDescriptor();
+
+	//HE_BOOL					IsEmbedFont() const;
+	CHE_PDF_ReferencePtr	GetEmbeddedStream() const { return mEmbedFont; }
 	
 private:
 	HE_INT32				mFlags;
@@ -133,30 +140,6 @@ private:
 	HE_INT32 				mWMode;
 	CHE_PDF_ReferencePtr	mEmbedFont;
 
-// 	/* Encoding (CMap) */
-// 	CHE_PDF_CMap * encoding;
-// 	CHE_PDF_CMap * to_ttf_cmap;
-// 	//pdf_cmap *encoding;
-// 	//pdf_cmap *to_ttf_cmap;
-// 	int cid_to_gid_len;
-// 	unsigned short *cid_to_gid;
-// 
-// 	/* ToUnicode */
-// 	CHE_PDF_CMap * to_unicode;
-// 	//pdf_cmap *to_unicode;
-// 	int cid_to_ucs_len;
-// 	unsigned short *cid_to_ucs;
-// 
-// 	/* Metrics (given in the PDF file) */
-// 	int wmode;
-// 
-// 	int hmtx_len, hmtx_cap;
-// 	pdf_hmtx dhmtx;
-// 	pdf_hmtx *hmtx;
-// 
-// 	int vmtx_len, vmtx_cap;
-// 	pdf_vmtx dvmtx;
-// 	pdf_vmtx *vmtx;
 };
 
 
@@ -186,6 +169,8 @@ protected:
 	FT_Face					mFace;
 	CHE_NumToPtrMap *		mpToUnicodeMap;
 	CHE_PDF_FontDescriptor*	mpFontDescriptor;
+	HE_LPBYTE				mpEmbeddedFontFile;
+	HE_DWORD				mFontFileSize;
 
 	friend class CHE_Allocator;
 };

@@ -295,5 +295,11 @@
     <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp">
       <Filter>源文件\CRYPT</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pdf\platform\windows\che_platform_font.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp">
+      <Filter>源文件\PDF</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

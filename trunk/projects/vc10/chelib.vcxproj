@@ -92,6 +92,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_graphicsstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp" />
@@ -104,6 +105,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp" />
+    <ClCompile Include="..\..\src\pdf\platform\windows\che_platform_font.cpp" />
     <ClCompile Include="..\..\src\wdm\che_wdm.cpp" />
     <ClCompile Include="..\..\src\wdm\che_wdm_scrollbar.cpp" />
     <ClCompile Include="..\..\src\wdm\che_wdm_textbox.cpp" />

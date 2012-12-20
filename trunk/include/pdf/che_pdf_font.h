@@ -3,13 +3,17 @@
 
 #include "../che_base.h"
 #include "che_pdf_objects.h"
+#include "che_pdf_matrix.h"
 #include "che_pdf_cmap.h"
 
 #include "../../extlib/freetype/ft2build.h"
 #include "../../extlib/freetype/freetype/freetype.h"
 
+
+FT_Library HE_GetFTLibrary();
 HE_VOID HE_InitFTLibrary();
 HE_VOID HE_DestroyFTLibrary();
+
 
 enum PDF_FONT_TYPE
 {
@@ -69,6 +73,27 @@ struct pdf_vmtx
 };
 
 
+//该类是一个接口类，与平台相关
+//用于实现获取字体路径或者字体文件数据的接口
+//根据一些必要的信息来获取匹配的字体或者默认字体的接口
+
+class IHE_SystemFontMgr : public CHE_Object
+{
+public:
+	static IHE_SystemFontMgr *	Create( CHE_Allocator * pAllocator = NULL );
+	static HE_VOID				Destroy( IHE_SystemFontMgr * pSystemFontMgr );
+
+	IHE_SystemFontMgr( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
+
+	virtual ~IHE_SystemFontMgr() {};
+
+	virtual CHE_ByteString GetFontFilePath( const CHE_ByteString & fontName ) = 0;
+};
+
+
+IHE_SystemFontMgr * HE_GetSystemFontMgr( CHE_Allocator * pAllocator = NULL );
+
+
 class CHE_PDF_Encoding : public CHE_Object
 {
 public:
@@ -93,51 +118,47 @@ private:
 class CHE_PDF_FontDescriptor : public CHE_Object
 {
 public:
-	CHE_PDF_FontDescriptor( CHE_Allocator * pAllocator = NULL );
-	CHE_PDF_FontDescriptor( CHE_PDF_DictionaryPtr & fontDesDict, CHE_Allocator * pAllocator = NULL ); 
-
+	CHE_PDF_FontDescriptor( const CHE_PDF_DictionaryPtr & fontDesDict, CHE_Allocator * pAllocator = NULL ); 
+	~CHE_PDF_FontDescriptor();
+	
 private:
-	//fz_font *font;
+	HE_INT32				mFlags;
+	HE_FLOAT				mItalicAngle;
+	HE_FLOAT				mAscent;
+	HE_FLOAT				mDescent;
+	HE_FLOAT				mCapHeight;
+	HE_FLOAT				mXHeight;
+	HE_FLOAT				mMissingWidth;
+	HE_BOOL					mEmbedded;
+	HE_INT32 				mWMode;
+	CHE_PDF_ReferencePtr	mEmbedFont;
 
-	/* FontDescriptor */
-	int flags;
-	float italic_angle;
-	float ascent;
-	float descent;
-	float cap_height;
-	float x_height;
-	float missing_width;
-
-	/* Encoding (CMap) */
-	CHE_PDF_CMap * encoding;
-	CHE_PDF_CMap * to_ttf_cmap;
-	//pdf_cmap *encoding;
-	//pdf_cmap *to_ttf_cmap;
-	int cid_to_gid_len;
-	unsigned short *cid_to_gid;
-
-	/* ToUnicode */
-	CHE_PDF_CMap * to_unicode;
-	//pdf_cmap *to_unicode;
-	int cid_to_ucs_len;
-	unsigned short *cid_to_ucs;
-
-	/* Metrics (given in the PDF file) */
-	int wmode;
-
-	int hmtx_len, hmtx_cap;
-	pdf_hmtx dhmtx;
-	pdf_hmtx *hmtx;
-
-	int vmtx_len, vmtx_cap;
-	pdf_vmtx dvmtx;
-	pdf_vmtx *vmtx;
-
-	int is_embedded;
+// 	/* Encoding (CMap) */
+// 	CHE_PDF_CMap * encoding;
+// 	CHE_PDF_CMap * to_ttf_cmap;
+// 	//pdf_cmap *encoding;
+// 	//pdf_cmap *to_ttf_cmap;
+// 	int cid_to_gid_len;
+// 	unsigned short *cid_to_gid;
+// 
+// 	/* ToUnicode */
+// 	CHE_PDF_CMap * to_unicode;
+// 	//pdf_cmap *to_unicode;
+// 	int cid_to_ucs_len;
+// 	unsigned short *cid_to_ucs;
+// 
+// 	/* Metrics (given in the PDF file) */
+// 	int wmode;
+// 
+// 	int hmtx_len, hmtx_cap;
+// 	pdf_hmtx dhmtx;
+// 	pdf_hmtx *hmtx;
+// 
+// 	int vmtx_len, vmtx_cap;
+// 	pdf_vmtx dvmtx;
+// 	pdf_vmtx *vmtx;
 };
 
-
-//字体作重要的包括三个内容，一个是基本的信息（类型，FontDescriptor等等），二是Encoding、Unicode、CMap，三是FT_FACE
 
 class CHE_PDF_Font : public CHE_Object
 {
@@ -145,66 +166,96 @@ public:
 	static CHE_PDF_Font * 	Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
 
 	PDF_FONT_TYPE			GetType() const;
-	HE_BOOL					IsSimpleFont() const;
-
 	CHE_ByteString			GetBaseFont() const;
-
-	HE_BOOL					GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_BOOL					GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
-
-private:
+	CHE_PDF_DictionaryPtr	GetFontDictPtr() const;
+	CHE_PDF_DictionaryPtr	GetFontDescriptorDictPtr() const;
+	FT_Face					GetFTFace();
+	virtual HE_RECT			GetGraphBox( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const = 0;
+	virtual HE_BOOL			GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const = 0;
+	
+protected:
 	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
-	~CHE_PDF_Font();
+	virtual ~CHE_PDF_Font();
 
-	CHE_NumToPtrMap *		GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream );
+	CHE_NumToPtrMap	*		GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream );
 
 	PDF_FONT_TYPE			mType;
 	CHE_ByteString			mBaseFont;
 	CHE_PDF_DictionaryPtr	mFontDict;
 	CHE_PDF_DictionaryPtr	mFontDescriptorDict;
-
-	//for simple font
-	CHE_PDF_Encoding *		mpEncoding;
-
-	//for all font
+	FT_Face					mFace;
 	CHE_NumToPtrMap *		mpToUnicodeMap;
+	CHE_PDF_FontDescriptor*	mpFontDescriptor;
 
-	//for type0(CIDFont) font
+	friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_Type0_Font : public CHE_PDF_Font
+{
+public:
+	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
+	HE_RECT GetGraphBox( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
+	HE_BOOL GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
+
+protected:
+	CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_Type0_Font();
+
+	CHE_PDF_DictionaryPtr	mDescdtFontDict;
 	CHE_PDF_CMap *			mpCIDMap;
 	CHE_PDF_CMap *			mpUnicodeMap;
 
 	friend class CHE_Allocator;
+};
 
- 	//FT_Face					mFace;
 
-	//Font Descriptor
-	//HE_INT32				mFlags;
-	//HE_FLOAT				mItalicAngle;
-	//HE_FLOAT				mAscent;
-	//HE_FLOAT				mDescent;
-	//HE_FLOAT				mCapHeight;
-	//HE_FLOAT				mXHeight;
-	//HE_FLOAT				mMissingWidth;
-	//HE_BOOL				mEmbedded;
-// 
-// 	wmode = 0;
-// 
-// 	hmtx_cap = 0;
-// 	vmtx_cap = 0;
-// 	hmtx_len = 0;
-// 	vmtx_len = 0;
-// 	hmtx = NULL;
-// 	vmtx = NULL;
-// 
-// 	dhmtx.lo = 0x0000;
-// 	dhmtx.hi = 0xFFFF;
-// 	dhmtx.w = 1000;
-// 
-// 	dvmtx.lo = 0x0000;
-// 	dvmtx.hi = 0xFFFF;
-// 	dvmtx.x = 0;
-// 	dvmtx.y = 880;
-// 	dvmtx.w = -1000;
+class CHE_PDF_Type1_Font : public CHE_PDF_Font
+{
+public:
+	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
+	HE_RECT GetGraphBox( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
+
+protected:
+	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_Type1_Font();
+
+	CHE_PDF_Encoding *		mpEncoding;
+	HE_BYTE					mFirstChar;
+	HE_BYTE					mLastChar;
+	HE_INT32				mCharWidths[256];
+
+	friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_MMType1_Font : public CHE_PDF_Type1_Font
+{
+private:
+	CHE_PDF_MMType1_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_MMType1_Font();
+
+	friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_TrueType_Font : public CHE_PDF_Type1_Font
+{
+private:
+	CHE_PDF_TrueType_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_TrueType_Font();
+
+	friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_Type3_Font : public CHE_PDF_Type1_Font
+{
+private:
+	CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_Type3_Font();
+
+	friend class CHE_Allocator;
 };
 
 

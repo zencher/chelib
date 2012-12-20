@@ -98,14 +98,13 @@ CHE_WindowsFontMgr::CHE_WindowsFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
 				if ( ! err )
 				{
 					fontInfo.mFamilyName = face->family_name;
-
 					pPostScriptName = FT_Get_Postscript_Name( face );
 					if ( pPostScriptName )
 					{
 						fontInfo.mPostScriptName = pPostScriptName;
 					}
-
 					fontInfo.mFilePath = fontFileStr;
+					mFontList.push_back( fontInfo );
 
 					FT_Done_Face( face );
 				}

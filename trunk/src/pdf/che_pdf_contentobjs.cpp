@@ -102,7 +102,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		CHE_ByteString tmpStr;
 		HE_INT32 kerning = 0;
 		CHE_PDF_TextItem item;
-		if ( pFont->IsSimpleFont() )
+		if ( pFont->GetType() != FONT_TYPE0 )
 		{
 			for ( HE_DWORD i = 0; i < tmpArray.size(); ++i )
 			{
@@ -130,6 +130,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		}
 		else
 		{
+			CHE_PDF_Type0_Font * pType0Font = (CHE_PDF_Type0_Font *)( pFont );
 			for ( HE_DWORD i = 0; i < tmpArray.size(); ++i )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
@@ -141,7 +142,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						item.charCode = ( item.charCode << 8 ) + HE_BYTE( tmpStr[index+1] );
 						item.cid = 0;
 						item.ucs = 0;
-						if ( pFont->GetCID( item.charCode, item.cid ) )
+						if ( pType0Font->GetCID( item.charCode, item.cid ) )
 						{
 							if ( ! pFont->GetUnicode( item.cid, item.ucs ) )
 							{

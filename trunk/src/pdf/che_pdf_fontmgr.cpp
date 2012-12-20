@@ -1,6 +1,11 @@
 #include "../../include/pdf/che_pdf_fontmgr.h"
 #include "../../include/che_datastructure.h"
 
+CHE_PDF_FontMgr::CHE_PDF_FontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
+	: CHE_Object( pAllocator ), mNumToFontMap( pAllocator )
+{
+}
+
 CHE_PDF_FontMgr::~CHE_PDF_FontMgr()
 {
 	HE_LPCVOID lpVoid = NULL;
@@ -35,7 +40,8 @@ CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( const CHE_PDF_ReferencePtr & pReferenc
 		CHE_PDF_DictionaryPtr pDict = pTmpObj->GetDictPtr();
 		if ( pDict )
 		{
-			CHE_PDF_Font * pTmpFont = GetAllocator()->New<CHE_PDF_Font>( pDict, GetAllocator() );
+
+			CHE_PDF_Font * pTmpFont = CHE_PDF_Font::Create( pDict, pDict->GetAllocator() );
 			if ( pTmpFont )
 			{
 				mNumToFontMap.Append( objNum, (HE_LPVOID)( pTmpFont ) );

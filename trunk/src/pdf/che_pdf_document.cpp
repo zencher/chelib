@@ -5,25 +5,28 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 {
 	if ( pPDFFile )
 	{
-		CHE_PDF_Document * pDocument = pPDFFile->GetAllocator()->New<CHE_PDF_Document>( pPDFFile, pPDFFile->GetAllocator() );
+		CHE_Allocator * pAllocator = pPDFFile->GetAllocator();
+		CHE_PDF_Document * pDocument = pAllocator->New<CHE_PDF_Document>( pPDFFile, pAllocator );
 		if ( pDocument )
 		{
-			if ( pPDFFile )
+			if ( ! pPDFFile->GetTrailerDict() )
 			{
-				if ( ! pPDFFile->GetTrailerDict() )
-				{
-					pDocument->CreateCatalogDict();
-				}
-				pDocument->ParsePageTree();
+				pDocument->CreateCatalogDict();
 			}
+
+			pDocument->ParsePageTree();
+
+			return pDocument;
 		}
-		return pDocument;
 	}
 	return NULL;
 }
 
 CHE_PDF_Document::CHE_PDF_Document( CHE_PDF_File * pFile, CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), mpPageTree(NULL), mpFile(pFile) {}
+	: CHE_Object( pAllocator ), mpFile( pFile ), mpPageTree( NULL ), mpFontMgr( NULL )
+{
+	mpFontMgr = GetAllocator()->New<CHE_PDF_FontMgr>( GetAllocator() );
+}
 
 CHE_PDF_Document::~CHE_PDF_Document()
 {
@@ -49,6 +52,11 @@ CHE_PDF_Page * CHE_PDF_Document::GetPage( HE_DWORD index )
 		return mpPageTree->GetPage( index );
 	}
 	return NULL;
+}
+
+CHE_PDF_FontMgr * CHE_PDF_Document::GetFontMgr() const
+{
+	return mpFontMgr;
 }
 
 HE_BOOL CHE_PDF_Document::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str )

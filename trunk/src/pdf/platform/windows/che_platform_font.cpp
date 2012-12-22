@@ -4,6 +4,12 @@
 #include <list>
 #include <ShlObj.h>
 #include <Windows.h>
+#include <Gdiplus.h>
+
+using namespace Gdiplus;
+
+ULONG_PTR				gdiplusToken;
+GdiplusStartupInput		gdiplusStartupInput;
 
 class CHE_WindowsFontInfo : public CHE_Object
 {
@@ -31,6 +37,11 @@ private:
 
 IHE_SystemFontMgr * IHE_SystemFontMgr::Create( CHE_Allocator * pAllocator /*= NULL*/ )
 {
+	if ( gdiplusToken == NULL )
+	{
+		GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL );
+	}
+
 	if ( pAllocator == NULL )
 	{
 		pAllocator = GetDefaultAllocator();
@@ -44,6 +55,12 @@ IHE_SystemFontMgr * IHE_SystemFontMgr::Create( CHE_Allocator * pAllocator /*= NU
 
 HE_VOID IHE_SystemFontMgr::Destroy( IHE_SystemFontMgr * pSystemFontMgr )
 {
+// 	if ( gdiplusToken )
+// 	{
+// 		GdiplusShutdown( gdiplusToken );
+// 		gdiplusToken = NULL;
+// 		gdiplusStartupInput = NULL;
+// 	}
 	if ( pSystemFontMgr )
 	{
 		pSystemFontMgr->GetAllocator()->Delete<IHE_SystemFontMgr>( pSystemFontMgr );
@@ -126,10 +143,38 @@ CHE_WindowsFontMgr::~CHE_WindowsFontMgr()
 CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( const CHE_ByteString & fontName )
 {
 	CHE_ByteString str;
+	CHE_ByteString fontNameForMatch;
+
+	for ( HE_DWORD i = 0; i < fontName.GetLength(); ++i )
+	{
+		if ( fontName[i] == ',' || fontName[i] == '-' )
+		{
+			break;
+		}
+		fontNameForMatch += fontName[i];
+	}
+
+	char	enFontName[128];	
+	wchar_t	tmpFontName[128];
+	int nLen = MultiByteToWideChar( CP_ACP, 0, fontNameForMatch.GetData(), -1, NULL, 0 );
+	MultiByteToWideChar( CP_ACP, 0, fontNameForMatch.GetData(), -1, tmpFontName, nLen );
+
+	LANGID language = MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US );
+	FontFamily fontFamily( tmpFontName );
+	fontFamily.GetFamilyName( tmpFontName, language );
+
+	nLen = WideCharToMultiByte( CP_ACP, 0, tmpFontName, -1, NULL, 0, NULL, FALSE );
+	WideCharToMultiByte( CP_ACP, 0, tmpFontName, -1, enFontName, nLen, NULL, FALSE );
+
+	if ( fontNameForMatch != enFontName && strlen( enFontName ) > 0 )
+	{
+		fontNameForMatch = enFontName;
+	}
+
 	std::list<CHE_WindowsFontInfo>::iterator it;
 	for ( it = mFontList.begin(); it != mFontList.end(); ++it )
 	{
-		if ( it->mFamilyName == fontName || it->mPostScriptName == fontName )
+		if ( it->mFamilyName == fontNameForMatch || it->mPostScriptName == fontNameForMatch )
 		{
 			str = it->mFilePath;
 			break;

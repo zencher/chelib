@@ -100,8 +100,8 @@ public:
 	HE_DWORD cid;
 	HE_WCHAR ucs;
 	HE_INT32 kerning;
-	HE_FLOAT offsetX;
-	HE_FLOAT offsetY;
+	HE_FLOAT width;
+	HE_FLOAT height;
 };
 
 class CHE_PDF_Text : public CHE_PDF_ContentObject

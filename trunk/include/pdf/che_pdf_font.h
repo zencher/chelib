@@ -153,7 +153,7 @@ public:
 	CHE_PDF_DictionaryPtr	GetFontDictPtr() const;
 	CHE_PDF_DictionaryPtr	GetFontDescriptorDictPtr() const;
 	FT_Face					GetFTFace();
-	virtual HE_RECT			GetGraphBox( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const = 0;
+	virtual HE_FLOAT		GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const = 0;
 	virtual HE_BOOL			GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const = 0;
 	
 protected:
@@ -180,7 +180,7 @@ class CHE_PDF_Type0_Font : public CHE_PDF_Font
 {
 public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_RECT GetGraphBox( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
+	HE_FLOAT GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
 	HE_BOOL GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
 
 protected:
@@ -199,7 +199,7 @@ class CHE_PDF_Type1_Font : public CHE_PDF_Font
 {
 public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_RECT GetGraphBox( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
+	HE_FLOAT GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
 
 protected:
 	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );

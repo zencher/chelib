@@ -4560,12 +4560,12 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 	if ( objPtr )
 	{
 		mBaseFont = objPtr->GetNamePtr()->GetString();;
-	}
-
-	objPtr = mFontDict->GetElement( "FontDescriptor", OBJ_TYPE_DICTIONARY );
-	if ( objPtr )
-	{
-		mFontDescriptorDict = objPtr->GetDictPtr();
+	}else{
+		objPtr = mFontDict->GetElement( "FontName", OBJ_TYPE_NAME );
+		if ( objPtr )
+		{
+			mBaseFont = objPtr->GetNamePtr()->GetString();
+		}
 	}
 
 	objPtr = mFontDict->GetElement( "ToUnicode", OBJ_TYPE_STREAM );
@@ -4579,24 +4579,44 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 	{
 		mFontDescriptorDict = objPtr->GetDictPtr();
 		mpFontDescriptor = GetAllocator()->New<CHE_PDF_FontDescriptor>( mFontDescriptorDict, GetAllocator() );
+	}else{
+		//Type0 Font
+		objPtr = mFontDict->GetElement( "DescendantFonts", OBJ_TYPE_ARRAY );
+		if ( objPtr )
+		{
+			objPtr = objPtr->GetArrayPtr()->GetElement( 0, OBJ_TYPE_DICTIONARY );
+			if ( objPtr )
+			{
+				objPtr = objPtr->GetDictPtr()->GetElement( "FontDescriptor", OBJ_TYPE_DICTIONARY );
+				if ( objPtr )
+				{
+					mFontDescriptorDict = objPtr->GetDictPtr();
+					mpFontDescriptor = GetAllocator()->New<CHE_PDF_FontDescriptor>( mFontDescriptorDict, GetAllocator() );
+				}
+			}
+		}
+		//No font descriptor dictionary
 	}
 
 	if ( mpFontDescriptor )
 	{
 		CHE_PDF_ReferencePtr refPtr = mpFontDescriptor->GetEmbeddedStream();
-		objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
-		if ( objPtr )
+		if ( refPtr )
 		{
-			CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-			CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
-			stmAcc.Attach( stmPtr );
-			if ( stmAcc.GetSize() > 0 )
+			objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
+			if ( objPtr )
 			{
-				mFontFileSize = stmAcc.GetSize();
-				mpEmbeddedFontFile = GetAllocator()->NewArray<HE_BYTE>( mFontFileSize );
-				memcpy( mpEmbeddedFontFile, stmAcc.GetData(), mFontFileSize );
+				CHE_PDF_StreamAcc stmAcc( GetAllocator() );
+				CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+				stmAcc.Attach( stmPtr );
+				if ( stmAcc.GetSize() > 0 )
+				{
+					mFontFileSize = stmAcc.GetSize();
+					mpEmbeddedFontFile = GetAllocator()->NewArray<HE_BYTE>( mFontFileSize );
+					memcpy( mpEmbeddedFontFile, stmAcc.GetData(), mFontFileSize );
+				}
+				stmAcc.Detach();
 			}
-			stmAcc.Detach();
 		}
 
 		if ( mpEmbeddedFontFile )
@@ -4606,7 +4626,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 		}
 	}
 
-	if ( mpEmbeddedFontFile == NULL )
+	if ( mFace == NULL )
 	{
 		//type1 base 14 font
 		if ( mType == FONT_TYPE1 )
@@ -4619,7 +4639,8 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 				FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, &mFace );
 			}
 		}
-		else
+
+		if ( mFace == NULL && mBaseFont.GetLength() > 0 )
 		{
 			IHE_SystemFontMgr * pSystemFontMgr = HE_GetSystemFontMgr( GetAllocator() );
 			if ( pSystemFontMgr )
@@ -4801,7 +4822,6 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 {
 	if ( mFontDict )
 	{
-		
 		CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "DescendantFonts", OBJ_TYPE_ARRAY );
 		if ( objPtr )
 		{
@@ -4836,7 +4856,7 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 							cmapNuame = pSt->GetString();
 							cmapNuame += "-";
 							objPtr = pCIDSystemInfoDict->GetElement( "Ordering", OBJ_TYPE_STRING );
-							if ( ! objPtr )
+							if ( objPtr )
 							{
 								pSt = objPtr->GetStringPtr();
 								cmapNuame += pSt->GetString();
@@ -4862,19 +4882,6 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 					}
 				}
 			}
-		}
-
-		if ( mpFontDescriptor )
-		{
-			mpFontDescriptor->GetAllocator()->Delete<CHE_PDF_FontDescriptor>( mpFontDescriptor );
-			mpFontDescriptor = NULL;
-		}
-
-		objPtr = mFontDict->GetElement( "FontDescriptor", OBJ_TYPE_DICTIONARY );
-		if ( objPtr )
-		{
-			mFontDescriptorDict = objPtr->GetDictPtr();
-			mpFontDescriptor = GetAllocator()->New<CHE_PDF_FontDescriptor>( mFontDescriptorDict, GetAllocator() );
 		}
 	}	
 }
@@ -4902,16 +4909,30 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_RECT CHE_PDF_Type0_Font::GetGraphBox( HE_WCHAR charCode, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type0_Font::GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
 {
-	//todo
-	//get from face
-	HE_RECT rect;
-	rect.left = 0;
-	rect.top = 0;
-	rect.width = 1;
-	rect.height = 1;
-	return rect;
+	CHE_PDF_Matrix tmpMatrix;
+	tmpMatrix.a = 0;
+	tmpMatrix.b = 0;
+	tmpMatrix.c = 0;
+	tmpMatrix.d = 0;
+	tmpMatrix.e = 0;
+	tmpMatrix.f = 0;
+
+	if ( mFace )
+	{
+		FT_Error err = FT_Load_Char( mFace, charCode, FT_LOAD_NO_SCALE );
+		if ( err == 0 )
+		{
+			tmpMatrix.d = mFace->glyph->advance.y;
+			tmpMatrix.a = mFace->glyph->advance.x;
+		}
+	}
+	tmpMatrix.Concat( matrix );
+
+	HE_FLOAT widthRet = tmpMatrix.a * 1.0 / mFace->units_per_EM;
+
+	return widthRet;
 }
 
 
@@ -4957,7 +4978,7 @@ CHE_PDF_Type1_Font::CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit,
 
 	for ( HE_DWORD i = 0; i < 255; ++i )
 	{
-		mCharWidths[i] = 1000;
+		mCharWidths[i] = 0;
 	}
 
 	objPtr = mFontDict->GetElement( "Widths", OBJ_TYPE_ARRAY );
@@ -5006,36 +5027,36 @@ HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_RECT CHE_PDF_Type1_Font::GetGraphBox( HE_WCHAR charCode, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type1_Font::GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
 {
-	HE_RECT rectRet;
-	rectRet.left = 0;
-	rectRet.top = 0;
-	rectRet.height = 1;
-	rectRet.width = 1;
-
 	CHE_PDF_Matrix tmpMatrix;
-	tmpMatrix.a = 1;
+	tmpMatrix.a = 0;
 	tmpMatrix.b = 0;
 	tmpMatrix.c = 0;
-	tmpMatrix.d = 1;
+	tmpMatrix.d = 0;
 	tmpMatrix.e = 0;
 	tmpMatrix.f = 0;
 
 	if ( charCode > 0 && charCode < 256 )
 	{
-		tmpMatrix.d = mCharWidths[charCode] / 1000.0;
+		tmpMatrix.a = mCharWidths[charCode];
+		tmpMatrix.d = tmpMatrix.a;
+	}
+	if ( mFace )
+	{
+		FT_Error err = FT_Load_Char( mFace, charCode, FT_LOAD_NO_SCALE );
+		if ( err == 0 )
+		{
+			tmpMatrix.d = mFace->glyph->advance.y;
+			tmpMatrix.a = mFace->glyph->advance.x;
+
+			tmpMatrix.Concat( matrix );
+
+			return tmpMatrix.a * 1.0 / mFace->units_per_EM;
+		}
 	}
 
-	tmpMatrix.Concat( matrix );
-
-	rectRet.height = tmpMatrix.a;
-	rectRet.width = tmpMatrix.d;
-
-	//todo
-	//get width or height from face
-
-	return rectRet;
+	return 0;
 }
 
 

@@ -116,8 +116,8 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						item.ucs = 0;
 						pFont->GetUnicode( item.charCode, item.ucs );
 						item.kerning = kerning;
-						item.offsetX = 0;
-						item.offsetY = 0;
+						item.width = pFont->GetWidth( item.charCode );
+						item.height = 0; //font height??
 						mItems.push_back( item );
 						kerning = 0;
 					}
@@ -150,8 +150,8 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 							}
 						}
 						item.kerning = kerning;
-						item.offsetX = 0;
-						item.offsetY = 0;
+						item.width = pFont->GetWidth( item.charCode );
+						item.height = 0; //font height??
 						mItems.push_back( item );
 						kerning = 0;
 					}

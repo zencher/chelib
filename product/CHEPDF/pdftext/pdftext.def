@@ -1,0 +1,18 @@
+LIBRARY pdftext
+EXPORTS
+CHEPDF_OpenDocument
+CHEPDF_CloseDocument
+
+CHEPDF_GetPageCount
+CHEPDF_GetPage
+CHEPDF_ClosePage
+
+CHEPDF_GetPageContent
+CHEPDF_ReleasePageContent
+
+CHEPDF_GetFirstPageText
+CHEPDF_GetNextPageText
+
+CHEPDF_GetTextPosition
+CHEPDF_GetTextLength
+CHEPDF_GetTextUnicodes

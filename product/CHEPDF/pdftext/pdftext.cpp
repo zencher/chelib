@@ -28,6 +28,7 @@ HE_VOID _InitPDFDocumentStruct( _PDFDocumentStruct * pSrt )
 	}
 };
 
+
 HE_VOID _DestroyPDFDocumentStruct( _PDFDocumentStruct * pSrt )
 {
 	if ( pSrt )
@@ -116,6 +117,7 @@ int CHEPDF_GetPageCount( PDFDocument doc )
 	return -1;
 }
 
+
 struct _PDFPageStruct
 {
 	CHE_PDF_Document * pDocObj;
@@ -164,11 +166,11 @@ void CHEPDF_ClosePage( PDFPage page )
 
 struct _PDFPageContentStruct
 {
-	//HE_DWORD index;
 	ContentObjectList::iterator it;
 	CHE_PDF_ContentObjectList * pContentObjList;
 	
 };
+
 
 PDFPageContent CHEPDF_GetPageContent( PDFPage page )
 {
@@ -184,7 +186,6 @@ PDFPageContent CHEPDF_GetPageContent( PDFPage page )
 				pPageContentSrt->pContentObjList = GetDefaultAllocator()->New<CHE_PDF_ContentObjectList>();
 				if ( pPageContentSrt->pContentObjList )
 				{
-					//pPageContentSrt->index = 0;
 					if ( GetPageContent( pPageSrt->pPageObj->GetPageDict(), pPageContentSrt->pContentObjList, pPageSrt->pDocObj->GetFontMgr() ) )
 					{
 						pageCtxRet = (PDFPageContent)pPageContentSrt;
@@ -217,12 +218,6 @@ void CHEPDF_ReleasePageContent( PDFPageContent content )
 }
 
 
-// struct _PDFPageTextStruct
-// {
-// 	CHE_PDF_Text * pTextObj;
-// };
-
-
 PDFPageText	CHEPDF_GetFirstPageText( PDFPageContent content )
 {
 	PDFPageText * pPageText = NULL;
@@ -239,12 +234,14 @@ PDFPageText	CHEPDF_GetFirstPageText( PDFPageContent content )
 				{
 					pPageCtxSrt->it = it;
 					pPageText = (PDFPageText *)( *it );
+					break;
 				}
 			}
 		}
 	}
 	return pPageText;
 }
+
 
 PDFPageText	CHEPDF_GetNextPageText( PDFPageContent content )
 {
@@ -255,12 +252,13 @@ PDFPageText	CHEPDF_GetNextPageText( PDFPageContent content )
 		if ( pPageCtxSrt->pContentObjList )
 		{
 			ContentObjectList::iterator it = pPageCtxSrt->it;
-			for ( ; it != pPageCtxSrt->pContentObjList->End(); ++it )
+			for ( ++it; it != pPageCtxSrt->pContentObjList->End(); ++it )
 			{
 				if ( (*it)->GetType() == ContentType_Text )
 				{
 					pPageCtxSrt->it = it;
-					pPageText = (PDFPageText *)( &(*it) );
+					pPageText = (PDFPageText *)( *it );
+					break;
 				}
 			}
 		}
@@ -269,61 +267,48 @@ PDFPageText	CHEPDF_GetNextPageText( PDFPageContent content )
 }
 
 
-// Matrix CHEPDF_GetTextMatrix( PDFPageText text )
-// {
-// 	Matrix mtx;
-// 	mtx.a = 1;
-// 	mtx.b = 0;
-// 	mtx.c = 0;
-// 	mtx.d = 1;
-// 	mtx.e = 0;
-// 	mtx.f = 0;
-// 	if ( text )
-// 	{
-// 		CHE_PDF_Text * pTextObj = (CHE_PDF_Text*)( text );
-// 		CHE_PDF_GState * pGState = pTextObj->GetGState();
-// 		if ( pGState )
-// 		{
-// 			CHE_PDF_Matrix matrix = pGState->GetMatrix();
-// 			CHE_PDF_Matrix textMtx;
-// 			pGState->GetTextMatrix( textMtx );
-// 			textMtx.Concat( matrix );
-// 			mtx.a = textMtx.a;
-// 			mtx.b = textMtx.b;
-// 			mtx.c = textMtx.c;
-// 			mtx.d = textMtx.d;
-// 			mtx.e = textMtx.e;
-// 			mtx.f = textMtx.f;
-// 		}
-// 	}
-// 	return mtx;
-// }
-
-
-Position CHEPDF_GetTextPosition( PDFPageText text )
+PDFMatrix CHEPDF_GetTextMatrix( PDFPageText text )
 {
-	Position posi;
-	posi.x = 0;
-	posi.y = 0;
-	
+	PDFMatrix mtx;
+	mtx.a = 1;
+	mtx.b = 0;
+	mtx.c = 0;
+	mtx.d = 1;
+	mtx.e = 0;
+	mtx.f = 0;
 	if ( text )
 	{
-		CHE_PDF_ContentObject * pCtxObj = (CHE_PDF_ContentObject*)( text );
-		if ( pCtxObj->GetType() != ContentType_Text )
-		{
-			return posi;
-		}
-		CHE_PDF_GState * pGState = pCtxObj->GetGState();
-		CHE_PDF_Text * pTextObj = (CHE_PDF_Text *)( pCtxObj );
+		CHE_PDF_Text * pTextObj = (CHE_PDF_Text*)( text );
+		CHE_PDF_GState * pGState = pTextObj->GetGState();
 		if ( pGState )
 		{
 			CHE_PDF_Matrix matrix = pGState->GetMatrix();
 			CHE_PDF_Matrix textMtx;
 			pGState->GetTextMatrix( textMtx );
 			textMtx.Concat( matrix );
-			posi.x = textMtx.e;
-			posi.y = textMtx.f;
+			mtx.a = textMtx.a;
+			mtx.b = textMtx.b;
+			mtx.c = textMtx.c;
+			mtx.d = textMtx.d;
+			mtx.e = textMtx.e;
+			mtx.f = textMtx.f;
 		}
+	}
+	return mtx;
+}
+
+
+PDFPosition CHEPDF_GetTextPosition( PDFPageText text )
+{
+	PDFPosition posi;
+	posi.x = 0;
+	posi.y = 0;
+	
+	if ( text )
+	{
+		PDFMatrix matrix = CHEPDF_GetTextMatrix( text );
+		posi.x = matrix.e;
+		posi.y = matrix.f;
 	}
 
 	return posi;
@@ -341,9 +326,8 @@ unsigned int CHEPDF_GetTextLength( PDFPageText text )
 }
 
 
-//还应该有办法判断字体是否存在unicode码?? 如何判断？
 PDFStatus CHEPDF_GetTextUnicodes( PDFPageText text, wchar_t * pBuf, unsigned int bufSize )
-{
+{ 
 	if ( pBuf == NULL )
 	{
 		return -2;
@@ -386,5 +370,157 @@ PDFStatus CHEPDF_GetTextUnicodes( PDFPageText text, wchar_t * pBuf, unsigned int
 		}
 		*(pBuf + i) = L'\0';
 	}
+	return 0;
+}
+
+
+struct _PDFPageCharStruct
+{
+	CHE_PDF_Text * pText;
+	unsigned int index;
+};
+
+
+PDFPageChar	CHEPDF_GetPageChar( PDFPageText text, unsigned int index )
+{
+	PDFPageChar * pCharRet = NULL;
+	if ( text == NULL )
+	{
+		return pCharRet;
+	}
+	CHE_PDF_Text * pText = (CHE_PDF_Text*)( text );
+	if ( index >= pText->mItems.size()  )
+	{
+		return pCharRet;
+	}
+	_PDFPageCharStruct * pCharStruct = GetDefaultAllocator()->New<_PDFPageCharStruct>();
+	pCharStruct->pText = pText;
+	pCharStruct->index = index;
+	return (_PDFPageCharStruct*)( pCharStruct );
+}
+
+
+void CHEPDF_ClosePageChar( PDFPageChar textChar )
+{
+	if ( textChar != NULL )
+	{
+		_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
+		GetDefaultAllocator()->Delete( pCharStruct );
+	}
+}
+
+
+PDFMatrix CHEPDF_GetCharMatirx( PDFPageChar textChar )
+{
+	PDFMatrix mtx;
+	mtx.a = 1;
+	mtx.b = 0;
+	mtx.c = 0;
+	mtx.d = 1;
+	mtx.e = 0;
+	mtx.f = 0;
+	if ( textChar == NULL )
+	{
+		return mtx;
+	}
+	_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
+	CHE_PDF_Text * pTextObj = pCharStruct->pText;
+	if ( pTextObj == NULL || pCharStruct->index >= pTextObj->mItems.size() )
+	{
+		return mtx;
+	}
+	CHE_PDF_GState * pGState = pTextObj->GetGState();
+	if ( pGState )
+	{
+		CHE_PDF_Matrix tmpMatrix;
+		HE_FLOAT fontSize = 1;
+		HE_FLOAT fontScaling = 100;
+		HE_FLOAT fontRise = 0;
+		HE_FLOAT fontCharSpace = 0;
+		HE_FLOAT fontWordSpace = 0;
+		pGState->GetTextFontSize( fontSize );
+		pGState->GetTextScaling( fontScaling );
+		pGState->GetTextRise( fontRise );
+		pGState->GetTextCharSpace( fontCharSpace );
+		pGState->GetTextWordSpace( fontWordSpace );
+		tmpMatrix.a = fontSize * fontScaling / 100;
+		tmpMatrix.b = 0;
+		tmpMatrix.c = 0;
+		tmpMatrix.d = fontSize;
+		tmpMatrix.e = 0;
+		tmpMatrix.f = fontRise;
+
+		CHE_PDF_Matrix textMatrix;
+		pGState->GetTextMatrix( textMatrix );
+		
+		CHE_PDF_Matrix ctm = pGState->GetMatrix();
+		
+		tmpMatrix.Concat( textMatrix );
+		tmpMatrix.Concat( ctm );
+
+		for ( unsigned int i = 0; i < pCharStruct->index; ++i )
+		{
+			//计算字符相对于Text Object的起始点的偏移，依据字体横排或者竖排的不同，有不同的计算方法。
+			//这里面的计算应该使用字体大小，字体大小的运算在外层的矩阵中参与了。
+			HE_FLOAT OffsetX = 0;
+			HE_FLOAT OffsetY = 0;
+			CHE_PDF_Matrix OffsetMatrix;
+			OffsetX = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
+			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
+			if ( pTextObj->mItems[i].ucs == L' ' )
+			{
+				OffsetX += fontWordSpace;
+			}
+			OffsetMatrix.e = OffsetX;
+			OffsetMatrix.f = OffsetY;
+			OffsetMatrix.Concat( tmpMatrix );
+			tmpMatrix = OffsetMatrix;
+		}
+	
+		mtx.a = tmpMatrix.a;
+		mtx.b = tmpMatrix.b;
+		mtx.c = tmpMatrix.c;
+		mtx.d = tmpMatrix.d;
+		mtx.e = tmpMatrix.e;
+		mtx.f = tmpMatrix.f;
+	}
+
+	return mtx;
+}
+
+
+PDFPosition	CHEPDF_GetCharPosition( PDFPageChar textChar )
+{
+	PDFPosition posi;
+	posi.x = 0;
+	posi.y = 0;
+
+	if ( textChar )
+	{
+		PDFMatrix matrix = CHEPDF_GetCharMatirx( textChar );
+		posi.x = matrix.e;
+		posi.y = matrix.f;
+	}
+
+	return posi;
+}
+
+
+PDFStatus CHEPDF_GetCharUnicode( PDFPageChar textChar, wchar_t * UnicodeRet )
+{
+	PDFStatus status = 0;
+	if ( textChar == NULL )
+	{
+		return -1;
+	}
+	_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
+	CHE_PDF_Text * pTextObj = pCharStruct->pText;
+	if ( pTextObj == NULL || pCharStruct->index >= pTextObj->mItems.size() )
+	{
+		return -2;
+	}
+
+	*UnicodeRet = pTextObj->mItems[pCharStruct->index].ucs;
+
 	return 0;
 }

@@ -12,7 +12,13 @@ CHEPDF_ReleasePageContent
 
 CHEPDF_GetFirstPageText
 CHEPDF_GetNextPageText
-
+CHEPDF_GetTextMatrix
 CHEPDF_GetTextPosition
 CHEPDF_GetTextLength
 CHEPDF_GetTextUnicodes
+
+CHEPDF_GetPageChar
+CHEPDF_ClosePageChar
+CHEPDF_GetCharMatirx
+CHEPDF_GetCharPosition
+CHEPDF_GetCharUnicode

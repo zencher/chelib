@@ -16,9 +16,18 @@ CHEPDF_GetTextMatrix
 CHEPDF_GetTextPosition
 CHEPDF_GetTextLength
 CHEPDF_GetTextUnicodes
+CHEPDF_GetTextBox
+CHEPDF_RenderPDFPageText
 
 CHEPDF_GetPageChar
 CHEPDF_ClosePageChar
 CHEPDF_GetCharMatirx
 CHEPDF_GetCharPosition
 CHEPDF_GetCharUnicode
+CHEPDF_GetCharBox
+CHEPDF_RenderPDFPageChar
+
+CHEPDF_CloseBitmap
+CHEPDF_GetBitmapWidth
+CHEPDF_GetBitmapHeight
+CHEPDF_SaveBitmapToFile

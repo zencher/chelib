@@ -2,6 +2,11 @@
 #include "../../../trunk/include/pdf/che_pdf_file.h"
 #include "../../../trunk/include/pdf/che_pdf_document.h"
 #include "../../../trunk/include/pdf/che_pdf_contents.h"
+#include "../../../trunk/extlib/freetype/ft2build.h"
+#include "../../../trunk/extlib/freetype/freetype/freetype.h"
+#include "../../../trunk/extlib/freetype/freetype/ftglyph.h"
+#include "../../../trunk/extlib/freetype/freetype/ftrender.h"
+#include "../../../trunk/include/che_bitmap.h"
 
 // 1. 加载文档对象
 // 2. 加载页面对象
@@ -52,6 +57,64 @@ HE_VOID _DestroyPDFDocumentStruct( _PDFDocumentStruct * pSrt )
 	}
 }
 
+
+#define MAX4(a,b,c,d) fz_max(fz_max(a,b), fz_max(c,d))
+#define MIN4(a,b,c,d) fz_min(fz_min(a,b), fz_min(c,d))
+
+#define fz_is_empty_rect(r) ((r).width == 0 || (r).height == 0 )
+
+static inline float fz_min(float a, float b)
+{
+	return (a < b ? a : b);
+}
+
+static inline float fz_max(float a, float b)
+{
+	return (a > b ? a : b);
+}
+
+PDFPosition fz_transform_point( PDFMatrix matrix, PDFPosition point )
+{
+	PDFPosition pointRet;
+	pointRet.x = point.x * matrix.a + point.y * matrix.c + matrix.e;
+	pointRet.y = point.x * matrix.b + point.y * matrix.d + matrix.f;
+	return pointRet;
+}
+
+PDFRect fz_transform_rect( PDFMatrix m, PDFRect r )
+{
+	PDFPosition s, t, u, v;	
+
+	s.x = r.left;
+	s.y = r.bottom;
+	t.x = r.left;
+	t.y = r.bottom + r.height;
+	u.x = r.left + r.width;
+	u.y = r.bottom + r.height;
+	v.x = r.left + r.width;
+	v.y = r.bottom;
+	s = fz_transform_point(m, s);
+	t = fz_transform_point(m, t);
+	u = fz_transform_point(m, u);
+	v = fz_transform_point(m, v);
+	r.left = MIN4(s.x, t.x, u.x, v.x);
+	r.bottom = MIN4(s.y, t.y, u.y, v.y);
+	r.width = MAX4(s.x, t.x, u.x, v.x) - MIN4(s.x, t.x, u.x, v.x);
+	r.height = MAX4(s.y, t.y, u.y, v.y) - MIN4(s.y, t.y, u.y, v.y);
+	return r;
+}
+
+PDFRect fz_union_rect( PDFRect a, PDFRect b )
+{
+	PDFRect r;
+	if (fz_is_empty_rect(a)) return b;
+	if (fz_is_empty_rect(b)) return a;
+	r.left = fz_min(a.left, b.left);
+	r.bottom = fz_min(a.bottom, b.bottom);
+	r.width = fz_max(a.left + a.width, b.left + b.width) - r.left;
+	r.height = fz_max(a.bottom + a.height, b.bottom + b.height) - r.bottom;
+	return r;
+}
 
 PDFDocument CHEPDF_OpenDocument( const char * pFilePath )
 {
@@ -278,20 +341,10 @@ PDFMatrix CHEPDF_GetTextMatrix( PDFPageText text )
 	mtx.f = 0;
 	if ( text )
 	{
-		CHE_PDF_Text * pTextObj = (CHE_PDF_Text*)( text );
-		CHE_PDF_GState * pGState = pTextObj->GetGState();
-		if ( pGState )
+		PDFPageChar textChar = CHEPDF_GetPageChar( text, 0 );
+		if ( textChar )
 		{
-			CHE_PDF_Matrix matrix = pGState->GetMatrix();
-			CHE_PDF_Matrix textMtx;
-			pGState->GetTextMatrix( textMtx );
-			textMtx.Concat( matrix );
-			mtx.a = textMtx.a;
-			mtx.b = textMtx.b;
-			mtx.c = textMtx.c;
-			mtx.d = textMtx.d;
-			mtx.e = textMtx.e;
-			mtx.f = textMtx.f;
+			mtx = CHEPDF_GetCharMatirx( textChar );
 		}
 	}
 	return mtx;
@@ -491,17 +544,22 @@ PDFMatrix CHEPDF_GetCharMatirx( PDFPageChar textChar )
 
 PDFPosition	CHEPDF_GetCharPosition( PDFPageChar textChar )
 {
+	PDFRect rect = CHEPDF_GetCharBox( textChar );
 	PDFPosition posi;
-	posi.x = 0;
-	posi.y = 0;
-
-	if ( textChar )
-	{
-		PDFMatrix matrix = CHEPDF_GetCharMatirx( textChar );
-		posi.x = matrix.e;
-		posi.y = matrix.f;
-	}
-
+	posi.x = rect.left;
+	posi.y = rect.bottom;
+	return posi;
+	
+// 	PDFPosition posi;
+// 	posi.x = 0;
+// 	posi.y = 0;
+// 
+// 	if ( textChar )
+// 	{
+// 		PDFMatrix matrix = CHEPDF_GetCharMatirx( textChar );
+// 		posi.x = matrix.e;
+// 		posi.y = matrix.f;
+// 	}
 	return posi;
 }
 
@@ -523,4 +581,227 @@ PDFStatus CHEPDF_GetCharUnicode( PDFPageChar textChar, wchar_t * UnicodeRet )
 	*UnicodeRet = pTextObj->mItems[pCharStruct->index].ucs;
 
 	return 0;
+}
+
+
+PDFRect CHEPDF_GetCharBox( PDFPageChar textChar )
+{
+	PDFRect rect;
+	rect.left = 0;
+	rect.bottom = 0;
+	rect.width = 0;
+	rect.height = 0;
+
+	if ( textChar )
+	{
+		PDFMatrix matrix = CHEPDF_GetCharMatirx( textChar );
+		_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
+		CHE_PDF_Text * pTextObj = pCharStruct->pText;
+		CHE_PDF_GState * pGState = pTextObj->GetGState();
+		FT_Face face = NULL;
+		if ( pGState )
+		{
+			face = pGState->GetTextFont()->GetFTFace();
+		}
+		if ( pTextObj && pCharStruct->index < pTextObj->mItems.size() )
+		{
+			rect.width = pTextObj->mItems[pCharStruct->index].width;
+			rect.height = pTextObj->mItems[pCharStruct->index].height;
+			if ( face )
+			{
+				rect.bottom = face->descender * 1.0 / face->units_per_EM;
+				rect.height = ( face->ascender - face->descender ) * 1.0 / face->units_per_EM;
+			}
+			rect = fz_transform_rect( matrix, rect );
+		}
+	}
+	return rect;
+}
+
+
+PDFRect	CHEPDF_GetTextBox( PDFPageText text )
+{
+	PDFRect rect;
+	rect.bottom = 0;
+	rect.left = 0;
+	rect.width = 0;
+	rect.height = 0;
+
+	for ( unsigned int i = 0; i< CHEPDF_GetTextLength( text ); ++i )
+	{
+		PDFPageChar textChar = CHEPDF_GetPageChar( text, i );
+		if ( textChar )
+		{
+			PDFRect tmpRect = CHEPDF_GetCharBox( textChar );
+			rect = fz_union_rect( tmpRect, rect );
+		}
+	}
+
+	return rect;
+}
+
+
+PDFBitmap CHEPDF_RenderPDFPageText( PDFPageText text, float scale/* = 1.0*/ )
+{
+	PDFBitmap * pBitmap = NULL;
+	if ( text )
+	{
+		PDFMatrix mtx = CHEPDF_GetTextMatrix(text );
+		PDFPosition baselinePoint;
+		baselinePoint.x = mtx.e;
+		baselinePoint.y = mtx.f ;
+
+		PDFRect bbox = CHEPDF_GetTextBox( text );
+		CHE_Bitmap * pBitmapRet = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+		pBitmapRet->Create( bbox.width * scale * 96 / 72, bbox.height * scale * 96 / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+		pBitmapRet->Fill( 0xFFFFFFFF );
+
+		CHE_PDF_Text * pText = (CHE_PDF_Text*)text;
+		CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
+		FT_Face face = pFont->GetFTFace();
+		int xPosition = 0;
+		int yBaseline = 0;
+		for ( unsigned int i = 0; i < pText->mItems.size(); ++i )
+		{
+			PDFPageChar textChar = CHEPDF_GetPageChar( text, i );
+			PDFMatrix cmtx = CHEPDF_GetCharMatirx( textChar );
+			
+			fz_transform_point( cmtx, baselinePoint );
+			yBaseline = ( bbox.bottom + bbox.height - baselinePoint.y ) * ( bbox.height * 96 / 72 ) * scale / bbox.height;
+
+			CHE_Bitmap * pTmpBitmap = (CHE_Bitmap *)( CHEPDF_RenderPDFPageChar( textChar, scale ) );
+			if ( pTmpBitmap )
+			{
+				pBitmapRet->Insert( *pTmpBitmap, xPosition + face->glyph->bitmap_left, yBaseline - face->glyph->bitmap_top );
+				xPosition += abs( face->glyph->bitmap_left * 2 ) + face->glyph->bitmap.width;
+				GetDefaultAllocator()->Delete( pTmpBitmap );
+			}
+		}
+		pBitmap = (PDFBitmap *)( pBitmapRet );
+	}
+	return pBitmap;
+}
+
+
+PDFBitmap CHEPDF_RenderPDFPageChar( PDFPageChar textChar, float scale /*= 1*/ )
+{
+	CHE_Bitmap * pBitmap = NULL;
+	if ( textChar )
+	{
+		_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
+		CHE_PDF_Text * pTextObj = pCharStruct->pText;
+		if ( pTextObj && pCharStruct->index < pTextObj->mItems.size() )
+		{
+			PDFMatrix mtx = CHEPDF_GetCharMatirx( textChar );
+			CHE_PDF_GState * pGState = pTextObj->GetGState();
+			if ( pGState )
+			{
+				CHE_PDF_Font * pFont = pGState->GetTextFont();
+				if ( pFont )
+				{
+					FT_Set_Char_Size( pFont->GetFTFace(), 65536, 65536, 96, 96 );
+
+					FT_Matrix matrix;
+					matrix.xx = mtx.a * 64 * scale;
+					matrix.xy = mtx.b * 64 * scale;
+					matrix.yx = mtx.c * 64 * scale;
+					matrix.yy = mtx.d * 64 * scale;
+					FT_Set_Transform( pFont->GetFTFace(), &matrix, NULL );
+					FT_UInt gid = FT_Get_Char_Index( pFont->GetFTFace(), pTextObj->mItems[pCharStruct->index].charCode );
+					FT_Load_Glyph( pFont->GetFTFace(), gid, FT_LOAD_DEFAULT );
+					
+					int iFunRet = FT_Render_Glyph( pFont->GetFTFace()->glyph, FT_RENDER_MODE_NORMAL );
+
+// 					if ( iFunRet != 0 )
+// 					{
+// 						return ;
+// 					}
+					FT_Glyph	FTglyph;
+					iFunRet = FT_Get_Glyph( pFont->GetFTFace()->glyph, &FTglyph );
+// 					if ( iFunRet != 0 )
+// 					{
+// 						return ;
+// 					}
+					
+					FT_Glyph_To_Bitmap( &FTglyph, FT_RENDER_MODE_NORMAL, 0, 1 );
+// 					if ( iFunRet != 0 )
+// 					{
+// 						return ;
+// 					}
+
+					FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)FTglyph;
+
+					//取到位图数据
+					FT_Bitmap& bitmap=bitmap_glyph->bitmap;
+
+					int width = bitmap.width;
+					int height = bitmap.rows;
+
+					unsigned char* expanded_data = new unsigned char[ ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 * height];
+					for( int j = 0; j < height; j++ )
+					{
+						for( int i=0; i < width; i++ )
+						{
+							expanded_data[ 3 * i + ( ( height - j - 1 ) * ( ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 ) ) ] = expanded_data[ 3 * i + ( ( height - j - 1 ) * ( ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 ) ) + 1] = expanded_data[ 3 * i + ( ( height - j - 1 ) * ( ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 ) ) + 2] = ( 0xffffffff - bitmap.buffer[i + bitmap.width*j] );
+						}
+					}
+
+					pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+					if ( pBitmap )
+					{
+						pBitmap->Create( width, height, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP, ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 * height, expanded_data );
+					}
+					delete [] expanded_data;
+				}
+			}
+		}
+	}
+
+	return pBitmap;
+}
+
+
+void CHEPDF_CloseBitmap( PDFBitmap bitmap )
+{
+	if ( bitmap )
+	{
+		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
+		GetDefaultAllocator()->Delete<CHE_Bitmap>( pBitmap );
+	}
+}
+
+
+unsigned int CHEPDF_GetBitmapWidth( PDFBitmap bitmap )
+{
+	if ( bitmap )
+	{
+		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
+		return pBitmap->Width();
+	}
+	return 0;
+}
+
+
+unsigned int CHEPDF_GetBitmapHeight( PDFBitmap bitmap )
+{
+	if ( bitmap )
+	{
+		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
+		return pBitmap->Height();
+	}
+	return 0;
+}
+
+
+PDFStatus CHEPDF_SaveBitmapToFile( PDFBitmap bitmap, char * filePath )
+{
+	if ( bitmap && filePath )
+	{
+		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
+		if ( pBitmap->Save( filePath ) )
+		{
+			return 0;
+		}
+	}
+	return -1;
 }

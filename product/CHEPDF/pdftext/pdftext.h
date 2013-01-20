@@ -18,7 +18,7 @@ struct PDFPosition
 struct PDFRect
 {
 	float left;
-	float top;
+	float bottom;
 	float width;
 	float height;
 };
@@ -51,15 +51,20 @@ PDFPosition			CHEPDF_GetTextPosition( PDFPageText text );
 PDFMatrix			CHEPDF_GetTextMatrix( PDFPageText text );
 unsigned int		CHEPDF_GetTextLength( PDFPageText text );
 PDFStatus			CHEPDF_GetTextUnicodes( PDFPageText text, wchar_t * pBuf, unsigned int bufSize );
-//PDFRect			CHEPDF_GetTextBox( PDFPageText text );
-//PDFBitmap			CHEPDF_RenderPDFPageText( PDFPageText text );
+PDFRect				CHEPDF_GetTextBox( PDFPageText text );
+PDFBitmap			CHEPDF_RenderPDFPageText( PDFPageText text, float scale = 1.0 );
 
 PDFPageChar			CHEPDF_GetPageChar( PDFPageText text, unsigned int index );
 void				CHEPDF_ClosePageChar( PDFPageChar textChar );
 PDFMatrix			CHEPDF_GetCharMatirx( PDFPageChar textChar );
 PDFPosition			CHEPDF_GetCharPosition( PDFPageChar textChar );
 PDFStatus			CHEPDF_GetCharUnicode( PDFPageChar textChar, wchar_t * UnicodeRet );
-//PDFRect			CHEPDF_GetCharBox( PDFPageChar textChar );
-//PDFBitmap			CHEPDF_RenderPDFPageChar( PDFPageChar textChar );
+PDFRect				CHEPDF_GetCharBox( PDFPageChar textChar );
+PDFBitmap			CHEPDF_RenderPDFPageChar( PDFPageChar textChar, float scale = 1.0 );
+
+void				CHEPDF_CloseBitmap( PDFBitmap bitmap );
+unsigned int		CHEPDF_GetBitmapWidth( PDFBitmap bitmap );
+unsigned int		CHEPDF_GetBitmapHeight( PDFBitmap bitmap );
+PDFStatus			CHEPDF_SaveBitmapToFile( PDFBitmap bitmap, char * filePath );
 
 #endif

@@ -52,7 +52,7 @@ PDFMatrix			CHEPDF_GetTextMatrix( PDFPageText text );
 unsigned int		CHEPDF_GetTextLength( PDFPageText text );
 PDFStatus			CHEPDF_GetTextUnicodes( PDFPageText text, wchar_t * pBuf, unsigned int bufSize );
 PDFRect				CHEPDF_GetTextBox( PDFPageText text );
-PDFBitmap			CHEPDF_RenderText( PDFPageText text );
+PDFBitmap			CHEPDF_RenderText( PDFPageText text, float sclae = 1 );
 
 PDFPageChar			CHEPDF_GetPageChar( PDFPageText text, unsigned int index );
 void				CHEPDF_ClosePageChar( PDFPageChar textChar );
@@ -60,7 +60,7 @@ PDFMatrix			CHEPDF_GetCharMatirx( PDFPageChar textChar );
 PDFPosition			CHEPDF_GetCharPosition( PDFPageChar textChar );
 PDFStatus			CHEPDF_GetCharUnicode( PDFPageChar textChar, wchar_t * UnicodeRet );
 PDFRect				CHEPDF_GetCharBox( PDFPageChar textChar );
-PDFBitmap			CHEPDF_RenderChar( PDFPageChar textChar );
+PDFBitmap			CHEPDF_RenderChar( PDFPageChar textChar, float sclae = 1 );
 
 void				CHEPDF_CloseBitmap( PDFBitmap bitmap );
 unsigned int		CHEPDF_GetBitmapWidth( PDFBitmap bitmap );

@@ -645,7 +645,7 @@ PDFRect	CHEPDF_GetTextBox( PDFPageText text )
 }
 
 
-PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar )
+PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar, float sclae /*= 1*/ )
 {
 	_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
 	CHE_PDF_Text * pTextObj = pCharStruct->pText;
@@ -658,7 +658,7 @@ PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar )
 			CHE_PDF_Font * pFont = pGState->GetTextFont();
 			if ( pFont )
 			{
-				FT_Set_Char_Size( pFont->GetFTFace(), 65536, 65536, PIXELPERINCH, PIXELPERINCH );
+				FT_Set_Char_Size( pFont->GetFTFace(), 65536 * sclae, 65536 * sclae, PIXELPERINCH, PIXELPERINCH );
 				FT_Matrix matrix;
 				matrix.xx = mtx.a * 64;
 				matrix.yx = mtx.b * 64;
@@ -676,14 +676,14 @@ PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar )
 }
 
 
-PDFBitmap CHEPDF_RenderText( PDFPageText text )
+PDFBitmap CHEPDF_RenderText( PDFPageText text, float sclae /*= 1*/ )
 {
 	PDFBitmap * pBitmap = NULL;
 	if ( text )
 	{
 		PDFRect bbox = CHEPDF_GetTextBox( text );
 		CHE_Bitmap * pBitmapRet = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
-		pBitmapRet->Create( bbox.width * PIXELPERINCH / 72, bbox.height * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+		pBitmapRet->Create( bbox.width * sclae * PIXELPERINCH / 72, bbox.height * sclae * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
 		pBitmapRet->Fill( 0xFFFFFFFF );
 
 		CHE_PDF_Text * pText = (CHE_PDF_Text*)text;
@@ -695,14 +695,13 @@ PDFBitmap CHEPDF_RenderText( PDFPageText text )
 		{
 			PDFPageChar textChar = CHEPDF_GetPageChar( text, i );
 			PDFMatrix cmtx = CHEPDF_GetCharMatirx( textChar );
-			PDFRect cbox = CHEPDF_GetCharBox( textChar );
 			PDFPosition oriPoint;
 			oriPoint.x = cmtx.e;
 			oriPoint.y = cmtx.f;
-			yBaseline = ( cbox.bottom + cbox.height - oriPoint.y ) * PIXELPERINCH / 72;
-			xPosition = ( oriPoint.x - cbox.left ) * PIXELPERINCH / 72;
+			yBaseline = ( bbox.bottom + bbox.height - oriPoint.y ) * sclae * PIXELPERINCH / 72;
+			xPosition = ( oriPoint.x - bbox.left ) * sclae * PIXELPERINCH / 72;
 
-			_CHEPDF_RenderGlyph( textChar );
+			_CHEPDF_RenderGlyph( textChar, sclae );
 			if ( face->glyph && face->glyph->bitmap.buffer )
 			{
 				FT_Bitmap & bitmap = face->glyph->bitmap;
@@ -726,7 +725,7 @@ PDFBitmap CHEPDF_RenderText( PDFPageText text )
 }
 
 
-PDFBitmap CHEPDF_RenderChar( PDFPageChar textChar )
+PDFBitmap CHEPDF_RenderChar( PDFPageChar textChar, float scale /*= 1*/ )
 {
 	CHE_Bitmap * pBitmap = NULL;
 	if ( textChar )
@@ -735,7 +734,7 @@ PDFBitmap CHEPDF_RenderChar( PDFPageChar textChar )
 		CHE_PDF_Text * pTextObj = pCharStruct->pText;
 		if ( pTextObj && pCharStruct->index < pTextObj->mItems.size() )
 		{
-			_CHEPDF_RenderGlyph( textChar );
+			_CHEPDF_RenderGlyph( textChar, scale );
 
 			CHE_PDF_Font * pFont = pTextObj->GetGState()->GetTextFont();
 			if ( pFont->GetFTFace() && pFont->GetFTFace()->glyph && pFont->GetFTFace()->glyph->bitmap.buffer )
@@ -747,13 +746,13 @@ PDFBitmap CHEPDF_RenderChar( PDFPageChar textChar )
 				baselinePoint.x = mtx.e;
 				baselinePoint.y = mtx.f;
 
-				int yBaseline = ( bbox.bottom + bbox.height - baselinePoint.y ) * PIXELPERINCH / 72;
-				int xBaseline = ( baselinePoint.x - bbox.left ) * PIXELPERINCH / 72;
+				int yBaseline = ( bbox.bottom + bbox.height - baselinePoint.y ) * scale * PIXELPERINCH / 72;
+				int xBaseline = ( baselinePoint.x - bbox.left ) * scale * PIXELPERINCH / 72;
 
 				pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
 				if ( pBitmap )
 				{
-					pBitmap->Create( bbox.width * PIXELPERINCH / 72, bbox.height * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+					pBitmap->Create( bbox.width * scale * PIXELPERINCH / 72, bbox.height * scale * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
 					pBitmap->Fill( 0xFFFFFFFF );
 				}
 

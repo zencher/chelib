@@ -15,6 +15,10 @@
 // 5. 文本内容信息获取（文本内容，位置，大小等信息）
 // 6. 渲染文本
 
+
+#define PIXELPERINCH 96
+
+
 struct _PDFDocumentStruct
 {
 	IHE_Read *			pReadItf;
@@ -641,19 +645,45 @@ PDFRect	CHEPDF_GetTextBox( PDFPageText text )
 }
 
 
-PDFBitmap CHEPDF_RenderPDFPageText( PDFPageText text, float scale/* = 1.0*/ )
+PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar )
+{
+	_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
+	CHE_PDF_Text * pTextObj = pCharStruct->pText;
+	if ( pTextObj && pCharStruct->index < pTextObj->mItems.size() )
+	{
+		PDFMatrix mtx = CHEPDF_GetCharMatirx( textChar );
+		CHE_PDF_GState * pGState = pTextObj->GetGState();
+		if ( pGState )
+		{
+			CHE_PDF_Font * pFont = pGState->GetTextFont();
+			if ( pFont )
+			{
+				FT_Set_Char_Size( pFont->GetFTFace(), 65536, 65536, PIXELPERINCH, PIXELPERINCH );
+				FT_Matrix matrix;
+				matrix.xx = mtx.a * 64;
+				matrix.yx = mtx.b * 64;
+				matrix.xy = mtx.c * 64;
+				matrix.yy = mtx.d * 64;
+				FT_Set_Transform( pFont->GetFTFace(), &matrix, NULL );
+				FT_UInt gid = FT_Get_Char_Index( pFont->GetFTFace(), pTextObj->mItems[pCharStruct->index].charCode );
+				FT_Load_Glyph( pFont->GetFTFace(), gid, FT_LOAD_DEFAULT );
+				FT_Render_Glyph( pFont->GetFTFace()->glyph, FT_RENDER_MODE_NORMAL );
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+
+PDFBitmap CHEPDF_RenderText( PDFPageText text/*, float scale/ * = 1.0* /*/ )
 {
 	PDFBitmap * pBitmap = NULL;
 	if ( text )
 	{
-		PDFMatrix mtx = CHEPDF_GetTextMatrix(text );
-		PDFPosition baselinePoint;
-		baselinePoint.x = mtx.e;
-		baselinePoint.y = mtx.f ;
-
 		PDFRect bbox = CHEPDF_GetTextBox( text );
 		CHE_Bitmap * pBitmapRet = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
-		pBitmapRet->Create( bbox.width * scale * 96 / 72, bbox.height * scale * 96 / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+		pBitmapRet->Create( bbox.width /** scale*/ * PIXELPERINCH / 72, bbox.height /** scale*/ * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
 		pBitmapRet->Fill( 0xFFFFFFFF );
 
 		CHE_PDF_Text * pText = (CHE_PDF_Text*)text;
@@ -665,16 +695,25 @@ PDFBitmap CHEPDF_RenderPDFPageText( PDFPageText text, float scale/* = 1.0*/ )
 		{
 			PDFPageChar textChar = CHEPDF_GetPageChar( text, i );
 			PDFMatrix cmtx = CHEPDF_GetCharMatirx( textChar );
-			
-			fz_transform_point( cmtx, baselinePoint );
-			yBaseline = ( bbox.bottom + bbox.height - baselinePoint.y ) * ( bbox.height * 96 / 72 ) * scale / bbox.height;
+			PDFRect cbox = CHEPDF_GetCharBox( textChar );
+			PDFPosition oriPoint;
+			oriPoint.x = cmtx.e;
+			oriPoint.y = cmtx.f;
+			//fz_transform_point( cmtx, baselinePoint );
+			yBaseline = ( bbox.bottom + bbox.height - oriPoint.y ) * PIXELPERINCH / 72;
+			xPosition = ( oriPoint.x - bbox.left ) * PIXELPERINCH / 72;
 
-			CHE_Bitmap * pTmpBitmap = (CHE_Bitmap *)( CHEPDF_RenderPDFPageChar( textChar, scale ) );
-			if ( pTmpBitmap )
+			_CHEPDF_RenderGlyph( textChar );
+			if ( face->glyph && face->glyph->bitmap.buffer )
 			{
-				pBitmapRet->Insert( *pTmpBitmap, xPosition + face->glyph->bitmap_left, yBaseline - face->glyph->bitmap_top );
-				xPosition += abs( face->glyph->bitmap_left * 2 ) + face->glyph->bitmap.width;
-				GetDefaultAllocator()->Delete( pTmpBitmap );
+				FT_Bitmap & bitmap = face->glyph->bitmap;
+				for ( int i = 0; i < bitmap.width; ++i )
+				{
+					for ( int j = 0; j < bitmap.rows; ++j )
+					{
+						pBitmapRet->SetPixelColor( i + xPosition + face->glyph->bitmap_left, j + yBaseline - face->glyph->bitmap_top, 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 ) );
+					}
+				}
 			}
 		}
 		pBitmap = (PDFBitmap *)( pBitmapRet );
@@ -683,7 +722,7 @@ PDFBitmap CHEPDF_RenderPDFPageText( PDFPageText text, float scale/* = 1.0*/ )
 }
 
 
-PDFBitmap CHEPDF_RenderPDFPageChar( PDFPageChar textChar, float scale /*= 1*/ )
+PDFBitmap CHEPDF_RenderChar( PDFPageChar textChar )
 {
 	CHE_Bitmap * pBitmap = NULL;
 	if ( textChar )
@@ -692,74 +731,43 @@ PDFBitmap CHEPDF_RenderPDFPageChar( PDFPageChar textChar, float scale /*= 1*/ )
 		CHE_PDF_Text * pTextObj = pCharStruct->pText;
 		if ( pTextObj && pCharStruct->index < pTextObj->mItems.size() )
 		{
-			PDFMatrix mtx = CHEPDF_GetCharMatirx( textChar );
-			CHE_PDF_GState * pGState = pTextObj->GetGState();
-			if ( pGState )
+			_CHEPDF_RenderGlyph( textChar );
+
+			CHE_PDF_Font * pFont = pTextObj->GetGState()->GetTextFont();
+			if ( pFont->GetFTFace() && pFont->GetFTFace()->glyph && pFont->GetFTFace()->glyph->bitmap.buffer )
 			{
-				CHE_PDF_Font * pFont = pGState->GetTextFont();
-				if ( pFont )
+				PDFMatrix mtx = CHEPDF_GetCharMatirx( textChar );
+				PDFRect bbox = CHEPDF_GetCharBox( textChar );
+
+				PDFPosition baselinePoint;
+				baselinePoint.x = mtx.e;
+				baselinePoint.y = mtx.f;
+
+				fz_transform_point( mtx, baselinePoint );
+
+				int yBaseline = ( bbox.bottom + bbox.height - baselinePoint.y ) * PIXELPERINCH / 72;
+				int xBaseline = ( baselinePoint.x - bbox.left ) * PIXELPERINCH / 72;
+
+				pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+				if ( pBitmap )
 				{
-					FT_Set_Char_Size( pFont->GetFTFace(), 65536, 65536, 96, 96 );
+					pBitmap->Create( bbox.width * PIXELPERINCH / 72, bbox.height * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+					pBitmap->Fill( 0xFFFFFFFF );
+				}
 
-					FT_Matrix matrix;
-					matrix.xx = mtx.a * 64 * scale;
-					matrix.xy = mtx.b * 64 * scale;
-					matrix.yx = mtx.c * 64 * scale;
-					matrix.yy = mtx.d * 64 * scale;
-					FT_Set_Transform( pFont->GetFTFace(), &matrix, NULL );
-					FT_UInt gid = FT_Get_Char_Index( pFont->GetFTFace(), pTextObj->mItems[pCharStruct->index].charCode );
-					FT_Load_Glyph( pFont->GetFTFace(), gid, FT_LOAD_DEFAULT );
-					
-					int iFunRet = FT_Render_Glyph( pFont->GetFTFace()->glyph, FT_RENDER_MODE_NORMAL );
-
-// 					if ( iFunRet != 0 )
-// 					{
-// 						return ;
-// 					}
-					FT_Glyph	FTglyph;
-					iFunRet = FT_Get_Glyph( pFont->GetFTFace()->glyph, &FTglyph );
-// 					if ( iFunRet != 0 )
-// 					{
-// 						return ;
-// 					}
-					
-					FT_Glyph_To_Bitmap( &FTglyph, FT_RENDER_MODE_NORMAL, 0, 1 );
-// 					if ( iFunRet != 0 )
-// 					{
-// 						return ;
-// 					}
-
-					FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)FTglyph;
-
-					//取到位图数据
-					FT_Bitmap& bitmap=bitmap_glyph->bitmap;
-
-					int width = bitmap.width;
-					int height = bitmap.rows;
-
-					unsigned char* expanded_data = new unsigned char[ ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 * height];
-					for( int j = 0; j < height; j++ )
+				FT_Bitmap & bitmap = pFont->GetFTFace()->glyph->bitmap;
+				for ( int i = 0; i < bitmap.width; ++i )
+				{
+					for ( int j = 0; j < bitmap.rows; ++j )
 					{
-						for( int i=0; i < width; i++ )
-						{
-							expanded_data[ 3 * i + ( ( height - j - 1 ) * ( ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 ) ) ] = expanded_data[ 3 * i + ( ( height - j - 1 ) * ( ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 ) ) + 1] = expanded_data[ 3 * i + ( ( height - j - 1 ) * ( ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 ) ) + 2] = ( 0xffffffff - bitmap.buffer[i + bitmap.width*j] );
-						}
+						pBitmap->SetPixelColor( i + xBaseline + pFont->GetFTFace()->glyph->bitmap_left, j + yBaseline - pFont->GetFTFace()->glyph->bitmap_top, 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 ) );
 					}
-
-					pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
-					if ( pBitmap )
-					{
-						pBitmap->Create( width, height, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP, ( ( ( width * 24 ) + 31 ) & ~31 ) / 8 * height, expanded_data );
-					}
-					delete [] expanded_data;
 				}
 			}
 		}
 	}
-
 	return pBitmap;
 }
-
 
 void CHEPDF_CloseBitmap( PDFBitmap bitmap )
 {

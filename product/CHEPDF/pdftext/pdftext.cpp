@@ -676,14 +676,14 @@ PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar )
 }
 
 
-PDFBitmap CHEPDF_RenderText( PDFPageText text/*, float scale/ * = 1.0* /*/ )
+PDFBitmap CHEPDF_RenderText( PDFPageText text )
 {
 	PDFBitmap * pBitmap = NULL;
 	if ( text )
 	{
 		PDFRect bbox = CHEPDF_GetTextBox( text );
 		CHE_Bitmap * pBitmapRet = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
-		pBitmapRet->Create( bbox.width /** scale*/ * PIXELPERINCH / 72, bbox.height /** scale*/ * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+		pBitmapRet->Create( bbox.width * PIXELPERINCH / 72, bbox.height * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
 		pBitmapRet->Fill( 0xFFFFFFFF );
 
 		CHE_PDF_Text * pText = (CHE_PDF_Text*)text;
@@ -699,19 +699,23 @@ PDFBitmap CHEPDF_RenderText( PDFPageText text/*, float scale/ * = 1.0* /*/ )
 			PDFPosition oriPoint;
 			oriPoint.x = cmtx.e;
 			oriPoint.y = cmtx.f;
-			//fz_transform_point( cmtx, baselinePoint );
-			yBaseline = ( bbox.bottom + bbox.height - oriPoint.y ) * PIXELPERINCH / 72;
-			xPosition = ( oriPoint.x - bbox.left ) * PIXELPERINCH / 72;
+			yBaseline = ( cbox.bottom + cbox.height - oriPoint.y ) * PIXELPERINCH / 72;
+			xPosition = ( oriPoint.x - cbox.left ) * PIXELPERINCH / 72;
 
 			_CHEPDF_RenderGlyph( textChar );
 			if ( face->glyph && face->glyph->bitmap.buffer )
 			{
 				FT_Bitmap & bitmap = face->glyph->bitmap;
+				HE_ARGB argb = 0;
 				for ( int i = 0; i < bitmap.width; ++i )
 				{
 					for ( int j = 0; j < bitmap.rows; ++j )
 					{
-						pBitmapRet->SetPixelColor( i + xPosition + face->glyph->bitmap_left, j + yBaseline - face->glyph->bitmap_top, 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 ) );
+						if ( bitmap.buffer[i + bitmap.width*j] != 0x00 )
+						{
+							argb = 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 );
+							pBitmapRet->SetPixelColor( i + xPosition + face->glyph->bitmap_left, j + yBaseline - face->glyph->bitmap_top, argb );
+						}
 					}
 				}
 			}
@@ -743,8 +747,6 @@ PDFBitmap CHEPDF_RenderChar( PDFPageChar textChar )
 				baselinePoint.x = mtx.e;
 				baselinePoint.y = mtx.f;
 
-				fz_transform_point( mtx, baselinePoint );
-
 				int yBaseline = ( bbox.bottom + bbox.height - baselinePoint.y ) * PIXELPERINCH / 72;
 				int xBaseline = ( baselinePoint.x - bbox.left ) * PIXELPERINCH / 72;
 
@@ -756,11 +758,16 @@ PDFBitmap CHEPDF_RenderChar( PDFPageChar textChar )
 				}
 
 				FT_Bitmap & bitmap = pFont->GetFTFace()->glyph->bitmap;
+				HE_ARGB argb = 0;
 				for ( int i = 0; i < bitmap.width; ++i )
 				{
 					for ( int j = 0; j < bitmap.rows; ++j )
 					{
-						pBitmap->SetPixelColor( i + xBaseline + pFont->GetFTFace()->glyph->bitmap_left, j + yBaseline - pFont->GetFTFace()->glyph->bitmap_top, 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 ) );
+						if ( bitmap.buffer[i + bitmap.width*j] != 0x00 )
+						{
+							argb = 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 );
+							pBitmap->SetPixelColor( i + xBaseline + pFont->GetFTFace()->glyph->bitmap_left, j + yBaseline - pFont->GetFTFace()->glyph->bitmap_top, argb );
+						}
 					}
 				}
 			}

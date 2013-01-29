@@ -4919,7 +4919,7 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 	if ( mpToUnicodeMap )
 	{
 		
-		codeRet = (HE_DWORD)( mpToUnicodeMap->GetNumByIndex( charCode ) );
+		codeRet = (HE_DWORD)( mpToUnicodeMap->GetItem( charCode ) );
 		return TRUE;
 	}
 	return FALSE;

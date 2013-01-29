@@ -56,7 +56,8 @@ enum PDF_FONT_ENCODING
 	FONT_ENCODING_MACEXPERT		= 0x05,
 	FONT_ENCODING_SYMBOL		= 0x06,
 	FONT_ENCODING_ZAPFDINGBAT	= 0x07,
-	FONT_ENCODING_CUSTOM		= 0x08
+	FONT_ENCODING_BUILDINCMAP	= 0x08,
+	FONT_ENCODING_IDENTITY		= 0x09
 };
 
 
@@ -101,21 +102,16 @@ IHE_SystemFontMgr * HE_GetSystemFontMgr( CHE_Allocator * pAllocator = NULL );
 class CHE_PDF_Encoding : public CHE_Object
 {
 public:
-	static CHE_PDF_Encoding *	Create( CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_Encoding();
 
 	PDF_FONT_ENCODING			GetType() const;
-
 	HE_BOOL						GetUnicode( HE_BYTE charCode, HE_WCHAR & codeRet ) const;
 
 private:
-	CHE_PDF_Encoding( CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
-	~CHE_PDF_Encoding();
-
 	PDF_FONT_ENCODING			mType;
 	HE_BOOL						mbCodeTableRelease;
 	HE_WCHAR *					mpCodeTable;
-
-	friend class CHE_Allocator;
 };
 
 
@@ -150,10 +146,12 @@ public:
 
 	PDF_FONT_TYPE			GetType() const;
 	CHE_ByteString			GetBaseFont() const;
+	PDF_FONT_ENCODING		GetEncodingType() const;
 	CHE_PDF_DictionaryPtr	GetFontDictPtr() const;
 	CHE_PDF_DictionaryPtr	GetFontDescriptorDictPtr() const;
 	FT_Face					GetFTFace();
-	virtual HE_FLOAT		GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const = 0;
+	virtual HE_BOOL			GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
+	virtual HE_FLOAT		GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const = 0;
 	virtual HE_BOOL			GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const = 0;
 	
 protected:
@@ -164,6 +162,7 @@ protected:
 
 	PDF_FONT_TYPE			mType;
 	CHE_ByteString			mBaseFont;
+	CHE_PDF_Encoding		mEncoding;
 	CHE_PDF_DictionaryPtr	mFontDict;
 	CHE_PDF_DictionaryPtr	mFontDescriptorDict;
 	FT_Face					mFace;
@@ -180,7 +179,7 @@ class CHE_PDF_Type0_Font : public CHE_PDF_Font
 {
 public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_FLOAT GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
+	HE_FLOAT GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
 	HE_BOOL GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
 
 protected:
@@ -199,13 +198,12 @@ class CHE_PDF_Type1_Font : public CHE_PDF_Font
 {
 public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_FLOAT GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
+	HE_FLOAT GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
 
 protected:
 	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_Type1_Font();
 
-	CHE_PDF_Encoding *		mpEncoding;
 	HE_BYTE					mFirstChar;
 	HE_BYTE					mLastChar;
 	HE_INT32				mCharWidths[256];

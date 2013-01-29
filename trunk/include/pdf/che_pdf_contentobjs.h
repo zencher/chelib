@@ -97,6 +97,7 @@ class CHE_PDF_TextItem
 {
 public:
 	HE_WCHAR charCode;
+	HE_DWORD gid;
 	HE_DWORD cid;
 	HE_WCHAR ucs;
 	HE_INT32 kerning;

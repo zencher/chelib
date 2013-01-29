@@ -4226,27 +4226,11 @@ IHE_SystemFontMgr * HE_GetSystemFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
 }
 
 
-CHE_PDF_Encoding *	CHE_PDF_Encoding::Create( CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
-{
-	CHE_PDF_Encoding * pEncodingRet = NULL;
-
-	if ( pAllocator == NULL )
-	{
-		pAllocator = GetDefaultAllocator();
-	}
-
-	if ( fontDict )
-	{
-		pEncodingRet = pAllocator->New<CHE_PDF_Encoding>( fontDict, pAllocator );
-	}
-
-	return pEncodingRet;
-}
-
-
-CHE_PDF_Encoding::CHE_PDF_Encoding( CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object( pAllocator ), mType( FONT_ENCODING_NONE ), mbCodeTableRelease( FALSE ), mpCodeTable( NULL )
 {
+	//还需要完善对于Type3字体的Encoding的支持，还要添加字体类型的配合判断
+
 	if ( !fontDict )
 	{
 		return;
@@ -4297,6 +4281,11 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( CHE_PDF_DictionaryPtr & fontDict, CHE_Alloca
 		{
 			mType = FONT_ENCODING_SYMBOL;
 			mpCodeTable = (HE_WCHAR*)gSymbolEncoding;
+		}else if ( str == "Identity-H" || str == "Identity-V" )
+		{
+			mType = FONT_ENCODING_IDENTITY;
+		}else{
+			mType = FONT_ENCODING_BUILDINCMAP;
 		}
 	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
 	{
@@ -4530,7 +4519,7 @@ CHE_PDF_Font * CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE
 
 
 CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_Object( pAllocator ), mType( FONT_TYPE1 ), mBaseFont( pAllocator ), mFontDict( fontDict ),
+	: CHE_Object( pAllocator ), mType( FONT_TYPE1 ), mBaseFont( pAllocator ), mEncoding( fontDict, pAllocator ), mFontDict( fontDict ),
 	mFace( NULL ), mpToUnicodeMap( NULL ), mpFontDescriptor( NULL ), mpEmbeddedFontFile( NULL ), mFontFileSize( 0 )
 {
 	CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "Subtype", OBJ_TYPE_NAME );
@@ -4689,6 +4678,12 @@ CHE_ByteString CHE_PDF_Font::GetBaseFont() const
 }
 
 
+PDF_FONT_ENCODING CHE_PDF_Font::GetEncodingType() const
+{
+	return mEncoding.GetType();
+}
+
+
 CHE_PDF_DictionaryPtr CHE_PDF_Font::GetFontDictPtr() const
 {
 	return mFontDict;
@@ -4704,6 +4699,28 @@ CHE_PDF_DictionaryPtr CHE_PDF_Font::GetFontDescriptorDictPtr() const
 FT_Face CHE_PDF_Font::GetFTFace()
 {
 	return mFace;
+}
+
+
+HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const
+{
+	if ( mFace == NULL )
+	{
+		return FALSE;
+	}
+	codeRet = FT_Get_Char_Index( mFace, charCode );
+	if ( codeRet == 0 )
+	{
+		codeRet = FT_Get_Char_Index( mFace, 0xf000 + charCode );
+		/* some chinese fonts only ship the similarly looking 0x2026 */
+		if ( codeRet == 0 && charCode == 0x22ef )
+			codeRet = FT_Get_Char_Index( mFace, 0x2026 );
+	}
+	if ( codeRet == 0 )
+	{
+		return TRUE;
+	}
+	return FALSE;
 }
 
 
@@ -4909,7 +4926,7 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_FLOAT CHE_PDF_Type0_Font::GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type0_Font::GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
 {
 	CHE_PDF_Matrix tmpMatrix;
 	tmpMatrix.a = 0;
@@ -4921,18 +4938,17 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix 
 
 	if ( mFace )
 	{
-		FT_Error err = FT_Load_Char( mFace, charCode, FT_LOAD_NO_SCALE );
+		//FT_Error err = FT_Load_Char( mFace, charCode, FT_LOAD_NO_SCALE );
+		FT_Error err = FT_Load_Glyph( mFace, gid, FT_LOAD_NO_SCALE );
 		if ( err == 0 )
 		{
-			tmpMatrix.d = mFace->glyph->advance.y;
 			tmpMatrix.a = mFace->glyph->advance.x;
+			tmpMatrix.d = mFace->glyph->advance.y;
 		}
 	}
 	tmpMatrix.Concat( matrix );
 
-	HE_FLOAT widthRet = tmpMatrix.a * 1.0 / mFace->units_per_EM;
-
-	return widthRet;
+	return tmpMatrix.a * 1.0 / mFace->units_per_EM;
 }
 
 
@@ -4960,10 +4976,8 @@ CHE_PDF_Type0_Font::~CHE_PDF_Type0_Font()
 
 
 CHE_PDF_Type1_Font::CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_PDF_Font( pFontDcit ), mpEncoding( NULL ), mFirstChar( 0 ), mLastChar( 255 )
+	: CHE_PDF_Font( pFontDcit ), mFirstChar( 0 ), mLastChar( 255 )
 {
-	mpEncoding = CHE_PDF_Encoding::Create( mFontDict, pAllocator );
-
 	CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "FirstChar", OBJ_TYPE_NUMBER );
 	if ( objPtr )
 	{
@@ -5002,24 +5016,19 @@ CHE_PDF_Type1_Font::CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit,
 
 CHE_PDF_Type1_Font::~CHE_PDF_Type1_Font()
 {
-	if ( mpEncoding )
-	{
-		mpEncoding->GetAllocator()->Delete<CHE_PDF_Encoding>( mpEncoding );
-		mpEncoding = NULL;
-	}
 }
 
 
 HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const
 {
-	if ( mpEncoding )
+	if ( mEncoding.GetUnicode( (HE_BYTE)charCode, codeRet ) )
 	{
-		return mpEncoding->GetUnicode( (HE_BYTE)charCode, codeRet );
+		return TRUE;
 	}
 
 	if ( mpToUnicodeMap )
 	{
-		codeRet = (HE_WCHAR)( mpToUnicodeMap->GetNumByIndex( charCode ) );
+		codeRet = (HE_WCHAR)( mpToUnicodeMap->GetItem( charCode ) );
 		return TRUE;
 	}
 
@@ -5027,7 +5036,7 @@ HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_FLOAT CHE_PDF_Type1_Font::GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type1_Font::GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
 {
 	CHE_PDF_Matrix tmpMatrix;
 	tmpMatrix.a = 0;
@@ -5037,18 +5046,19 @@ HE_FLOAT CHE_PDF_Type1_Font::GetWidth( HE_WCHAR charCode, CHE_PDF_Matrix matrix 
 	tmpMatrix.e = 0;
 	tmpMatrix.f = 0;
 
-	if ( charCode > 0 && charCode < 256 )
+	if ( gid > 0 && gid < 256 )
 	{
-		tmpMatrix.a = mCharWidths[charCode];
+		tmpMatrix.a = mCharWidths[gid];
 		tmpMatrix.d = tmpMatrix.a;
 	}
 	if ( mFace )
 	{
-		FT_Error err = FT_Load_Char( mFace, charCode, FT_LOAD_NO_SCALE );
+		//FT_Error err = FT_Load_Char( mFace, charCode, FT_LOAD_NO_SCALE );
+		FT_Error err = FT_Load_Glyph( mFace, gid, FT_LOAD_NO_SCALE );
 		if ( err == 0 )
 		{
-			tmpMatrix.d = mFace->glyph->advance.y;
 			tmpMatrix.a = mFace->glyph->advance.x;
+			tmpMatrix.d = mFace->glyph->advance.y;
 
 			tmpMatrix.Concat( matrix );
 

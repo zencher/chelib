@@ -42,10 +42,6 @@ enum PDF_FONT_TYPE
 // 	FONT_TYPE1_STANDARD14_ZAPFDINGBATS			= 0x0d
 // };
 
-
-HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet );
-
-
 enum PDF_FONT_ENCODING
 {
 	FONT_ENCODING_NONE			= 0x00,
@@ -234,12 +230,30 @@ private:
 
 class CHE_PDF_Type3_Font : public CHE_PDF_Type1_Font
 {
+public:
+	CHE_PDF_ArrayPtr		GetFontBBox() const;
+	CHE_PDF_Matrix			GetFontMatrix() const;
+	CHE_PDF_DictionaryPtr	GetResDict() const;
+	CHE_PDF_StreamPtr		GetCharProc( HE_BYTE index ) const;
+
 private:
 	CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_Type3_Font();
 
+	CHE_PDF_ArrayPtr		mFontBBox;
+	CHE_PDF_Matrix			mFontMatrix;
+	CHE_PDF_DictionaryPtr	mResDict;
+	CHE_PDF_DictionaryPtr	mCharProcsDict;
+	CHE_PDF_StreamPtr		mCharProcsSet[256];
+
 	friend class CHE_Allocator;
 };
+
+
+HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet );
+
+HE_BOOL HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet );
+
 
 
 #endif

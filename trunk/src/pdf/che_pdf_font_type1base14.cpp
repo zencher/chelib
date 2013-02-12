@@ -14977,3 +14977,10 @@ HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pF
 	pFileBufRet = NULL;
 	return FALSE;
 }
+
+HE_BOOL HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet )
+{
+	fileSizeRet = sizeof( pdf_font_NimbusMonL_Regu );
+	pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusMonL_Regu );
+	return TRUE;
+}

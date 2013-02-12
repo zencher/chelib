@@ -4285,7 +4285,8 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 		{
 			mType = FONT_ENCODING_IDENTITY;
 		}else{
-			mType = FONT_ENCODING_BUILDINCMAP;
+			mType = FONT_ENCODING_WINANSI;
+			//mType = FONT_ENCODING_BUILDINCMAP;
 		}
 	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
 	{
@@ -4618,7 +4619,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 	if ( mFace == NULL )
 	{
 		//type1 base 14 font
-		if ( mType == FONT_TYPE1 )
+		if ( mType == FONT_TYPE1 || mType == FONT_MMTYPE1 )
 		{
 			HE_LPBYTE pBuf = NULL;
 			HE_DWORD bufSize = 0;
@@ -4626,6 +4627,14 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 			{
 				FT_Library ftlib = HE_GetFTLibrary();
 				FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, &mFace );
+			}else if ( mpFontDescriptor )
+			{
+				//对于无法通过baseFont获得对于的文件的，应该通过某种其他的规则获得替代字体
+				if ( HE_GetType1BaseFontFile( *mpFontDescriptor, pBuf, bufSize ) )
+				{
+					FT_Library ftlib = HE_GetFTLibrary();
+					FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, &mFace );
+				}
 			}
 		}
 
@@ -4636,11 +4645,51 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 			{
 				CHE_ByteString filePath( pAllocator );
 				filePath = pSystemFontMgr->GetFontFilePath( mBaseFont );
+				if ( filePath.GetLength() == 0 )
+				{
+					filePath = pSystemFontMgr->GetFontFilePath( "微软雅黑" );
+					if ( filePath.GetLength() == 0 )
+					{
+						filePath = pSystemFontMgr->GetFontFilePath( "宋体" );
+						if ( filePath.GetLength() == 0 )
+						{
+							filePath = pSystemFontMgr->GetFontFilePath( "黑体" );
+						}
+					}
+				}
 
 				FT_Library ftlib = HE_GetFTLibrary();
 				FT_New_Face( ftlib, filePath.GetData(), 0, &mFace );
 			}
 		}
+	}
+
+	//处理一下字体的charmap
+	FT_CharMap cmap = NULL;
+	if ( mFace )
+	{
+		for ( HE_DWORD i = 0; i < mFace->num_charmaps; ++i )
+		{
+			FT_CharMap test = mFace->charmaps[i];
+			if ( mType == FONT_TYPE1 )
+			{
+				if (test->platform_id == 7)
+					cmap = test;
+			}
+			else if ( mType == FONT_TRUETYPE )
+			{
+				if ( test->platform_id == 1 && test->encoding_id == 0 )
+					cmap = test;
+				if ( test->platform_id == 3 && test->encoding_id == 1 )
+					cmap = test;
+				if ( /*symbolic &&*/ test->platform_id == 3 && test->encoding_id == 0 ) //zctodo
+					cmap = test;
+			}
+		}
+	}
+	if ( cmap )
+	{
+		FT_Set_Charmap( mFace, cmap );
 	}
 }
 
@@ -4718,9 +4767,9 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const
 	}
 	if ( codeRet == 0 )
 	{
-		return TRUE;
+		return FALSE;
 	}
-	return FALSE;
+	return TRUE;
 }
 
 
@@ -4945,10 +4994,12 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix /*= C
 			tmpMatrix.a = mFace->glyph->advance.x;
 			tmpMatrix.d = mFace->glyph->advance.y;
 		}
-	}
-	tmpMatrix.Concat( matrix );
 
-	return tmpMatrix.a * 1.0 / mFace->units_per_EM;
+		tmpMatrix.Concat( matrix );
+
+		return tmpMatrix.a * 1.0 / mFace->units_per_EM;
+	}
+	return 0;
 }
 
 
@@ -5095,9 +5146,133 @@ CHE_PDF_TrueType_Font::~CHE_PDF_TrueType_Font()
 CHE_PDF_Type3_Font::CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_PDF_Type1_Font( pFontDict, pAllocator )
 {
+	if ( pFontDict )
+	{
+		CHE_PDF_ObjectPtr objPtr = pFontDict->GetElement( "FontBBox", OBJ_TYPE_ARRAY );
+		if ( objPtr )
+		{
+			mFontBBox = objPtr->GetArrayPtr();
+		}
+		objPtr = pFontDict->GetElement( "FontMatrix", OBJ_TYPE_ARRAY );
+		if ( objPtr )
+		{
+			CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+			if ( arrayPtr && arrayPtr->GetCount() >= 6 )
+			{
+				objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontMatrix.a = objPtr->GetNumberPtr()->GetFloat();
+				}
+				objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontMatrix.b = objPtr->GetNumberPtr()->GetFloat();
+				}
+				objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontMatrix.c = objPtr->GetNumberPtr()->GetFloat();
+				}
+				objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontMatrix.d = objPtr->GetNumberPtr()->GetFloat();
+				}
+				objPtr = arrayPtr->GetElement( 4, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontMatrix.e = objPtr->GetNumberPtr()->GetFloat();
+				}
+				objPtr = arrayPtr->GetElement( 5, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontMatrix.f = objPtr->GetNumberPtr()->GetFloat();
+				}
+			}
+		}
+		objPtr = pFontDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			mResDict = objPtr->GetDictPtr();
+		}
+
+		objPtr = pFontDict->GetElement( "CharProcs", OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			mCharProcsDict = objPtr->GetDictPtr();
+		}
+
+		if ( ! mCharProcsDict )
+		{
+			return;
+		}
+		
+		CHE_PDF_ArrayPtr encodingDiffArray;
+		objPtr = pFontDict->GetElement( "Encoding", OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			objPtr = objPtr->GetDictPtr()->GetElement( "Differences", OBJ_TYPE_ARRAY );
+			if ( objPtr )
+			{
+				encodingDiffArray = objPtr->GetArrayPtr();
+			}
+		}
+		if ( encodingDiffArray )
+		{
+			HE_BYTE code = 0;
+			for ( HE_DWORD i = 0; i < encodingDiffArray->GetCount(); ++i )
+			{
+				objPtr = encodingDiffArray->GetElement( i, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					code = (HE_BYTE)( objPtr->GetNumberPtr()->GetInteger() );
+				}else{
+					objPtr = encodingDiffArray->GetElement( i, OBJ_TYPE_NAME );
+					if ( objPtr )
+					{
+						objPtr = mCharProcsDict->GetElement( objPtr->GetNamePtr()->GetString(), OBJ_TYPE_STREAM );
+						if ( objPtr && code >= 0 && code <= 255 )
+						{
+							mCharProcsSet[code-1] = objPtr->GetStreamPtr();
+						}
+					}
+					++code;
+				}
+			}
+		}
+	}
 }
 
 
 CHE_PDF_Type3_Font::~CHE_PDF_Type3_Font()
 {
+}
+
+
+CHE_PDF_ArrayPtr CHE_PDF_Type3_Font::GetFontBBox() const
+{
+	return mFontBBox;
+}
+
+
+CHE_PDF_Matrix CHE_PDF_Type3_Font::GetFontMatrix() const
+{
+	return mFontMatrix;
+}
+
+
+CHE_PDF_DictionaryPtr CHE_PDF_Type3_Font::GetResDict() const
+{
+	return mResDict;
+}
+
+
+CHE_PDF_StreamPtr CHE_PDF_Type3_Font::GetCharProc( HE_BYTE index ) const
+{
+	if ( index >= mFirstChar && index <= mLastChar )
+	{
+		return mCharProcsSet[index];
+	}
+	return CHE_PDF_StreamPtr();
 }

@@ -73,7 +73,12 @@ public:
 
 	CHE_PDF_ContentResMgr & GetResMgr() { return mResMgr; }
 
+	HE_VOID SetType3BBox( const HE_INT32 type, std::vector<HE_FLOAT> & param );
+	HE_BOOL GetType3BBox( HE_INT32 & type, std::vector<HE_FLOAT> & param );
+
 private:
+	HE_INT32				mType3DType;
+	std::vector<HE_FLOAT>	mType3Param;
 	ContentObjectList		mList;
 	CHE_PDF_ContentResMgr	mResMgr;
 };

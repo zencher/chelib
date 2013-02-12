@@ -68,6 +68,19 @@ ContentObjectList::iterator CHE_PDF_ContentObjectList::End()
 	return mList.end();
 }
 
+HE_VOID CHE_PDF_ContentObjectList::SetType3BBox( const HE_INT32 type, std::vector<HE_FLOAT> & param )
+{
+	mType3DType = type;
+	mType3Param = param;
+}
+
+HE_BOOL CHE_PDF_ContentObjectList::GetType3BBox( HE_INT32 & type, std::vector<HE_FLOAT> & param )
+{
+	type = mType3DType;
+	param = mType3Param;
+	return TRUE;
+}
+
 HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 {
 	if ( pObj )
@@ -117,7 +130,8 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						item.ucs = 0;
 						if ( pFont->GetEncodingType() == FONT_ENCODING_NONE )
 						{
-							item.gid = item.charCode;
+							//对于简单字体而言，没有编码信息的时候
+							pFont->GetGlyphId( item.charCode, item.gid );
 							pFont->GetUnicode( item.charCode, item.ucs );
 						}
 						else if ( pFont->GetEncodingType() == FONT_ENCODING_BUILDINCMAP )

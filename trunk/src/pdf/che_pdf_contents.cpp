@@ -1342,15 +1342,24 @@ HE_VOID CHE_PDF_ContentsParser::Handle_d()
 		}
 		mpConstructor->State_LineDash( dashPattern );
 	}
-	
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_d0()
 {
+	if ( CheckOpdCount( 2 ) )
+	{
+		mpConstructor->Operator_D0( mOpdFloatStack[0], mOpdFloatStack[1] );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_d1()
 {
+	if ( CheckOpdCount( 6 ) )
+	{
+		mpConstructor->Operator_D1( mOpdFloatStack[0], mOpdFloatStack[1],
+									mOpdFloatStack[2], mOpdFloatStack[3],
+									mOpdFloatStack[4], mOpdFloatStack[5] );
+	}
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_f()
@@ -1992,6 +2001,28 @@ public:
 			return mpGState->GetMatrix();
 		}
 		return CHE_PDF_Matrix();
+	}
+
+	HE_VOID Operator_D0( const HE_FLOAT wx, const HE_FLOAT wy )
+	{
+		std::vector<HE_FLOAT> param;
+		param.push_back( wx );
+		param.push_back( wy );
+		mpList->SetType3BBox( 0, param );
+	}
+
+	HE_VOID Operator_D1(	const HE_FLOAT wx, const HE_FLOAT wy,
+							const HE_FLOAT llx, const HE_FLOAT lly,
+							const HE_FLOAT urx, const HE_FLOAT ury )
+	{
+		std::vector<HE_FLOAT> param;
+		param.push_back( wx );
+		param.push_back( wy );
+		param.push_back( llx );
+		param.push_back( lly );
+		param.push_back( urx );
+		param.push_back( ury );
+		mpList->SetType3BBox( 1, param );
 	}
 
 private:

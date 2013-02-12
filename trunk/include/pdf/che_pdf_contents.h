@@ -47,6 +47,10 @@ public:
 	virtual HE_VOID Operator_PopGState() = 0;
 	virtual HE_VOID Operator_Clip( CHE_PDF_ContentObject * pObject ) = 0;
 	virtual HE_VOID Operator_Append( CHE_PDF_ContentObject * pObject ) = 0;
+	virtual HE_VOID Operator_D0( const HE_FLOAT wx, const HE_FLOAT wy ) = 0;
+	virtual HE_VOID Operator_D1(	const HE_FLOAT wx, const HE_FLOAT wy,
+									const HE_FLOAT llx, const HE_FLOAT lly,
+									const HE_FLOAT urx, const HE_FLOAT ury ) = 0;
 
 	virtual CHE_PDF_Matrix GetCurMatrix() = 0;
 	virtual CHE_PDF_Matrix GetExtMatrix() = 0;

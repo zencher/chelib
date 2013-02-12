@@ -56,7 +56,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>../../../trunk/build/debug/win32_vc10/chelib.lib;../../../trunk/extlib/zlib/debug/zlib.lib;../../../trunk/extlib/freetype/debug/freetype.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../../../trunk/build/debug/win32_vc10/chelib.lib;../../../trunk/extlib/zlib/debug/zlib.lib;../../../trunk/extlib/freetype/debug/libthirdparty.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCD.lib</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>pdftext.def</ModuleDefinitionFile>
       <OutputFile>../bin/debug/$(TargetName)$(TargetExt)</OutputFile>

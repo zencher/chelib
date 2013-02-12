@@ -8,6 +8,8 @@
 #include "../../../trunk/extlib/freetype/freetype/ftrender.h"
 #include "../../../trunk/include/che_bitmap.h"
 
+#include <GdiPlus.h>
+
 // 1. 加载文档对象
 // 2. 加载页面对象
 // 3. 解析页面内容
@@ -25,6 +27,12 @@ struct _PDFDocumentStruct
 	CHE_PDF_File *		pFileObj;
 	CHE_PDF_Document *	pDocObj;
 };
+
+
+// CHE_Bitmap * _RenderContentStream( CHE_PDF_StreamPtr & stmPtr )
+// {
+// 
+// }
 
 
 HE_VOID _InitPDFDocumentStruct( _PDFDocumentStruct * pSrt )
@@ -515,14 +523,15 @@ PDFMatrix CHEPDF_GetCharMatirx( PDFPageChar textChar )
 		tmpMatrix.Concat( textMatrix );
 		tmpMatrix.Concat( ctm );
 
-		for ( unsigned int i = 0; i < pCharStruct->index; ++i )
+		unsigned int i = 0;
+		for ( ; i < pCharStruct->index; ++i )
 		{
 			//计算字符相对于Text Object的起始点的偏移，依据字体横排或者竖排的不同，有不同的计算方法。
 			//这里面的计算应该使用字体大小，字体大小的运算在外层的矩阵中参与了。
 			HE_FLOAT OffsetX = 0;
 			HE_FLOAT OffsetY = 0;
 			CHE_PDF_Matrix OffsetMatrix;
-			OffsetX = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
+			OffsetX = ( ( pTextObj->mItems[i].width - pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
 			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
 			if ( pTextObj->mItems[i].ucs == L' ' )
 			{
@@ -533,7 +542,20 @@ PDFMatrix CHEPDF_GetCharMatirx( PDFPageChar textChar )
 			OffsetMatrix.Concat( tmpMatrix );
 			tmpMatrix = OffsetMatrix;
 		}
-	
+
+		if ( i <= pCharStruct->index )
+		{
+			HE_FLOAT OffsetX = 0;
+			HE_FLOAT OffsetY = 0;
+			CHE_PDF_Matrix OffsetMatrix;
+			OffsetX = ( 0 - pTextObj->mItems[i].kerning / 1000 );
+			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
+			OffsetMatrix.e = OffsetX;
+			OffsetMatrix.f = OffsetY;
+			OffsetMatrix.Concat( tmpMatrix );
+			tmpMatrix = OffsetMatrix;
+		}
+
 		mtx.a = tmpMatrix.a;
 		mtx.b = tmpMatrix.b;
 		mtx.c = tmpMatrix.c;
@@ -658,17 +680,21 @@ PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar, float sclae /*= 1*/ )
 			CHE_PDF_Font * pFont = pGState->GetTextFont();
 			if ( pFont )
 			{
-				FT_Set_Char_Size( pFont->GetFTFace(), 65536 * sclae, 65536 * sclae, PIXELPERINCH, PIXELPERINCH );
-				FT_Matrix matrix;
-				matrix.xx = mtx.a * 64;
-				matrix.yx = mtx.b * 64;
-				matrix.xy = mtx.c * 64;
-				matrix.yy = mtx.d * 64;
-				FT_Set_Transform( pFont->GetFTFace(), &matrix, NULL );
-				FT_UInt gid = FT_Get_Char_Index( pFont->GetFTFace(), pTextObj->mItems[pCharStruct->index].charCode );
-				FT_Load_Glyph( pFont->GetFTFace(), gid, FT_LOAD_DEFAULT );
-				FT_Render_Glyph( pFont->GetFTFace()->glyph, FT_RENDER_MODE_NORMAL );
-				return 0;
+				if ( pFont->GetFTFace() )
+				{
+					FT_Error err = FT_Set_Char_Size( pFont->GetFTFace(), 65536 * sclae, 65536 * sclae, PIXELPERINCH, PIXELPERINCH );
+					FT_Matrix matrix;
+					matrix.xx = mtx.a * 64;
+					matrix.yx = mtx.b * 64;
+					matrix.xy = mtx.c * 64;
+					matrix.yy = mtx.d * 64;
+					FT_Set_Transform( pFont->GetFTFace(), &matrix, NULL );
+					FT_UInt gid = pTextObj->mItems[pCharStruct->index].gid;
+					err = FT_Load_Glyph( pFont->GetFTFace(), gid, /*FT_LOAD_DEFAULT*/FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO );
+					//FT_Load_Char( pFont->GetFTFace(), pTextObj->mItems[pCharStruct->index].charCode, FT_LOAD_DEFAULT );
+					err = FT_Render_Glyph( pFont->GetFTFace()->glyph, FT_RENDER_MODE_NORMAL );
+					return 0;
+				}
 			}
 		}
 	}
@@ -689,37 +715,40 @@ PDFBitmap CHEPDF_RenderText( PDFPageText text, float sclae /*= 1*/ )
 		CHE_PDF_Text * pText = (CHE_PDF_Text*)text;
 		CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
 		FT_Face face = pFont->GetFTFace();
-		int xPosition = 0;
-		int yBaseline = 0;
-		for ( unsigned int i = 0; i < pText->mItems.size(); ++i )
+		if ( face )
 		{
-			PDFPageChar textChar = CHEPDF_GetPageChar( text, i );
-			PDFMatrix cmtx = CHEPDF_GetCharMatirx( textChar );
-			PDFPosition oriPoint;
-			oriPoint.x = cmtx.e;
-			oriPoint.y = cmtx.f;
-			yBaseline = ( bbox.bottom + bbox.height - oriPoint.y ) * sclae * PIXELPERINCH / 72;
-			xPosition = ( oriPoint.x - bbox.left ) * sclae * PIXELPERINCH / 72;
-
-			_CHEPDF_RenderGlyph( textChar, sclae );
-			if ( face->glyph && face->glyph->bitmap.buffer )
+			int xPosition = 0;
+			int yBaseline = 0;
+			for ( unsigned int i = 0; i < pText->mItems.size(); ++i )
 			{
-				FT_Bitmap & bitmap = face->glyph->bitmap;
-				HE_ARGB argb = 0;
-				for ( int i = 0; i < bitmap.width; ++i )
+				PDFPageChar textChar = CHEPDF_GetPageChar( text, i );
+				PDFMatrix cmtx = CHEPDF_GetCharMatirx( textChar );
+				PDFPosition oriPoint;
+				oriPoint.x = cmtx.e;
+				oriPoint.y = cmtx.f;
+				yBaseline = ( bbox.bottom + bbox.height - oriPoint.y ) * sclae * PIXELPERINCH / 72;
+				xPosition = ( oriPoint.x - bbox.left ) * sclae * PIXELPERINCH / 72;
+
+				_CHEPDF_RenderGlyph( textChar, sclae );
+				if ( face->glyph && face->glyph->bitmap.buffer )
 				{
-					for ( int j = 0; j < bitmap.rows; ++j )
+					FT_Bitmap & bitmap = face->glyph->bitmap;
+					HE_ARGB argb = 0;
+					for ( int i = 0; i < bitmap.width; ++i )
 					{
-						if ( bitmap.buffer[i + bitmap.width*j] != 0x00 )
+						for ( int j = 0; j < bitmap.rows; ++j )
 						{
-							argb = 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 );
-							pBitmapRet->SetPixelColor( i + xPosition + face->glyph->bitmap_left, j + yBaseline - face->glyph->bitmap_top, argb );
+							if ( bitmap.buffer[i + bitmap.width*j] != 0x00 )
+							{
+								argb = 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 );
+								pBitmapRet->SetPixelColor( i + xPosition + face->glyph->bitmap_left, j + yBaseline - face->glyph->bitmap_top, argb );
+							}
 						}
 					}
 				}
 			}
+			pBitmap = (PDFBitmap *)( pBitmapRet );
 		}
-		pBitmap = (PDFBitmap *)( pBitmapRet );
 	}
 	return pBitmap;
 }

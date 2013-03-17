@@ -119,6 +119,17 @@ public:
 
 	//HE_BOOL					IsEmbedFont() const;
 	CHE_PDF_ReferencePtr	GetEmbeddedStream() const { return mEmbedFont; }
+
+	//Flags
+	HE_BOOL					IsFixedPitch() const;
+	HE_BOOL					IsSerif() const;
+	HE_BOOL					IsSymbolic() const;
+	HE_BOOL					IsScript() const;
+	HE_BOOL					IsNonsymbolic() const;
+	HE_BOOL					IsItalic() const;
+	HE_BOOL					IsAllCap() const;
+	HE_BOOL					IsSmallCap() const;
+	HE_BOOL					IsForceBold() const;
 	
 private:
 	HE_INT32				mFlags;
@@ -149,6 +160,8 @@ public:
 	virtual HE_BOOL			GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
 	virtual HE_FLOAT		GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const = 0;
 	virtual HE_BOOL			GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const = 0;
+
+	CHE_PDF_FontDescriptor*	GetFontDescriptor() const { return mpFontDescriptor; }
 	
 protected:
 	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );

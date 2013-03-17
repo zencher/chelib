@@ -4476,6 +4476,60 @@ CHE_PDF_FontDescriptor::~CHE_PDF_FontDescriptor()
 }
 
 
+HE_BOOL CHE_PDF_FontDescriptor::IsFixedPitch() const
+{
+	return mFlags & 1;
+}
+
+
+HE_BOOL CHE_PDF_FontDescriptor::IsSerif() const
+{
+	return mFlags & 2;
+}
+
+
+HE_BOOL CHE_PDF_FontDescriptor::IsSymbolic() const
+{
+	return mFlags & 4;
+}
+
+
+HE_BOOL CHE_PDF_FontDescriptor::IsScript() const
+{
+	return mFlags & 8;
+}
+
+
+HE_BOOL	CHE_PDF_FontDescriptor::IsNonsymbolic() const
+{
+	return mFlags & 20;
+}
+
+
+HE_BOOL	CHE_PDF_FontDescriptor::IsItalic() const
+{
+	return mFlags & 40;
+}
+
+
+HE_BOOL	CHE_PDF_FontDescriptor::IsAllCap() const
+{
+	return mFlags & 10000;
+}
+
+
+HE_BOOL	CHE_PDF_FontDescriptor::IsSmallCap() const
+{
+	return mFlags & 20000;
+}
+
+
+HE_BOOL	CHE_PDF_FontDescriptor::IsForceBold() const
+{
+	return mFlags & 40000;
+}
+
+
 CHE_PDF_Font * CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_Font * pFont = NULL;

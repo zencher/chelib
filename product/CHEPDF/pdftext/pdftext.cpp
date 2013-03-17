@@ -29,12 +29,6 @@ struct _PDFDocumentStruct
 };
 
 
-// CHE_Bitmap * _RenderContentStream( CHE_PDF_StreamPtr & stmPtr )
-// {
-// 
-// }
-
-
 HE_VOID _InitPDFDocumentStruct( _PDFDocumentStruct * pSrt )
 {
 	if ( pSrt )
@@ -395,7 +389,7 @@ PDFStatus CHEPDF_GetTextUnicodes( PDFPageText text, wchar_t * pBuf, unsigned int
 { 
 	if ( pBuf == NULL )
 	{
-		return -2;
+		return PDF_STATUS_PARAM_ERR;
 	}
 	if ( text )
 	{
@@ -412,11 +406,11 @@ PDFStatus CHEPDF_GetTextUnicodes( PDFPageText text, wchar_t * pBuf, unsigned int
 		}
 		if ( pTextObj->mItems.size() == 0 )
 		{
-			return -3;
+			return PDF_STATUS_NOTEXT_ERR;
 		}
 		if ( pTextObj->mItems.size() > bufSize )
 		{
-			return -4;
+			return PDF_STATUS_BUFFER_TOO_SMALL;
 		}
 		unsigned int i = 0;
 		for ( ; i < pTextObj->mItems.size(); ++i )
@@ -435,7 +429,7 @@ PDFStatus CHEPDF_GetTextUnicodes( PDFPageText text, wchar_t * pBuf, unsigned int
 		}
 		*(pBuf + i) = L'\0';
 	}
-	return 0;
+	return PDF_STATUS_OK;
 }
 
 
@@ -595,18 +589,18 @@ PDFStatus CHEPDF_GetCharUnicode( PDFPageChar textChar, wchar_t * UnicodeRet )
 	PDFStatus status = 0;
 	if ( textChar == NULL )
 	{
-		return -1;
+		return PDF_STATUS_PARAM_ERR;
 	}
 	_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
 	CHE_PDF_Text * pTextObj = pCharStruct->pText;
 	if ( pTextObj == NULL || pCharStruct->index >= pTextObj->mItems.size() )
 	{
-		return -2;
+		return PDF_STATUS_NOTEXT_ERR;
 	}
 
 	*UnicodeRet = pTextObj->mItems[pCharStruct->index].ucs;
 
-	return 0;
+	return PDF_STATUS_OK;
 }
 
 
@@ -693,12 +687,12 @@ PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar, float sclae /*= 1*/ )
 					err = FT_Load_Glyph( pFont->GetFTFace(), gid, /*FT_LOAD_DEFAULT*/FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO );
 					//FT_Load_Char( pFont->GetFTFace(), pTextObj->mItems[pCharStruct->index].charCode, FT_LOAD_DEFAULT );
 					err = FT_Render_Glyph( pFont->GetFTFace()->glyph, FT_RENDER_MODE_NORMAL );
-					return 0;
+					return PDF_STATUS_OK;
 				}
 			}
 		}
 	}
-	return 1;
+	return PDF_STATUS_ERROR;
 }
 
 
@@ -843,8 +837,336 @@ PDFStatus CHEPDF_SaveBitmapToFile( PDFBitmap bitmap, char * filePath )
 		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
 		if ( pBitmap->Save( filePath ) )
 		{
-			return 0;
+			return PDF_STATUS_OK;
 		}
 	}
-	return -1;
+	return PDF_STATUS_ERROR;
+}
+
+struct _PDFPageWordStruct
+{
+	std::vector<_PDFPageCharStruct> charVector;
+};
+
+struct _PDFPageWordSetStruct
+{
+	std::vector<_PDFPageWordStruct> wordVector;
+	std::vector<_PDFPageWordStruct>::iterator it;
+};
+
+int _JoinRectToList( std::list<PDFRect> & rectlist, PDFRect rect, std::list<PDFRect>::iterator & itRet )
+{
+	int index = -1;
+	std::list<PDFRect>::iterator it = rectlist.begin();
+	bool bMatch = false;
+	for ( ; it != rectlist.end(); ++it )
+	{
+		PDFRect tmpRect = *it;
+		++index;
+		//rect在tmpRect之后
+		if ( fabs( rect.bottom - tmpRect.bottom ) < 0.5 && fabs( tmpRect.left + tmpRect.width - rect.left ) < 0.5  )
+		{
+			*it = fz_union_rect( tmpRect, rect );
+			bMatch = true;
+			break;
+		}
+		//rect在tmpRect之前。。。其实是不是可以不考虑呢？
+	}
+	if ( bMatch )
+	{
+		itRet = it;
+	}else{
+		index = -1;
+		rectlist.push_back( rect );
+	}
+	return index;
+}
+
+PDFPageWordSet CHEPDF_GetPageWordSet( PDFPageContent content )
+{
+	_PDFPageWordSetStruct * pPageWordSet = NULL;
+	std::list<PDFRect> rectList;
+	std::list<PDFRect>::iterator rectListIt = rectList.end();
+	if ( content )
+	{
+		_PDFPageContentStruct * pPageCtxSrt = (_PDFPageContentStruct*)( content );
+		if ( pPageCtxSrt->pContentObjList )
+		{
+			ContentObjectList::iterator it = pPageCtxSrt->pContentObjList->Begin();
+			pPageCtxSrt->it = pPageCtxSrt->pContentObjList->End();
+			for ( ; it != pPageCtxSrt->pContentObjList->End(); ++it )
+			{
+				if ( (*it)->GetType() == ContentType_Text )
+				{
+					if ( pPageWordSet == NULL )
+					{
+						pPageWordSet = GetDefaultAllocator()->New<_PDFPageWordSetStruct>();
+						pPageWordSet->it = pPageWordSet->wordVector.begin();
+					}
+
+					//获取到text object
+					CHE_PDF_Text * pText = (CHE_PDF_Text *)(*it);
+					if ( pText )
+					{
+						//开始遍历text object中的char
+						for ( size_t i = 0; i < pText->mItems.size(); ++i )
+						{
+							//获取char的rect
+							_PDFPageCharStruct pageChar;
+							pageChar.index = i;
+							pageChar.pText = pText;
+							PDFRect rect = CHEPDF_GetCharBox( &pageChar );
+
+							if (	pText->mItems[i].charCode == ' ' || pText->mItems[i].ucs == L' ' ||
+									pText->mItems[i].charCode == '\t' || pText->mItems[i].ucs == L'\t' )
+							{
+								continue;
+							}
+
+							rectListIt = rectList.end();
+							int retValue = _JoinRectToList( rectList, rect, rectListIt );
+							if ( retValue == -1 )
+							{
+								//将rect放入rectlist中进行比较
+								//结果一，完全独立的rect
+								//新添加rect到list中，新添加一个word
+								_PDFPageWordStruct pageWord;
+								pageWord.charVector.push_back( pageChar );
+								pPageWordSet->wordVector.push_back( pageWord );
+							}else if ( retValue >= 0 && retValue < pPageWordSet->wordVector.size() )
+							{
+								//结果二，与某个rect连续
+								//扩充rectlist的对应rect的大小，将char加入到这个word中
+								pPageWordSet->wordVector[retValue].charVector.push_back( pageChar );
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return pPageWordSet;
+}
+
+
+PDFPageWord	CHEPDF_GetFirstPageWord( PDFPageWordSet wordset )
+{
+	if ( wordset )
+	{
+		_PDFPageWordSetStruct * pPageWordSet = (_PDFPageWordSetStruct *)wordset;
+		pPageWordSet->it = pPageWordSet->wordVector.begin();
+		if ( pPageWordSet->it != pPageWordSet->wordVector.end() )
+		{
+			return (PDFPageWord)( &*pPageWordSet->it );
+		}
+	}
+	return NULL;
+}
+
+
+PDFPageWord	CHEPDF_GetNextPageWord( PDFPageWordSet wordset )
+{
+	if ( wordset )
+	{
+		_PDFPageWordSetStruct * pPageWordSet = (_PDFPageWordSetStruct *)wordset;
+		++(pPageWordSet->it);
+		if ( pPageWordSet->it != pPageWordSet->wordVector.end() )
+		{
+			return (PDFPageWord)( &*pPageWordSet->it );
+		}
+	}
+	return NULL;
+}
+
+
+void CHEPDF_ReleasePageWordSet( PDFPageWordSet wordset )
+{
+	if ( wordset )
+	{
+		_PDFPageWordSetStruct * pPageWordSet = (_PDFPageWordSetStruct*)( wordset );
+		GetDefaultAllocator()->Delete<_PDFPageWordSetStruct>( pPageWordSet );
+	}
+}
+
+
+PDFRect	CHEPDF_GetWordBox( PDFPageWord word )
+{
+	PDFRect rect;
+	rect.bottom = 0;
+	rect.left = 0;
+	rect.width = 0;
+	rect.height = 0;
+
+	if ( word )
+	{
+		_PDFPageWordStruct * pPageWord = (_PDFPageWordStruct*)( word );
+		for ( size_t i = 0; i < pPageWord->charVector.size(); ++i )
+		{
+			PDFRect tmpRect = CHEPDF_GetCharBox( &pPageWord->charVector[i] );
+			rect = fz_union_rect( rect, tmpRect );
+		}
+	}
+
+	return rect;
+}
+
+
+PDFStatus CHEPDF_IsWordSymbolic( PDFPageWord word )
+{
+	if ( ! word )
+	{
+		return PDF_STATUS_ERROR;
+	}
+	_PDFPageWordStruct * pPageWord = (_PDFPageWordStruct*)( word );
+	CHE_PDF_Text * pText = NULL;
+	CHE_PDF_GState * pGState = NULL;
+	CHE_PDF_Font * pFont = NULL;
+	CHE_PDF_FontDescriptor * pFontDescriptor = NULL;
+	FT_Face tmpFace = NULL;
+	for ( size_t i = 0; i < pPageWord->charVector.size(); ++i )
+	{
+		pText = pPageWord->charVector[i].pText;
+		pGState = pText->GetGState();
+		if ( pGState )
+		{
+			pFont = pGState->GetTextFont();
+			if ( pFont )
+			{
+				tmpFace = pFont->GetFTFace();
+				if ( tmpFace->num_faces > 1 )
+				{
+					pFontDescriptor = pFont->GetFontDescriptor();
+					if ( pFontDescriptor )
+					{
+						if ( pFontDescriptor->IsSymbolic() )
+						{
+							return PDF_WORD_SYMBOLIC;
+						}
+					}
+				}
+			}
+		}
+	}
+	return PDF_WORD_NOTSYMBOLIC;
+}
+
+
+unsigned int CHEPDF_GetWordLength( PDFPageWord word )
+{
+	if ( ! word )
+	{
+		return -1;
+	}
+	_PDFPageWordStruct * pWordStruct = (_PDFPageWordStruct*)( word );
+	return pWordStruct->charVector.size();
+}
+
+
+PDFStatus CHEPDF_GetWordUnicodes( PDFPageWord word, wchar_t * pBuf, unsigned int bufSize )
+{
+	if ( pBuf == NULL )
+	{
+		return PDF_STATUS_PARAM_ERR;
+	}
+	if ( word )
+	{
+		_PDFPageWordStruct * pWordStrcut = (_PDFPageWordStruct*)( word );
+		if ( pWordStrcut->charVector.size() > bufSize )
+		{
+			return PDF_STATUS_BUFFER_TOO_SMALL;
+		}
+		CHE_PDF_Text * pTextObj = NULL;
+		unsigned int index = 0;
+		PDF_FONT_TYPE fontType = FONT_TYPE1;
+		CHE_PDF_GState * pGState = NULL;
+		CHE_PDF_Font * pFont = NULL;
+		size_t i = 0;
+		for ( ; i < pWordStrcut->charVector.size(); ++i )
+		{
+			pTextObj = (CHE_PDF_Text *)( pWordStrcut->charVector[i].pText );
+			index = pWordStrcut->charVector[i].index;
+			fontType = FONT_TYPE1;
+			pGState = pTextObj->GetGState();
+			if ( pGState )
+			{
+				pFont = pGState->GetTextFont();
+				if ( pFont )
+				{ 
+					fontType = pFont->GetType();
+				}
+			}
+			if ( fontType == FONT_TYPE0 )
+			{
+				*(pBuf + i) = pTextObj->mItems[index].ucs;
+			}else{
+				if ( pTextObj->mItems[index].ucs != 0 )
+				{
+					*(pBuf + i) = pTextObj->mItems[index].ucs;
+				}else{
+					*(pBuf + i) = pTextObj->mItems[index].charCode;
+				}
+			}
+		}
+		*(pBuf + i) = L'\0';
+	}
+	return PDF_STATUS_OK;
+}
+
+
+PDFBitmap CHEPDF_RenderWord( PDFPageWord word, float sclae /*= 1*/ )
+{
+	PDFBitmap * pBitmap = NULL;
+	if ( word )
+	{
+		PDFRect bbox = CHEPDF_GetWordBox( word );
+		CHE_Bitmap * pBitmapRet = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+		pBitmapRet->Create( bbox.width * sclae * PIXELPERINCH / 72, bbox.height * sclae * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+		pBitmapRet->Fill( 0xFFFFFFFF );
+
+		_PDFPageWordStruct * pPageWord = (_PDFPageWordStruct*)( word );
+		for ( size_t i = 0; i < pPageWord->charVector.size(); ++i )
+		{
+			CHE_PDF_Text * pText = pPageWord->charVector[i].pText;
+			if ( pText )
+			{
+				CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
+				FT_Face face = pFont->GetFTFace();
+				if ( face )
+				{
+					int xPosition = 0;
+					int yBaseline = 0;
+					for ( unsigned int i = 0; i < pText->mItems.size(); ++i )
+					{
+						PDFPageChar textChar = CHEPDF_GetPageChar( pText, i );
+						PDFMatrix cmtx = CHEPDF_GetCharMatirx( textChar );
+						PDFPosition oriPoint;
+						oriPoint.x = cmtx.e;
+						oriPoint.y = cmtx.f;
+						yBaseline = ( bbox.bottom + bbox.height - oriPoint.y ) * sclae * PIXELPERINCH / 72;
+						xPosition = ( oriPoint.x - bbox.left ) * sclae * PIXELPERINCH / 72;
+
+						_CHEPDF_RenderGlyph( textChar, sclae );
+						if ( face->glyph && face->glyph->bitmap.buffer )
+						{
+							FT_Bitmap & bitmap = face->glyph->bitmap;
+							HE_ARGB argb = 0;
+							for ( int i = 0; i < bitmap.width; ++i )
+							{
+								for ( int j = 0; j < bitmap.rows; ++j )
+								{
+									if ( bitmap.buffer[i + bitmap.width*j] != 0x00 )
+									{
+										argb = 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 );
+										pBitmapRet->SetPixelColor( i + xPosition + face->glyph->bitmap_left, j + yBaseline - face->glyph->bitmap_top, argb );
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		pBitmap = (PDFBitmap *)( pBitmapRet );
+	}
+	return pBitmap;
 }

@@ -8,6 +8,8 @@ typedef	void *	PDFPageContent;
 typedef	void *	PDFPageText;
 typedef	void *	PDFPageChar;
 typedef void *	PDFBitmap;
+typedef void *	PDFPageWordSet;
+typedef void *	PDFPageWord;
 
 struct PDFPosition
 {
@@ -32,6 +34,15 @@ struct PDFMatrix
 	float e;
 	float f;
 };
+
+#define				PDF_STATUS_OK				0
+#define				PDF_STATUS_ERROR			-1
+#define				PDF_STATUS_PARAM_ERR		-2
+#define				PDF_STATUS_NOTEXT_ERR		-3
+#define				PDF_STATUS_BUFFER_TOO_SMALL	-4
+
+#define				PDF_WORD_NOTSYMBOLIC		0
+#define				PDF_WORD_SYMBOLIC			1
 
 PDFDocument			CHEPDF_OpenDocument( const char * pFilePath );
 void				CHEPDF_CloseDocument( PDFDocument doc );
@@ -66,5 +77,18 @@ void				CHEPDF_CloseBitmap( PDFBitmap bitmap );
 unsigned int		CHEPDF_GetBitmapWidth( PDFBitmap bitmap );
 unsigned int		CHEPDF_GetBitmapHeight( PDFBitmap bitmap );
 PDFStatus			CHEPDF_SaveBitmapToFile( PDFBitmap bitmap, char * filePath );
+
+PDFPageWordSet		CHEPDF_GetPageWordSet( PDFPageContent content );
+PDFPageWord			CHEPDF_GetFirstPageWord( PDFPageWordSet wordset );
+PDFPageWord			CHEPDF_GetNextPageWord( PDFPageWordSet wordset );
+void				CHEPDF_ReleasePageWordSet( PDFPageWordSet wordset );
+
+PDFRect				CHEPDF_GetWordBox( PDFPageWord word );
+PDFStatus			CHEPDF_IsWordSymbolic( PDFPageWord word );
+unsigned int		CHEPDF_GetWordLength( PDFPageWord word );
+PDFStatus			CHEPDF_GetWordUnicodes( PDFPageWord word, wchar_t * pBuf, unsigned int bufSize );
+PDFBitmap			CHEPDF_RenderWord( PDFPageWord word, float sclae = 1 );
+
+
 
 #endif

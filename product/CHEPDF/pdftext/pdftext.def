@@ -31,3 +31,14 @@ CHEPDF_CloseBitmap
 CHEPDF_GetBitmapWidth
 CHEPDF_GetBitmapHeight
 CHEPDF_SaveBitmapToFile
+
+CHEPDF_GetPageWordSet
+CHEPDF_GetFirstPageWord
+CHEPDF_GetNextPageWord
+CHEPDF_ReleasePageWordSet
+
+CHEPDF_GetWordBox
+CHEPDF_IsWordSymbolic
+CHEPDF_GetWordLength
+CHEPDF_GetWordUnicodes
+CHEPDF_RenderWord

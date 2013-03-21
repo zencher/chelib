@@ -219,6 +219,45 @@ PDFPage CHEPDF_GetPage( PDFDocument doc, unsigned int index )
 }
 
 
+PDFRect CHEPDF_GetPageBox( PDFPage page )
+{
+	PDFRect rectRet;
+	rectRet.left = 0;
+	rectRet.bottom = 0;
+	rectRet.width = 0;
+	rectRet.height = 0;
+	if ( page )
+	{
+		_PDFPageStruct * pPageSrt = (_PDFPageStruct*)page;
+		CHE_PDF_ArrayPtr arrayPtr = pPageSrt->pPageObj->GetMediaBoxArray();
+		if ( arrayPtr )
+		{
+			CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				rectRet.left = objPtr->GetNumberPtr()->GetFloat();
+			}
+			objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				rectRet.bottom = objPtr->GetNumberPtr()->GetFloat();
+			}
+			objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				rectRet.width = objPtr->GetNumberPtr()->GetFloat();
+			}
+			objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				rectRet.height = objPtr->GetNumberPtr()->GetFloat();
+			}
+		}
+	}
+	return rectRet;
+}
+
+
 void CHEPDF_ClosePage( PDFPage page )
 {
 	if ( page )
@@ -488,75 +527,82 @@ PDFMatrix CHEPDF_GetCharMatirx( PDFPageChar textChar )
 	{
 		return mtx;
 	}
-	CHE_PDF_GState * pGState = pTextObj->GetGState();
-	if ( pGState )
-	{
-		CHE_PDF_Matrix tmpMatrix;
-		HE_FLOAT fontSize = 1;
-		HE_FLOAT fontScaling = 100;
-		HE_FLOAT fontRise = 0;
-		HE_FLOAT fontCharSpace = 0;
-		HE_FLOAT fontWordSpace = 0;
-		pGState->GetTextFontSize( fontSize );
-		pGState->GetTextScaling( fontScaling );
-		pGState->GetTextRise( fontRise );
-		pGState->GetTextCharSpace( fontCharSpace );
-		pGState->GetTextWordSpace( fontWordSpace );
-		tmpMatrix.a = fontSize * fontScaling / 100;
-		tmpMatrix.b = 0;
-		tmpMatrix.c = 0;
-		tmpMatrix.d = fontSize;
-		tmpMatrix.e = 0;
-		tmpMatrix.f = fontRise;
-
-		CHE_PDF_Matrix textMatrix;
-		pGState->GetTextMatrix( textMatrix );
-		
-		CHE_PDF_Matrix ctm = pGState->GetMatrix();
-		
-		tmpMatrix.Concat( textMatrix );
-		tmpMatrix.Concat( ctm );
-
-		unsigned int i = 0;
-		for ( ; i < pCharStruct->index; ++i )
-		{
-			//计算字符相对于Text Object的起始点的偏移，依据字体横排或者竖排的不同，有不同的计算方法。
-			//这里面的计算应该使用字体大小，字体大小的运算在外层的矩阵中参与了。
-			HE_FLOAT OffsetX = 0;
-			HE_FLOAT OffsetY = 0;
-			CHE_PDF_Matrix OffsetMatrix;
-			OffsetX = ( ( pTextObj->mItems[i].width - pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
-			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
-			if ( pTextObj->mItems[i].ucs == L' ' )
-			{
-				OffsetX += fontWordSpace;
-			}
-			OffsetMatrix.e = OffsetX;
-			OffsetMatrix.f = OffsetY;
-			OffsetMatrix.Concat( tmpMatrix );
-			tmpMatrix = OffsetMatrix;
-		}
-
-		if ( i <= pCharStruct->index )
-		{
-			HE_FLOAT OffsetX = 0;
-			HE_FLOAT OffsetY = 0;
-			CHE_PDF_Matrix OffsetMatrix;
-			OffsetX = ( 0 - pTextObj->mItems[i].kerning / 1000 );
-			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
-			OffsetMatrix.e = OffsetX;
-			OffsetMatrix.f = OffsetY;
-			OffsetMatrix.Concat( tmpMatrix );
-			tmpMatrix = OffsetMatrix;
-		}
-
-		mtx.a = tmpMatrix.a;
-		mtx.b = tmpMatrix.b;
-		mtx.c = tmpMatrix.c;
-		mtx.d = tmpMatrix.d;
-		mtx.e = tmpMatrix.e;
-		mtx.f = tmpMatrix.f;
-	}
+	CHE_PDF_Matrix tmpMatrix = pTextObj->GetCharMatrix( pCharStruct->index );
+	mtx.a = tmpMatrix.a;
+	mtx.b = tmpMatrix.b;
+	mtx.c = tmpMatrix.c;
+	mtx.d = tmpMatrix.d;
+	mtx.e = tmpMatrix.e;
+	mtx.f = tmpMatrix.f;
+// 	CHE_PDF_GState * pGState = pTextObj->GetGState();
+// 	if ( pGState )
+// 	{
+// 		CHE_PDF_Matrix tmpMatrix;
+// 		HE_FLOAT fontSize = 1;
+// 		HE_FLOAT fontScaling = 100;
+// 		HE_FLOAT fontRise = 0;
+// 		HE_FLOAT fontCharSpace = 0;
+// 		HE_FLOAT fontWordSpace = 0;
+// 		pGState->GetTextFontSize( fontSize );
+// 		pGState->GetTextScaling( fontScaling );
+// 		pGState->GetTextRise( fontRise );
+// 		pGState->GetTextCharSpace( fontCharSpace );
+// 		pGState->GetTextWordSpace( fontWordSpace );
+// 		tmpMatrix.a = fontSize * fontScaling / 100;
+// 		tmpMatrix.b = 0;
+// 		tmpMatrix.c = 0;
+// 		tmpMatrix.d = fontSize;
+// 		tmpMatrix.e = 0;
+// 		tmpMatrix.f = fontRise;
+// 
+// 		CHE_PDF_Matrix textMatrix;
+// 		pGState->GetTextMatrix( textMatrix );
+// 		
+// 		CHE_PDF_Matrix ctm = pGState->GetMatrix();
+// 		
+// 		tmpMatrix.Concat( textMatrix );
+// 		tmpMatrix.Concat( ctm );
+// 
+// 		unsigned int i = 0;
+// 		for ( ; i < pCharStruct->index; ++i )
+// 		{
+// 			//计算字符相对于Text Object的起始点的偏移，依据字体横排或者竖排的不同，有不同的计算方法。
+// 			//这里面的计算应该使用字体大小，字体大小的运算在外层的矩阵中参与了。
+// 			HE_FLOAT OffsetX = 0;
+// 			HE_FLOAT OffsetY = 0;
+// 			CHE_PDF_Matrix OffsetMatrix;
+// 			OffsetX = ( ( pTextObj->mItems[i].width - pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
+// 			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
+// 			if ( pTextObj->mItems[i].ucs == L' ' )
+// 			{
+// 				OffsetX += fontWordSpace;
+// 			}
+// 			OffsetMatrix.e = OffsetX;
+// 			OffsetMatrix.f = OffsetY;
+// 			OffsetMatrix.Concat( tmpMatrix );
+// 			tmpMatrix = OffsetMatrix;
+// 		}
+// 
+// 		if ( i <= pCharStruct->index )
+// 		{
+// 			HE_FLOAT OffsetX = 0;
+// 			HE_FLOAT OffsetY = 0;
+// 			CHE_PDF_Matrix OffsetMatrix;
+// 			OffsetX = ( 0 - pTextObj->mItems[i].kerning / 1000 );
+// 			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
+// 			OffsetMatrix.e = OffsetX;
+// 			OffsetMatrix.f = OffsetY;
+// 			OffsetMatrix.Concat( tmpMatrix );
+// 			tmpMatrix = OffsetMatrix;
+// 		}
+// 
+// 		mtx.a = tmpMatrix.a;
+// 		mtx.b = tmpMatrix.b;
+// 		mtx.c = tmpMatrix.c;
+// 		mtx.d = tmpMatrix.d;
+// 		mtx.e = tmpMatrix.e;
+// 		mtx.f = tmpMatrix.f;
+// 	}
 
 	return mtx;
 }
@@ -617,23 +663,28 @@ PDFRect CHEPDF_GetCharBox( PDFPageChar textChar )
 		PDFMatrix matrix = CHEPDF_GetCharMatirx( textChar );
 		_PDFPageCharStruct * pCharStruct = (_PDFPageCharStruct*)( textChar );
 		CHE_PDF_Text * pTextObj = pCharStruct->pText;
-		CHE_PDF_GState * pGState = pTextObj->GetGState();
-		FT_Face face = NULL;
-		if ( pGState )
-		{
-			face = pGState->GetTextFont()->GetFTFace();
-		}
-		if ( pTextObj && pCharStruct->index < pTextObj->mItems.size() )
-		{
-			rect.width = pTextObj->mItems[pCharStruct->index].width;
-			rect.height = pTextObj->mItems[pCharStruct->index].height;
-			if ( face )
-			{
-				rect.bottom = face->descender * 1.0 / face->units_per_EM;
-				rect.height = ( face->ascender - face->descender ) * 1.0 / face->units_per_EM;
-			}
-			rect = fz_transform_rect( matrix, rect );
-		}
+		CHE_PDF_Rect tmpRect = pTextObj->GetCharRect( pCharStruct->index );
+		rect.left = tmpRect.left;
+		rect.bottom = tmpRect.bottom;
+		rect.width = tmpRect.width;
+		rect.height = tmpRect.height;
+// 		CHE_PDF_GState * pGState = pTextObj->GetGState();
+// 		FT_Face face = NULL;
+// 		if ( pGState )
+// 		{
+// 			face = pGState->GetTextFont()->GetFTFace();
+// 		}
+// 		if ( pTextObj && pCharStruct->index < pTextObj->mItems.size() )
+// 		{
+// 			rect.width = pTextObj->mItems[pCharStruct->index].width;
+// 			rect.height = pTextObj->mItems[pCharStruct->index].height;
+// 			if ( face )
+// 			{
+// 				rect.bottom = face->descender * 1.0 / face->units_per_EM;
+// 				rect.height = ( face->ascender - face->descender ) * 1.0 / face->units_per_EM;
+// 			}
+// 			rect = fz_transform_rect( matrix, rect );
+// 		}
 	}
 	return rect;
 }
@@ -1167,6 +1218,71 @@ PDFBitmap CHEPDF_RenderWord( PDFPageWord word, float sclae /*= 1*/ )
 			}
 		}
 		pBitmap = (PDFBitmap *)( pBitmapRet );
+	}
+	return pBitmap;
+}
+
+
+PDFBitmap CHEPDF_RenderPage( PDFPage page, float sclae /*= 1*/ )
+{
+	PDFBitmap * pBitmap = NULL;
+	if ( page )
+	{
+		PDFRect bbox = CHEPDF_GetPageBox( page );
+		PDFPageContent content = CHEPDF_GetPageContent( page );
+		if ( content )
+		{
+			CHE_Bitmap * pBitmapRet = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+			pBitmapRet->Create( bbox.width * sclae * PIXELPERINCH / 72, bbox.height * sclae * PIXELPERINCH / 72, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_UP );
+			pBitmapRet->Fill( 0xFFFFFFFF );
+
+			PDFPageText text = CHEPDF_GetFirstPageText( content );
+			while ( text )
+			{
+				CHE_PDF_Text * pText = (CHE_PDF_Text*)( text );
+				CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
+				FT_Face face = pFont->GetFTFace();
+				if ( face )
+				{
+					int xPosition = 0;
+					int yBaseline = 0;
+					//int xPageOffset = 0;
+					//int yPageOffset = 0;
+					for ( unsigned int i = 0; i < pText->mItems.size(); ++i )
+					{
+						PDFPageChar textChar = CHEPDF_GetPageChar( pText, i );
+						PDFRect charBox = CHEPDF_GetCharBox( textChar );
+// 						PDFMatrix cmtx = CHEPDF_GetCharMatirx( textChar );
+// 						PDFPosition oriPoint;
+// 						oriPoint.x = cmtx.e;
+// 						oriPoint.y = cmtx.f;
+						yBaseline = ( bbox.bottom + bbox.height - charBox.bottom - charBox.height/* - oriPoint.y*/ ) * sclae * PIXELPERINCH / 72;
+						xPosition = ( /*oriPoint.x - */charBox.left ) * sclae * PIXELPERINCH / 72;
+						_CHEPDF_RenderGlyph( textChar, sclae );
+						CHEPDF_ClosePageChar( textChar );
+						if ( face->glyph && face->glyph->bitmap.buffer )
+						{
+							FT_Bitmap & bitmap = face->glyph->bitmap;
+							HE_ARGB argb = 0;
+							for ( int i = 0; i < bitmap.width; ++i )
+							{
+								for ( int j = 0; j < bitmap.rows; ++j )
+								{
+									if ( bitmap.buffer[i + bitmap.width*j] != 0x00 )
+									{
+										argb = 0xFFFFFFFF - ( bitmap.buffer[i + bitmap.width*j] | bitmap.buffer[i + bitmap.width*j] << 8 | bitmap.buffer[i + bitmap.width*j] << 16 );
+										pBitmapRet->SetPixelColor( i + xPosition + face->glyph->bitmap_left, j + yBaseline - face->glyph->bitmap_top, argb );
+									}
+								}
+							}
+						}
+					}
+				}
+				text = CHEPDF_GetNextPageText( content );  
+			}
+			pBitmap = (PDFBitmap *)pBitmapRet;
+		}
+		CHEPDF_ReleasePageContent( content );
 	}
 	return pBitmap;
 }

@@ -42,3 +42,5 @@ CHEPDF_IsWordSymbolic
 CHEPDF_GetWordLength
 CHEPDF_GetWordUnicodes
 CHEPDF_RenderWord
+
+CHEPDF_RenderPage

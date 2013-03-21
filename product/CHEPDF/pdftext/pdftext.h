@@ -89,6 +89,6 @@ unsigned int		CHEPDF_GetWordLength( PDFPageWord word );
 PDFStatus			CHEPDF_GetWordUnicodes( PDFPageWord word, wchar_t * pBuf, unsigned int bufSize );
 PDFBitmap			CHEPDF_RenderWord( PDFPageWord word, float sclae = 1 );
 
-
+PDFBitmap			CHEPDF_RenderPage( PDFPage page, float sclae = 1 );
 
 #endif

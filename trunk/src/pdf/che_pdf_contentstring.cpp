@@ -234,7 +234,7 @@ HE_BOOL CHE_PDF_ContentString::TextToBuf( const CHE_PDF_Text * pText, CHE_DynBuf
 		return FALSE;
 	}
 
-	CHE_PDF_ObjectPtr objPtr = pText->GetText();
+	CHE_PDF_ObjectPtr objPtr = pText->GetTextObject();
 
 	if ( IsPdfStringPtr( objPtr ) )
 	{

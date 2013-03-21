@@ -8,6 +8,8 @@
 #include <vector>
 #include <list>
 
+#define CONTENTOBJ_FLAG_MODIFIED	0x00000001
+
 enum PDF_CONTENTOBJ_TYPE
 {
 	ContentType_Text = 0,
@@ -17,10 +19,6 @@ enum PDF_CONTENTOBJ_TYPE
 	ContentType_InlineImage = 4,
 	ContentType_Form = 5,
 	ContentType_Shading = 6,
-	//ContentType_PushGState = 7,
-	//ContentType_PopGState = 8,
-	//ContentType_TextBegin = 9,
-	//ContentType_TextEnd = 10
 };
 
 class CHE_PDF_ContentObject : public CHE_Object
@@ -46,9 +44,25 @@ public:
 	CHE_PDF_Matrix GetExtMatrix() { return mExtMatrixl; }
 	HE_VOID	SetExtMatrix( const CHE_PDF_Matrix & matrx ) { mExtMatrixl = matrx; }
 
+	HE_BOOL	IsModified() const
+	{
+		return (mFlag & CONTENTOBJ_FLAG_MODIFIED);
+	}
 protected:
-	CHE_PDF_GState *	mpGState;
+	HE_VOID	SetFlag( HE_DWORD flag )
+	{
+		mFlag = flag;
+	}
+
+	HE_VOID CombineFlag( HE_DWORD flag )
+	{
+		mFlag |= flag;
+	}
+
+protected:
+	HE_DWORD			mFlag;
 	CHE_PDF_Matrix		mExtMatrixl;
+	CHE_PDF_GState *	mpGState;
 };
 
 typedef std::list<CHE_PDF_ContentObject*> ContentObjectList;
@@ -121,7 +135,7 @@ public:
 
 	HE_BOOL SetTextObject( const CHE_PDF_ObjectPtr & pObj );
 
-	CHE_PDF_ObjectPtr GetText() const { return mpObj; }
+	CHE_PDF_ObjectPtr GetTextObject() const { return mpObj; }
 
 	CHE_PDF_ContentObject * Clone() const
 	{
@@ -138,6 +152,14 @@ public:
 		}
 		return pTextRet;
 	}
+
+	CHE_PDF_Matrix GetTextMatrix() const;
+
+	CHE_PDF_Matrix GetCharMatrix( HE_DWORD index ) const;
+
+	CHE_PDF_Rect GetTextRect() const;
+
+	CHE_PDF_Rect GetCharRect( HE_DWORD index ) const;
 
 	std::vector<CHE_PDF_TextItem> mItems;
 

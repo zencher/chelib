@@ -198,7 +198,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						}
 						item.kerning = kerning;
 						item.width = pFont->GetWidth( item.gid );
-						item.height = 0; //font height??
+						item.height = 1; //font height??
 						mItems.push_back( item );
 						kerning = 0;
 					}
@@ -212,6 +212,128 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		return TRUE;
 	}
 	return FALSE;
+}
+
+CHE_PDF_Matrix CHE_PDF_Text::GetTextMatrix() const
+{
+	CHE_PDF_GState * pGState = GetGState();
+	if ( pGState )
+	{
+		CHE_PDF_Matrix textMatrix;
+		CHE_PDF_Matrix ctm;
+		CHE_PDF_Matrix tmpMatrix;
+		HE_FLOAT fontSize = 1;
+		HE_FLOAT fontScaling = 100;
+		HE_FLOAT fontRise = 0;
+		HE_FLOAT fontCharSpace = 0;
+		HE_FLOAT fontWordSpace = 0;
+		pGState->GetTextMatrix( textMatrix );
+		ctm = pGState->GetMatrix();
+		pGState->GetTextFontSize( fontSize );
+		pGState->GetTextScaling( fontScaling );
+		pGState->GetTextRise( fontRise );
+		pGState->GetTextCharSpace( fontCharSpace );
+		pGState->GetTextWordSpace( fontWordSpace );
+		tmpMatrix.a = fontSize * fontScaling / 100;
+		tmpMatrix.b = 0;
+		tmpMatrix.c = 0;
+		tmpMatrix.d = fontSize;
+		tmpMatrix.e = 0;
+		tmpMatrix.f = fontRise;
+		tmpMatrix.Concat( textMatrix );
+		tmpMatrix.Concat( ctm );
+		return textMatrix;
+	}
+	return CHE_PDF_Matrix();
+}
+
+
+CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
+{
+	if ( index >= mItems.size() )
+	{
+		return CHE_PDF_Matrix();
+	}
+	CHE_PDF_GState * pGState = GetGState();
+	if ( pGState )
+	{
+		CHE_PDF_Matrix tmpMatrix = GetTextMatrix();
+		HE_FLOAT fontCharSpace = 0;
+		HE_FLOAT fontWordSpace = 0;
+		pGState->GetTextCharSpace( fontCharSpace );
+		pGState->GetTextWordSpace( fontWordSpace );
+		HE_DWORD i = 0;
+		for (; i < index; ++i )
+		{
+			//计算字符相对于Text Object的起始点的偏移，依据字体横排或者竖排的不同，有不同的计算方法。
+			//这里面的计算应该使用字体大小，字体大小的运算在外层的矩阵中参与了。
+			HE_FLOAT OffsetX = 0;
+			HE_FLOAT OffsetY = 0;
+			CHE_PDF_Matrix OffsetMatrix;
+			OffsetX = ( ( mItems[i].width - mItems[i].kerning * 1.0 / 1000 ) + fontCharSpace );
+			//OffsetY = ( ( mItems[i].width + mItems[i].kerning * 1.0 / 1000 ) + fontCharSpace );
+			if ( mItems[i].ucs == L' ' )
+			{
+				OffsetX += fontWordSpace;
+			}
+			OffsetMatrix.e = OffsetX;
+			OffsetMatrix.f = OffsetY;
+			OffsetMatrix.Concat( tmpMatrix );
+			tmpMatrix = OffsetMatrix;
+		}
+		if ( i <= index )
+		{
+			HE_FLOAT OffsetX = 0;
+			HE_FLOAT OffsetY = 0;
+			CHE_PDF_Matrix OffsetMatrix;
+			OffsetX = ( 0 - mItems[i].kerning * 1.0 / 1000 );
+			//OffsetY = ( ( mItems[i].width + mItems[i].kerning * 1.0 / 1000 ) + fontCharSpace );
+			OffsetMatrix.e = OffsetX;
+			OffsetMatrix.f = OffsetY;
+			OffsetMatrix.Concat( tmpMatrix );
+			tmpMatrix = OffsetMatrix;
+		}
+		return tmpMatrix;
+	}
+	return CHE_PDF_Matrix();
+}
+
+
+CHE_PDF_Rect CHE_PDF_Text::GetTextRect() const
+{
+	CHE_PDF_Rect rect;
+	CHE_PDF_Rect tmpRect;
+	for ( HE_DWORD i = 0; i < mItems.size(); ++i )
+	{
+		tmpRect = GetCharRect( i );
+		rect.Union( tmpRect );
+	}
+	return rect;
+}
+
+
+CHE_PDF_Rect CHE_PDF_Text::GetCharRect( HE_DWORD index ) const
+{
+	CHE_PDF_Rect rect;
+	if ( index < mItems.size() )
+	{
+		FT_Face face = NULL;
+		CHE_PDF_GState * pGState = GetGState();
+		if ( pGState )
+		{
+			face = pGState->GetTextFont()->GetFTFace();
+		}
+		CHE_PDF_Matrix matrix = GetCharMatrix( index );
+		rect.width = mItems[index].width;
+		rect.height = mItems[index].height;
+		if ( face )
+		{
+			rect.bottom = face->descender * 1.0 / face->units_per_EM;
+			rect.height = ( face->ascender - face->descender ) * 1.0 / face->units_per_EM;
+		}
+		rect = matrix.Transform( rect );
+	}
+	return rect;
 }
 
 

@@ -360,6 +360,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_dquote()
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		mpConstructor->Operator_Append( pText );
 		pText->SetTextObject( mpObj );
+		CHE_PDF_Rect rect = pText->GetTextRect();
+		mpConstructor->State_TextOffset( rect.width, 0 /*rect.height*/ );
 	}
 }
 
@@ -375,6 +377,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_squote()
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		mpConstructor->Operator_Append( pText );
 		pText->SetTextObject( mpObj );
+		CHE_PDF_Rect rect = pText->GetTextRect();
+		mpConstructor->State_TextOffset( rect.width, 0 /*rect.height*/ );
 	}
 }
 
@@ -953,6 +957,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
 HE_VOID CHE_PDF_ContentsParser::Handle_Tstar()
 {
 	mpConstructor->Operator_Tstar();
+	mpConstructor->State_ResetTextOffset();
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_TD()
@@ -960,6 +965,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_TD()
 	if ( CheckOpdCount( 2 ) )
 	{
 		mpConstructor->Operator_TD( mOpdFloatStack[0], mOpdFloatStack[1] );
+		mpConstructor->State_ResetTextOffset();
 	}
 }
 
@@ -970,6 +976,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_TJ()
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		mpConstructor->Operator_Append( pText );
 		pText->SetTextObject( mpObj );
+		CHE_PDF_Rect rect = pText->GetTextRect();
+		mpConstructor->State_TextOffset( rect.width, 0 /*rect.height*/ );
 	}
 }
 
@@ -994,6 +1002,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Td()
 	if ( CheckOpdCount( 2 ) )
 	{
 		mpConstructor->Operator_Td( mOpdFloatStack[0], mOpdFloatStack[1] );
+		mpConstructor->State_ResetTextOffset();
 	}
 }
 
@@ -1028,6 +1037,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tj()
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		mpConstructor->Operator_Append( pText );
 		pText->SetTextObject( mpObj );
+		CHE_PDF_Rect rect = pText->GetTextRect();
+		mpConstructor->State_TextOffset( rect.width, 0 /*rect.height*/ );
 	}
 }
 
@@ -1043,6 +1054,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tm()
 		matrix.e = mOpdFloatStack[4];
 		matrix.f = mOpdFloatStack[5];
 		mpConstructor->State_TextMatirx( matrix );
+		mpConstructor->State_ResetTextOffset();
 	}
 }
 
@@ -1726,7 +1738,7 @@ class CContentListConstructor : public IHE_PDF_ContentListConstructor
 {
 public:
 	CContentListConstructor( CHE_PDF_ContentObjectList * pList, const CHE_PDF_Matrix & matrix, CHE_Allocator * pAllocator = NULL )
-		: mpList(pList), mpGState(NULL), mExtMatrix(matrix), mTextLeading(0), IHE_PDF_ContentListConstructor( pAllocator )
+		: mpList(pList), mpGState(NULL), mExtMatrix(matrix), mTextLeading(0), mTextXOffset(0), mTextYOffset(0), IHE_PDF_ContentListConstructor( pAllocator )
 	{
 		mpGState = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
 	}
@@ -1875,6 +1887,18 @@ public:
 		GetGState()->SetTextRenderMode( rm );
 	}
 
+	HE_VOID State_ResetTextOffset()
+	{
+		mTextXOffset = 0;
+		mTextYOffset = 0;
+	}
+
+	HE_VOID State_TextOffset( const HE_FLOAT & xOffset, const HE_FLOAT & yOffset )
+	{
+		mTextXOffset += xOffset;
+		mTextYOffset += yOffset;
+	}
+
 	HE_VOID Operator_Td( const HE_FLOAT & tx, const HE_FLOAT & ty )
 	{
 		CHE_PDF_Matrix matrix, tmpMatrix;
@@ -1937,33 +1961,35 @@ public:
 			{
 			case ContentType_Text:
 				{
-					if ( mpGState )
+					CHE_PDF_GState * pGState = mpGState->Clone();
+					CHE_PDF_Matrix textMatrix;
+					pGState->GetTextMatrix( textMatrix );
+					CHE_PDF_Matrix tmpMatrix;
+					tmpMatrix.e = mTextXOffset;
+					tmpMatrix.f = mTextYOffset;
+					textMatrix.Concat( tmpMatrix );
+					pGState->SetTextMatrix( textMatrix );
+					pObject->SetGState( pGState );
+					PDF_GSTATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
+					mpGState->GetTextRenderMode( rm );
+					switch ( rm )
 					{
-						PDF_GSTATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
-						mpGState->GetTextRenderMode( rm );
-						switch ( rm )
+					case TextRenderMode_FillClip:
+					case TextRenderMode_StrokeClip:
+					case TextRenderMode_FillStrokeClip:
+					case TextRenderMode_Clip:
 						{
-						case TextRenderMode_FillClip:
-						case TextRenderMode_StrokeClip:
-						case TextRenderMode_FillStrokeClip:
-							{
-								Operator_Clip( pObject );
-								break;
-							}
-						case TextRenderMode_Clip:
-							{
-								pObject->SetGState( mpGState->Clone() );
-								Operator_Clip( pObject );
-								return;
-							}
-						case TextRenderMode_Invisible:
-						case TextRenderMode_Fill:
-						case TextRenderMode_Stroke:
-						case TextRenderMode_FillStroke:
+							Operator_Clip( pObject );
 							break;
-						default: return;
 						}
+					case TextRenderMode_Invisible:
+					case TextRenderMode_Fill:
+					case TextRenderMode_Stroke:
+					case TextRenderMode_FillStroke:
+						break;
+					default: return;
 					}
+					break;
 				}
 			case ContentType_Path:
 			case ContentType_RefImage:
@@ -2040,6 +2066,8 @@ private:
 	CHE_PDF_GState * mpGState;
 	CHE_PDF_Matrix mExtMatrix;
 	HE_FLOAT mTextLeading;
+	HE_FLOAT mTextXOffset;
+	HE_FLOAT mTextYOffset;
 };
 
 IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * plist,

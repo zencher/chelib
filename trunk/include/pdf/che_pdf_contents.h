@@ -39,6 +39,8 @@ public:
 	virtual HE_VOID State_TextScaling( const HE_FLOAT & scaling ) = 0;
 	virtual HE_VOID State_TextLeading( const HE_FLOAT & leading ) = 0;
 	virtual HE_VOID State_TextRise( const HE_FLOAT & rise ) = 0;
+	virtual HE_VOID State_ResetTextOffset() = 0;
+	virtual HE_VOID State_TextOffset( const HE_FLOAT & xOffset, const HE_FLOAT & yOffset ) = 0; //不使用Td，TD，Tm等指令的时候，连续Tj需要计算offset
 	virtual HE_VOID State_TextRenderMode( const PDF_GSTATE_TEXTRENDERMODE rm ) = 0;
 	virtual HE_VOID Operator_Td( const HE_FLOAT & tx, const HE_FLOAT & ty ) = 0;
 	virtual HE_VOID Operator_TD( const HE_FLOAT & tx, const HE_FLOAT & ty ) = 0;

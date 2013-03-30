@@ -79,7 +79,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>pdftext.def</ModuleDefinitionFile>
       <OutputFile>../bin/release/$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalDependencies>../../../trunk/build/release/win32_vc10/chelib.lib;../../../trunk/extlib/zlib/release/zlib.lib;../../../trunk/extlib/freetype/release/freetype.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../../../trunk/build/release/win32_vc10/chelib.lib;../../../trunk/extlib/zlib/release/zlib.lib;../../../trunk/extlib/freetype/release/libthirdparty.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBC.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>

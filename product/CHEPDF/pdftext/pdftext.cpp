@@ -905,7 +905,7 @@ struct _PDFPageWordSetStruct
 	std::vector<_PDFPageWordStruct>::iterator it;
 };
 
-int _JoinRectToList( std::list<PDFRect> & rectlist, PDFRect rect, std::list<PDFRect>::iterator & itRet )
+int _JoinRectToList( std::list<PDFRect> & rectlist, PDFRect rect, std::list<PDFRect>::iterator & itRet, float threshold /*= 0.5*/ )
 {
 	int index = -1;
 	std::list<PDFRect>::iterator it = rectlist.begin();
@@ -915,7 +915,7 @@ int _JoinRectToList( std::list<PDFRect> & rectlist, PDFRect rect, std::list<PDFR
 		PDFRect tmpRect = *it;
 		++index;
 		//rect在tmpRect之后
-		if ( fabs( rect.bottom - tmpRect.bottom ) < 0.5 && fabs( tmpRect.left + tmpRect.width - rect.left ) < 0.5  )
+		if ( fabs( rect.bottom - tmpRect.bottom ) < threshold && fabs( tmpRect.left + tmpRect.width - rect.left ) < threshold  )
 		{
 			*it = fz_union_rect( tmpRect, rect );
 			bMatch = true;
@@ -933,7 +933,7 @@ int _JoinRectToList( std::list<PDFRect> & rectlist, PDFRect rect, std::list<PDFR
 	return index;
 }
 
-PDFPageWordSet CHEPDF_GetPageWordSet( PDFPageContent content )
+PDFPageWordSet CHEPDF_GetPageWordSet( PDFPageContent content, float threshold /*= 0.5*/ )
 {
 	_PDFPageWordSetStruct * pPageWordSet = NULL;
 	std::list<PDFRect> rectList;
@@ -975,7 +975,7 @@ PDFPageWordSet CHEPDF_GetPageWordSet( PDFPageContent content )
 							}
 
 							rectListIt = rectList.end();
-							int retValue = _JoinRectToList( rectList, rect, rectListIt );
+							int retValue = _JoinRectToList( rectList, rect, rectListIt, threshold );
 							if ( retValue == -1 )
 							{
 								//将rect放入rectlist中进行比较
@@ -1066,7 +1066,7 @@ PDFStatus CHEPDF_IsWordSymbolic( PDFPageWord word )
 {
 	if ( ! word )
 	{
-		return PDF_STATUS_ERROR;
+		return PDF_STATUS_PARAM_ERR;
 	}
 	_PDFPageWordStruct * pPageWord = (_PDFPageWordStruct*)( word );
 	CHE_PDF_Text * pText = NULL;

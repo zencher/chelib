@@ -105,7 +105,7 @@
 				Optimization="2"
 				WholeProgramOptimization="false"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;USE_FREETYPE2_STATIC"
-				RuntimeLibrary="0"
+				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="true"
@@ -180,7 +180,39 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\include\pdf\che_pdf_cmap.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_cmap_res.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_cmap_res_cns.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_cmap_res_gb.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_cmap_res_japan.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_cmap_res_korea.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\pdf\che_pdf_collector.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_colorspace.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_contentbuilder.h"
 					>
 				</File>
 				<File
@@ -188,7 +220,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\include\pdf\che_pdf_contentresmgr.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\pdf\che_pdf_contents.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_contentstring.h"
 					>
 				</File>
 				<File
@@ -200,7 +240,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\include\pdf\che_pdf_document.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\pdf\che_pdf_encrypt.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_file.h"
 					>
 				</File>
 				<File
@@ -212,11 +260,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\include\pdf\che_pdf_fontmgr.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\pdf\che_pdf_graphics.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\include\pdf\che_pdf_graphicsState.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_image.h"
 					>
 				</File>
 				<File
@@ -229,6 +285,10 @@
 				</File>
 				<File
 					RelativePath="..\..\include\pdf\che_pdf_objects.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\pdf\che_pdf_objectstring.h"
 					>
 				</File>
 				<File
@@ -300,7 +360,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\pdf\che_pdf_cmap.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\pdf\che_pdf_collector.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\pdf\che_pdf_colorspace.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\pdf\che_pdf_contentbuilder.cpp"
 					>
 				</File>
 				<File
@@ -308,7 +380,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\pdf\che_pdf_contentresmgr.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\pdf\che_pdf_contents.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\pdf\che_pdf_contentstring.cpp"
 					>
 				</File>
 				<File
@@ -316,7 +396,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\pdf\che_pdf_document.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\pdf\che_pdf_encrypt.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\pdf\che_pdf_file.cpp"
 					>
 				</File>
 				<File
@@ -328,11 +416,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\pdf\che_pdf_fontmgr.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\pdf\che_pdf_graphics.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\pdf\che_pdf_graphicsState.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\pdf\che_pdf_image.cpp"
 					>
 				</File>
 				<File
@@ -348,7 +444,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\pdf\che_pdf_pageobjs.cpp"
+					RelativePath="..\..\src\pdf\che_pdf_objectstring.cpp"
 					>
 				</File>
 				<File
@@ -361,14 +457,6 @@
 				</File>
 				<File
 					RelativePath="..\..\src\pdf\che_pdf_renderer.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\pdf\che_pdf_resource.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\pdf\che_pdf_text.cpp"
 					>
 				</File>
 				<File

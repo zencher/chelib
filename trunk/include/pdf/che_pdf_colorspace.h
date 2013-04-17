@@ -72,6 +72,8 @@ public:
 		return pRet;
 	}
 
+	HE_DWORD GetArgb( CHE_PDF_Color & color );
+
 private:
 	PDF_COLORSPACE_TYPE mType;
 	CHE_PDF_ObjectPtr mpObj;

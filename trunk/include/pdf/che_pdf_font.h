@@ -8,6 +8,7 @@
 
 #include "../../extlib/freetype/ft2build.h"
 #include "../../extlib/freetype/freetype/freetype.h"
+#include "../../extlib/freetype/freetype/ftoutln.h"
 
 
 FT_Library HE_GetFTLibrary();
@@ -53,7 +54,8 @@ enum PDF_FONT_ENCODING
 	FONT_ENCODING_SYMBOL		= 0x06,
 	FONT_ENCODING_ZAPFDINGBAT	= 0x07,
 	FONT_ENCODING_BUILDINCMAP	= 0x08,
-	FONT_ENCODING_IDENTITY		= 0x09
+	FONT_ENCODING_IDENTITY		= 0x09,
+	FONT_ENCODING_CUSTOM		= 0x10
 };
 
 
@@ -94,6 +96,7 @@ public:
 
 IHE_SystemFontMgr * HE_GetSystemFontMgr( CHE_Allocator * pAllocator = NULL );
 
+class CHE_PDF_Font;
 
 class CHE_PDF_Encoding : public CHE_Object
 {
@@ -108,6 +111,8 @@ private:
 	PDF_FONT_ENCODING			mType;
 	HE_BOOL						mbCodeTableRelease;
 	HE_WCHAR *					mpCodeTable;
+
+	friend CHE_PDF_Font;
 };
 
 

@@ -112,6 +112,8 @@ protected:
 	CHE_ByteString mName;
 };
 
+class CHE_PDF_Path;
+
 class CHE_PDF_TextItem
 {
 public:
@@ -162,6 +164,8 @@ public:
 	CHE_PDF_Rect GetCharRect( HE_DWORD index ) const;
 
 	std::vector<CHE_PDF_TextItem> mItems;
+
+	CHE_PDF_Path * GetGraphPath( HE_DWORD index );
 
 private:
 	CHE_PDF_ObjectPtr mpObj;

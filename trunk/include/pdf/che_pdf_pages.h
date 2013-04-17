@@ -5,6 +5,7 @@
 #include "../che_datastructure.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_file.h"
+#include "che_pdf_matrix.h"
 
 class CHE_PDF_Page;
 class CHE_PDF_Document;
@@ -45,15 +46,17 @@ class CHE_PDF_Page : public CHE_Object
 {
 public:
 	
-	CHE_PDF_DictionaryPtr	GetPageDict() { return mpPageDict; }
+	CHE_PDF_DictionaryPtr	GetPageDict() const { return mpPageDict; }
 
-	CHE_PDF_DictionaryPtr	GetResourcesDict();
+	CHE_PDF_Rect			GetMediaBox() const;
 
-	CHE_PDF_ArrayPtr		GetMediaBoxArray();
+	CHE_PDF_DictionaryPtr	GetResourcesDict() const;
 
-	CHE_PDF_ArrayPtr		GetCropBoxArray();
+	CHE_PDF_ArrayPtr		GetMediaBoxArray() const;
 
-	HE_INT32				GetRotate();
+	CHE_PDF_ArrayPtr		GetCropBoxArray() const;
+
+	HE_INT32				GetRotate() const;
 	
 	static HE_BOOL			ReleasePage( CHE_PDF_Page * pPage );
 

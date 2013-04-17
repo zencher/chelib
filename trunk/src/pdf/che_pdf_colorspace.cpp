@@ -15,6 +15,43 @@ HE_BOOL CHE_PDF_ColorSpace::IsDeviceColorSpace()
 	return FALSE;;
 }
 
+HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
+{
+	switch ( mType )
+	{
+	case COLORSAPCE_DEVICE_GRAY:
+	case COLORSAPCE_CIEBASE_CALGRAY:
+		{
+			HE_DWORD valRet = 0xFF000000;
+			HE_DWORD tmpByte = 0x00;
+			if ( color.mConponents.size() >= 1 )
+			{
+				tmpByte = color.mConponents[0] * 255;
+				valRet = valRet | tmpByte | tmpByte << 8 | tmpByte << 16;
+			}
+			return valRet;
+		}
+	case COLORSAPCE_DEVICE_RGB:
+	case COLORSAPCE_CIEBASE_CALRGB:
+		{
+			HE_DWORD valRet = 0xFF000000;
+			HE_DWORD tmpByte1 = 0x00;
+			HE_DWORD tmpByte2 = 0x00;
+			HE_DWORD tmpByte3 = 0x00;
+			if ( color.mConponents.size() >= 3 )
+			{
+				tmpByte1 = color.mConponents[0] * 255;
+				tmpByte2 = color.mConponents[1] * 255;
+				tmpByte3 = color.mConponents[2] * 255;
+				valRet = valRet | tmpByte1 | tmpByte2 << 8 | tmpByte3 << 16;
+			}
+			return valRet;
+		}
+	default:
+		return 0xFF000000;
+	}
+}
+
 CHE_PDF_ColorSpace * GetColorSpace( const CHE_ByteString & name, CHE_Allocator * pAllocator )
 {
 	CHE_PDF_ColorSpace * pColorSpace = NULL;

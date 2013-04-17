@@ -142,43 +142,105 @@ CHE_WindowsFontMgr::~CHE_WindowsFontMgr()
 
 CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( const CHE_ByteString & fontName )
 {
-	CHE_ByteString str;
-	CHE_ByteString fontNameForMatch;
-
+	HE_BOOL bStyle = FALSE;
+	HE_BOOL bBold = FALSE;
+	HE_BOOL bItalic = FALSE;
+	CHE_ByteString name;
+	CHE_ByteString style;
 	for ( HE_DWORD i = 0; i < fontName.GetLength(); ++i )
 	{
-		if ( fontName[i] == ',' || fontName[i] == '-' )
+		if ( fontName[i] == '+' )
+		{
+			if ( bStyle )
+			{
+				break;
+			}else{
+				//去掉前修饰
+				name.Clear();
+			}
+		}else if ( fontName[i] == ',' )
+		{
+			bStyle = TRUE;
+			continue;
+		}else if ( fontName[i] == '-' )
 		{
 			break;
 		}
-		fontNameForMatch += fontName[i];
+
+		if ( bStyle )
+		{
+			style += fontName[i];
+		}else{
+			name += fontName[i];
+		}
 	}
 
+	if ( bStyle )
+	{
+		if ( strstr( (const char *)( style.GetData() ), "Bold" ) != NULL )
+		{
+			bBold = TRUE;
+		}
+		if ( strstr( (const char *)( style.GetData() ), "Italic" ) != NULL )
+		{
+			bItalic = TRUE;
+		}
+	}
+
+	//解决不用语言下字体名称不同的问题
 	char	enFontName[128];	
 	wchar_t	tmpFontName[128];
-	int nLen = MultiByteToWideChar( CP_ACP, 0, fontNameForMatch.GetData(), -1, NULL, 0 );
-	MultiByteToWideChar( CP_ACP, 0, fontNameForMatch.GetData(), -1, tmpFontName, nLen );
-
+	int nLen = MultiByteToWideChar( CP_ACP, 0, name.GetData(), -1, NULL, 0 );
+	MultiByteToWideChar( CP_ACP, 0, name.GetData(), -1, tmpFontName, nLen );
 	LANGID language = MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US );
 	FontFamily fontFamily( tmpFontName );
 	fontFamily.GetFamilyName( tmpFontName, language );
-
 	nLen = WideCharToMultiByte( CP_ACP, 0, tmpFontName, -1, NULL, 0, NULL, FALSE );
 	WideCharToMultiByte( CP_ACP, 0, tmpFontName, -1, enFontName, nLen, NULL, FALSE );
-
-	if ( fontNameForMatch != enFontName && strlen( enFontName ) > 0 )
+	if ( name != enFontName && strlen( enFontName ) > 0 )
 	{
-		fontNameForMatch = enFontName;
+		name = enFontName;
 	}
 
+	CHE_ByteString fontPath;
 	std::list<CHE_WindowsFontInfo>::iterator it;
 	for ( it = mFontList.begin(); it != mFontList.end(); ++it )
 	{
-		if ( it->mFamilyName == fontNameForMatch || it->mPostScriptName == fontNameForMatch )
+		if ( it->mPostScriptName.GetLength() == 0 )
 		{
-			str = it->mFilePath;
+			//某些字体没有PostScriptName
+			continue;
+		}
+
+		//1.PostScript Name完全相等
+		if ( it->mPostScriptName == fontName || it->mPostScriptName == name )
+		{
+			fontPath = it->mFilePath;
 			break;
 		}
+
+		if ( bStyle )
+		{
+			if ( strstr( (const char *)( it->mPostScriptName.GetData() ), (const char *)( name.GetData() ) ) != NULL &&
+				strstr( (const char *)( it->mPostScriptName.GetData() ), (const char *)( style.GetData() ) ) != NULL  )
+			{
+				if ( bBold != ( strstr( (const char *)( it->mPostScriptName.GetData() ), "Bold" ) != NULL ) )
+				{
+					continue;
+				}
+				if ( bItalic != ( strstr( (const char *)( it->mPostScriptName.GetData() ), "Italic" ) != NULL ) )
+				{
+				}
+				fontPath = it->mFilePath;
+				break;
+			}
+		}else{
+			if ( strstr( (const char *)( it->mPostScriptName.GetData() ), (const char *)( name.GetData() ) ) != NULL )
+			{
+				fontPath = it->mFilePath;
+				break;
+			}
+		}
 	}
-	return str;
+	return fontPath;
 }

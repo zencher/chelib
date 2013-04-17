@@ -237,7 +237,7 @@ HE_VOID CHE_PDF_PageTree::ParseAllPageRefInfo()
 	GetPageRefInfo( mPageCount-1, refRet );
 }
 
-CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict()
+CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict() const
 {
 	CHE_PDF_DictionaryPtr resDict;
 	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
@@ -264,7 +264,51 @@ CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict()
 	return resDict;
 }
 
-CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray()
+CHE_PDF_Rect CHE_PDF_Page::GetMediaBox() const
+{
+	CHE_PDF_Rect rect;
+	CHE_PDF_ArrayPtr arrayPtr = GetMediaBoxArray();
+	if ( arrayPtr )
+	{
+		if ( arrayPtr->GetCount() >= 4 )
+		{
+			HE_FLOAT llx = 0, lly = 0, rux = 0, ruy = 0;
+			CHE_PDF_ObjectPtr objPtr;
+			CHE_PDF_NumberPtr numberPtr;
+			objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				numberPtr = objPtr->GetNumberPtr();
+				llx = numberPtr->GetFloat();
+			}
+			objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				numberPtr = objPtr->GetNumberPtr();
+				lly = numberPtr->GetFloat();
+			}
+			objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				numberPtr = objPtr->GetNumberPtr();
+				rux = numberPtr->GetFloat();
+			}
+			objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				numberPtr = objPtr->GetNumberPtr();
+				ruy = numberPtr->GetFloat();
+			}
+			rect.left = llx;
+			rect.bottom = lly;
+			rect.width = rux - llx;
+			rect.height = ruy - lly;
+		}
+	}
+	return rect;
+}
+
+CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray() const
 {
 	CHE_PDF_ArrayPtr mediaBox;
 	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "MediaBox", OBJ_TYPE_ARRAY );
@@ -291,7 +335,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray()
 	return mediaBox;
 }
 
-CHE_PDF_ArrayPtr CHE_PDF_Page::GetCropBoxArray()
+CHE_PDF_ArrayPtr CHE_PDF_Page::GetCropBoxArray() const
 {
 	CHE_PDF_ArrayPtr cropBox;
 	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "CropBox", OBJ_TYPE_ARRAY );
@@ -323,7 +367,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetCropBoxArray()
 	return cropBox;
 }
 
-HE_INT32 CHE_PDF_Page::GetRotate()
+HE_INT32 CHE_PDF_Page::GetRotate() const
 {
 	HE_INT32 ret = 0;
 

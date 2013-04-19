@@ -192,9 +192,11 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						{
 							item.gid = item.charCode;
 							pFont->GetUnicode( item.charCode, item.ucs );
+							pType0Font->GetCID( item.charCode, item.cid );
 						}else{
 							pFont->GetGlyphId( item.charCode, item.gid );
 							pFont->GetUnicode( item.charCode, item.ucs );
+							pType0Font->GetCID( item.charCode, item.cid );
 						}
 						item.kerning = kerning;
 						item.width = pFont->GetWidth( item );
@@ -225,15 +227,11 @@ CHE_PDF_Matrix CHE_PDF_Text::GetTextMatrix() const
 		HE_FLOAT fontSize = 1;
 		HE_FLOAT fontScaling = 100;
 		HE_FLOAT fontRise = 0;
-		HE_FLOAT fontCharSpace = 0;
-		HE_FLOAT fontWordSpace = 0;
 		pGState->GetTextMatrix( textMatrix );
 		ctm = pGState->GetMatrix();
 		pGState->GetTextFontSize( fontSize );
 		pGState->GetTextScaling( fontScaling );
 		pGState->GetTextRise( fontRise );
-		pGState->GetTextCharSpace( fontCharSpace );
-		pGState->GetTextWordSpace( fontWordSpace );
 		tmpMatrix.a = fontSize * fontScaling / 100;
 		tmpMatrix.b = 0;
 		tmpMatrix.c = 0;
@@ -260,8 +258,10 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 		CHE_PDF_Matrix tmpMatrix = GetTextMatrix();
 		HE_FLOAT fontCharSpace = 0;
 		HE_FLOAT fontWordSpace = 0;
+		HE_FLOAT fontScaling = 100;
 		pGState->GetTextCharSpace( fontCharSpace );
 		pGState->GetTextWordSpace( fontWordSpace );
+		pGState->GetTextScaling( fontScaling );
 		HE_DWORD i = 0;
 		for (; i < index; ++i )
 		{
@@ -270,24 +270,27 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 			HE_FLOAT OffsetX = 0;
 			HE_FLOAT OffsetY = 0;
 			CHE_PDF_Matrix OffsetMatrix;
-			OffsetX = ( ( mItems[i].width - mItems[i].kerning * 1.0 / 1000 ) + fontCharSpace );
-			//OffsetY = ( ( mItems[i].width + mItems[i].kerning * 1.0 / 1000 ) + fontCharSpace );
-			if ( mItems[i].ucs == L' ' )
-			{
-				OffsetX += fontWordSpace;
-			}
+			OffsetX = mItems[i].width - mItems[i].kerning * 1.0 / 1000;
+			//OffsetY = mItems[i].width - mItems[i].kerning * 1.0 / 1000;
 			OffsetMatrix.e = OffsetX;
 			OffsetMatrix.f = OffsetY;
 			OffsetMatrix.Concat( tmpMatrix );
 			tmpMatrix = OffsetMatrix;
+			if ( mItems[i].ucs == L' ' )
+			{
+				OffsetX = fontWordSpace * ( fontScaling / 100 );
+			}else{
+				OffsetX = fontCharSpace * ( fontScaling / 100 );
+			}
+			tmpMatrix.e += OffsetX;
 		}
 		if ( i <= index )
 		{
 			HE_FLOAT OffsetX = 0;
 			HE_FLOAT OffsetY = 0;
 			CHE_PDF_Matrix OffsetMatrix;
-			OffsetX = ( 0 - mItems[i].kerning * 1.0 / 1000 );
-			//OffsetY = ( ( mItems[i].width + mItems[i].kerning * 1.0 / 1000 ) + fontCharSpace );
+			OffsetX = 0 - mItems[i].kerning * 1.0 / 1000;
+			//OffsetY = mItems[i].width + mItems[i].kerning * 1.0 / 1000;
 			OffsetMatrix.e = OffsetX;
 			OffsetMatrix.f = OffsetY;
 			OffsetMatrix.Concat( tmpMatrix );

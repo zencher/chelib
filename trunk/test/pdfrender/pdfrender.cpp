@@ -9,35 +9,41 @@
 using namespace Gdiplus;
 LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
-IHE_Read *					gpFileRead = NULL;
-CHE_PDF_File *				gpFile = NULL;
-CHE_PDF_Document *			gpDocument = NULL;
-CHE_PDF_PageTree *			gpPageTree = NULL;
-CHE_PDF_Page *				gpPage = NULL;
-unsigned int				gPageIndex = 0;
 
-DWORD						gWndWidth = 0;
-DWORD						gWndHeight = 0;
+//gAppState:
+//0	init
+//1 file opened
+DWORD	gAppState = 0;
 
-DWORD						gDragStartX = 0;
-DWORD						gDragStartY = 0;
+DWORD	gWndWidth = 0;
+DWORD	gWndHeight = 0;
+DWORD	gDragStartX = 0;
+DWORD	gDragStartY = 0;
+LONG	gTmpOffsetX = 0;
+LONG	gTmpOffsetY = 0;
+LONG	gOffsetX = 0;
+LONG	gOffsetY = 0;
+DWORD	gPageWidth = 0;
+DWORD	gPageHeight = 0;
+BOOL	gbMouseDown = FALSE;
 
-LONG						gTmpOffsetX = 0;
-LONG						gTmpOffsetY = 0;
-LONG						gOffsetX = 0;
-LONG						gOffsetY = 0;
+IHE_Read *				gpFileRead = NULL;
+CHE_PDF_File *			gpFile = NULL;
+CHE_PDF_Document *		gpDocument = NULL;
+CHE_PDF_PageTree *		gpPageTree = NULL;
+CHE_PDF_Page *			gpPage = NULL;
+unsigned int			gPageIndex = 0;
 
-DWORD						gPageWidth = 0;
-DWORD						gPageHeight = 0;
-
-BOOL						gbMouseDown = FALSE;
+HDC	gMemDC = NULL;
+HBITMAP gBitmap = NULL;
+HGDIOBJ gOldObject = NULL;
 
 class IHE_PDF_GDIplusDraw : public IHE_PDF_GraphicsDraw
 {
 public:
 	IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight );
 
-	virtual ~IHE_PDF_GDIplusDraw() {};
+	virtual ~IHE_PDF_GDIplusDraw();
 
 	virtual inline HE_VOID MoveTo( HE_FLOAT x, HE_FLOAT y );
 	virtual inline HE_VOID LineTo( HE_FLOAT x, HE_FLOAT y );
@@ -56,14 +62,24 @@ public:
 	virtual inline HE_VOID SetFillColor( const HE_DWORD & color );
 	virtual inline HE_VOID SetStrokeColor( const HE_DWORD & color );
 
+	HE_FLOAT GetLineWidth() const { return mLineWidth; }
+	PDF_GSTATE_LINECAP GetLineCap() const { return mLineCap; }
+	PDF_GSTATE_LINEJOIN GetLineJion() const { return mLineJion; }
+	HE_FLOAT GetDashPhase() const { return mDashPhase; }
+
 	//custom method
+	HDC GetMemDC() { return m_MemDC; };
  	HE_VOID UpdateDC();
 	HE_VOID Clear();
+	HE_VOID	Resize( HE_DWORD dibWidth, HE_DWORD dibHeight );
+	HE_DWORD GetWidth() { return m_dwWidth; }
+	HE_DWORD GetHeight() { return m_dwHeight; }
 
 private:
 	HDC m_DC;
 	HDC m_MemDC;
 	HBITMAP m_Bitmap;
+	HGDIOBJ m_OldBitmap;
 	HE_DWORD m_dwWidth;
 	HE_DWORD m_dwHeight;
 	Graphics * m_pGraphics;
@@ -73,6 +89,11 @@ private:
 	GraphicsPath m_pathToDraw;
 	HE_FLOAT mCurX;
 	HE_FLOAT mCurY;
+
+	HE_FLOAT mLineWidth;
+	PDF_GSTATE_LINECAP mLineCap;
+	PDF_GSTATE_LINEJOIN mLineJion;
+	HE_FLOAT mDashPhase;
 };
 
 IHE_PDF_GDIplusDraw * gpDraw = NULL;
@@ -84,10 +105,7 @@ IHE_PDF_GDIplusDraw::IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD d
 	m_dwHeight = dibHeight;
 	m_MemDC = CreateCompatibleDC( hDC );
 	m_Bitmap = CreateCompatibleBitmap( m_DC, m_dwWidth , m_dwHeight );
- 	SelectObject( m_MemDC, m_Bitmap );
-
-	gWndHeight = dibHeight;
-	gWndWidth = dibWidth;
+ 	m_OldBitmap = SelectObject( m_MemDC, m_Bitmap );
 
 	RECT rt;
 	rt.top = 0;
@@ -103,6 +121,46 @@ IHE_PDF_GDIplusDraw::IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD d
 	m_pGraphics->SetTransform( &mtx );
  	m_pPen = new Pen( Color( 255, 0, 0, 0 ), 1 );
  	m_pBrush = new SolidBrush( Color( 255, 0, 0, 0 ) );
+
+	mLineWidth = 1;
+	mLineCap = LineCap_Butt;
+	mLineJion = LineJoin_Miter;
+	mDashPhase = 0;
+}
+
+IHE_PDF_GDIplusDraw::~IHE_PDF_GDIplusDraw()
+{
+	if ( m_pBrush )
+	{
+		delete m_pBrush;
+		m_pBrush = NULL;
+	}
+	if ( m_pPen )
+	{
+		delete m_pPen;
+		m_pPen = NULL;
+	}
+	if ( m_MemDC )
+	{
+		if ( m_OldBitmap )
+		{
+			SelectObject( m_MemDC, m_OldBitmap );
+			m_OldBitmap = NULL;
+		}
+		if ( m_Bitmap )
+		{
+			DeleteObject( m_Bitmap );
+			m_Bitmap = NULL;
+		}
+		DeleteDC( m_MemDC );
+		m_MemDC = NULL;
+	}
+	if ( m_pGraphics )
+	{
+		delete m_pGraphics;
+		m_pGraphics = NULL;
+	}
+		 
 }
 
 HE_VOID IHE_PDF_GDIplusDraw::UpdateDC()
@@ -122,6 +180,35 @@ HE_VOID IHE_PDF_GDIplusDraw::UpdateDC()
 
 HE_VOID IHE_PDF_GDIplusDraw::Clear()
 {
+	RECT rt;
+	rt.top = 0;
+	rt.left = 0;
+	rt.right = m_dwWidth;
+	rt.bottom = m_dwHeight;
+	FillRect( m_MemDC, &rt, HBRUSH(WHITE_BRUSH) );
+}
+
+HE_VOID	IHE_PDF_GDIplusDraw::Resize( HE_DWORD dibWidth, HE_DWORD dibHeight )
+{
+	m_dwWidth = dibWidth;
+	m_dwHeight = dibHeight;
+
+	if ( m_MemDC )
+	{
+		if ( m_OldBitmap )
+		{
+			SelectObject( m_MemDC, m_OldBitmap );
+			m_OldBitmap = NULL;
+		}
+		if ( m_Bitmap )
+		{
+			DeleteObject( m_Bitmap );
+			m_Bitmap = NULL;
+		}
+	}
+	m_Bitmap = CreateCompatibleBitmap( m_DC, m_dwWidth , m_dwHeight );
+	m_OldBitmap = SelectObject( m_MemDC, m_Bitmap );
+
 	RECT rt;
 	rt.top = 0;
 	rt.left = 0;
@@ -217,8 +304,9 @@ HE_VOID	inline IHE_PDF_GDIplusDraw::SetLineWidth( const HE_FLOAT & lineWidth )
 {
 	if ( m_pPen )
 	{
-		m_pPen->SetWidth( lineWidth );
+		m_pPen->SetWidth( lineWidth + 0.001 );
 	}
+	mLineWidth = lineWidth;
 }
 
 HE_VOID inline IHE_PDF_GDIplusDraw::SetMiterLimit( const HE_FLOAT & miterLimit )
@@ -248,6 +336,7 @@ HE_VOID inline IHE_PDF_GDIplusDraw::SetLineCap( const PDF_GSTATE_LINECAP & lineC
 			break;
 		}
 	}
+	mLineCap = lineCap;
 }
 
 HE_VOID inline IHE_PDF_GDIplusDraw::SetLineJoin( const PDF_GSTATE_LINEJOIN & lineJion )
@@ -269,10 +358,100 @@ HE_VOID inline IHE_PDF_GDIplusDraw::SetLineJoin( const PDF_GSTATE_LINEJOIN & lin
 			break;
 		}
 	}
+	mLineJion = lineJion;
 }
 
 HE_VOID inline IHE_PDF_GDIplusDraw::SetLineDash( const PDF_GSTATE_DASHPATTERN & dashPattern )
 {
+	if ( dashPattern.dashArray.size() == 1 )
+	{
+		REAL * dashArray = new REAL[2];
+		dashArray[0] = dashArray[1] = dashPattern.dashArray[0] / GetLineWidth();
+		if ( GetLineCap() != LineCap_Butt )
+		{
+			dashArray[0] += 0.99;
+			dashArray[1] -= 0.99;
+		}
+		m_pPen->SetDashPattern( dashArray, 2 );
+		if ( GetLineCap() == LineCap_Square )
+		{
+			m_pPen->SetDashOffset( GetDashPhase() / GetLineWidth() + 0.5 );
+		}else{
+			m_pPen->SetDashOffset( GetDashPhase() / GetLineWidth() );
+		}	
+		delete [] dashArray;
+	}else if ( dashPattern.dashArray.size() > 1 )
+	{
+		if ( dashPattern.dashArray.size() % 2 == 1 )
+		{
+			REAL * dashArray = new REAL[dashPattern.dashArray.size()*2];
+			for ( unsigned long i = 0; i < dashPattern.dashArray.size(); i++ )
+			{
+				dashArray[i] = dashPattern.dashArray[i] / GetLineWidth();
+			}
+			for ( unsigned long j = dashPattern.dashArray.size(); j < dashPattern.dashArray.size() * 2; j++ )
+			{
+				dashArray[j] = dashArray[j-dashPattern.dashArray.size()];
+			}
+			if ( GetLineCap() != LineCap_Butt )
+			{
+				int flag = 0;
+				for ( unsigned long k = 0; k < dashPattern.dashArray.size() * 2; k++ )
+				{
+					if ( flag == 0 )
+					{
+						dashArray[k] += 0.99;
+						flag = 1;
+					}else{
+						dashArray[k] -= 0.99;
+						flag = 0;
+					}
+				}
+			}
+			m_pPen->SetDashPattern( dashArray, dashPattern.dashArray.size() * 2 );
+			if ( GetLineCap() == LineCap_Square )
+			{
+				m_pPen->SetDashOffset( GetDashPhase() / GetLineWidth() + 0.5 );
+			}else{
+				m_pPen->SetDashOffset( GetDashPhase() / GetLineWidth() );
+			}
+			delete [] dashArray;
+		}else{
+			REAL * dashArray = new REAL[dashPattern.dashArray.size()];
+			for ( unsigned long i = 0; i < dashPattern.dashArray.size(); i++ )
+			{
+				dashArray[i] = dashPattern.dashArray[i] / GetLineWidth();
+			}
+			if ( GetLineCap() != LineCap_Butt )
+			{
+				int flag = 0;
+				for ( unsigned long i = 0; i < dashPattern.dashArray.size(); i++ )
+				{
+					if ( flag == 0 )
+					{
+						dashArray[i] += 0.99;
+						flag = 1;
+					}else{
+						dashArray[i] -= 0.99;
+						flag = 0;
+					}
+				}
+			}
+			m_pPen->SetDashPattern( dashArray, dashPattern.dashArray.size() );
+			if ( GetLineCap() == 2 )
+			{
+				m_pPen->SetDashOffset( GetDashPhase() / GetLineWidth() + 0.5 );
+			}else{
+				m_pPen->SetDashOffset( GetDashPhase() / GetLineWidth() );
+			}
+			delete [] dashArray;
+		}
+	}else{
+		m_pPen->SetDashStyle( DashStyleSolid );
+		m_pPen->SetDashOffset( dashPattern.dashPhase );
+	}
+
+
 }
 
 HE_VOID inline IHE_PDF_GDIplusDraw::SetFillColor( const HE_DWORD & color )
@@ -347,122 +526,208 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 
 LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
-	HDC		hdc ;
-	PAINTSTRUCT	ps ;
-	
 	switch( message )
 	{
 	case WM_CREATE:
 		{
-			IHE_Read * gpFileRead = HE_CreateFileRead( "e:\\pdftestfiles\\穷爸爸富爸爸.pdf" );
-			gpFile = GetDefaultAllocator()->New<CHE_PDF_File>( GetDefaultAllocator() );
-			gpFile->Open( gpFileRead );
-			gpDocument = CHE_PDF_Document::CreateDocument( gpFile );
-			gpPageTree = gpDocument->GetPageTree();
-			gpPage = gpPageTree->GetPage( 0 );
-			gPageIndex = 0;
-
-			if ( gpPage )
+			HDC hDC = GetDC( hwnd );
+			if ( hDC )
 			{
-				CHE_PDF_Rect rect = gpPage->GetMediaBox();
-				gpDraw = new IHE_PDF_GDIplusDraw( GetWindowDC(hwnd), rect.width * 96 / 72, rect.height * 96 / 72 );
-				CHE_PDF_ContentObjectList contentObjList;
-				GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-				CHE_PDF_Renderer::Render( contentObjList, gpDraw );
+				gMemDC = CreateCompatibleDC( hDC );
+				if ( gMemDC )
+				{
+					gBitmap = CreateCompatibleBitmap( hDC, gWndWidth, gWndHeight );
+					gOldObject = SelectObject( gMemDC, gBitmap );
+				}
 			}
-
+			ReleaseDC( hwnd, hDC );
 			break;
 		}
 	case WM_SIZE:
 		{
+			HDC hDC = GetDC( hwnd );
 			gWndWidth = LOWORD(lParam);
 			gWndHeight = HIWORD(lParam);
+			if ( gOldObject )
+			{
+				SelectObject( gMemDC, gOldObject );
+			}
+			if ( gBitmap )
+			{
+				DeleteObject( gBitmap );
+			}
+			gBitmap = CreateCompatibleBitmap( hDC, gWndWidth, gWndHeight );
+			gOldObject = SelectObject( gMemDC, gBitmap );
+			ReleaseDC( hwnd, hDC );
 			break;
 		}
 	case WM_PAINT:
 		{
+			HDC hdc = NULL;
+			PAINTSTRUCT ps;
 			hdc = BeginPaint( hwnd, &ps );
-			RECT rect;
-			rect.left = 0;
-			rect.top = 0;
-			rect.bottom = gWndHeight;
-			rect.right = gWndWidth;
-			FillRect( hdc, &rect, HBRUSH(BLACK_BRUSH) );
-			gpDraw->UpdateDC();
+			RECT rc;
+			rc.left = 0;
+			rc.top = 0;
+			rc.bottom = gWndHeight;
+			rc.right = gWndWidth;
+			FillRect( gMemDC, &rc, HBRUSH(LTGRAY_BRUSH) );
+
+			if ( gpDraw )
+			{
+				DWORD x = 0;
+				DWORD y = 0;
+				if ( gWndHeight > gpDraw->GetHeight() )
+				{
+					y = ( gWndHeight - gpDraw->GetHeight() ) / 2;
+				}
+				if ( gWndWidth > gpDraw->GetWidth() )
+				{
+					x = ( gWndWidth - gpDraw->GetWidth() ) / 2;
+				}
+				BitBlt( gMemDC, x + gOffsetX + gTmpOffsetX, y + gOffsetY + gTmpOffsetY, gpDraw->GetWidth(),  gpDraw->GetHeight(), gpDraw->GetMemDC(), 0, 0, SRCCOPY );
+			}
+
+			BitBlt( hdc, 0, 0, gWndWidth, gWndHeight, gMemDC, 0, 0, SRCCOPY );
+
 			EndPaint( hwnd, &ps );
 			break ;
 		}
 	case WM_LBUTTONDOWN:
 		{
-			POINTS pt = MAKEPOINTS( lParam );
-			gDragStartX = pt.x;
-			gDragStartY = pt.y;
-			GetCapture();
-			gbMouseDown = TRUE;
+			if ( gAppState == 1 )
+			{
+				POINTS pt = MAKEPOINTS( lParam );
+				gDragStartX = pt.x;
+				gDragStartY = pt.y;
+				GetCapture();
+				gbMouseDown = TRUE;
+			}
 			break;
 		}
 	case WM_MOUSEMOVE:
 		{
-			if ( gbMouseDown )
+			if ( gAppState == 1 )
 			{
-				POINTS pt = MAKEPOINTS( lParam );
-				gTmpOffsetX = pt.x - gDragStartX;
-				gTmpOffsetY = pt.y - gDragStartY;
-				if ( gWndWidth >= gPageWidth )
+				if ( gbMouseDown )
 				{
-					gTmpOffsetX = 0;
-				}else{
-					if ( gTmpOffsetX + gOffsetX > gPageWidth )
+					POINTS pt = MAKEPOINTS( lParam );
+					gTmpOffsetX = pt.x - gDragStartX;
+					gTmpOffsetY = pt.y - gDragStartY;
+					// 				if ( gWndWidth >= gPageWidth )
+					// 				{
+					// 					gTmpOffsetX = 0;
+					// 				}else{
+					// 					if ( gTmpOffsetX + gOffsetX > gPageWidth )
+					// 					{
+					// 						gTmpOffsetX = gPageWidth - gOffsetX;
+					// 					}
+					// 				}
+					// 				if ( gWndHeight >= gPageHeight )
+					// 				{
+					// 					gTmpOffsetY = 0;
+					// 				}else{
+					// 					if ( gTmpOffsetY + gOffsetY > gPageHeight )
+					// 					{
+					// 						gTmpOffsetY = gPageHeight - gOffsetY;
+					// 					}
+					// 				}
+					if ( gTmpOffsetX > 0 || gTmpOffsetY > 0 )
 					{
-						gTmpOffsetX = gPageWidth - gOffsetX;
+						InvalidateRect( hwnd, NULL, FALSE );
 					}
-				}
-				if ( gWndHeight >= gPageHeight )
-				{
-					gTmpOffsetY = 0;
-				}else{
-					if ( gTmpOffsetY + gOffsetY > gPageHeight )
-					{
-						gTmpOffsetY = gPageHeight - gOffsetY;
-					}
-				}
-				if ( gTmpOffsetX > 0 || gTmpOffsetY > 0 )
-				{
-					InvalidateRect( hwnd, NULL, FALSE );
 				}
 			}
 			break;
 		}
 	case WM_LBUTTONUP:
 		{
-			gOffsetX += gTmpOffsetX;
-			gOffsetY += gTmpOffsetY;
-			gTmpOffsetX = 0;
-			gTmpOffsetY = 0;
-			ReleaseCapture();
-			gbMouseDown = FALSE;
+			if ( gAppState == 1 )
+			{
+				gOffsetX += gTmpOffsetX;
+				gOffsetY += gTmpOffsetY;
+				gTmpOffsetX = 0;
+				gTmpOffsetY = 0;
+				ReleaseCapture();
+				gbMouseDown = FALSE;
+			}
 			break;
 		}
-	case WM_KEYDOWN:
+	case WM_CHAR:
 		{
-			if ( wParam == 'o' )
+			if ( wParam == 'o' || wParam == 'O' )
 			{
-				int x = 0;
-			}
-			if ( gpPage )
-			{
-				gpPage->GetAllocator()->Delete( gpPage );
-			}
+				static char fileName[1024], fileTitleName[1024];
+				static OPENFILENAME ofn;
+				ofn.lStructSize		= sizeof ( OPENFILENAME );
+				ofn.hwndOwner		= hwnd;
+				ofn.lpstrFilter		= "PDF Files(*.pdf)\0*.pdf\0\0";
+				ofn.lpstrCustomFilter = NULL;
+				ofn.nMaxCustFilter	= 0;
+				ofn.nFilterIndex	= 1;
+				ofn.lpstrFile		= fileName;
+				ofn.nMaxFile		= MAX_PATH;
+				ofn.lpstrFileTitle	= fileTitleName;
+				ofn.nMaxFileTitle	= MAX_PATH;
+				ofn.Flags			= OFN_NOCHANGEDIR ;
+				ofn.nFileOffset		= 16 ;
+				ofn.nFileExtension	= 0 ;
+				ofn.lCustData		= NULL ;
+				ofn.lpfnHook		= NULL ;
+				ofn.lpTemplateName	= NULL ;
 
-			gpPage = gpPageTree->GetPage( ++gPageIndex );
-			if ( gpPage )
+				if ( GetOpenFileName( &ofn ) )
+				{
+					if ( gAppState == 1 )
+					{
+						//close all
+						gAppState = 0;
+					}
+
+					gpFileRead = HE_CreateFileRead( fileName );
+					gpFile = GetDefaultAllocator()->New<CHE_PDF_File>( GetDefaultAllocator() );
+					gpFile->Open( gpFileRead );
+					gpDocument = CHE_PDF_Document::CreateDocument( gpFile );
+					gpPageTree = gpDocument->GetPageTree();
+					gpPage = gpPageTree->GetPage( 0 );
+					gPageIndex = 0;
+					if ( gpPage )
+					{
+						CHE_PDF_Rect rect = gpPage->GetMediaBox();
+						gPageWidth = rect.width * 96 / 72;
+						gPageHeight =  rect.height * 96 / 72;
+						gpDraw = new IHE_PDF_GDIplusDraw( GetDC(hwnd), gPageWidth, gPageHeight );
+						CHE_PDF_ContentObjectList contentObjList;
+						GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+						CHE_PDF_Renderer::Render( contentObjList, gpDraw );
+					}
+					gAppState = 1;
+					InvalidateRect( hwnd, NULL, TRUE );
+					break;
+				}
+			}else if ( wParam == 'c' || wParam == 'C' )
 			{
-				gpDraw->Clear();
-				CHE_PDF_ContentObjectList contentObjList;
-				GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-				CHE_PDF_Renderer::Render( contentObjList, gpDraw );
 			}
-			InvalidateRect( hwnd, NULL, TRUE );
+			if ( gAppState == 1 )
+			{
+				if ( gpPage )
+				{
+					gpPage->GetAllocator()->Delete( gpPage );
+				}
+				gpPage = gpPageTree->GetPage( ++gPageIndex );
+				if ( gpPage )
+				{
+					CHE_PDF_Rect rect = gpPage->GetMediaBox();
+					gPageWidth = rect.width * 96 / 72;
+					gPageHeight =  rect.height * 96 / 72;
+					gpDraw->Resize( gPageWidth, gPageHeight );
+					gpDraw->Clear();
+					CHE_PDF_ContentObjectList contentObjList;
+					GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+					CHE_PDF_Renderer::Render( contentObjList, gpDraw );
+				}
+				InvalidateRect( hwnd, NULL, TRUE );
+			}
 			break;
 		}
 	case WM_DESTROY:

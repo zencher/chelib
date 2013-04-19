@@ -1,6 +1,7 @@
+#include "../../include/che_datastructure.h"
 #include "../../include/pdf/che_pdf_font.h"
 #include "../../include/pdf/che_pdf_parser.h"
-#include "../../include/che_datastructure.h"
+#include "../../include/pdf/che_pdf_contentobjs.h"
 
 FT_Library gFTLibrary = NULL;
 
@@ -4457,6 +4458,35 @@ CHE_PDF_FontDescriptor::CHE_PDF_FontDescriptor( const CHE_PDF_DictionaryPtr & fo
 			mMissingWidth = objPtr->GetNumberPtr()->GetFloat();
 		}
 
+		objPtr = fontDesDict->GetElement( "FontBBox", OBJ_TYPE_ARRAY );
+		if ( objPtr )
+		{
+			CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+			if ( arrayPtr && arrayPtr->GetCount() >= 4 )
+			{
+				objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontBBox.left = objPtr->GetNumberPtr()->GetFloat();
+				}
+				objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontBBox.bottom = objPtr->GetNumberPtr()->GetFloat();
+				}
+				objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontBBox.width = objPtr->GetNumberPtr()->GetFloat() - mFontBBox.left;
+				}
+				objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mFontBBox.height = objPtr->GetNumberPtr()->GetFloat() - mFontBBox.bottom;
+				}
+			}
+		}
+
 		objPtr = fontDesDict->GetElement( "FontFile", OBJ_TYPE_REFERENCE );
 		if ( ! objPtr )
 		{
@@ -4466,7 +4496,6 @@ CHE_PDF_FontDescriptor::CHE_PDF_FontDescriptor( const CHE_PDF_DictionaryPtr & fo
 				objPtr = fontDesDict->GetElement( "FontFile3", OBJ_TYPE_REFERENCE );
 			}
 		}
-
 		if ( objPtr )
 		{
 			mEmbedded = TRUE;
@@ -5080,7 +5109,7 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_FLOAT CHE_PDF_Type0_Font::GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix /*= CHE_PDF_Matrix()*/ ) const
 {
 	CHE_PDF_Matrix tmpMatrix;
 	tmpMatrix.a = 0;
@@ -5093,7 +5122,7 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix /*= C
 	if ( mFace )
 	{
 		FT_Set_Transform( mFace, NULL, NULL );
-		FT_Error err = FT_Load_Glyph( mFace, gid, FT_LOAD_NO_SCALE );
+		FT_Error err = FT_Load_Glyph( mFace, item.gid, FT_LOAD_NO_SCALE );
 		if ( err == 0 )
 		{
 			tmpMatrix.a = mFace->glyph->advance.x;
@@ -5162,7 +5191,7 @@ CHE_PDF_Type1_Font::CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit,
 				objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 				if ( objPtr && i < 256 )
 				{
-					mCharWidths[i] = objPtr->GetNumberPtr()->GetInteger();
+					mCharWidths[mFirstChar-1+i] = objPtr->GetNumberPtr()->GetInteger();
 				}
 			}
 		}
@@ -5195,7 +5224,7 @@ HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_FLOAT CHE_PDF_Type1_Font::GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix /*= CHE_PDF_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix /*= CHE_PDF_Matrix()*/ ) const
 {
 	CHE_PDF_Matrix tmpMatrix;
 	tmpMatrix.a = 0;
@@ -5205,15 +5234,20 @@ HE_FLOAT CHE_PDF_Type1_Font::GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix /*= C
 	tmpMatrix.e = 0;
 	tmpMatrix.f = 0;
 
-	if ( gid > 0 && gid < 256 )
+	if ( item.charCode > 0 && item.charCode < 256 )
 	{
-		tmpMatrix.a = mCharWidths[gid];
+		tmpMatrix.a = mCharWidths[item.charCode-1];
 		tmpMatrix.d = tmpMatrix.a;
+		if ( ( tmpMatrix.a - 0 ) > FLT_EPSILON )
+		{
+			tmpMatrix.Concat( matrix );
+			return tmpMatrix.a / 1000.0;
+		}
 	}
 	if ( mFace )
 	{
 		FT_Set_Transform( mFace, NULL, NULL );
-		FT_Error err = FT_Load_Glyph( mFace, gid, FT_LOAD_NO_SCALE );
+		FT_Error err = FT_Load_Glyph( mFace, item.gid, FT_LOAD_NO_SCALE );
 		if ( err == 0 )
 		{
 			tmpMatrix.a = mFace->glyph->advance.x;

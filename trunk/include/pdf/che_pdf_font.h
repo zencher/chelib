@@ -6,6 +6,7 @@
 #include "che_pdf_matrix.h"
 #include "che_pdf_cmap.h"
 
+
 #include "../../extlib/freetype/ft2build.h"
 #include "../../extlib/freetype/freetype/freetype.h"
 #include "../../extlib/freetype/freetype/ftoutln.h"
@@ -75,6 +76,8 @@ struct pdf_vmtx
 	short w;
 };
 
+class CHE_PDF_TextItem;
+
 
 //该类是一个接口类，与平台相关
 //用于实现获取字体路径或者字体文件数据的接口
@@ -135,6 +138,8 @@ public:
 	HE_BOOL					IsAllCap() const;
 	HE_BOOL					IsSmallCap() const;
 	HE_BOOL					IsForceBold() const;
+
+	CHE_PDF_Rect			GetFontBBox() const { return mFontBBox; }
 	
 private:
 	HE_INT32				mFlags;
@@ -147,6 +152,7 @@ private:
 	HE_BOOL					mEmbedded;
 	HE_INT32 				mWMode;
 	CHE_PDF_ReferencePtr	mEmbedFont;
+	CHE_PDF_Rect			mFontBBox;
 
 };
 
@@ -163,8 +169,9 @@ public:
 	CHE_PDF_DictionaryPtr	GetFontDescriptorDictPtr() const;
 	FT_Face					GetFTFace();
 	virtual HE_BOOL			GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
-	virtual HE_FLOAT		GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const = 0;
 	virtual HE_BOOL			GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const = 0;
+
+	virtual HE_FLOAT		GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix() ) const = 0;
 
 	CHE_PDF_FontDescriptor*	GetFontDescriptor() const { return mpFontDescriptor; }
 	
@@ -193,8 +200,9 @@ class CHE_PDF_Type0_Font : public CHE_PDF_Font
 {
 public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_FLOAT GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
 	HE_BOOL GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
+
+	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix() ) const;
 
 protected:
 	CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
@@ -212,7 +220,8 @@ class CHE_PDF_Type1_Font : public CHE_PDF_Font
 {
 public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_FLOAT GetWidth( HE_DWORD gid, CHE_PDF_Matrix matrix = CHE_PDF_Matrix() ) const;
+	
+	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix() ) const;
 
 protected:
 	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );

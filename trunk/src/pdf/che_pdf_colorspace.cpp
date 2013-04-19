@@ -43,7 +43,7 @@ HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 				tmpByte1 = color.mConponents[0] * 255;
 				tmpByte2 = color.mConponents[1] * 255;
 				tmpByte3 = color.mConponents[2] * 255;
-				valRet = valRet | tmpByte1 | tmpByte2 << 8 | tmpByte3 << 16;
+				valRet = valRet | tmpByte1 << 16 | tmpByte2 << 8 | tmpByte3;
 			}
 			return valRet;
 		}

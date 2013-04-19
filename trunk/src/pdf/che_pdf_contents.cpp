@@ -354,32 +354,31 @@ HE_BOOL CHE_PDF_ContentsParser::CheckOpdCount( size_t count )
 
 HE_VOID CHE_PDF_ContentsParser::Handle_dquote()
 {
+	if ( CheckOpdCount( 2 ) )
+	{
+		mpConstructor->State_TextWordSpace( mOpdFloatStack[0] );
+		mpConstructor->State_TextCharSpace( mOpdFloatStack[1] );
+	}
 	mpConstructor->Operator_Tstar();
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		mpConstructor->Operator_Append( pText );
 		pText->SetTextObject( mpObj );
-		CHE_PDF_Rect rect = pText->GetTextRect();
-		mpConstructor->State_TextOffset( rect.width, 0 /*rect.height*/ );
 	}
+	mpConstructor->State_ResetTextOffset();
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_squote()
 {
-	if ( CheckOpdCount( 2 ) )
-	{
-		mpConstructor->State_TextWordSpace( mOpdFloatStack[0] );
-		mpConstructor->State_TextCharSpace( mOpdFloatStack[1] );
-	}
+	mpConstructor->Operator_Tstar();
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		mpConstructor->Operator_Append( pText );
 		pText->SetTextObject( mpObj );
-		CHE_PDF_Rect rect = pText->GetTextRect();
-		mpConstructor->State_TextOffset( rect.width, 0 /*rect.height*/ );
 	}
+	mpConstructor->State_ResetTextOffset();
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_B()

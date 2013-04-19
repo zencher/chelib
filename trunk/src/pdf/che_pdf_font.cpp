@@ -5119,6 +5119,76 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	tmpMatrix.e = 0;
 	tmpMatrix.f = 0;
 
+	DWORD qureyVal = 0;
+	if ( GetEncodingType() == FONT_ENCODING_NONE )
+	{
+		qureyVal = item.charCode;
+	}else if ( GetEncodingType() == FONT_ENCODING_IDENTITY )
+	{
+		qureyVal = item.charCode;
+	}else{
+		qureyVal = item.cid;
+	}
+
+	//这里去读取W数据，可以优化一下
+	if ( mFontDict )
+	{
+		CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "DescendantFonts", OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			objPtr = objPtr->GetDictPtr()->GetElement( "W", OBJ_TYPE_ARRAY );
+			if ( objPtr )
+			{
+				HE_BOOL bIndex = FALSE;
+				HE_DWORD indexStart = 0;
+				HE_DWORD indexEnd = 0;
+				CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+				CHE_PDF_ArrayPtr tmpArrayPtr;
+				for ( HE_DWORD i = 0; i < arrayPtr->GetCount(); ++i )
+				{
+					if ( bIndex == FALSE )
+					{
+						objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+						if ( objPtr )
+						{
+							indexStart = objPtr->GetNumberPtr()->GetInteger();
+							indexEnd = 0;
+							bIndex = TRUE;
+						}
+					}else{
+						objPtr = arrayPtr->GetElement( i, OBJ_TYPE_ARRAY );
+						if ( objPtr )
+						{
+							tmpArrayPtr = objPtr->GetArrayPtr();
+							if ( qureyVal >= indexStart && qureyVal < indexStart + tmpArrayPtr->GetCount() )
+							{
+								objPtr = tmpArrayPtr->GetElement( qureyVal - indexStart, OBJ_TYPE_NUMBER );
+								if ( objPtr )
+								{
+									return objPtr->GetNumberPtr()->GetFloat() / 1000;
+								}
+							}
+							bIndex = FALSE;
+						}else{
+							objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+							indexEnd = objPtr->GetNumberPtr()->GetInteger();
+							if ( qureyVal >= indexStart && qureyVal <= indexEnd )
+							{
+								objPtr = arrayPtr->GetElement( ++i, OBJ_TYPE_NUMBER );
+								if ( objPtr )
+								{
+									return objPtr->GetNumberPtr()->GetFloat() / 1000;
+								}
+							}
+							++i;
+							bIndex = FALSE;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	if ( mFace )
 	{
 		FT_Set_Transform( mFace, NULL, NULL );

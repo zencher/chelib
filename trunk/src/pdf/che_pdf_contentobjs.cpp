@@ -255,47 +255,76 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 	CHE_PDF_GState * pGState = GetGState();
 	if ( pGState )
 	{
-		CHE_PDF_Matrix tmpMatrix = GetTextMatrix();
+		CHE_PDF_Matrix ctm = pGState->GetMatrix();
+		CHE_PDF_Matrix textMatrix;
+		pGState->GetTextMatrix( textMatrix );
 		HE_FLOAT fontCharSpace = 0;
 		HE_FLOAT fontWordSpace = 0;
 		HE_FLOAT fontScaling = 100;
+		HE_FLOAT fontSize = 1;
+		HE_FLOAT fontRise = 0;
 		pGState->GetTextCharSpace( fontCharSpace );
 		pGState->GetTextWordSpace( fontWordSpace );
 		pGState->GetTextScaling( fontScaling );
+		fontScaling /= 100;
+		pGState->GetTextFontSize( fontSize );
+		pGState->GetTextRise( fontRise );
+		CHE_PDF_Matrix tmpMatrix;
+		tmpMatrix.a = fontSize * fontScaling;
+		tmpMatrix.b = 0;
+		tmpMatrix.c = 0;
+		tmpMatrix.d = fontSize;
+		tmpMatrix.e = 0;
+		tmpMatrix.f = fontRise;
+		tmpMatrix.Concat( textMatrix );
+		CHE_PDF_Font * pFont = pGState->GetTextFont();
+		HE_DWORD wMode = 0;
+		if ( pFont )
+		{
+			wMode = pFont->GetWMode();
+		}
+		HE_FLOAT OffsetX = 0;
+		HE_FLOAT OffsetY = 0;
 		HE_DWORD i = 0;
 		for (; i < index; ++i )
 		{
-			//计算字符相对于Text Object的起始点的偏移，依据字体横排或者竖排的不同，有不同的计算方法。
-			//这里面的计算应该使用字体大小，字体大小的运算在外层的矩阵中参与了。
-			HE_FLOAT OffsetX = 0;
-			HE_FLOAT OffsetY = 0;
-			CHE_PDF_Matrix OffsetMatrix;
-			OffsetX = mItems[i].width - mItems[i].kerning * 1.0 / 1000;
-			//OffsetY = mItems[i].width - mItems[i].kerning * 1.0 / 1000;
-			OffsetMatrix.e = OffsetX;
-			OffsetMatrix.f = OffsetY;
-			OffsetMatrix.Concat( tmpMatrix );
-			tmpMatrix = OffsetMatrix;
-			if ( mItems[i].ucs == L' ' )
+			if ( wMode == 0 )
 			{
-				OffsetX = fontWordSpace * ( fontScaling / 100 );
-			}else{
-				OffsetX = fontCharSpace * ( fontScaling / 100 );
+				OffsetX += mItems[i].width;
+				OffsetX += fontCharSpace / fontSize - mItems[i].kerning * fontSize / 1000;
+				if ( mItems[i].ucs == L' ' )
+				{
+					OffsetX += fontWordSpace;
+				}
+			}else if ( wMode == 1 )
+			{
+				OffsetY += mItems[i].width;
+				OffsetY += fontCharSpace / fontSize * fontScaling - mItems[i].kerning * fontSize / 1000;
+				if ( mItems[i].ucs == L' ' )
+				{ 
+					OffsetY += fontWordSpace / fontSize * fontScaling;
+				}
 			}
-			tmpMatrix.e += OffsetX;
 		}
+
+		//为了处理最前面的一个kerning信息
 		if ( i <= index )
 		{
-			HE_FLOAT OffsetX = 0;
-			HE_FLOAT OffsetY = 0;
-			CHE_PDF_Matrix OffsetMatrix;
-			OffsetX = 0 - mItems[i].kerning * 1.0 / 1000;
-			//OffsetY = mItems[i].width + mItems[i].kerning * 1.0 / 1000;
-			OffsetMatrix.e = OffsetX;
-			OffsetMatrix.f = OffsetY;
-			OffsetMatrix.Concat( tmpMatrix );
-			tmpMatrix = OffsetMatrix;
+			if ( wMode == 0 )
+			{
+				OffsetX += - mItems[i].kerning * fontSize / 1000;
+			}else if ( wMode == 1 )
+			{
+				OffsetY += - mItems[i].kerning * fontSize / 1000;
+			}
 		}
+
+		CHE_PDF_Matrix OffsetMatrix;
+		OffsetMatrix.e = OffsetX;
+		OffsetMatrix.f = OffsetY;
+		OffsetMatrix.Concat( tmpMatrix );
+		tmpMatrix = OffsetMatrix;
+		tmpMatrix.Concat( ctm );
 		return tmpMatrix;
 	}
 	return CHE_PDF_Matrix();

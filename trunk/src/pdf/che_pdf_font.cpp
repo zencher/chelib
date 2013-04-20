@@ -4501,6 +4501,8 @@ CHE_PDF_FontDescriptor::CHE_PDF_FontDescriptor( const CHE_PDF_DictionaryPtr & fo
 			mEmbedded = TRUE;
 			mEmbedFont = objPtr->GetRefPtr();
 		}
+
+		//todo 获取字体的WMode 只有CIDFont才有可能WMode为1，也就是垂直显示
 	}
 }
 
@@ -5014,6 +5016,16 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 	HE_DestoryIHERead( pFileRead );
 	stmAcc.Detach();
 	return tmpMap;
+}
+
+
+HE_DWORD CHE_PDF_Font::GetWMode() const
+{
+	if ( mpFontDescriptor )
+	{
+		return mpFontDescriptor->GetWMode();
+	}
+	return 0;
 }
 
 

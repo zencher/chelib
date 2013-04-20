@@ -140,6 +140,8 @@ public:
 	HE_BOOL					IsForceBold() const;
 
 	CHE_PDF_Rect			GetFontBBox() const { return mFontBBox; }
+
+	HE_DWORD				GetWMode() const { return mWMode; }
 	
 private:
 	HE_INT32				mFlags;
@@ -174,6 +176,8 @@ public:
 	virtual HE_FLOAT		GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix() ) const = 0;
 
 	CHE_PDF_FontDescriptor*	GetFontDescriptor() const { return mpFontDescriptor; }
+
+	HE_DWORD				GetWMode() const;
 	
 protected:
 	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );

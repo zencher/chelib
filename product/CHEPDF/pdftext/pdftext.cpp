@@ -1,12 +1,13 @@
 #include "pdftext.h"
-#include "../../../trunk/include/pdf/che_pdf_file.h"
-#include "../../../trunk/include/pdf/che_pdf_document.h"
-#include "../../../trunk/include/pdf/che_pdf_contents.h"
-#include "../../../trunk/extlib/freetype/ft2build.h"
-#include "../../../trunk/extlib/freetype/freetype/freetype.h"
-#include "../../../trunk/extlib/freetype/freetype/ftglyph.h"
-#include "../../../trunk/extlib/freetype/freetype/ftrender.h"
-#include "../../../trunk/include/che_bitmap.h"
+#include "../chelib/include/pdf/che_pdf_file.h"
+#include "../chelib/include/pdf/che_pdf_document.h"
+#include "../chelib/include/pdf/che_pdf_contents.h"
+#include "../chelib/include/che_bitmap.h"
+#include "../chelib/extlib/freetype/ft2build.h"
+#include "../chelib/extlib/freetype/freetype/freetype.h"
+#include "../chelib/extlib/freetype/freetype/ftglyph.h"
+#include "../chelib/extlib/freetype/freetype/ftrender.h"
+
 
 #include <GdiPlus.h>
 

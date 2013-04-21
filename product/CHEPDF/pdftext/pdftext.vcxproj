@@ -56,10 +56,10 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>../../../trunk/build/debug/win32_vc10/chelib.lib;../../../trunk/extlib/zlib/debug/zlib.lib;../../../trunk/extlib/freetype/debug/libthirdparty.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCD.lib</IgnoreSpecificDefaultLibraries>
       <ModuleDefinitionFile>pdftext.def</ModuleDefinitionFile>
       <OutputFile>../bin/debug/$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>../chelib/lib/debug/chelib.lib;../chelib/lib/debug/zlib.lib;../chelib/lib/debug/libthirdparty.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -74,12 +74,12 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>pdftext.def</ModuleDefinitionFile>
       <OutputFile>../bin/release/$(TargetName)$(TargetExt)</OutputFile>
-      <AdditionalDependencies>../../../trunk/build/release/win32_vc10/chelib.lib;../../../trunk/extlib/zlib/release/zlib.lib;../../../trunk/extlib/freetype/release/libthirdparty.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../chelib/lib/release/chelib.lib;../chelib/lib/release/zlib.lib;../chelib/lib/release/libthirdparty.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBC.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>

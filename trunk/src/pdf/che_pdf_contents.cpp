@@ -975,8 +975,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_TJ()
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		mpConstructor->Operator_Append( pText );
 		pText->SetTextObject( mpObj );
-		CHE_PDF_Rect rect = pText->GetTextRect();
-		mpConstructor->State_TextOffset( rect.width, 0 /*rect.height*/ );
+		mpConstructor->State_TextOffset( pText->GetOffSet(), 0 );
 	}
 }
 
@@ -1036,8 +1035,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tj()
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
 		mpConstructor->Operator_Append( pText );
 		pText->SetTextObject( mpObj );
-		CHE_PDF_Rect rect = pText->GetTextRect();
-		mpConstructor->State_TextOffset( rect.width, 0 /*rect.height*/ );
+		mpConstructor->State_TextOffset( pText->GetOffSet(), 0  );
 	}
 }
 
@@ -1966,8 +1964,8 @@ public:
 					CHE_PDF_Matrix tmpMatrix;
 					tmpMatrix.e = mTextXOffset;
 					tmpMatrix.f = mTextYOffset;
-					textMatrix.Concat( tmpMatrix );
-					pGState->SetTextMatrix( textMatrix );
+					tmpMatrix.Concat( textMatrix );
+					pGState->SetTextMatrix( tmpMatrix );
 					pObject->SetGState( pGState );
 					PDF_GSTATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
 					mpGState->GetTextRenderMode( rm );

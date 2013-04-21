@@ -157,6 +157,10 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 					kerning = tmpArray[i]->GetNumberPtr()->GetInteger();
 				}
 			}
+			if ( kerning != 0 )
+			{
+				mpLastKerning = kerning;
+			}
 		}
 		else
 		{
@@ -210,6 +214,10 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 					kerning = tmpArray[i]->GetNumberPtr()->GetInteger();
 				}
 			}
+			if ( kerning != 0 )
+			{
+				mpLastKerning = kerning;
+			}
 		}
 		return TRUE;
 	}
@@ -255,20 +263,47 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 	CHE_PDF_GState * pGState = GetGState();
 	if ( pGState )
 	{
-		CHE_PDF_Matrix ctm = pGState->GetMatrix();
-		CHE_PDF_Matrix tm;
-		pGState->GetTextMatrix( tm );
+		CHE_PDF_Font * pFont = pGState->GetTextFont();
+		HE_DWORD wMode = 0;
+		if ( pFont )
+		{
+			wMode = pFont->GetWMode();
+		}
+
 		HE_FLOAT fontCharSpace = 0;
 		HE_FLOAT fontWordSpace = 0;
 		HE_FLOAT fontScaling = 100;
 		HE_FLOAT fontSize = 1;
 		HE_FLOAT fontRise = 0;
+		
 		pGState->GetTextCharSpace( fontCharSpace );
 		pGState->GetTextWordSpace( fontWordSpace );
 		pGState->GetTextScaling( fontScaling );
 		fontScaling /= 100;
 		pGState->GetTextFontSize( fontSize );
 		pGState->GetTextRise( fontRise );
+
+		HE_FLOAT offset = 0;
+		HE_FLOAT kerning = 0;
+		HE_DWORD i = 0;
+		for (; i < index; ++i )
+		{
+			offset += mItems[i].width * fontSize + fontCharSpace;	//wMode==1的时候，是不是还加width？
+			if ( mItems[i].ucs == L' ' || mItems[i].charCode == ' ' )	//如果这里的ucs和charcode处理有误的话就会算错了！
+			{
+				offset += fontWordSpace;
+			}
+			kerning -= mItems[i].kerning * fontSize / 1000;
+		}
+		if ( i <= index )
+		{
+			kerning -= mItems[i].kerning * fontSize / 1000;
+		}
+
+		CHE_PDF_Matrix ctm = pGState->GetMatrix();
+		CHE_PDF_Matrix tm;
+		pGState->GetTextMatrix( tm );
+
 		CHE_PDF_Matrix textMatrix;
 		textMatrix.a = fontSize * fontScaling;
 		textMatrix.b = 0;
@@ -276,74 +311,18 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 		textMatrix.d = fontSize;
 		textMatrix.e = 0;
 		textMatrix.f = fontRise;
-
-		CHE_PDF_Font * pFont = pGState->GetTextFont();
-		HE_DWORD wMode = 0;
-		if ( pFont )
-		{
-			wMode = pFont->GetWMode();
-		}
-		HE_FLOAT OffsetX = 0;
-		HE_FLOAT OffsetY = 0;
-		HE_FLOAT KerningX = 0;
-		HE_FLOAT KerningY = 0;
-		HE_DWORD i = 0;
-		for (; i < index; ++i )
-		{
-			if ( wMode == 0 )
-			{
-				OffsetX += mItems[i].width * fontSize + fontCharSpace;
-				if ( mItems[i].ucs == L' ' )
-				{
-					OffsetX += fontWordSpace;
-				}
-				KerningX -= mItems[i].kerning * fontSize / 1000;
-			}else if ( wMode == 1 )
-			{
-				OffsetY += mItems[i].width * fontSize + fontCharSpace;
-				if ( mItems[i].ucs == L' ' )
-				{ 
-					OffsetY += fontWordSpace;
-				}
-				KerningY -= mItems[i].kerning * fontSize / 1000;
-			}
-		}
-
-		//为了处理最前面的一个kerning信息
-		if ( i <= index )
-		{
-			if ( wMode == 0 )
-			{
-				KerningX -= mItems[i].kerning * fontSize / 1000;
-			}else if ( wMode == 1 )
-			{
-				KerningY -= mItems[i].kerning * fontSize / 1000;
-			}
-		}
-
-		//tm * ctm
-		tm.Concat( ctm );
-
-		CHE_PDF_Matrix txyMatrix;
-		txyMatrix.a = KerningX;
-		txyMatrix.d = KerningY;
-		txyMatrix.Concat( tm );
-		KerningX = txyMatrix.a;
-		KerningY = txyMatrix.d;
-
-		ctm = pGState->GetMatrix();
-		pGState->GetTextMatrix( tm );
-
+		
 		CHE_PDF_Matrix OffsetMatrix;
-		OffsetMatrix.e = OffsetX * fontScaling;
-		OffsetMatrix.f = OffsetY;
+		if ( wMode == 0 )
+		{
+			OffsetMatrix.e = offset * fontScaling + kerning;
+		}else{
+			OffsetMatrix.f = offset + kerning;
+		}
 		textMatrix.Concat( OffsetMatrix );
 		textMatrix.Concat( tm );
 		textMatrix.Concat( ctm );
 
-
-		textMatrix.e += KerningX;
-		textMatrix.f += KerningY;
 		return textMatrix;
 	}
 	return CHE_PDF_Matrix();
@@ -385,6 +364,45 @@ CHE_PDF_Rect CHE_PDF_Text::GetCharRect( HE_DWORD index ) const
 		rect = matrix.Transform( rect );
 	}
 	return rect;
+}
+
+
+//获得这个字符串对象中包括kerning和字符宽度，间隔等所有数据说产生的offset
+//这个offset还没有被外部的tm、ctm矩阵进行运行。而在使用该offset的地方要进行这个运算。可以直接加在tm里面
+HE_FLOAT CHE_PDF_Text::GetOffSet() const
+{
+	CHE_PDF_GState * pGState = GetGState();
+	if ( pGState )
+	{
+		HE_FLOAT fontCharSpace = 0;
+		HE_FLOAT fontWordSpace = 0;
+		HE_FLOAT fontScaling = 100;
+		HE_FLOAT fontSize = 1;
+		HE_FLOAT fontRise = 0;
+		pGState->GetTextCharSpace( fontCharSpace );
+		pGState->GetTextWordSpace( fontWordSpace );
+		pGState->GetTextFontSize( fontSize );
+		pGState->GetTextRise( fontRise );
+		pGState->GetTextScaling( fontScaling );
+		fontScaling /= 100;
+
+		//这里之所以可以忽略fontSize，fontScaling，fontRise等信息的矩阵的原因是
+		//这些信息所组成的矩阵在乘以offset的矩阵的时候不会影响offset的值（不受放大系数影响）
+
+		HE_FLOAT offset = 0;
+		HE_FLOAT kerning = 0;
+		for ( HE_DWORD i = 0; i < mItems.size(); ++i )
+		{
+			offset += mItems[i].width * fontSize + fontCharSpace;
+			if ( mItems[i].ucs == L' ' || mItems[i].charCode == ' ' )
+			{
+				offset += fontWordSpace;
+			}
+			kerning -= mItems[i].kerning * fontSize / 1000;
+		}
+		return offset * fontScaling + kerning - mpLastKerning * fontSize / 1000;
+	}
+	return 0;
 }
 
 HE_FLOAT gCurX = 0;

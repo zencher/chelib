@@ -129,7 +129,7 @@ public:
 class CHE_PDF_Text : public CHE_PDF_ContentObject
 {									 
 public:
-	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject(pAllocator) {}
+	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL  ) : CHE_PDF_ContentObject(pAllocator), mpLastKerning(0) {}
 
 	~CHE_PDF_Text(){}
 
@@ -163,12 +163,17 @@ public:
 
 	CHE_PDF_Rect GetCharRect( HE_DWORD index ) const;
 
+	//计算一个TJ、Tj指令中的所有内容所产生的偏移，包括头尾的kerning，因为头尾的kering在计算文本和字符串矩形的时候会被跳过
+	HE_FLOAT GetOffSet() const;
+
+
 	std::vector<CHE_PDF_TextItem> mItems;
 
 	CHE_PDF_Path * GetGraphPath( HE_DWORD index );
 
 private:
-	CHE_PDF_ObjectPtr mpObj;
+	CHE_PDF_ObjectPtr	mpObj;
+	HE_FLOAT			mpLastKerning;
 };
 
 enum PDF_PATHITEM_TYPE

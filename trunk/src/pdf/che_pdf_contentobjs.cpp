@@ -256,8 +256,8 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 	if ( pGState )
 	{
 		CHE_PDF_Matrix ctm = pGState->GetMatrix();
-		CHE_PDF_Matrix textMatrix;
-		pGState->GetTextMatrix( textMatrix );
+		CHE_PDF_Matrix tm;
+		pGState->GetTextMatrix( tm );
 		HE_FLOAT fontCharSpace = 0;
 		HE_FLOAT fontWordSpace = 0;
 		HE_FLOAT fontScaling = 100;
@@ -269,14 +269,14 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 		fontScaling /= 100;
 		pGState->GetTextFontSize( fontSize );
 		pGState->GetTextRise( fontRise );
-		CHE_PDF_Matrix tmpMatrix;
-		tmpMatrix.a = fontSize * fontScaling;
-		tmpMatrix.b = 0;
-		tmpMatrix.c = 0;
-		tmpMatrix.d = fontSize;
-		tmpMatrix.e = 0;
-		tmpMatrix.f = fontRise;
-		tmpMatrix.Concat( textMatrix );
+		CHE_PDF_Matrix textMatrix;
+		textMatrix.a = fontSize * fontScaling;
+		textMatrix.b = 0;
+		textMatrix.c = 0;
+		textMatrix.d = fontSize;
+		textMatrix.e = 0;
+		textMatrix.f = fontRise;
+
 		CHE_PDF_Font * pFont = pGState->GetTextFont();
 		HE_DWORD wMode = 0;
 		if ( pFont )
@@ -285,25 +285,27 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 		}
 		HE_FLOAT OffsetX = 0;
 		HE_FLOAT OffsetY = 0;
+		HE_FLOAT KerningX = 0;
+		HE_FLOAT KerningY = 0;
 		HE_DWORD i = 0;
 		for (; i < index; ++i )
 		{
 			if ( wMode == 0 )
 			{
-				OffsetX += mItems[i].width;
-				OffsetX += fontCharSpace / fontSize - mItems[i].kerning * fontSize / 1000;
+				OffsetX += mItems[i].width * fontSize + fontCharSpace;
 				if ( mItems[i].ucs == L' ' )
 				{
 					OffsetX += fontWordSpace;
 				}
+				KerningX -= mItems[i].kerning * fontSize / 1000;
 			}else if ( wMode == 1 )
 			{
-				OffsetY += mItems[i].width;
-				OffsetY += fontCharSpace / fontSize * fontScaling - mItems[i].kerning * fontSize / 1000;
+				OffsetY += mItems[i].width * fontSize + fontCharSpace;
 				if ( mItems[i].ucs == L' ' )
 				{ 
-					OffsetY += fontWordSpace / fontSize * fontScaling;
+					OffsetY += fontWordSpace;
 				}
+				KerningY -= mItems[i].kerning * fontSize / 1000;
 			}
 		}
 
@@ -312,20 +314,37 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 		{
 			if ( wMode == 0 )
 			{
-				OffsetX += - mItems[i].kerning * fontSize / 1000;
+				KerningX -= mItems[i].kerning * fontSize / 1000;
 			}else if ( wMode == 1 )
 			{
-				OffsetY += - mItems[i].kerning * fontSize / 1000;
+				KerningY -= mItems[i].kerning * fontSize / 1000;
 			}
 		}
 
+		//tm * ctm
+		tm.Concat( ctm );
+
+		CHE_PDF_Matrix txyMatrix;
+		txyMatrix.a = KerningX;
+		txyMatrix.d = KerningY;
+		txyMatrix.Concat( tm );
+		KerningX = txyMatrix.a;
+		KerningY = txyMatrix.d;
+
+		ctm = pGState->GetMatrix();
+		pGState->GetTextMatrix( tm );
+
 		CHE_PDF_Matrix OffsetMatrix;
-		OffsetMatrix.e = OffsetX;
+		OffsetMatrix.e = OffsetX * fontScaling;
 		OffsetMatrix.f = OffsetY;
-		OffsetMatrix.Concat( tmpMatrix );
-		tmpMatrix = OffsetMatrix;
-		tmpMatrix.Concat( ctm );
-		return tmpMatrix;
+		textMatrix.Concat( OffsetMatrix );
+		textMatrix.Concat( tm );
+		textMatrix.Concat( ctm );
+
+
+		textMatrix.e += KerningX;
+		textMatrix.f += KerningY;
+		return textMatrix;
 	}
 	return CHE_PDF_Matrix();
 }

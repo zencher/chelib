@@ -579,21 +579,4 @@ PDFStatus CHEPDF_GetWordUnicodes( PDFPageWord word, wchar_t * pBuf, unsigned int
 */
 PDFBitmap CHEPDF_RenderWord( PDFPageWord word, float sclae = 1 );
 
-/*
-//	函数名：CHEPDF_RenderPage
-//
-//  功能：将一个单词对象渲染成位图
-//
-//  参数：page - PDF页面对象
-//		  scale - 缩放系数
-//
-//  返回值：一个位图数据对象
-//
-//  备注：返回的位图数据若为NULL，表示渲染失败
-//		  返回的位图数据不为NULL，表示渲染成功
-//		  渲染的位图数据对象在不使用之后需要调用
-//		  CHEPDF_CloseBitmap将其释放
-*/
-PDFBitmap CHEPDF_RenderPage( PDFPage page, float sclae = 1 );
-
 #endif

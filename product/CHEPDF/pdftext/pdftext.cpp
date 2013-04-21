@@ -10,16 +10,7 @@
 
 #include <GdiPlus.h>
 
-// 1. 加载文档对象
-// 2. 加载页面对象
-// 3. 解析页面内容
-// 4. 按顺序获取页面内容
-// 5. 文本内容信息获取（文本内容，位置，大小等信息）
-// 6. 渲染文本
-
-
 #define PIXELPERINCH 96
-
 
 struct _PDFDocumentStruct
 {
@@ -534,76 +525,6 @@ PDFMatrix CHEPDF_GetCharMatirx( PDFPageChar textChar )
 	mtx.d = tmpMatrix.d;
 	mtx.e = tmpMatrix.e;
 	mtx.f = tmpMatrix.f;
-// 	CHE_PDF_GState * pGState = pTextObj->GetGState();
-// 	if ( pGState )
-// 	{
-// 		CHE_PDF_Matrix tmpMatrix;
-// 		HE_FLOAT fontSize = 1;
-// 		HE_FLOAT fontScaling = 100;
-// 		HE_FLOAT fontRise = 0;
-// 		HE_FLOAT fontCharSpace = 0;
-// 		HE_FLOAT fontWordSpace = 0;
-// 		pGState->GetTextFontSize( fontSize );
-// 		pGState->GetTextScaling( fontScaling );
-// 		pGState->GetTextRise( fontRise );
-// 		pGState->GetTextCharSpace( fontCharSpace );
-// 		pGState->GetTextWordSpace( fontWordSpace );
-// 		tmpMatrix.a = fontSize * fontScaling / 100;
-// 		tmpMatrix.b = 0;
-// 		tmpMatrix.c = 0;
-// 		tmpMatrix.d = fontSize;
-// 		tmpMatrix.e = 0;
-// 		tmpMatrix.f = fontRise;
-// 
-// 		CHE_PDF_Matrix textMatrix;
-// 		pGState->GetTextMatrix( textMatrix );
-// 		
-// 		CHE_PDF_Matrix ctm = pGState->GetMatrix();
-// 		
-// 		tmpMatrix.Concat( textMatrix );
-// 		tmpMatrix.Concat( ctm );
-// 
-// 		unsigned int i = 0;
-// 		for ( ; i < pCharStruct->index; ++i )
-// 		{
-// 			//计算字符相对于Text Object的起始点的偏移，依据字体横排或者竖排的不同，有不同的计算方法。
-// 			//这里面的计算应该使用字体大小，字体大小的运算在外层的矩阵中参与了。
-// 			HE_FLOAT OffsetX = 0;
-// 			HE_FLOAT OffsetY = 0;
-// 			CHE_PDF_Matrix OffsetMatrix;
-// 			OffsetX = ( ( pTextObj->mItems[i].width - pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
-// 			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
-// 			if ( pTextObj->mItems[i].ucs == L' ' )
-// 			{
-// 				OffsetX += fontWordSpace;
-// 			}
-// 			OffsetMatrix.e = OffsetX;
-// 			OffsetMatrix.f = OffsetY;
-// 			OffsetMatrix.Concat( tmpMatrix );
-// 			tmpMatrix = OffsetMatrix;
-// 		}
-// 
-// 		if ( i <= pCharStruct->index )
-// 		{
-// 			HE_FLOAT OffsetX = 0;
-// 			HE_FLOAT OffsetY = 0;
-// 			CHE_PDF_Matrix OffsetMatrix;
-// 			OffsetX = ( 0 - pTextObj->mItems[i].kerning / 1000 );
-// 			//OffsetY = ( ( pTextObj->mItems[i].width + pTextObj->mItems[i].kerning / 1000 ) + fontCharSpace );
-// 			OffsetMatrix.e = OffsetX;
-// 			OffsetMatrix.f = OffsetY;
-// 			OffsetMatrix.Concat( tmpMatrix );
-// 			tmpMatrix = OffsetMatrix;
-// 		}
-// 
-// 		mtx.a = tmpMatrix.a;
-// 		mtx.b = tmpMatrix.b;
-// 		mtx.c = tmpMatrix.c;
-// 		mtx.d = tmpMatrix.d;
-// 		mtx.e = tmpMatrix.e;
-// 		mtx.f = tmpMatrix.f;
-// 	}
-
 	return mtx;
 }
 
@@ -614,18 +535,6 @@ PDFPosition	CHEPDF_GetCharPosition( PDFPageChar textChar )
 	PDFPosition posi;
 	posi.x = rect.left;
 	posi.y = rect.bottom;
-	return posi;
-	
-// 	PDFPosition posi;
-// 	posi.x = 0;
-// 	posi.y = 0;
-// 
-// 	if ( textChar )
-// 	{
-// 		PDFMatrix matrix = CHEPDF_GetCharMatirx( textChar );
-// 		posi.x = matrix.e;
-// 		posi.y = matrix.f;
-// 	}
 	return posi;
 }
 
@@ -668,23 +577,6 @@ PDFRect CHEPDF_GetCharBox( PDFPageChar textChar )
 		rect.bottom = tmpRect.bottom;
 		rect.width = tmpRect.width;
 		rect.height = tmpRect.height;
-// 		CHE_PDF_GState * pGState = pTextObj->GetGState();
-// 		FT_Face face = NULL;
-// 		if ( pGState )
-// 		{
-// 			face = pGState->GetTextFont()->GetFTFace();
-// 		}
-// 		if ( pTextObj && pCharStruct->index < pTextObj->mItems.size() )
-// 		{
-// 			rect.width = pTextObj->mItems[pCharStruct->index].width;
-// 			rect.height = pTextObj->mItems[pCharStruct->index].height;
-// 			if ( face )
-// 			{
-// 				rect.bottom = face->descender * 1.0 / face->units_per_EM;
-// 				rect.height = ( face->ascender - face->descender ) * 1.0 / face->units_per_EM;
-// 			}
-// 			rect = fz_transform_rect( matrix, rect );
-// 		}
 	}
 	return rect;
 }
@@ -735,8 +627,7 @@ PDFStatus _CHEPDF_RenderGlyph( PDFPageChar textChar, float sclae /*= 1*/ )
 					matrix.yy = mtx.d * 64;
 					FT_Set_Transform( pFont->GetFTFace(), &matrix, NULL );
 					FT_UInt gid = pTextObj->mItems[pCharStruct->index].gid;
-					err = FT_Load_Glyph( pFont->GetFTFace(), gid, /*FT_LOAD_DEFAULT*/FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO );
-					//FT_Load_Char( pFont->GetFTFace(), pTextObj->mItems[pCharStruct->index].charCode, FT_LOAD_DEFAULT );
+					err = FT_Load_Glyph( pFont->GetFTFace(), gid, FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO );
 					err = FT_Render_Glyph( pFont->GetFTFace()->glyph, FT_RENDER_MODE_NORMAL );
 					return PDF_STATUS_OK;
 				}
@@ -1246,18 +1137,12 @@ PDFBitmap CHEPDF_RenderPage( PDFPage page, float sclae /*= 1*/ )
 				{
 					int xPosition = 0;
 					int yBaseline = 0;
-					//int xPageOffset = 0;
-					//int yPageOffset = 0;
 					for ( unsigned int i = 0; i < pText->mItems.size(); ++i )
 					{
 						PDFPageChar textChar = CHEPDF_GetPageChar( pText, i );
 						PDFRect charBox = CHEPDF_GetCharBox( textChar );
-// 						PDFMatrix cmtx = CHEPDF_GetCharMatirx( textChar );
-// 						PDFPosition oriPoint;
-// 						oriPoint.x = cmtx.e;
-// 						oriPoint.y = cmtx.f;
 						yBaseline = ( bbox.bottom + bbox.height - charBox.bottom - charBox.height/* - oriPoint.y*/ ) * sclae * PIXELPERINCH / 72;
-						xPosition = ( /*oriPoint.x - */charBox.left ) * sclae * PIXELPERINCH / 72;
+						xPosition = ( charBox.left ) * sclae * PIXELPERINCH / 72;
 						_CHEPDF_RenderGlyph( textChar, sclae );
 						CHEPDF_ClosePageChar( textChar );
 						if ( face->glyph && face->glyph->bitmap.buffer )

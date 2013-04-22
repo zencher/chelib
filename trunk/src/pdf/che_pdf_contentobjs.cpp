@@ -188,8 +188,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 							{
 								if ( ! pFont->GetUnicode( item.cid, item.ucs ) )
 								{
-									item.ucs = item.cid;
-									pFont->GetGlyphId( item.ucs, item.gid );
+									pFont->GetGlyphId( item.charCode, item.gid );
 								}else{
 									pFont->GetGlyphId( item.ucs, item.gid );
 								}

@@ -5034,7 +5034,20 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 {
 	if ( mFontDict )
 	{
-		CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "DescendantFonts", OBJ_TYPE_ARRAY );
+		CHE_PDF_ObjectPtr objPtr;
+
+		if ( GetEncodingType() == FONT_ENCODING_BUILDINCMAP )
+		{
+			objPtr = mFontDict->GetElement( "Encoding", OBJ_TYPE_NAME );
+			if ( objPtr )
+			{
+				CHE_ByteString str( pAllocator );
+				str = objPtr->GetNamePtr()->GetString();
+				mpCIDMap = CHE_PDF_CMap::LoadBuildinCMap( str, GetAllocator() );
+			}
+		}
+
+		objPtr = mFontDict->GetElement( "DescendantFonts", OBJ_TYPE_ARRAY );
 		if ( objPtr )
 		{
 			objPtr = objPtr->GetArrayPtr()->GetElement( 0, OBJ_TYPE_DICTIONARY );
@@ -5043,59 +5056,43 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 				mDescdtFontDict = objPtr->GetDictPtr();
 			}
 		}
-			
-		objPtr = mFontDict->GetElement( "Encoding", OBJ_TYPE_NAME );
-		if ( objPtr )
+		if ( mDescdtFontDict )
 		{
-			CHE_ByteString str( pAllocator );
-			str = objPtr->GetNamePtr()->GetString();
-			if ( str == "Identity-H" || str == "Identity-V" )
+			objPtr = mDescdtFontDict->GetElement( "CIDSystemInfo", OBJ_TYPE_DICTIONARY );
+			if ( objPtr )
 			{
-				//Load Custom Map (map to unicode)
-				objPtr = mFontDict->GetElement( "ToUnicode", OBJ_TYPE_REFERENCE );
+				CHE_PDF_DictionaryPtr pCIDSystemInfoDict = objPtr->GetDictPtr();
+				objPtr = pCIDSystemInfoDict->GetElement( "Registry", OBJ_TYPE_STRING );
 				if ( objPtr )
 				{
-				}else if ( mDescdtFontDict )
-				{
-					objPtr = mDescdtFontDict->GetElement( "CIDSystemInfo", OBJ_TYPE_DICTIONARY );
+					CHE_PDF_StringPtr pSt = objPtr->GetStringPtr();
+					CHE_ByteString cmapNuame( pAllocator );
+					cmapNuame = pSt->GetString();
+					cmapNuame += "-";
+					objPtr = pCIDSystemInfoDict->GetElement( "Ordering", OBJ_TYPE_STRING );
 					if ( objPtr )
 					{
-						CHE_PDF_DictionaryPtr pCIDSystemInfoDict = objPtr->GetDictPtr();
-						objPtr = pCIDSystemInfoDict->GetElement( "Registry", OBJ_TYPE_STRING );
-						if ( objPtr )
+						pSt = objPtr->GetStringPtr();
+						cmapNuame += pSt->GetString();
+						if ( cmapNuame == "Adobe-CNS1" )
 						{
-							CHE_PDF_StringPtr pSt = objPtr->GetStringPtr();
-							CHE_ByteString cmapNuame( pAllocator );
-							cmapNuame = pSt->GetString();
-							cmapNuame += "-";
-							objPtr = pCIDSystemInfoDict->GetElement( "Ordering", OBJ_TYPE_STRING );
-							if ( objPtr )
-							{
-								pSt = objPtr->GetStringPtr();
-								cmapNuame += pSt->GetString();
-								if ( cmapNuame == "Adobe-CNS1" )
-								{
-									cmapNuame = "Adobe-CNS1-UCS2";
-								}else if ( cmapNuame == "Adobe-GB1" )
-								{
-									cmapNuame = "Adobe-GB1-UCS2";
-								}else if ( cmapNuame == "Adobe-Japan1" )
-								{
-									cmapNuame = "Adobe-Japan1-UCS2";
-								}else if ( cmapNuame == "Adobe-Japan2" )
-								{
-									cmapNuame = "Adobe-Japan2-UCS2";
-								}else if ( cmapNuame == "Adobe-Korea1" )
-								{
-									cmapNuame = "Adobe-Korea1-UCS2";
-								}
-								mpUnicodeMap = CHE_PDF_CMap::LoadBuildinCMap( cmapNuame, GetAllocator() );
-							}
+							cmapNuame = "Adobe-CNS1-UCS2";
+						}else if ( cmapNuame == "Adobe-GB1" )
+						{
+							cmapNuame = "Adobe-GB1-UCS2";
+						}else if ( cmapNuame == "Adobe-Japan1" )
+						{
+							cmapNuame = "Adobe-Japan1-UCS2";
+						}else if ( cmapNuame == "Adobe-Japan2" )
+						{
+							cmapNuame = "Adobe-Japan2-UCS2";
+						}else if ( cmapNuame == "Adobe-Korea1" )
+						{
+							cmapNuame = "Adobe-Korea1-UCS2";
 						}
+						mpUnicodeMap = CHE_PDF_CMap::LoadBuildinCMap( cmapNuame, GetAllocator() );
 					}
 				}
-			}else{
-				mpCIDMap = CHE_PDF_CMap::LoadBuildinCMap( str, GetAllocator() );
 			}
 		}
 	}	
@@ -5336,7 +5333,7 @@ HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	{
 		tmpMatrix.a = mCharWidths[item.charCode-1];
 		tmpMatrix.d = tmpMatrix.a;
-		if ( ( tmpMatrix.a - 0 ) > FLT_EPSILON )
+		if ( ( tmpMatrix.a - 0 ) >= FLT_EPSILON )
 		{
 			tmpMatrix.Concat( matrix );
 			return tmpMatrix.a / 1000.0;

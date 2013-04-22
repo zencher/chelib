@@ -190,13 +190,20 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 								{
 									item.ucs = item.cid;
 									pFont->GetGlyphId( item.ucs, item.gid );
+								}else{
+									pFont->GetGlyphId( item.ucs, item.gid );
 								}
 							}
 						}else if ( pFont->GetEncodingType() == FONT_ENCODING_IDENTITY )
 						{
-							item.gid = item.charCode;
-							pFont->GetUnicode( item.charCode, item.ucs );
-							pType0Font->GetCID( item.charCode, item.cid );
+							if ( pFont->GetUnicode( item.charCode, item.ucs ) )
+							{
+								item.cid = 0;
+								if ( ! pFont->GetGlyphId( item.ucs, item.gid ) )
+								{
+									item.gid = item.charCode;
+								}
+							}
 						}else{
 							pFont->GetGlyphId( item.charCode, item.gid );
 							pFont->GetUnicode( item.charCode, item.ucs );
@@ -322,7 +329,6 @@ CHE_PDF_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 		textMatrix.Concat( OffsetMatrix );
 		textMatrix.Concat( tm );
 		textMatrix.Concat( ctm );
-
 		return textMatrix;
 	}
 	return CHE_PDF_Matrix();

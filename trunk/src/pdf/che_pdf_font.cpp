@@ -4286,8 +4286,8 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 		{
 			mType = FONT_ENCODING_IDENTITY;
 		}else{
-			mType = FONT_ENCODING_WINANSI;
-			//mType = FONT_ENCODING_BUILDINCMAP;
+			//mType = FONT_ENCODING_WINANSI;
+			mType = FONT_ENCODING_BUILDINCMAP;
 		}
 	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
 	{
@@ -5052,9 +5052,10 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 			if ( str == "Identity-H" || str == "Identity-V" )
 			{
 				//Load Custom Map (map to unicode)
-			}else{
-				mpCIDMap = CHE_PDF_CMap::LoadBuildinCMap( str, GetAllocator() );
-				if ( mDescdtFontDict )
+				objPtr = mFontDict->GetElement( "ToUnicode", OBJ_TYPE_REFERENCE );
+				if ( objPtr )
+				{
+				}else if ( mDescdtFontDict )
 				{
 					objPtr = mDescdtFontDict->GetElement( "CIDSystemInfo", OBJ_TYPE_DICTIONARY );
 					if ( objPtr )
@@ -5093,6 +5094,8 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 						}
 					}
 				}
+			}else{
+				mpCIDMap = CHE_PDF_CMap::LoadBuildinCMap( str, GetAllocator() );
 			}
 		}
 	}	
@@ -5145,77 +5148,90 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	//这里去读取W数据，可以优化一下
 	if ( mFontDict )
 	{
-		CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "DescendantFonts", OBJ_TYPE_DICTIONARY );
-		if ( objPtr )
+		CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "DescendantFonts", OBJ_TYPE_ARRAY );
+		if ( objPtr && objPtr->GetArrayPtr()->GetCount() > 0 )
 		{
-			objPtr = objPtr->GetDictPtr()->GetElement( "W", OBJ_TYPE_ARRAY );
+			objPtr = objPtr->GetArrayPtr()->GetElement( 0, OBJ_TYPE_DICTIONARY );
 			if ( objPtr )
 			{
-				HE_BOOL bIndex = FALSE;
-				HE_DWORD indexStart = 0;
-				HE_DWORD indexEnd = 0;
-				CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-				CHE_PDF_ArrayPtr tmpArrayPtr;
-				for ( HE_DWORD i = 0; i < arrayPtr->GetCount(); ++i )
+				CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
+				objPtr = dictPtr->GetElement( "W", OBJ_TYPE_ARRAY );
+				if ( objPtr )
 				{
-					if ( bIndex == FALSE )
+					HE_BOOL bIndex = FALSE;
+					HE_DWORD indexStart = 0;
+					HE_DWORD indexEnd = 0;
+					CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+					CHE_PDF_ArrayPtr tmpArrayPtr;
+					for ( HE_DWORD i = 0; i < arrayPtr->GetCount(); ++i )
 					{
-						objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
-						if ( objPtr )
+						if ( bIndex == FALSE )
 						{
-							indexStart = objPtr->GetNumberPtr()->GetInteger();
-							indexEnd = 0;
-							bIndex = TRUE;
-						}
-					}else{
-						objPtr = arrayPtr->GetElement( i, OBJ_TYPE_ARRAY );
-						if ( objPtr )
-						{
-							tmpArrayPtr = objPtr->GetArrayPtr();
-							if ( qureyVal >= indexStart && qureyVal < indexStart + tmpArrayPtr->GetCount() )
-							{
-								objPtr = tmpArrayPtr->GetElement( qureyVal - indexStart, OBJ_TYPE_NUMBER );
-								if ( objPtr )
-								{
-									return objPtr->GetNumberPtr()->GetFloat() / 1000;
-								}
-							}
-							bIndex = FALSE;
-						}else{
 							objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
-							indexEnd = objPtr->GetNumberPtr()->GetInteger();
-							if ( qureyVal >= indexStart && qureyVal <= indexEnd )
+							if ( objPtr )
 							{
-								objPtr = arrayPtr->GetElement( ++i, OBJ_TYPE_NUMBER );
-								if ( objPtr )
-								{
-									return objPtr->GetNumberPtr()->GetFloat() / 1000;
-								}
+								indexStart = objPtr->GetNumberPtr()->GetInteger();
+								indexEnd = 0;
+								bIndex = TRUE;
 							}
-							++i;
-							bIndex = FALSE;
+						}else{
+							objPtr = arrayPtr->GetElement( i, OBJ_TYPE_ARRAY );
+							if ( objPtr )
+							{
+								tmpArrayPtr = objPtr->GetArrayPtr();
+								if ( qureyVal >= indexStart && qureyVal < indexStart + tmpArrayPtr->GetCount() )
+								{
+									objPtr = tmpArrayPtr->GetElement( qureyVal - indexStart, OBJ_TYPE_NUMBER );
+									if ( objPtr )
+									{
+										return objPtr->GetNumberPtr()->GetFloat() / 1000;
+									}
+								}
+								bIndex = FALSE;
+							}else{
+								objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+								indexEnd = objPtr->GetNumberPtr()->GetInteger();
+								if ( qureyVal >= indexStart && qureyVal <= indexEnd )
+								{
+									objPtr = arrayPtr->GetElement( ++i, OBJ_TYPE_NUMBER );
+									if ( objPtr )
+									{
+										return objPtr->GetNumberPtr()->GetFloat() / 1000;
+									}
+								}
+								++i;
+								bIndex = FALSE;
+							}
 						}
+					}
+				}else{
+					objPtr = dictPtr->GetElement( "DW", OBJ_TYPE_NUMBER );
+					if ( objPtr )
+					{
+						return objPtr->GetNumberPtr()->GetFloat() / 1000;
+					}else{
+						return 1.0;
 					}
 				}
 			}
 		}
 	}
 
-	if ( mFace )
-	{
-		FT_Set_Transform( mFace, NULL, NULL );
-		FT_Error err = FT_Load_Glyph( mFace, item.gid, FT_LOAD_NO_SCALE );
-		if ( err == 0 )
-		{
-			tmpMatrix.a = mFace->glyph->advance.x;
-			tmpMatrix.d = mFace->glyph->advance.y;
-		}
-
-		tmpMatrix.Concat( matrix );
-
-		return tmpMatrix.a * 1.0 / mFace->units_per_EM;
-	}
-	return 0;
+// 	if ( mFace )
+// 	{
+// 		FT_Set_Transform( mFace, NULL, NULL );
+// 		FT_Error err = FT_Load_Glyph( mFace, item.gid, FT_LOAD_NO_SCALE );
+// 		if ( err == 0 )
+// 		{
+// 			tmpMatrix.a = mFace->glyph->advance.x;
+// 			tmpMatrix.d = mFace->glyph->advance.y;
+// 		}
+// 
+// 		tmpMatrix.Concat( matrix );
+// 
+// 		return tmpMatrix.a * 1.0 / mFace->units_per_EM;
+// 	}
+	return 1;
 }
 
 

@@ -83,9 +83,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_graphicsState.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_matrix.h">
-      <Filter>头文件\PDF</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
@@ -169,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\crypt\che_crypt_rc4.h">
       <Filter>头文件\CRYPT</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\che_drawer.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -23,6 +23,7 @@
     <ClInclude Include="..\..\include\che_bitmap.h" />
     <ClInclude Include="..\..\include\che_datastructure.h" />
     <ClInclude Include="..\..\include\che_define.h" />
+    <ClInclude Include="..\..\include\che_drawer.h" />
     <ClInclude Include="..\..\include\che_graphics.h" />
     <ClInclude Include="..\..\include\che_string.h" />
     <ClInclude Include="..\..\include\crypt\che_crypt_aes.h" />
@@ -53,7 +54,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_graphics.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_graphicsState.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_image.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_matrix.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objectstring.h" />
@@ -172,6 +172,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -202,6 +203,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

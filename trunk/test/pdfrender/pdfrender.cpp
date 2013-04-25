@@ -26,6 +26,7 @@ LONG	gOffsetY = 0;
 DWORD	gPageWidth = 0;
 DWORD	gPageHeight = 0;
 BOOL	gbMouseDown = FALSE;
+float	gScale = 1;
 
 IHE_Read *				gpFileRead = NULL;
 CHE_PDF_File *			gpFile = NULL;
@@ -34,6 +35,12 @@ CHE_PDF_PageTree *		gpPageTree = NULL;
 CHE_PDF_Page *			gpPage = NULL;
 unsigned int			gPageIndex = 0;
 
+
+HE_DWORD parseTime = 0;
+HE_DWORD renderTime = 0;
+LARGE_INTEGER gFeq;
+LARGE_INTEGER gBegin, gEnd;
+
 HDC	gMemDC = NULL;
 HBITMAP gBitmap = NULL;
 HGDIOBJ gOldObject = NULL;
@@ -41,7 +48,7 @@ HGDIOBJ gOldObject = NULL;
 class IHE_PDF_GDIplusDraw : public IHE_PDF_GraphicsDraw
 {
 public:
-	IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight );
+	IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight, HE_FLOAT scale );
 
 	virtual ~IHE_PDF_GDIplusDraw();
 
@@ -71,9 +78,14 @@ public:
 	HDC GetMemDC() { return m_MemDC; };
  	HE_VOID UpdateDC();
 	HE_VOID Clear();
-	HE_VOID	Resize( HE_DWORD dibWidth, HE_DWORD dibHeight );
+	HE_VOID	Resize( HE_DWORD dibWidth, HE_DWORD dibHeight, HE_FLOAT scale );
 	HE_DWORD GetWidth() { return m_dwWidth; }
 	HE_DWORD GetHeight() { return m_dwHeight; }
+// 	HE_VOID SetScale( HE_FLOAT scale )
+// 	{
+// 		Resize( m_dwWidth/mScale, m_dwHeight/mScale, scale );
+// 	}
+	//HE_FLOAT GetScale() const { return mScale; }
 
 private:
 	HDC m_DC;
@@ -89,6 +101,7 @@ private:
 	GraphicsPath m_pathToDraw;
 	HE_FLOAT mCurX;
 	HE_FLOAT mCurY;
+	HE_FLOAT mScale;
 
 	HE_FLOAT mLineWidth;
 	PDF_GSTATE_LINECAP mLineCap;
@@ -98,13 +111,14 @@ private:
 
 IHE_PDF_GDIplusDraw * gpDraw = NULL;
 
-IHE_PDF_GDIplusDraw::IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight )
+IHE_PDF_GDIplusDraw::IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight, HE_FLOAT scale )
 {
 	m_DC = hDC;
-	m_dwWidth = dibWidth;
-	m_dwHeight = dibHeight;
+	mScale = scale;
+	m_dwWidth = dibWidth*scale;
+	m_dwHeight = dibHeight*scale;
 	m_MemDC = CreateCompatibleDC( hDC );
-	m_Bitmap = CreateCompatibleBitmap( m_DC, m_dwWidth , m_dwHeight );
+	m_Bitmap = CreateCompatibleBitmap( m_DC, m_dwWidth, m_dwHeight );
  	m_OldBitmap = SelectObject( m_MemDC, m_Bitmap );
 
 	RECT rt;
@@ -117,7 +131,7 @@ IHE_PDF_GDIplusDraw::IHE_PDF_GDIplusDraw( HDC hDC, HE_DWORD dibWidth, HE_DWORD d
 	m_pGraphics  = new Graphics( m_MemDC );
  	m_pGraphics->SetSmoothingMode( SmoothingModeAntiAlias );
  	m_pGraphics->SetPageUnit( UnitPixel );
-	Matrix mtx( 96.0/72, 0, 0, -96.0/72, 0, m_dwHeight );
+	Matrix mtx( 96.0*mScale/72, 0, 0, -96.0*mScale/72, 0, m_dwHeight );
 	m_pGraphics->SetTransform( &mtx );
  	m_pPen = new Pen( Color( 255, 0, 0, 0 ), 1 );
  	m_pBrush = new SolidBrush( Color( 255, 0, 0, 0 ) );
@@ -160,22 +174,21 @@ IHE_PDF_GDIplusDraw::~IHE_PDF_GDIplusDraw()
 		delete m_pGraphics;
 		m_pGraphics = NULL;
 	}
-		 
 }
 
 HE_VOID IHE_PDF_GDIplusDraw::UpdateDC()
 {
-	DWORD x = 0;
-	DWORD y = 0;
-	if ( gWndHeight > m_dwHeight )
-	{
-		y = ( gWndHeight - m_dwHeight ) / 2;
-	}
-	if ( gWndWidth > m_dwWidth )
-	{
-		x = ( gWndWidth - m_dwWidth ) / 2;
-	}
-	BitBlt( m_DC, x + gOffsetX + gTmpOffsetX, y + gOffsetY + gTmpOffsetY, m_dwWidth,  m_dwHeight, m_MemDC, 0, 0, SRCCOPY );
+// 	DWORD x = 0;
+// 	DWORD y = 0;
+// 	if ( gWndHeight > m_dwHeight*mScale )
+// 	{
+// 		y = ( gWndHeight - m_dwHeight*mScale ) / 2;
+// 	}
+// 	if ( gWndWidth > m_dwWidth*mScale )
+// 	{
+// 		x = ( gWndWidth - m_dwWidth*mScale ) / 2;
+// 	}
+// 	BitBlt( m_DC, x + gOffsetX + gTmpOffsetX, y + gOffsetY + gTmpOffsetY, m_dwWidth*mScale,  m_dwHeight*mScale, m_MemDC, 0, 0, SRCCOPY );
 }
 
 HE_VOID IHE_PDF_GDIplusDraw::Clear()
@@ -188,10 +201,11 @@ HE_VOID IHE_PDF_GDIplusDraw::Clear()
 	FillRect( m_MemDC, &rt, HBRUSH(WHITE_BRUSH) );
 }
 
-HE_VOID	IHE_PDF_GDIplusDraw::Resize( HE_DWORD dibWidth, HE_DWORD dibHeight )
+HE_VOID	IHE_PDF_GDIplusDraw::Resize( HE_DWORD dibWidth, HE_DWORD dibHeight, HE_FLOAT scale )
 {
-	m_dwWidth = dibWidth;
-	m_dwHeight = dibHeight;
+	mScale = scale;
+	m_dwWidth = dibWidth*scale;
+	m_dwHeight = dibHeight*scale;
 
 	if ( m_MemDC )
 	{
@@ -200,13 +214,15 @@ HE_VOID	IHE_PDF_GDIplusDraw::Resize( HE_DWORD dibWidth, HE_DWORD dibHeight )
 			SelectObject( m_MemDC, m_OldBitmap );
 			m_OldBitmap = NULL;
 		}
+		DeleteDC( m_MemDC );
 		if ( m_Bitmap )
 		{
 			DeleteObject( m_Bitmap );
 			m_Bitmap = NULL;
 		}
 	}
-	m_Bitmap = CreateCompatibleBitmap( m_DC, m_dwWidth , m_dwHeight );
+	m_MemDC = CreateCompatibleDC( m_DC );
+	m_Bitmap = CreateCompatibleBitmap( m_DC, m_dwWidth, m_dwHeight );
 	m_OldBitmap = SelectObject( m_MemDC, m_Bitmap );
 
 	RECT rt;
@@ -215,6 +231,25 @@ HE_VOID	IHE_PDF_GDIplusDraw::Resize( HE_DWORD dibWidth, HE_DWORD dibHeight )
 	rt.right = m_dwWidth;
 	rt.bottom = m_dwHeight;
 	FillRect( m_MemDC, &rt, HBRUSH(WHITE_BRUSH) );
+
+	if ( m_pGraphics )
+	{
+		delete m_pGraphics;
+		m_pGraphics = NULL;
+	}
+
+	m_pGraphics  = new Graphics( m_MemDC );
+	m_pGraphics->SetSmoothingMode( SmoothingModeAntiAlias );
+	m_pGraphics->SetPageUnit( UnitPixel );
+	Matrix mtx( 96.0*mScale/72, 0, 0, -96.0*mScale/72, 0, m_dwHeight );
+	m_pGraphics->SetTransform( &mtx );
+	m_pPen = new Pen( Color( 255, 0, 0, 0 ), 1 );
+	m_pBrush = new SolidBrush( Color( 255, 0, 0, 0 ) );
+
+	mLineWidth = 1;
+	mLineCap = LineCap_Butt;
+	mLineJion = LineJoin_Miter;
+	mDashPhase = 0;
 }
 
 HE_VOID inline IHE_PDF_GDIplusDraw::MoveTo( HE_FLOAT x, HE_FLOAT y )
@@ -291,10 +326,9 @@ HE_VOID inline IHE_PDF_GDIplusDraw::SetMatrix( const CHE_PDF_Matrix & matrix )
 {
 	if ( m_pGraphics )
 	{
-		CHE_PDF_Matrix tmpMatrix( 96.0/72, 0, 0, -96.0/72, 0, m_dwHeight );
+		CHE_PDF_Matrix tmpMatrix( 96.0*mScale/72, 0, 0, -96.0*mScale/72, 0, m_dwHeight );
 		CHE_PDF_Matrix t = matrix;
 		t.Concat( tmpMatrix );
-		
 		Matrix matrixToDev(	t.a, t.b, t.c, t.d, t.e, t.f );
 		m_pGraphics->SetTransform( &matrixToDev );
 	}
@@ -304,7 +338,7 @@ HE_VOID	inline IHE_PDF_GDIplusDraw::SetLineWidth( const HE_FLOAT & lineWidth )
 {
 	if ( m_pPen )
 	{
-		m_pPen->SetWidth( lineWidth + 0.001 );
+		m_pPen->SetWidth( lineWidth + 0.01 );
 	}
 	mLineWidth = lineWidth;
 }
@@ -479,8 +513,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine
 	ULONG_PTR m_gdiplusToken;
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
 	Gdiplus::GdiplusStartup(&m_gdiplusToken, &gdiplusStartupInput, NULL);
+
+	QueryPerformanceFrequency( &gFeq );
 	
-	wndclass.style			= CS_HREDRAW | CS_VREDRAW ;
+	wndclass.style			= 0/*CS_HREDRAW | CS_VREDRAW */;
 	wndclass.lpfnWndProc	= WndProc ;
 	wndclass.cbClsExtra		= 0 ;
 	wndclass.cbWndExtra		= 0 ;
@@ -559,6 +595,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 			gBitmap = CreateCompatibleBitmap( hDC, gWndWidth, gWndHeight );
 			gOldObject = SelectObject( gMemDC, gBitmap );
 			ReleaseDC( hwnd, hDC );
+			InvalidateRect( hwnd, NULL, FALSE );
 			break;
 		}
 	case WM_PAINT:
@@ -587,8 +624,14 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				}
 				BitBlt( gMemDC, x + gOffsetX + gTmpOffsetX, y + gOffsetY + gTmpOffsetY, gpDraw->GetWidth(),  gpDraw->GetHeight(), gpDraw->GetMemDC(), 0, 0, SRCCOPY );
 			}
-
 			BitBlt( hdc, 0, 0, gWndWidth, gWndHeight, gMemDC, 0, 0, SRCCOPY );
+
+			char tmpStr[128];
+			sprintf( tmpStr, "parse : %d ms", parseTime );
+			TextOut( hdc, 0, 0, tmpStr, strlen( tmpStr ) );
+
+			sprintf( tmpStr, "render : %d ms", renderTime );
+			TextOut( hdc, 0, 20, tmpStr, strlen( tmpStr ) );
 
 			EndPaint( hwnd, &ps );
 			break ;
@@ -614,24 +657,24 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 					POINTS pt = MAKEPOINTS( lParam );
 					gTmpOffsetX = pt.x - gDragStartX;
 					gTmpOffsetY = pt.y - gDragStartY;
-					// 				if ( gWndWidth >= gPageWidth )
-					// 				{
-					// 					gTmpOffsetX = 0;
-					// 				}else{
-					// 					if ( gTmpOffsetX + gOffsetX > gPageWidth )
-					// 					{
-					// 						gTmpOffsetX = gPageWidth - gOffsetX;
-					// 					}
-					// 				}
-					// 				if ( gWndHeight >= gPageHeight )
-					// 				{
-					// 					gTmpOffsetY = 0;
-					// 				}else{
-					// 					if ( gTmpOffsetY + gOffsetY > gPageHeight )
-					// 					{
-					// 						gTmpOffsetY = gPageHeight - gOffsetY;
-					// 					}
-					// 				}
+// 					if ( gWndWidth >= gPageWidth )
+// 					{
+// 						gTmpOffsetX = 0;
+// 					}else{
+// 						if ( gTmpOffsetX + gOffsetX > gPageWidth )
+// 						{
+// 							gTmpOffsetX = gPageWidth - gOffsetX;
+// 						}
+// 					}
+// 					if ( gWndHeight >= gPageHeight )
+// 					{
+// 						gTmpOffsetY = 0;
+// 					}else{
+// 						if ( gTmpOffsetY + gOffsetY > gPageHeight )
+// 						{
+// 							gTmpOffsetY = gPageHeight - gOffsetY;
+// 						}
+// 					}
 					if ( gTmpOffsetX > 0 || gTmpOffsetY > 0 )
 					{
 						InvalidateRect( hwnd, NULL, FALSE );
@@ -680,7 +723,6 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				{
 					if ( gAppState == 1 )
 					{
-						//close all
 						gAppState = 0;
 					}
 
@@ -696,38 +738,131 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 						CHE_PDF_Rect rect = gpPage->GetMediaBox();
 						gPageWidth = rect.width * 96 / 72;
 						gPageHeight =  rect.height * 96 / 72;
-						gpDraw = new IHE_PDF_GDIplusDraw( GetDC(hwnd), gPageWidth, gPageHeight );
+						gpDraw = new IHE_PDF_GDIplusDraw( GetDC(hwnd), gPageWidth, gPageHeight, gScale );
 						CHE_PDF_ContentObjectList contentObjList;
+						QueryPerformanceCounter( &gBegin );
 						GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+						QueryPerformanceCounter( &gEnd );
+						parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+
+						QueryPerformanceCounter( &gBegin );
 						CHE_PDF_Renderer::Render( contentObjList, gpDraw );
+						QueryPerformanceCounter( &gEnd );
+						renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 					}
 					gAppState = 1;
-					InvalidateRect( hwnd, NULL, TRUE );
+					InvalidateRect( hwnd, NULL, FALSE );
 					break;
 				}
 			}else if ( wParam == 'c' || wParam == 'C' )
 			{
-			}
-			if ( gAppState == 1 )
+			}else if ( wParam == '.' )
 			{
+				if ( gAppState == 1 )
+				{
+					if ( gpPage )
+					{
+						gpPage->GetAllocator()->Delete( gpPage );
+					}
+					gpPage = gpPageTree->GetPage( ++gPageIndex );
+					if ( gpPage )
+					{
+						CHE_PDF_Rect rect = gpPage->GetMediaBox();
+						gPageWidth = rect.width * 96 / 72;
+						gPageHeight =  rect.height * 96 / 72;
+						gpDraw->Resize( gPageWidth, gPageHeight, gScale );
+						CHE_PDF_ContentObjectList contentObjList;
+						QueryPerformanceCounter( &gBegin );
+						GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+						QueryPerformanceCounter( &gEnd );
+						parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+
+						QueryPerformanceCounter( &gBegin );
+						CHE_PDF_Renderer::Render( contentObjList, gpDraw );
+						QueryPerformanceCounter( &gEnd );
+						renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+					}
+					InvalidateRect( hwnd, NULL, FALSE );
+				}
+			}else if ( wParam == ',' )
+			{
+				if ( gAppState == 1 )
+				{
+					if ( gpPage )
+					{
+						gpPage->GetAllocator()->Delete( gpPage );
+					}
+					gpPage = gpPageTree->GetPage( --gPageIndex );
+					if ( gpPage )
+					{
+						CHE_PDF_Rect rect = gpPage->GetMediaBox();
+						gPageWidth = rect.width * 96 / 72;
+						gPageHeight =  rect.height * 96 / 72;
+						gpDraw->Resize( gPageWidth, gPageHeight, gScale );
+						CHE_PDF_ContentObjectList contentObjList;
+						QueryPerformanceCounter( &gBegin );
+						GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+						QueryPerformanceCounter( &gEnd );
+						parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+
+						QueryPerformanceCounter( &gBegin );
+						CHE_PDF_Renderer::Render( contentObjList, gpDraw );
+						QueryPerformanceCounter( &gEnd );
+						renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+					}
+					InvalidateRect( hwnd, NULL, FALSE );
+				}
+			}else if ( wParam == 'z' || wParam == 'Z' )
+			{
+				gScale+=0.5;
+				gpDraw->Resize( gPageWidth, gPageHeight, gScale );
 				if ( gpPage )
 				{
 					gpPage->GetAllocator()->Delete( gpPage );
 				}
-				gpPage = gpPageTree->GetPage( ++gPageIndex );
+				gpPage = gpPageTree->GetPage( gPageIndex );
 				if ( gpPage )
 				{
-					CHE_PDF_Rect rect = gpPage->GetMediaBox();
-					gPageWidth = rect.width * 96 / 72;
-					gPageHeight =  rect.height * 96 / 72;
-					gpDraw->Resize( gPageWidth, gPageHeight );
-					gpDraw->Clear();
 					CHE_PDF_ContentObjectList contentObjList;
+					QueryPerformanceCounter( &gBegin );
 					GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+					QueryPerformanceCounter( &gEnd );
+					parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+
+					QueryPerformanceCounter( &gBegin );
 					CHE_PDF_Renderer::Render( contentObjList, gpDraw );
+					QueryPerformanceCounter( &gEnd );
+					renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 				}
 				InvalidateRect( hwnd, NULL, TRUE );
+			}else if ( wParam == 'x' || wParam == 'X' )
+			{
+				if ( gScale - 0.5 >= 0 )
+				{
+					gScale -= 0.5;
+				}
+				gpDraw->Resize( gPageWidth, gPageHeight, gScale );
+				if ( gpPage )
+				{
+					gpPage->GetAllocator()->Delete( gpPage );
+				}
+				gpPage = gpPageTree->GetPage( gPageIndex );
+				if ( gpPage )
+				{
+					CHE_PDF_ContentObjectList contentObjList;
+					QueryPerformanceCounter( &gBegin );
+					GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+					QueryPerformanceCounter( &gEnd );
+					parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+
+					QueryPerformanceCounter( &gBegin );
+					CHE_PDF_Renderer::Render( contentObjList, gpDraw );
+					QueryPerformanceCounter( &gEnd );
+					renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+				}
+				InvalidateRect( hwnd, NULL, FALSE );
 			}
+			
 			break;
 		}
 	case WM_DESTROY:

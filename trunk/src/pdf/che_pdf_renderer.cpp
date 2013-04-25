@@ -18,8 +18,8 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 	PDF_GSTATE_TEXTRENDERMODE tm;
 	CHE_PDF_Color fillColor;
 	CHE_PDF_Color strokeColor;
-	CHE_PDF_ColorSpace fillColorSpace( COLORSAPCE_DEVICE_GRAY );
-	CHE_PDF_ColorSpace strokeColorSpace( COLORSAPCE_DEVICE_GRAY );
+	CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );
+	CHE_PDF_ColorSpace strokeColorSpace( COLORSPACE_DEVICE_GRAY );
 	HE_DWORD fillColorVal = 0xFF000000;
 	HE_DWORD strokeColorVal = 0xFF000000;
 

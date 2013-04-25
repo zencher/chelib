@@ -17,8 +17,13 @@ public:
 	CHE_WindowsFontInfo( CHE_Allocator * pAllocator = NULL );
 
 	CHE_ByteString	mFamilyName;
+	CHE_ByteString	mStyle;
 	CHE_ByteString	mPostScriptName;
 	CHE_ByteString	mFilePath;
+	CHE_PDF_Rect	mFontBBox;
+	HE_FLOAT		mAscent;
+	HE_FLOAT		mDescent;
+	HE_FLOAT		mHeight;
 };
 
 
@@ -29,6 +34,8 @@ public:
 	~CHE_WindowsFontMgr();
 
 	CHE_ByteString GetFontFilePath( const CHE_ByteString & fontName );
+
+	CHE_ByteString GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent );
 
 private:
 	std::list<CHE_WindowsFontInfo>	mFontList;
@@ -69,7 +76,8 @@ HE_VOID IHE_SystemFontMgr::Destroy( IHE_SystemFontMgr * pSystemFontMgr )
 
 
 CHE_WindowsFontInfo::CHE_WindowsFontInfo( CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_Object( pAllocator ), mFamilyName( pAllocator ), mPostScriptName( pAllocator ), mFilePath( pAllocator ) {}
+	: CHE_Object( pAllocator ), mFamilyName( pAllocator ), mPostScriptName( pAllocator ), mFilePath( pAllocator ),
+	mAscent( 0 ), mDescent( 0 ), mHeight( 0 ) {}
 
 
 CHE_WindowsFontMgr::CHE_WindowsFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
@@ -115,11 +123,19 @@ CHE_WindowsFontMgr::CHE_WindowsFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
 				if ( ! err )
 				{
 					fontInfo.mFamilyName = face->family_name;
+					fontInfo.mStyle = face->style_name;
 					pPostScriptName = FT_Get_Postscript_Name( face );
 					if ( pPostScriptName )
 					{
 						fontInfo.mPostScriptName = pPostScriptName;
 					}
+					fontInfo.mAscent = face->ascender * 1000.0 / face->units_per_EM;
+					fontInfo.mDescent = face->descender * 1000.0 / face->units_per_EM;
+					fontInfo.mHeight = face->height * 1000.0 / face->units_per_EM;
+					fontInfo.mFontBBox.left = face->bbox.xMin * 1000.0 / face->units_per_EM;
+					fontInfo.mFontBBox.bottom = face->bbox.yMin * 1000.0 / face->units_per_EM;
+					fontInfo.mFontBBox.width = face->bbox.xMax * 1000.0 / face->units_per_EM;
+					fontInfo.mFontBBox.height = face->bbox.yMax * 1000.0 / face->units_per_EM;
 					fontInfo.mFilePath = fontFileStr;
 					mFontList.push_back( fontInfo );
 
@@ -234,12 +250,29 @@ CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( const CHE_ByteString & fontN
 				fontPath = it->mFilePath;
 				break;
 			}
-		}else{
+		}
+		else{
 			if ( strstr( (const char *)( it->mPostScriptName.GetData() ), (const char *)( name.GetData() ) ) != NULL )
 			{
 				fontPath = it->mFilePath;
 				break;
 			}
+		}
+	}
+	return fontPath;
+}
+
+
+CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent )
+{
+	CHE_ByteString fontPath;
+	std::list<CHE_WindowsFontInfo>::iterator it;
+	for ( it = mFontList.begin(); it != mFontList.end(); ++it )
+	{
+		if ( ascent - it->mAscent <= 1 && descent - it->mDescent <= 1 )
+		{
+			fontPath = it->mFilePath;
+			break;
 		}
 	}
 	return fontPath;

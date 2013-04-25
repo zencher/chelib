@@ -294,38 +294,38 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 	{
 		switch ( mpFillColorSpace->GetType() )
 		{
-		case COLORSAPCE_DEVICE_GRAY:
-		case COLORSAPCE_CIEBASE_CALGRAY:
-		case COLORSAPCE_SPECIAL_SEPARATION:
-		case COLORSAPCE_SPECIAL_DEVICEN:
-		case COLORSAPCE_SPECIAL_INDEXED:
+		case COLORSPACE_DEVICE_GRAY:
+		case COLORSPACE_CIEBASE_CALGRAY:
+		case COLORSPACE_SPECIAL_SEPARATION:
+		case COLORSPACE_SPECIAL_DEVICEN:
+		case COLORSPACE_SPECIAL_INDEXED:
 			colorRet.mConponents.push_back( 0 );
 			break;
-		case COLORSAPCE_DEVICE_RGB:
-		case COLORSAPCE_CIEBASE_CALRGB:
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			break;
-		case COLORSAPCE_DEVICE_CMYK:
-		case COLORSAPCE_CIEBASE_CALCMYK:
-			colorRet.mConponents.push_back( 0 );
+		case COLORSPACE_DEVICE_RGB:
+		case COLORSPACE_CIEBASE_CALRGB:
 			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			break;
-		case COLORSAPCE_CIEBASE_CALLAB:
+		case COLORSPACE_DEVICE_CMYK:
+		case COLORSPACE_CIEBASE_CALCMYK:
+			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			break;
-		case COLORSAPCE_CIEBASE_ICCBASED:
+		case COLORSPACE_CIEBASE_CALLAB:
+			colorRet.mConponents.push_back( 0 );
+			colorRet.mConponents.push_back( 0 );
+			colorRet.mConponents.push_back( 0 );
+			break;
+		case COLORSPACE_CIEBASE_ICCBASED:
 // 			colorRet.mConponents.push_back( 0 );
 // 			colorRet.mConponents.push_back( 0 );
 // 			colorRet.mConponents.push_back( 0 );
 // 			colorRet.mConponents.push_back( 0 );
 // 			break;
-		case COLORSAPCE_SPECIAL_PATTERN:break;
+		case COLORSPACE_SPECIAL_PATTERN:break;
 		default:break;
 		}
 	}else{
@@ -347,38 +347,38 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 	{
 		switch ( mpStrokeColorSpace->GetType() )
 		{
-		case COLORSAPCE_DEVICE_GRAY:
-		case COLORSAPCE_CIEBASE_CALGRAY:
-		case COLORSAPCE_SPECIAL_SEPARATION:
-		case COLORSAPCE_SPECIAL_DEVICEN:
-		case COLORSAPCE_SPECIAL_INDEXED:
+		case COLORSPACE_DEVICE_GRAY:
+		case COLORSPACE_CIEBASE_CALGRAY:
+		case COLORSPACE_SPECIAL_SEPARATION:
+		case COLORSPACE_SPECIAL_DEVICEN:
+		case COLORSPACE_SPECIAL_INDEXED:
 			colorRet.mConponents.push_back( 0 );
 			break;
-		case COLORSAPCE_DEVICE_RGB:
-		case COLORSAPCE_CIEBASE_CALRGB:
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			break;
-		case COLORSAPCE_DEVICE_CMYK:
-		case COLORSAPCE_CIEBASE_CALCMYK:
-			colorRet.mConponents.push_back( 0 );
+		case COLORSPACE_DEVICE_RGB:
+		case COLORSPACE_CIEBASE_CALRGB:
 			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			break;
-		case COLORSAPCE_CIEBASE_CALLAB:
+		case COLORSPACE_DEVICE_CMYK:
+		case COLORSPACE_CIEBASE_CALCMYK:
+			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			colorRet.mConponents.push_back( 0 );
 			break;
-		case COLORSAPCE_CIEBASE_ICCBASED:
+		case COLORSPACE_CIEBASE_CALLAB:
+			colorRet.mConponents.push_back( 0 );
+			colorRet.mConponents.push_back( 0 );
+			colorRet.mConponents.push_back( 0 );
+			break;
+		case COLORSPACE_CIEBASE_ICCBASED:
 // 			colorRet.mConponents.push_back( 0 );
 // 			colorRet.mConponents.push_back( 0 );
 // 			colorRet.mConponents.push_back( 0 );
 // 			colorRet.mConponents.push_back( 0 );
 // 			break;
-		case COLORSAPCE_SPECIAL_PATTERN:break;
+		case COLORSPACE_SPECIAL_PATTERN:break;
 		default:break;
 		}
 	}else{
@@ -393,7 +393,7 @@ HE_VOID CHE_PDF_GState::GetFillColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) 
 		colorSpaceRet = *mpFillColorSpace;
 		return;
 	}
-	CHE_PDF_ColorSpace csRet( COLORSAPCE_DEVICE_GRAY );
+	CHE_PDF_ColorSpace csRet( COLORSPACE_DEVICE_GRAY );
 	colorSpaceRet = csRet;
 }
 
@@ -404,7 +404,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColorSpace( CHE_PDF_ColorSpace & colorSpaceRet 
 		colorSpaceRet = *mpStrokeColorSpace;
 		return;
 	}
-	CHE_PDF_ColorSpace csRet( COLORSAPCE_DEVICE_GRAY );
+	CHE_PDF_ColorSpace csRet( COLORSPACE_DEVICE_GRAY );
 	colorSpaceRet = csRet;
 }
 
@@ -862,7 +862,7 @@ HE_BOOL IsDefRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri )
 
 HE_BOOL IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace )
 {
-	if ( colorSpace.GetType() == COLORSAPCE_DEVICE_GRAY )
+	if ( colorSpace.GetType() == COLORSPACE_DEVICE_GRAY )
 	{
 		return TRUE;
 	}

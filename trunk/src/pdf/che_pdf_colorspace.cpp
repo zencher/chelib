@@ -4,9 +4,9 @@ HE_BOOL CHE_PDF_ColorSpace::IsDeviceColorSpace()
 {
 	switch ( GetType() )
 	{
-	case COLORSAPCE_DEVICE_GRAY:
-	case COLORSAPCE_DEVICE_RGB:
-	case COLORSAPCE_DEVICE_CMYK:
+	case COLORSPACE_DEVICE_GRAY:
+	case COLORSPACE_DEVICE_RGB:
+	case COLORSPACE_DEVICE_CMYK:
 		return TRUE;
 	default:
 		break;
@@ -19,8 +19,8 @@ HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 {
 	switch ( mType )
 	{
-	case COLORSAPCE_DEVICE_GRAY:
-	case COLORSAPCE_CIEBASE_CALGRAY:
+	case COLORSPACE_DEVICE_GRAY:
+	case COLORSPACE_CIEBASE_CALGRAY:
 		{
 			HE_DWORD valRet = 0xFF000000;
 			HE_DWORD tmpByte = 0x00;
@@ -31,8 +31,8 @@ HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 			}
 			return valRet;
 		}
-	case COLORSAPCE_DEVICE_RGB:
-	case COLORSAPCE_CIEBASE_CALRGB:
+	case COLORSPACE_DEVICE_RGB:
+	case COLORSPACE_CIEBASE_CALRGB:
 		{
 			HE_DWORD valRet = 0xFF000000;
 			HE_DWORD tmpByte1 = 0x00;
@@ -46,6 +46,30 @@ HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 				valRet = valRet | tmpByte1 << 16 | tmpByte2 << 8 | tmpByte3;
 			}
 			return valRet;
+		}
+	case COLORSPACE_DEVICE_CMYK:
+	case COLORSPACE_CIEBASE_CALCMYK:
+		{
+			if ( color.mConponents.size() >= 4 )
+			{
+				HE_FLOAT bgr[3];
+				bgr[0] = 1 - ( 1 < color.mConponents[2] + color.mConponents[3] ) ? color.mConponents[2] + color.mConponents[3] : 1;
+				bgr[1] = 1 - ( 1 < color.mConponents[1] + color.mConponents[3] ) ? color.mConponents[1] + color.mConponents[3] : 1;
+				bgr[2] = 1 - ( 1 < color.mConponents[0] + color.mConponents[3] ) ? color.mConponents[0] + color.mConponents[3] : 1;
+				
+				HE_DWORD valRet = 0xFF000000;
+				HE_DWORD tmpByte1 = 0x00;
+				HE_DWORD tmpByte2 = 0x00;
+				HE_DWORD tmpByte3 = 0x00;
+				if ( color.mConponents.size() >= 3 )
+				{
+					tmpByte1 = bgr[0] * 255;
+					tmpByte2 = bgr[1] * 255;
+					tmpByte3 = bgr[2] * 255;
+					valRet = valRet | tmpByte1 << 16 | tmpByte2 << 8 | tmpByte3;
+				}
+				return valRet;
+			}
 		}
 	default:
 		return 0xFF000000;
@@ -61,16 +85,16 @@ CHE_PDF_ColorSpace * GetColorSpace( const CHE_ByteString & name, CHE_Allocator *
 	}
 	if ( name == "DeviceGray" || name == "G" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_GRAY, pAllocator );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_GRAY, pAllocator );
 	}else if ( name == "DeviceRGB" || name == "RGB" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_RGB, pAllocator );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_RGB, pAllocator );
 	}else if ( name == "DeviceCMYK" || name == "CMYK"  )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_DEVICE_CMYK, pAllocator );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_CMYK, pAllocator );
 	}else if ( name == "Pattern" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_PATTERN, pAllocator );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_SPECIAL_PATTERN, pAllocator );
 	}
 	return pColorSpace;
 }
@@ -128,28 +152,28 @@ CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ArrayPtr & pArray, CHE_Allocat
 	CHE_PDF_ColorSpace * pColorSpace = NULL;
 	if ( name == "CalGray" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALGRAY, "", pArray );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_CALGRAY, "", pArray );
 	}else if ( name == "CalRGB" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALRGB, "", pArray );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_CALRGB, "", pArray );
 	}else if ( name == "CalCMYK" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALCMYK, "", pArray );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_CALCMYK, "", pArray );
 	}else if ( name == "ICCBased" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_ICCBASED, "", pArray );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_ICCBASED, "", pArray );
 	}else if ( name == "Lab" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_CIEBASE_CALLAB, "", pArray );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_CALLAB, "", pArray );
 	}else if ( name == "Indexed" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_INDEXED, "", pArray );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_SPECIAL_INDEXED, "", pArray );
 	}else if ( name == "Separation" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_SEPARATION, "", pArray );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_SPECIAL_SEPARATION, "", pArray );
 	}else if ( name == "DeviceN" )
 	{
-		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSAPCE_SPECIAL_DEVICEN, "", pArray );
+		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( COLORSPACE_SPECIAL_DEVICEN, "", pArray );
 	}
 	return pColorSpace;
 }
@@ -189,29 +213,29 @@ CHE_ByteString GetColorSpaceName( CHE_PDF_ColorSpace * pColorSpace )
 
 	switch ( pColorSpace->GetType() )
 	{
-	case COLORSAPCE_DEVICE_GRAY:
+	case COLORSPACE_DEVICE_GRAY:
 		return "DeviceGray";
-	case COLORSAPCE_DEVICE_RGB:
+	case COLORSPACE_DEVICE_RGB:
 		return "DeviceRGB";
-	case COLORSAPCE_DEVICE_CMYK:
+	case COLORSPACE_DEVICE_CMYK:
 		return "DeviceCMYK";
-	case COLORSAPCE_CIEBASE_CALGRAY:
+	case COLORSPACE_CIEBASE_CALGRAY:
 		return "CalGray";
-	case COLORSAPCE_CIEBASE_CALRGB:
+	case COLORSPACE_CIEBASE_CALRGB:
 		return "CalRGB";
-	case COLORSAPCE_CIEBASE_CALCMYK:
+	case COLORSPACE_CIEBASE_CALCMYK:
 		return "CalCMYK";
-	case COLORSAPCE_CIEBASE_CALLAB:
+	case COLORSPACE_CIEBASE_CALLAB:
 		return "Lab";
-	case COLORSAPCE_CIEBASE_ICCBASED:
+	case COLORSPACE_CIEBASE_ICCBASED:
 		return "ICCBased";
-	case COLORSAPCE_SPECIAL_PATTERN:
+	case COLORSPACE_SPECIAL_PATTERN:
 		return "Pattern";
-	case COLORSAPCE_SPECIAL_INDEXED:
+	case COLORSPACE_SPECIAL_INDEXED:
 		return "Indexed";
-	case COLORSAPCE_SPECIAL_SEPARATION:
+	case COLORSPACE_SPECIAL_SEPARATION:
 		return "Separation";
-	case COLORSAPCE_SPECIAL_DEVICEN:
+	case COLORSPACE_SPECIAL_DEVICEN:
 		return "DeviceN";
 	default:
 		break;

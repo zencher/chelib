@@ -4738,6 +4738,25 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 				filePath = pSystemFontMgr->GetFontFilePath( mBaseFont );
 				if ( filePath.GetLength() == 0 )
 				{
+
+					//根据fontDescriptor的信息获取匹配字体的算法还有待完善
+// 					HE_FLOAT ascent = 0;
+// 					HE_FLOAT descent = 0;
+// 					CHE_PDF_ObjectPtr objPtr = mFontDescriptorDict->GetElement( "Ascent", OBJ_TYPE_NUMBER );
+// 					if ( objPtr )
+// 					{
+// 						ascent = objPtr->GetNumberPtr()->GetFloat();
+// 					}
+// 					objPtr = mFontDescriptorDict->GetElement( "Descent", OBJ_TYPE_NUMBER );
+// 					if ( objPtr )
+// 					{
+// 						descent = objPtr->GetNumberPtr()->GetFloat();
+// 					}
+// 					filePath = pSystemFontMgr->GetFontFilePath( ascent, descent );
+// 					if ( filePath.GetLength() == 0 )
+// 					{					
+//					}
+
 					filePath = pSystemFontMgr->GetFontFilePath( "微软雅黑" );
 					if ( filePath.GetLength() == 0 )
 					{

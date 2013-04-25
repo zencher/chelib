@@ -94,6 +94,8 @@ public:
 	virtual ~IHE_SystemFontMgr() {};
 
 	virtual CHE_ByteString GetFontFilePath( const CHE_ByteString & fontName ) = 0;
+
+	virtual CHE_ByteString GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent ) = 0;
 };
 
 

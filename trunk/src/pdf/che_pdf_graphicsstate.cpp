@@ -428,7 +428,7 @@ HE_VOID CHE_PDF_GState::GetMiterLimit( HE_FLOAT & miterLimitRet ) const
 	miterLimitRet = 10;
 }
 
-HE_VOID CHE_PDF_GState::GetLineCap( PDF_GSTATE_LINECAP & lineCapRet ) const
+HE_VOID CHE_PDF_GState::GetLineCap( GRAPHICS_STATE_LINECAP & lineCapRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_LineCap )
 	{
@@ -438,7 +438,7 @@ HE_VOID CHE_PDF_GState::GetLineCap( PDF_GSTATE_LINECAP & lineCapRet ) const
 	lineCapRet = LineCap_Butt;
 }
 
-HE_VOID CHE_PDF_GState::GetLineJoin( PDF_GSTATE_LINEJOIN & lineJoinRet ) const
+HE_VOID CHE_PDF_GState::GetLineJoin( GRAPHICS_STATE_LINEJOIN & lineJoinRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_LineJoin )
 	{
@@ -448,7 +448,7 @@ HE_VOID CHE_PDF_GState::GetLineJoin( PDF_GSTATE_LINEJOIN & lineJoinRet ) const
 	lineJoinRet = LineJoin_Miter;
 }
 
-HE_VOID CHE_PDF_GState::GetLineDash( PDF_GSTATE_DASHPATTERN & lineDash ) const
+HE_VOID CHE_PDF_GState::GetLineDash( GRAPHICS_STATE_DASHPATTERN & lineDash ) const
 {
 	if ( mFlag & GSTATE_FLAG_LineDash )
 	{
@@ -459,14 +459,14 @@ HE_VOID CHE_PDF_GState::GetLineDash( PDF_GSTATE_DASHPATTERN & lineDash ) const
 	lineDash.dashArray.clear();
 }
 
-HE_VOID CHE_PDF_GState::GetTextMatrix( CHE_PDF_Matrix & matrixRet ) const
+HE_VOID CHE_PDF_GState::GetTextMatrix( CHE_Matrix & matrixRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_TextMatirx )
 	{
 		matrixRet = mpTextState->GetMatrix();
 		return;
 	}
-	matrixRet = CHE_PDF_Matrix();
+	matrixRet = CHE_Matrix();
 }
 
 HE_VOID CHE_PDF_GState::GetTextFontSize( HE_FLOAT & fontSizeRet ) const
@@ -538,7 +538,7 @@ HE_VOID CHE_PDF_GState::GetTextFontResName( CHE_ByteString & resNameRet ) const
 	resNameRet.Clear();
 }
 
-HE_VOID CHE_PDF_GState::GetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE & rm ) const
+HE_VOID CHE_PDF_GState::GetTextRenderMode( GRAPHICS_STATE_TEXTRENDERMODE & rm ) const
 {
 	if ( mFlag & GSTATE_FLAG_RenderMode )
 	{
@@ -548,12 +548,12 @@ HE_VOID CHE_PDF_GState::GetTextRenderMode( PDF_GSTATE_TEXTRENDERMODE & rm ) cons
 	rm = TextRenderMode_Fill;
 }
 
-HE_VOID CHE_PDF_GState::SetMatrix( const CHE_PDF_Matrix & matirx )
+HE_VOID CHE_PDF_GState::SetMatrix( const CHE_Matrix & matirx )
 {
 	mMatrix = matirx;
 }
 
-HE_VOID CHE_PDF_GState::SetRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri )
+HE_VOID CHE_PDF_GState::SetRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri )
 {
 	mFlag |= GSTATE_FLAG_RenderIntents;
 	mRenderIntents = ri;
@@ -636,25 +636,25 @@ HE_VOID	CHE_PDF_GState::SetMiterLimit( const HE_FLOAT & miterLimit )
 	mFlag |= GSTATE_FLAG_MiterLimit;
 }
 
-HE_VOID	CHE_PDF_GState::SetLineCap( const PDF_GSTATE_LINECAP & lineCap )
+HE_VOID	CHE_PDF_GState::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 {
 	MakeStrokeState()->SetLineCap( lineCap );
 	mFlag |= GSTATE_FLAG_LineCap;
 }
 
-HE_VOID	CHE_PDF_GState::SetLineJoin( const PDF_GSTATE_LINEJOIN & lineJion )
+HE_VOID	CHE_PDF_GState::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
 {
 	MakeStrokeState()->SetLineJoin( lineJion );
 	mFlag |= GSTATE_FLAG_LineJoin;
 }
 
-HE_VOID	CHE_PDF_GState::SetLineDash( const PDF_GSTATE_DASHPATTERN & dashPattern )
+HE_VOID	CHE_PDF_GState::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
 {
 	MakeStrokeState()->SetLineDash( dashPattern );
 	mFlag |= GSTATE_FLAG_LineDash;
 }
 
-HE_VOID CHE_PDF_GState::SetTextMatrix( const CHE_PDF_Matrix & matrix )
+HE_VOID CHE_PDF_GState::SetTextMatrix( const CHE_Matrix & matrix )
 {
 	MakeTextState()->SetMatirx( matrix );
 	mFlag |= GSTATE_FLAG_TextMatirx;
@@ -708,7 +708,7 @@ HE_VOID CHE_PDF_GState::SetTextRise( const HE_FLOAT & rise )
 	mFlag |= GSTATE_FLAG_Rise;
 }
 
-HE_VOID CHE_PDF_GState::SetTextRenderMode( const PDF_GSTATE_TEXTRENDERMODE & rm )
+HE_VOID CHE_PDF_GState::SetTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm )
 {
 	MakeTextState()->SetRenderMode( rm );
 	mFlag |= GSTATE_FLAG_RenderMode;
@@ -775,7 +775,7 @@ HE_BOOL IsDefLineWidth( const HE_FLOAT & lineWidth )
 	return IsFloatEqual( lineWidth, 1 );
 }
 
-HE_BOOL IsDefLineCap( const PDF_GSTATE_LINECAP & lineCap )
+HE_BOOL IsDefLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 {
 	if ( lineCap == LineCap_Butt )
 	{
@@ -784,7 +784,7 @@ HE_BOOL IsDefLineCap( const PDF_GSTATE_LINECAP & lineCap )
 	return FALSE;
 }
 
-HE_BOOL IsDefLineJoin( const PDF_GSTATE_LINEJOIN & lineJoin )
+HE_BOOL IsDefLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJoin )
 {
 	if ( lineJoin == LineJoin_Miter )
 	{
@@ -798,7 +798,7 @@ HE_BOOL IsDefMiterLimit( const HE_FLOAT & miterLimit )
 	return IsFloatEqual( miterLimit, 10 );
 }
 
-HE_BOOL IsDefLineDash( const PDF_GSTATE_DASHPATTERN & lineDash )
+HE_BOOL IsDefLineDash( const GRAPHICS_STATE_DASHPATTERN & lineDash )
 {
 	if ( IsFloatEqual( lineDash.dashPhase, 0 ) && ( lineDash.dashArray.size() == 0 ) )
 	{
@@ -807,7 +807,7 @@ HE_BOOL IsDefLineDash( const PDF_GSTATE_DASHPATTERN & lineDash )
 	return FALSE;
 }
 
-HE_BOOL IsDefMatrix( const CHE_PDF_Matrix & textMatrix )
+HE_BOOL IsDefMatrix( const CHE_Matrix & textMatrix )
 {
 	if ( IsFloatEqual( textMatrix.a, 1 ) && IsFloatEqual( textMatrix.b, 0 ) && IsFloatEqual( textMatrix.c, 0 ) &&
 		 IsFloatEqual( textMatrix.d, 1 ) && IsFloatEqual( textMatrix.e, 0 ) && IsFloatEqual( textMatrix.f, 0 ) )
@@ -837,7 +837,7 @@ HE_BOOL IsDefTextScaling( const HE_FLOAT & textScaling )
 	return IsFloatEqual( textScaling, 100 );
 }
 
-HE_BOOL IsDefTextRenderMode( const PDF_GSTATE_TEXTRENDERMODE & rm )
+HE_BOOL IsDefTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm )
 {
 	if ( rm == TextRenderMode_Fill )
 	{
@@ -851,7 +851,7 @@ HE_BOOL IsDefFlatness( const HE_FLOAT & flatness )
 	return IsFloatEqual( flatness, 0 );
 }
 
-HE_BOOL IsDefRenderIntents( const PDF_GSTATE_RENDERINTENTS & ri )
+HE_BOOL IsDefRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri )
 {
 	if ( ri == RI_AbsoluteColorimetric )
 	{

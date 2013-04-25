@@ -20,7 +20,7 @@ public:
 	CHE_ByteString	mStyle;
 	CHE_ByteString	mPostScriptName;
 	CHE_ByteString	mFilePath;
-	CHE_PDF_Rect	mFontBBox;
+	CHE_Rect	mFontBBox;
 	HE_FLOAT		mAscent;
 	HE_FLOAT		mDescent;
 	HE_FLOAT		mHeight;

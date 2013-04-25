@@ -41,8 +41,8 @@ public:
 	CHE_PDF_GState * GetGState() const { return mpGState; }
 	HE_BOOL SetGState( CHE_PDF_GState * pGSatae );
 
-	CHE_PDF_Matrix GetExtMatrix() { return mExtMatrixl; }
-	HE_VOID	SetExtMatrix( const CHE_PDF_Matrix & matrx ) { mExtMatrixl = matrx; }
+	CHE_Matrix GetExtMatrix() { return mExtMatrixl; }
+	HE_VOID	SetExtMatrix( const CHE_Matrix & matrx ) { mExtMatrixl = matrx; }
 
 	HE_BOOL	IsModified() const
 	{
@@ -61,7 +61,7 @@ protected:
 
 protected:
 	HE_DWORD			mFlag;
-	CHE_PDF_Matrix		mExtMatrixl;
+	CHE_Matrix			mExtMatrixl;
 	CHE_PDF_GState *	mpGState;
 };
 
@@ -155,13 +155,13 @@ public:
 		return pTextRet;
 	}
 
-	CHE_PDF_Matrix GetTextMatrix() const;
+	CHE_Matrix GetTextMatrix() const;
 
-	CHE_PDF_Matrix GetCharMatrix( HE_DWORD index ) const;
+	CHE_Matrix GetCharMatrix( HE_DWORD index ) const;
 
-	CHE_PDF_Rect GetTextRect() const;
+	CHE_Rect GetTextRect() const;
 
-	CHE_PDF_Rect GetCharRect( HE_DWORD index ) const;
+	CHE_Rect GetCharRect( HE_DWORD index ) const;
 
 	//计算一个TJ、Tj指令中的所有内容所产生的偏移，包括头尾的kerning，因为头尾的kering在计算文本和字符串矩形的时候会被跳过
 	HE_FLOAT GetOffSet() const;

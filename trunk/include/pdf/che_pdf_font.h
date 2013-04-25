@@ -2,8 +2,8 @@
 #define _CHE_PDF_FONT_H_
 
 #include "../che_base.h"
+#include "../che_graphics.h"
 #include "che_pdf_objects.h"
-#include "che_pdf_matrix.h"
 #include "che_pdf_cmap.h"
 
 
@@ -141,7 +141,7 @@ public:
 	HE_BOOL					IsSmallCap() const;
 	HE_BOOL					IsForceBold() const;
 
-	CHE_PDF_Rect			GetFontBBox() const { return mFontBBox; }
+	CHE_Rect				GetFontBBox() const { return mFontBBox; }
 
 	HE_DWORD				GetWMode() const { return mWMode; }
 	
@@ -156,7 +156,7 @@ private:
 	HE_BOOL					mEmbedded;
 	HE_INT32 				mWMode;
 	CHE_PDF_ReferencePtr	mEmbedFont;
-	CHE_PDF_Rect			mFontBBox;
+	CHE_Rect				mFontBBox;
 
 };
 
@@ -175,7 +175,7 @@ public:
 	virtual HE_BOOL			GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
 	virtual HE_BOOL			GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const = 0;
 
-	virtual HE_FLOAT		GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix() ) const = 0;
+	virtual HE_FLOAT		GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const = 0;
 
 	CHE_PDF_FontDescriptor*	GetFontDescriptor() const { return mpFontDescriptor; }
 
@@ -208,7 +208,7 @@ public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
 	HE_BOOL GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
 
-	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix() ) const;
+	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const;
 
 protected:
 	CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
@@ -227,7 +227,7 @@ class CHE_PDF_Type1_Font : public CHE_PDF_Font
 public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
 	
-	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix() ) const;
+	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const;
 
 protected:
 	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );
@@ -265,7 +265,7 @@ class CHE_PDF_Type3_Font : public CHE_PDF_Type1_Font
 {
 public:
 	CHE_PDF_ArrayPtr		GetFontBBox() const;
-	CHE_PDF_Matrix			GetFontMatrix() const;
+	CHE_Matrix				GetFontMatrix() const;
 	CHE_PDF_DictionaryPtr	GetResDict() const;
 	CHE_PDF_StreamPtr		GetCharProc( HE_BYTE index ) const;
 
@@ -274,7 +274,7 @@ private:
 	~CHE_PDF_Type3_Font();
 
 	CHE_PDF_ArrayPtr		mFontBBox;
-	CHE_PDF_Matrix			mFontMatrix;
+	CHE_Matrix			mFontMatrix;
 	CHE_PDF_DictionaryPtr	mResDict;
 	CHE_PDF_DictionaryPtr	mCharProcsDict;
 	CHE_PDF_StreamPtr		mCharProcsSet[256];

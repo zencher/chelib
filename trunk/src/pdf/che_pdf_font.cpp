@@ -5140,9 +5140,9 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix /*= CHE_PDF_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix /*= CHE_Matrix()*/ ) const
 {
-	CHE_PDF_Matrix tmpMatrix;
+	CHE_Matrix tmpMatrix;
 	tmpMatrix.a = 0;
 	tmpMatrix.b = 0;
 	tmpMatrix.c = 0;
@@ -5338,9 +5338,9 @@ HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_PDF_Matrix & matrix /*= CHE_PDF_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix /*= CHE_Matrix()*/ ) const
 {
-	CHE_PDF_Matrix tmpMatrix;
+	CHE_Matrix tmpMatrix;
 	tmpMatrix.a = 0;
 	tmpMatrix.b = 0;
 	tmpMatrix.c = 0;
@@ -5512,7 +5512,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Type3_Font::GetFontBBox() const
 }
 
 
-CHE_PDF_Matrix CHE_PDF_Type3_Font::GetFontMatrix() const
+CHE_Matrix CHE_PDF_Type3_Font::GetFontMatrix() const
 {
 	return mFontMatrix;
 }

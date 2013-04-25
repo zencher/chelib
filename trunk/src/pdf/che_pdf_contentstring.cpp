@@ -60,7 +60,7 @@ HE_BOOL CHE_PDF_ContentString::ColorSpaceToBuf( const CHE_PDF_ColorSpace & color
 
 
 
-HE_BOOL CHE_PDF_ContentString::PdfMatrixToBuf( const CHE_PDF_Matrix & matrix, CHE_DynBuffer & buf )
+HE_BOOL CHE_PDF_ContentString::PdfMatrixToBuf( const CHE_Matrix & matrix, CHE_DynBuffer & buf )
 {
 	CHE_PDF_ObjectString::FloatToBuf( matrix.a, buf );
 	CHE_PDF_ObjectString::SpaceToBuf( buf );
@@ -454,8 +454,8 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pTextState
 
 	HE_FLOAT					val = 0;
 	CHE_ByteString				name;
-	CHE_PDF_Matrix				textMatrix;
-	PDF_GSTATE_TEXTRENDERMODE	textRenderMode = TextRenderMode_Fill;
+	CHE_Matrix				textMatrix;
+	GRAPHICS_STATE_TEXTRENDERMODE	textRenderMode = TextRenderMode_Fill;
 
 	pTextState->GetTextCharSpace( val );
 
@@ -536,8 +536,8 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pCurTextSt
 
 	HE_FLOAT					curVal = 0, targetVal = 0;
 	CHE_ByteString				curName, targetName;
-	CHE_PDF_Matrix				curMatrix, targetMatrix;
-	PDF_GSTATE_TEXTRENDERMODE	curRM = TextRenderMode_Fill, targetRM = TextRenderMode_Fill;
+	CHE_Matrix				curMatrix, targetMatrix;
+	GRAPHICS_STATE_TEXTRENDERMODE	curRM = TextRenderMode_Fill, targetRM = TextRenderMode_Fill;
 
 	pCurTextState->GetTextCharSpace( curVal );
 	pTargetTextState->GetTextCharSpace( targetVal );
@@ -674,14 +674,14 @@ HE_BOOL CHE_PDF_ContentString::ExtGStateToBuf( const CHE_PDF_ExtGState * pCurExt
 
 
 
-HE_BOOL CHE_PDF_ContentString::ClipStateToBuf( CHE_PDF_Matrix & curMatrix, CHE_PDF_ClipState * pClipState, CHE_DynBuffer & buf, HE_BOOL bInTextBlock )
+HE_BOOL CHE_PDF_ContentString::ClipStateToBuf( CHE_Matrix & curMatrix, CHE_PDF_ClipState * pClipState, CHE_DynBuffer & buf, HE_BOOL bInTextBlock )
 {
 	if ( pClipState == NULL )
 	{
 		return FALSE;
 	}
 
-	CHE_PDF_Matrix clipMatrix;
+	CHE_Matrix clipMatrix;
 	CHE_PDF_ContentObject * pClipElement = NULL;
 
 	std::list<CHE_PDF_ClipStateItem*>::iterator it;
@@ -693,7 +693,7 @@ HE_BOOL CHE_PDF_ContentString::ClipStateToBuf( CHE_PDF_Matrix & curMatrix, CHE_P
 			clipMatrix = (*it)->GetMatrix();
 			if ( clipMatrix != curMatrix )
 			{
-				CHE_PDF_Matrix revertMatrix;
+				CHE_Matrix revertMatrix;
 				revertMatrix.Invert( curMatrix );
 				clipMatrix.Concat( revertMatrix );
 
@@ -739,7 +739,7 @@ HE_BOOL CHE_PDF_ContentString::ClipStateToBuf( CHE_PDF_Matrix & curMatrix, CHE_P
 
 
 
-HE_BOOL CHE_PDF_ContentString::ClipStateToBuf(	CHE_PDF_Matrix & curMatrix, CHE_PDF_ClipState * pCurClipState,
+HE_BOOL CHE_PDF_ContentString::ClipStateToBuf(	CHE_Matrix & curMatrix, CHE_PDF_ClipState * pCurClipState,
 												const CHE_PDF_ClipState * pTargetClipState, CHE_DynBuffer & buf, HE_BOOL bInTextBlock )
 {
 // 	if ( pClipState1 == NULL && pClipState2 == NULL )
@@ -796,10 +796,10 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 	HE_BOOL						bNewTextBlock = FALSE;
 	HE_BOOL						bNeedStackPush = FALSE;
 	HE_FLOAT					floatVal = 0;
-	PDF_GSTATE_LINECAP			lineCap = LineCap_Butt;
-	PDF_GSTATE_LINEJOIN			lineJoin = LineJoin_Miter;
-	PDF_GSTATE_DASHPATTERN		lineDash;
-	PDF_GSTATE_RENDERINTENTS	ri = RI_AbsoluteColorimetric;
+	GRAPHICS_STATE_LINECAP			lineCap = LineCap_Butt;
+	GRAPHICS_STATE_LINEJOIN			lineJoin = LineJoin_Miter;
+	GRAPHICS_STATE_DASHPATTERN		lineDash;
+	GRAPHICS_STATE_RENDERINTENTS	ri = RI_AbsoluteColorimetric;
 
 	CHE_PDF_ClipState * pClipState = pGSData->GetClipState();
 	if ( pClipState && pClipState->mClipElementList.size() > 0 )
@@ -825,14 +825,14 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 		gstack.Push( NULL );
 	}
 
-	CHE_PDF_Matrix curMatrix;
+	CHE_Matrix curMatrix;
 
 	if ( pClipState != NULL )
 	{
 		ClipStateToBuf( curMatrix, pClipState, buf, bInTextBlock );
 	}
 
-	CHE_PDF_Matrix target = pGSData->GetMatrix();
+	CHE_Matrix target = pGSData->GetMatrix();
 	if ( IsDefMatrix( curMatrix ) )
 	{
 		if ( target != curMatrix )
@@ -852,7 +852,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 			bNewTextBlock = TRUE;
 			TextBlockEndToBuf( buf );
 		}
-		CHE_PDF_Matrix revertMatrix;
+		CHE_Matrix revertMatrix;
 		revertMatrix.Invert( curMatrix );
 		target.Concat( revertMatrix );
 		PdfMatrixToBuf( target, buf );
@@ -1093,12 +1093,12 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 
 	HE_BOOL						bNewTextBlock = FALSE;
 	HE_FLOAT					curVal = 0, targetVal = 0;
-	PDF_GSTATE_LINECAP			curLineCap = LineCap_Butt, targetLineCap = LineCap_Butt;
-	PDF_GSTATE_LINEJOIN			curLineJoin = LineJoin_Miter, targetLineJoin = LineJoin_Miter;
-	PDF_GSTATE_DASHPATTERN		curLineDash, targetLineDash;
-	PDF_GSTATE_RENDERINTENTS	curRI = RI_AbsoluteColorimetric, targetRI = RI_AbsoluteColorimetric;
+	GRAPHICS_STATE_LINECAP			curLineCap = LineCap_Butt, targetLineCap = LineCap_Butt;
+	GRAPHICS_STATE_LINEJOIN			curLineJoin = LineJoin_Miter, targetLineJoin = LineJoin_Miter;
+	GRAPHICS_STATE_DASHPATTERN		curLineDash, targetLineDash;
+	GRAPHICS_STATE_RENDERINTENTS	curRI = RI_AbsoluteColorimetric, targetRI = RI_AbsoluteColorimetric;
 
-	CHE_PDF_Matrix curMatrix = pCurGSData->GetMatrix();
+	CHE_Matrix curMatrix = pCurGSData->GetMatrix();
 
 	CHE_PDF_ExtGState * pCurExtGState = pCurGSData->GetExtGState();
 	CHE_PDF_ExtGState * pTargetExtGState = pTargetGSData->GetExtGState();
@@ -1232,7 +1232,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 
 	CHE_PDF_ContentString::ExtGStateToBuf( pCurExtGState, pTargetExtGState, buf );
 
-	CHE_PDF_Matrix targetMatrix = pTargetGSData->GetMatrix();
+	CHE_Matrix targetMatrix = pTargetGSData->GetMatrix();
 
 	if ( curMatrix != targetMatrix )
 	{
@@ -1244,7 +1244,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 
 		if ( ! IsDefMatrix( curMatrix ) )
 		{
-			CHE_PDF_Matrix revertMatrix;
+			CHE_Matrix revertMatrix;
 			revertMatrix.Invert( curMatrix );
 			targetMatrix.Concat( revertMatrix );
 		}

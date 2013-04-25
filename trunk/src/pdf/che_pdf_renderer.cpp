@@ -1,21 +1,16 @@
 #include "../../include/pdf/che_pdf_renderer.h"
 
-HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_GraphicsDraw * pDraw )
+HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer )
 {
-	if ( pDraw == NULL )
-	{
-		return;
-	}
-
 	CHE_PDF_GState * pGState = NULL;
 	ContentObjectList::iterator it = content.Begin();
 
 	HE_FLOAT val = 0;
-	CHE_PDF_Matrix matrix;
-	PDF_GSTATE_LINECAP linCap = LineCap_Butt;
-	PDF_GSTATE_LINEJOIN lineJoin = LineJoin_Miter;
-	PDF_GSTATE_DASHPATTERN lineDash;
-	PDF_GSTATE_TEXTRENDERMODE tm;
+	CHE_Matrix matrix;
+	GRAPHICS_STATE_LINECAP linCap = LineCap_Butt;
+	GRAPHICS_STATE_LINEJOIN lineJoin = LineJoin_Miter;
+	GRAPHICS_STATE_DASHPATTERN lineDash;
+	GRAPHICS_STATE_TEXTRENDERMODE tm;
 	CHE_PDF_Color fillColor;
 	CHE_PDF_Color strokeColor;
 	CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );
@@ -29,19 +24,19 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 		if ( pGState )
 		{
 			pGState->GetLineWidth( val );
-			pDraw->SetLineWidth( val );
+			drawer.SetLineWidth( val );
 
 			pGState->GetLineCap( linCap );
-			pDraw->SetLineCap( linCap );
+			drawer.SetLineCap( linCap );
 
 			pGState->GetLineJoin( lineJoin );
-			pDraw->SetLineJoin( lineJoin );
+			drawer.SetLineJoin( lineJoin );
 
 			pGState->GetLineDash( lineDash );
-			pDraw->SetLineDash( lineDash );
+			drawer.SetLineDash( lineDash );
 
 			matrix = pGState->GetMatrix();
-			pDraw->SetMatrix( matrix );
+			drawer.SetMatrix( matrix );
 
 			pGState->GetFillColor( fillColor );
 			pGState->GetStrokeColor( strokeColor );
@@ -50,8 +45,8 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 
 			fillColorVal = fillColorSpace.GetArgb( fillColor );
 			strokeColorVal = strokeColorSpace.GetArgb( strokeColor );
-			pDraw->SetFillColor( fillColorVal );
-			pDraw->SetStrokeColor( strokeColorVal );
+			drawer.SetFillColor( fillColorVal );
+			drawer.SetStrokeColor( strokeColorVal );
 		}
 
 		switch ( (*it)->GetType() )
@@ -59,8 +54,8 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 		case ContentType_Path:
 			{
 				CHE_PDF_Path * pPath = (CHE_PDF_Path*)(*it);
-				CHE_PDF_Point p1, p2, p3;
-				//CHE_PDF_Matrix matrix = pGState->GetMatrix();
+				CHE_Point p1, p2, p3;
+				//CHE_Matrix matrix = pGState->GetMatrix();
 				for ( size_t i = 0; i < pPath->mItems.size(); ++i )
 				{
 					switch ( pPath->mItems[i].type )
@@ -70,7 +65,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 							p1.x = pPath->mItems[i+1].value;
 							p1.y = pPath->mItems[i+2].value;
 							//p1 = matrix.Transform( p1 );
-							pDraw->MoveTo( p1.x, p1.y );
+							drawer.MoveTo( p1.x, p1.y );
 							i+=2;
 							break;
 						}
@@ -79,7 +74,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 							p1.x = pPath->mItems[i+1].value;
 							p1.y = pPath->mItems[i+2].value;
 							//p1 = matrix.Transform( p1 );
-							pDraw->LineTo( p1.x, p1.y );
+							drawer.LineTo( p1.x, p1.y );
 							i+=2;
 							break;
 						}
@@ -94,7 +89,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 							p3.x = pPath->mItems[i+5].value;
 							p3.y = pPath->mItems[i+6].value;
 							//p3 = matrix.Transform( p3 );
-							pDraw->CurveTo( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
+							drawer.CurveTo( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
 							i+=6;
 							break;
 						}
@@ -103,17 +98,17 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 							p1.x = pPath->mItems[i+1].value;
 							p1.y = pPath->mItems[i+2].value;
 							//p1 = matrix.Transform( p1 );
-							pDraw->MoveTo( p1.x, p1.y );
-							pDraw->LineTo( p1.x + pPath->mItems[i+3].value, p1.y );
-							pDraw->LineTo( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
-							pDraw->LineTo( p1.x, p1.y + pPath->mItems[4].value );
-							pDraw->ClosePath();
+							drawer.MoveTo( p1.x, p1.y );
+							drawer.LineTo( p1.x + pPath->mItems[i+3].value, p1.y );
+							drawer.LineTo( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
+							drawer.LineTo( p1.x, p1.y + pPath->mItems[4].value );
+							drawer.ClosePath();
 							i+=4;
 							break;
 						}
 					case PathItem_Close:
 						{
-							pDraw->ClosePath();
+							drawer.ClosePath();
 							break;
 						}
 					default:
@@ -124,14 +119,14 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 				switch ( pPath->GetPaintType() )
 				{
 				case Paint_Fill:
-					pDraw->FillPath();
+					drawer.FillPath();
 					break;
 				case Paint_Stroke:
-					pDraw->StrokePath();
+					drawer.StrokePath();
 					break;
 				case Paint_FillStroke:
-					pDraw->FillPath();
-					pDraw->StrokePath();
+					drawer.FillPath();
+					drawer.StrokePath();
 				case Paint_None:
 				default:
 					break;
@@ -140,7 +135,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 			}
 		case ContentType_Text:
 			{
-				pDraw->SetMatrix( CHE_PDF_Matrix() );
+				drawer.SetMatrix( CHE_Matrix() );
 				CHE_PDF_Text * pText = (CHE_PDF_Text*)(*it);
 				for ( size_t i = 0; i < pText->mItems.size(); ++i )
 				{
@@ -153,19 +148,19 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 							{
 							case PathItem_MoveTo:
 								{
-									pDraw->MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+									drawer.MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
 									i+=2;
 									break;
 								}
 							case PathItem_LineTo:
 								{
-									pDraw->LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+									drawer.LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
 									i+=2;
 									break;
 								}
 							case PathItem_CurveTo:
 								{
-									pDraw->CurveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value,
+									drawer.CurveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value,
 										pPath->mItems[i+3].value, pPath->mItems[i+4].value,
 										pPath->mItems[i+5].value, pPath->mItems[i+6].value );
 									i+=6;
@@ -173,17 +168,17 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 								}
 							case PathItem_Rectangle:
 								{
-									pDraw->MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-									pDraw->LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
-									pDraw->LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-									pDraw->LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[4].value );
-									pDraw->ClosePath();
+									drawer.MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+									drawer.LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
+									drawer.LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
+									drawer.LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[4].value );
+									drawer.ClosePath();
 									i+=4;
 									break;
 								}
 							case PathItem_Close:
 								{
-									pDraw->ClosePath();
+									drawer.ClosePath();
 									i+=1;
 									break;
 								}
@@ -191,30 +186,30 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, IHE_PDF_G
 								break;
 							}
 						}
-						pDraw->ClosePath();
-						PDF_GSTATE_TEXTRENDERMODE rm;
+						drawer.ClosePath();
+						GRAPHICS_STATE_TEXTRENDERMODE rm;
 						pGState->GetTextRenderMode( rm );
 						switch( rm )
 						{
 						case TextRenderMode_Fill:
-							pDraw->FillPath();
+							drawer.FillPath();
 							break;
 						case TextRenderMode_Stroke:
-							pDraw->StrokePath();
+							drawer.StrokePath();
 							break;
 						case TextRenderMode_FillStroke:
-							pDraw->FillStrokePath();
+							drawer.FillStrokePath();
 							break;
 						case TextRenderMode_Invisible:
 							break;
 						case TextRenderMode_FillClip:
-							pDraw->FillPath();
+							drawer.FillPath();
 							break;
 						case TextRenderMode_StrokeClip:
-							pDraw->StrokePath();
+							drawer.StrokePath();
 							break;
 						case TextRenderMode_FillStrokeClip:
-							pDraw->StrokePath();
+							drawer.StrokePath();
 							break;
 						case TextRenderMode_Clip:
 							break;

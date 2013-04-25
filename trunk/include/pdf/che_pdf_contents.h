@@ -5,7 +5,6 @@
 #include "../che_datastructure.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_parser.h"
-#include "che_pdf_matrix.h"
 #include "che_pdf_graphicsState.h"
 #include "che_pdf_contentobjs.h"
 #include "che_pdf_fontmgr.h"
@@ -17,21 +16,21 @@ public:
 	virtual ~IHE_PDF_ContentListConstructor() {};
 	virtual HE_VOID Init() = 0;
 	virtual HE_VOID Over() = 0;
-	virtual HE_VOID State_Matrix( const CHE_PDF_Matrix & matrix ) = 0;
-	virtual HE_VOID State_ConcatMatrix( const CHE_PDF_Matrix & matrix ) = 0;
+	virtual HE_VOID State_Matrix( const CHE_Matrix & matrix ) = 0;
+	virtual HE_VOID State_ConcatMatrix( const CHE_Matrix & matrix ) = 0;
 	virtual HE_VOID State_LineWidth( const HE_FLOAT & lineWidth ) = 0;
-	virtual HE_VOID State_LineCap( const PDF_GSTATE_LINECAP & lineCap ) = 0;
-	virtual HE_VOID State_LineJoin( const PDF_GSTATE_LINEJOIN & lineJoin ) = 0;
+	virtual HE_VOID State_LineCap( const GRAPHICS_STATE_LINECAP & lineCap ) = 0;
+	virtual HE_VOID State_LineJoin( const GRAPHICS_STATE_LINEJOIN & lineJoin ) = 0;
 	virtual HE_VOID State_MiterLimit( const HE_FLOAT & miterLimit ) = 0;
-	virtual HE_VOID State_LineDash( const PDF_GSTATE_DASHPATTERN & dashPattern ) = 0;
-	virtual HE_VOID State_RenderIntents( const PDF_GSTATE_RENDERINTENTS & ri ) = 0;
+	virtual HE_VOID State_LineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern ) = 0;
+	virtual HE_VOID State_RenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri ) = 0;
 	virtual HE_VOID State_Flatness( const HE_FLOAT & flatness ) = 0;
 	virtual HE_VOID State_ExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr ) = 0;
 	virtual HE_VOID State_FillColor( CHE_PDF_Color * pColor ) = 0;
 	virtual HE_VOID State_StrokeColor( CHE_PDF_Color * pColor ) = 0;
 	virtual HE_VOID State_FillColorSpace( CHE_PDF_ColorSpace * pColorSpace ) = 0;
 	virtual HE_VOID State_StrokeColorSpace( CHE_PDF_ColorSpace * pColorSpace ) = 0;
-	virtual HE_VOID State_TextMatirx( const CHE_PDF_Matrix & matrix ) = 0;
+	virtual HE_VOID State_TextMatirx( const CHE_Matrix & matrix ) = 0;
 	virtual HE_VOID State_TextFont( const CHE_ByteString & resName, CHE_PDF_Font * pFont ) = 0;
 	virtual HE_VOID State_TextFontSize( const HE_FLOAT & size ) = 0;
 	virtual HE_VOID State_TextCharSpace( const HE_FLOAT & charSpace ) = 0;
@@ -41,7 +40,7 @@ public:
 	virtual HE_VOID State_TextRise( const HE_FLOAT & rise ) = 0;
 	virtual HE_VOID State_ResetTextOffset() = 0;
 	virtual HE_VOID State_TextOffset( const HE_FLOAT & xOffset, const HE_FLOAT & yOffset ) = 0; //不使用Td，TD，Tm等指令的时候，连续Tj需要计算offset
-	virtual HE_VOID State_TextRenderMode( const PDF_GSTATE_TEXTRENDERMODE rm ) = 0;
+	virtual HE_VOID State_TextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE rm ) = 0;
 	virtual HE_VOID Operator_Td( const HE_FLOAT & tx, const HE_FLOAT & ty ) = 0;
 	virtual HE_VOID Operator_TD( const HE_FLOAT & tx, const HE_FLOAT & ty ) = 0;
 	virtual HE_VOID Operator_Tstar() = 0;
@@ -54,12 +53,12 @@ public:
 									const HE_FLOAT llx, const HE_FLOAT lly,
 									const HE_FLOAT urx, const HE_FLOAT ury ) = 0;
 
-	virtual CHE_PDF_Matrix GetCurMatrix() = 0;
-	virtual CHE_PDF_Matrix GetExtMatrix() = 0;
+	virtual CHE_Matrix GetCurMatrix() = 0;
+	virtual CHE_Matrix GetExtMatrix() = 0;
 };
 
 IHE_PDF_ContentListConstructor * CreateConstructor(		CHE_PDF_ContentObjectList * plist,
-														const CHE_PDF_Matrix & matrix = CHE_PDF_Matrix(),
+														const CHE_Matrix & matrix = CHE_Matrix(),
 														CHE_Allocator * pAllocator = NULL );
 
 HE_VOID DestoryConstructor( IHE_PDF_ContentListConstructor * pConstructor );

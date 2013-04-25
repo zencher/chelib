@@ -1,100 +1,298 @@
-#ifndef _CHE_GRAPH_H_
-#define _CHE_GRAPH_H_
+#ifndef _CHE_GRAPHICS_H_
+#define _CHE_GRAPHICS_H_
 
-#include "che_base.h"
-#include "che_datastructure.h"
+#include "che_define.h"
+#include <vector>
 
-//class CHE_Graphics;
-//class CHE_Pen;
-//class CHE_Font;
-//class CHE_Color;
-//class CHE_Point;
-//class CHE_Rect;
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
-#define GRAPHTYPE_INVALID		0
-#define GRAPHTYPE_LINE			1
-#define GRAPHTYPE_BCURVE		2
-#define GRAPHTYPE_RECTANGLE		3
-#define GRAPHTYPE_PATH			4
-
-class CHE_GraphicsObject : public CHE_Object
+enum GRAPHICS_STATE_LINECAP
 {
-public :
-	CHE_GraphicsObject( HE_BYTE type = GRAPHTYPE_INVALID, HE_BOOL bConnect = FALSE, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator )
-	{ m_type = type; m_bConnect = bConnect; }
-
-	HE_BYTE	GetType() { return m_type; }
-
-	HE_BOOL	IsConnect() { return m_bConnect; }
-
-	HE_VOID Release();
-
-private:
-	HE_BYTE	m_type;
-	HE_BOOL	m_bConnect;
+	LineCap_Butt = 0,
+	LineCap_Round = 1,
+	LineCap_Square = 2
 };
 
-class CHE_Line : public CHE_GraphicsObject
+enum GRAPHICS_STATE_LINEJOIN
 {
-public:
-	CHE_Line( HE_FLOAT StartX, HE_FLOAT StartY, HE_FLOAT EndX, HE_FLOAT EndY, HE_BOOL bConnect = FALSE, CHE_Allocator * pAllocator = NULL ) 
-		: CHE_GraphicsObject( GRAPHTYPE_LINE, bConnect, pAllocator )
-	{ m_fStartX = StartX; m_fStartY = StartY; m_fEndX = EndX; m_fEndY = EndY; }
-	HE_FLOAT m_fStartX;
-	HE_FLOAT m_fStartY;
-	HE_FLOAT m_fEndX;
-	HE_FLOAT m_fEndY;
+	LineJoin_Miter = 0,
+	LineJoin_Round = 1,
+	LineJoin_Bevel = 2
 };
 
-class CHE_BCurve : public CHE_GraphicsObject
+struct GRAPHICS_STATE_DASHPATTERN
 {
-public:
-	CHE_BCurve( HE_FLOAT X1, HE_FLOAT Y1, HE_FLOAT X2, HE_FLOAT Y2, HE_FLOAT X3, HE_FLOAT Y3,
-				HE_FLOAT X4, HE_FLOAT Y4, HE_BOOL bConnect = FALSE, CHE_Allocator * pAllocator = NULL )
-		: CHE_GraphicsObject( GRAPHTYPE_BCURVE, bConnect, pAllocator )
-	{ m_fX1 = X1, m_fY1 = Y1; m_fX2 = X2; m_fY2 = Y2; m_fX3 = X3; m_fY3 = Y3; m_fX4 = X4; m_fY4 = Y4; }
-
-	HE_FLOAT m_fX1;
-	HE_FLOAT m_fY1;
-	HE_FLOAT m_fX2;
-	HE_FLOAT m_fY2;
-	HE_FLOAT m_fX3;
-	HE_FLOAT m_fY3;
-	HE_FLOAT m_fX4;
-	HE_FLOAT m_fY4;
+	GRAPHICS_STATE_DASHPATTERN()
+	{
+		dashPhase = 0;
+	}
+	HE_FLOAT dashPhase;
+	std::vector<float> dashArray;
 };
 
-class CHE_Rectangle : public CHE_GraphicsObject
+enum GRAPHICS_STATE_RENDERINTENTS
 {
-public:
-	CHE_Rectangle( HE_FLOAT leftTopX, HE_FLOAT leftTopY, HE_FLOAT width, HE_FLOAT height, HE_BOOL bConnect = FALSE, 
-		CHE_Allocator * pAllocator = NULL ) : CHE_GraphicsObject( GRAPHTYPE_RECTANGLE, bConnect, pAllocator )
-		{ m_fLeftTopX = leftTopX; m_fLeftTopY = leftTopY; m_fWidth = width; m_fHeight = height; }
-	
-	HE_FLOAT m_fLeftTopX;
-	HE_FLOAT m_fLeftTopY;
-	HE_FLOAT m_fWidth;
-	HE_FLOAT m_fHeight;
+	RI_AbsoluteColorimetric = 0,
+	RI_RelativeColorimetric = 1,
+	RI_Saturation = 2,
+	RI_Perceptual = 3
 };
 
-class CHE_Path : public CHE_GraphicsObject
+enum GRAPHICS_STATE_TEXTRENDERMODE
+{
+	TextRenderMode_Fill = 0,
+	TextRenderMode_Stroke = 1,
+	TextRenderMode_FillStroke = 2,
+	TextRenderMode_Invisible = 3,
+	TextRenderMode_FillClip = 4,
+	TextRenderMode_StrokeClip = 5,
+	TextRenderMode_FillStrokeClip = 6,
+	TextRenderMode_Clip = 7
+};
+
+
+class CHE_Point
 {
 public:
-	CHE_Path( CHE_Allocator * pAllocator = NULL ) : CHE_GraphicsObject( GRAPHTYPE_PATH, FALSE, pAllocator ), m_objArray( pAllocator ) {}
+	CHE_Point() : x(0), y(0) {}
+	CHE_Point( HE_FLOAT vx, HE_FLOAT vy ) : x(vx), y(vy) {}
 
-	HE_VOID		AddLine( CHE_Line & line );
-	
-	HE_VOID		AddBCrave( CHE_BCurve & crave );
-	
-	HE_VOID		AddRectangle( CHE_Rectangle & rect );
+	HE_FLOAT	x;
+	HE_FLOAT	y;
+};
 
-	CHE_GraphicsObject * GetGraph( HE_DWORD index ) { return (CHE_GraphicsObject *)m_objArray.GetItem( index ); }
-	
-	HE_DWORD	GetGraphCount() { return m_objArray.GetCount(); }
+class CHE_Rect
+{
+public:
+	CHE_Rect() : left(0), bottom(0), width(0), height(0) {}
+	CHE_Rect( HE_FLOAT vleft, HE_FLOAT vbottom, HE_FLOAT vwidth, HE_FLOAT vheight )
+		: left(vleft), bottom(vbottom), width(vwidth), height(vheight) {}
 
-private:
-	CHE_PtrArray	m_objArray; 
+	HE_BOOL	IsEmpty() const
+	{
+		return ( fabs(width) < FLT_EPSILON || fabs(height) < FLT_EPSILON );
+	}
+
+	HE_VOID	Union( const CHE_Rect & rect )
+	{
+		if ( &rect != this )
+		{
+			if ( IsEmpty() )
+			{
+				*this = rect;
+				return;
+			}
+			if ( !rect.IsEmpty() )
+			{
+				CHE_Rect tmpRect;
+				tmpRect.left = ( left <= rect.left ) ? left : rect.left;
+				tmpRect.bottom = ( bottom <= rect.bottom ) ? bottom : rect.bottom;
+				tmpRect.width = ( left + width >= rect.left + rect.width ) ? left + width : rect.left + rect.width;
+				tmpRect.width -= tmpRect.left;
+				tmpRect.height = ( bottom + height >= rect.bottom + rect.height ) ? bottom + height : rect.bottom + rect.height;
+				tmpRect.height -= tmpRect.bottom;
+				*this = tmpRect;
+			}
+		}
+	}
+
+	bool operator == ( const CHE_Rect & rect ) const
+	{
+		if (	fabsf( left - rect.left ) <= FLT_EPSILON &&
+			fabsf( bottom - rect.bottom ) <= FLT_EPSILON &&
+			fabsf( width - rect.width ) <= FLT_EPSILON &&
+			fabsf( height - rect.height ) <= FLT_EPSILON )
+		{
+			return true;
+		}
+		return false;
+	}
+
+	bool operator != ( const CHE_Rect & rect ) const
+	{
+		return ! operator==( rect );
+	}
+
+	HE_FLOAT	left;
+	HE_FLOAT	bottom;
+	HE_FLOAT	width;
+	HE_FLOAT	height;
+};
+
+
+#define HE_MAX4(a,b,c,d) HE_max(HE_max(a,b), HE_max(c,d))
+#define HE_MIN4(a,b,c,d) HE_min(HE_min(a,b), HE_min(c,d))
+static inline float HE_min(float a, float b)
+{
+	return (a < b ? a : b);
+}
+static inline float HE_max(float a, float b)
+{
+	return (a > b ? a : b);
+}
+
+class CHE_Matrix
+{
+public:
+	CHE_Matrix() : a(1), b(0), c(0), d(1), e(0), f(0) {}
+	CHE_Matrix( float va, float vb, float vc, float vd, float ve, float vf )
+		: a(va), b(vb), c(vc), d(vd), e(ve), f(vf) {}
+
+	static CHE_Matrix TranslateMatrix( HE_FLOAT tx, HE_FLOAT ty )
+	{
+		CHE_Matrix matrixRet;
+		matrixRet.e = tx;
+		matrixRet.f = ty;
+		return matrixRet;
+	}
+
+	static CHE_Matrix RotateMatrix( HE_FLOAT theta )
+	{
+		float s;
+		float c;
+		CHE_Matrix matrixRet;
+
+		while ( theta < 0 )
+			theta += 360;
+		while ( theta >= 360 )
+			theta -= 360;
+
+		if ( fabsf(0 - theta) < FLT_EPSILON )
+		{
+			s = 0;
+			c = 1;
+		}
+		else if ( fabsf(90.0f - theta) < FLT_EPSILON )
+		{
+			s = 1;
+			c = 0;
+		}
+		else if ( fabsf(180.0f - theta) < FLT_EPSILON )
+		{
+			s = 0;
+			c = -1;
+		}
+		else if ( fabsf(270.0f - theta) < FLT_EPSILON )
+		{
+			s = -1;
+			c = 0;
+		}
+		else
+		{
+			s = sinf(theta * (float)M_PI / 180);
+			c = cosf(theta * (float)M_PI / 180);
+		}
+
+		matrixRet.a = c; matrixRet.b = s;
+		matrixRet.c = -s; matrixRet.d = c;
+		matrixRet.e = 0; matrixRet.f = 0;
+		return matrixRet;
+	}
+
+	static CHE_Matrix ScaleMatrix( HE_FLOAT sx, HE_FLOAT sy )
+	{
+		CHE_Matrix matrixRet;
+		matrixRet.a = sx;
+		matrixRet.d = sy;
+		return matrixRet;
+	}
+
+	static CHE_Matrix SkewMatrix( HE_FLOAT a, HE_FLOAT b )
+	{
+		CHE_Matrix matrixRet;
+		matrixRet.b = tanf(a);
+		matrixRet.c = tanf(b);
+		return matrixRet;
+	}
+
+	void Concat( const CHE_Matrix & matrix )
+	{
+		CHE_Matrix tmpMatrix = *this;
+		a = tmpMatrix.a * matrix.a +tmpMatrix. b * matrix.c;
+		b = tmpMatrix.a * matrix.b + tmpMatrix.b * matrix.d;
+		c = tmpMatrix.c * matrix.a + tmpMatrix.d * matrix.c;
+		d = tmpMatrix.c * matrix.b + tmpMatrix.d * matrix.d;
+		e = tmpMatrix.e * matrix.a + tmpMatrix.f * matrix.c + matrix.e;
+		f = tmpMatrix.e * matrix.b + tmpMatrix.f * matrix.d + matrix.f;
+	}
+
+	void Invert( const CHE_Matrix & matirx )
+	{
+		float rdet = matirx.AbsValue();
+		a = matirx.d * rdet;
+		b = - matirx.b * rdet;
+		c = - matirx.c * rdet;
+		d = matirx.a * rdet;
+		e = - matirx.e * a - matirx.f * c;
+		f = - matirx.e * b - matirx.f * d;
+	}
+
+	HE_FLOAT AbsValue() const
+	{
+		HE_FLOAT val = 1 / ( a * d - b * c );
+		return val;
+	}
+
+	CHE_Point Transform( const CHE_Point & point ) const
+	{
+		CHE_Point pointRet;
+		pointRet.x = point.x * a + point.y * c + e;
+		pointRet.y = point.x * b + point.y * d + f;
+		return pointRet;
+	}
+
+	CHE_Rect Transform( const CHE_Rect & rect ) const
+	{
+		CHE_Point s, t, u, v;	
+		CHE_Rect retRect;
+
+		s.x = rect.left;
+		s.y = rect.bottom;
+		t.x = rect.left;
+		t.y = rect.bottom + rect.height;
+		u.x = rect.left + rect.width;
+		u.y = rect.bottom + rect.height;
+		v.x = rect.left + rect.width;
+		v.y = rect.bottom;
+		s = Transform( s );
+		t = Transform( t );
+		u = Transform( u );
+		v = Transform( v );
+
+		retRect.left = HE_MIN4(s.x, t.x, u.x, v.x);
+		retRect.bottom = HE_MIN4(s.y, t.y, u.y, v.y);
+		retRect.width = HE_MAX4(s.x, t.x, u.x, v.x) - HE_MIN4(s.x, t.x, u.x, v.x);
+		retRect.height = HE_MAX4(s.y, t.y, u.y, v.y) - HE_MIN4(s.y, t.y, u.y, v.y);
+		return retRect;
+	}
+
+	bool operator == ( const CHE_Matrix & matrix ) const
+	{
+		if ( fabsf( a - matrix.a ) <= FLT_EPSILON &&
+			fabsf( b - matrix.b ) <= FLT_EPSILON &&
+			fabsf( c - matrix.c ) <= FLT_EPSILON &&
+			fabsf( d - matrix.d ) <= FLT_EPSILON && 
+			fabsf( e - matrix.e ) <= FLT_EPSILON &&
+			fabsf( f - matrix.f ) <= FLT_EPSILON )
+		{
+			return true;
+		}
+		return false;
+	}
+
+	bool operator != ( const CHE_Matrix & matrix ) const
+	{
+		return ! operator==( matrix );
+	}
+
+	float a;
+	float b;
+	float c;
+	float d;
+	float e;
+	float f;
 };
 
 #endif

@@ -28,7 +28,7 @@ public:
 	/*
 	*	@brief 将PDF页面矩阵信息输出为PDF指令字符串
 	*/
-	static HE_BOOL PdfMatrixToBuf( const CHE_PDF_Matrix & matrix, CHE_DynBuffer & buf );
+	static HE_BOOL PdfMatrixToBuf( const CHE_Matrix & matrix, CHE_DynBuffer & buf );
 
 
 
@@ -134,7 +134,7 @@ public:
 	*	@brief 输出ClipState图形状态指令
 	*   @remark 因为clip对象（文本clip或者path clip）都存在一个独立的图形状态对象，也可能导致当前图形状态的入栈或者改变
 	*/
-	static HE_BOOL ClipStateToBuf( CHE_PDF_Matrix & curMatrix, CHE_PDF_ClipState * pClipState, CHE_DynBuffer & buf, HE_BOOL bInTextBlock = FALSE );
+	static HE_BOOL ClipStateToBuf( CHE_Matrix & curMatrix, CHE_PDF_ClipState * pClipState, CHE_DynBuffer & buf, HE_BOOL bInTextBlock = FALSE );
 
 
 
@@ -142,7 +142,7 @@ public:
 	*	@brief 比较两个ClipState图形状态的差异，并输出相关指令使得当前图形状态为目标图形状态
 	*   @remark 因为clip对象（文本clip或者path clip）都存在一个独立的图形状态对象，也可能导致当前图形状态的入栈或者改变
 	*/
-	static HE_BOOL ClipStateToBuf(	CHE_PDF_Matrix & curMatrix, CHE_PDF_ClipState * pCurClipState,
+	static HE_BOOL ClipStateToBuf(	CHE_Matrix & curMatrix, CHE_PDF_ClipState * pCurClipState,
 									const CHE_PDF_ClipState * pTargetClipState, CHE_DynBuffer & buf, HE_BOOL bInTextBlock = FALSE );
 
 

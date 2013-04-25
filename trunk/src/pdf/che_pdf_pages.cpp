@@ -264,9 +264,9 @@ CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict() const
 	return resDict;
 }
 
-CHE_PDF_Rect CHE_PDF_Page::GetMediaBox() const
+CHE_Rect CHE_PDF_Page::GetMediaBox() const
 {
-	CHE_PDF_Rect rect;
+	CHE_Rect rect;
 	CHE_PDF_ArrayPtr arrayPtr = GetMediaBoxArray();
 	if ( arrayPtr )
 	{

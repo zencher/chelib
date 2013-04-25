@@ -3,9 +3,9 @@
 
 #include "../che_base.h"
 #include "../che_datastructure.h"
+#include "../che_graphics.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_file.h"
-#include "che_pdf_matrix.h"
 
 class CHE_PDF_Page;
 class CHE_PDF_Document;
@@ -48,7 +48,7 @@ public:
 	
 	CHE_PDF_DictionaryPtr	GetPageDict() const { return mpPageDict; }
 
-	CHE_PDF_Rect			GetMediaBox() const;
+	CHE_Rect				GetMediaBox() const;
 
 	CHE_PDF_DictionaryPtr	GetResourcesDict() const;
 

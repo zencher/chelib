@@ -1,4 +1,4 @@
-#ifndef _CHE_PDF_GRAPHICS_H_
+/*#ifndef _CHE_PDF_GRAPHICS_H_
 #define _CHE_PDF_GRAPHICS_H_
 
 #include "../che_base.h"
@@ -18,14 +18,14 @@ public:
 	virtual HE_VOID StrokePath() = 0;
 	virtual HE_VOID FillStrokePath() = 0;
 
-	virtual HE_VOID SetMatrix( const CHE_PDF_Matrix & matrix ) = 0;
+	virtual HE_VOID SetMatrix( const CHE_Matrix & matrix ) = 0;
 	virtual HE_VOID	SetLineWidth( const HE_FLOAT & lineWidth ) = 0;
 	virtual HE_VOID	SetMiterLimit( const HE_FLOAT & miterLimit ) = 0;
-	virtual HE_VOID	SetLineCap( const PDF_GSTATE_LINECAP & lineCap ) = 0;
-	virtual HE_VOID	SetLineJoin( const PDF_GSTATE_LINEJOIN & lineJion ) = 0;
-	virtual HE_VOID	SetLineDash( const PDF_GSTATE_DASHPATTERN & dashPattern ) = 0;
+	virtual HE_VOID	SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap ) = 0;
+	virtual HE_VOID	SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion ) = 0;
+	virtual HE_VOID	SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern ) = 0;
 	virtual HE_VOID SetFillColor( const HE_DWORD & color ) = 0;
 	virtual HE_VOID SetStrokeColor( const HE_DWORD & color ) = 0;
 };
 
-#endif
+#endif*/

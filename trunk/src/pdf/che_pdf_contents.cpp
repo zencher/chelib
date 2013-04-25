@@ -458,7 +458,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_BMC()
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BT()
 {
-	mpConstructor->State_TextMatirx( CHE_PDF_Matrix() );
+	mpConstructor->State_TextMatirx( CHE_Matrix() );
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_BX()
@@ -652,8 +652,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 				pResDict = pTmpObj->GetDictPtr();
 			}
 			//todo : get the matrix from form dict
-			CHE_PDF_Matrix extMatrix = mpConstructor->GetExtMatrix();
-			CHE_PDF_Matrix curMatrix = mpConstructor->GetCurMatrix();
+			CHE_Matrix extMatrix = mpConstructor->GetExtMatrix();
+			CHE_Matrix curMatrix = mpConstructor->GetCurMatrix();
 			curMatrix.Concat( extMatrix );
 			IHE_PDF_ContentListConstructor * pConstructor =  CreateConstructor( &pForm->GetList(), curMatrix, GetAllocator() );
 			CHE_PDF_ContentResMgr * pContentResMgr = &( pForm->GetList().GetResMgr() );
@@ -831,7 +831,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_J()
 {
 	if ( CheckOpdCount( 1 ) )
 	{
-		PDF_GSTATE_LINECAP lineCap = LineCap_Butt;
+		GRAPHICS_STATE_LINECAP lineCap = LineCap_Butt;
 		switch ( unsigned int( mOpdFloatStack[0] ) )
 		{
 		default:
@@ -1043,7 +1043,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tm()
 {
 	if ( CheckOpdCount( 6 ) )
 	{
-		CHE_PDF_Matrix matrix;
+		CHE_Matrix matrix;
 		matrix.a = mOpdFloatStack[0];
 		matrix.b = mOpdFloatStack[1];
 		matrix.c = mOpdFloatStack[2];
@@ -1059,7 +1059,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tr()
 {
 	if ( CheckOpdCount( 1 ) )
 	{
-		PDF_GSTATE_TEXTRENDERMODE textRm = TextRenderMode_Fill;
+		GRAPHICS_STATE_TEXTRENDERMODE textRm = TextRenderMode_Fill;
 		switch ( unsigned int( mOpdFloatStack[0] ) )
 		{
 		default:
@@ -1211,7 +1211,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cm()
 {
 	if ( CheckOpdCount( 6 ) )
 	{
-		CHE_PDF_Matrix matrix;
+		CHE_Matrix matrix;
 		matrix.a = mOpdFloatStack[0];
 		matrix.b = mOpdFloatStack[1];
 		matrix.c = mOpdFloatStack[2];
@@ -1331,7 +1331,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_d()
 {
 	if ( CheckOpdCount( 1 ) )
 	{
-		PDF_GSTATE_DASHPATTERN dashPattern;
+		GRAPHICS_STATE_DASHPATTERN dashPattern;
 		dashPattern.dashPhase = mOpdFloatStack[0];
 
 		if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
@@ -1465,7 +1465,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_j()
 {
 	if ( CheckOpdCount( 1 ) )
 	{
-		PDF_GSTATE_LINEJOIN lineJoin = LineJoin_Miter;
+		GRAPHICS_STATE_LINEJOIN lineJoin = LineJoin_Miter;
 		switch ( unsigned int( mOpdFloatStack[0] ) )
 		{
 		default:
@@ -1734,7 +1734,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_y()
 class CContentListConstructor : public IHE_PDF_ContentListConstructor
 {
 public:
-	CContentListConstructor( CHE_PDF_ContentObjectList * pList, const CHE_PDF_Matrix & matrix, CHE_Allocator * pAllocator = NULL )
+	CContentListConstructor( CHE_PDF_ContentObjectList * pList, const CHE_Matrix & matrix, CHE_Allocator * pAllocator = NULL )
 		: mpList(pList), mpGState(NULL), mExtMatrix(matrix), mTextLeading(0), mTextXOffset(0), mTextYOffset(0), IHE_PDF_ContentListConstructor( pAllocator )
 	{
 		mpGState = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
@@ -1761,15 +1761,15 @@ public:
 
 	HE_VOID Over() {}
 
-	HE_VOID State_Matrix( const CHE_PDF_Matrix & matrix )
+	HE_VOID State_Matrix( const CHE_Matrix & matrix )
 	{
 		GetGState()->SetMatrix( matrix );
 	}
 
-	HE_VOID State_ConcatMatrix( const CHE_PDF_Matrix & matrix )
+	HE_VOID State_ConcatMatrix( const CHE_Matrix & matrix )
 	{
-		CHE_PDF_Matrix tmpMatirx = matrix;
-		CHE_PDF_Matrix curMatrix = GetGState()->GetMatrix();
+		CHE_Matrix tmpMatirx = matrix;
+		CHE_Matrix curMatrix = GetGState()->GetMatrix();
 		tmpMatirx.Concat( curMatrix );
 		GetGState()->SetMatrix( tmpMatirx );
 	}
@@ -1779,12 +1779,12 @@ public:
 		GetGState()->SetLineWidth( lineWidth );
 	}
 
-	HE_VOID State_LineCap( const PDF_GSTATE_LINECAP & lineCap )
+	HE_VOID State_LineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 	{
 		GetGState()->SetLineCap( lineCap );
 	}
 
-	HE_VOID State_LineJoin( const PDF_GSTATE_LINEJOIN & lineJoin )
+	HE_VOID State_LineJoin( const GRAPHICS_STATE_LINEJOIN & lineJoin )
 	{
 		GetGState()->SetLineJoin( lineJoin );
 	}
@@ -1794,12 +1794,12 @@ public:
 		GetGState()->SetMiterLimit( miterLimit );
 	}
 
-	HE_VOID State_LineDash( const PDF_GSTATE_DASHPATTERN & dashPattern )
+	HE_VOID State_LineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
 	{
 		GetGState()->SetLineDash( dashPattern );
 	}
 
-	HE_VOID State_RenderIntents( const PDF_GSTATE_RENDERINTENTS & ri )
+	HE_VOID State_RenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri )
 	{
 		GetGState()->SetRenderIntents( ri );
 	}
@@ -1834,7 +1834,7 @@ public:
 		GetGState()->SetStrokeColorSpace( pColorSpace );
 	}
 
-	HE_VOID State_TextMatirx( const CHE_PDF_Matrix & matrix )
+	HE_VOID State_TextMatirx( const CHE_Matrix & matrix )
 	{
 		GetGState()->SetTextMatrix( matrix );
 	}
@@ -1879,7 +1879,7 @@ public:
 		GetGState()->SetTextRise( rise );
 	}
 
-	HE_VOID State_TextRenderMode( const PDF_GSTATE_TEXTRENDERMODE rm )
+	HE_VOID State_TextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE rm )
 	{
 		GetGState()->SetTextRenderMode( rm );
 	}
@@ -1898,7 +1898,7 @@ public:
 
 	HE_VOID Operator_Td( const HE_FLOAT & tx, const HE_FLOAT & ty )
 	{
-		CHE_PDF_Matrix matrix, tmpMatrix;
+		CHE_Matrix matrix, tmpMatrix;
 		GetGState()->GetTextMatrix( matrix );
 		tmpMatrix.e = tx;
 		tmpMatrix.f = ty;
@@ -1959,15 +1959,15 @@ public:
 			case ContentType_Text:
 				{
 					CHE_PDF_GState * pGState = mpGState->Clone();
-					CHE_PDF_Matrix textMatrix;
+					CHE_Matrix textMatrix;
 					pGState->GetTextMatrix( textMatrix );
-					CHE_PDF_Matrix tmpMatrix;
+					CHE_Matrix tmpMatrix;
 					tmpMatrix.e = mTextXOffset;
 					tmpMatrix.f = mTextYOffset;
 					tmpMatrix.Concat( textMatrix );
 					pGState->SetTextMatrix( tmpMatrix );
 					pObject->SetGState( pGState );
-					PDF_GSTATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
+					GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
 					mpGState->GetTextRenderMode( rm );
 					switch ( rm )
 					{
@@ -2006,24 +2006,24 @@ public:
 			}
 			mpList->Append( pObject );
 
-			CHE_PDF_Matrix tmpMatrix = pObject->GetExtMatrix();
+			CHE_Matrix tmpMatrix = pObject->GetExtMatrix();
 			tmpMatrix.Concat( mExtMatrix );
 			pObject->SetExtMatrix( tmpMatrix );
 		}
 	}
 
-	CHE_PDF_Matrix GetExtMatrix()
+	CHE_Matrix GetExtMatrix()
 	{
 		return mExtMatrix;
 	}
 
-	CHE_PDF_Matrix GetCurMatrix()
+	CHE_Matrix GetCurMatrix()
 	{
 		if ( mpGState )
 		{
 			return mpGState->GetMatrix();
 		}
-		return CHE_PDF_Matrix();
+		return CHE_Matrix();
 	}
 
 	HE_VOID Operator_D0( const HE_FLOAT wx, const HE_FLOAT wy )
@@ -2061,14 +2061,14 @@ private:
 	CHE_PDF_ContentObjectList * mpList;
 	std::vector<CHE_PDF_GState*> mGStateStack;
 	CHE_PDF_GState * mpGState;
-	CHE_PDF_Matrix mExtMatrix;
+	CHE_Matrix mExtMatrix;
 	HE_FLOAT mTextLeading;
 	HE_FLOAT mTextXOffset;
 	HE_FLOAT mTextYOffset;
 };
 
 IHE_PDF_ContentListConstructor * CreateConstructor( CHE_PDF_ContentObjectList * plist,
-													const CHE_PDF_Matrix & matrix,
+													const CHE_Matrix & matrix,
 													CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	if ( plist == NULL )

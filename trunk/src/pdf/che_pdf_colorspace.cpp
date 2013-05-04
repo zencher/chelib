@@ -53,9 +53,9 @@ HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 			if ( color.mConponents.size() >= 4 )
 			{
 				HE_FLOAT bgr[3];
-				bgr[0] = 1 - ( 1 < color.mConponents[2] + color.mConponents[3] ) ? color.mConponents[2] + color.mConponents[3] : 1;
-				bgr[1] = 1 - ( 1 < color.mConponents[1] + color.mConponents[3] ) ? color.mConponents[1] + color.mConponents[3] : 1;
-				bgr[2] = 1 - ( 1 < color.mConponents[0] + color.mConponents[3] ) ? color.mConponents[0] + color.mConponents[3] : 1;
+				bgr[0] = ( 1 < color.mConponents[2] + color.mConponents[3] ) ? color.mConponents[2] + color.mConponents[3] : 1;
+				bgr[1] = ( 1 < color.mConponents[1] + color.mConponents[3] ) ? color.mConponents[1] + color.mConponents[3] : 1;
+				bgr[2] = ( 1 < color.mConponents[0] + color.mConponents[3] ) ? color.mConponents[0] + color.mConponents[3] : 1;
 				
 				HE_DWORD valRet = 0xFF000000;
 				HE_DWORD tmpByte1 = 0x00;

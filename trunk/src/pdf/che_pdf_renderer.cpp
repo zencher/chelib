@@ -55,7 +55,6 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Graph
 			{
 				CHE_PDF_Path * pPath = (CHE_PDF_Path*)(*it);
 				CHE_Point p1, p2, p3;
-				//CHE_Matrix matrix = pGState->GetMatrix();
 				for ( size_t i = 0; i < pPath->mItems.size(); ++i )
 				{
 					switch ( pPath->mItems[i].type )
@@ -64,7 +63,6 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Graph
 						{
 							p1.x = pPath->mItems[i+1].value;
 							p1.y = pPath->mItems[i+2].value;
-							//p1 = matrix.Transform( p1 );
 							drawer.MoveTo( p1.x, p1.y );
 							i+=2;
 							break;
@@ -73,7 +71,6 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Graph
 						{
 							p1.x = pPath->mItems[i+1].value;
 							p1.y = pPath->mItems[i+2].value;
-							//p1 = matrix.Transform( p1 );
 							drawer.LineTo( p1.x, p1.y );
 							i+=2;
 							break;
@@ -82,13 +79,10 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Graph
 						{
 							p1.x = pPath->mItems[i+1].value;
 							p1.y = pPath->mItems[i+2].value;
-							//p1 = matrix.Transform( p1 );
 							p2.x = pPath->mItems[i+3].value;
 							p2.y = pPath->mItems[i+4].value;
-							//p2 = matrix.Transform( p2 );
 							p3.x = pPath->mItems[i+5].value;
 							p3.y = pPath->mItems[i+6].value;
-							//p3 = matrix.Transform( p3 );
 							drawer.CurveTo( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
 							i+=6;
 							break;
@@ -97,11 +91,10 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Graph
 						{
 							p1.x = pPath->mItems[i+1].value;
 							p1.y = pPath->mItems[i+2].value;
-							//p1 = matrix.Transform( p1 );
 							drawer.MoveTo( p1.x, p1.y );
 							drawer.LineTo( p1.x + pPath->mItems[i+3].value, p1.y );
 							drawer.LineTo( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
-							drawer.LineTo( p1.x, p1.y + pPath->mItems[4].value );
+							drawer.LineTo( p1.x, p1.y + pPath->mItems[i+4].value );
 							drawer.ClosePath();
 							i+=4;
 							break;
@@ -115,7 +108,6 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Graph
 						break;
 					}
 				}
-				//pPath->GetFillMode();
 				switch ( pPath->GetPaintType() )
 				{
 				case Paint_Fill:
@@ -171,7 +163,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Graph
 									drawer.MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
 									drawer.LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
 									drawer.LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-									drawer.LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[4].value );
+									drawer.LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
 									drawer.ClosePath();
 									i+=4;
 									break;

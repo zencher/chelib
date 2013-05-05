@@ -64,6 +64,14 @@ CHE_PDF_Page * CHE_PDF_PageTree::GetPage( HE_DWORD index )
 	return NULL;
 }
 
+HE_VOID CHE_PDF_PageTree::ReleasePage( CHE_PDF_Page * pPage )
+{
+	if ( pPage )
+	{
+		pPage->GetAllocator()->Delete( pPage );
+	}
+}
+
 HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet )
 {
 	if ( index >= mPageCount )

@@ -34,6 +34,10 @@ CHE_PDF_Document::~CHE_PDF_Document()
 	{
 		mpPageTree->GetAllocator()->Delete( mpPageTree );
 	}
+	if ( mpFontMgr )
+	{
+		mpFontMgr->GetAllocator()->Delete( mpFontMgr );
+	}
 }
 
 HE_DWORD CHE_PDF_Document::GetPageCount() const

@@ -20,6 +20,8 @@ public:
 
 	CHE_PDF_Page *					GetPage( HE_DWORD index );
 
+	HE_VOID							ReleasePage( CHE_PDF_Page * pPage );
+
 	HE_BOOL							GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet );
 
 	HE_VOID							AppendPage( HE_DWORD width, HE_DWORD height );

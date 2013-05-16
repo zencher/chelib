@@ -477,7 +477,7 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 	xref.MoveFirst();
 	if ( ! xref.GetCurNode( entry ) )
 	{
-		return offset;
+		return FALSE/*offset*/;
 	}
 	lBeginNum = entry.GetObjNum();
 	lNextObjNum = lBeginNum + 1;
@@ -732,7 +732,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_File::GetRootDict()
 	{
 		return dictPtr->GetElement( "Root", OBJ_TYPE_DICTIONARY )->GetDictPtr();
 	}
-	return dictPtr;
+	return CHE_PDF_DictionaryPtr();
 }
 
 CHE_PDF_DictionaryPtr CHE_PDF_File::GetInfoDict()
@@ -742,7 +742,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_File::GetInfoDict()
 	{
 		return dictPtr->GetElement( "Info", OBJ_TYPE_DICTIONARY )->GetDictPtr();
 	}
-	return dictPtr;
+	return CHE_PDF_DictionaryPtr();
 }
 
 CHE_PDF_ArrayPtr CHE_PDF_File::GetIDArray()

@@ -661,7 +661,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 			CHE_PDF_ContentsParser contentsParser( pContentResMgr, mpFontMgr, pConstructor );
 			contentsParser.Parse( pStm );
 			mpConstructor->Operator_Append( pForm );
-			pConstructor->GetAllocator()->Delete( mpConstructor );
+			pConstructor->GetAllocator()->Delete( pConstructor );
 		}
 	}
 }

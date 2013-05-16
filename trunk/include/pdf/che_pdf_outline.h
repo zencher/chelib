@@ -17,7 +17,7 @@ public:
 
 /*private:*/
 	HE_DWORD				mCount;
-	CHE_PDF_StringPtr		mTitleStrPtr;
+	CHE_ByteString			mTitleStrPtr;
 	CHE_PDF_Destination		mDestination;
 
 	CHE_PDF_OutlineItem *	mpFirstChild;
@@ -32,7 +32,6 @@ class CHE_PDF_Outline : public CHE_Object
 public:
 	CHE_PDF_Outline( CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
 
-	/*CHE_PDF_Outline( const CHE_PDF_Outline & outline );*/
 
 	~CHE_PDF_Outline();
 
@@ -40,13 +39,12 @@ public:
 
 private:
 
-	//HE_VOID BuildTree( CHE_PDF_OutlineItem * pCurItem, PDF_RefInfo curRefInfo, CHE_PDF_ReferencePtr firstPtr, CHE_PDF_ReferencePtr lastPtr );
 
 	HE_BOOL GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_ReferencePtr refPtr );
 
-	HE_VOID BuildBrotherTree( CHE_PDF_OutlineItem * pCurItem, PDF_RefInfo curRefInfo, CHE_PDF_ReferencePtr nextPtr );
+	CHE_PDF_OutlineItem * BuildBrotherTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr curRefPtr, CHE_PDF_ReferencePtr nextPtr );
 
-	HE_VOID BuildChildTree( CHE_PDF_OutlineItem * pCurItem, PDF_RefInfo curRefInfo, CHE_PDF_ReferencePtr firstPtr, CHE_PDF_ReferencePtr lastPtr );
+	HE_VOID BuildChildTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr curRefPtr, CHE_PDF_ReferencePtr firstPtr );
 
 private:
 	CHE_PDF_File *			mpFile;

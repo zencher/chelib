@@ -19,7 +19,7 @@ enum PDF_DESTINATION_TYPE
 class CHE_PDF_Destination : public CHE_Object
 {
 public:
-	CHE_PDF_Destination( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Destination( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
 
 	PDF_DESTINATION_TYPE		GetType() const { return mType; }
 	HE_VOID						SetType( PDF_DESTINATION_TYPE type ) { mType = type; }

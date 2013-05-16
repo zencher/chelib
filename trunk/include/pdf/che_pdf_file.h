@@ -54,7 +54,6 @@ public:
 
 	CHE_PDF_ArrayPtr		GetIDArray();
 
-
 	HE_VOID					CreateTrailerDict();
 
 	HE_VOID					CreateCatalogDict();

@@ -16,6 +16,8 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 
 			pDocument->ParsePageTree();
 
+			pDocument->ParseOutline();
+
 			return pDocument;
 		}
 	}
@@ -86,6 +88,24 @@ HE_BOOL CHE_PDF_Document::ParsePageTree()
 		if ( pDict )
 		{
 			mpPageTree = GetAllocator()->New<CHE_PDF_PageTree>( pDict, mpFile, GetAllocator() );
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+HE_BOOL CHE_PDF_Document::ParseOutline()
+{
+	if ( mpFile )
+	{
+		CHE_PDF_DictionaryPtr dictPtr = mpFile->GetRootDict();
+
+		CHE_PDF_ObjectPtr objPtr = dictPtr->GetElement( "Outlines", OBJ_TYPE_REFERENCE );
+
+		if ( objPtr )
+		{
+			mpOutline = GetAllocator()->New<CHE_PDF_Outline>( mpFile, GetAllocator() );
+			mpOutline->Parse( objPtr->GetRefPtr() );
 			return TRUE;
 		}
 	}

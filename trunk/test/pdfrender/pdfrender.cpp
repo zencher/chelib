@@ -34,6 +34,7 @@ CHE_PDF_Document *		gpDocument = NULL;
 CHE_PDF_PageTree *		gpPageTree = NULL;
 CHE_PDF_Page *			gpPage = NULL;
 unsigned int			gPageIndex = 0;
+unsigned int			gPageCount = 0;
 
 
 HE_DWORD parseTime = 0;
@@ -112,6 +113,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 			if ( hDC )
 			{
 				gMemDC = CreateCompatibleDC( hDC );
+				SetBkMode( gMemDC, TRANSPARENT );
 				if ( gMemDC )
 				{
 					gBitmap = CreateCompatibleBitmap( hDC, gWndWidth, gWndHeight );
@@ -140,6 +142,8 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 			InvalidateRect( hwnd, NULL, FALSE );
 			break;
 		}
+	case WM_ERASEBKGND:
+		return TRUE;
 	case WM_PAINT:
 		{
 			HDC hdc = NULL;
@@ -166,14 +170,18 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				}
 				BitBlt( gMemDC, x + gOffsetX + gTmpOffsetX, y + gOffsetY + gTmpOffsetY, gpDrawer->GetWidth(),  gpDrawer->GetHeight(), gpDrawer->GetMemDC(), 0, 0, SRCCOPY );
 			}
-			BitBlt( hdc, 0, 0, gWndWidth, gWndHeight, gMemDC, 0, 0, SRCCOPY );
 
 			char tmpStr[128];
 			sprintf( tmpStr, "parse : %d ms", parseTime );
-			TextOut( hdc, 0, 0, tmpStr, strlen( tmpStr ) );
+			TextOut( gMemDC, 0, 0, tmpStr, strlen( tmpStr ) );
 
 			sprintf( tmpStr, "render : %d ms", renderTime );
-			TextOut( hdc, 0, 20, tmpStr, strlen( tmpStr ) );
+			TextOut( gMemDC, 0, 20, tmpStr, strlen( tmpStr ) );
+
+			sprintf( tmpStr, "page : %d / %d", gPageIndex+1, gPageCount );
+			TextOut( gMemDC, 0, 40, tmpStr, strlen( tmpStr ) );
+
+			BitBlt( hdc, 0, 0, gWndWidth, gWndHeight, gMemDC, 0, 0, SRCCOPY );
 
 			EndPaint( hwnd, &ps );
 			break ;
@@ -185,7 +193,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				POINTS pt = MAKEPOINTS( lParam );
 				gDragStartX = pt.x;
 				gDragStartY = pt.y;
-				GetCapture();
+				SetCapture(hwnd);
 				gbMouseDown = TRUE;
 			}
 			break;
@@ -199,28 +207,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 					POINTS pt = MAKEPOINTS( lParam );
 					gTmpOffsetX = pt.x - gDragStartX;
 					gTmpOffsetY = pt.y - gDragStartY;
-// 					if ( gWndWidth >= gPageWidth )
-// 					{
-// 						gTmpOffsetX = 0;
-// 					}else{
-// 						if ( gTmpOffsetX + gOffsetX > gPageWidth )
-// 						{
-// 							gTmpOffsetX = gPageWidth - gOffsetX;
-// 						}
-// 					}
-// 					if ( gWndHeight >= gPageHeight )
-// 					{
-// 						gTmpOffsetY = 0;
-// 					}else{
-// 						if ( gTmpOffsetY + gOffsetY > gPageHeight )
-// 						{
-// 							gTmpOffsetY = gPageHeight - gOffsetY;
-// 						}
-// 					}
-					if ( gTmpOffsetX > 0 || gTmpOffsetY > 0 )
-					{
-						InvalidateRect( hwnd, NULL, FALSE );
-					}
+					InvalidateRect( hwnd, NULL, FALSE );
 				}
 			}
 			break;
@@ -273,14 +260,18 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 					gpFile->Open( gpFileRead );
 					gpDocument = CHE_PDF_Document::CreateDocument( gpFile );
 					gpPageTree = gpDocument->GetPageTree();
+					gPageCount = gpPageTree->GetPageCount();
 					gpPage = gpPageTree->GetPage( 0 );
 					gPageIndex = 0;
 					if ( gpPage )
 					{
 						CHE_Rect rect = gpPage->GetMediaBox();
-						gPageWidth = rect.width * 96 / 72;
-						gPageHeight =  rect.height * 96 / 72;
-						gpDrawer = new CHE_GraphicsDrawer( GetDC(hwnd), gPageWidth, gPageHeight, gScale );
+						CHE_Rect clipRect;
+						clipRect.left = rect.width / 2;
+						clipRect.bottom = rect.height /2;
+						clipRect.width = rect.width / 2;
+						clipRect.height = rect.height / 2;
+						gpDrawer = new CHE_GraphicsDrawer( GetDC(hwnd), gPageWidth, gPageHeight );
 						CHE_PDF_ContentObjectList contentObjList;
 						QueryPerformanceCounter( &gBegin );
 						GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
@@ -288,7 +279,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 						parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 
 						QueryPerformanceCounter( &gBegin );
-						CHE_PDF_Renderer::Render( contentObjList, *gpDrawer );
+						CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale, 96, 96, &clipRect );
 						QueryPerformanceCounter( &gEnd );
 						renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 					}
@@ -298,66 +289,66 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				}
 			}else if ( wParam == 'c' || wParam == 'C' )
 			{
-			}else if ( wParam == '.' )
+			}else if ( wParam == '.' || wParam == '>' )
 			{
 				if ( gAppState == 1 )
 				{
-					if ( gpPage )
+					if ( gPageIndex+1 < gPageCount )
 					{
-						gpPage->GetAllocator()->Delete( gpPage );
-					}
-					gpPage = gpPageTree->GetPage( ++gPageIndex );
-					if ( gpPage )
-					{
-						CHE_Rect rect = gpPage->GetMediaBox();
-						gPageWidth = rect.width * 96 / 72;
-						gPageHeight =  rect.height * 96 / 72;
-						gpDrawer->Resize( gPageWidth, gPageHeight, gScale );
-						CHE_PDF_ContentObjectList contentObjList;
-						QueryPerformanceCounter( &gBegin );
-						GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-						QueryPerformanceCounter( &gEnd );
-						parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+						if ( gpPage )
+						{
+							gpPage->GetAllocator()->Delete( gpPage );
+						}
+						gpPage = gpPageTree->GetPage( ++gPageIndex );
+						if ( gpPage )
+						{
+							CHE_Rect rect = gpPage->GetMediaBox();
+							CHE_PDF_ContentObjectList contentObjList;
+							QueryPerformanceCounter( &gBegin );
+							GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+							QueryPerformanceCounter( &gEnd );
+							parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 
-						QueryPerformanceCounter( &gBegin );
-						CHE_PDF_Renderer::Render( contentObjList, *gpDrawer );
-						QueryPerformanceCounter( &gEnd );
-						renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+							QueryPerformanceCounter( &gBegin );
+							CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale );
+							QueryPerformanceCounter( &gEnd );
+							renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+						}
+						InvalidateRect( hwnd, NULL, FALSE );	
 					}
-					InvalidateRect( hwnd, NULL, FALSE );
 				}
-			}else if ( wParam == ',' )
+			}else if ( wParam == ',' || wParam == '<' )
 			{
 				if ( gAppState == 1 )
 				{
-					if ( gpPage )
+					if ( gPageIndex > 0 )
 					{
-						gpPage->GetAllocator()->Delete( gpPage );
-					}
-					gpPage = gpPageTree->GetPage( --gPageIndex );
-					if ( gpPage )
-					{
-						CHE_Rect rect = gpPage->GetMediaBox();
-						gPageWidth = rect.width * 96 / 72;
-						gPageHeight =  rect.height * 96 / 72;
-						gpDrawer->Resize( gPageWidth, gPageHeight, gScale );
-						CHE_PDF_ContentObjectList contentObjList;
-						QueryPerformanceCounter( &gBegin );
-						GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-						QueryPerformanceCounter( &gEnd );
-						parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+						if ( gpPage )
+						{
+							gpPage->GetAllocator()->Delete( gpPage );
+						}
+						gpPage = gpPageTree->GetPage( --gPageIndex );
+						if ( gpPage )
+						{
+							CHE_Rect rect = gpPage->GetMediaBox();
+							CHE_PDF_ContentObjectList contentObjList;
+							QueryPerformanceCounter( &gBegin );
+							GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+							QueryPerformanceCounter( &gEnd );
+							parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 
-						QueryPerformanceCounter( &gBegin );
-						CHE_PDF_Renderer::Render( contentObjList, *gpDrawer );
-						QueryPerformanceCounter( &gEnd );
-						renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+							QueryPerformanceCounter( &gBegin );
+							CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale );
+							QueryPerformanceCounter( &gEnd );
+							renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+						}
+						InvalidateRect( hwnd, NULL, FALSE );
 					}
-					InvalidateRect( hwnd, NULL, FALSE );
 				}
 			}else if ( wParam == 'z' || wParam == 'Z' )
 			{
 				gScale+=0.5;
-				gpDrawer->Resize( gPageWidth, gPageHeight, gScale );
+				gpDrawer->Resize( gPageWidth, gPageHeight );
 				if ( gpPage )
 				{
 					gpPage->GetAllocator()->Delete( gpPage );
@@ -365,6 +356,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				gpPage = gpPageTree->GetPage( gPageIndex );
 				if ( gpPage )
 				{
+					CHE_Rect rect = gpPage->GetMediaBox();
 					CHE_PDF_ContentObjectList contentObjList;
 					QueryPerformanceCounter( &gBegin );
 					GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
@@ -372,7 +364,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 					parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 
 					QueryPerformanceCounter( &gBegin );
-					CHE_PDF_Renderer::Render( contentObjList, *gpDrawer );
+					CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale );
 					QueryPerformanceCounter( &gEnd );
 					renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 				}
@@ -383,7 +375,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				{
 					gScale -= 0.5;
 				}
-				gpDrawer->Resize( gPageWidth, gPageHeight, gScale );
+				gpDrawer->Resize( gPageWidth, gPageHeight );
 				if ( gpPage )
 				{
 					gpPage->GetAllocator()->Delete( gpPage );
@@ -391,6 +383,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				gpPage = gpPageTree->GetPage( gPageIndex );
 				if ( gpPage )
 				{
+					CHE_Rect rect = gpPage->GetMediaBox();
 					CHE_PDF_ContentObjectList contentObjList;
 					QueryPerformanceCounter( &gBegin );
 					GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
@@ -398,7 +391,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 					parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 
 					QueryPerformanceCounter( &gBegin );
-					CHE_PDF_Renderer::Render( contentObjList, *gpDrawer );
+					CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale );
 					QueryPerformanceCounter( &gEnd );
 					renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 				}

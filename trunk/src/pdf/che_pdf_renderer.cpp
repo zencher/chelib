@@ -1,6 +1,7 @@
 #include "../../include/pdf/che_pdf_renderer.h"
 
-HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer )
+HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
+									HE_FLOAT scale, HE_FLOAT dipx, HE_FLOAT dipy, CHE_Rect * pClipRect )
 {
 	CHE_PDF_GState * pGState = NULL;
 	ContentObjectList::iterator it = content.Begin();
@@ -17,6 +18,32 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Graph
 	CHE_PDF_ColorSpace strokeColorSpace( COLORSPACE_DEVICE_GRAY );
 	HE_DWORD fillColorVal = 0xFF000000;
 	HE_DWORD strokeColorVal = 0xFF000000;
+
+	if ( pClipRect != NULL )
+	{
+		drawer.Resize( pClipRect->width * scale * dipx / 72, pClipRect->height * scale * dipy / 72 );
+	}else{
+		drawer.Resize( pageRect.width * scale * dipx / 72, pageRect.height * scale * dipy / 72 );
+	}
+
+	CHE_Matrix tmpMatrix;
+	tmpMatrix.a = dipx * scale / 72;
+	tmpMatrix.b = 0;
+	tmpMatrix.c = 0;
+	tmpMatrix.d = - dipy * scale / 72;
+	tmpMatrix.e = 0;
+	tmpMatrix.f = pageRect.height * dipy * scale / 72 ;
+	CHE_Matrix extMatrix;
+	if ( pClipRect != NULL )
+	{
+		//extMatrix.e = pClipRect->left;
+		//extMatrix.f = -pClipRect->bottom;
+	}else{
+		//extMatrix.e = pageRect.left;
+		//extMatrix.f = -pageRect.bottom;
+	}
+	extMatrix.Concat( tmpMatrix );
+	drawer.SetExtMatrix( extMatrix );
 
 	for ( ; it != content.End(); ++it )
 	{

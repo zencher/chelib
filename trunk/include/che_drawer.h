@@ -11,12 +11,11 @@
 class CHE_GraphicsDrawer
 {
 public:
-	CHE_GraphicsDrawer( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight, HE_FLOAT scale )
+	CHE_GraphicsDrawer( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight )
 	{
 		m_DC = hDC;
-		mScale = scale;
-		m_dwWidth = dibWidth*scale;
-		m_dwHeight = dibHeight*scale;
+		m_dwWidth = dibWidth;
+		m_dwHeight = dibHeight;
 		m_MemDC = CreateCompatibleDC( hDC );
 		m_Bitmap = CreateCompatibleBitmap( m_DC, m_dwWidth, m_dwHeight );
 		m_OldBitmap = SelectObject( m_MemDC, m_Bitmap );
@@ -31,8 +30,6 @@ public:
 		m_pGraphics  = new Gdiplus::Graphics( m_MemDC );
 		m_pGraphics->SetSmoothingMode( Gdiplus::SmoothingModeAntiAlias );
 		m_pGraphics->SetPageUnit( Gdiplus::UnitPixel );
-		Gdiplus::Matrix mtx( 96.0*mScale/72, 0, 0, -96.0*mScale/72, 0, m_dwHeight );
-		m_pGraphics->SetTransform( &mtx );
 		m_pPen = new Gdiplus::Pen( Gdiplus::Color( 255, 0, 0, 0 ), 1 );
 		m_pBrush = new Gdiplus::SolidBrush( Gdiplus::Color( 255, 0, 0, 0 ) );
 
@@ -146,14 +143,18 @@ public:
 		m_pathToDraw.Reset();
 	}
 
+	inline HE_VOID SetExtMatrix( const CHE_Matrix & matrix )
+	{
+		mExtMatrix = matrix;
+	}
+
 	inline HE_VOID SetMatrix( const CHE_Matrix & matrix )
 	{
 		if ( m_pGraphics )
 		{
-			CHE_Matrix tmpMatrix( 96.0*mScale/72, 0, 0, -96.0*mScale/72, 0, m_dwHeight );
 			CHE_Matrix t = matrix;
-			t.Concat( tmpMatrix );
-			Gdiplus::Matrix matrixToDev(	t.a, t.b, t.c, t.d, t.e, t.f );
+			t.Concat( mExtMatrix );
+			Gdiplus::Matrix matrixToDev( t.a, t.b, t.c, t.d, t.e, t.f );
 			m_pGraphics->SetTransform( &matrixToDev );
 		}
 	}
@@ -342,11 +343,10 @@ public:
 		FillRect( m_MemDC, &rt, HBRUSH(WHITE_BRUSH) );
 	}
 
-	inline HE_VOID	Resize( HE_DWORD dibWidth, HE_DWORD dibHeight, HE_FLOAT scale )
+	inline HE_VOID	Resize( HE_DWORD dibWidth, HE_DWORD dibHeight )
 	{
-		mScale = scale;
-		m_dwWidth = dibWidth*scale;
-		m_dwHeight = dibHeight*scale;
+		m_dwWidth = dibWidth;
+		m_dwHeight = dibHeight;
 
 		if ( m_MemDC )
 		{
@@ -382,15 +382,6 @@ public:
 		m_pGraphics  = new Gdiplus::Graphics( m_MemDC );
 		m_pGraphics->SetSmoothingMode( Gdiplus::SmoothingModeAntiAlias );
 		m_pGraphics->SetPageUnit( Gdiplus::UnitPixel );
-		Gdiplus::Matrix mtx( 96.0*mScale/72, 0, 0, -96.0*mScale/72, 0, m_dwHeight );
-		m_pGraphics->SetTransform( &mtx );
-		m_pPen = new Gdiplus::Pen( Gdiplus::Color( 255, 0, 0, 0 ), 1 );
-		m_pBrush = new Gdiplus::SolidBrush( Gdiplus::Color( 255, 0, 0, 0 ) );
-
-		mLineWidth = 1;
-		mLineCap = LineCap_Butt;
-		mLineJion = LineJoin_Miter;
-		mDashPhase = 0;
 	}
 
 	inline HE_DWORD GetWidth() { return m_dwWidth; }
@@ -410,11 +401,11 @@ private:
 	Gdiplus::GraphicsPath		m_pathToDraw;
 	HE_FLOAT					mCurX;
 	HE_FLOAT					mCurY;
-	HE_FLOAT					mScale;
 	HE_FLOAT					mLineWidth;
 	GRAPHICS_STATE_LINECAP		mLineCap;
 	GRAPHICS_STATE_LINEJOIN		mLineJion;
 	HE_FLOAT					mDashPhase;
+	CHE_Matrix					mExtMatrix;
 };
 
 

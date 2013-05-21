@@ -47,6 +47,27 @@ HBITMAP gBitmap = NULL;
 HGDIOBJ gOldObject = NULL;
 CHE_GraphicsDrawer * gpDrawer = NULL;
 
+void RenderPage( HWND hwnd )
+{
+	CHE_Rect rect = gpPage->GetMediaBox();
+	//CHE_Rect clipRect;
+	//clipRect.left = rect.width / 2;
+	//clipRect.bottom = rect.height /2;
+	//clipRect.width = rect.width / 2;
+	//clipRect.height = rect.height / 2;
+	gpDrawer = new CHE_GraphicsDrawer( GetDC(hwnd), gPageWidth, gPageHeight );
+	CHE_PDF_ContentObjectList contentObjList;
+	QueryPerformanceCounter( &gBegin );
+	GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+	QueryPerformanceCounter( &gEnd );
+	parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+
+	QueryPerformanceCounter( &gBegin );
+	CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale/*, 96, 96, &clipRect*/ );
+	QueryPerformanceCounter( &gEnd );
+	renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+}
+
 int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int nCmdShow )
 {
 	MSG			msg ;
@@ -265,26 +286,10 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 					gPageIndex = 0;
 					if ( gpPage )
 					{
-						CHE_Rect rect = gpPage->GetMediaBox();
-						CHE_Rect clipRect;
-						clipRect.left = rect.width / 2;
-						clipRect.bottom = rect.height /2;
-						clipRect.width = rect.width / 2;
-						clipRect.height = rect.height / 2;
-						gpDrawer = new CHE_GraphicsDrawer( GetDC(hwnd), gPageWidth, gPageHeight );
-						CHE_PDF_ContentObjectList contentObjList;
-						QueryPerformanceCounter( &gBegin );
-						GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-						QueryPerformanceCounter( &gEnd );
-						parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
-
-						QueryPerformanceCounter( &gBegin );
-						CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale, 96, 96, &clipRect );
-						QueryPerformanceCounter( &gEnd );
-						renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+						RenderPage( hwnd );
+						InvalidateRect( hwnd, NULL, FALSE );
 					}
 					gAppState = 1;
-					InvalidateRect( hwnd, NULL, FALSE );
 					break;
 				}
 			}else if ( wParam == 'c' || wParam == 'C' )
@@ -302,19 +307,9 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 						gpPage = gpPageTree->GetPage( ++gPageIndex );
 						if ( gpPage )
 						{
-							CHE_Rect rect = gpPage->GetMediaBox();
-							CHE_PDF_ContentObjectList contentObjList;
-							QueryPerformanceCounter( &gBegin );
-							GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-							QueryPerformanceCounter( &gEnd );
-							parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
-
-							QueryPerformanceCounter( &gBegin );
-							CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale );
-							QueryPerformanceCounter( &gEnd );
-							renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+							RenderPage( hwnd );
+							InvalidateRect( hwnd, NULL, FALSE );
 						}
-						InvalidateRect( hwnd, NULL, FALSE );	
 					}
 				}
 			}else if ( wParam == ',' || wParam == '<' )
@@ -330,19 +325,9 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 						gpPage = gpPageTree->GetPage( --gPageIndex );
 						if ( gpPage )
 						{
-							CHE_Rect rect = gpPage->GetMediaBox();
-							CHE_PDF_ContentObjectList contentObjList;
-							QueryPerformanceCounter( &gBegin );
-							GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-							QueryPerformanceCounter( &gEnd );
-							parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
-
-							QueryPerformanceCounter( &gBegin );
-							CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale );
-							QueryPerformanceCounter( &gEnd );
-							renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+							RenderPage( hwnd );
+							InvalidateRect( hwnd, NULL, FALSE );
 						}
-						InvalidateRect( hwnd, NULL, FALSE );
 					}
 				}
 			}else if ( wParam == 'z' || wParam == 'Z' )
@@ -356,19 +341,9 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				gpPage = gpPageTree->GetPage( gPageIndex );
 				if ( gpPage )
 				{
-					CHE_Rect rect = gpPage->GetMediaBox();
-					CHE_PDF_ContentObjectList contentObjList;
-					QueryPerformanceCounter( &gBegin );
-					GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-					QueryPerformanceCounter( &gEnd );
-					parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
-
-					QueryPerformanceCounter( &gBegin );
-					CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale );
-					QueryPerformanceCounter( &gEnd );
-					renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+					RenderPage( hwnd );
+					InvalidateRect( hwnd, NULL, FALSE );
 				}
-				InvalidateRect( hwnd, NULL, TRUE );
 			}else if ( wParam == 'x' || wParam == 'X' )
 			{
 				if ( gScale - 0.5 >= 0 )
@@ -383,19 +358,9 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				gpPage = gpPageTree->GetPage( gPageIndex );
 				if ( gpPage )
 				{
-					CHE_Rect rect = gpPage->GetMediaBox();
-					CHE_PDF_ContentObjectList contentObjList;
-					QueryPerformanceCounter( &gBegin );
-					GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
-					QueryPerformanceCounter( &gEnd );
-					parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
-
-					QueryPerformanceCounter( &gBegin );
-					CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale );
-					QueryPerformanceCounter( &gEnd );
-					renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
+					RenderPage( hwnd );
+					InvalidateRect( hwnd, NULL, FALSE );
 				}
-				InvalidateRect( hwnd, NULL, FALSE );
 			}
 			
 			break;

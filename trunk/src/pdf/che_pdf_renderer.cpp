@@ -32,18 +32,18 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 	tmpMatrix.c = 0;
 	tmpMatrix.d = - dipy * scale / 72;
 	tmpMatrix.e = 0;
-	tmpMatrix.f = pageRect.height * dipy * scale / 72 ;
+	tmpMatrix.f = 0;
 	CHE_Matrix extMatrix;
 	if ( pClipRect != NULL )
 	{
-		//extMatrix.e = pClipRect->left;
-		//extMatrix.f = -pClipRect->bottom;
+		extMatrix.e = - pClipRect->left * dipx * scale / 72;
+		extMatrix.f = ( pClipRect->height + pClipRect->bottom ) * dipy * scale / 72;
 	}else{
-		//extMatrix.e = pageRect.left;
-		//extMatrix.f = -pageRect.bottom;
+		extMatrix.e = 0;
+		extMatrix.f = pageRect.height * dipy * scale / 72;
 	}
-	extMatrix.Concat( tmpMatrix );
-	drawer.SetExtMatrix( extMatrix );
+	tmpMatrix.Concat( extMatrix );
+	drawer.SetExtMatrix( tmpMatrix );
 
 	for ( ; it != content.End(); ++it )
 	{

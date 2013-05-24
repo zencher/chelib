@@ -222,15 +222,16 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 						case TextRenderMode_Invisible:
 							break;
 						case TextRenderMode_FillClip:
-							drawer.FillPath();
+							drawer.FillClipPath();
 							break;
 						case TextRenderMode_StrokeClip:
-							drawer.StrokePath();
+							drawer.StrokeClipPath();
 							break;
 						case TextRenderMode_FillStrokeClip:
-							drawer.StrokePath();
+							drawer.FillStrokeClipPath();
 							break;
 						case TextRenderMode_Clip:
+							drawer.ClipPath();
 							break;
 						}
  						pPath->GetAllocator()->Delete( pPath );

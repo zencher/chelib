@@ -69,6 +69,7 @@
     <ClCompile Include="..\..\src\che_base.cpp" />
     <ClCompile Include="..\..\src\che_bitmap.cpp" />
     <ClCompile Include="..\..\src\che_datastructure.cpp" />
+    <ClCompile Include="..\..\src\che_drawer.cpp" />
     <ClCompile Include="..\..\src\che_graphics.cpp" />
     <ClCompile Include="..\..\src\che_string.cpp" />
     <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp" />

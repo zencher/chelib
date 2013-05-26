@@ -1,0 +1,216 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\che_base.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\che_string.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\che_bitmap.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\che_datastructure.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_graphicsstate.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\platform\windows\che_platform_font.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp">
+      <Filter>src\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp">
+      <Filter>src\crypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hash\che_hash_md5.cpp">
+      <Filter>src\hash</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\che_base.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\che_bitmap.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\che_define.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\che_datastructure.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\che_string.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_xref.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_cns.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_gb.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_japan.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_korea.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_collector.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_contentresmgr.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_contents.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_document.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_file.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_filter.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_font.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_fontmgr.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_graphicsState.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_image.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_matrix.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_objects.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_pages.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_parser.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\crypt\che_crypt_aes.h">
+      <Filter>include\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\crypt\che_crypt_rc4.h">
+      <Filter>include\crypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\hash\che_hash_md5.h">
+      <Filter>include\hash</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{411ed1c1-cfd7-4b67-b3ae-7a67dfab5c8e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{372b8aa0-cd43-4d39-a614-663dedc4ccd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\pdf">
+      <UniqueIdentifier>{0ff7f934-10a5-4027-8305-401fdc0e6156}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pdf">
+      <UniqueIdentifier>{a47eedba-a37f-4c45-b13b-8e4559aa404f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\crypt">
+      <UniqueIdentifier>{f6ede1c8-9ebb-42e7-b197-91de1054edd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\hash">
+      <UniqueIdentifier>{e1879345-1981-48fe-abd4-485ab4126ac8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\crypt">
+      <UniqueIdentifier>{3c1fe16b-3eb2-43a8-8269-351e5c59c4d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hash">
+      <UniqueIdentifier>{73ef0afe-5b6a-4260-96a3-eeee8944b185}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

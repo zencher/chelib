@@ -629,6 +629,76 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 	return TRUE;
 }
 
+HE_DWORD CHE_Bitmap::GetMemBitmapSize()
+{
+	HE_DWORD dwRet = 0;
+
+	dwRet += 40; //bitmapInfo size;
+
+	if ( m_lpPalette &&  m_lpPalette->GetCount() > 0 )
+	{
+		dwRet += m_lpPalette->GetCount() * 4;
+	}
+
+	dwRet += Pitch() * Height();
+
+	return dwRet;
+}
+
+HE_BOOL CHE_Bitmap::GetMemBitmapSize( HE_LPBYTE buffer, HE_DWORD size )
+{
+	if ( buffer == NULL || size < GetMemBitmapSize() )
+	{
+		return FALSE;
+	}
+
+	HE_DWORD index = 0;
+
+	HE_BITMAPINFOHEADER biHeader;
+	biHeader.biSize = 40;
+	biHeader.biWidth = m_lWidth;
+	HE_LONG lHeight = m_lHeight;
+	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (lHeight) : (-lHeight);
+	biHeader.biPlanes = 1;
+	biHeader.biBitCount = m_Depth;
+	biHeader.biCompression = m_Compression;
+	biHeader.biSizeImage = Pitch() * Height();
+	biHeader.biXPelsPerMeter = 0;
+	biHeader.biYPelsPerMeter = 0;
+	biHeader.biClrUsed = 0;
+	biHeader.biClrImportant = 0;
+	memcpy( buffer + index, &(biHeader.biSize), sizeof(biHeader.biSize) );
+	index += sizeof(biHeader.biSize);
+	memcpy( buffer + index, &(biHeader.biWidth), sizeof(biHeader.biWidth) );
+	index += sizeof(biHeader.biWidth);
+	memcpy( buffer + index, &(biHeader.biHeight), sizeof(biHeader.biHeight) );
+	index += sizeof(biHeader.biHeight);
+	memcpy( buffer + index, &(biHeader.biPlanes), sizeof(biHeader.biPlanes) );
+	index += sizeof(biHeader.biPlanes);
+	memcpy( buffer + index, &(biHeader.biBitCount), sizeof(biHeader.biBitCount) );
+	index += sizeof(biHeader.biBitCount);
+	memcpy( buffer + index, &(biHeader.biCompression), sizeof(biHeader.biCompression) );
+	index += sizeof(biHeader.biCompression);
+	memcpy( buffer + index, &(biHeader.biSizeImage), sizeof(biHeader.biSizeImage) );
+	index += sizeof(biHeader.biSizeImage);
+	memcpy( buffer + index, &(biHeader.biXPelsPerMeter), sizeof(biHeader.biXPelsPerMeter) );
+	index += sizeof(biHeader.biXPelsPerMeter);
+	memcpy( buffer + index, &(biHeader.biYPelsPerMeter), sizeof(biHeader.biYPelsPerMeter) );
+	index += sizeof(biHeader.biYPelsPerMeter);
+	memcpy( buffer + index, &(biHeader.biClrUsed), sizeof(biHeader.biClrUsed) );
+	index += sizeof(biHeader.biClrUsed);
+	memcpy( buffer + index, &(biHeader.biClrImportant), sizeof(biHeader.biClrImportant) );
+	index += sizeof(biHeader.biClrImportant);
+
+	if ( m_lpPalette && m_lpPalette->GetCount() > 0 )
+	{
+		memcpy( buffer + index, m_lpPalette->m_pPalette, m_lpPalette->GetCount() * 4 );
+		index += m_lpPalette->GetCount() * 4;
+	}
+	memcpy( buffer + index, m_lpBits, Pitch() * Height() );
+	return TRUE;
+}
+
 HE_BOOL CHE_Bitmap::Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_DEPTH depth, HE_BITMAP_DIRECTION direction, HE_DWORD bufferSize, HE_LPCBYTE buffer, CHE_Palette* pPalette )
 {
 	HE_DWORD bitcount = 0, imageSize = 0;

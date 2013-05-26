@@ -629,7 +629,7 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 	return TRUE;
 }
 
-HE_DWORD CHE_Bitmap::GetMemBitmapSize()
+HE_DWORD CHE_Bitmap::GetMemBitmapData()
 {
 	HE_DWORD dwRet = 0;
 
@@ -645,7 +645,7 @@ HE_DWORD CHE_Bitmap::GetMemBitmapSize()
 	return dwRet;
 }
 
-HE_BOOL CHE_Bitmap::GetMemBitmapSize( HE_LPBYTE buffer, HE_DWORD size )
+HE_BOOL CHE_Bitmap::GetMemBitmapDataSize( HE_LPBYTE buffer, HE_DWORD size )
 {
 	if ( buffer == NULL || size < GetMemBitmapSize() )
 	{

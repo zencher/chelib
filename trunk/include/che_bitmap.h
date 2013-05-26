@@ -73,8 +73,8 @@ public:
 	HE_BOOL		Load( HE_LPCSTR );
 	HE_BOOL		Save( HE_LPCSTR );
 
-	HE_DWORD	GetMemBitmapSize();
-	HE_BOOL		GetMemBitmapSize( HE_LPBYTE buffer, HE_DWORD size );
+	HE_DWORD	GetMemBitmapDataSize();
+	HE_BOOL		GetMemBitmapData( HE_LPBYTE buffer, HE_DWORD size );
 
 	//bitmap basic information
 	HE_DWORD				Width() const { return m_lWidth; } ;

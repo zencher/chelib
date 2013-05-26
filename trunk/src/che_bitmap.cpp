@@ -647,7 +647,7 @@ HE_DWORD CHE_Bitmap::GetMemBitmapData()
 
 HE_BOOL CHE_Bitmap::GetMemBitmapDataSize( HE_LPBYTE buffer, HE_DWORD size )
 {
-	if ( buffer == NULL || size < GetMemBitmapSize() )
+	if ( buffer == NULL || size < GetMemBitmapData() )
 	{
 		return FALSE;
 	}

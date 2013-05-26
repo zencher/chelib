@@ -30,6 +30,8 @@ CHEPDF_RenderChar
 CHEPDF_CloseBitmap
 CHEPDF_GetBitmapWidth
 CHEPDF_GetBitmapHeight
+CHEPDF_GetBitmapData
+CHEPDF_GetBitmapDataSize
 CHEPDF_SaveBitmapToFile
 
 CHEPDF_GetPageWordSet

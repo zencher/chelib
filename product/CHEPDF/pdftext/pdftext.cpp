@@ -773,6 +773,41 @@ unsigned int CHEPDF_GetBitmapHeight( PDFBitmap bitmap )
 }
 
 
+unsigned int CHEPDF_GetBitmapDataSize( PDFBitmap bitmap )
+{
+	if ( bitmap )
+	{
+		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
+		return pBitmap->GetMemBitmapDataSize();
+	}
+	return 0;
+}
+
+
+PDFStatus CHEPDF_GetBitmapData( PDFBitmap bitmap, unsigned char * pBuf, unsigned int bufSize )
+{
+	if ( pBuf == 0 )
+	{
+		return PDF_STATUS_ERROR;
+	}
+	if ( bitmap )
+	{
+		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
+		if ( pBitmap->GetMemBitmapDataSize() > bufSize )
+		{
+			return PDF_STATUS_ERROR;
+		}
+
+		if ( pBitmap->GetMemBitmapData( pBuf, bufSize ) )
+		{
+			return PDF_STATUS_OK;
+		}
+	}
+
+	return PDF_STATUS_ERROR;
+}
+
+
 PDFStatus CHEPDF_SaveBitmapToFile( PDFBitmap bitmap, char * filePath )
 {
 	if ( bitmap && filePath )

@@ -110,6 +110,12 @@ namespace pdftexttestCSharp
         public static extern uint CHEPDF_GetBitmapHeight(System.IntPtr bitmap);
 
         [DllImport("pdftext.dll", CharSet = CharSet.Ansi)]
+        public static extern uint CHEPDF_GetBitmapDataSize(System.IntPtr bitmap);
+
+        [DllImport("pdftext.dll", CharSet = CharSet.Ansi)]
+        public static unsafe extern uint CHEPDF_GetBitmapData(System.IntPtr bitmap, byte* pbuf, uint bufSize);
+
+        [DllImport("pdftext.dll", CharSet = CharSet.Ansi)]
         public static extern int CHEPDF_SaveBitmapToFile(System.IntPtr bitmap, System.String file);
 
         [DllImport("pdftext.dll", CharSet = CharSet.Ansi)]
@@ -145,7 +151,7 @@ namespace pdftexttestCSharp
         static void Main(string[] args)
         {
 
-            System.IntPtr document = CPdftextAdapter.CHEPDF_OpenDocument(args[0] /* "d:\\pdffile.pdf" */ ); //打开pdf文件
+            System.IntPtr document = CPdftextAdapter.CHEPDF_OpenDocument(/*args[0]*/ "e:\\999.pdf" /* "d:\\pdffile.pdf" */ ); //打开pdf文件
             if (document.ToInt32()!=0)
             {
                 int pageCount = CPdftextAdapter.CHEPDF_GetPageCount(document);
@@ -183,6 +189,16 @@ namespace pdftexttestCSharp
                                 System.IntPtr bitmap = CPdftextAdapter.CHEPDF_RenderWord(word, 5f);
                                 if (bitmap.ToInt32() != 0)
                                 {
+                                    uint bitmapSize = CPdftextAdapter.CHEPDF_GetBitmapDataSize(bitmap);
+                                    unsafe
+                                    {
+                                        byte[] data = new byte[bitmapSize];
+                                        fixed( byte * pbuf = &data[0] )
+                                        {
+                                            CPdftextAdapter.CHEPDF_GetBitmapData(bitmap, pbuf, bitmapSize);
+                                        }
+                                    }
+
                                     System.String file = "d:\\bitmap";
                                     file += index;
                                     file += ".bmp";

@@ -426,6 +426,34 @@ unsigned int CHEPDF_GetBitmapWidth( PDFBitmap bitmap );
 unsigned int CHEPDF_GetBitmapHeight( PDFBitmap bitmap );
 
 /*
+//	函数名：CHEPDF_GetBitmapDataSize
+//
+//  功能：获取一个位图的内存数据，包括信息头、颜色表和具体数据
+//
+//  参数：bitmap - 位图对象
+//
+//  返回值：表示位图数据大小字节数
+//
+//  备注：无
+*/
+unsigned int CHEPDF_GetBitmapDataSize( PDFBitmap bitmap );
+
+/*
+//	函数名：CHEPDF_GetBitmapData
+//
+//  功能：获取位图的内存数据
+//
+//  参数：bitmap - 位图对象
+//		  pBuf - 用于存放数据的缓冲区
+//		  bufSize - 缓冲区的大小
+//
+//  返回值：PDF_STATUS_OK - 成功
+//			PDF_STATUS_ERROR - 失败
+//  备注：无
+*/
+PDFStatus CHEPDF_GetBitmapData( PDFBitmap bitmap, unsigned char * pBuf, unsigned int bufSize );
+
+/*
 //	函数名：CHEPDF_SaveBitmapToFile
 //
 //  功能：将位图数据保存为一个BMP文件

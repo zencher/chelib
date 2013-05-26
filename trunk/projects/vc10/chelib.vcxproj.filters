@@ -53,9 +53,6 @@
     <ClInclude Include="..\..\include\che_string.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf.h">
-      <Filter>头文件\PDF</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h">
       <Filter>头文件\PDF</Filter>
     </ClInclude>
@@ -187,9 +184,6 @@
     <ClCompile Include="..\..\src\che_string.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf.cpp">
-      <Filter>源文件\PDF</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp">
       <Filter>源文件\PDF</Filter>
     </ClCompile>
@@ -294,6 +288,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp">
       <Filter>源文件\PDF</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\che_drawer.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

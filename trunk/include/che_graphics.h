@@ -52,6 +52,12 @@ enum GRAPHICS_STATE_TEXTRENDERMODE
 	TextRenderMode_Clip = 7
 };
 
+enum GRAPHICS_STATE_FILLMODE
+{
+	FillMode_EvenOdd = 0,
+	FillMode_Nonzero = 1
+};
+
 
 class CHE_Point
 {

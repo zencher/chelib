@@ -29,7 +29,6 @@
     <ClInclude Include="..\..\include\crypt\che_crypt_aes.h" />
     <ClInclude Include="..\..\include\crypt\che_crypt_rc4.h" />
     <ClInclude Include="..\..\include\hash\che_hash_md5.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_cns.h" />
@@ -75,7 +74,6 @@
     <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp" />
     <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp" />
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp" />

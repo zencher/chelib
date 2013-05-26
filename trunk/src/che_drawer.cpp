@@ -159,19 +159,23 @@ HE_VOID CHE_GraphicsDrawer::ClosePath()
 	if ( m_path.GetPointCount() > 0 )
 	{
 		m_pathToDraw.AddPath( &m_path, false );
+		m_path.Reset();
 	}
-	m_path.Reset();
 }
+	
 
 HE_VOID CHE_GraphicsDrawer::FillPath()
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
 		m_pathToDraw.AddPath( &m_path, false );
+		m_path.Reset();
 	}
-	m_path.Reset();
-	m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
-	m_pathToDraw.Reset();
+	if ( m_pathToDraw.GetPointCount() > 0 )
+	{
+		m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
+		m_pathToDraw.Reset();
+	}
 }
 
 HE_VOID CHE_GraphicsDrawer::StrokePath()
@@ -179,79 +183,92 @@ HE_VOID CHE_GraphicsDrawer::StrokePath()
 	if ( m_path.GetPointCount() > 0 )
 	{
 		m_pathToDraw.AddPath( &m_path, false );
+		m_path.Reset();
 	}
-	m_path.Reset();
-	m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
-	m_pathToDraw.Reset();
+	if ( m_pathToDraw.GetPointCount() > 0 )
+	{
+		m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
+		m_pathToDraw.Reset();
+	}
 }
 
 HE_VOID CHE_GraphicsDrawer::FillStrokePath()
 {
-	/*m_path.CloseFigure();*/
 	if ( m_path.GetPointCount() > 0 )
 	{
 		m_pathToDraw.AddPath( &m_path, false );
+		m_path.Reset();
 	}
-	m_path.Reset();
-	m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
-	m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
-	m_pathToDraw.Reset();
+	if ( m_pathToDraw.GetPointCount() > 0 )
+	{
+		m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
+		m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
+		m_pathToDraw.Reset();
+	}
 }
 
 HE_VOID CHE_GraphicsDrawer::ClipPath()
 {
-	/*m_path.CloseFigure();*/
 	if ( m_path.GetPointCount() > 0 )
 	{
 		m_pathToDraw.AddPath( &m_path, false );
+		m_path.Reset();
 	}
-	m_path.Reset();
-	Gdiplus::Region reg( &m_pathToDraw );
-	m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
-	m_pathToDraw.Reset();
+	if ( m_pathToDraw.GetPointCount() > 0 )
+	{
+		Gdiplus::Region reg( &m_pathToDraw );
+		m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
+		m_pathToDraw.Reset();
+	}
 }
 
 HE_VOID	CHE_GraphicsDrawer::FillClipPath()
 {
-	/*m_path.CloseFigure();*/
 	if ( m_path.GetPointCount() > 0 )
 	{
 		m_pathToDraw.AddPath( &m_path, false );
+		m_path.Reset();
 	}
-	m_path.Reset();
-	m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
-	Gdiplus::Region reg( &m_pathToDraw );
-	m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
-	m_pathToDraw.Reset();
+	if ( m_pathToDraw.GetPointCount() > 0 )
+	{
+		m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
+		Gdiplus::Region reg( &m_pathToDraw );
+		m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
+		m_pathToDraw.Reset();
+	}
 }
 
 HE_VOID	CHE_GraphicsDrawer::StrokeClipPath()
 {
-	/*m_path.CloseFigure();*/
 	if ( m_path.GetPointCount() > 0 )
 	{
 		m_pathToDraw.AddPath( &m_path, false );
+		m_path.Reset();
 	}
-	m_path.Reset();
-	m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
-	Gdiplus::Region reg( &m_pathToDraw );
-	m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
-	m_pathToDraw.Reset();
+	if ( m_pathToDraw.GetPointCount() > 0 )
+	{
+		m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
+		Gdiplus::Region reg( &m_pathToDraw );
+		m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
+		m_pathToDraw.Reset();
+	}
 }
 
 HE_VOID	CHE_GraphicsDrawer::FillStrokeClipPath()
 {
-	/*m_path.CloseFigure();*/
 	if ( m_path.GetPointCount() > 0 )
 	{
 		m_pathToDraw.AddPath( &m_path, false );
+		m_path.Reset();
 	}
-	m_path.Reset();
-	m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
-	m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
-	Gdiplus::Region reg( &m_pathToDraw );
-	m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
-	m_pathToDraw.Reset();
+	if ( m_pathToDraw.GetPointCount() > 0 )
+	{
+		m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
+		m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
+		Gdiplus::Region reg( &m_pathToDraw );
+		m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
+		m_pathToDraw.Reset();
+	}	
 }
 
 HE_VOID	CHE_GraphicsDrawer::ResetClip()
@@ -424,6 +441,18 @@ HE_VOID CHE_GraphicsDrawer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dash
 	}else{
 		m_pPen->SetDashStyle( Gdiplus::DashStyleSolid );
 		m_pPen->SetDashOffset( dashPattern.dashPhase );
+	}
+}
+
+HE_VOID CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
+{
+	if ( mode == FillMode_EvenOdd )
+	{
+		m_path.SetFillMode( Gdiplus::FillModeAlternate );
+		m_pathToDraw.SetFillMode( Gdiplus::FillModeAlternate );
+	}else{
+		m_path.SetFillMode( Gdiplus::FillModeWinding );
+		m_pathToDraw.SetFillMode( Gdiplus::FillModeWinding );
 	}
 }
 

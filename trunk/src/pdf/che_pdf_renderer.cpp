@@ -43,13 +43,12 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	drawer.SetStrokeColor( strokeColorVal );
 
 	drawer.SetFillMode( FillMode_Nonzero );
+	
+	drawer.ResetClip();
 }
 
 inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState * pClipState )
 {
-	drawer.ResetClip();
-
-//	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ContentObject * pObj = NULL;
 	std::list<CHE_PDF_ClipStateItem*>::iterator it = pClipState->mClipElementList.begin();
 	for ( ; it != pClipState->mClipElementList.end(); it++ )
@@ -243,9 +242,9 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 				{
 					drawer.SetFillMode( FillMode_Nonzero );
 				}
-				//else{
-				//	drawer.SetFillMode( FillMode_EvenOdd );
-				//}
+				else{
+					drawer.SetFillMode( FillMode_EvenOdd );
+				}
 				CHE_Point p1, p2, p3;
 				for ( size_t i = 0; i < pPath->mItems.size(); ++i )
 				{

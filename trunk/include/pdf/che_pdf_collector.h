@@ -41,8 +41,8 @@ public:
 		{
 			return FALSE;
 		}
-
-		if ( m_QuickReq.Append( CHE_PDF_CollectorNode( refInfo, ObjPtr ) )  )
+        CHE_PDF_CollectorNode tmpNode( refInfo, ObjPtr );
+		if ( m_QuickReq.Append( tmpNode ) )
 		{
 			return TRUE;
 		}

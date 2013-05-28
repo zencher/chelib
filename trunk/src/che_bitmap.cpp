@@ -1,8 +1,8 @@
+#include "../include/che_bitmap.h"
+
 #include <cstdlib>
 #include <cstdio>
-#include <memory.h>
-
-#include "../include/che_bitmap.h"
+#include <memory>
 
 typedef struct tagHE_BITMAPFILEHEADER
 {

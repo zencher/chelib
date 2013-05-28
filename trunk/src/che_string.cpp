@@ -1,7 +1,8 @@
 #include "../include/che_string.h"
+
 #include <cstring>
 #include <cwchar>
-#include <memory.h>
+#include <memory>
 
 CHE_ByteString::CHE_ByteString( HE_CHAR ch, CHE_Allocator * pAllocator )
 : CHE_Object( pAllocator )

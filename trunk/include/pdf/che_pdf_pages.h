@@ -13,6 +13,8 @@ class CHE_PDF_Document;
 class CHE_PDF_PageTree : public CHE_Object
 {
 public:
+    
+    CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
 
 	~CHE_PDF_PageTree();
 
@@ -28,8 +30,6 @@ public:
 
 private:
 
-	CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
-
 	HE_VOID							ParseAllPageRefInfo();
 
 	HE_DWORD						mPageCount;
@@ -41,7 +41,7 @@ private:
 	CHE_PDF_File *					mpFile;
 
 	friend class CHE_Allocator;
-	friend class CHE_PDF_Document;
+	//friend class CHE_PDF_Document;
 };
 
 class CHE_PDF_Page : public CHE_Object

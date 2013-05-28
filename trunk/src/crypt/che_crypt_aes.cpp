@@ -1,5 +1,7 @@
 #include "../../include/crypt/che_crypt_aes.h"
 
+#include <memory>
+
 static HE_BYTE S[256] =
 {
 	99, 124, 119, 123, 242, 107, 111, 197,  48,   1, 103,  43, 254, 215, 171, 118, 

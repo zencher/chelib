@@ -315,10 +315,10 @@ public:
 
 private:
 
-	CHE_PDF_String::CHE_PDF_String( CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_Object( OBJ_TYPE_STRING, pAllocator ), mString( pAllocator ) {}
+	CHE_PDF_String( CHE_Allocator * pAllocator = NULL )
+		: CHE_PDF_Object( OBJ_TYPE_STRING, pAllocator ), mString( pAllocator ) {};
 
-	CHE_PDF_String::CHE_PDF_String( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_String( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL )
 		: CHE_PDF_Object( OBJ_TYPE_STRING, pAllocator ), mString( str ) {}
 
 	CHE_ByteString					mString;

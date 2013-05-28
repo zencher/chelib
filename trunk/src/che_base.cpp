@@ -1,11 +1,16 @@
 #include "../include/che_base.h"
+
 #include <cstdlib>
 #include <cstdio>
-#include <memory.h>
+#include <memory>
 
 #ifdef WIN32
 #include <windows.h>
 #include <intrin.h>
+#endif
+
+#ifdef _MAC_OS_X_
+#include "/usr/include/libkern/OSAtomic.h"
 #endif
 
 CHE_DefCrtAllocator gDefCrtAllocator;
@@ -35,9 +40,11 @@ inline size_t CHE_DefCrtAllocator::GetSize( void * data )
 #ifdef WIN32
 	return _msize( data );
 #endif
-
-#ifdef __linux__
+#ifdef _LINUX_
 	return malloc_usable_size( data );
+#endif
+#ifdef _MAC_OS_X_
+    return malloc_size( data );
 #endif
 }
 
@@ -508,7 +515,7 @@ HE_DWORD IHE_CrtFileReadBuffer::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE
 
 		if ( offset < m_dwBufPos || offset > m_dwBufPos + m_dwBufSize  )
 		{
-			//¸üĞÂ»º´æ
+			//âˆÂ¸â€“Â¬Âªâˆ«Â¥ÃŠ
 		}else{
 			if ( offset + size <= m_dwBufPos + m_dwBufSize )
 			{
@@ -605,7 +612,8 @@ class IHE_File : public CHE_Object
 #ifdef WIN32
 	_InterlockedIncrement( &mRefCount );
 #else
-	++mRefCount;
+	//++mRefCount;
+    OSAtomicIncrement32( &mRefCount );
 #endif
 }
 
@@ -614,6 +622,7 @@ class IHE_File : public CHE_Object
 #ifdef WIN32
 	_InterlockedDecrement( &mRefCount );
 #else
-	--mRefCount;
+	//--mRefCount;
+    OSAtomicDecrement32( &mRefCount );
 #endif
 }

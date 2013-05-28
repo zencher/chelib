@@ -5,7 +5,13 @@
 
 #include <new>
 #include <cstdlib>
+
+#ifdef _MAC_OS_X_
+#include <malloc/malloc.h>
+#else
 #include <malloc.h>
+#endif
+
 
 #ifdef WIN32
 #include <windows.h>
@@ -257,7 +263,12 @@ public:
 
 private:
 
-	HE_LONG		mRefCount;
+#ifdef _MAC_OS_X_
+	HE_INT32		mRefCount;
+#else
+	HE_LONG			mRefCount;
+#endif
+	
 };
 
 #endif

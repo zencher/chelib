@@ -83,10 +83,10 @@ template <class Type>
 class CHE_Stack : CHE_Object
 {
 public:
-	template <class Type>
+	template <class NodeType>
 	struct Node
 	{
-		Type data;
+		NodeType data;
 		Node * pNext;
 	};
 
@@ -127,7 +127,7 @@ public:
 		Node<Type> * pTmp = m_FirstNode;
 		valRet = pTmp->data;
 		m_FirstNode = m_FirstNode->pNext;
-		GetAllocator()->Delete<>( pTmp );
+		GetAllocator()->template Delete<>( pTmp );
 		pTmp = NULL;
 		return TRUE;
 	}
@@ -136,11 +136,11 @@ public:
 	{
 		if ( m_FirstNode == NULL )
 		{
-			m_FirstNode = GetAllocator()->New< Node<Type> >();
+			m_FirstNode = GetAllocator()->template New< Node<Type> >();
 			m_FirstNode->pNext = NULL;
 			m_FirstNode->data = val;
 		}else{
-			Node<Type> * pTmp = GetAllocator()->New< Node<Type> >();
+			Node<Type> * pTmp = GetAllocator()->template New< Node<Type> >();
 			pTmp->pNext = m_FirstNode;
 			pTmp->data = val;
 			m_FirstNode = pTmp;
@@ -157,10 +157,10 @@ template <class Type>
 class CHE_Queue : public CHE_Object
 {
 public:
-	template <class Type>
+	template <class NodeType>
 	struct Node
 	{
-		Type data;
+		NodeType data;
 		Node * pNext;
 	};
 
@@ -182,7 +182,7 @@ public:
 		while ( pNode )
 		{
 			m_pHead = m_pHead->pNext;
-			GetAllocator()->Delete< Node<Type> >( pNode );
+			GetAllocator()->template Delete< Node<Type> >( pNode );
 			pNode = m_pHead;
 		}
 		m_pTail = NULL;
@@ -208,13 +208,13 @@ public:
 
 		if ( m_pHead == m_pTail )
 		{
-			GetAllocator()->Delete< Node<Type> >( m_pHead );
+			GetAllocator()->template Delete< Node<Type> >( m_pHead );
 			m_pHead = NULL;
 			m_pTail =  NULL;
 		}else{
 			Node<Type> * pTmp = m_pHead;
 			m_pHead = m_pHead->pNext;
-			GetAllocator()->Delete< Node<Type> >( pTmp );
+			GetAllocator()->template Delete< Node<Type> >( pTmp );
 		}
 		return TRUE;
 	}
@@ -223,12 +223,12 @@ public:
 	{
 		if ( m_pHead == NULL )
 		{
-			m_pHead = GetAllocator()->New< Node<Type> >();
+			m_pHead = GetAllocator()->template New< Node<Type> >();
 			m_pHead->data = val;
 			m_pHead->pNext = NULL;
 			m_pTail = m_pHead;
 		}else{
-			m_pTail->pNext = GetAllocator()->New< Node<Type> >();
+			m_pTail->pNext = GetAllocator()->template New< Node<Type> >();
 			m_pTail = m_pTail->pNext;
 			m_pTail->pNext = NULL;
 			m_pTail->data = val;
@@ -319,10 +319,10 @@ template <class Type>
 class CHE_SkipList : public CHE_Object
 {
 public:
-	template <class Type>
+	template <class NodeType>
 	struct SkipListNode
 	{
-		Type lValue;
+		NodeType lValue;
 		std::vector<SkipListNode*> Forward;
 	};
 
@@ -377,7 +377,7 @@ public:
 	{
 		if ( m_Forward.size() == 0 )
 		{
-			SkipListNode<Type> * pNewNode = GetAllocator()->New< SkipListNode<Type> >();
+			SkipListNode<Type> * pNewNode = GetAllocator()->template New< SkipListNode<Type> >();
 			pNewNode->lValue = val;
 			m_Forward.push_back( pNewNode );
 			m_lCount++;
@@ -388,7 +388,7 @@ public:
 			{
 				if ( nodeVector.size() == 1 )
 				{
-					SkipListNode<Type> * pNewNode = GetAllocator()->New< SkipListNode<Type> >();
+					SkipListNode<Type> * pNewNode = GetAllocator()->template New< SkipListNode<Type> >();
 					pNewNode->lValue = val;
 					m_Forward.push_back( pNewNode );
 					m_lCount++;
@@ -399,7 +399,7 @@ public:
 					{
 						m_lLevel = targetLevel;
 					}
-					SkipListNode<Type> * pNewNode = GetAllocator()->New< SkipListNode<Type> >();
+					SkipListNode<Type> * pNewNode = GetAllocator()->template New< SkipListNode<Type> >();
 					pNewNode->lValue = val;
 					for ( size_t i = 0, index = nodeVector.size() - 1; i <= targetLevel; i++, index-- )
 					{

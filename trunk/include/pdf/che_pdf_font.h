@@ -7,9 +7,9 @@
 #include "che_pdf_cmap.h"
 
 
-#include "../../extlib/freetype/ft2build.h"
-#include "../../extlib/freetype/freetype/freetype.h"
-#include "../../extlib/freetype/freetype/ftoutln.h"
+#include "../../extlib/freetype/include/ft2build.h"
+#include "../../extlib/freetype/include/freetype/freetype.h"
+#include "../../extlib/freetype/include/freetype/ftoutln.h"
 
 
 FT_Library HE_GetFTLibrary();

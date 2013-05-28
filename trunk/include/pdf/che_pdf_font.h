@@ -6,17 +6,6 @@
 #include "che_pdf_objects.h"
 #include "che_pdf_cmap.h"
 
-
-#include "../../extlib/freetype/include/ft2build.h"
-#include "../../extlib/freetype/include/freetype/freetype.h"
-#include "../../extlib/freetype/include/freetype/ftoutln.h"
-
-
-FT_Library HE_GetFTLibrary();
-HE_VOID HE_InitFTLibrary();
-HE_VOID HE_DestroyFTLibrary();
-
-
 enum PDF_FONT_TYPE
 {
 	FONT_TYPE0		= 0x00,
@@ -171,7 +160,7 @@ public:
 	PDF_FONT_ENCODING		GetEncodingType() const;
 	CHE_PDF_DictionaryPtr	GetFontDictPtr() const;
 	CHE_PDF_DictionaryPtr	GetFontDescriptorDictPtr() const;
-	FT_Face					GetFTFace();
+	HE_VOID *				GetFTFace();
 	virtual HE_BOOL			GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
 	virtual HE_BOOL			GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const = 0;
 
@@ -192,7 +181,7 @@ protected:
 	CHE_PDF_Encoding		mEncoding;
 	CHE_PDF_DictionaryPtr	mFontDict;
 	CHE_PDF_DictionaryPtr	mFontDescriptorDict;
-	FT_Face					mFace;
+	HE_VOID*				mFace;
 	CHE_NumToPtrMap *		mpToUnicodeMap;
 	CHE_PDF_FontDescriptor*	mpFontDescriptor;
 	HE_LPBYTE				mpEmbeddedFontFile;

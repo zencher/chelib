@@ -1,5 +1,9 @@
 #include "../../include/pdf/che_pdf_contentobjs.h"
 
+#include "../../extlib/freetype/include/ft2build.h"
+#include "../../extlib/freetype/include/freetype/freetype.h"
+#include "../../extlib/freetype/include/freetype/ftoutln.h"
+
 HE_BOOL CHE_PDF_ContentObject::SetGState( CHE_PDF_GState * pGSatae )
 {
 	if ( mpGState )
@@ -356,7 +360,7 @@ CHE_Rect CHE_PDF_Text::GetCharRect( HE_DWORD index ) const
 		CHE_PDF_GState * pGState = GetGState();
 		if ( pGState )
 		{
-			face = pGState->GetTextFont()->GetFTFace();
+			face = (FT_Face)( pGState->GetTextFont()->GetFTFace() );
 		}
 		CHE_Matrix matrix = GetCharMatrix( index );
 		rect.width = mItems[index].width;
@@ -504,7 +508,7 @@ CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_DWORD index )
 	CHE_PDF_Path * pPathRet = GetAllocator()->New<CHE_PDF_Path>( GetAllocator() );
 	if ( pPathRet )
 	{
-		FT_Face face = GetGState()->GetTextFont()->GetFTFace();
+		FT_Face face = (FT_Face)( GetGState()->GetTextFont()->GetFTFace() );
 		if ( face )
 		{
 			FT_Error err = FT_Set_Char_Size( face, 65536, 65536, /*PIXELPERINCH*/72, /*PIXELPERINCH*/72 );

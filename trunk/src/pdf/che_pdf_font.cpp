@@ -3,6 +3,14 @@
 #include "../../include/pdf/che_pdf_parser.h"
 #include "../../include/pdf/che_pdf_contentobjs.h"
 
+#include "../../extlib/freetype/include/ft2build.h"
+#include "../../extlib/freetype/include/freetype/freetype.h"
+#include "../../extlib/freetype/include/freetype/ftoutln.h"
+
+FT_Library HE_GetFTLibrary();
+HE_VOID HE_InitFTLibrary();
+HE_VOID HE_DestroyFTLibrary();
+
 FT_Library gFTLibrary = NULL;
 
 IHE_SystemFontMgr * gpSystemFontMgr = NULL;
@@ -4703,7 +4711,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 		if ( mpEmbeddedFontFile )
 		{
 			FT_Library ftlib = HE_GetFTLibrary();
-			FT_New_Memory_Face( ftlib, mpEmbeddedFontFile, mFontFileSize, 0, &mFace );
+			FT_New_Memory_Face( ftlib, mpEmbeddedFontFile, mFontFileSize, 0, (FT_Face*)&mFace );
 		}
 	}
 
@@ -4717,14 +4725,14 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 			if ( HE_GetType1BaseFontFile( mBaseFont, pBuf, bufSize ) )
 			{
 				FT_Library ftlib = HE_GetFTLibrary();
-				FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, &mFace );
+				FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, (FT_Face*)&mFace );
 			}else if ( mpFontDescriptor )
 			{
 				//对于无法通过baseFont获得对于的文件的，应该通过某种其他的规则获得替代字体
 				if ( HE_GetType1BaseFontFile( *mpFontDescriptor, pBuf, bufSize ) )
 				{
 					FT_Library ftlib = HE_GetFTLibrary();
-					FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, &mFace );
+					FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, (FT_Face*)&mFace );
 				}
 			}
 		}
@@ -4769,7 +4777,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 				}
 
 				FT_Library ftlib = HE_GetFTLibrary();
-				FT_New_Face( ftlib, filePath.GetData(), 0, &mFace );
+				FT_New_Face( ftlib, filePath.GetData(), 0, (FT_Face*)&mFace );
 			}
 		}
 	}
@@ -4778,9 +4786,10 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 	FT_CharMap cmap = NULL;
 	if ( mFace )
 	{
-		for ( HE_DWORD i = 0; i < mFace->num_charmaps; ++i )
+		FT_Face ftface = (FT_Face)mFace;
+		for ( HE_DWORD i = 0; i < ftface->num_charmaps; ++i )
 		{
-			FT_CharMap test = mFace->charmaps[i];
+			FT_CharMap test = ftface->charmaps[i];
 			if ( mType == FONT_TYPE1 )
 			{
 				if (test->platform_id == 7)
@@ -4798,7 +4807,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 		}
 		if ( cmap )
 		{
-			FT_Set_Charmap( mFace, cmap );
+			FT_Set_Charmap( ftface, cmap );
 		}
 	}
 
@@ -4824,7 +4833,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 					}else if ( pObj->GetType() == OBJ_TYPE_NAME )
 					{
 						CHE_ByteString strTmp = pObj->GetNamePtr()->GetString();
-						HE_DWORD gid = FT_Get_Name_Index( mFace, (char *)strTmp.GetData() );
+						HE_DWORD gid = FT_Get_Name_Index( (FT_Face)mFace, (char *)strTmp.GetData() );
 						if ( gid > 0 )
 						{
 							*(mEncoding.mpCodeTable + iIndex) = gid;
@@ -4844,18 +4853,22 @@ CHE_PDF_Font::~CHE_PDF_Font()
 	if ( mpFontDescriptor )
 	{
 		mpFontDescriptor->GetAllocator()->Delete<CHE_PDF_FontDescriptor>( mpFontDescriptor );
+		mpFontDescriptor = NULL;
 	}
 	if ( mpToUnicodeMap )
 	{
 		mpToUnicodeMap->GetAllocator()->Delete<CHE_NumToPtrMap>( mpToUnicodeMap );
+		mpToUnicodeMap = NULL;
 	}
 	if ( mFace )
 	{
-		FT_Done_Face( mFace );
+		FT_Done_Face( (FT_Face)mFace );
+		mFace = NULL;
 	}
 	if ( mpEmbeddedFontFile )
 	{
 		GetAllocator()->DeleteArray<HE_BYTE>( mpEmbeddedFontFile );
+		mpEmbeddedFontFile = NULL;
 	}
 }
 
@@ -4890,7 +4903,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_Font::GetFontDescriptorDictPtr() const
 }
 
 
-FT_Face CHE_PDF_Font::GetFTFace()
+HE_VOID* CHE_PDF_Font::GetFTFace()
 {
 	return mFace;
 }
@@ -4902,7 +4915,7 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const
 	{
 		return FALSE;
 	}
-
+	FT_Face ftface = (FT_Face)mFace;
 	if ( mEncoding.GetType() == FONT_ENCODING_CUSTOM )
 	{
 		BOOL bRet = FALSE;
@@ -4912,13 +4925,13 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const
 		return bRet;
 	}
 
-	codeRet = FT_Get_Char_Index( mFace, charCode );
+	codeRet = FT_Get_Char_Index( ftface, charCode );
 	if ( codeRet == 0 )
 	{
-		codeRet = FT_Get_Char_Index( mFace, 0xf000 + charCode );
+		codeRet = FT_Get_Char_Index( ftface, 0xf000 + charCode );
 		/* some chinese fonts only ship the similarly looking 0x2026 */
 		if ( codeRet == 0 && charCode == 0x22ef )
-			codeRet = FT_Get_Char_Index( mFace, 0x2026 );
+			codeRet = FT_Get_Char_Index( ftface, 0x2026 );
 	}
 	if ( codeRet == 0 )
 	{
@@ -5360,16 +5373,17 @@ HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	}
 	if ( mFace )
 	{
-		FT_Set_Transform( mFace, NULL, NULL );
-		FT_Error err = FT_Load_Glyph( mFace, item.gid, FT_LOAD_NO_SCALE );
+		FT_Face ftface = (FT_Face)mFace;
+		FT_Set_Transform( ftface, NULL, NULL );
+		FT_Error err = FT_Load_Glyph( ftface, item.gid, FT_LOAD_NO_SCALE );
 		if ( err == 0 )
 		{
-			tmpMatrix.a = mFace->glyph->advance.x;
-			tmpMatrix.d = mFace->glyph->advance.y;
+			tmpMatrix.a = ftface->glyph->advance.x;
+			tmpMatrix.d = ftface->glyph->advance.y;
 
 			tmpMatrix.Concat( matrix );
 
-			return tmpMatrix.a * 1.0 / mFace->units_per_EM;
+			return tmpMatrix.a * 1.0 / ftface->units_per_EM;
 		}
 	}
 

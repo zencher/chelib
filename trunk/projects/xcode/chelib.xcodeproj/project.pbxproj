@@ -1,0 +1,722 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		909E11331754453600540539 /* che_base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E112E1754453600540539 /* che_base.cpp */; };
+		909E11341754453600540539 /* che_bitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E112F1754453600540539 /* che_bitmap.cpp */; };
+		909E11351754453600540539 /* che_datastructure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E11301754453600540539 /* che_datastructure.cpp */; };
+		909E11361754453600540539 /* che_graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E11311754453600540539 /* che_graphics.cpp */; };
+		909E11371754453600540539 /* che_string.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E11321754453600540539 /* che_string.cpp */; };
+		909E113E1754454D00540539 /* che_base.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11381754454D00540539 /* che_base.h */; };
+		909E113F1754454D00540539 /* che_bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11391754454D00540539 /* che_bitmap.h */; };
+		909E11401754454D00540539 /* che_datastructure.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E113A1754454D00540539 /* che_datastructure.h */; };
+		909E11411754454D00540539 /* che_define.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E113B1754454D00540539 /* che_define.h */; };
+		909E11421754454D00540539 /* che_graphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E113C1754454D00540539 /* che_graphics.h */; };
+		909E11431754454D00540539 /* che_string.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E113D1754454D00540539 /* che_string.h */; };
+		909E114C1754468D00540539 /* che_crypt_aes.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E114A1754468D00540539 /* che_crypt_aes.h */; };
+		909E114D1754468D00540539 /* che_crypt_rc4.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E114B1754468D00540539 /* che_crypt_rc4.h */; };
+		909E114F175446BB00540539 /* che_hash_md5.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E114E175446BB00540539 /* che_hash_md5.h */; };
+		909E1152175446CD00540539 /* che_crypt_aes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1150175446CD00540539 /* che_crypt_aes.cpp */; };
+		909E1153175446CD00540539 /* che_crypt_rc4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1151175446CD00540539 /* che_crypt_rc4.cpp */; };
+		909E1155175446DE00540539 /* che_hash_md5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1154175446DE00540539 /* che_hash_md5.cpp */; };
+		909E1161175447D700540539 /* che_pdf_collector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1158175447D700540539 /* che_pdf_collector.cpp */; };
+		909E1162175447D700540539 /* che_pdf_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1159175447D700540539 /* che_pdf_creator.cpp */; };
+		909E1163175447D700540539 /* che_pdf_encrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115A175447D700540539 /* che_pdf_encrypt.cpp */; };
+		909E1164175447D700540539 /* che_pdf_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115B175447D700540539 /* che_pdf_file.cpp */; };
+		909E1165175447D700540539 /* che_pdf_filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115C175447D700540539 /* che_pdf_filter.cpp */; };
+		909E1166175447D700540539 /* che_pdf_objects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115D175447D700540539 /* che_pdf_objects.cpp */; };
+		909E1167175447D700540539 /* che_pdf_pages.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115E175447D700540539 /* che_pdf_pages.cpp */; };
+		909E1168175447D700540539 /* che_pdf_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115F175447D700540539 /* che_pdf_parser.cpp */; };
+		909E1169175447D700540539 /* che_pdf_xref.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1160175447D700540539 /* che_pdf_xref.cpp */; };
+		909E1173175447F900540539 /* che_pdf_collector.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116A175447F900540539 /* che_pdf_collector.h */; };
+		909E1174175447F900540539 /* che_pdf_creator.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116B175447F900540539 /* che_pdf_creator.h */; };
+		909E1175175447F900540539 /* che_pdf_encrypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116C175447F900540539 /* che_pdf_encrypt.h */; };
+		909E1176175447F900540539 /* che_pdf_file.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116D175447F900540539 /* che_pdf_file.h */; };
+		909E1177175447F900540539 /* che_pdf_filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116E175447F900540539 /* che_pdf_filter.h */; };
+		909E1178175447F900540539 /* che_pdf_objects.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116F175447F900540539 /* che_pdf_objects.h */; };
+		909E1179175447F900540539 /* che_pdf_pages.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E1170175447F900540539 /* che_pdf_pages.h */; };
+		909E117A175447F900540539 /* che_pdf_parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E1171175447F900540539 /* che_pdf_parser.h */; };
+		909E117B175447F900540539 /* che_pdf_xref.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E1172175447F900540539 /* che_pdf_xref.h */; };
+		909E11931754532800540539 /* adler32.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E117E1754532800540539 /* adler32.c */; };
+		909E11941754532800540539 /* compress.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E117F1754532800540539 /* compress.c */; };
+		909E11951754532800540539 /* crc32.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E11801754532800540539 /* crc32.c */; };
+		909E11961754532800540539 /* crc32.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11811754532800540539 /* crc32.h */; };
+		909E11971754532800540539 /* deflate.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E11821754532800540539 /* deflate.c */; };
+		909E11981754532800540539 /* deflate.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11831754532800540539 /* deflate.h */; };
+		909E11991754532800540539 /* gzguts.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11841754532800540539 /* gzguts.h */; };
+		909E119A1754532800540539 /* inffast.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E11851754532800540539 /* inffast.c */; };
+		909E119B1754532800540539 /* inffast.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11861754532800540539 /* inffast.h */; };
+		909E119C1754532800540539 /* inffixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11871754532800540539 /* inffixed.h */; };
+		909E119D1754532800540539 /* inflate.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E11881754532800540539 /* inflate.c */; };
+		909E119E1754532800540539 /* inflate.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11891754532800540539 /* inflate.h */; };
+		909E119F1754532800540539 /* inftrees.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E118A1754532800540539 /* inftrees.c */; };
+		909E11A01754532800540539 /* inftrees.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E118B1754532800540539 /* inftrees.h */; };
+		909E11A11754532800540539 /* trees.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E118C1754532800540539 /* trees.c */; };
+		909E11A21754532800540539 /* trees.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E118D1754532800540539 /* trees.h */; };
+		909E11A31754532800540539 /* uncompr.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E118E1754532800540539 /* uncompr.c */; };
+		909E11A41754532800540539 /* zconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E118F1754532800540539 /* zconf.h */; };
+		909E11A51754532800540539 /* zlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11901754532800540539 /* zlib.h */; };
+		909E11A61754532800540539 /* zutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E11911754532800540539 /* zutil.c */; };
+		909E11A71754532800540539 /* zutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E11921754532800540539 /* zutil.h */; };
+		909E120617545BA700540539 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E120517545BA700540539 /* main.cpp */; };
+		909E120817545BA700540539 /* pdfFileTest.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 909E120717545BA700540539 /* pdfFileTest.1 */; };
+		909E120C17545BB000540539 /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
+		909E121217546C3700540539 /* cff.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E121117546C3700540539 /* cff.c */; };
+		909E121417546C4700540539 /* type1cid.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E121317546C4700540539 /* type1cid.c */; };
+		909E121617546C6700540539 /* psaux.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E121517546C6700540539 /* psaux.c */; };
+		909E121817546C7F00540539 /* pshinter.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E121717546C7F00540539 /* pshinter.c */; };
+		909E121A17546C9100540539 /* psnames.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E121917546C9100540539 /* psnames.c */; };
+		909E121C17546C9E00540539 /* raster.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E121B17546C9E00540539 /* raster.c */; };
+		909E121E17546CA900540539 /* sfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E121D17546CA900540539 /* sfnt.c */; };
+		909E122017546CB700540539 /* smooth.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E121F17546CB700540539 /* smooth.c */; };
+		909E122217546CC500540539 /* truetype.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122117546CC500540539 /* truetype.c */; };
+		909E122417546CD400540539 /* type1.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122317546CD400540539 /* type1.c */; };
+		909E123117546D0700540539 /* ftbase.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122517546D0700540539 /* ftbase.c */; };
+		909E123217546D0700540539 /* ftbbox.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122617546D0700540539 /* ftbbox.c */; };
+		909E123317546D0700540539 /* ftbitmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122717546D0700540539 /* ftbitmap.c */; };
+		909E123417546D0700540539 /* ftgasp.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122817546D0700540539 /* ftgasp.c */; };
+		909E123517546D0700540539 /* ftinit.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122917546D0700540539 /* ftinit.c */; };
+		909E123817546D0700540539 /* ftstroke.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122C17546D0700540539 /* ftstroke.c */; };
+		909E123917546D0700540539 /* ftsystem.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122D17546D0700540539 /* ftsystem.c */; };
+		909E123B17546D0700540539 /* ftutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E122F17546D0700540539 /* ftutil.c */; };
+		909E123C17546D0700540539 /* ftxf86.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E123017546D0700540539 /* ftxf86.c */; };
+		909E123F17546D8600540539 /* ftglyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E123D17546D8500540539 /* ftglyph.c */; };
+		909E124017546D8600540539 /* ftsynth.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E123E17546D8500540539 /* ftsynth.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		909E120117545BA700540539 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				909E120817545BA700540539 /* pdfFileTest.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		909E112E1754453600540539 /* che_base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_base.cpp; path = ../../src/che_base.cpp; sourceTree = "<group>"; };
+		909E112F1754453600540539 /* che_bitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_bitmap.cpp; path = ../../src/che_bitmap.cpp; sourceTree = "<group>"; };
+		909E11301754453600540539 /* che_datastructure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_datastructure.cpp; path = ../../src/che_datastructure.cpp; sourceTree = "<group>"; };
+		909E11311754453600540539 /* che_graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_graphics.cpp; path = ../../src/che_graphics.cpp; sourceTree = "<group>"; };
+		909E11321754453600540539 /* che_string.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_string.cpp; path = ../../src/che_string.cpp; sourceTree = "<group>"; };
+		909E11381754454D00540539 /* che_base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_base.h; path = ../../include/che_base.h; sourceTree = "<group>"; };
+		909E11391754454D00540539 /* che_bitmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_bitmap.h; path = ../../include/che_bitmap.h; sourceTree = "<group>"; };
+		909E113A1754454D00540539 /* che_datastructure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_datastructure.h; path = ../../include/che_datastructure.h; sourceTree = "<group>"; };
+		909E113B1754454D00540539 /* che_define.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_define.h; path = ../../include/che_define.h; sourceTree = "<group>"; };
+		909E113C1754454D00540539 /* che_graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_graphics.h; path = ../../include/che_graphics.h; sourceTree = "<group>"; };
+		909E113D1754454D00540539 /* che_string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_string.h; path = ../../include/che_string.h; sourceTree = "<group>"; };
+		909E114A1754468D00540539 /* che_crypt_aes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_crypt_aes.h; path = ../../include/crypt/che_crypt_aes.h; sourceTree = "<group>"; };
+		909E114B1754468D00540539 /* che_crypt_rc4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_crypt_rc4.h; path = ../../include/crypt/che_crypt_rc4.h; sourceTree = "<group>"; };
+		909E114E175446BB00540539 /* che_hash_md5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_hash_md5.h; path = ../../include/hash/che_hash_md5.h; sourceTree = "<group>"; };
+		909E1150175446CD00540539 /* che_crypt_aes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_crypt_aes.cpp; path = ../../src/crypt/che_crypt_aes.cpp; sourceTree = "<group>"; };
+		909E1151175446CD00540539 /* che_crypt_rc4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_crypt_rc4.cpp; path = ../../src/crypt/che_crypt_rc4.cpp; sourceTree = "<group>"; };
+		909E1154175446DE00540539 /* che_hash_md5.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_hash_md5.cpp; path = ../../src/hash/che_hash_md5.cpp; sourceTree = "<group>"; };
+		909E1158175447D700540539 /* che_pdf_collector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_collector.cpp; path = ../../src/pdf/che_pdf_collector.cpp; sourceTree = "<group>"; };
+		909E1159175447D700540539 /* che_pdf_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_creator.cpp; path = ../../src/pdf/che_pdf_creator.cpp; sourceTree = "<group>"; };
+		909E115A175447D700540539 /* che_pdf_encrypt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_encrypt.cpp; path = ../../src/pdf/che_pdf_encrypt.cpp; sourceTree = "<group>"; };
+		909E115B175447D700540539 /* che_pdf_file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_file.cpp; path = ../../src/pdf/che_pdf_file.cpp; sourceTree = "<group>"; };
+		909E115C175447D700540539 /* che_pdf_filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_filter.cpp; path = ../../src/pdf/che_pdf_filter.cpp; sourceTree = "<group>"; };
+		909E115D175447D700540539 /* che_pdf_objects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_objects.cpp; path = ../../src/pdf/che_pdf_objects.cpp; sourceTree = "<group>"; };
+		909E115E175447D700540539 /* che_pdf_pages.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_pages.cpp; path = ../../src/pdf/che_pdf_pages.cpp; sourceTree = "<group>"; };
+		909E115F175447D700540539 /* che_pdf_parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_parser.cpp; path = ../../src/pdf/che_pdf_parser.cpp; sourceTree = "<group>"; };
+		909E1160175447D700540539 /* che_pdf_xref.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_xref.cpp; path = ../../src/pdf/che_pdf_xref.cpp; sourceTree = "<group>"; };
+		909E116A175447F900540539 /* che_pdf_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_collector.h; path = ../../include/pdf/che_pdf_collector.h; sourceTree = "<group>"; };
+		909E116B175447F900540539 /* che_pdf_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_creator.h; path = ../../include/pdf/che_pdf_creator.h; sourceTree = "<group>"; };
+		909E116C175447F900540539 /* che_pdf_encrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_encrypt.h; path = ../../include/pdf/che_pdf_encrypt.h; sourceTree = "<group>"; };
+		909E116D175447F900540539 /* che_pdf_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_file.h; path = ../../include/pdf/che_pdf_file.h; sourceTree = "<group>"; };
+		909E116E175447F900540539 /* che_pdf_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_filter.h; path = ../../include/pdf/che_pdf_filter.h; sourceTree = "<group>"; };
+		909E116F175447F900540539 /* che_pdf_objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_objects.h; path = ../../include/pdf/che_pdf_objects.h; sourceTree = "<group>"; };
+		909E1170175447F900540539 /* che_pdf_pages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_pages.h; path = ../../include/pdf/che_pdf_pages.h; sourceTree = "<group>"; };
+		909E1171175447F900540539 /* che_pdf_parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_parser.h; path = ../../include/pdf/che_pdf_parser.h; sourceTree = "<group>"; };
+		909E1172175447F900540539 /* che_pdf_xref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_xref.h; path = ../../include/pdf/che_pdf_xref.h; sourceTree = "<group>"; };
+		909E117E1754532800540539 /* adler32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = adler32.c; path = ../../extlib/zlib/adler32.c; sourceTree = "<group>"; };
+		909E117F1754532800540539 /* compress.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = compress.c; path = ../../extlib/zlib/compress.c; sourceTree = "<group>"; };
+		909E11801754532800540539 /* crc32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crc32.c; path = ../../extlib/zlib/crc32.c; sourceTree = "<group>"; };
+		909E11811754532800540539 /* crc32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crc32.h; path = ../../extlib/zlib/crc32.h; sourceTree = "<group>"; };
+		909E11821754532800540539 /* deflate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = deflate.c; path = ../../extlib/zlib/deflate.c; sourceTree = "<group>"; };
+		909E11831754532800540539 /* deflate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = deflate.h; path = ../../extlib/zlib/deflate.h; sourceTree = "<group>"; };
+		909E11841754532800540539 /* gzguts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gzguts.h; path = ../../extlib/zlib/gzguts.h; sourceTree = "<group>"; };
+		909E11851754532800540539 /* inffast.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = inffast.c; path = ../../extlib/zlib/inffast.c; sourceTree = "<group>"; };
+		909E11861754532800540539 /* inffast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = inffast.h; path = ../../extlib/zlib/inffast.h; sourceTree = "<group>"; };
+		909E11871754532800540539 /* inffixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = inffixed.h; path = ../../extlib/zlib/inffixed.h; sourceTree = "<group>"; };
+		909E11881754532800540539 /* inflate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = inflate.c; path = ../../extlib/zlib/inflate.c; sourceTree = "<group>"; };
+		909E11891754532800540539 /* inflate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = inflate.h; path = ../../extlib/zlib/inflate.h; sourceTree = "<group>"; };
+		909E118A1754532800540539 /* inftrees.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = inftrees.c; path = ../../extlib/zlib/inftrees.c; sourceTree = "<group>"; };
+		909E118B1754532800540539 /* inftrees.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = inftrees.h; path = ../../extlib/zlib/inftrees.h; sourceTree = "<group>"; };
+		909E118C1754532800540539 /* trees.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = trees.c; path = ../../extlib/zlib/trees.c; sourceTree = "<group>"; };
+		909E118D1754532800540539 /* trees.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = trees.h; path = ../../extlib/zlib/trees.h; sourceTree = "<group>"; };
+		909E118E1754532800540539 /* uncompr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = uncompr.c; path = ../../extlib/zlib/uncompr.c; sourceTree = "<group>"; };
+		909E118F1754532800540539 /* zconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zconf.h; path = ../../extlib/zlib/zconf.h; sourceTree = "<group>"; };
+		909E11901754532800540539 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zlib.h; path = ../../extlib/zlib/zlib.h; sourceTree = "<group>"; };
+		909E11911754532800540539 /* zutil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zutil.c; path = ../../extlib/zlib/zutil.c; sourceTree = "<group>"; };
+		909E11921754532800540539 /* zutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zutil.h; path = ../../extlib/zlib/zutil.h; sourceTree = "<group>"; };
+		909E120317545BA700540539 /* pdfFileTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pdfFileTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		909E120517545BA700540539 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		909E120717545BA700540539 /* pdfFileTest.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = pdfFileTest.1; sourceTree = "<group>"; };
+		909E121117546C3700540539 /* cff.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cff.c; path = ../../extlib/freetype/src/cff/cff.c; sourceTree = "<group>"; };
+		909E121317546C4700540539 /* type1cid.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = type1cid.c; path = ../../extlib/freetype/src/cid/type1cid.c; sourceTree = "<group>"; };
+		909E121517546C6700540539 /* psaux.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = psaux.c; path = ../../extlib/freetype/src/psaux/psaux.c; sourceTree = "<group>"; };
+		909E121717546C7F00540539 /* pshinter.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pshinter.c; path = ../../extlib/freetype/src/pshinter/pshinter.c; sourceTree = "<group>"; };
+		909E121917546C9100540539 /* psnames.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = psnames.c; path = ../../extlib/freetype/src/psnames/psnames.c; sourceTree = "<group>"; };
+		909E121B17546C9E00540539 /* raster.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = raster.c; path = ../../extlib/freetype/src/raster/raster.c; sourceTree = "<group>"; };
+		909E121D17546CA900540539 /* sfnt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sfnt.c; path = ../../extlib/freetype/src/sfnt/sfnt.c; sourceTree = "<group>"; };
+		909E121F17546CB700540539 /* smooth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smooth.c; path = ../../extlib/freetype/src/smooth/smooth.c; sourceTree = "<group>"; };
+		909E122117546CC500540539 /* truetype.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = truetype.c; path = ../../extlib/freetype/src/truetype/truetype.c; sourceTree = "<group>"; };
+		909E122317546CD400540539 /* type1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = type1.c; path = ../../extlib/freetype/src/type1/type1.c; sourceTree = "<group>"; };
+		909E122517546D0700540539 /* ftbase.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftbase.c; path = ../../extlib/freetype/src/base/ftbase.c; sourceTree = "<group>"; };
+		909E122617546D0700540539 /* ftbbox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftbbox.c; path = ../../extlib/freetype/src/base/ftbbox.c; sourceTree = "<group>"; };
+		909E122717546D0700540539 /* ftbitmap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftbitmap.c; path = ../../extlib/freetype/src/base/ftbitmap.c; sourceTree = "<group>"; };
+		909E122817546D0700540539 /* ftgasp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftgasp.c; path = ../../extlib/freetype/src/base/ftgasp.c; sourceTree = "<group>"; };
+		909E122917546D0700540539 /* ftinit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftinit.c; path = ../../extlib/freetype/src/base/ftinit.c; sourceTree = "<group>"; };
+		909E122C17546D0700540539 /* ftstroke.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftstroke.c; path = ../../extlib/freetype/src/base/ftstroke.c; sourceTree = "<group>"; };
+		909E122D17546D0700540539 /* ftsystem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftsystem.c; path = ../../extlib/freetype/src/base/ftsystem.c; sourceTree = "<group>"; };
+		909E122F17546D0700540539 /* ftutil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftutil.c; path = ../../extlib/freetype/src/base/ftutil.c; sourceTree = "<group>"; };
+		909E123017546D0700540539 /* ftxf86.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftxf86.c; path = ../../extlib/freetype/src/base/ftxf86.c; sourceTree = "<group>"; };
+		909E123D17546D8500540539 /* ftglyph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftglyph.c; path = ../../extlib/freetype/src/base/ftglyph.c; sourceTree = "<group>"; };
+		909E123E17546D8500540539 /* ftsynth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ftsynth.c; path = ../../extlib/freetype/src/base/ftsynth.c; sourceTree = "<group>"; };
+		90C37C8E17534E58005D9C8A /* libchelib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libchelib.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		909E120017545BA700540539 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				909E120C17545BB000540539 /* libchelib.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90C37C8B17534E58005D9C8A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		909E112C17543F8B00540539 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				909E1157175447C600540539 /* pdf */,
+				909E11471754466E00540539 /* hash */,
+				909E11451754466400540539 /* crypt */,
+				909E11381754454D00540539 /* che_base.h */,
+				909E11391754454D00540539 /* che_bitmap.h */,
+				909E113A1754454D00540539 /* che_datastructure.h */,
+				909E113B1754454D00540539 /* che_define.h */,
+				909E113C1754454D00540539 /* che_graphics.h */,
+				909E113D1754454D00540539 /* che_string.h */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
+		909E112D17543F9100540539 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				909E1156175447C200540539 /* pdf */,
+				909E11461754466A00540539 /* hash */,
+				909E11441754465F00540539 /* crypt */,
+				909E112E1754453600540539 /* che_base.cpp */,
+				909E112F1754453600540539 /* che_bitmap.cpp */,
+				909E11301754453600540539 /* che_datastructure.cpp */,
+				909E11311754453600540539 /* che_graphics.cpp */,
+				909E11321754453600540539 /* che_string.cpp */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		909E11441754465F00540539 /* crypt */ = {
+			isa = PBXGroup;
+			children = (
+				909E1150175446CD00540539 /* che_crypt_aes.cpp */,
+				909E1151175446CD00540539 /* che_crypt_rc4.cpp */,
+			);
+			name = crypt;
+			sourceTree = "<group>";
+		};
+		909E11451754466400540539 /* crypt */ = {
+			isa = PBXGroup;
+			children = (
+				909E114A1754468D00540539 /* che_crypt_aes.h */,
+				909E114B1754468D00540539 /* che_crypt_rc4.h */,
+			);
+			name = crypt;
+			sourceTree = "<group>";
+		};
+		909E11461754466A00540539 /* hash */ = {
+			isa = PBXGroup;
+			children = (
+				909E1154175446DE00540539 /* che_hash_md5.cpp */,
+			);
+			name = hash;
+			sourceTree = "<group>";
+		};
+		909E11471754466E00540539 /* hash */ = {
+			isa = PBXGroup;
+			children = (
+				909E114E175446BB00540539 /* che_hash_md5.h */,
+			);
+			name = hash;
+			sourceTree = "<group>";
+		};
+		909E1156175447C200540539 /* pdf */ = {
+			isa = PBXGroup;
+			children = (
+				909E1158175447D700540539 /* che_pdf_collector.cpp */,
+				909E1159175447D700540539 /* che_pdf_creator.cpp */,
+				909E115A175447D700540539 /* che_pdf_encrypt.cpp */,
+				909E115B175447D700540539 /* che_pdf_file.cpp */,
+				909E115C175447D700540539 /* che_pdf_filter.cpp */,
+				909E115D175447D700540539 /* che_pdf_objects.cpp */,
+				909E115E175447D700540539 /* che_pdf_pages.cpp */,
+				909E115F175447D700540539 /* che_pdf_parser.cpp */,
+				909E1160175447D700540539 /* che_pdf_xref.cpp */,
+			);
+			name = pdf;
+			sourceTree = "<group>";
+		};
+		909E1157175447C600540539 /* pdf */ = {
+			isa = PBXGroup;
+			children = (
+				909E116A175447F900540539 /* che_pdf_collector.h */,
+				909E116B175447F900540539 /* che_pdf_creator.h */,
+				909E116C175447F900540539 /* che_pdf_encrypt.h */,
+				909E116D175447F900540539 /* che_pdf_file.h */,
+				909E116E175447F900540539 /* che_pdf_filter.h */,
+				909E116F175447F900540539 /* che_pdf_objects.h */,
+				909E1170175447F900540539 /* che_pdf_pages.h */,
+				909E1171175447F900540539 /* che_pdf_parser.h */,
+				909E1172175447F900540539 /* che_pdf_xref.h */,
+			);
+			name = pdf;
+			sourceTree = "<group>";
+		};
+		909E117C1754530B00540539 /* extlib */ = {
+			isa = PBXGroup;
+			children = (
+				909E120D17545D1B00540539 /* freetype */,
+				909E117D1754531200540539 /* zlib */,
+			);
+			name = extlib;
+			sourceTree = "<group>";
+		};
+		909E117D1754531200540539 /* zlib */ = {
+			isa = PBXGroup;
+			children = (
+				909E117E1754532800540539 /* adler32.c */,
+				909E117F1754532800540539 /* compress.c */,
+				909E11801754532800540539 /* crc32.c */,
+				909E11811754532800540539 /* crc32.h */,
+				909E11821754532800540539 /* deflate.c */,
+				909E11831754532800540539 /* deflate.h */,
+				909E11841754532800540539 /* gzguts.h */,
+				909E11851754532800540539 /* inffast.c */,
+				909E11861754532800540539 /* inffast.h */,
+				909E11871754532800540539 /* inffixed.h */,
+				909E11881754532800540539 /* inflate.c */,
+				909E11891754532800540539 /* inflate.h */,
+				909E118A1754532800540539 /* inftrees.c */,
+				909E118B1754532800540539 /* inftrees.h */,
+				909E118C1754532800540539 /* trees.c */,
+				909E118D1754532800540539 /* trees.h */,
+				909E118E1754532800540539 /* uncompr.c */,
+				909E118F1754532800540539 /* zconf.h */,
+				909E11901754532800540539 /* zlib.h */,
+				909E11911754532800540539 /* zutil.c */,
+				909E11921754532800540539 /* zutil.h */,
+			);
+			name = zlib;
+			sourceTree = "<group>";
+		};
+		909E11EF175456A100540539 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				909E120417545BA700540539 /* pdfFileTest */,
+			);
+			name = test;
+			sourceTree = "<group>";
+		};
+		909E120417545BA700540539 /* pdfFileTest */ = {
+			isa = PBXGroup;
+			children = (
+				909E120517545BA700540539 /* main.cpp */,
+				909E120717545BA700540539 /* pdfFileTest.1 */,
+			);
+			path = pdfFileTest;
+			sourceTree = "<group>";
+		};
+		909E120D17545D1B00540539 /* freetype */ = {
+			isa = PBXGroup;
+			children = (
+				909E120F17546C0800540539 /* src */,
+			);
+			name = freetype;
+			sourceTree = "<group>";
+		};
+		909E120F17546C0800540539 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				909E121017546C1A00540539 /* base */,
+				909E121117546C3700540539 /* cff.c */,
+				909E121517546C6700540539 /* psaux.c */,
+				909E121717546C7F00540539 /* pshinter.c */,
+				909E121917546C9100540539 /* psnames.c */,
+				909E121B17546C9E00540539 /* raster.c */,
+				909E121D17546CA900540539 /* sfnt.c */,
+				909E121F17546CB700540539 /* smooth.c */,
+				909E122117546CC500540539 /* truetype.c */,
+				909E122317546CD400540539 /* type1.c */,
+				909E121317546C4700540539 /* type1cid.c */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		909E121017546C1A00540539 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				909E122517546D0700540539 /* ftbase.c */,
+				909E122617546D0700540539 /* ftbbox.c */,
+				909E122717546D0700540539 /* ftbitmap.c */,
+				909E122817546D0700540539 /* ftgasp.c */,
+				909E123D17546D8500540539 /* ftglyph.c */,
+				909E122917546D0700540539 /* ftinit.c */,
+				909E122C17546D0700540539 /* ftstroke.c */,
+				909E123E17546D8500540539 /* ftsynth.c */,
+				909E122D17546D0700540539 /* ftsystem.c */,
+				909E122F17546D0700540539 /* ftutil.c */,
+				909E123017546D0700540539 /* ftxf86.c */,
+			);
+			name = base;
+			sourceTree = "<group>";
+		};
+		90C37C8517534E58005D9C8A = {
+			isa = PBXGroup;
+			children = (
+				909E11EF175456A100540539 /* test */,
+				909E117C1754530B00540539 /* extlib */,
+				909E112D17543F9100540539 /* src */,
+				909E112C17543F8B00540539 /* include */,
+				90C37C8F17534E58005D9C8A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		90C37C8F17534E58005D9C8A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				90C37C8E17534E58005D9C8A /* libchelib.a */,
+				909E120317545BA700540539 /* pdfFileTest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		90C37C8C17534E58005D9C8A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				909E113E1754454D00540539 /* che_base.h in Headers */,
+				909E113F1754454D00540539 /* che_bitmap.h in Headers */,
+				909E11401754454D00540539 /* che_datastructure.h in Headers */,
+				909E11411754454D00540539 /* che_define.h in Headers */,
+				909E11421754454D00540539 /* che_graphics.h in Headers */,
+				909E11431754454D00540539 /* che_string.h in Headers */,
+				909E114C1754468D00540539 /* che_crypt_aes.h in Headers */,
+				909E114D1754468D00540539 /* che_crypt_rc4.h in Headers */,
+				909E114F175446BB00540539 /* che_hash_md5.h in Headers */,
+				909E1173175447F900540539 /* che_pdf_collector.h in Headers */,
+				909E1174175447F900540539 /* che_pdf_creator.h in Headers */,
+				909E1175175447F900540539 /* che_pdf_encrypt.h in Headers */,
+				909E1176175447F900540539 /* che_pdf_file.h in Headers */,
+				909E1177175447F900540539 /* che_pdf_filter.h in Headers */,
+				909E1178175447F900540539 /* che_pdf_objects.h in Headers */,
+				909E1179175447F900540539 /* che_pdf_pages.h in Headers */,
+				909E117A175447F900540539 /* che_pdf_parser.h in Headers */,
+				909E117B175447F900540539 /* che_pdf_xref.h in Headers */,
+				909E11961754532800540539 /* crc32.h in Headers */,
+				909E11981754532800540539 /* deflate.h in Headers */,
+				909E11991754532800540539 /* gzguts.h in Headers */,
+				909E119B1754532800540539 /* inffast.h in Headers */,
+				909E119C1754532800540539 /* inffixed.h in Headers */,
+				909E119E1754532800540539 /* inflate.h in Headers */,
+				909E11A01754532800540539 /* inftrees.h in Headers */,
+				909E11A21754532800540539 /* trees.h in Headers */,
+				909E11A41754532800540539 /* zconf.h in Headers */,
+				909E11A51754532800540539 /* zlib.h in Headers */,
+				909E11A71754532800540539 /* zutil.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		909E120217545BA700540539 /* pdfFileTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 909E120917545BA700540539 /* Build configuration list for PBXNativeTarget "pdfFileTest" */;
+			buildPhases = (
+				909E11FF17545BA700540539 /* Sources */,
+				909E120017545BA700540539 /* Frameworks */,
+				909E120117545BA700540539 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = pdfFileTest;
+			productName = pdfFileTest;
+			productReference = 909E120317545BA700540539 /* pdfFileTest */;
+			productType = "com.apple.product-type.tool";
+		};
+		90C37C8D17534E58005D9C8A /* chelib */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 90C37C9217534E58005D9C8A /* Build configuration list for PBXNativeTarget "chelib" */;
+			buildPhases = (
+				90C37C8A17534E58005D9C8A /* Sources */,
+				90C37C8B17534E58005D9C8A /* Frameworks */,
+				90C37C8C17534E58005D9C8A /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = chelib;
+			productName = chelib;
+			productReference = 90C37C8E17534E58005D9C8A /* libchelib.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		90C37C8617534E58005D9C8A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = com.peroit;
+			};
+			buildConfigurationList = 90C37C8917534E58005D9C8A /* Build configuration list for PBXProject "chelib" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 90C37C8517534E58005D9C8A;
+			productRefGroup = 90C37C8F17534E58005D9C8A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				90C37C8D17534E58005D9C8A /* chelib */,
+				909E120217545BA700540539 /* pdfFileTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		909E11FF17545BA700540539 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				909E120617545BA700540539 /* main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90C37C8A17534E58005D9C8A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				909E11331754453600540539 /* che_base.cpp in Sources */,
+				909E11341754453600540539 /* che_bitmap.cpp in Sources */,
+				909E11351754453600540539 /* che_datastructure.cpp in Sources */,
+				909E11361754453600540539 /* che_graphics.cpp in Sources */,
+				909E11371754453600540539 /* che_string.cpp in Sources */,
+				909E1152175446CD00540539 /* che_crypt_aes.cpp in Sources */,
+				909E1153175446CD00540539 /* che_crypt_rc4.cpp in Sources */,
+				909E1155175446DE00540539 /* che_hash_md5.cpp in Sources */,
+				909E1161175447D700540539 /* che_pdf_collector.cpp in Sources */,
+				909E1162175447D700540539 /* che_pdf_creator.cpp in Sources */,
+				909E1163175447D700540539 /* che_pdf_encrypt.cpp in Sources */,
+				909E1164175447D700540539 /* che_pdf_file.cpp in Sources */,
+				909E1165175447D700540539 /* che_pdf_filter.cpp in Sources */,
+				909E1166175447D700540539 /* che_pdf_objects.cpp in Sources */,
+				909E1167175447D700540539 /* che_pdf_pages.cpp in Sources */,
+				909E1168175447D700540539 /* che_pdf_parser.cpp in Sources */,
+				909E1169175447D700540539 /* che_pdf_xref.cpp in Sources */,
+				909E11931754532800540539 /* adler32.c in Sources */,
+				909E11941754532800540539 /* compress.c in Sources */,
+				909E11951754532800540539 /* crc32.c in Sources */,
+				909E11971754532800540539 /* deflate.c in Sources */,
+				909E119A1754532800540539 /* inffast.c in Sources */,
+				909E119D1754532800540539 /* inflate.c in Sources */,
+				909E119F1754532800540539 /* inftrees.c in Sources */,
+				909E11A11754532800540539 /* trees.c in Sources */,
+				909E11A31754532800540539 /* uncompr.c in Sources */,
+				909E11A61754532800540539 /* zutil.c in Sources */,
+				909E121217546C3700540539 /* cff.c in Sources */,
+				909E121417546C4700540539 /* type1cid.c in Sources */,
+				909E121617546C6700540539 /* psaux.c in Sources */,
+				909E121817546C7F00540539 /* pshinter.c in Sources */,
+				909E121A17546C9100540539 /* psnames.c in Sources */,
+				909E121C17546C9E00540539 /* raster.c in Sources */,
+				909E121E17546CA900540539 /* sfnt.c in Sources */,
+				909E122017546CB700540539 /* smooth.c in Sources */,
+				909E122217546CC500540539 /* truetype.c in Sources */,
+				909E122417546CD400540539 /* type1.c in Sources */,
+				909E123117546D0700540539 /* ftbase.c in Sources */,
+				909E123217546D0700540539 /* ftbbox.c in Sources */,
+				909E123317546D0700540539 /* ftbitmap.c in Sources */,
+				909E123417546D0700540539 /* ftgasp.c in Sources */,
+				909E123517546D0700540539 /* ftinit.c in Sources */,
+				909E123817546D0700540539 /* ftstroke.c in Sources */,
+				909E123917546D0700540539 /* ftsystem.c in Sources */,
+				909E123B17546D0700540539 /* ftutil.c in Sources */,
+				909E123C17546D0700540539 /* ftxf86.c in Sources */,
+				909E123F17546D8600540539 /* ftglyph.c in Sources */,
+				909E124017546D8600540539 /* ftsynth.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		909E120A17545BA700540539 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		909E120B17545BA700540539 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		90C37C9017534E58005D9C8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		90C37C9117534E58005D9C8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		90C37C9317534E58005D9C8A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
+				HEADER_SEARCH_PATHS = ../../extlib/freetype/include;
+				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
+			};
+			name = Debug;
+		};
+		90C37C9417534E58005D9C8A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
+				HEADER_SEARCH_PATHS = ../../extlib/freetype/include;
+				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		909E120917545BA700540539 /* Build configuration list for PBXNativeTarget "pdfFileTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				909E120A17545BA700540539 /* Debug */,
+				909E120B17545BA700540539 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		90C37C8917534E58005D9C8A /* Build configuration list for PBXProject "chelib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90C37C9017534E58005D9C8A /* Debug */,
+				90C37C9117534E58005D9C8A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		90C37C9217534E58005D9C8A /* Build configuration list for PBXNativeTarget "chelib" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90C37C9317534E58005D9C8A /* Debug */,
+				90C37C9417534E58005D9C8A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 90C37C8617534E58005D9C8A /* Project object */;
+}

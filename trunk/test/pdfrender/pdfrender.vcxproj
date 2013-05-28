@@ -88,7 +88,7 @@
       <Culture>0x0804</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>gdiplus.lib;../../build/release/win32_vc10/chelib.lib;../../extlib/zlib/release/zlib.lib;../../extlib/freetype/release/libthirdparty.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gdiplus.lib;../../build/release/win32_vc10/chelib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Release/pdfrender.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBC.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -130,7 +130,7 @@
       <Culture>0x0804</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>gdiplus.lib;../../build/debug/win32_vc10/chelib.lib;../../extlib/zlib/debug/zlib.lib;../../extlib/freetype/debug/freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>gdiplus.lib;../../build/debug/win32_vc10/chelib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Debug/pdfrender.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBCD.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>

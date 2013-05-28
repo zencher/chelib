@@ -65,6 +65,46 @@
     <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\extlib\freetype\src\autofit\autofit.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftbase.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftbbox.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftbitmap.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftgasp.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftglyph.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftinit.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftstroke.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftsynth.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftsystem.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\fttype1.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\base\ftxf86.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\bdf\bdf.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\bzip2\ftbzip2.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\cff\cff.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\cid\type1cid.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\gzip\ftgzip.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\lzw\ftlzw.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\pcf\pcf.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\pfr\pfr.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\psaux\psaux.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\pshinter\pshinter.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\psnames\psnames.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\raster\raster.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\sfnt\sfnt.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\smooth\smooth.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\truetype\truetype.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\type1\type1.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\type42\type42.c" />
+    <ClCompile Include="..\..\extlib\freetype\src\winfonts\winfnt.c" />
+    <ClCompile Include="..\..\extlib\zlib\adler32.c" />
+    <ClCompile Include="..\..\extlib\zlib\compress.c" />
+    <ClCompile Include="..\..\extlib\zlib\crc32.c" />
+    <ClCompile Include="..\..\extlib\zlib\deflate.c" />
+    <ClCompile Include="..\..\extlib\zlib\inffast.c" />
+    <ClCompile Include="..\..\extlib\zlib\inflate.c" />
+    <ClCompile Include="..\..\extlib\zlib\inftrees.c" />
+    <ClCompile Include="..\..\extlib\zlib\trees.c" />
+    <ClCompile Include="..\..\extlib\zlib\uncompr.c" />
+    <ClCompile Include="..\..\extlib\zlib\zutil.c" />
     <ClCompile Include="..\..\src\che_base.cpp" />
     <ClCompile Include="..\..\src\che_bitmap.cpp" />
     <ClCompile Include="..\..\src\che_datastructure.cpp" />
@@ -169,9 +209,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;FT2_BUILD_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -200,9 +241,10 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;FT2_BUILD_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

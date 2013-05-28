@@ -1,8 +1,8 @@
 #include "../../include/pdf/che_pdf_cmap.h"
-#include "../../include/pdf/che_pdf_cmap_res_cns.h"
-#include "../../include/pdf/che_pdf_cmap_res_gb.h"
-#include "../../include/pdf/che_pdf_cmap_res_japan.h"
-#include "../../include/pdf/che_pdf_cmap_res_korea.h"
+#include "che_pdf_cmap_res_cns.cpp"
+#include "che_pdf_cmap_res_gb.cpp"
+#include "che_pdf_cmap_res_japan.cpp"
+#include "che_pdf_cmap_res_korea.cpp"
 
 #include <string.h>
 

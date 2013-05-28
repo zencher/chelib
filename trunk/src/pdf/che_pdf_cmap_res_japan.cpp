@@ -1,4 +1,5 @@
-/* This is an automatically generated file. Do not edit. */
+#ifndef _CHE_PDF_CMAP_RES_JAPAN_CPP_
+#define _CHE_PDF_CMAP_RES_JAPAN_CPP_
 
 /* Adobe-Japan1-UCS2 */
 
@@ -11623,3 +11624,5 @@ PDF_CMAP CMap_UniJIS_UTF16_V = {
 	102, 102, (PDF_CMAP_RANGE*) CMap_UniJIS_UTF16_V_Ranges,
 	138, 138, (HE_WORD*) CMap_UniJIS_UTF16_V_Table,
 };
+
+#endif

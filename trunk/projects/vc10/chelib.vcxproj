@@ -31,10 +31,6 @@
     <ClInclude Include="..\..\include\hash\che_hash_md5.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_cns.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_gb.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_japan.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_korea.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentbuilder.h" />
@@ -134,7 +130,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_graphicsstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objectstring.cpp" />

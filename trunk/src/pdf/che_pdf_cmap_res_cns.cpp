@@ -1,7 +1,5 @@
-#ifndef _CHE_PDF_CMAP_RES_CNS_H_
-#define _CHE_PDF_CMAP_RES_CNS_H_
-
-#include "che_PDF_CMAP_res.h"
+#ifndef _CHE_PDF_CMAP_RES_CNS_CPP_
+#define _CHE_PDF_CMAP_RES_CNS_CPP_
 
 PDF_CMAP_RANGE CMap_Adobe_CNS1_UCS2_Ranges[] = {
 {0,0,65533},{1,377,32},{96,18,0},{101,5,12289},

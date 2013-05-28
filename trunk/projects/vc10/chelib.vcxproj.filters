@@ -110,18 +110,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_cns.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_gb.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_japan.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res_korea.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
@@ -206,9 +194,6 @@
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_matrix.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp">

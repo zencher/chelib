@@ -1,4 +1,5 @@
-/* This is an automatically generated file. Do not edit. */
+#ifndef _CHE_PDF_CMAP_RES_KOREA_CPP_
+#define _CHE_PDF_CMAP_RES_KOREA_CPP_
 
 /* Adobe-Korea1-UCS2 */
 
@@ -7142,3 +7143,5 @@ PDF_CMAP CMap_UniKS_UTF16_V = {
 	18, 18, (PDF_CMAP_RANGE*) CMap_UniKS_UTF16_V_Ranges,
 	0, 0, (HE_WORD*) CMap_UniKS_UTF16_V_table,
 };
+
+#endif

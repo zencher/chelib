@@ -1,4 +1,5 @@
-/* This is an automatically generated file. Do not edit. */
+#ifndef _CHE_PDF_CMAP_RES_GB_CPP_
+#define _CHE_PDF_CMAP_RES_GB_CPP_
 
 /* Adobe-GB1-UCS2 */
 
@@ -11405,3 +11406,5 @@ PDF_CMAP CMap_UniGB_UTF16_V = {
 	21, 21, (PDF_CMAP_RANGE*) CMap_UniGB_UTF16_V_Ranges,
 	4, 4, (unsigned short*) CMap_UniGB_UTF16_V_Table,
 };
+
+#endif

@@ -4918,7 +4918,7 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const
 	FT_Face ftface = (FT_Face)mFace;
 	if ( mEncoding.GetType() == FONT_ENCODING_CUSTOM )
 	{
-		BOOL bRet = FALSE;
+		HE_BOOL bRet = FALSE;
 		HE_WCHAR wcharRet;
 		bRet = mEncoding.GetUnicode( charCode, wcharRet );
 		codeRet = wcharRet;
@@ -5163,7 +5163,7 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	tmpMatrix.e = 0;
 	tmpMatrix.f = 0;
 
-	DWORD qureyVal = 0;
+	HE_DWORD qureyVal = 0;
 	if ( GetEncodingType() == FONT_ENCODING_NONE )
 	{
 		qureyVal = item.charCode;
@@ -5343,7 +5343,9 @@ HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 
 	if ( mpToUnicodeMap )
 	{
-		codeRet = (HE_WCHAR)( mpToUnicodeMap->GetItem( charCode ) );
+		HE_LPVOID pRet = mpToUnicodeMap->GetItem( charCode );
+		HE_DWORD dwRet = (HE_DWORD)( pRet );
+		codeRet = (HE_WCHAR)( dwRet );
 		return TRUE;
 	}
 

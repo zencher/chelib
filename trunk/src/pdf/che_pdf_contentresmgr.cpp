@@ -221,7 +221,7 @@ CHE_ByteString CHE_PDF_ContentResMgr::RequestName( const CHE_PDF_DictionaryPtr &
 		bool bContinue = true;
 		while ( bContinue )
 		{
-			sprintf_s( tmpStr, "%s%d", name.GetData(), tmpInt );
+			sprintf( tmpStr, "%s%d", name.GetData(), tmpInt );
 			pTmpObj = pSubDict->GetElement( tmpStr );
 			if ( !pTmpObj )
 			{

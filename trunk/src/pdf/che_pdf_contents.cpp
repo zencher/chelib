@@ -832,7 +832,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_J()
 	if ( CheckOpdCount( 1 ) )
 	{
 		GRAPHICS_STATE_LINECAP lineCap = LineCap_Butt;
-		switch ( unsigned int( mOpdFloatStack[0] ) )
+		unsigned int type = (unsigned int)( mOpdFloatStack[0] );
+		switch ( type )
 		{
 		default:
 		case 0:
@@ -1060,7 +1061,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tr()
 	if ( CheckOpdCount( 1 ) )
 	{
 		GRAPHICS_STATE_TEXTRENDERMODE textRm = TextRenderMode_Fill;
-		switch ( unsigned int( mOpdFloatStack[0] ) )
+		unsigned int type = (unsigned int)( mOpdFloatStack[0] );
+		switch ( type )
 		{
 		default:
 		case 0:
@@ -1466,7 +1468,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_j()
 	if ( CheckOpdCount( 1 ) )
 	{
 		GRAPHICS_STATE_LINEJOIN lineJoin = LineJoin_Miter;
-		switch ( unsigned int( mOpdFloatStack[0] ) )
+		unsigned int type = (unsigned int)( mOpdFloatStack[0] );
+		switch ( type )
 		{
 		default:
 		case 0:

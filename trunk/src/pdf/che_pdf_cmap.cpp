@@ -4,6 +4,8 @@
 #include "../../include/pdf/che_pdf_cmap_res_japan.h"
 #include "../../include/pdf/che_pdf_cmap_res_korea.h"
 
+#include <string.h>
+
 #define pdf_range_high(r) ((r)->low + ((r)->extent_flags >> 2))
 #define pdf_range_flags(r) ((r)->extent_flags & 3)
 #define pdf_range_set_high(r, h) ((r)->extent_flags = (((r)->extent_flags & 3) | ((h - (r)->low) << 2)))

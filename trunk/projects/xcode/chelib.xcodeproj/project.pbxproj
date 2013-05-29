@@ -96,10 +96,6 @@
 		909E12501754833800540539 /* pfr.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E124F1754833800540539 /* pfr.c */; };
 		909E12521754834700540539 /* type42.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E12511754834700540539 /* type42.c */; };
 		909E12541754835300540539 /* winfnt.c in Sources */ = {isa = PBXBuildFile; fileRef = 909E12531754835300540539 /* winfnt.c */; };
-		90A01AE11754EC43009DCBD9 /* che_pdf_cmap_res_cns.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ACB1754EC43009DCBD9 /* che_pdf_cmap_res_cns.h */; };
-		90A01AE21754EC43009DCBD9 /* che_pdf_cmap_res_gb.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ACC1754EC43009DCBD9 /* che_pdf_cmap_res_gb.h */; };
-		90A01AE31754EC43009DCBD9 /* che_pdf_cmap_res_japan.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ACD1754EC43009DCBD9 /* che_pdf_cmap_res_japan.h */; };
-		90A01AE41754EC43009DCBD9 /* che_pdf_cmap_res_korea.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ACE1754EC43009DCBD9 /* che_pdf_cmap_res_korea.h */; };
 		90A01AE51754EC43009DCBD9 /* che_pdf_cmap_res.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ACF1754EC43009DCBD9 /* che_pdf_cmap_res.h */; };
 		90A01AE61754EC43009DCBD9 /* che_pdf_cmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD01754EC43009DCBD9 /* che_pdf_cmap.h */; };
 		90A01AE71754EC43009DCBD9 /* che_pdf_colorspace.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD11754EC43009DCBD9 /* che_pdf_colorspace.h */; };
@@ -241,10 +237,6 @@
 		909E124F1754833800540539 /* pfr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pfr.c; path = ../../extlib/freetype/src/pfr/pfr.c; sourceTree = "<group>"; };
 		909E12511754834700540539 /* type42.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = type42.c; path = ../../extlib/freetype/src/type42/type42.c; sourceTree = "<group>"; };
 		909E12531754835300540539 /* winfnt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = winfnt.c; path = ../../extlib/freetype/src/winfonts/winfnt.c; sourceTree = "<group>"; };
-		90A01ACB1754EC43009DCBD9 /* che_pdf_cmap_res_cns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_cmap_res_cns.h; path = ../../include/pdf/che_pdf_cmap_res_cns.h; sourceTree = "<group>"; };
-		90A01ACC1754EC43009DCBD9 /* che_pdf_cmap_res_gb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_cmap_res_gb.h; path = ../../include/pdf/che_pdf_cmap_res_gb.h; sourceTree = "<group>"; };
-		90A01ACD1754EC43009DCBD9 /* che_pdf_cmap_res_japan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_cmap_res_japan.h; path = ../../include/pdf/che_pdf_cmap_res_japan.h; sourceTree = "<group>"; };
-		90A01ACE1754EC43009DCBD9 /* che_pdf_cmap_res_korea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_cmap_res_korea.h; path = ../../include/pdf/che_pdf_cmap_res_korea.h; sourceTree = "<group>"; };
 		90A01ACF1754EC43009DCBD9 /* che_pdf_cmap_res.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_cmap_res.h; path = ../../include/pdf/che_pdf_cmap_res.h; sourceTree = "<group>"; };
 		90A01AD01754EC43009DCBD9 /* che_pdf_cmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_cmap.h; path = ../../include/pdf/che_pdf_cmap.h; sourceTree = "<group>"; };
 		90A01AD11754EC43009DCBD9 /* che_pdf_colorspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_colorspace.h; path = ../../include/pdf/che_pdf_colorspace.h; sourceTree = "<group>"; };
@@ -405,10 +397,6 @@
 		909E1157175447C600540539 /* pdf */ = {
 			isa = PBXGroup;
 			children = (
-				90A01ACB1754EC43009DCBD9 /* che_pdf_cmap_res_cns.h */,
-				90A01ACC1754EC43009DCBD9 /* che_pdf_cmap_res_gb.h */,
-				90A01ACD1754EC43009DCBD9 /* che_pdf_cmap_res_japan.h */,
-				90A01ACE1754EC43009DCBD9 /* che_pdf_cmap_res_korea.h */,
 				90A01ACF1754EC43009DCBD9 /* che_pdf_cmap_res.h */,
 				90A01AD01754EC43009DCBD9 /* che_pdf_cmap.h */,
 				90A01AD11754EC43009DCBD9 /* che_pdf_colorspace.h */,
@@ -603,10 +591,6 @@
 				909E11A41754532800540539 /* zconf.h in Headers */,
 				909E11A51754532800540539 /* zlib.h in Headers */,
 				909E11A71754532800540539 /* zutil.h in Headers */,
-				90A01AE11754EC43009DCBD9 /* che_pdf_cmap_res_cns.h in Headers */,
-				90A01AE21754EC43009DCBD9 /* che_pdf_cmap_res_gb.h in Headers */,
-				90A01AE31754EC43009DCBD9 /* che_pdf_cmap_res_japan.h in Headers */,
-				90A01AE41754EC43009DCBD9 /* che_pdf_cmap_res_korea.h in Headers */,
 				90A01AE51754EC43009DCBD9 /* che_pdf_cmap_res.h in Headers */,
 				90A01AE61754EC43009DCBD9 /* che_pdf_cmap.h in Headers */,
 				90A01AE71754EC43009DCBD9 /* che_pdf_colorspace.h in Headers */,
@@ -862,7 +846,10 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					_MAC_OS_X_,
+					FT2_BUILD_LIBRARY,
+				);
 				HEADER_SEARCH_PATHS = ../../extlib/freetype/include;
 				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -876,7 +863,10 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					_MAC_OS_X_,
+					FT2_BUILD_LIBRARY,
+				);
 				HEADER_SEARCH_PATHS = ../../extlib/freetype/include;
 				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -22,6 +22,11 @@ CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_DWORD dibWidth, HE_DWORD dib
 	m_pPen = new Gdiplus::Pen( Gdiplus::Color( 255, 0, 0, 0 ), 1 );
 	m_pBrush = new Gdiplus::SolidBrush( Gdiplus::Color( 255, 0, 0, 0 ) );
 
+	mCurX = 0;
+	mCurY = 0;
+	mBeginX = 0;
+	mBeginY = 0;
+
 	mLineWidth = 1;
 	mLineCap = LineCap_Butt;
 	mLineJion = LineJoin_Miter;
@@ -135,8 +140,8 @@ HE_VOID CHE_GraphicsDrawer::MoveTo( HE_FLOAT x, HE_FLOAT y )
 		m_pathToDraw.AddPath( &m_path, false );
 		m_path.Reset();
 	}
-	mCurX = x;
-	mCurY = y;
+	mBeginX = mCurX = x;
+	mBeginY = mCurY = y;
 }
 
 HE_VOID CHE_GraphicsDrawer::LineTo( HE_FLOAT x, HE_FLOAT y )
@@ -160,9 +165,11 @@ HE_VOID CHE_GraphicsDrawer::ClosePath()
 	{
 		m_pathToDraw.AddPath( &m_path, false );
 		m_path.Reset();
+		mCurX = mBeginX;
+		mCurY = mBeginY;
 	}
 }
-	
+
 HE_VOID CHE_GraphicsDrawer::FillPath()
 {
 	if ( m_path.GetPointCount() > 0 )

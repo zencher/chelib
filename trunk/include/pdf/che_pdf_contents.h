@@ -222,6 +222,8 @@ public:
 	{
 		if ( pObject && ( pObject->GetType() == ContentType_Path || pObject->GetType() == ContentType_Text ) )
 		{
+			CHE_PDF_GState * pGState = mpGState->Clone();
+			pObject->SetGState( pGState );
 			GetGState()->PushClipElement( pObject );
 		}
 	}
@@ -459,6 +461,8 @@ private:
 
 	CHE_PDF_Path *			mpPath;
 	CHE_PDF_Path *			mpClipPath;
+	HE_FLOAT				mBeginX;
+	HE_FLOAT				mBeginY;
 	HE_FLOAT				mCurX;
 	HE_FLOAT				mCurY;
 

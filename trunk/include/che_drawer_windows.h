@@ -77,6 +77,8 @@ private:
 
 	HE_FLOAT					mCurX;
 	HE_FLOAT					mCurY;
+	HE_FLOAT					mBeginX;
+	HE_FLOAT					mBeginY;
 	HE_FLOAT					mLineWidth;
 	GRAPHICS_STATE_LINECAP		mLineCap;
 	GRAPHICS_STATE_LINEJOIN		mLineJion;

@@ -39,15 +39,13 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	strokeColorVal = strokeColorSpace.GetArgb( strokeColor );
 	drawer.SetFillColor( fillColorVal );
 	drawer.SetStrokeColor( strokeColorVal );
-
 	drawer.SetFillMode( FillMode_Nonzero );
-	
-	drawer.ResetClip();
 }
 
 inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState * pClipState )
 {
 	CHE_PDF_ContentObject * pObj = NULL;
+	CHE_PDF_GState * pGState = NULL;
 	std::list<CHE_PDF_ClipStateItem*>::iterator it = pClipState->mClipElementList.begin();
 	for ( ; it != pClipState->mClipElementList.end(); it++ )
 	{
@@ -55,6 +53,12 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 		if ( !pObj )
 		{
 			continue;
+		}
+
+		pGState = pObj->GetGState();
+		if ( pGState )
+		{
+			OutputCommonGSatae( drawer, pGState );
 		}
 
 		switch ( pObj->GetType() )
@@ -219,18 +223,19 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 	ContentObjectList::iterator it = content.Begin();
 	for ( ; it != content.End(); ++it )
 	{
+		//设置图形状态
+		//先将clip信息清零
+		drawer.ResetClip();
 		pGState = (*it)->GetGState();
 		if ( pGState )
 		{
-			OutputCommonGSatae( drawer, pGState );
-
 			pClipState = pGState->GetClipState();
 			if ( pClipState )
 			{
 				OutputClipState( drawer, pClipState );
 			}
+			OutputCommonGSatae( drawer, pGState );
 		}
-
 		switch ( (*it)->GetType() )
 		{
 		case ContentType_Path:

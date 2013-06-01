@@ -12,7 +12,6 @@
 #include <malloc.h>
 #endif
 
-
 #ifdef WIN32
 #include <windows.h>
 #undef GetObject
@@ -37,11 +36,12 @@ public:
 	inline Type* NewArray( size_t count )
 	{
 		void* obj = Alloc( sizeof(Type) * count );
-		Type * pT = (Type *)obj;
-		for ( size_t i = 0; i < count; i++ )
+        size_t relCount = GetSize( obj ) / sizeof( Type ) ;
+		Type * pTmp = (Type *)obj;
+		for ( size_t i = 0; i < relCount; i++ )
 		{
-			new((void *)pT) Type;
-			pT++;
+			new((void *)pTmp) Type;
+			pTmp++;
 		}
 		return (Type *)obj;
 	}

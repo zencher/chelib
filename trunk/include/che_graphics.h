@@ -56,8 +56,8 @@ enum GRAPHICS_STATE_TEXTRENDERMODE
 
 enum GRAPHICS_STATE_FILLMODE
 {
-	FillMode_EvenOdd = 0,
-	FillMode_Nonzero = 1
+	FillMode_Nonzero = 0,
+	FillMode_EvenOdd = 1
 };
 
 

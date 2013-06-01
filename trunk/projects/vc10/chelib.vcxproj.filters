@@ -104,9 +104,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_renderer.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
@@ -164,8 +161,11 @@
     <ClInclude Include="..\..\include\crypt\che_crypt_rc4.h">
       <Filter>include\crypt</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\che_drawer.h">
+    <ClInclude Include="..\..\include\che_drawer_windows.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_renderer_windows.h">
+      <Filter>include\pdf</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -247,9 +247,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
@@ -285,9 +282,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp">
       <Filter>src\pdf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\che_drawer.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\extlib\zlib\zutil.c">
       <Filter>extlib\zlib</Filter>
@@ -408,6 +402,12 @@
     </ClCompile>
     <ClCompile Include="..\..\extlib\freetype\src\gzip\ftgzip.c">
       <Filter>extlib\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\che_drawer_windows.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_renderer_windows.cpp">
+      <Filter>src\pdf</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

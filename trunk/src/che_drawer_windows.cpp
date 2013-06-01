@@ -1,4 +1,4 @@
-#include "../include/che_drawer.h"
+#include "../include/che_drawer_windows.h"
 
 CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight )
 {
@@ -163,7 +163,6 @@ HE_VOID CHE_GraphicsDrawer::ClosePath()
 	}
 }
 	
-
 HE_VOID CHE_GraphicsDrawer::FillPath()
 {
 	if ( m_path.GetPointCount() > 0 )

@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_renderer.h"
+#include "../../include/pdf/che_pdf_renderer_macosx.h"
 
 
 
@@ -201,18 +201,18 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 	tmpMatrix.a = dipx * scale / 72;
 	tmpMatrix.b = 0;
 	tmpMatrix.c = 0;
-	tmpMatrix.d = - dipy * scale / 72;
+	tmpMatrix.d = dipy * scale / 72;
 	tmpMatrix.e = 0;
 	tmpMatrix.f = 0;
 	CHE_Matrix extMatrix;
-	if ( pClipRect != NULL )
-	{
-		extMatrix.e = - pClipRect->left * dipx * scale / 72;
-		extMatrix.f = ( pClipRect->height + pClipRect->bottom ) * dipy * scale / 72;
-	}else{
-		extMatrix.e = 0;
-		extMatrix.f = pageRect.height * dipy * scale / 72;
-	}
+	//if ( pClipRect != NULL )
+	//{
+	//	extMatrix.e = - pClipRect->left * dipx * scale / 72;
+	//	extMatrix.f = ( pClipRect->height + pClipRect->bottom ) * dipy * scale / 72;
+	//}else{
+	//	extMatrix.e = 0;
+	//	extMatrix.f = pageRect.height * dipy * scale / 72;
+	//}
 	tmpMatrix.Concat( extMatrix );
 	drawer.SetExtMatrix( tmpMatrix );
 

@@ -23,7 +23,7 @@
     <ClInclude Include="..\..\include\che_bitmap.h" />
     <ClInclude Include="..\..\include\che_datastructure.h" />
     <ClInclude Include="..\..\include\che_define.h" />
-    <ClInclude Include="..\..\include\che_drawer.h" />
+    <ClInclude Include="..\..\include\che_drawer_windows.h" />
     <ClInclude Include="..\..\include\che_graphics.h" />
     <ClInclude Include="..\..\include\che_string.h" />
     <ClInclude Include="..\..\include\crypt\che_crypt_aes.h" />
@@ -55,7 +55,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_outline.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_pages.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_renderer.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_renderer_windows.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h" />
@@ -104,7 +104,7 @@
     <ClCompile Include="..\..\src\che_base.cpp" />
     <ClCompile Include="..\..\src\che_bitmap.cpp" />
     <ClCompile Include="..\..\src\che_datastructure.cpp" />
-    <ClCompile Include="..\..\src\che_drawer.cpp" />
+    <ClCompile Include="..\..\src\che_drawer_windows.cpp" />
     <ClCompile Include="..\..\src\che_graphics.cpp" />
     <ClCompile Include="..\..\src\che_string.cpp" />
     <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp" />
@@ -136,7 +136,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_renderer.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_renderer_windows.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp" />
     <ClCompile Include="..\..\src\pdf\platform\windows\che_platform_font.cpp" />
     <ClCompile Include="..\..\src\wdm\che_wdm.cpp" />

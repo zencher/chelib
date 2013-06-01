@@ -59,23 +59,23 @@ class CHE_PDF_DictionaryPtr;
 class CHE_PDF_StreamPtr;
 
 
-inline HE_BOOL IsPdfNull( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfNull( CHE_PDF_Object * pObj );
 
-inline HE_BOOL IsPdfBoolean( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfBoolean( CHE_PDF_Object * pObj );
 
-inline HE_BOOL IsPdfNumber( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfNumber( CHE_PDF_Object * pObj );
 
-inline HE_BOOL IsPdfName( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfName( CHE_PDF_Object * pObj );
 
-inline HE_BOOL IsPdfString( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfString( CHE_PDF_Object * pObj );
 
-inline HE_BOOL IsPdfDict( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfDict( CHE_PDF_Object * pObj );
 
-inline HE_BOOL IsPdfArray( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfArray( CHE_PDF_Object * pObj );
 
-inline HE_BOOL IsPdfRef( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfRef( CHE_PDF_Object * pObj );
 
-inline HE_BOOL IsPdfStream( CHE_PDF_Object * pObj );
+HE_BOOL IsPdfStream( CHE_PDF_Object * pObj );
 
 HE_BOOL IsPdfNullPtr( const CHE_PDF_ObjectPtr & objPtr );
 
@@ -100,33 +100,33 @@ class CHE_PDF_Object : public CHE_Object
 {
 public:
 
-	inline PDF_OBJ_TYPE				GetType() const;
+	PDF_OBJ_TYPE            GetType() const;
 
-	CHE_PDF_ObjectPtr				Clone();
+	CHE_PDF_ObjectPtr		Clone();
 
-	HE_VOID							Release();
+	HE_VOID					Release();
 
-	HE_VOID							SetModified( HE_BOOL );
+	HE_VOID					SetModified( HE_BOOL );
 
-	virtual	HE_BOOL					IsModified();
+	virtual	HE_BOOL			IsModified();
 
-	inline CHE_PDF_NullPtr			GetNullPtr() const;
+    CHE_PDF_NullPtr         GetNullPtr() const;
 
-	inline CHE_PDF_BooleanPtr		GetBooleanPtr() const;
+    CHE_PDF_BooleanPtr      GetBooleanPtr() const;
 
-	inline CHE_PDF_NumberPtr		GetNumberPtr() const;
+    CHE_PDF_NumberPtr       GetNumberPtr() const;
 
-	inline CHE_PDF_StringPtr		GetStringPtr() const;
+    CHE_PDF_StringPtr       GetStringPtr() const;
 
-	inline CHE_PDF_NamePtr			GetNamePtr() const;
+    CHE_PDF_NamePtr			GetNamePtr() const;
 
-	inline CHE_PDF_ArrayPtr			GetArrayPtr() const;
+    CHE_PDF_ArrayPtr        GetArrayPtr() const;
 
-	inline CHE_PDF_DictionaryPtr	GetDictPtr() const;
+    CHE_PDF_DictionaryPtr	GetDictPtr() const;
 
-	inline CHE_PDF_ReferencePtr		GetRefPtr() const;
+    CHE_PDF_ReferencePtr    GetRefPtr() const;
 
-	inline CHE_PDF_StreamPtr		GetStreamPtr() const;				
+    CHE_PDF_StreamPtr		GetStreamPtr() const;				
 
 protected:
 
@@ -158,7 +158,7 @@ public:
 
 	operator HE_BOOL() const { return mpObj ? TRUE : FALSE ; }
 
-	inline CHE_PDF_Object *	operator->() const { return mpObj; }
+	CHE_PDF_Object * operator->() const { return mpObj; }
 
 	HE_VOID	reset( CHE_PDF_Object * pObj = NULL );
 

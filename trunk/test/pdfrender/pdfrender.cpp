@@ -2,7 +2,7 @@
 #include <GdiPlus.h>
 
 #include "../../include/pdf/che_pdf_graphics.h"
-#include "../../include/pdf/che_pdf_renderer.h"
+#include "../../include/pdf/che_pdf_renderer_windows.h"
 #include "../../include/pdf/che_pdf_contents.h"
 #include "../../include/pdf/che_pdf_document.h"
 
@@ -50,11 +50,11 @@ CHE_GraphicsDrawer * gpDrawer = NULL;
 void RenderPage( HWND hwnd )
 {
 	CHE_Rect rect = gpPage->GetMediaBox();
-	//CHE_Rect clipRect;
-	//clipRect.left = rect.width / 2;
-	//clipRect.bottom = rect.height /2;
-	//clipRect.width = rect.width / 2;
-	//clipRect.height = rect.height / 2;
+// 	CHE_Rect clipRect/* = rect*/;
+// 	clipRect.left = 100;//rect.width / 4;
+// 	clipRect.bottom = 100;//rect.height /4;
+// 	clipRect.width = 200;//rect.width / 2;
+// 	clipRect.height = 200;//rect.height / 2;
 	gpDrawer = new CHE_GraphicsDrawer( GetDC(hwnd), gPageWidth, gPageHeight );
 	CHE_PDF_ContentObjectList contentObjList;
 	QueryPerformanceCounter( &gBegin );

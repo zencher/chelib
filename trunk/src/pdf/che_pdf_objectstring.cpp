@@ -43,7 +43,7 @@ HE_BOOL CHE_PDF_ObjectString::IntegerToBuf( HE_INT32 val, CHE_DynBuffer & buf )
 HE_BOOL CHE_PDF_ObjectString::DWORDToBuf( HE_DWORD val, CHE_DynBuffer & buf )
 {
 	static char tempStr[1024];
-	sprintf( tempStr, "%d", val );
+	sprintf( tempStr, "%ld", val );
 
 	buf.Write( (HE_LPCBYTE)( &tempStr[0] ), strlen( tempStr ) );
 
@@ -134,7 +134,7 @@ HE_BOOL CHE_PDF_ObjectString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, CH
 				for ( HE_DWORD i = 0; i < length; i++ )
 				{
 					tmpVal = pData[i];
-					sprintf( tmpByte, "%08X", tmpVal );
+					sprintf( tmpByte, "%08lX", tmpVal );
 					buf.Write( (HE_LPCBYTE)(tmpByte+6), 2 );
 				}
 				buf.Write( (HE_LPCBYTE)">", 1 );
@@ -181,7 +181,7 @@ HE_BOOL CHE_PDF_ObjectString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, CH
 	case OBJ_TYPE_REFERENCE:
 		{
 			CHE_PDF_ReferencePtr ptr = pObj->GetRefPtr();
-			sprintf( tempStr, "%d 0 R", ptr->GetRefNum() );
+			sprintf( tempStr, "%ld 0 R", ptr->GetRefNum() );
 			buf.Write( (HE_LPCBYTE)tempStr, strlen(tempStr) );
 			break;
 		}

@@ -344,7 +344,7 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 							entry.Field2 = index;
 							xref.Update( objNum, entry );
 
-							sprintf( tmpStr, "%d %d ", objNum, offset );
+							sprintf( tmpStr, "%ld %ld ", objNum, offset );
 							tmpBuf.Write( (HE_LPCBYTE)(&(tmpStr[0])), strlen(tmpStr) );
 
 							++index;
@@ -405,7 +405,7 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 			entry.Field2 = index;
 			xref.Update( objNum, entry );
 
-			sprintf( tmpStr, "%d %d ", objNum, offset );
+			sprintf( tmpStr, "%ld %ld ", objNum, offset );
 			tmpBuf.Write( (HE_LPCBYTE)( &(tmpStr[0]) ), strlen(tmpStr) );
 
 			++index;
@@ -510,6 +510,8 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 					case XREF_ENTRY_TYPE_COMPRESSED:
 						field1 = 2; field2 = tmpEntry.GetParentObjNum(); field3 = tmpEntry.GetIndex();
 						break;
+                    case XREF_ENTRY_TYPE_NEW:
+                        break;
 					}
 					HE_BYTE byte = 0;
 					tmpBuf.Write( HE_LPCBYTE( &field1 ), 1 );
@@ -551,6 +553,8 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 			case XREF_ENTRY_TYPE_COMPRESSED:
 				field1 = 2; field2 = tmpEntry.GetParentObjNum(); field3 = tmpEntry.GetIndex();
 				break;
+            case XREF_ENTRY_TYPE_NEW:
+                break;
 			}
 			HE_BYTE byte = 0;
 			tmpBuf.Write( HE_LPCBYTE( &field1 ), 1 );

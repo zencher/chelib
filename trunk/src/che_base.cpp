@@ -502,9 +502,7 @@ HE_DWORD IHE_CrtFileReadBuffer::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE
 	{
 		return 0;
 	}
-	HE_DWORD oriOffset = offset, oriSize = size;
-
-	while ( true )
+    while ( true )
 	{
 		if ( m_pBytes == NULL )
 		{

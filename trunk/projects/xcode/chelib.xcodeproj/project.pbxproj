@@ -1097,10 +1097,7 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					_MAC_OS_X_,
-					FT2_BUILD_LIBRARY,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
 				HEADER_SEARCH_PATHS = ../../extlib/freetype/include;
 				ONLY_ACTIVE_ARCH = YES;
 				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
@@ -1115,10 +1112,7 @@
 			buildSettings = {
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					_MAC_OS_X_,
-					FT2_BUILD_LIBRARY,
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
 				HEADER_SEARCH_PATHS = ../../extlib/freetype/include;
 				ONLY_ACTIVE_ARCH = NO;
 				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;

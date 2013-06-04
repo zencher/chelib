@@ -188,19 +188,19 @@ HE_VOID CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF
 		return;
 	}
 
-	if ( firstPtr == NULL )
+	if ( !firstPtr )
 	{
 		return;
 	}
 
 	CHE_PDF_ObjectPtr objPtr = mpFile->GetObject( firstPtr->GetRefInfo() );
-	if ( ! objPtr || objPtr->GetType() != OBJ_TYPE_DICTIONARY )
+	if ( !objPtr || objPtr->GetType() != OBJ_TYPE_DICTIONARY )
 	{
 		return;
 	}
 
 	CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
-	if ( ! dictPtr )
+	if ( !dictPtr )
 	{
 		return;
 	}

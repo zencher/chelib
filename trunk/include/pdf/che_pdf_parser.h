@@ -86,8 +86,8 @@ public:
 private:
 	HE_VOID				SubmitBufferStr( CHE_ByteString & str );
 
-	HE_DWORD			m_lFilePos;
-	HE_DWORD			m_lFileSize;
+	HE_INT64			m_lFilePos;
+	HE_UINT64			m_lFileSize;
 	IHE_Read*			m_pFileAccess;
 
 	CHE_PDF_Encrypt	*	m_pStrEncrypt;

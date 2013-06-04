@@ -83,7 +83,7 @@ HE_VOID CHE_PDF_Encrypt::ComputeOwnerKey( HE_BYTE userPad[32], HE_BYTE ownerPad[
 {
 	HE_BYTE mkey[16];
 	HE_BYTE digest[16];
-	HE_DWORD lengthInByte = m_keyLength / 8;
+	HE_UINT32 lengthInByte = m_keyLength / 8;
 
 	CHE_HASH_MD5_Content md5;
 	md5.Init();
@@ -121,8 +121,8 @@ HE_VOID CHE_PDF_Encrypt::ComputeOwnerKey( HE_BYTE userPad[32], HE_BYTE ownerPad[
 
 HE_VOID CHE_PDF_Encrypt::CreateObjKey( HE_DWORD objNum, HE_DWORD genNum, HE_BYTE objkey[16], HE_DWORD* pObjKeyLengthRet )
 {
-	HE_DWORD keyLengthInByte = m_keyLength / 8;
-	HE_DWORD objKeyLength = keyLengthInByte + 5;
+	HE_UINT32 keyLengthInByte = m_keyLength / 8;
+	HE_UINT32 objKeyLength = keyLengthInByte + 5;
 	HE_BYTE	tmpkey[16+5+4];
 
 	for ( HE_DWORD j = 0; j < keyLengthInByte; j++)

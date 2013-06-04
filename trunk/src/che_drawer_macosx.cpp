@@ -1,11 +1,17 @@
 #include "../include/che_drawer_macosx.h"
 
 CHE_GraphicsDrawer::CHE_GraphicsDrawer( HE_DWORD width, HE_DWORD height )
-    : mContentRef( NULL ), mWidth( width ), mHeight( height ), mCurX( 0 ), mCurY( 0 ),
-    mExtMatrix( CHE_Matrix() ), mFillMode( FillMode_Nonzero ), mPathRef( NULL )
+    : mContentRef( NULL ), mWidth( width ), mHeight( height ),
+      mExtMatrix( CHE_Matrix() ), mFillMode( FillMode_Nonzero ), mPathRef( NULL )
 {
     mColorSpaceRef = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaPremultipliedLast );
+    mAffineTransform.a = 1;
+    mAffineTransform.b = 0;
+    mAffineTransform.c = 0;
+    mAffineTransform.d = 1;
+    mAffineTransform.tx = 0;
+    mAffineTransform.ty = 0;
 }
 
 CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
@@ -48,7 +54,8 @@ HE_DWORD CHE_GraphicsDrawer::GetHeight() const
 
 HE_VOID CHE_GraphicsDrawer::Clear()
 {
-    if ( mContentRef ) {
+    if ( mContentRef )
+    {
         CGContextSetRGBFillColor( mContentRef, 1, 1, 1, 1 );
         CGContextFillRect( mContentRef , CGRectMake( 0, 0, mWidth, mHeight ) );
     }
@@ -56,10 +63,7 @@ HE_VOID CHE_GraphicsDrawer::Clear()
 
 HE_VOID	CHE_GraphicsDrawer::SetMatrix( const CHE_Matrix & matrix )
 {
-    //if ( mContentRef )
-    //{
-    //    CGContextTr
-    //}
+    mMatrix = matrix;
 }
 
 HE_VOID	CHE_GraphicsDrawer::SetExtMatrix( const CHE_Matrix & matrix )
@@ -86,7 +90,8 @@ HE_VOID	CHE_GraphicsDrawer::SetMiterLimit( const HE_FLOAT & miterLimit )
 HE_VOID	CHE_GraphicsDrawer::SetFillColor( const HE_DWORD & color )
 {
     //todo
-    if ( mContentRef ) {
+    if ( mContentRef )
+    {
         CGContextSetRGBFillColor( mContentRef , 0, 0, 0, 1 );
     }
 }
@@ -94,7 +99,8 @@ HE_VOID	CHE_GraphicsDrawer::SetFillColor( const HE_DWORD & color )
 HE_VOID	CHE_GraphicsDrawer::SetStrokeColor( const HE_DWORD & color )
 {
     //todo
-    if ( mContentRef ) {
+    if ( mContentRef )
+    {
         CGContextSetRGBStrokeColor( mContentRef, 0, 0, 0, 1 );
     }
 }
@@ -164,32 +170,74 @@ HE_VOID	CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
 
 HE_VOID	CHE_GraphicsDrawer::MoveTo( HE_FLOAT x, HE_FLOAT y )
 {
-    if ( mPathRef == NULL ) {
+    if ( mPathRef == NULL )
+    {
         mPathRef = CGPathCreateMutable();
     }
-    CGPathMoveToPoint( mPathRef, NULL, x, y );
+    CHE_Matrix tmpMatrix;
+    tmpMatrix = mMatrix;
+    tmpMatrix.Concat( mExtMatrix );
+    mAffineTransform.a = tmpMatrix.a;
+    mAffineTransform.b = tmpMatrix.b;
+    mAffineTransform.c = tmpMatrix.c;
+    mAffineTransform.d = tmpMatrix.d;
+    mAffineTransform.tx = tmpMatrix.e;
+    mAffineTransform.ty = tmpMatrix.f;
+    CGPathMoveToPoint( mPathRef, &mAffineTransform, x, y );
 }
 
 HE_VOID	CHE_GraphicsDrawer::LineTo( HE_FLOAT x, HE_FLOAT y )
 {
-    if ( mPathRef ) {
-        CGPathAddLineToPoint( mPathRef, NULL, x, y );
+    if ( mPathRef )
+    {
+        CHE_Matrix tmpMatrix;
+        tmpMatrix = mMatrix;
+        tmpMatrix.Concat( mExtMatrix );
+        mAffineTransform.a = tmpMatrix.a;
+        mAffineTransform.b = tmpMatrix.b;
+        mAffineTransform.c = tmpMatrix.c;
+        mAffineTransform.d = tmpMatrix.d;
+        mAffineTransform.tx = tmpMatrix.e;
+        mAffineTransform.ty = tmpMatrix.f;
+        CGPathAddLineToPoint( mPathRef, &mAffineTransform, x, y );
     }
 }
 
 HE_VOID	CHE_GraphicsDrawer::CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 )
 {
-    if ( mPathRef == NULL )
+    if ( mPathRef )
     {
-        mPathRef = CGPathCreateMutable();
+        CHE_Matrix tmpMatrix;
+        tmpMatrix = mMatrix;
+        tmpMatrix.Concat( mExtMatrix );
+        mAffineTransform.a = tmpMatrix.a;
+        mAffineTransform.b = tmpMatrix.b;
+        mAffineTransform.c = tmpMatrix.c;
+        mAffineTransform.d = tmpMatrix.d;
+        mAffineTransform.tx = tmpMatrix.e;
+        mAffineTransform.ty = tmpMatrix.f;
+        CGPathAddCurveToPoint( mPathRef, &mAffineTransform, x1, y1, x2, y2, x3, y3 );
     }
-    CGPathAddCurveToPoint( mPathRef, NULL, x1, y1, x2, y2, x3, y3 );
 }
 
 HE_VOID CHE_GraphicsDrawer::Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height )
 {
-    if ( mPathRef ) {
-        CGPathAddRect( mPathRef, NULL, CGRectMake( x, y, width, height ) );
+    if ( mPathRef == NULL )
+    {
+        mPathRef = CGPathCreateMutable();
+    }
+    if ( mPathRef )
+    {
+        CHE_Matrix tmpMatrix;
+        tmpMatrix = mMatrix;
+        tmpMatrix.Concat( mExtMatrix );
+        mAffineTransform.a = tmpMatrix.a;
+        mAffineTransform.b = tmpMatrix.b;
+        mAffineTransform.c = tmpMatrix.c;
+        mAffineTransform.d = tmpMatrix.d;
+        mAffineTransform.tx = tmpMatrix.e;
+        mAffineTransform.ty = tmpMatrix.f;
+        CGPathAddRect( mPathRef, &mAffineTransform, CGRectMake( x, y, width, height ) );
     }
 }
 
@@ -310,7 +358,8 @@ HE_VOID	CHE_GraphicsDrawer::FillStrokeClipPath()
 
 HE_VOID	CHE_GraphicsDrawer::ResetClip()
 {
-    if ( mContentRef ) {
+    if ( mContentRef )
+    {
         //todo
         CGPathRelease( mPathRef );
         mPathRef = NULL;

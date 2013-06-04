@@ -560,7 +560,7 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_LPCSTR lpStr )
 
 	if ( m_lpData == NULL )
 	{
-		HE_INT32 iStrlen = strlen(lpStr);
+		size_t iStrlen = strlen(lpStr);
 		m_lpData = GetAllocator()->New<HE_ByteStringData>();
 		m_lpData->m_dwRef = 1;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( iStrlen+1 );
@@ -636,7 +636,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 			m_lpData->m_lpString = NULL;
 		}
 
-		HE_INT32 iBufferSize = strlen(pTempStr) * 2 + 1;
+		size_t iBufferSize = strlen(pTempStr) * 2 + 1;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( iBufferSize );
 		strcpy( m_lpData->m_lpString, pTempStr );
 		strcat( m_lpData->m_lpString, pTempStr );
@@ -670,7 +670,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 				m_lpData->m_dwLength = 0;
 			}
 
-			HE_INT32 iBufferSize = strlen(pTempStr) * 2 + 1;
+			size_t iBufferSize = strlen(pTempStr) * 2 + 1;
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( iBufferSize );
 			strcpy( m_lpData->m_lpString, pTempStr );
 			strcat( m_lpData->m_lpString, pTempStr );
@@ -684,7 +684,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 		}else{
 			if ( m_lpData->m_lpString == NULL )
 			{
-				HE_INT32 iBufferSize = strlen(str.m_lpData->m_lpString)+1;
+				size_t iBufferSize = strlen(str.m_lpData->m_lpString)+1;
 				m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( iBufferSize );
 				strcpy( m_lpData->m_lpString, str.m_lpData->m_lpString );
 				return *this;
@@ -710,7 +710,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 				m_lpData->m_lpString = NULL;
 			}
 
-			HE_INT32 iBufferSize = strlen( str.m_lpData->m_lpString );
+			size_t iBufferSize = strlen( str.m_lpData->m_lpString );
 			iBufferSize += strlen( pTempStr )+1;
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( iBufferSize );
 			strcpy( m_lpData->m_lpString, pTempStr );
@@ -1136,7 +1136,6 @@ HE_INT32 CHE_WideString::GetInteger() const
 		HE_BOOL bBegin = TRUE;
 		HE_BOOL	bNegative = FALSE;
 		HE_INT32 iValue = 0;
-		HE_BOOL bPoint = FALSE;
 		HE_BOOL bSign = FALSE;
 		HE_WCHAR tmpChar = 0;
 		for ( HE_DWORD i = 0; i < GetLength(); i++ )
@@ -1396,7 +1395,7 @@ CHE_WideString& CHE_WideString::operator+=( HE_LPCWSTR lpWstr )
 
 	if ( m_lpData == NULL )
 	{
-		HE_INT32 iStrlen = wcslen(lpWstr);
+		size_t iStrlen = wcslen(lpWstr);
 		m_lpData = GetAllocator()->New<HE_WideStringData>();
 		m_lpData->m_dwRef = 1;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( iStrlen+1 );
@@ -1473,7 +1472,7 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 			m_lpData->m_lpString = NULL;
 		}
 
-		HE_INT32 iBufferSize = wcslen(pTempStr) * 2 + 1;
+		size_t iBufferSize = wcslen(pTempStr) * 2 + 1;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( iBufferSize );
 		wcscpy( m_lpData->m_lpString, pTempStr );
 		wcscat( m_lpData->m_lpString, pTempStr );
@@ -1507,7 +1506,7 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 				m_lpData->m_dwLength = 0;
 			}
 
-			HE_INT32 iBufferSize = wcslen(pTempStr) * 2 + 1;
+			size_t iBufferSize = wcslen(pTempStr) * 2 + 1;
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( iBufferSize );
 			wcscpy( m_lpData->m_lpString, pTempStr );
 			wcscat( m_lpData->m_lpString, pTempStr );
@@ -1521,7 +1520,7 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 		}else{
 			if ( m_lpData->m_lpString == NULL )
 			{
-				HE_INT32 iBufferSize = wcslen(wstr.m_lpData->m_lpString)+1;
+				size_t iBufferSize = wcslen(wstr.m_lpData->m_lpString)+1;
 				m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( iBufferSize );
 				wcscpy( m_lpData->m_lpString, wstr.m_lpData->m_lpString );
 				return *this;
@@ -1547,7 +1546,7 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 				m_lpData->m_lpString = NULL;
 			}
 
-			HE_INT32 iBufferSize = wcslen( wstr.m_lpData->m_lpString );
+			size_t iBufferSize = wcslen( wstr.m_lpData->m_lpString );
 			iBufferSize += wcslen( pTempStr )+1;
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( iBufferSize );
 			wcscpy( m_lpData->m_lpString, pTempStr );

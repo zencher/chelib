@@ -51,9 +51,9 @@ private:
     CGColorSpaceRef             mColorSpaceRef;
     HE_DWORD					mWidth;
     HE_DWORD					mHeight;
-    HE_FLOAT					mCurX;
-    HE_FLOAT					mCurY;
+    CHE_Matrix                  mMatrix;
     CHE_Matrix					mExtMatrix;
+    CGAffineTransform           mAffineTransform;
     GRAPHICS_STATE_FILLMODE     mFillMode;
     CGMutablePathRef            mPathRef;
 };

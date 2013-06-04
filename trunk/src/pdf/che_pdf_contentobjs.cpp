@@ -733,12 +733,12 @@ Do_Conic:
 				/* close the contour with a line segment */
 				line_to( &v_start, user );
 
-				Close:
+Close:
 				first = last + 1;
 			}
 		}
 	}
-Exit:
+//Exit:
 	return pPathRet;
 }
 

@@ -1313,11 +1313,11 @@ int CHE_CRYPT_Rijndael::padDecrypt(const HE_BYTE *input, int inputOctets, HE_BYT
 
 HE_VOID CHE_CRYPT_Rijndael::keySched( HE_BYTE key[_MAX_KEY_COLUMNS][4] )
 {
-	int j, rconpointer = 0;
+	HE_DWORD j, rconpointer = 0;
 
 	// Calculate the necessary round keys
 	// The number of calculations depends on keyBits and blockBits
-	int uKeyColumns = m_uRounds - 6;
+	HE_DWORD uKeyColumns = m_uRounds - 6;
 
 	HE_BYTE tempKey[_MAX_KEY_COLUMNS][4];
 
@@ -1485,7 +1485,7 @@ void CHE_CRYPT_Rijndael::encrypt(const HE_BYTE a[16], HE_BYTE b[16])
 
 void CHE_CRYPT_Rijndael::decrypt(const HE_BYTE a[16], HE_BYTE b[16])
 {
-	int r;
+	HE_DWORD r;
 	HE_BYTE temp[4][4];
 
 	*reinterpret_cast<HE_DWORD*>(temp[0]) = *reinterpret_cast<const HE_DWORD*>((a   )) ^ *reinterpret_cast<const HE_DWORD*>(m_expandedKey[m_uRounds][0]);

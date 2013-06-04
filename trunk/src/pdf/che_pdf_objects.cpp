@@ -542,7 +542,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Reference::GetRefObj( PDF_OBJ_TYPE Type )
 			for ( HE_DWORD i = 0; i < dwCount; i++ )
 			{
 				pElement = ptr->GetArrayPtr()->GetElement( i, Type );
-				if ( pElement == NULL )
+				if ( !pElement )
 				{
 					continue;
 				}

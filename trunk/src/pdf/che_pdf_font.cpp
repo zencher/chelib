@@ -4523,55 +4523,55 @@ CHE_PDF_FontDescriptor::~CHE_PDF_FontDescriptor()
 
 HE_BOOL CHE_PDF_FontDescriptor::IsFixedPitch() const
 {
-	return mFlags & 1;
+	return ( (mFlags & 1) > 0 );
 }
 
 
 HE_BOOL CHE_PDF_FontDescriptor::IsSerif() const
 {
-	return mFlags & 2;
+	return ( (mFlags & 2) > 0 );
 }
 
 
 HE_BOOL CHE_PDF_FontDescriptor::IsSymbolic() const
 {
-	return mFlags & 4;
+	return ( (mFlags & 4) > 0 );
 }
 
 
 HE_BOOL CHE_PDF_FontDescriptor::IsScript() const
 {
-	return mFlags & 8;
+	return ( (mFlags & 8) > 0 );
 }
 
 
 HE_BOOL	CHE_PDF_FontDescriptor::IsNonsymbolic() const
 {
-	return mFlags & 20;
+	return ( (mFlags & 20) > 0 );
 }
 
 
 HE_BOOL	CHE_PDF_FontDescriptor::IsItalic() const
 {
-	return mFlags & 40;
+	return ( (mFlags & 40) > 0 );
 }
 
 
 HE_BOOL	CHE_PDF_FontDescriptor::IsAllCap() const
 {
-	return mFlags & 10000;
+	return ( (mFlags & 10000) > 0 );
 }
 
 
 HE_BOOL	CHE_PDF_FontDescriptor::IsSmallCap() const
 {
-	return mFlags & 20000;
+	return ( (mFlags & 20000) > 0 );
 }
 
 
 HE_BOOL	CHE_PDF_FontDescriptor::IsForceBold() const
 {
-	return mFlags & 40000;
+	return ( (mFlags & 40000) > 0 );
 }
 
 
@@ -4822,7 +4822,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 			{
 				HE_DWORD iCount = pDifArray->GetCount();
 				HE_DWORD iIndex = 0;
-				HE_BYTE tmpByte;
+
 				CHE_PDF_ObjectPtr pObj;
 				for ( HE_DWORD i = 0; i < iCount; i++ )
 				{

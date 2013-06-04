@@ -15,7 +15,7 @@ public:
 
 	~CHE_PDF_Document();
 
-	PDF_VERSION					GetVersion() { mpFile->GetPDFVersion(); }
+	PDF_VERSION					GetVersion() { return mpFile->GetPDFVersion(); }
 
 	HE_DWORD					GetPageCount() const;
 
@@ -27,7 +27,7 @@ public:
 
 	CHE_PDF_Outline *			GetOutline();
 
-	HE_BOOL						SetVersion( PDF_VERSION version ) { mpFile->SetPDFVersion( version ); }
+	HE_VOID						SetVersion( PDF_VERSION version ) { mpFile->SetPDFVersion( version ); }
 
 	HE_BOOL						SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str );
 	

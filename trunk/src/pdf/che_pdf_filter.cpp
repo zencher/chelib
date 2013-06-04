@@ -553,8 +553,6 @@ HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuf
 	}
 
 	HE_BYTE	byteLen = 0;
-	HE_BYTE byteData = 0;
-
 	while ( length > 0 )
 	{
 		byteLen = *pData;

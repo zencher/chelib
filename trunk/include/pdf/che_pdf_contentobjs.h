@@ -104,7 +104,7 @@ public:
 		: mName(name), CHE_PDF_ContentObject( pAllocator ) {}
 	virtual ~CHE_PDF_NamedContentObject() {}
 
-	bool SetName( const CHE_ByteString & name ) { mName = name; }
+	HE_VOID SetName( const CHE_ByteString & name ) { mName = name; }
 
 	CHE_ByteString GetName() const { return mName; }
 

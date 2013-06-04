@@ -1190,16 +1190,16 @@ HE_BOOL	CHE_Bitmap::Fill( HE_ARGB color, const HE_RECT* pRect )
 	{
 		return FALSE;
 	}
-	if ( rect.top < 0 )
-	{
-		rect.height += rect.top;
-		rect.top = 0;
-	}
-	if ( rect.left < 0 )
-	{
-		rect.width += rect.left;
-		rect.left = 0;
-	}
+	//if ( rect.top < 0 )
+	//{
+	//	rect.height += rect.top;
+	//	rect.top = 0;
+	//}
+	//if ( rect.left < 0 )
+	//{
+	//	rect.width += rect.left;
+	//	rect.left = 0;
+	//}
 	
 	for ( HE_DWORD i = rect.top; i < rect.height + rect.top; i++ )
 	{
@@ -1708,14 +1708,14 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 		rect.width = pRect->width;
 		rect.height = pRect->height;
 		
-		if ( rect.top < 0 )
-		{
-			rect.top = 0;
-		}
-		if ( rect.left < 0 )
-		{
-			rect.left = 0;
-		}
+		//if ( rect.top < 0 )
+		//{
+		//	rect.top = 0;
+		//}
+		//if ( rect.left < 0 )
+		//{
+		//	rect.left = 0;
+		//}
 		if ( rect.width > Width() - rect.left )
 		{
 			rect.width = Width() - rect.left;
@@ -2178,7 +2178,7 @@ CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWO
 			HE_BYTE red = 0, green = 0, blue = 0;
 			HE_FLOAT fX = 0, fY = 0;
 			HE_DWORD dwXS = 0, dwXB = 0, dwYS = 0, dwYB = 0;
-			HE_BYTE clrdwXB = 0, clrdwXS = 0, clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
+			HE_BYTE clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
 			HE_ARGB tmpClr = 0xFFFFFFFF;
 			for ( HE_DWORD iY = 0; iY < desHeight; iY++ )
 			{
@@ -2263,7 +2263,7 @@ CHE_Bitmap*	CHE_Bitmap::Translate( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT 
 	HE_BYTE red = 0, green = 0, blue = 0;
 	HE_FLOAT fX = 0, fY = 0;
 	HE_LONG dwXS = 0, dwXB = 0, dwYS = 0, dwYB = 0;
-	HE_BYTE clrdwXB = 0, clrdwXS = 0, clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
+	HE_BYTE clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
 	HE_ARGB tmpClr = 0xFFFFFFFF;
 	for ( HE_DWORD iY = 0; iY < m_lHeight; iY++ )
 	{

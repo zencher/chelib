@@ -468,7 +468,7 @@ HE_DWORD CHE_PDF_Creator::OutPutInObject( const PDF_RefInfo & refInfo, const CHE
 	}
 	HE_DWORD offset = mpWrite->GetCurOffset();
 	HE_CHAR tempStr[128];
-	sprintf( tempStr, "%d %d obj\n", refInfo.objNum, refInfo.genNum );
+	sprintf( tempStr, "%ld %ld obj\n", refInfo.objNum, refInfo.genNum );
 	mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 	if ( bEncrypt )
 	{
@@ -515,7 +515,7 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 				++lCountNum;
 			}else{
 				CHE_PDF_XREF_Entry tmpEntry;
-				sprintf( tempStr, "%d %d\n", lBeginNum, lCountNum );
+				sprintf( tempStr, "%ld %ld\n", lBeginNum, lCountNum );
 				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
 				while( entryList.Pop( tmpEntry ) )
 				{
@@ -523,7 +523,7 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 					{
 						mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
 					}else{
-						sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
+						sprintf( tempStr, "%010ld %05ld n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
 						mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
 					}
 				}
@@ -542,7 +542,7 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 	if ( lCountNum > 0 )
 	{
 		CHE_PDF_XREF_Entry tmpEntry;
-		sprintf( tempStr, "%d %d\n", lBeginNum, lCountNum );
+		sprintf( tempStr, "%ld %ld\n", lBeginNum, lCountNum );
 		mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
 		while( entryList.Pop( tmpEntry ) )
 		{
@@ -550,7 +550,7 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 			{
 				mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
 			}else{
-				sprintf( tempStr, "%010d %05d n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
+				sprintf( tempStr, "%010ld %05ld n \n", tmpEntry.GetOffset(), tmpEntry.GetGenNum() );
 				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
 			}
 		}
@@ -563,7 +563,7 @@ HE_VOID	CHE_PDF_Creator::OutPutFileTailer( HE_DWORD startxref )
 {
 	HE_CHAR tempStr[128];
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefStartMark, glStrXrefStartMark );
-	sprintf( tempStr, "%d\n", startxref );
+	sprintf( tempStr, "%ld\n", startxref );
 	mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrFileEnd, glStrFileEnd );
 }
@@ -641,7 +641,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 				for ( HE_DWORD i = 0; i < length; i++ )
 				{
 					tmpVal = pData[i];
-					sprintf( tmpByte, "%08X", tmpVal );
+					sprintf( tmpByte, "%08lX", tmpVal );
 					pWrite->WriteBlock( (HE_LPVOID)(tmpByte+6), 2 );
 				}
 				pWrite->WriteBlock( (HE_LPVOID)">", 1 );
@@ -692,7 +692,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 	case OBJ_TYPE_REFERENCE:
 		{
 			CHE_PDF_ReferencePtr ptr = pObj->GetRefPtr();
-			sprintf( tempStr, "%d 0 R", ptr->GetRefNum() );
+			sprintf( tempStr, "%ld 0 R", ptr->GetRefNum() );
 			pWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
 			break;
 		}
@@ -768,7 +768,6 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjBegin, glStrStreamObjBegin );
 			HE_LPBYTE pBytes = GetDefaultAllocator()->NewArray<HE_BYTE>( stmPtr->GetRawSize() /*+ 16*/ );
 			stmPtr->GetRawData( 0, pBytes, stmPtr->GetRawSize() );
-			HE_DWORD length = 0;
 			if ( pEncrypt )
 			{
 				pEncrypt->Encrypt( pBytes, stmPtr->GetRawSize(), stmPtr->GetObjNum(), stmPtr->GetGenNum() );

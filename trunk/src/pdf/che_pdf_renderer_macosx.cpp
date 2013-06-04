@@ -9,7 +9,6 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	static GRAPHICS_STATE_LINECAP linCap = LineCap_Butt;
 	static GRAPHICS_STATE_LINEJOIN lineJoin = LineJoin_Miter;
 	static GRAPHICS_STATE_DASHPATTERN lineDash;
-	static GRAPHICS_STATE_TEXTRENDERMODE tm;
 	static CHE_PDF_Color fillColor;
 	static CHE_PDF_Color strokeColor;
 	static CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );

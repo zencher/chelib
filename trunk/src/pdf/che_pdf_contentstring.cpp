@@ -690,7 +690,7 @@ HE_BOOL CHE_PDF_ContentString::ClipStateToBuf( CHE_Matrix & curMatrix, CHE_PDF_C
 		pClipElement = (*it)->GetElement();
 		if ( pClipElement )
 		{
-			clipMatrix = (*it)->GetMatrix();
+			/*clipMatrix = (*it)->GetMatrix();
 			if ( clipMatrix != curMatrix )
 			{
 				CHE_Matrix revertMatrix;
@@ -704,7 +704,7 @@ HE_BOOL CHE_PDF_ContentString::ClipStateToBuf( CHE_Matrix & curMatrix, CHE_PDF_C
 				}
 
 				curMatrix = (*it)->GetMatrix();
-			}
+			}*/
 
 			if ( pClipElement->GetType() == ContentType_Text )
 			{

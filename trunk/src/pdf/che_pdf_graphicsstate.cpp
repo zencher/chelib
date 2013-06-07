@@ -56,7 +56,6 @@ CHE_PDF_ClipStateItem * CHE_PDF_ClipStateItem::Clone() const
 {
 	CHE_PDF_ClipStateItem * pRet = GetAllocator()->New<CHE_PDF_ClipStateItem>( GetAllocator() );
 	pRet->SetElement( mpClipElement->Clone() );
-	pRet->SetMatrix( mMatrix );
 	return pRet;
 }
 
@@ -722,7 +721,6 @@ HE_BOOL CHE_PDF_GState::PushClipElement( CHE_PDF_ContentObject * pElement )
 	}
 	CHE_PDF_ClipStateItem * pItem = GetAllocator()->New<CHE_PDF_ClipStateItem>( GetAllocator() );
 	pItem->SetElement( pElement );
-	pItem->SetMatrix( mMatrix );
 	MakeClipState()->Append( pItem );
 	return TRUE;
 }
@@ -730,6 +728,58 @@ HE_BOOL CHE_PDF_GState::PushClipElement( CHE_PDF_ContentObject * pElement )
 HE_BOOL CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr )
 {
 	MakeExtGState()->PushExtStateName( resName, dictPtr );
+    
+    //todo
+    //make the common gstate data into the common gstate holder
+    if ( dictPtr )
+    {
+        CHE_PDF_ObjectPtr objPtr;
+        objPtr = dictPtr->GetElement( "LW", OBJ_TYPE_NUMBER );
+        if ( objPtr )
+        {
+            SetLineWidth( objPtr->GetNumberPtr()->GetFloat() );
+        }
+        objPtr = dictPtr->GetElement( "ML", OBJ_TYPE_NUMBER );
+        if ( objPtr )
+        {
+            SetMiterLimit( objPtr->GetNumberPtr()->GetFloat() );
+        }
+        objPtr = dictPtr->GetElement( "LC", OBJ_TYPE_NUMBER );
+        if ( objPtr ) {
+            switch ( objPtr->GetNumberPtr()->GetInteger() )
+            {
+            case 0:
+                SetLineCap( LineCap_Butt );
+                break;
+            case 1:
+                SetLineCap( LineCap_Round );
+                break;
+            case 2:
+                SetLineCap( LineCap_Square );
+                break;
+            default:
+                break;
+            }
+        }
+        objPtr = dictPtr->GetElement( "LJ", OBJ_TYPE_NUMBER );
+        if ( objPtr ) {
+            switch ( objPtr->GetNumberPtr()->GetInteger() )
+            {
+                case 0:
+                    SetLineJoin( LineJoin_Miter );
+                    break;
+                case 1:
+                    SetLineJoin( LineJoin_Round );
+                    break;
+                case 2:
+                    SetLineJoin( LineJoin_Bevel );
+                    break;
+                default:
+                    break;
+            }
+        }
+        //more work to do
+    }
 
 	return TRUE;
 }
@@ -996,10 +1046,11 @@ HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_Clip
 
 	for ( ; it1 != pClipGS1->mClipElementList.end() && it2 != pClipGS2->mClipElementList.end(); ++it1, ++it2 )
 	{
-		if ( (*it1)->GetMatrix() != (*it2)->GetMatrix() )
-		{
-			return FALSE;
-		}
+        //zctodo
+		//if ( (*it1)->GetMatrix() != (*it2)->GetMatrix() )
+		//{
+		//	return FALSE;
+		//}
 		pElement1 = (*it1)->GetElement();
 		pElement2 = (*it2)->GetElement();
 		if ( pElement1->GetType() != pElement2->GetType() )

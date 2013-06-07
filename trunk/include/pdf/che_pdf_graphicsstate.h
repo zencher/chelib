@@ -88,15 +88,11 @@ public:
 
 	HE_BOOL SetElement( CHE_PDF_ContentObject * pElement );
 
-	CHE_Matrix GetMatrix() const { return mMatrix; }
-
-	HE_VOID SetMatrix( const CHE_Matrix & matrix ) { mMatrix = matrix; }
 
 	CHE_PDF_ClipStateItem * Clone() const;
 
 private:
 	CHE_PDF_ContentObject *		mpClipElement;
-	CHE_Matrix					mMatrix;
 };
 
 class CHE_PDF_ClipState : public CHE_Object

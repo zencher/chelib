@@ -1,7 +1,7 @@
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../extlib/zlib/zlib.h"
 
-HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	if ( pData == NULL || length == 0  )
 	{
@@ -21,7 +21,7 @@ HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuff
 	buffer.Write( data, 1 );
 }
 
-HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	if ( pData == NULL || length == 0  )
 	{
@@ -60,12 +60,12 @@ HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuff
     }
 }
 
-HE_VOID CHE_PDF_ASCII85Filter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_ASCII85Filter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	m_count = 0;
     m_tuple = 0;
 
-	HE_DWORD  c;
+	HE_ULONG  c;
     const HE_CHAR *   z = "z";
 	
     while( length ) 
@@ -100,12 +100,12 @@ HE_VOID CHE_PDF_ASCII85Filter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_Dyn
 	buffer.Write( (unsigned char*)("~>"), 2 );
 }
 
-HE_VOID CHE_PDF_ASCII85Filter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_ASCII85Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	m_count = 0;
     m_tuple = 0;
     HE_BOOL foundEndMarker = FALSE;
-	const HE_DWORD sPowers85[] = { 85*85*85*85, 85*85*85, 85*85, 85, 1 };
+	const HE_ULONG sPowers85[] = { 85*85*85*85, 85*85*85, 85*85, 85, 1 };
 	
     while( length && !foundEndMarker ) 
     {
@@ -160,10 +160,10 @@ HE_VOID CHE_PDF_ASCII85Filter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_Dyn
 	}
 }
 
-HE_VOID CHE_PDF_ASCII85Filter::EncodeTuple( HE_DWORD tuple, HE_DWORD count, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_ASCII85Filter::EncodeTuple( HE_ULONG tuple, HE_ULONG count, CHE_DynBuffer & buffer )
 {
-	HE_DWORD i = 5;
-	HE_DWORD z = 0;
+	HE_ULONG i = 5;
+	HE_ULONG z = 0;
 	HE_CHAR buf[5];
 	HE_CHAR out[5];
 	HE_CHAR* start = buf;
@@ -185,7 +185,7 @@ HE_VOID CHE_PDF_ASCII85Filter::EncodeTuple( HE_DWORD tuple, HE_DWORD count, CHE_
 	buffer.Write( (unsigned char*)out, z );
 }
 	
-HE_VOID CHE_PDF_ASCII85Filter::WidePut( HE_DWORD tuple, HE_DWORD bytes, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_ASCII85Filter::WidePut( HE_ULONG tuple, HE_ULONG bytes, CHE_DynBuffer & buffer )
 {
     char data[4];
 
@@ -224,7 +224,7 @@ HE_VOID CHE_PDF_ASCII85Filter::WidePut( HE_DWORD tuple, HE_DWORD bytes, CHE_DynB
 	buffer.Write( (unsigned char*)data, bytes );
 }
 
-HE_VOID CHE_PDF_FlateFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_FlateFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	if ( pData == NULL || length == 0 )
 	{
@@ -232,7 +232,7 @@ HE_VOID CHE_PDF_FlateFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBu
 	}
 
 	HE_BYTE tmpBuffer[4096];
-	HE_DWORD nWrittenData = 0;
+	HE_ULONG nWrittenData = 0;
 	z_stream stream;
 	HE_INT32 param = Z_NO_FLUSH;
 
@@ -272,7 +272,7 @@ HE_VOID CHE_PDF_FlateFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBu
     }
 }
 
-HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	if ( pData == NULL || length == 0 )
 	{
@@ -280,7 +280,7 @@ HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBu
 	}
 
 	HE_BYTE tmpBuffer[4096];
-	HE_DWORD nWrittenData = 0;
+	HE_ULONG nWrittenData = 0;
 	z_stream stream;
 	HE_INT32 param = Z_NO_FLUSH;
 
@@ -339,12 +339,12 @@ const unsigned short CHE_PDF_LZWFilter::s_masks[] = {	0x01FF,
 const unsigned short CHE_PDF_LZWFilter::s_clear  = 0x0100;      // clear table
 const unsigned short CHE_PDF_LZWFilter::s_eod    = 0x0101;      // end of data
 
-HE_VOID CHE_PDF_LZWFilter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_LZWFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	return;
 }
 
-HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & outBuffer )
+HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & outBuffer )
 {
 	m_mask       = 0;
     m_code_len   = 9;
@@ -355,9 +355,9 @@ HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuff
 	unsigned int       buffer_size = 0;
     const unsigned int buffer_max  = 24;
 	
-    HE_DWORD         old         = 0;
-    HE_DWORD         code        = 0;
-    HE_DWORD         buffer      = 0;
+    HE_ULONG         old         = 0;
+    HE_ULONG         code        = 0;
+    HE_ULONG         buffer      = 0;
 	
     TLzwItem           item;
 	
@@ -375,7 +375,7 @@ HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuff
         while( buffer_size <= (buffer_max-8) && length )
         {
             buffer <<= 8;
-            buffer |= static_cast<HE_DWORD>(static_cast<unsigned char>(*pData));
+            buffer |= static_cast<HE_ULONG>(static_cast<unsigned char>(*pData));
             buffer_size += 8;
 			
             ++pData;
@@ -466,7 +466,7 @@ HE_VOID CHE_PDF_LZWFilter::InitTable()
 	m_table.push_back( item );
 }
 
-HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	if ( pData == NULL || length == 0 )
 	{
@@ -476,7 +476,7 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuf
 	CHE_DynBuffer buf( length, length, GetAllocator() );
 	HE_BYTE byte = *pData;
 	pData++;
-	HE_DWORD lCount = 1;
+	HE_ULONG lCount = 1;
 	HE_BYTE countByte = 0;
 	while ( length > 1 )
 	{
@@ -545,7 +545,7 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuf
 	buffer.Write( &countByte, 1 );
 }
 
-HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer )
+HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 	if ( pData == NULL || length == 0 )
 	{

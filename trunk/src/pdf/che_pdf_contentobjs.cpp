@@ -107,7 +107,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		{
 			CHE_PDF_ArrayPtr pArray = pObj->GetArrayPtr();
 			CHE_PDF_ObjectPtr pObj;
-			for ( HE_DWORD i = 0; i < pArray->GetCount(); ++i )
+			for ( HE_ULONG i = 0; i < pArray->GetCount(); ++i )
 			{
 				pObj = pArray->GetElement( i );
 				if ( pObj && ( pObj->GetType() == OBJ_TYPE_STRING || pObj->GetType() == OBJ_TYPE_NUMBER ) )
@@ -121,12 +121,12 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		CHE_PDF_TextItem item;
 		if ( pFont->GetType() != FONT_TYPE0 )
 		{
-			for ( HE_DWORD i = 0; i < tmpArray.size(); ++i )
+			for ( HE_ULONG i = 0; i < tmpArray.size(); ++i )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
 					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
-					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); ++index )
+					for ( HE_ULONG index = 0; index < tmpStr.GetLength(); ++index )
 					{
 						item.charCode = HE_BYTE( tmpStr[index] );
 						item.gid = 0;
@@ -169,12 +169,12 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		else
 		{
 			CHE_PDF_Type0_Font * pType0Font = (CHE_PDF_Type0_Font *)( pFont );
-			for ( HE_DWORD i = 0; i < tmpArray.size(); ++i )
+			for ( HE_ULONG i = 0; i < tmpArray.size(); ++i )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
 					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
-					for ( HE_DWORD index = 0; index < tmpStr.GetLength(); index+=2 )
+					for ( HE_ULONG index = 0; index < tmpStr.GetLength(); index+=2 )
 					{
 						item.charCode = HE_BYTE( tmpStr[index] );
 						item.charCode = ( item.charCode << 8 ) + HE_BYTE( tmpStr[index+1] );
@@ -264,7 +264,7 @@ CHE_Matrix CHE_PDF_Text::GetTextMatrix() const
 }
 
 
-CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
+CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_ULONG index ) const
 {
 	if ( index >= mItems.size() )
 	{
@@ -274,7 +274,7 @@ CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 	if ( pGState )
 	{
 		CHE_PDF_Font * pFont = pGState->GetTextFont();
-		HE_DWORD wMode = 0;
+		HE_ULONG wMode = 0;
 		if ( pFont )
 		{
 			wMode = pFont->GetWMode();
@@ -295,7 +295,7 @@ CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_DWORD index ) const
 
 		HE_FLOAT offset = 0;
 		HE_FLOAT kerning = 0;
-		HE_DWORD i = 0;
+		HE_ULONG i = 0;
 		for (; i < index; ++i )
 		{
 			offset += mItems[i].width * fontSize + fontCharSpace;	//wMode==1的时候，是不是还加width？
@@ -342,7 +342,7 @@ CHE_Rect CHE_PDF_Text::GetTextRect() const
 {
 	CHE_Rect rect;
 	CHE_Rect tmpRect;
-	for ( HE_DWORD i = 0; i < mItems.size(); ++i )
+	for ( HE_ULONG i = 0; i < mItems.size(); ++i )
 	{
 		tmpRect = GetCharRect( i );
 		rect.Union( tmpRect );
@@ -351,7 +351,7 @@ CHE_Rect CHE_PDF_Text::GetTextRect() const
 }
 
 
-CHE_Rect CHE_PDF_Text::GetCharRect( HE_DWORD index ) const
+CHE_Rect CHE_PDF_Text::GetCharRect( HE_ULONG index ) const
 {
 	CHE_Rect rect;
 	if ( index < mItems.size() )
@@ -400,7 +400,7 @@ HE_FLOAT CHE_PDF_Text::GetOffSet() const
 
 		HE_FLOAT offset = 0;
 		HE_FLOAT kerning = 0;
-		for ( HE_DWORD i = 0; i < mItems.size(); ++i )
+		for ( HE_ULONG i = 0; i < mItems.size(); ++i )
 		{
 			offset += mItems[i].width * fontSize + fontCharSpace;
 			if ( mItems[i].ucs == L' ' || mItems[i].charCode == ' ' )
@@ -498,7 +498,7 @@ inline int cubic_to(const FT_Vector *c1, const FT_Vector *c2, const FT_Vector *p
 }
 
 
-CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_DWORD index )
+CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 {
 	if ( index >= mItems.size() )
 	{

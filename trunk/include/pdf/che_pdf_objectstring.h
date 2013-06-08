@@ -14,7 +14,7 @@ public:
 
 	static HE_BOOL IntegerToBuf( HE_INT32 val, CHE_DynBuffer & buf );
 
-	static HE_BOOL DWORDToBuf( HE_DWORD val, CHE_DynBuffer & buf );
+	static HE_BOOL DWORDToBuf( HE_ULONG val, CHE_DynBuffer & buf );
 
 	static HE_BOOL SpaceToBuf( CHE_DynBuffer & buf );
 

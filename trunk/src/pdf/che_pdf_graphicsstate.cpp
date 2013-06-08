@@ -943,7 +943,7 @@ HE_BOOL IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 )
 	{
 		return FALSE;
 	}
-	for ( HE_DWORD i = 0; i < c1.mConponents.size(); ++i )
+	for ( HE_ULONG i = 0; i < c1.mConponents.size(); ++i )
 	{
 		if ( c1.mConponents[i] != c2.mConponents[i] )
 		{
@@ -1090,7 +1090,7 @@ HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_Clip
 			{
 				return FALSE;
 			}
-			for ( HE_DWORD i = 0; i != pPath1->mItems.size(); ++i )
+			for ( HE_ULONG i = 0; i != pPath1->mItems.size(); ++i )
 			{
 				if ( pPath1->mItems[i].type != pPath2->mItems[i].type ||
 					 pPath1->mItems[i].value != pPath2->mItems[i].value )

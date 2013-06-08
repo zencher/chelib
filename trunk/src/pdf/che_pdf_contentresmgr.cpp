@@ -217,7 +217,7 @@ CHE_ByteString CHE_PDF_ContentResMgr::RequestName( const CHE_PDF_DictionaryPtr &
 	}else
 	{
 		HE_CHAR tmpStr[128];
-		HE_DWORD tmpInt = 0;
+		HE_ULONG tmpInt = 0;
 		bool bContinue = true;
 		while ( bContinue )
 		{

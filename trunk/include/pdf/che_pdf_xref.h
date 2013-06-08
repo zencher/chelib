@@ -21,27 +21,27 @@ public:
 
 	CHE_PDF_XREF_Entry();
 
-	CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_DWORD objNum, HE_DWORD f1, HE_DWORD f2 );
+	CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_ULONG objNum, HE_ULONG f1, HE_ULONG f2 );
 
 	PDF_XREF_ENTRY_TYPE		GetType() { return Type; }
 
-	HE_DWORD				GetObjNum() { return ObjNum; }
+	HE_ULONG				GetObjNum() { return ObjNum; }
 
-	HE_DWORD				GetOffset() { return Field1; }
+	HE_ULONG				GetOffset() { return Field1; }
 
-	HE_DWORD				GetGenNum() { return Field2; }
+	HE_ULONG				GetGenNum() { return Field2; }
 
-	HE_DWORD				GetParentObjNum() { return Field1; }
+	HE_ULONG				GetParentObjNum() { return Field1; }
 
-	HE_DWORD				GetIndex() { return Field2; }
+	HE_ULONG				GetIndex() { return Field2; }
 
 	PDF_XREF_ENTRY_TYPE		Type;
 
-	HE_DWORD				ObjNum;
+	HE_ULONG				ObjNum;
 
-	HE_DWORD				Field1;
+	HE_ULONG				Field1;
 
-	HE_DWORD				Field2;
+	HE_ULONG				Field2;
 };
 
 bool operator == ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 );
@@ -66,15 +66,15 @@ public:
 
 	HE_VOID								Clear();
 
-	HE_BOOL								Get( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet );
+	HE_BOOL								Get( HE_ULONG objNum, CHE_PDF_XREF_Entry & entryRet );
 
-	HE_DWORD							GetTrailerCount() { return mTrailerDict.size(); }
+	HE_ULONG							GetTrailerCount() { return mTrailerDict.size(); }
 
-	CHE_PDF_DictionaryPtr				GetTrailer( HE_DWORD index = 0 ) const;
+	CHE_PDF_DictionaryPtr				GetTrailer( HE_ULONG index = 0 ) const;
 
-	HE_DWORD							GetMaxObjNum() const { return mMaxObjNum; }
+	HE_ULONG							GetMaxObjNum() const { return mMaxObjNum; }
 
-	HE_BOOL								Update( HE_DWORD objNum, const CHE_PDF_XREF_Entry & entryRet );
+	HE_BOOL								Update( HE_ULONG objNum, const CHE_PDF_XREF_Entry & entryRet );
 
 	HE_BOOL								IsEOF() { return mList.IsEOF(); }
 
@@ -87,7 +87,7 @@ public:
 
 private:
 	
-	HE_DWORD							mMaxObjNum;
+	HE_ULONG							mMaxObjNum;
 
 	std::vector<CHE_PDF_DictionaryPtr>	mTrailerDict;
 

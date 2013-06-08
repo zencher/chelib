@@ -22,7 +22,7 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & PagesDictPtr, 
 	{
 		CHE_PDF_ArrayPtr KidsArrayPtr = ObjPtr->GetArrayPtr();
 
-		for ( HE_DWORD i = KidsArrayPtr->GetCount() ; i > 0; --i )
+		for ( HE_ULONG i = KidsArrayPtr->GetCount() ; i > 0; --i )
 		{
 			ObjPtr = KidsArrayPtr->GetElement( i - 1 );
 			if ( IsPdfRefPtr( ObjPtr ) )
@@ -41,12 +41,12 @@ CHE_PDF_PageTree::~CHE_PDF_PageTree()
 	}
 }
 
-HE_DWORD CHE_PDF_PageTree::GetPageCount()
+HE_ULONG CHE_PDF_PageTree::GetPageCount()
 {
 	return mPageCount;
 }
 
-CHE_PDF_Page * CHE_PDF_PageTree::GetPage( HE_DWORD index )
+CHE_PDF_Page * CHE_PDF_PageTree::GetPage( HE_ULONG index )
 {
 	if ( mpFile )
 	{
@@ -72,7 +72,7 @@ HE_VOID CHE_PDF_PageTree::ReleasePage( CHE_PDF_Page * pPage )
 	}
 }
 
-HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet )
+HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet )
 {
 	if ( index >= mPageCount )
 	{
@@ -135,7 +135,7 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet )
 					if ( objPtr )
 					{
 						arrayPtr = objPtr->GetArrayPtr();
-						for ( HE_DWORD i = arrayPtr->GetCount(); i > 0; --i )
+						for ( HE_ULONG i = arrayPtr->GetCount(); i > 0; --i )
 						{
 							objPtr = arrayPtr->GetElement( i-1, OBJ_TYPE_REFERENCE );
 
@@ -152,7 +152,7 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet )
 	return FALSE;
 }
 
-HE_VOID CHE_PDF_PageTree::AppendPage( HE_DWORD width, HE_DWORD height )
+HE_VOID CHE_PDF_PageTree::AppendPage( HE_ULONG width, HE_ULONG height )
 {
 	assert( mpFile );
 

@@ -513,7 +513,7 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pTextState
 
 	if ( ! IsDefTextRenderMode( textRenderMode ) )
 	{
-		HE_DWORD tmpVal = (HE_DWORD)( textRenderMode );
+		HE_ULONG tmpVal = (HE_ULONG)( textRenderMode );
 		CHE_PDF_ObjectString::DWORDToBuf( tmpVal, buf );
 		CHE_PDF_ObjectString::StringToBuf( " Tr\n", buf );
 	}
@@ -603,7 +603,7 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pCurTextSt
 
 	if ( curRM != targetRM )
 	{
-		HE_DWORD tmpVal = (HE_DWORD)( targetRM );
+		HE_ULONG tmpVal = (HE_ULONG)( targetRM );
 		CHE_PDF_ObjectString::DWORDToBuf( tmpVal, buf );
 		CHE_PDF_ObjectString::StringToBuf( " Tr\n", buf );
 	}
@@ -1325,7 +1325,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 			curLineDash.dashArray.size() != targetLineDash.dashArray.size() )
 	{
 		CHE_PDF_ObjectString::StringToBuf( "[", buf );
-		for ( HE_DWORD i = 0; i < targetLineDash.dashArray.size(); ++i )
+		for ( HE_ULONG i = 0; i < targetLineDash.dashArray.size(); ++i )
 		{
 			CHE_PDF_ObjectString::StringToBuf( " ", buf );
 			CHE_PDF_ObjectString::FloatToBuf( targetLineDash.dashArray[i], buf );
@@ -1335,7 +1335,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 		CHE_PDF_ObjectString::StringToBuf( " d\n", buf );
 	}else{
 		HE_BOOL bSame = TRUE;
-		for ( HE_DWORD i = 0; i < targetLineDash.dashArray.size(); ++i )
+		for ( HE_ULONG i = 0; i < targetLineDash.dashArray.size(); ++i )
 		{
 			if ( ! IsFloatEqual( curLineDash.dashArray[i], targetLineDash.dashArray[i] ) )
 			{

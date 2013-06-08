@@ -1,7 +1,7 @@
 #include "../../include/pdf/che_pdf_image.h"
 
-CHE_PDF_ReferencePtr CHE_PDF_Image::InsertImageToFile(	CHE_PDF_File * pFile, PDF_IMAGE_TYPE type, HE_DWORD bpc,
-														HE_DWORD width, HE_DWORD height, HE_LPBYTE pData, HE_DWORD size,
+CHE_PDF_ReferencePtr CHE_PDF_Image::InsertImageToFile(	CHE_PDF_File * pFile, PDF_IMAGE_TYPE type, HE_ULONG bpc,
+														HE_ULONG width, HE_ULONG height, HE_LPBYTE pData, HE_ULONG size,
 														CHE_PDF_ReferencePtr mask )
 {
 	CHE_PDF_ReferencePtr refPtrRet;

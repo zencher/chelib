@@ -151,12 +151,12 @@ HE_VOID CHE_WDM_AppearPath::AddCurve( HE_FLOAT x0, HE_FLOAT y0, HE_FLOAT x1, HE_
 	mItems.push_back( item );
 }
 
-HE_DWORD CHE_WDM_AppearPath::GetItemCount()
+HE_ULONG CHE_WDM_AppearPath::GetItemCount()
 {
 	return mItems.size();
 }
 
-HE_BOOL CHE_WDM_AppearPath::GetItem( HE_DWORD index, CHE_WDM_AppearPathItem & itemRet )
+HE_BOOL CHE_WDM_AppearPath::GetItem( HE_ULONG index, CHE_WDM_AppearPathItem & itemRet )
 {
 	if ( index >= mItems.size() )
 	{
@@ -400,13 +400,13 @@ HE_VOID CHE_WDM_Area::AppendChild( CHE_WDM_Area * pChlid )
 	}
 }
 
-CHE_WDM_Area * CHE_WDM_Area::PopChild( HE_DWORD index )
+CHE_WDM_Area * CHE_WDM_Area::PopChild( HE_ULONG index )
 {
 	std::vector<CHE_WDM_Area*>::iterator it = mChildren.begin();
 	
 	CHE_WDM_Area * pTmp = NULL;
 
-	for ( HE_DWORD i = 0; it != mChildren.end(); ++it, ++i )
+	for ( HE_ULONG i = 0; it != mChildren.end(); ++it, ++i )
 	{
 		if ( index == i )
 		{
@@ -419,7 +419,7 @@ CHE_WDM_Area * CHE_WDM_Area::PopChild( HE_DWORD index )
 	return NULL;
 }
 
-HE_BOOL CHE_WDM_Area::ChildToLower( HE_DWORD index )
+HE_BOOL CHE_WDM_Area::ChildToLower( HE_ULONG index )
 {
 	if ( index == 0 )
 	{
@@ -432,7 +432,7 @@ HE_BOOL CHE_WDM_Area::ChildToLower( HE_DWORD index )
 	return TRUE;
 }
 
-HE_BOOL CHE_WDM_Area::ChildToUpper( HE_DWORD index )
+HE_BOOL CHE_WDM_Area::ChildToUpper( HE_ULONG index )
 {
 	if ( index >= mChildren.size() - 1 )
 	{
@@ -445,12 +445,12 @@ HE_BOOL CHE_WDM_Area::ChildToUpper( HE_DWORD index )
 	return TRUE;
 }
 
-HE_DWORD CHE_WDM_Area::GetChildrenCount() const
+HE_ULONG CHE_WDM_Area::GetChildrenCount() const
 {
 	return mChildren.size();
 }
 
-CHE_WDM_Area * CHE_WDM_Area::GetChild( HE_DWORD index ) const
+CHE_WDM_Area * CHE_WDM_Area::GetChild( HE_ULONG index ) const
 {
 	return ( index < GetChildrenCount() ) ? mChildren[index] : NULL ;
 }
@@ -1085,7 +1085,7 @@ HE_VOID CHE_WDM_AreaAnimation::CallFunction()
 	}
 }
 
-HE_VOID CHE_WDM_AreaAnimation::InsertFrames( HE_DWORD frames, const CHE_WDM_AnimationData & state )
+HE_VOID CHE_WDM_AreaAnimation::InsertFrames( HE_ULONG frames, const CHE_WDM_AnimationData & state )
 {
 	if ( frames > 0 )
 	{

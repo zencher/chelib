@@ -38,7 +38,7 @@ public:
 
 	HE_BOOL					SaveUpdate( IHE_Write * pWrite );
 
-	HE_DWORD				GetFileSize() const;
+	HE_ULONG				GetFileSize() const;
 
 	PDF_VERSION				GetPDFVersion() const;
 

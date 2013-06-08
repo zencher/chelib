@@ -12,8 +12,8 @@ struct HE_ByteStringData
 		m_dwRef = 1;
 	}
 	HE_LPSTR m_lpString;
-	HE_DWORD m_dwLength;
-	HE_DWORD m_dwRef;
+	HE_ULONG m_dwLength;
+	HE_ULONG m_dwRef;
 };
 
 class CHE_ByteString : public CHE_Object
@@ -37,7 +37,7 @@ public:
 	CHE_ByteString& operator=( HE_LPCSTR lpStr );	//同上
 	CHE_ByteString& operator=( const CHE_ByteString& str );
 
-	HE_BOOL	SetData( HE_BYTE * pData, HE_DWORD size );
+	HE_BOOL	SetData( HE_BYTE * pData, HE_ULONG size );
 
 	HE_LPCSTR	GetData() const { return ( m_lpData ) ? m_lpData->m_lpString : NULL; }
 
@@ -48,9 +48,9 @@ public:
 	friend bool operator==( HE_CHAR ch, CHE_ByteString& str );
 	friend bool operator==( HE_LPSTR lpStr, CHE_ByteString& str );
 
-	HE_DWORD GetLength() const;
+	HE_ULONG GetLength() const;
 
-	HE_CHAR operator[]( HE_DWORD index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
+	HE_CHAR operator[]( HE_ULONG index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
 													//的值，实际上，临时变量是const，根本不能被赋值。
 
 	HE_INT32 GetInteger() const;
@@ -98,8 +98,8 @@ bool operator!=( HE_LPCSTR lpStr, CHE_ByteString& str );
 struct HE_WideStringData
 {
 	HE_LPWSTR m_lpString;
-	HE_DWORD m_dwLength;
-	HE_DWORD m_dwRef;
+	HE_ULONG m_dwLength;
+	HE_ULONG m_dwRef;
 };
 
 class CHE_WideString : public CHE_Object
@@ -123,7 +123,7 @@ public:
 	CHE_WideString& operator=( HE_LPCWSTR lpWstr );	//同上
 	CHE_WideString& operator=( const CHE_WideString& wstr );
 	
-	HE_BOOL	SetData( HE_WCHAR * pData, HE_DWORD size );
+	HE_BOOL	SetData( HE_WCHAR * pData, HE_ULONG size );
 
 	HE_LPCWSTR	GetData() const { return ( m_lpData ) ? m_lpData->m_lpString : NULL; }
 	
@@ -134,9 +134,9 @@ public:
 	friend bool operator==( HE_WCHAR wch, CHE_WideString& wstr );
 	friend bool operator==( HE_LPCWSTR lpWstr, CHE_WideString& wstr );
 	
-	HE_DWORD GetLength() const;
+	HE_ULONG GetLength() const;
 	
-	HE_WCHAR operator[]( HE_DWORD index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
+	HE_WCHAR operator[]( HE_ULONG index )const;		//函数以传值的方式返回一个临时的HE_CHAR，对HE_CHAR的赋值不会影响string内部
 	//的值，实际上，临时变量是const，根本不能被赋值。
 
 	HE_INT32 GetInteger() const;

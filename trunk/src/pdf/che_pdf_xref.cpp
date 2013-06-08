@@ -36,7 +36,7 @@ CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry()
 	Field2 = 0;
 }
 
-CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_DWORD num, HE_DWORD f1, HE_DWORD f2 )
+CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_ULONG num, HE_ULONG f1, HE_ULONG f2 )
 {
 	Type = type;
 	ObjNum = num;
@@ -69,13 +69,13 @@ HE_BOOL CHE_PDF_XREF_Table::Add( const CHE_PDF_XREF_Entry & entry )
 	return FALSE;
 }
 
-HE_BOOL CHE_PDF_XREF_Table::Get( HE_DWORD objNum, CHE_PDF_XREF_Entry & entryRet )
+HE_BOOL CHE_PDF_XREF_Table::Get( HE_ULONG objNum, CHE_PDF_XREF_Entry & entryRet )
 {
 	entryRet.ObjNum  = objNum;
 	return mList.Find( entryRet );
 }
 
-HE_BOOL CHE_PDF_XREF_Table::Update( HE_DWORD objNum, const CHE_PDF_XREF_Entry & entry )
+HE_BOOL CHE_PDF_XREF_Table::Update( HE_ULONG objNum, const CHE_PDF_XREF_Entry & entry )
 {
 	CHE_PDF_XREF_Entry tmpEntry = entry;
 	tmpEntry.ObjNum = objNum;
@@ -104,7 +104,7 @@ HE_BOOL CHE_PDF_XREF_Table::AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict 
 	return FALSE;
 }
 
-CHE_PDF_DictionaryPtr CHE_PDF_XREF_Table::GetTrailer( HE_DWORD index /*= 0*/ ) const
+CHE_PDF_DictionaryPtr CHE_PDF_XREF_Table::GetTrailer( HE_ULONG index /*= 0*/ ) const
 {
 	if ( index >= mTrailerDict.size() )
 	{

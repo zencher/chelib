@@ -40,9 +40,9 @@ CHE_PDF_ArrayPtr CloneDirectArrayObj( const CHE_PDF_ArrayPtr & ArrayPtr, CHE_PDF
 
 	CHE_PDF_ArrayPtr NewArrayPtr = CHE_PDF_Array::Create( pFile->GetAllocator() );
 	
-	HE_DWORD arraySize = ArrayPtr->GetCount();
+	HE_ULONG arraySize = ArrayPtr->GetCount();
 
-	for ( HE_DWORD i = 0; i < arraySize; ++i )
+	for ( HE_ULONG i = 0; i < arraySize; ++i )
 	{
 		ObjPtr = ArrayPtr->GetElement( i );
 
@@ -98,9 +98,9 @@ CHE_PDF_DictionaryPtr CloneDirectDictObj( const CHE_PDF_DictionaryPtr & DictPtr,
 	CHE_PDF_ObjectPtr ObjPtr;
 	CHE_PDF_DictionaryPtr NewDictPtr = CHE_PDF_Dictionary::Create( pFile->GetAllocator() );
 	
-	HE_DWORD dictSize = DictPtr->GetCount();
+	HE_ULONG dictSize = DictPtr->GetCount();
 
-	for ( HE_DWORD i = 0; i < dictSize; ++i )
+	for ( HE_ULONG i = 0; i < dictSize; ++i )
 	{
 		DictPtr->GetKeyByIndex( i, key );
 
@@ -253,8 +253,8 @@ PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File 
 			CHE_PDF_ObjectPtr tmpObjPtr;
 			CHE_PDF_ArrayPtr tmpArrayPtr = ObjPtr->GetArrayPtr();
 
-			HE_DWORD arraySize = tmpArrayPtr->GetCount();
-			for ( HE_DWORD i = 0; i < arraySize; i++ )
+			HE_ULONG arraySize = tmpArrayPtr->GetCount();
+			for ( HE_ULONG i = 0; i < arraySize; i++ )
 			{
 				tmpObjPtr = tmpArrayPtr->GetElement( i );
 				switch ( tmpObjPtr->GetType() )
@@ -310,8 +310,8 @@ PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File 
 			CHE_PDF_ObjectPtr tmpObjPtr;
 			CHE_PDF_DictionaryPtr tmpDictPtr = ObjPtr->GetDictPtr();
 			
-			HE_DWORD dictSize = tmpDictPtr->GetCount();
-			for ( HE_DWORD i = 0; i < dictSize; i++ )
+			HE_ULONG dictSize = tmpDictPtr->GetCount();
+			for ( HE_ULONG i = 0; i < dictSize; i++ )
 			{
 				tmpDictPtr->GetKeyByIndex( i, key );
 

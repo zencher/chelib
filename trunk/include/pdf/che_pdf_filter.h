@@ -10,8 +10,8 @@ public:
 	CHE_PDF_Filter( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
 	virtual	~CHE_PDF_Filter() {};
 
-	virtual HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer ) = 0;
-	virtual HE_VOID	Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer ) = 0;
+	virtual HE_VOID Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer ) = 0;
+	virtual HE_VOID	Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer ) = 0;
 };
 
 class CHE_PDF_Predictor : public CHE_Object
@@ -45,7 +45,7 @@ public:
         }
     }
 
-    void Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer ) 
+    void Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer ) 
     {
         if( m_nPredictor == 1 )
         {
@@ -118,8 +118,8 @@ private:
     HE_BYTE		m_nEarlyChange;
     HE_BYTE		m_nBpp; ///< Bytes per pixel
     HE_BYTE		m_nCurPredictor;
-    HE_DWORD	m_nCurRowIndex;
-    HE_DWORD	m_nRows;
+    HE_ULONG	m_nCurRowIndex;
+    HE_ULONG	m_nRows;
     HE_LPBYTE	m_pPrev;
 };
 
@@ -129,8 +129,8 @@ public:
 	CHE_PDF_HexFilter( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator ) {}
 	~CHE_PDF_HexFilter() {};
 	
-	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
-	HE_VOID	Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+	HE_VOID	Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 };
 
 class CHE_PDF_ASCII85Filter : public CHE_PDF_Filter
@@ -139,17 +139,17 @@ public:
 	CHE_PDF_ASCII85Filter( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator ) {}
 	~CHE_PDF_ASCII85Filter() {};
 
-	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 
-	HE_VOID Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 
 private:
-	HE_VOID EncodeTuple( HE_DWORD tuple, HE_DWORD count,  CHE_DynBuffer & buffer );
+	HE_VOID EncodeTuple( HE_ULONG tuple, HE_ULONG count,  CHE_DynBuffer & buffer );
 
-	HE_VOID WidePut( HE_DWORD tuple, HE_DWORD bytes,  CHE_DynBuffer & buffer );
+	HE_VOID WidePut( HE_ULONG tuple, HE_ULONG bytes,  CHE_DynBuffer & buffer );
 
-	HE_DWORD	m_count;
-    HE_DWORD	m_tuple;
+	HE_ULONG	m_count;
+    HE_ULONG	m_tuple;
 };
 
 class CHE_PDF_FlateFilter : public CHE_PDF_Filter
@@ -160,9 +160,9 @@ public:
 	
 	~CHE_PDF_FlateFilter() {}
 
-	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 	
-	HE_VOID Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 
 private:
 	CHE_PDF_Predictor * m_pPredictor;
@@ -184,9 +184,9 @@ public:
 
 	~CHE_PDF_LZWFilter() {};
 
-	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 	
-	HE_VOID Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 	
 private:
 	HE_VOID InitTable();
@@ -212,9 +212,9 @@ public:
 	CHE_PDF_RLEFileter( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator ) {}
 	~CHE_PDF_RLEFileter() {};
 	
-	HE_VOID Encode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 	
-	HE_VOID Decode( HE_LPBYTE pData, HE_DWORD length, CHE_DynBuffer & buffer );
+	HE_VOID Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
 };
 
 #endif

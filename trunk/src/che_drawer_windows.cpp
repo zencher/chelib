@@ -1,6 +1,6 @@
 #include "../include/che_drawer_windows.h"
 
-CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight )
+CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dibHeight )
 {
 	m_DC = hDC;
 	m_dwWidth = dibWidth;
@@ -67,7 +67,7 @@ CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
 	}
 }
 
-HE_VOID	CHE_GraphicsDrawer::Resize( HE_DWORD dibWidth, HE_DWORD dibHeight )
+HE_VOID	CHE_GraphicsDrawer::Resize( HE_ULONG dibWidth, HE_ULONG dibHeight )
 {
 	m_dwWidth = dibWidth;
 	m_dwHeight = dibHeight;
@@ -108,12 +108,12 @@ HE_VOID	CHE_GraphicsDrawer::Resize( HE_DWORD dibWidth, HE_DWORD dibHeight )
 	m_pGraphics->SetPageUnit( Gdiplus::UnitPixel );
 }
 
-HE_DWORD CHE_GraphicsDrawer::GetWidth() const
+HE_ULONG CHE_GraphicsDrawer::GetWidth() const
 {
 	return m_dwWidth;
 }
 
-HE_DWORD CHE_GraphicsDrawer::GetHeight() const
+HE_ULONG CHE_GraphicsDrawer::GetHeight() const
 {
 	return m_dwHeight;
 }
@@ -462,7 +462,7 @@ HE_VOID CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::SetFillColor( const HE_DWORD & color )
+HE_VOID CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
 {
 	if ( m_pBrush )
 	{
@@ -470,7 +470,7 @@ HE_VOID CHE_GraphicsDrawer::SetFillColor( const HE_DWORD & color )
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::SetStrokeColor( const HE_DWORD & color )
+HE_VOID CHE_GraphicsDrawer::SetStrokeColor( const HE_ULONG & color )
 {
 	if ( m_pPen )
 	{

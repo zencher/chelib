@@ -15,15 +15,15 @@ HE_BOOL CHE_PDF_ColorSpace::IsDeviceColorSpace()
 	return FALSE;;
 }
 
-HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
+HE_ULONG CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 {
 	switch ( mType )
 	{
 	case COLORSPACE_DEVICE_GRAY:
 	case COLORSPACE_CIEBASE_CALGRAY:
 		{
-			HE_DWORD valRet = 0xFF000000;
-			HE_DWORD tmpByte = 0x00;
+			HE_ULONG valRet = 0xFF000000;
+			HE_ULONG tmpByte = 0x00;
 			if ( color.mConponents.size() >= 1 )
 			{
 				tmpByte = color.mConponents[0] * 255;
@@ -34,10 +34,10 @@ HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 	case COLORSPACE_DEVICE_RGB:
 	case COLORSPACE_CIEBASE_CALRGB:
 		{
-			HE_DWORD valRet = 0xFF000000;
-			HE_DWORD tmpByte1 = 0x00;
-			HE_DWORD tmpByte2 = 0x00;
-			HE_DWORD tmpByte3 = 0x00;
+			HE_ULONG valRet = 0xFF000000;
+			HE_ULONG tmpByte1 = 0x00;
+			HE_ULONG tmpByte2 = 0x00;
+			HE_ULONG tmpByte3 = 0x00;
 			if ( color.mConponents.size() >= 3 )
 			{
 				tmpByte1 = color.mConponents[0] * 255;
@@ -57,10 +57,10 @@ HE_DWORD CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 				bgr[1] = ( 1 < color.mConponents[1] + color.mConponents[3] ) ? color.mConponents[1] + color.mConponents[3] : 1;
 				bgr[2] = ( 1 < color.mConponents[0] + color.mConponents[3] ) ? color.mConponents[0] + color.mConponents[3] : 1;
 				
-				HE_DWORD valRet = 0xFF000000;
-				HE_DWORD tmpByte1 = 0x00;
-				HE_DWORD tmpByte2 = 0x00;
-				HE_DWORD tmpByte3 = 0x00;
+				HE_ULONG valRet = 0xFF000000;
+				HE_ULONG tmpByte1 = 0x00;
+				HE_ULONG tmpByte2 = 0x00;
+				HE_ULONG tmpByte3 = 0x00;
 				if ( color.mConponents.size() >= 3 )
 				{
 					tmpByte1 = bgr[0] * 255;

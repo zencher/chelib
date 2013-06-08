@@ -9,7 +9,7 @@
 class CHE_DynBuffer : public CHE_Object
 {
 public:
-	CHE_DynBuffer( HE_DWORD capacity = 1024, HE_DWORD increament = 1024, CHE_Allocator * pAllocator = NULL );
+	CHE_DynBuffer( HE_ULONG capacity = 1024, HE_ULONG increament = 1024, CHE_Allocator * pAllocator = NULL );
 	CHE_DynBuffer( const CHE_DynBuffer & buf );
 	~CHE_DynBuffer();
 
@@ -17,29 +17,29 @@ public:
 
 	HE_LPBYTE GetData() { return m_lpData; }
 
-	HE_DWORD GetCapacity() { return m_lCapacity; }
+	HE_ULONG GetCapacity() { return m_lCapacity; }
 
-	HE_DWORD GetSize() { return m_lSize; }
+	HE_ULONG GetSize() { return m_lSize; }
 
-	HE_DWORD Write( HE_LPCBYTE pBuffer, HE_DWORD offset, HE_DWORD size );
+	HE_ULONG Write( HE_LPCBYTE pBuffer, HE_ULONG offset, HE_ULONG size );
 
-	HE_DWORD Write( HE_LPCBYTE pBuffer, HE_DWORD size );
+	HE_ULONG Write( HE_LPCBYTE pBuffer, HE_ULONG size );
 
-	HE_DWORD Read( HE_LPBYTE pBuffer, HE_DWORD size );
+	HE_ULONG Read( HE_LPBYTE pBuffer, HE_ULONG size );
 
-	HE_BOOL ReadByte( HE_DWORD offset, HE_LPBYTE pByte );
+	HE_BOOL ReadByte( HE_ULONG offset, HE_LPBYTE pByte );
 
-	HE_DWORD Write( const CHE_DynBuffer & dynBuffer );
+	HE_ULONG Write( const CHE_DynBuffer & dynBuffer );
 
 	HE_VOID	Clear() { m_lSize = 0; }
 
 private:
 
-	HE_DWORD	m_lCapacity;
-	HE_DWORD	m_lIncreament;
+	HE_ULONG	m_lCapacity;
+	HE_ULONG	m_lIncreament;
 
 	HE_LPBYTE	m_lpData;
-	HE_DWORD	m_lSize;
+	HE_ULONG	m_lSize;
 };
 
 IHE_Write * HE_CreateDynBufferWrite( CHE_DynBuffer * pBuffer, CHE_Allocator * pAllocator = NULL );
@@ -47,7 +47,7 @@ IHE_Write * HE_CreateDynBufferWrite( CHE_DynBuffer * pBuffer, CHE_Allocator * pA
 class CHE_DynWideByteBuffer : public CHE_Object
 {
 public:
-	CHE_DynWideByteBuffer( HE_DWORD capacity = 1024, HE_DWORD increament = 1024, CHE_Allocator * pAllocator = NULL );
+	CHE_DynWideByteBuffer( HE_ULONG capacity = 1024, HE_ULONG increament = 1024, CHE_Allocator * pAllocator = NULL );
 	CHE_DynWideByteBuffer( const CHE_DynWideByteBuffer & buf );
 	~CHE_DynWideByteBuffer();
 
@@ -55,27 +55,27 @@ public:
 
 	HE_LPWSTR GetData() { return m_lpData; }
 
-	HE_DWORD GetCapacity() { return m_lCapacity; }
+	HE_ULONG GetCapacity() { return m_lCapacity; }
 
-	HE_DWORD GetSize() { return m_lSize; }
+	HE_ULONG GetSize() { return m_lSize; }
 
-	HE_DWORD Write( HE_LPCWSTR pBuffer, HE_DWORD size );
+	HE_ULONG Write( HE_LPCWSTR pBuffer, HE_ULONG size );
 
-	HE_DWORD Read( HE_LPWSTR pBuffer, HE_DWORD size );
+	HE_ULONG Read( HE_LPWSTR pBuffer, HE_ULONG size );
 
-	HE_BOOL ReadByte( HE_DWORD offset, HE_LPWSTR pWcharRet );
+	HE_BOOL ReadByte( HE_ULONG offset, HE_LPWSTR pWcharRet );
 
-	HE_DWORD Write( const CHE_DynWideByteBuffer & dynBuffer );
+	HE_ULONG Write( const CHE_DynWideByteBuffer & dynBuffer );
 
 	HE_VOID	Clear() { m_lSize = 0; }
 
 private:
 
-	HE_DWORD	m_lCapacity;
-	HE_DWORD	m_lIncreament;
+	HE_ULONG	m_lCapacity;
+	HE_ULONG	m_lIncreament;
 
 	HE_LPWSTR	m_lpData;
-	HE_DWORD	m_lSize;
+	HE_ULONG	m_lSize;
 };
 
 
@@ -249,16 +249,16 @@ public:
 	
 	HE_BOOL		Append( HE_LPVOID ptr );
 	
-	HE_LPVOID	GetItem( HE_DWORD index ) const;
+	HE_LPVOID	GetItem( HE_ULONG index ) const;
 	
 	HE_VOID		Clear();
 	
-	HE_DWORD	GetCount() const { return m_lCount; }
+	HE_ULONG	GetCount() const { return m_lCount; }
 	
 private:
 	HE_LPVOID *	m_pData;
-	HE_DWORD	m_lSize;
-	HE_DWORD	m_lCount;
+	HE_ULONG	m_lSize;
+	HE_ULONG	m_lCount;
 };
 
 class CHE_ByteStringToPtrMap : public CHE_Object
@@ -273,19 +273,19 @@ public:
 	
 	HE_LPVOID	GetItem( const CHE_ByteString & str ) const;
 
-	HE_LPVOID	GetItemByIndex( HE_DWORD index ) const;
+	HE_LPVOID	GetItemByIndex( HE_ULONG index ) const;
 
-	HE_BOOL		GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const;
+	HE_BOOL		GetKeyByIndex( HE_ULONG index, CHE_ByteString & strRet ) const;
 	
-	HE_DWORD	GetCount() const { return m_lCount; }
+	HE_ULONG	GetCount() const { return m_lCount; }
 	
 	HE_VOID		Clear();
 	
 private:
 	HE_LPVOID *			m_pData;
 	CHE_ByteString **	m_pString;
-	HE_DWORD	m_lSize;
-	HE_DWORD	m_lCount;
+	HE_ULONG	m_lSize;
+	HE_ULONG	m_lCount;
 };
 
 class CHE_NumToPtrMap : public CHE_Object
@@ -294,23 +294,23 @@ public:
 	CHE_NumToPtrMap( CHE_Allocator * pAllocator = NULL );
 	~CHE_NumToPtrMap();
 	
-	HE_BOOL		Append( HE_DWORD num, HE_LPVOID ptr );
+	HE_BOOL		Append( HE_ULONG num, HE_LPVOID ptr );
 	
-	HE_LPVOID	GetItem( HE_DWORD num ) const;
+	HE_LPVOID	GetItem( HE_ULONG num ) const;
 	
-	HE_LPVOID	GetItemByIndex( HE_DWORD index );
+	HE_LPVOID	GetItemByIndex( HE_ULONG index );
 
-	HE_DWORD	GetNumByIndex( HE_DWORD index );
+	HE_ULONG	GetNumByIndex( HE_ULONG index );
 	
-	HE_DWORD	GetCount() { return m_lCount; }
+	HE_ULONG	GetCount() { return m_lCount; }
 	
 	HE_VOID		Clear();
 	
 private:
-	HE_DWORD *		m_pNum;
+	HE_ULONG *		m_pNum;
 	HE_LPVOID *		m_pData;
-	HE_DWORD	m_lSize;
-	HE_DWORD	m_lCount;
+	HE_ULONG	m_lSize;
+	HE_ULONG	m_lCount;
 };
 
 
@@ -394,7 +394,7 @@ public:
 					m_lCount++;
 					return TRUE;
 				}else{
-					HE_DWORD targetLevel = RandomLevel();
+					HE_ULONG targetLevel = RandomLevel();
 					if ( targetLevel > m_lLevel )
 					{
 						m_lLevel = targetLevel;
@@ -430,7 +430,7 @@ public:
 		return FALSE;
 	}
 
-	HE_DWORD GetCount() const
+	HE_ULONG GetCount() const
 	{
 		return m_lCount;
 	}
@@ -441,7 +441,7 @@ public:
 		{
 			return FALSE;
 		}
-		HE_DWORD curLevel = m_lLevel;
+		HE_ULONG curLevel = m_lLevel;
 		SkipListNode<Type>* pTmpNode = m_Forward[m_Forward.size()-1];
 		SkipListNode<Type>* pPreNode = NULL;
 
@@ -527,7 +527,7 @@ private:
 		{
 			return FALSE;
 		}
-		HE_DWORD curLevel = m_lLevel;
+		HE_ULONG curLevel = m_lLevel;
 		SkipListNode<Type>* pTmpNode = m_Forward[m_Forward.size()-1];
 		SkipListNode<Type>* pPreNode = NULL;
 
@@ -565,13 +565,13 @@ private:
 					pTmpNode = pTmpNode->Forward[curLevel];
 				}else if ( pTmpNode->Forward.size() == 0 )
 				{
-					for ( HE_DWORD i = curLevel+1; i > 0; i-- )
+					for ( HE_ULONG i = curLevel+1; i > 0; i-- )
 					{
 						nodeVector.push_back( pTmpNode );
 					}
 					return FALSE;
 				}else{
-					for ( HE_DWORD i = curLevel+1; i > pTmpNode->Forward.size(); i-- )
+					for ( HE_ULONG i = curLevel+1; i > pTmpNode->Forward.size(); i-- )
 					{
 						nodeVector.push_back( pTmpNode );
 						--curLevel;
@@ -588,7 +588,7 @@ private:
 		{
 			return FALSE;
 		}
-		HE_DWORD curLevel = m_lLevel;
+		HE_ULONG curLevel = m_lLevel;
 		SkipListNode<Type>* pTmpNode = m_Forward[m_Forward.size()-1];
 		SkipListNode<Type>* pPreNode = NULL;
 
@@ -626,13 +626,13 @@ private:
 					pTmpNode = pTmpNode->Forward[curLevel];
 				}else if ( pTmpNode->Forward.size() == 0 )
 				{
-					for ( HE_DWORD i = curLevel+1; i > 0; i-- )
+					for ( HE_ULONG i = curLevel+1; i > 0; i-- )
 					{
 						nodeVector.push_back( pTmpNode );
 					}
 					return FALSE;
 				}else{
-					for ( HE_DWORD i = curLevel+1; i > pTmpNode->Forward.size(); i-- )
+					for ( HE_ULONG i = curLevel+1; i > pTmpNode->Forward.size(); i-- )
 					{
 						nodeVector.push_back( pTmpNode );
 						--curLevel;
@@ -643,10 +643,10 @@ private:
 		return FALSE;
 	}
 
-	HE_DWORD RandomLevel() const
+	HE_ULONG RandomLevel() const
 	{
-		static HE_DWORD flag = 0;
-		HE_DWORD levelRet = 0;
+		static HE_ULONG flag = 0;
+		HE_ULONG levelRet = 0;
 		levelRet = rand()%(m_lLevel+1);
 		if ( flag == 500 )
 		{
@@ -658,8 +658,8 @@ private:
 		return levelRet;
 	}
 
-	HE_DWORD m_lLevel;
-	HE_DWORD m_lCount;
+	HE_ULONG m_lLevel;
+	HE_ULONG m_lCount;
 	std::vector<SkipListNode<Type>*> m_Forward;
 
 	SkipListNode<Type> * mpCurNode;

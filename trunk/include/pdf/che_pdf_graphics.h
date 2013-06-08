@@ -24,8 +24,8 @@ public:
 	virtual HE_VOID	SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap ) = 0;
 	virtual HE_VOID	SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion ) = 0;
 	virtual HE_VOID	SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern ) = 0;
-	virtual HE_VOID SetFillColor( const HE_DWORD & color ) = 0;
-	virtual HE_VOID SetStrokeColor( const HE_DWORD & color ) = 0;
+	virtual HE_VOID SetFillColor( const HE_ULONG & color ) = 0;
+	virtual HE_VOID SetStrokeColor( const HE_ULONG & color ) = 0;
 };
 
 #endif*/

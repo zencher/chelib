@@ -37,8 +37,8 @@ unsigned int			gPageIndex = 0;
 unsigned int			gPageCount = 0;
 
 
-HE_DWORD parseTime = 0;
-HE_DWORD renderTime = 0;
+HE_ULONG parseTime = 0;
+HE_ULONG renderTime = 0;
 LARGE_INTEGER gFeq;
 LARGE_INTEGER gBegin, gEnd;
 

@@ -14900,7 +14900,7 @@ static const HE_BYTE pdf_font_StandardSymL[19768] = {
 24,247,30,247,60,247,61,247,24,247,30,247,53,31,11,0,0,0,};
 
 
-HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet )
+HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_ULONG & fileSizeRet )
 {
 	if ( fontName == "Courier" )
 	{
@@ -14978,7 +14978,7 @@ HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pF
 	return FALSE;
 }
 
-HE_BOOL HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet )
+HE_BOOL HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, HE_LPBYTE & pFileBufRet, HE_ULONG & fileSizeRet )
 {
 	fileSizeRet = sizeof( pdf_font_NimbusMonL_Regu );
 	pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusMonL_Regu );

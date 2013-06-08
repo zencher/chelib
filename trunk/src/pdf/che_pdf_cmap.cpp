@@ -184,7 +184,7 @@ PDF_CMAP * Get_Builtin_CMap( HE_CHAR * cmap_name )
 }
 
 
-HE_BOOL LookUp_CMap( PDF_CMAP * cmap, HE_DWORD cpt, HE_DWORD & codeRet )
+HE_BOOL LookUp_CMap( PDF_CMAP * cmap, HE_ULONG cpt, HE_ULONG & codeRet )
 {
 	HE_INT32 l = 0;
 	HE_INT32 r = cmap->rlen - 1;
@@ -199,7 +199,7 @@ HE_BOOL LookUp_CMap( PDF_CMAP * cmap, HE_DWORD cpt, HE_DWORD & codeRet )
 			l = m + 1;
 		else
 		{
-			HE_DWORD i = cpt - cmap->ranges[m].low + cmap->ranges[m].offset;
+			HE_ULONG i = cpt - cmap->ranges[m].low + cmap->ranges[m].offset;
 			if ( pdf_range_flags( &cmap->ranges[m] ) == CMAP_TABLE )
 			{
 				codeRet = cmap->table[i];
@@ -285,7 +285,7 @@ CHE_PDF_CMap::~CHE_PDF_CMap()
 	}
 }
 
-HE_BOOL CHE_PDF_CMap::LookupCode( HE_DWORD code, HE_DWORD & codeRet ) const
+HE_BOOL CHE_PDF_CMap::LookupCode( HE_ULONG code, HE_ULONG & codeRet ) const
 {
 	if ( mpCMap )
 	{

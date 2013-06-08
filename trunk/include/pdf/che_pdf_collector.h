@@ -33,7 +33,7 @@ public:
 
 	~CHE_PDF_Collector() { Clear(); }
 
-	HE_DWORD GetCount() { return m_QuickReq.GetCount(); }
+	HE_ULONG GetCount() { return m_QuickReq.GetCount(); }
 
 	HE_BOOL Add( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & ObjPtr )
 	{

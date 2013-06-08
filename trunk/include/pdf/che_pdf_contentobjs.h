@@ -49,18 +49,18 @@ public:
 		return (mFlag & CONTENTOBJ_FLAG_MODIFIED);
 	}
 protected:
-	HE_VOID	SetFlag( HE_DWORD flag )
+	HE_VOID	SetFlag( HE_ULONG flag )
 	{
 		mFlag = flag;
 	}
 
-	HE_VOID CombineFlag( HE_DWORD flag )
+	HE_VOID CombineFlag( HE_ULONG flag )
 	{
 		mFlag |= flag;
 	}
 
 protected:
-	HE_DWORD			mFlag;
+	HE_ULONG			mFlag;
 	CHE_Matrix			mExtMatrixl;
 	CHE_PDF_GState *	mpGState;
 };
@@ -118,8 +118,8 @@ class CHE_PDF_TextItem
 {
 public:
 	HE_WCHAR charCode;
-	HE_DWORD gid;
-	HE_DWORD cid;
+	HE_ULONG gid;
+	HE_ULONG cid;
 	HE_WCHAR ucs;
 	HE_INT32 kerning;
 	HE_FLOAT width;
@@ -157,11 +157,11 @@ public:
 
 	CHE_Matrix GetTextMatrix() const;
 
-	CHE_Matrix GetCharMatrix( HE_DWORD index ) const;
+	CHE_Matrix GetCharMatrix( HE_ULONG index ) const;
 
 	CHE_Rect GetTextRect() const;
 
-	CHE_Rect GetCharRect( HE_DWORD index ) const;
+	CHE_Rect GetCharRect( HE_ULONG index ) const;
 
 	//计算一个TJ、Tj指令中的所有内容所产生的偏移，包括头尾的kerning，因为头尾的kering在计算文本和字符串矩形的时候会被跳过
 	HE_FLOAT GetOffSet() const;
@@ -169,7 +169,7 @@ public:
 
 	std::vector<CHE_PDF_TextItem> mItems;
 
-	CHE_PDF_Path * GetGraphPath( HE_DWORD index );
+	CHE_PDF_Path * GetGraphPath( HE_ULONG index );
 
 private:
 	CHE_PDF_ObjectPtr	mpObj;
@@ -326,7 +326,7 @@ private:
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_DWORD width, HE_DWORD hight, HE_DWORD bps, HE_LPBYTE pBytes, HE_DWORD size,
+	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bps, HE_LPBYTE pBytes, HE_ULONG size,
 							CHE_PDF_ObjectPtr objPtr = CHE_PDF_ObjectPtr(), CHE_PDF_ColorSpace * pColorspace = NULL, 
 							CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ), mbMask( bMask ),
 							mWidth( width ), mHeight( hight ), mBitps( bps ), mpData( NULL), mDataSize( 0 ),
@@ -370,22 +370,22 @@ public:
 	}
 
 	HE_BOOL	IsMask() const { return mbMask; }
-	HE_DWORD GetWidth() const { return mWidth; }
-	HE_DWORD GetHight() const { return mHeight; }
-	HE_DWORD GetBitps() const { return mBitps; }
+	HE_ULONG GetWidth() const { return mWidth; }
+	HE_ULONG GetHight() const { return mHeight; }
+	HE_ULONG GetBitps() const { return mBitps; }
 	CHE_PDF_ColorSpace * GetColorspace() const { return mpColorspace; }
 	CHE_PDF_ObjectPtr GetDecode() const { return mDecodeObjPtr; }
 
 	HE_LPBYTE GetData() const { return mpData; }
-	HE_DWORD GetDataSize() const { return mDataSize; }
+	HE_ULONG GetDataSize() const { return mDataSize; }
 
 private:
 	HE_BOOL				mbMask;
-	HE_DWORD			mWidth;
-	HE_DWORD			mHeight;
-	HE_DWORD			mBitps;
+	HE_ULONG			mWidth;
+	HE_ULONG			mHeight;
+	HE_ULONG			mBitps;
 	HE_LPBYTE			mpData;
-	HE_DWORD			mDataSize;
+	HE_ULONG			mDataSize;
 	CHE_PDF_ColorSpace*	mpColorspace;
 	CHE_PDF_ObjectPtr	mDecodeObjPtr;
 };

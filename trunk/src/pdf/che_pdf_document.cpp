@@ -42,7 +42,7 @@ CHE_PDF_Document::~CHE_PDF_Document()
 	}
 }
 
-HE_DWORD CHE_PDF_Document::GetPageCount() const
+HE_ULONG CHE_PDF_Document::GetPageCount() const
 {
 	if ( mpPageTree )
 	{
@@ -51,7 +51,7 @@ HE_DWORD CHE_PDF_Document::GetPageCount() const
 	return 0;
 }
 
-CHE_PDF_Page * CHE_PDF_Document::GetPage( HE_DWORD index )
+CHE_PDF_Page * CHE_PDF_Document::GetPage( HE_ULONG index )
 {
 	if ( mpPageTree )
 	{

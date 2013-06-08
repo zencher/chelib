@@ -132,7 +132,7 @@ public:
 
 	CHE_Rect				GetFontBBox() const { return mFontBBox; }
 
-	HE_DWORD				GetWMode() const { return mWMode; }
+	HE_ULONG				GetWMode() const { return mWMode; }
 	
 private:
 	HE_INT32				mFlags;
@@ -161,14 +161,14 @@ public:
 	CHE_PDF_DictionaryPtr	GetFontDictPtr() const;
 	CHE_PDF_DictionaryPtr	GetFontDescriptorDictPtr() const;
 	HE_VOID *				GetFTFace();
-	virtual HE_BOOL			GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
+	virtual HE_BOOL			GetGlyphId( HE_WCHAR charCode, HE_ULONG & codeRet ) const;
 	virtual HE_BOOL			GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const = 0;
 
 	virtual HE_FLOAT		GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const = 0;
 
 	CHE_PDF_FontDescriptor*	GetFontDescriptor() const { return mpFontDescriptor; }
 
-	HE_DWORD				GetWMode() const;
+	HE_ULONG				GetWMode() const;
 	
 protected:
 	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
@@ -185,7 +185,7 @@ protected:
 	CHE_NumToPtrMap *		mpToUnicodeMap;
 	CHE_PDF_FontDescriptor*	mpFontDescriptor;
 	HE_LPBYTE				mpEmbeddedFontFile;
-	HE_DWORD				mFontFileSize;
+	HE_ULONG				mFontFileSize;
 
 	friend class CHE_Allocator;
 };
@@ -195,7 +195,7 @@ class CHE_PDF_Type0_Font : public CHE_PDF_Font
 {
 public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_BOOL GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const;
+	HE_BOOL GetCID( HE_WCHAR charCode, HE_ULONG & codeRet ) const;
 
 	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const;
 
@@ -272,9 +272,9 @@ private:
 };
 
 
-HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet );
+HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_ULONG & fileSizeRet );
 
-HE_BOOL HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, HE_LPBYTE & pFileBufRet, HE_DWORD & fileSizeRet );
+HE_BOOL HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, HE_LPBYTE & pFileBufRet, HE_ULONG & fileSizeRet );
 
 
 

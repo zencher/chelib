@@ -12,8 +12,8 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	static CHE_PDF_Color strokeColor;
 	static CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );
 	static CHE_PDF_ColorSpace strokeColorSpace( COLORSPACE_DEVICE_GRAY );
-	static HE_DWORD fillColorVal = 0xFF000000;
-	static HE_DWORD strokeColorVal = 0xFF000000;
+	static HE_ULONG fillColorVal = 0xFF000000;
+	static HE_ULONG strokeColorVal = 0xFF000000;
 
 	pGState->GetLineWidth( val );
 	drawer.SetLineWidth( val );
@@ -126,12 +126,12 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 			{
 				drawer.SetMatrix( CHE_Matrix() );
 				CHE_PDF_Text * pText = (CHE_PDF_Text*)(pObj);
-				for ( size_t i = 0; i < pText->mItems.size(); ++i )
+				for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
 				{
-					CHE_PDF_Path * pPath = pText->GetGraphPath( i );
+					CHE_PDF_Path * pPath = pText->GetGraphPath( j );
 					if ( pPath )
 					{
-						for ( HE_INT32 i = 0; i < pPath->mItems.size(); ++i )
+						for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
 						{
 							switch ( pPath->mItems[i].type )
 							{
@@ -323,9 +323,9 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 			{
 				drawer.SetMatrix( CHE_Matrix() );
 				CHE_PDF_Text * pText = (CHE_PDF_Text*)(*it);
-				for ( size_t i = 0; i < pText->mItems.size(); ++i )
+				for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
 				{
-					CHE_PDF_Path * pPath = pText->GetGraphPath( i );
+					CHE_PDF_Path * pPath = pText->GetGraphPath( j );
 					if ( pPath )
 					{
 						for ( HE_INT32 i = 0; i < pPath->mItems.size(); ++i )

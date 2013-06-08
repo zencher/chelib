@@ -179,8 +179,8 @@ public:
 	HE_VOID								SetText( HE_LPCWSTR text );
 	HE_LPCWSTR							GetText() const { return mText; }
 
-	HE_VOID								SetColor( HE_DWORD val ) { mColor = val; }
-	HE_DWORD							GetColor() const { return mColor; }
+	HE_VOID								SetColor( HE_ULONG val ) { mColor = val; }
+	HE_ULONG							GetColor() const { return mColor; }
 
 	HE_VOID								SetFontFile( HE_LPCWSTR file );
 	HE_LPWSTR							GetFontFile() const { return mFontFile; }
@@ -188,14 +188,14 @@ public:
 	HE_VOID								SetLayout( CHE_WDM_Layout layout ) { mLayout = layout; }
 	CHE_WDM_Layout						GetLayout() const { return mLayout; }
 
-	HE_VOID								SetSize( HE_DWORD size ) { mSize = size; }
-	HE_DWORD							GetSize() const { return mSize; }
+	HE_VOID								SetSize( HE_ULONG size ) { mSize = size; }
+	HE_ULONG							GetSize() const { return mSize; }
 
-	HE_VOID								SetWidth( HE_DWORD width ) { mWidth = width; }
-	HE_DWORD							GetWidth() const { return mWidth; }
+	HE_VOID								SetWidth( HE_ULONG width ) { mWidth = width; }
+	HE_ULONG							GetWidth() const { return mWidth; }
 
-	HE_VOID								SetHeight( HE_DWORD height ) { mHeight = height; }
-	HE_DWORD							GetHeight() const { return mHeight; }
+	HE_VOID								SetHeight( HE_ULONG height ) { mHeight = height; }
+	HE_ULONG							GetHeight() const { return mHeight; }
 
 protected:
 	CHE_WDM_AppearText( CHE_Allocator * pAllocator = NULL )
@@ -205,11 +205,11 @@ protected:
 
 	HE_LPWSTR							mText;
 	HE_LPWSTR							mFontFile;
-	HE_DWORD							mSize;
-	HE_DWORD							mColor;
+	HE_ULONG							mSize;
+	HE_ULONG							mColor;
 	CHE_WDM_Layout						mLayout;
- 	HE_DWORD							mWidth;
- 	HE_DWORD							mHeight;
+ 	HE_ULONG							mWidth;
+ 	HE_ULONG							mHeight;
 
 	friend class CHE_Allocator;
 	friend class CHE_WDM_AppearTextPtr;
@@ -271,17 +271,17 @@ public:
 	HE_VOID								AddRect( HE_FLOAT left, HE_FLOAT top, HE_FLOAT width, HE_FLOAT hight );
 	HE_VOID								AddCurve( HE_FLOAT x0, HE_FLOAT y0, HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2 );
 
-	HE_DWORD							GetItemCount();
-	HE_BOOL								GetItem( HE_DWORD index, CHE_WDM_AppearPathItem & itemRet );
+	HE_ULONG							GetItemCount();
+	HE_BOOL								GetItem( HE_ULONG index, CHE_WDM_AppearPathItem & itemRet );
 
 	HE_VOID								SetLineWidth( HE_FLOAT width ) { mLineWidth = width; }
 	HE_FLOAT							GetLineWidth() const { return mLineWidth; }
 
-	HE_VOID								SetFillColor( HE_DWORD color ) { mFillColor = color; }
-	HE_DWORD							GetFillColor() const { return mFillColor; }
+	HE_VOID								SetFillColor( HE_ULONG color ) { mFillColor = color; }
+	HE_ULONG							GetFillColor() const { return mFillColor; }
 
-	HE_VOID								SetStrokeColor( HE_DWORD color ) { mStrokeColor = color; }
-	HE_DWORD							GetStrokeColor() const { return mStrokeColor; }
+	HE_VOID								SetStrokeColor( HE_ULONG color ) { mStrokeColor = color; }
+	HE_ULONG							GetStrokeColor() const { return mStrokeColor; }
 
 	HE_VOID								SetOperator( WDM_APPEAR_PATH_OPERATOR opt ) { mOperator = opt; }
 	WDM_APPEAR_PATH_OPERATOR			GetOperator() const { return mOperator; }
@@ -297,8 +297,8 @@ private:
 	~CHE_WDM_AppearPath() {}
 
 	HE_FLOAT							mLineWidth;
-	HE_DWORD							mFillColor;
-	HE_DWORD							mStrokeColor;
+	HE_ULONG							mFillColor;
+	HE_ULONG							mStrokeColor;
 	WDM_APPEAR_PATH_OPERATOR			mOperator;
 	WDM_APPEAR_PATH_FILL_MODE			mFillMode;
 	std::vector<CHE_WDM_AppearPathItem>	mItems;
@@ -346,11 +346,11 @@ public:
 	virtual HE_VOID						Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE ) = 0;
 	virtual HE_VOID						Draw( CHE_WDM_Area * pArea, CHE_WDM_AppearItemPtr appearPtr ) = 0;
 
-	virtual HE_VOID						SetTimer( CHE_WDM_Area * pArea, HE_DWORD elapse ) = 0;
+	virtual HE_VOID						SetTimer( CHE_WDM_Area * pArea, HE_ULONG elapse ) = 0;
 	virtual HE_VOID						KillTimer( CHE_WDM_Area * pArea ) = 0;
 
-	virtual HE_BOOL						MeasureString( CHE_WDM_AppearTextPtr ptr, HE_DWORD & width, HE_DWORD & height ) = 0;
-	virtual HE_BOOL						MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_DWORD count, HE_DWORD & width, HE_DWORD & height ) = 0;
+	virtual HE_BOOL						MeasureString( CHE_WDM_AppearTextPtr ptr, HE_ULONG & width, HE_ULONG & height ) = 0;
+	virtual HE_BOOL						MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_ULONG count, HE_ULONG & width, HE_ULONG & height ) = 0;
 	virtual HE_FLOAT					GetFontHeight( CHE_WDM_AppearTextPtr ptr ) = 0;
 };
 
@@ -457,15 +457,15 @@ public:
 	CHE_WDM_Appearance &				GetAppear() { return mAppearance; }
 	HE_VOID								AppendAppearItem( const CHE_WDM_AppearItemPtr & ptr, WDM_AREA_APPEAR_TYPE type );
 
-	HE_DWORD							GetChildrenCount() const;
+	HE_ULONG							GetChildrenCount() const;
 
 	HE_VOID								AppendChild( CHE_WDM_Area * pChlid );
-	CHE_WDM_Area *						PopChild( HE_DWORD index );
-	CHE_WDM_Area *						GetChild( HE_DWORD index ) const;
+	CHE_WDM_Area *						PopChild( HE_ULONG index );
+	CHE_WDM_Area *						GetChild( HE_ULONG index ) const;
 	HE_VOID								ClearChild();
 
-	HE_BOOL								ChildToLower( HE_DWORD index );
-	HE_BOOL								ChildToUpper( HE_DWORD index );
+	HE_BOOL								ChildToLower( HE_ULONG index );
+	HE_BOOL								ChildToUpper( HE_ULONG index );
 
 	virtual HE_BOOL						OnMouseMove( HE_INT32 x, HE_INT32 y );
 	virtual HE_BOOL						OnMouseOver();
@@ -508,8 +508,8 @@ private:
 	HE_BOOL								mbVisable;
 	HE_BOOL								mbEnable;
 
-	HE_DWORD							mWidth;
-	HE_DWORD							mHeight;
+	HE_ULONG							mWidth;
+	HE_ULONG							mHeight;
 	HE_INT32							mPosX;
 	HE_INT32							mPosY;
 
@@ -553,7 +553,7 @@ public:
 	HE_VOID								SetLoop( HE_BOOL bLoop ) { mbLoop = bLoop; }
 	HE_VOID								SetOverFunction( Function pFunction ) { mpOverFunction = pFunction; }
 	HE_VOID								CallFunction();
-	HE_VOID								InsertFrames( HE_DWORD frames, const CHE_WDM_AnimationData & state );
+	HE_VOID								InsertFrames( HE_ULONG frames, const CHE_WDM_AnimationData & state );
 
 	HE_VOID								Init();
 	HE_VOID								Execute();
@@ -564,10 +564,10 @@ public:
 protected:
 	HE_BOOL								mbLoop;
 
-	HE_DWORD							mFramesCount;
-	HE_DWORD							mCurFrame;
-	HE_DWORD							mIndex;
-	HE_DWORD							mFramesToGo;
+	HE_ULONG							mFramesCount;
+	HE_ULONG							mCurFrame;
+	HE_ULONG							mIndex;
+	HE_ULONG							mFramesToGo;
 
 	CHE_WDM_Area	*					mpArea;
 	CHE_WDM_AnimationData				mState;
@@ -575,7 +575,7 @@ protected:
 	Function							mpOverFunction;
 
 	std::vector<CHE_WDM_AnimationData>	mAnimations;
-	std::vector<HE_DWORD>				mAnimationFrames;
+	std::vector<HE_ULONG>				mAnimationFrames;
 };
 
 class CHE_WDM_AppearAnimation : public CHE_WDM_AreaAnimation

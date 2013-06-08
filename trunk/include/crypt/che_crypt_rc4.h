@@ -6,7 +6,7 @@
 class CHE_CRYPT_RC4
 {
 public:
-	static HE_VOID Encrypt( HE_LPBYTE key, HE_DWORD keyLength, HE_LPBYTE data, HE_DWORD dataLength, HE_LPBYTE dataRet );
+	static HE_VOID Encrypt( HE_LPBYTE key, HE_ULONG keyLength, HE_LPBYTE data, HE_ULONG dataLength, HE_LPBYTE dataRet );
 };
 
 #endif

@@ -29,7 +29,7 @@ CHE_ByteString::CHE_ByteString( HE_LPCSTR lpStr, HE_LONG nStrSize /* = -1 */, CH
 		return;
 	}
 
-	HE_DWORD nStrlen = 0;
+	HE_ULONG nStrlen = 0;
 	if ( nStrSize <= 0 )
 	{
 		nStrlen = strlen( lpStr );
@@ -107,7 +107,7 @@ CHE_ByteString& CHE_ByteString::operator=( HE_LPCSTR lpStr )
 		return *this;
 	}
 
-	HE_DWORD nStrlen = strlen( lpStr );
+	HE_ULONG nStrlen = strlen( lpStr );
 	if ( nStrlen == 0 )
 	{
 		return *this;
@@ -225,7 +225,7 @@ bool CHE_ByteString::operator==( const CHE_ByteString& str )const
 	}
 }
 
-HE_BOOL	CHE_ByteString::SetData( HE_BYTE * pData, HE_DWORD size )
+HE_BOOL	CHE_ByteString::SetData( HE_BYTE * pData, HE_ULONG size )
 {
 	if ( pData == NULL || size == 0 )
 	{
@@ -265,7 +265,7 @@ HE_BOOL	CHE_ByteString::SetData( HE_BYTE * pData, HE_DWORD size )
 	return TRUE;
 }
 
-HE_DWORD CHE_ByteString::GetLength() const
+HE_ULONG CHE_ByteString::GetLength() const
 {
 	if ( m_lpData == NULL )
 	{
@@ -275,7 +275,7 @@ HE_DWORD CHE_ByteString::GetLength() const
 	}
 }
 
-HE_CHAR CHE_ByteString::operator[]( HE_DWORD index )const
+HE_CHAR CHE_ByteString::operator[]( HE_ULONG index )const
 {
 	if ( m_lpData != NULL )
 	{
@@ -306,7 +306,7 @@ HE_INT32 CHE_ByteString::GetInteger() const
 // 		HE_BOOL bPoint = FALSE;
 // 		HE_BOOL bSign = FALSE;
 // 		HE_CHAR tmpChar = 0;
-// 		for ( HE_DWORD i = 0; i < GetLength(); i++ )
+// 		for ( HE_ULONG i = 0; i < GetLength(); i++ )
 // 		{
 // 			if ( bBegin && i > 0 )
 // 			{
@@ -361,12 +361,12 @@ HE_FLOAT CHE_ByteString::GetFloat() const
 // 	}else{
 // 		HE_BOOL	bNegative = FALSE;
 // 		HE_BOOL bBegin = TRUE;
-// 		HE_DWORD lPointBit = 1;
+// 		HE_ULONG lPointBit = 1;
 // 		HE_FLOAT fValue = 0;
 // 		HE_BOOL bPoint = FALSE;
 // 		HE_BOOL bSign = FALSE;
 // 		HE_CHAR tmpChar = 0;
-// 		for ( HE_DWORD i = 0; i < GetLength(); i++ )
+// 		for ( HE_ULONG i = 0; i < GetLength(); i++ )
 // 		{
 // 			if ( bBegin && i > 0 )
 // 			{
@@ -433,7 +433,7 @@ CHE_ByteString CHE_ByteString::operator+( HE_CHAR ch )
 		return CHE_ByteString( ch, GetAllocator() );
 	}
 
-	HE_DWORD dwStrlen = m_lpData->m_dwLength + 2;
+	HE_ULONG dwStrlen = m_lpData->m_dwLength + 2;
 	HE_CHAR * pTempStr = GetAllocator()->NewArray<HE_CHAR>( dwStrlen );
 
 	strcpy( pTempStr, m_lpData->m_lpString );
@@ -457,7 +457,7 @@ CHE_ByteString CHE_ByteString::operator+( HE_LPCSTR lpStr )
 		return CHE_ByteString( lpStr, strlen(lpStr), GetAllocator() );
 	}
 
-	HE_DWORD dwStrlen = m_lpData->m_dwLength + strlen(lpStr) + 1;
+	HE_ULONG dwStrlen = m_lpData->m_dwLength + strlen(lpStr) + 1;
 	HE_CHAR * pTempStr = GetAllocator()->NewArray<HE_CHAR>( dwStrlen );
 
 	strcpy( pTempStr, m_lpData->m_lpString );
@@ -480,7 +480,7 @@ CHE_ByteString CHE_ByteString::operator+( const CHE_ByteString& str )
 		return CHE_ByteString( str );
 	}
 	
-	HE_DWORD dwStrlen = m_lpData->m_dwLength + str.m_lpData->m_dwLength + 1;
+	HE_ULONG dwStrlen = m_lpData->m_dwLength + str.m_lpData->m_dwLength + 1;
 	HE_CHAR * pTempStr = GetAllocator()->NewArray<HE_CHAR>( dwStrlen );
 	strcpy( pTempStr, m_lpData->m_lpString );
 	strcat( pTempStr, str.m_lpData->m_lpString );
@@ -534,7 +534,7 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 			m_lpData->m_lpString = NULL;
 		}
 		
-		HE_DWORD dwBufferSize = strlen( pTempStr )+2;
+		HE_ULONG dwBufferSize = strlen( pTempStr )+2;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( dwBufferSize );
 		strcpy( m_lpData->m_lpString, pTempStr );
 		m_lpData->m_lpString[dwBufferSize-2] = ch;
@@ -569,7 +569,7 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_LPCSTR lpStr )
 	}else{
 		if ( m_lpData->m_lpString == NULL )
 		{
-			HE_DWORD dwStrlen = strlen(lpStr);
+			HE_ULONG dwStrlen = strlen(lpStr);
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( dwStrlen+1 );
 			strcpy( m_lpData->m_lpString, lpStr );
 			m_lpData->m_dwLength = dwStrlen;
@@ -597,7 +597,7 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_LPCSTR lpStr )
 			m_lpData->m_lpString = NULL;
 		}
 
-		HE_DWORD dwStrlen = strlen(pTempStr) + strlen(lpStr);
+		HE_ULONG dwStrlen = strlen(pTempStr) + strlen(lpStr);
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( dwStrlen+1 );
 		strcpy( m_lpData->m_lpString, pTempStr );
 		strcat( m_lpData->m_lpString, lpStr );
@@ -864,7 +864,7 @@ CHE_WideString::CHE_WideString( HE_LPCWSTR lpwstr, HE_LONG nStrSize /* = -1 */, 
 		return;
 	}
 
-	HE_DWORD nStrlen = 0;
+	HE_ULONG nStrlen = 0;
 	if ( nStrSize <= 0 )
 	{
 		nStrlen = wcslen( lpwstr );
@@ -941,7 +941,7 @@ CHE_WideString& CHE_WideString::operator=( HE_LPCWSTR lpWstr )
 		return *this;
 	}
 
-	HE_DWORD nStrlen = wcslen( lpWstr );
+	HE_ULONG nStrlen = wcslen( lpWstr );
 	if ( nStrlen == 0 )
 	{
 		return *this;
@@ -1059,7 +1059,7 @@ bool CHE_WideString::operator==( const CHE_WideString& wstr )const
 	}
 }
 
-HE_BOOL	CHE_WideString::SetData( HE_WCHAR * pData, HE_DWORD size )
+HE_BOOL	CHE_WideString::SetData( HE_WCHAR * pData, HE_ULONG size )
 {
 	if ( pData == NULL || size == 0 )
 	{
@@ -1099,7 +1099,7 @@ HE_BOOL	CHE_WideString::SetData( HE_WCHAR * pData, HE_DWORD size )
 	return TRUE;
 }
 
-HE_DWORD CHE_WideString::GetLength() const
+HE_ULONG CHE_WideString::GetLength() const
 {
 	if ( m_lpData == NULL )
 	{
@@ -1109,7 +1109,7 @@ HE_DWORD CHE_WideString::GetLength() const
 	}
 }
 
-HE_WCHAR CHE_WideString::operator[]( HE_DWORD index )const
+HE_WCHAR CHE_WideString::operator[]( HE_ULONG index )const
 {
 	if ( m_lpData != NULL )
 	{
@@ -1138,7 +1138,7 @@ HE_INT32 CHE_WideString::GetInteger() const
 		HE_INT32 iValue = 0;
 		HE_BOOL bSign = FALSE;
 		HE_WCHAR tmpChar = 0;
-		for ( HE_DWORD i = 0; i < GetLength(); i++ )
+		for ( HE_ULONG i = 0; i < GetLength(); i++ )
 		{
 			if ( bBegin && i > 0 )
 			{
@@ -1192,12 +1192,12 @@ HE_FLOAT CHE_WideString::GetFloat() const
 	}else{
 		HE_BOOL	bNegative = FALSE;
 		HE_BOOL bBegin = TRUE;
-		HE_DWORD lPointBit = 1;
+		HE_ULONG lPointBit = 1;
 		HE_FLOAT fValue = 0;
 		HE_BOOL bPoint = FALSE;
 		HE_BOOL bSign = FALSE;
 		HE_WCHAR tmpChar = 0;
-		for ( HE_DWORD i = 0; i < GetLength(); i++ )
+		for ( HE_ULONG i = 0; i < GetLength(); i++ )
 		{
 			if ( bBegin && i > 0 )
 			{
@@ -1264,7 +1264,7 @@ CHE_WideString CHE_WideString::operator+( HE_WCHAR wch )
 		return CHE_WideString( wch, GetAllocator() );
 	}
 
-	HE_DWORD dwStrlen = m_lpData->m_dwLength + 2;
+	HE_ULONG dwStrlen = m_lpData->m_dwLength + 2;
 	HE_WCHAR * pTempStr = GetAllocator()->NewArray<HE_WCHAR>(dwStrlen);
 
 	wcscpy( pTempStr, m_lpData->m_lpString );
@@ -1288,7 +1288,7 @@ CHE_WideString CHE_WideString::operator+( HE_LPCWSTR lpWstr )
 		return CHE_WideString( lpWstr );
 	}
 	
-	HE_DWORD dwStrlen = m_lpData->m_dwLength + wcslen(lpWstr) + 1;
+	HE_ULONG dwStrlen = m_lpData->m_dwLength + wcslen(lpWstr) + 1;
 	HE_WCHAR * pTempStr = GetAllocator()->NewArray<HE_WCHAR>( dwStrlen );
 	
 	wcscpy( pTempStr, m_lpData->m_lpString );
@@ -1311,7 +1311,7 @@ CHE_WideString CHE_WideString::operator+( const CHE_WideString& wstr )
 		return CHE_WideString( wstr );
 	}
 	
-	HE_DWORD dwStrlen = m_lpData->m_dwLength + wstr.m_lpData->m_dwLength + 1;
+	HE_ULONG dwStrlen = m_lpData->m_dwLength + wstr.m_lpData->m_dwLength + 1;
 	HE_WCHAR * pTempStr = GetAllocator()->NewArray<HE_WCHAR>( dwStrlen );
 	
 	wcscpy( pTempStr, m_lpData->m_lpString );
@@ -1369,7 +1369,7 @@ CHE_WideString& CHE_WideString::operator+=( HE_WCHAR wch )
 			m_lpData->m_lpString = NULL;
 		}
 		
-		HE_DWORD dwBufferSize = wcslen( pTempStr )+2;
+		HE_ULONG dwBufferSize = wcslen( pTempStr )+2;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( dwBufferSize );
 		wcscpy( m_lpData->m_lpString, pTempStr );
 		m_lpData->m_lpString[dwBufferSize-2] = wch;
@@ -1404,7 +1404,7 @@ CHE_WideString& CHE_WideString::operator+=( HE_LPCWSTR lpWstr )
 	}else{
 		if ( m_lpData->m_lpString == NULL )
 		{
-			HE_DWORD dwStrlen = wcslen(lpWstr);
+			HE_ULONG dwStrlen = wcslen(lpWstr);
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( dwStrlen+1 );
 			wcscpy( m_lpData->m_lpString, lpWstr );
 			m_lpData->m_dwLength = dwStrlen;
@@ -1433,7 +1433,7 @@ CHE_WideString& CHE_WideString::operator+=( HE_LPCWSTR lpWstr )
 			m_lpData->m_lpString = NULL;
 		}
 		
-		HE_DWORD dwStrlen = wcslen(pTempStr) + wcslen(lpWstr);
+		HE_ULONG dwStrlen = wcslen(pTempStr) + wcslen(lpWstr);
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( dwStrlen+1 );
 		wcscpy( m_lpData->m_lpString, pTempStr );
 		wcscat( m_lpData->m_lpString, lpWstr );

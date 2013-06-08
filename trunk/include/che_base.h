@@ -193,15 +193,15 @@ public:
 
 	virtual ~IHE_Write() {};
 
-	virtual HE_DWORD	GetSize() = 0;
+	virtual HE_ULONG	GetSize() = 0;
 
-	virtual HE_DWORD	GetCurOffset() = 0;
+	virtual HE_ULONG	GetCurOffset() = 0;
 
-	virtual HE_DWORD	Flush() = 0;
+	virtual HE_ULONG	Flush() = 0;
 
-	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE_DWORD size ) = 0;
+	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_ULONG offset, HE_ULONG size ) = 0;
 	
-	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD size )
+	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_ULONG size )
 	{
 		return WriteBlock( pData, GetSize(), size );
 	}
@@ -228,11 +228,11 @@ public:
 
 	virtual ~IHE_Read() {};
 
-	virtual HE_DWORD	GetSize() = 0;
+	virtual HE_ULONG	GetSize() = 0;
 	
-	virtual HE_DWORD	ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size ) = 0;
+	virtual HE_ULONG	ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size ) = 0;
 
-	virtual HE_BYTE		ReadByte( HE_DWORD offset ) = 0;
+	virtual HE_BYTE		ReadByte( HE_ULONG offset ) = 0;
 	
 	virtual HE_VOID		Release() = 0;
 };
@@ -242,9 +242,9 @@ public:
 #define FILEREAD_MODE_BUFFER		2
 #define FILEREAD_MODE_BLOCKLINK		3
 
-IHE_Read*	HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode = FILEREAD_MODE_DEFAULT, HE_DWORD param = 0, CHE_Allocator * pAllocator = NULL );
+IHE_Read*	HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode = FILEREAD_MODE_DEFAULT, HE_ULONG param = 0, CHE_Allocator * pAllocator = NULL );
 
-IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize, CHE_Allocator * pAllocator = NULL );
+IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_ULONG lSize, CHE_Allocator * pAllocator = NULL );
 
 HE_VOID		HE_DestoryIHERead( IHE_Read * pIHERead );
 
@@ -255,7 +255,7 @@ public:
 
 	CHE_RefCount() : mRefCount(0) {}
 
-	inline	operator HE_DWORD() { return mRefCount; }
+	inline	operator HE_ULONG() { return mRefCount; }
 
 	/*inline*/ HE_VOID	AddRef();
 

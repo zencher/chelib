@@ -1,6 +1,6 @@
 #include "../../include/crypt/che_crypt_rc4.h"
 
-HE_VOID CHE_CRYPT_RC4::Encrypt( HE_LPBYTE key, HE_DWORD keyLength, HE_LPBYTE data, HE_DWORD dataLength, HE_LPBYTE dataRet )
+HE_VOID CHE_CRYPT_RC4::Encrypt( HE_LPBYTE key, HE_ULONG keyLength, HE_LPBYTE data, HE_ULONG dataLength, HE_LPBYTE dataRet )
 {
 	HE_BYTE rc4[256];
 	HE_BYTE t = 0;
@@ -21,7 +21,7 @@ HE_VOID CHE_CRYPT_RC4::Encrypt( HE_LPBYTE key, HE_DWORD keyLength, HE_LPBYTE dat
 	size_t a = 0;
 	size_t b = 0;
 	HE_BYTE k = 0;
-	for ( HE_DWORD m = 0; m < dataLength; ++m )
+	for ( HE_ULONG m = 0; m < dataLength; ++m )
 	{
 		a = (a + 1) % 256;
 		t = rc4[a];

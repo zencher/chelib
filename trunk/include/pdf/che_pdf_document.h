@@ -17,11 +17,11 @@ public:
 
 	PDF_VERSION					GetVersion() { return mpFile->GetPDFVersion(); }
 
-	HE_DWORD					GetPageCount() const;
+	HE_ULONG					GetPageCount() const;
 
 	CHE_PDF_PageTree *			GetPageTree() const { return mpPageTree; }
 
-	CHE_PDF_Page *				GetPage( HE_DWORD index );
+	CHE_PDF_Page *				GetPage( HE_ULONG index );
 
 	CHE_PDF_FontMgr *			GetFontMgr() const;
 

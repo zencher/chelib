@@ -471,9 +471,9 @@ private:
 	HE_BOOL					mbInlineImage;
 	HE_BOOL					mbInterpolate;
 	HE_BOOL					mbMask;
-	HE_DWORD				mWidth;
-	HE_DWORD				mHeight;
-	HE_DWORD				mBpc;
+	HE_ULONG				mWidth;
+	HE_ULONG				mHeight;
+	HE_ULONG				mBpc;
 	CHE_PDF_ObjectPtr		mpColorSpace;
 	CHE_PDF_ObjectPtr		mpFilter;
 	CHE_PDF_ObjectPtr		mpDecode;

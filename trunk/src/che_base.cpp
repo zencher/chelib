@@ -92,13 +92,13 @@ public:
 
 	virtual ~IHE_CrtFileWrite();
 
-	virtual HE_DWORD	GetSize();
+	virtual HE_ULONG	GetSize();
 
-	virtual HE_DWORD	GetCurOffset();
+	virtual HE_ULONG	GetCurOffset();
 
-	virtual HE_DWORD	Flush();
+	virtual HE_ULONG	Flush();
 
-	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE_DWORD size);
+	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_ULONG offset, HE_ULONG size);
 
 	virtual void		Release();
 
@@ -130,7 +130,7 @@ IHE_CrtFileWrite::~IHE_CrtFileWrite()
 	}
 }
 
-HE_DWORD IHE_CrtFileWrite::GetSize()
+HE_ULONG IHE_CrtFileWrite::GetSize()
 {
 	if( m_pFile )
 	{
@@ -141,12 +141,12 @@ HE_DWORD IHE_CrtFileWrite::GetSize()
 	}
 }
 
-HE_DWORD IHE_CrtFileWrite::GetCurOffset()
+HE_ULONG IHE_CrtFileWrite::GetCurOffset()
 {
 	return GetSize();
 }
 
-HE_DWORD IHE_CrtFileWrite::Flush()
+HE_ULONG IHE_CrtFileWrite::Flush()
 {
 	if ( m_pFile )
 	{
@@ -166,7 +166,7 @@ void IHE_CrtFileWrite::Release()
 	}
 }
 
-HE_BOOL IHE_CrtFileWrite::WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE_DWORD size )
+HE_BOOL IHE_CrtFileWrite::WriteBlock( const HE_LPVOID pData, HE_ULONG offset, HE_ULONG size )
 {
 	if ( pData == NULL || size == 0 )
 	{
@@ -175,7 +175,7 @@ HE_BOOL IHE_CrtFileWrite::WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE
 	if ( m_pFile )
 	{
 		fseek( m_pFile, offset, SEEK_SET );
-		HE_DWORD dwRet = fwrite( pData, 1, size, m_pFile );
+		HE_ULONG dwRet = fwrite( pData, 1, size, m_pFile );
 		if ( dwRet > 0 )
 		{
 			return TRUE;
@@ -215,25 +215,25 @@ HE_VOID HE_DestoryIHEWrite( IHE_Write * pIHEWrite )
 class IHE_MemBufRead : public IHE_Read
 {
 public:
-	IHE_MemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize , CHE_Allocator * pAllocator = NULL ) : IHE_Read( pAllocator )
+	IHE_MemBufRead( HE_LPCBYTE pBuf, HE_ULONG lSize , CHE_Allocator * pAllocator = NULL ) : IHE_Read( pAllocator )
  	{ m_lSize = lSize; m_pBuf = pBuf; }
 	
 	virtual ~IHE_MemBufRead() {};
 	
-	virtual HE_DWORD	GetSize() { return m_lSize; }
+	virtual HE_ULONG	GetSize() { return m_lSize; }
 	
-	virtual HE_DWORD	ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size );
+	virtual HE_ULONG	ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size );
 	
-	virtual HE_BYTE		ReadByte( HE_DWORD offset );
+	virtual HE_BYTE		ReadByte( HE_ULONG offset );
 	
 	virtual void		Release() { m_pBuf = NULL; m_lSize = 0; }
 	
 private:
 	HE_LPCBYTE	m_pBuf;
-	HE_DWORD	m_lSize;
+	HE_ULONG	m_lSize;
 };
 
-HE_DWORD IHE_MemBufRead::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size )
+HE_ULONG IHE_MemBufRead::ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size )
 {
 	if ( buffer == NULL || m_pBuf == NULL || size == 0 )
 	{
@@ -252,7 +252,7 @@ HE_DWORD IHE_MemBufRead::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD 
 	}
 }
 
-HE_BYTE IHE_MemBufRead::ReadByte( HE_DWORD offset )
+HE_BYTE IHE_MemBufRead::ReadByte( HE_ULONG offset )
 {
 	if ( offset >= m_lSize )
 	{
@@ -262,7 +262,7 @@ HE_BYTE IHE_MemBufRead::ReadByte( HE_DWORD offset )
 	}
 }
 
-IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_DWORD lSize, CHE_Allocator * pAllocator )
+IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_ULONG lSize, CHE_Allocator * pAllocator )
 {
 	if ( pBuf == NULL || lSize == 0 )
 	{
@@ -283,11 +283,11 @@ public:
 
 	virtual ~IHE_CrtFileReadDefault();
 
-	virtual HE_DWORD	GetSize();
+	virtual HE_ULONG	GetSize();
 
-	virtual HE_DWORD	ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size );
+	virtual HE_ULONG	ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size );
 
-	virtual HE_BYTE		ReadByte( HE_DWORD offset );
+	virtual HE_BYTE		ReadByte( HE_ULONG offset );
 
 	virtual void		Release();
 
@@ -314,7 +314,7 @@ IHE_CrtFileReadDefault::~IHE_CrtFileReadDefault()
 	}
 }
 
-HE_DWORD IHE_CrtFileReadDefault::GetSize()
+HE_ULONG IHE_CrtFileReadDefault::GetSize()
 {
 	if( m_pFile )
 	{
@@ -325,7 +325,7 @@ HE_DWORD IHE_CrtFileReadDefault::GetSize()
 	}
 }
 
-HE_DWORD IHE_CrtFileReadDefault::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size )
+HE_ULONG IHE_CrtFileReadDefault::ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size )
 {
 	if ( buffer == NULL )
 	{
@@ -334,14 +334,14 @@ HE_DWORD IHE_CrtFileReadDefault::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, H
 	if ( m_pFile )
 	{
 		fseek( m_pFile, offset, SEEK_SET );
-		HE_DWORD dwRet = fread( buffer, 1, size, m_pFile );
+		HE_ULONG dwRet = fread( buffer, 1, size, m_pFile );
 		return dwRet;
 	}else{
 		return 0;
 	}
 }
 
-HE_BYTE IHE_CrtFileReadDefault::ReadByte( HE_DWORD offset )
+HE_BYTE IHE_CrtFileReadDefault::ReadByte( HE_ULONG offset )
 {
 	if ( m_pFile )
 	{
@@ -350,7 +350,7 @@ HE_BYTE IHE_CrtFileReadDefault::ReadByte( HE_DWORD offset )
 			return 0;
 		}else{
 			HE_BYTE byte;
-			HE_DWORD dwRet = fread( &byte, 1, 1, m_pFile );
+			HE_ULONG dwRet = fread( &byte, 1, 1, m_pFile );
 			if ( dwRet == 1 )
 			{
 				return byte;
@@ -378,17 +378,17 @@ public:
 	IHE_CrtFileReadMemcopy( HE_LPCSTR filename, CHE_Allocator * pAllocator = NULL );
 	virtual ~IHE_CrtFileReadMemcopy();
 	
-	virtual HE_DWORD	GetSize() { return m_lSize; }
+	virtual HE_ULONG	GetSize() { return m_lSize; }
 	
-	virtual HE_DWORD	ReadBlock( void* buffer, HE_DWORD offset, HE_DWORD size );
+	virtual HE_ULONG	ReadBlock( void* buffer, HE_ULONG offset, HE_ULONG size );
 	
-	virtual HE_BYTE		ReadByte( HE_DWORD offset );
+	virtual HE_BYTE		ReadByte( HE_ULONG offset );
 	
 	virtual void		Release() {}
 	
 private:
 	HE_LPBYTE			m_pByte;
-	HE_DWORD			m_lSize;
+	HE_ULONG			m_lSize;
 };
 
 IHE_CrtFileReadMemcopy::IHE_CrtFileReadMemcopy( HE_LPCSTR filename, CHE_Allocator * pAllocator ) : IHE_Read( pAllocator )
@@ -416,7 +416,7 @@ IHE_CrtFileReadMemcopy::~IHE_CrtFileReadMemcopy()
 	}
 }
 
-HE_DWORD IHE_CrtFileReadMemcopy::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size )
+HE_ULONG IHE_CrtFileReadMemcopy::ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size )
 {
 	if ( offset + size < m_lSize )
 	{
@@ -430,7 +430,7 @@ HE_DWORD IHE_CrtFileReadMemcopy::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, H
 	return 0;
 }
 
-HE_BYTE IHE_CrtFileReadMemcopy::ReadByte( HE_DWORD offset )
+HE_BYTE IHE_CrtFileReadMemcopy::ReadByte( HE_ULONG offset )
 {
 	if ( offset < m_lSize )
 	{
@@ -443,27 +443,27 @@ HE_BYTE IHE_CrtFileReadMemcopy::ReadByte( HE_DWORD offset )
 class IHE_CrtFileReadBuffer: public IHE_Read
 {
 public:
-	IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize, CHE_Allocator * pAllocator = NULL );
+	IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_ULONG dwBufSize, CHE_Allocator * pAllocator = NULL );
 	
 	virtual ~IHE_CrtFileReadBuffer();
 	
-	virtual HE_DWORD	GetSize();
+	virtual HE_ULONG	GetSize();
 	
-	virtual HE_DWORD	ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size );
+	virtual HE_ULONG	ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size );
 	
-	virtual HE_BYTE		ReadByte( HE_DWORD offset );
+	virtual HE_BYTE		ReadByte( HE_ULONG offset );
 	
 	virtual void		Release();
 	
 private:
 	FILE *				m_pFile;
 	HE_LPBYTE			m_pBytes;
-	HE_DWORD			m_dwBufSize;
-	HE_DWORD			m_dwBufPos;
-	HE_DWORD			m_dwFileSize;
+	HE_ULONG			m_dwBufSize;
+	HE_ULONG			m_dwBufPos;
+	HE_ULONG			m_dwFileSize;
 };
 
-IHE_CrtFileReadBuffer::IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_DWORD dwBufSize, CHE_Allocator * pAllocator ) : IHE_Read( pAllocator )
+IHE_CrtFileReadBuffer::IHE_CrtFileReadBuffer( HE_LPCSTR filename, HE_ULONG dwBufSize, CHE_Allocator * pAllocator ) : IHE_Read( pAllocator )
 {
 	m_pFile = NULL;
 	m_pBytes = NULL;
@@ -491,12 +491,12 @@ IHE_CrtFileReadBuffer::~IHE_CrtFileReadBuffer()
 	}
 }
 
-HE_DWORD IHE_CrtFileReadBuffer::GetSize()
+HE_ULONG IHE_CrtFileReadBuffer::GetSize()
 {
 	return m_dwFileSize;
 }
 
-HE_DWORD IHE_CrtFileReadBuffer::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size )
+HE_ULONG IHE_CrtFileReadBuffer::ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size )
 {
 	if( buffer == NULL || size == 0 || offset >= m_dwFileSize )
 	{
@@ -526,7 +526,7 @@ HE_DWORD IHE_CrtFileReadBuffer::ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE
 	}
 }
 
-HE_BYTE	IHE_CrtFileReadBuffer::ReadByte( HE_DWORD offset )
+HE_BYTE	IHE_CrtFileReadBuffer::ReadByte( HE_ULONG offset )
 {
 	return 0;
 }
@@ -536,7 +536,7 @@ void IHE_CrtFileReadBuffer::Release()
 
 }
 
-IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode, HE_DWORD param, CHE_Allocator * pAllocator )
+IHE_Read* HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode, HE_ULONG param, CHE_Allocator * pAllocator )
 {
 	CHE_DefCrtAllocator defcrtAllocator;
 	CHE_Allocator * pTmpAllocator = NULL;
@@ -580,17 +580,17 @@ class IHE_File : public CHE_Object
 
 	virtual ~IHE_File() {};
 
-	virtual HE_DWORD	GetSize() = 0;
+	virtual HE_ULONG	GetSize() = 0;
 
-	virtual HE_DWORD	GetCurOffset() = 0;
+	virtual HE_ULONG	GetCurOffset() = 0;
 
-	virtual HE_DWORD	ReadBlock( HE_LPVOID buffer, HE_DWORD offset, HE_DWORD size ) = 0;
+	virtual HE_ULONG	ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size ) = 0;
 
-	virtual HE_BYTE		ReadByte( HE_DWORD offset ) = 0;
+	virtual HE_BYTE		ReadByte( HE_ULONG offset ) = 0;
 
-	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD offset, HE_DWORD size ) = 0;
+	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_ULONG offset, HE_ULONG size ) = 0;
 
-	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_DWORD size )
+	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_ULONG size )
 	{
 		return WriteBlock( pData, GetSize(), size );
 	}
@@ -600,7 +600,7 @@ class IHE_File : public CHE_Object
 		return WriteBlock( &byte, 1 );
 	}
 
-	virtual HE_DWORD	Flush() = 0;
+	virtual HE_ULONG	Flush() = 0;
 
 	virtual HE_VOID		Release() = 0;
 };

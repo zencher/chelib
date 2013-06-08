@@ -129,13 +129,13 @@ CHE_WindowsFontMgr::CHE_WindowsFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
 					{
 						fontInfo.mPostScriptName = pPostScriptName;
 					}
-					fontInfo.mAscent = face->ascender * 1000.0 / face->units_per_EM;
-					fontInfo.mDescent = face->descender * 1000.0 / face->units_per_EM;
-					fontInfo.mHeight = face->height * 1000.0 / face->units_per_EM;
-					fontInfo.mFontBBox.left = face->bbox.xMin * 1000.0 / face->units_per_EM;
-					fontInfo.mFontBBox.bottom = face->bbox.yMin * 1000.0 / face->units_per_EM;
-					fontInfo.mFontBBox.width = face->bbox.xMax * 1000.0 / face->units_per_EM;
-					fontInfo.mFontBBox.height = face->bbox.yMax * 1000.0 / face->units_per_EM;
+					fontInfo.mAscent = face->ascender * 1000.0f / face->units_per_EM;
+					fontInfo.mDescent = face->descender * 1000.0f / face->units_per_EM;
+					fontInfo.mHeight = face->height * 1000.0f / face->units_per_EM;
+					fontInfo.mFontBBox.left = face->bbox.xMin * 1000.0f / face->units_per_EM;
+					fontInfo.mFontBBox.bottom = face->bbox.yMin * 1000.0f / face->units_per_EM;
+					fontInfo.mFontBBox.width = face->bbox.xMax * 1000.0f / face->units_per_EM;
+					fontInfo.mFontBBox.height = face->bbox.yMax * 1000.0f / face->units_per_EM;
 					fontInfo.mFilePath = fontFileStr;
 					mFontList.push_back( fontInfo );
 
@@ -163,7 +163,7 @@ CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( const CHE_ByteString & fontN
 	HE_BOOL bItalic = FALSE;
 	CHE_ByteString name;
 	CHE_ByteString style;
-	for ( HE_DWORD i = 0; i < fontName.GetLength(); ++i )
+	for ( HE_ULONG i = 0; i < fontName.GetLength(); ++i )
 	{
 		if ( fontName[i] == '+' )
 		{

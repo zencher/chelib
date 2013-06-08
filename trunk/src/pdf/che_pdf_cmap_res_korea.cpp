@@ -819,7 +819,7 @@ PDF_CMAP_RANGE CMap_Adobe_Korea1_UCS2_Ranges[] = {
 {18250,18,7959},{18255,373,32},{18349,10,7964},
 };
 
-const HE_WORD CMap_Adobe_Korea1_UCS2_table[7967] = {
+const HE_UINT16 CMap_Adobe_Korea1_UCS2_table[7967] = {
 2,40,40,2,41,41,2,40,40,2,41,41,
 2,52685,52685,2,40,40,2,41,41,2,40,40,
 2,41,41,2,49,8414,2,50,8414,2,51,8414,
@@ -1490,7 +1490,7 @@ PDF_CMAP CMap_Adobe_Korea1_UCS2 = {
 	-1, "Adobe-Korea1-UCS2", "", 0, 0, 1,
 	{ {2,0,65535}, },
 	3251, 3251, (PDF_CMAP_RANGE*) CMap_Adobe_Korea1_UCS2_Ranges,
-	7967, 7967, (HE_WORD*) CMap_Adobe_Korea1_UCS2_table,
+	7967, 7967, (HE_UINT16*) CMap_Adobe_Korea1_UCS2_table,
 };
 
 /* Adobe-Korea1-0 */
@@ -1499,13 +1499,13 @@ PDF_CMAP_RANGE CMap_Adobe_Korea1_0_Ranges[] = {
 {0,37329,0},
 };
 
-const HE_WORD CMap_Adobe_Korea1_0_table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Korea1_0_table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Korea1_0 = {
 	-1, "Adobe-Korea1-0", "", 0, 0, 1,
 	{ {2,0,9471}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Adobe_Korea1_0_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Korea1_0_table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Korea1_0_table,
 };
 
 /* Adobe-Korea1-1 */
@@ -1514,13 +1514,13 @@ PDF_CMAP_RANGE CMap_Adobe_Korea1_1_Ranges[] = {
 {0,65533,0},{16384,7081,16384},
 };
 
-const HE_WORD CMap_Adobe_Korea1_1_table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Korea1_1_table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Korea1_1 = {
 	-1, "Adobe-Korea1-1", "", 0, 0, 1,
 	{ {2,0,18175}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_Korea1_1_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Korea1_1_table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Korea1_1_table,
 };
 
 /* Adobe-Korea1-2 */
@@ -1529,13 +1529,13 @@ PDF_CMAP_RANGE CMap_Adobe_Korea1_2_Ranges[] = {
 {0,65533,0},{16384,7869,16384},
 };
 
-const HE_WORD CMap_Adobe_Korea1_2_table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Korea1_2_table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Korea1_2 = {
 	-1, "Adobe-Korea1-2", "", 0, 0, 1,
 	{ {2,0,18431}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_Korea1_2_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Korea1_2_table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Korea1_2_table,
 };
 
 /* KSC-EUC-H */
@@ -1642,7 +1642,7 @@ PDF_CMAP_RANGE CMap_KSC_EUC_H_Ranges[] = {
 {64929,373,7962},
 };
 
-const HE_WORD CMap_KSC_EUC_H_table[113] = {
+const HE_UINT16 CMap_KSC_EUC_H_table[113] = {
 3993,3946,4374,4156,4138,5800,4386,4139,4140,4391,4141,4142,
 4396,4403,4149,4419,4154,4420,4517,4173,4524,4174,4179,4547,
 4550,4180,4564,5584,5302,5367,4427,5879,4435,5896,4436,5897,
@@ -1659,7 +1659,7 @@ PDF_CMAP CMap_KSC_EUC_H = {
 	-1, "KSC-EUC-H", "", 0, 0, 2,
 	{ {1,0,128},{2,41377,65278}, },
 	393, 393, (PDF_CMAP_RANGE*) CMap_KSC_EUC_H_Ranges,
-	113, 113, (HE_WORD*) CMap_KSC_EUC_H_table,
+	113, 113, (HE_UINT16*) CMap_KSC_EUC_H_table,
 };
 
 /* KSC-EUC-V */
@@ -1671,7 +1671,7 @@ PDF_CMAP_RANGE CMap_KSC_EUC_V_Ranges[] = {
 {41949,0,8088},{41951,0,8089},{41979,13,8090},
 };
 
-const HE_WORD CMap_KSC_EUC_V_table[2] = {
+const HE_UINT16 CMap_KSC_EUC_V_table[2] = {
 8058,8320,
 };
 
@@ -1679,7 +1679,7 @@ PDF_CMAP CMap_KSC_EUC_V = {
 	-1, "KSC-EUC-V", "KSC-EUC-H", 0, 1, 0,
 	{ {0,0,0}, },
 	15, 15, (PDF_CMAP_RANGE*) CMap_KSC_EUC_V_Ranges,
-	2, 2, (HE_WORD*) CMap_KSC_EUC_V_table,
+	2, 2, (HE_UINT16*) CMap_KSC_EUC_V_table,
 };
 
 /* KSC-H */
@@ -1785,7 +1785,7 @@ PDF_CMAP_RANGE CMap_KSC_H_Ranges[] = {
 {31777,29,7869},{31785,0,3815},{31786,337,7877},{32033,373,7962},
 };
 
-const HE_WORD CMap_KSC_H_table[113] = {
+const HE_UINT16 CMap_KSC_H_table[113] = {
 3993,3946,4374,4156,4138,5800,4386,4139,4140,4391,4141,4142,
 4396,4403,4149,4419,4154,4420,4517,4173,4524,4174,4179,4547,
 4550,4180,4564,5584,5302,5367,4427,5879,4435,5896,4436,5897,
@@ -1802,7 +1802,7 @@ PDF_CMAP CMap_KSC_H = {
 	-1, "KSC-H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	392, 392, (PDF_CMAP_RANGE*) CMap_KSC_H_Ranges,
-	113, 113, (HE_WORD*) CMap_KSC_H_table,
+	113, 113, (HE_UINT16*) CMap_KSC_H_table,
 };
 
 /* KSC-Johab-H */
@@ -2670,7 +2670,7 @@ PDF_CMAP_RANGE CMap_KSC_Johab_H_Ranges[] = {
 {63889,437,7946},
 };
 
-const HE_WORD CMap_KSC_Johab_H_table[996] = {
+const HE_UINT16 CMap_KSC_Johab_H_table[996] = {
 1109,9355,1117,9377,1118,9413,1127,1129,9419,1141,9435,9442,
 1148,1152,9452,1160,9472,1161,9485,1167,9486,1168,1171,9489,
 1172,9490,1178,9501,1179,1181,9507,1182,9508,1183,1195,9549,
@@ -2760,7 +2760,7 @@ PDF_CMAP CMap_KSC_Johab_H = {
 	-1, "KSC-Johab-H", "", 0, 0, 4,
 	{ {1,0,128},{2,33857,54270},{2,55345,57086},{2,57393,63998}, },
 	3437, 3437, (PDF_CMAP_RANGE*) CMap_KSC_Johab_H_Ranges,
-	996, 996, (HE_WORD*) CMap_KSC_Johab_H_table,
+	996, 996, (HE_UINT16*) CMap_KSC_Johab_H_table,
 };
 
 /* KSC-Johab-V */
@@ -2772,7 +2772,7 @@ PDF_CMAP_RANGE CMap_KSC_Johab_V_Ranges[] = {
 {55917,0,8088},{55919,0,8089},{55965,13,8090},
 };
 
-const HE_WORD CMap_KSC_Johab_V_table[2] = {
+const HE_UINT16 CMap_KSC_Johab_V_table[2] = {
 8058,8320,
 };
 
@@ -2780,7 +2780,7 @@ PDF_CMAP CMap_KSC_Johab_V = {
 	-1, "KSC-Johab-V", "KSC-Johab-H", 0, 1, 0,
 	{ {0,0,0}, },
 	15, 15, (PDF_CMAP_RANGE*) CMap_KSC_Johab_V_Ranges,
-	2, 2, (HE_WORD*) CMap_KSC_Johab_V_table,
+	2, 2, (HE_UINT16*) CMap_KSC_Johab_V_table,
 };
 
 /* KSC-V */
@@ -2792,7 +2792,7 @@ PDF_CMAP_RANGE CMap_KSC_V_Ranges[] = {
 {9053,0,8088},{9055,0,8089},{9083,13,8090},
 };
 
-const HE_WORD CMap_KSC_V_table[2] = {
+const HE_UINT16 CMap_KSC_V_table[2] = {
 8058,8320,
 };
 
@@ -2800,7 +2800,7 @@ PDF_CMAP CMap_KSC_V = {
 	-1, "KSC-V", "KSC-H", 0, 1, 0,
 	{ {0,0,0}, },
 	15, 15, (PDF_CMAP_RANGE*) CMap_KSC_V_Ranges,
-	2, 2, (HE_WORD*) CMap_KSC_V_table,
+	2, 2, (HE_UINT16*) CMap_KSC_V_table,
 };
 
 /* KSCms-UHC-H */
@@ -2959,7 +2959,7 @@ PDF_CMAP_RANGE CMap_KSCms_UHC_H_Ranges[] = {
 {64929,373,7962},
 };
 
-const HE_WORD CMap_KSCms_UHC_H_table[113] = {
+const HE_UINT16 CMap_KSCms_UHC_H_table[113] = {
 3993,3946,4374,4156,4138,5800,4386,4139,4140,4391,4141,4142,
 4396,4403,4149,4419,4154,4420,4517,4173,4524,4174,4179,4547,
 4550,4180,4564,5584,5302,5367,4427,5879,4435,5896,4436,5897,
@@ -2976,7 +2976,7 @@ PDF_CMAP CMap_KSCms_UHC_H = {
 	-1, "KSCms-UHC-H", "", 0, 0, 2,
 	{ {1,0,128},{2,33089,65278}, },
 	601, 601, (PDF_CMAP_RANGE*) CMap_KSCms_UHC_H_Ranges,
-	113, 113, (HE_WORD*) CMap_KSCms_UHC_H_table,
+	113, 113, (HE_UINT16*) CMap_KSCms_UHC_H_table,
 };
 
 /* KSCms-UHC-HW-H */
@@ -3135,7 +3135,7 @@ PDF_CMAP_RANGE CMap_KSCms_UHC_HW_H_Ranges[] = {
 {64929,373,7962},
 };
 
-const HE_WORD CMap_KSCms_UHC_HW_H_table[113] = {
+const HE_UINT16 CMap_KSCms_UHC_HW_H_table[113] = {
 3993,3946,4374,4156,4138,5800,4386,4139,4140,4391,4141,4142,
 4396,4403,4149,4419,4154,4420,4517,4173,4524,4174,4179,4547,
 4550,4180,4564,5584,5302,5367,4427,5879,4435,5896,4436,5897,
@@ -3152,7 +3152,7 @@ PDF_CMAP CMap_KSCms_UHC_HW_H = {
 	-1, "KSCms-UHC-HW-H", "", 0, 0, 2,
 	{ {1,0,128},{2,33089,65278}, },
 	601, 601, (PDF_CMAP_RANGE*) CMap_KSCms_UHC_HW_H_Ranges,
-	113, 113, (HE_WORD*) CMap_KSCms_UHC_HW_H_table,
+	113, 113, (HE_UINT16*) CMap_KSCms_UHC_HW_H_table,
 };
 
 /* KSCms-UHC-HW-V */
@@ -3164,7 +3164,7 @@ PDF_CMAP_RANGE CMap_KSCms_UHC_HW_V_Ranges[] = {
 {41949,0,8088},{41951,0,8089},{41979,13,8090},
 };
 
-const HE_WORD CMap_KSCms_UHC_HW_V_table[2] = {
+const HE_UINT16 CMap_KSCms_UHC_HW_V_table[2] = {
 8058,8320,
 };
 
@@ -3172,7 +3172,7 @@ PDF_CMAP CMap_KSCms_UHC_HW_V = {
 	-1, "KSCms-UHC-HW-V", "KSCms-UHC-HW-H", 0, 1, 0,
 	{ {0,0,0}, },
 	15, 15, (PDF_CMAP_RANGE*) CMap_KSCms_UHC_HW_V_Ranges,
-	2, 2, (HE_WORD*) CMap_KSCms_UHC_HW_V_table,
+	2, 2, (HE_UINT16*) CMap_KSCms_UHC_HW_V_table,
 };
 
 /* KSCms-UHC-V */
@@ -3184,7 +3184,7 @@ PDF_CMAP_RANGE CMap_KSCms_UHC_V_Ranges[] = {
 {41949,0,8088},{41951,0,8089},{41979,13,8090},
 };
 
-const HE_WORD CMap_KSCms_UHC_V_table[2] = {
+const HE_UINT16 CMap_KSCms_UHC_V_table[2] = {
 8058,8320,
 };
 
@@ -3192,7 +3192,7 @@ PDF_CMAP CMap_KSCms_UHC_V = {
 	-1, "KSCms-UHC-V", "KSCms-UHC-H", 0, 1, 0,
 	{ {0,0,0}, },
 	15, 15, (PDF_CMAP_RANGE*) CMap_KSCms_UHC_V_Ranges,
-	2, 2, (HE_WORD*) CMap_KSCms_UHC_V_table,
+	2, 2, (HE_UINT16*) CMap_KSCms_UHC_V_table,
 };
 
 /* KSCpc-EUC-H */
@@ -3309,7 +3309,7 @@ PDF_CMAP_RANGE CMap_KSCpc_EUC_H_Ranges[] = {
 {64681,0,3815},{64682,337,7877},{64929,373,7962},
 };
 
-const HE_WORD CMap_KSCpc_EUC_H_table[113] = {
+const HE_UINT16 CMap_KSCpc_EUC_H_table[113] = {
 3993,3946,4374,4156,4138,5800,4386,4139,4140,4391,4141,4142,
 4396,4403,4149,4419,4154,4420,4517,4173,4524,4174,4179,4547,
 4550,4180,4564,5584,5302,5367,4427,5879,4435,5896,4436,5897,
@@ -3326,7 +3326,7 @@ PDF_CMAP CMap_KSCpc_EUC_H = {
 	-1, "KSCpc-EUC-H", "", 0, 0, 3,
 	{ {1,0,132},{2,41281,65022},{1,254,255}, },
 	435, 435, (PDF_CMAP_RANGE*) CMap_KSCpc_EUC_H_Ranges,
-	113, 113, (HE_WORD*) CMap_KSCpc_EUC_H_table,
+	113, 113, (HE_UINT16*) CMap_KSCpc_EUC_H_table,
 };
 
 /* KSCpc-EUC-V */
@@ -3338,7 +3338,7 @@ PDF_CMAP_RANGE CMap_KSCpc_EUC_V_Ranges[] = {
 {41949,0,8088},{41951,0,8089},{41979,13,8090},
 };
 
-const HE_WORD CMap_KSCpc_EUC_V_table[2] = {
+const HE_UINT16 CMap_KSCpc_EUC_V_table[2] = {
 8058,8320,
 };
 
@@ -3346,7 +3346,7 @@ PDF_CMAP CMap_KSCpc_EUC_V = {
 	-1, "KSCpc-EUC-V", "KSCpc-EUC-H", 0, 1, 0,
 	{ {0,0,0}, },
 	15, 15, (PDF_CMAP_RANGE*) CMap_KSCpc_EUC_V_Ranges,
-	2, 2, (HE_WORD*) CMap_KSCpc_EUC_V_table,
+	2, 2, (HE_UINT16*) CMap_KSCpc_EUC_V_table,
 };
 
 /* UniKS-UCS2-H */
@@ -4943,7 +4943,7 @@ PDF_CMAP_RANGE CMap_UniKS_UCS2_H_Ranges[] = {
 {65504,5,143},{65506,6,3156},{65509,6,3158},
 };
 
-const HE_WORD CMap_UniKS_UCS2_H_table[3160] = {
+const HE_UINT16 CMap_UniKS_UCS2_H_table[3160] = {
 155,107,668,176,138,130,206,842,675,177,751,748,
 752,209,131,673,676,768,132,766,669,760,761,670,
 762,671,764,672,765,772,678,771,674,767,677,770,
@@ -5214,7 +5214,7 @@ PDF_CMAP CMap_UniKS_UCS2_H = {
 	-1, "UniKS-UCS2-H", "", 0, 0, 2,
 	{ {2,0,55295},{2,57344,65535}, },
 	6355, 6355, (PDF_CMAP_RANGE*) CMap_UniKS_UCS2_H_Ranges,
-	3160, 3160, (HE_WORD*) CMap_UniKS_UCS2_H_table,
+	3160, 3160, (HE_UINT16*) CMap_UniKS_UCS2_H_table,
 };
 
 /* UniKS-UCS2-V */
@@ -5227,13 +5227,13 @@ PDF_CMAP_RANGE CMap_UniKS_UCS2_V_Ranges[] = {
 {65374,0,8062},{65507,0,8093},
 };
 
-const HE_WORD CMap_UniKS_UCS2_V_table[] = { 0 };
+const HE_UINT16 CMap_UniKS_UCS2_V_table[] = { 0 };
 
 PDF_CMAP CMap_UniKS_UCS2_V = {
 	-1, "UniKS-UCS2-V", "UniKS-UCS2-H", 0, 1, 0,
 	{ {0,0,0}, },
 	18, 18, (PDF_CMAP_RANGE*) CMap_UniKS_UCS2_V_Ranges,
-	0, 0, (HE_WORD*) CMap_UniKS_UCS2_V_table,
+	0, 0, (HE_UINT16*) CMap_UniKS_UCS2_V_table,
 };
 
 /* UniKS-UTF16-H */
@@ -6839,7 +6839,7 @@ PDF_CMAP_RANGE CMap_UniKS_UTF16_H_Ranges[] = {
 {65506,6,3305},{65509,6,3307},
 };
 
-const HE_WORD CMap_UniKS_UTF16_H_table[3309] = {
+const HE_UINT16 CMap_UniKS_UTF16_H_table[3309] = {
 155,107,98,668,176,138,130,244,104,206,842,675,
 177,751,748,752,209,131,673,676,768,132,766,669,
 760,761,670,762,671,764,672,765,772,678,771,674,
@@ -7122,7 +7122,7 @@ PDF_CMAP CMap_UniKS_UTF16_H = {
 	-1, "UniKS-UTF16-H", "", 0, 0, 3,
 	{ {2,0,55295},{4,56320,57343},{2,57344,65535}, },
 	6390, 6390, (PDF_CMAP_RANGE*) CMap_UniKS_UTF16_H_Ranges,
-	3309, 3309, (HE_WORD*) CMap_UniKS_UTF16_H_table,
+	3309, 3309, (HE_UINT16*) CMap_UniKS_UTF16_H_table,
 };
 
 /* UniKS-UTF16-V */
@@ -7135,13 +7135,13 @@ PDF_CMAP_RANGE CMap_UniKS_UTF16_V_Ranges[] = {
 {65374,0,8062},{65507,0,8093},
 };
 
-const HE_WORD CMap_UniKS_UTF16_V_table[] = { 0 };
+const HE_UINT16 CMap_UniKS_UTF16_V_table[] = { 0 };
 
 PDF_CMAP CMap_UniKS_UTF16_V = {
 	-1, "UniKS-UTF16-V", "UniKS-UTF16-H", 0, 1, 0,
 	{ {0,0,0}, },
 	18, 18, (PDF_CMAP_RANGE*) CMap_UniKS_UTF16_V_Ranges,
-	0, 0, (HE_WORD*) CMap_UniKS_UTF16_V_table,
+	0, 0, (HE_UINT16*) CMap_UniKS_UTF16_V_table,
 };
 
 #endif

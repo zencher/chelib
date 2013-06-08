@@ -352,23 +352,23 @@ private:
 
 struct PDF_RefInfo
 {
-	HE_DWORD objNum;
-	HE_DWORD genNum;
+	HE_ULONG objNum;
+	HE_ULONG genNum;
 };
 
 class CHE_PDF_Reference : public CHE_PDF_Object
 {
 public:
 
-	static CHE_PDF_ReferencePtr		Create( HE_DWORD refNum, HE_DWORD genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ReferencePtr		Create( HE_ULONG refNum, HE_ULONG genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
 
-	HE_DWORD						GetRefNum() const { return mRefObjNum; }
+	HE_ULONG						GetRefNum() const { return mRefObjNum; }
 
-	HE_VOID							SetRefNum( HE_DWORD objNum ) { mRefObjNum = objNum; SetModified( TRUE ); }
+	HE_VOID							SetRefNum( HE_ULONG objNum ) { mRefObjNum = objNum; SetModified( TRUE ); }
 
-	HE_DWORD						GetGenNum() const { return mRefGenNum; }
+	HE_ULONG						GetGenNum() const { return mRefGenNum; }
 
-	HE_VOID							SetGenNum( HE_DWORD genNum ) { mRefGenNum = genNum; SetModified( TRUE ); }
+	HE_VOID							SetGenNum( HE_ULONG genNum ) { mRefGenNum = genNum; SetModified( TRUE ); }
 
 	PDF_RefInfo						GetRefInfo() { PDF_RefInfo refInfo; refInfo.objNum = mRefObjNum; refInfo.genNum = mRefGenNum; return refInfo; }
 
@@ -384,12 +384,12 @@ public:
 
 private:
 
-	CHE_PDF_Reference( HE_DWORD refNum, HE_DWORD genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Reference( HE_ULONG refNum, HE_ULONG genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL )
 		: CHE_PDF_Object( OBJ_TYPE_REFERENCE, pAllocator ), mRefObjNum( refNum ), mRefGenNum( genNum ), mpFile( pFile ) {}
 
-	HE_DWORD						mRefObjNum;
+	HE_ULONG						mRefObjNum;
 
-	HE_DWORD						mRefGenNum;
+	HE_ULONG						mRefGenNum;
 
 	CHE_PDF_File *					mpFile;
 
@@ -405,11 +405,11 @@ public:
 
 	HE_BOOL							Append( const CHE_PDF_ObjectPtr & pObj );
 
-	HE_DWORD						GetCount() const { return mArray.size(); }
+	HE_ULONG						GetCount() const { return mArray.size(); }
 
-	CHE_PDF_ObjectPtr				GetElement( HE_DWORD index ) const;
+	CHE_PDF_ObjectPtr				GetElement( HE_ULONG index ) const;
 
-	CHE_PDF_ObjectPtr				GetElement( HE_DWORD index, PDF_OBJ_TYPE Type );
+	CHE_PDF_ObjectPtr				GetElement( HE_ULONG index, PDF_OBJ_TYPE Type );
 
 	CHE_PDF_ObjectPtr				GetElementByType( PDF_OBJ_TYPE Type );
 
@@ -433,15 +433,15 @@ public:
 
 	static CHE_PDF_DictionaryPtr	Create( CHE_Allocator * pAllocator = NULL );
 
-	HE_DWORD						GetCount() { return mKeys.size(); }
+	HE_ULONG						GetCount() { return mKeys.size(); }
 
 	CHE_PDF_ObjectPtr				GetElement( const CHE_ByteString & key ) const;
 
 	CHE_PDF_ObjectPtr				GetElement( const CHE_ByteString & key, PDF_OBJ_TYPE type );
 
-	CHE_PDF_ObjectPtr				GetElementByIndex( HE_DWORD index ) const { return mPtrs[index]; }
+	CHE_PDF_ObjectPtr				GetElementByIndex( HE_ULONG index ) const { return mPtrs[index]; }
 
-	HE_BOOL							GetKeyByIndex( HE_DWORD index, CHE_ByteString & strRet ) const { strRet = mKeys[index]; return TRUE; }
+	HE_BOOL							GetKeyByIndex( HE_ULONG index, CHE_ByteString & strRet ) const { strRet = mKeys[index]; return TRUE; }
 
 	HE_VOID							SetAtObj( const CHE_ByteString & key, const CHE_PDF_ObjectPtr & ptr );
 
@@ -461,7 +461,7 @@ public:
 
 	HE_VOID							SetAtDictionary( const CHE_ByteString & key, const CHE_PDF_DictionaryPtr & pDict );
 
-	HE_VOID							SetAtReference( const CHE_ByteString & key, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_File * pFile );
+	HE_VOID							SetAtReference( const CHE_ByteString & key, HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_File * pFile );
 
 	CHE_PDF_DictionaryPtr			Clone();
 
@@ -481,64 +481,64 @@ private:
 class CHE_PDF_Stream : public CHE_PDF_Object
 {
 public:
-	static CHE_PDF_StreamPtr		Create( HE_DWORD objNum, HE_DWORD genNum,
+	static CHE_PDF_StreamPtr		Create( HE_ULONG objNum, HE_ULONG genNum,
 											CHE_PDF_Encrypt * pEncrypt = NULL,
 											CHE_Allocator * pAllocator = NULL );
 
-	static CHE_PDF_StreamPtr		Create( HE_LPBYTE pData, HE_DWORD size,
+	static CHE_PDF_StreamPtr		Create( HE_LPBYTE pData, HE_ULONG size,
 											const CHE_PDF_DictionaryPtr & pDict, 
-											HE_DWORD objNum, HE_DWORD genNum,
+											HE_ULONG objNum, HE_ULONG genNum,
 											CHE_PDF_Encrypt * pEncrypt = NULL,
 											CHE_Allocator * pAllocator = NULL );
 
-	static CHE_PDF_StreamPtr		Create( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, 
+	static CHE_PDF_StreamPtr		Create( IHE_Read* pFile, HE_ULONG offset, HE_ULONG size, 
 											const CHE_PDF_DictionaryPtr pDict,
-											HE_DWORD objNum, HE_DWORD genNum, 
+											HE_ULONG objNum, HE_ULONG genNum, 
 											CHE_PDF_Encrypt * pEncrypt = NULL,
 											CHE_Allocator * pAllocator = NULL );
 
-	HE_DWORD						GetObjNum() const { return m_dwObjNum; }
+	HE_ULONG						GetObjNum() const { return m_dwObjNum; }
 
-	HE_DWORD						GetGenNum() const { return m_dwGenNum; }
+	HE_ULONG						GetGenNum() const { return m_dwGenNum; }
 
 	HE_VOID							SetDict( const CHE_PDF_DictionaryPtr & ptr );
 
 	CHE_PDF_DictionaryPtr			GetDictPtr() const { return mDictPtr; }
 
-	HE_DWORD						GetRawSize() const { return m_dwSize; }
+	HE_ULONG						GetRawSize() const { return m_dwSize; }
 
-	HE_DWORD						GetRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD buf_size ) const;
+	HE_ULONG						GetRawData( HE_ULONG offset, HE_LPBYTE pBuf, HE_ULONG buf_size ) const;
 
-	HE_BOOL							SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYTE filter = STREAM_FILTER_NULL );
+	HE_BOOL							SetRawData( HE_LPBYTE pData, HE_ULONG dwDataSize, HE_BYTE filter = STREAM_FILTER_NULL );
 
 	CHE_PDF_StreamPtr				Clone();
 
 	HE_BOOL							IsModified();
 
 private:
-	CHE_PDF_Stream(	HE_LPBYTE pData, HE_DWORD size, const CHE_PDF_DictionaryPtr & pDict, HE_DWORD objNum, HE_DWORD genNum, 
+	CHE_PDF_Stream(	HE_LPBYTE pData, HE_ULONG size, const CHE_PDF_DictionaryPtr & pDict, HE_ULONG objNum, HE_ULONG genNum, 
 					CHE_PDF_Encrypt * pEncrypt = NULL, CHE_Allocator * pAllocator = NULL );
 
-	CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, const CHE_PDF_DictionaryPtr & pDict, HE_DWORD objNum, HE_DWORD genNum,
+	CHE_PDF_Stream( IHE_Read* pFile, HE_ULONG offset, HE_ULONG size, const CHE_PDF_DictionaryPtr & pDict, HE_ULONG objNum, HE_ULONG genNum,
 					CHE_PDF_Encrypt * pEncrypt = NULL, CHE_Allocator * pAllocator = NULL );
 
-	CHE_PDF_Stream(	HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt = NULL, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Stream(	HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt = NULL, CHE_Allocator * pAllocator = NULL );
 
 	~CHE_PDF_Stream();
 
 	CHE_PDF_Encrypt *				m_pEncrypt;
 
 	CHE_PDF_DictionaryPtr			mDictPtr;
-	HE_DWORD						m_dwSize;
+	HE_ULONG						m_dwSize;
 	HE_BOOL							m_bMem;
 	union {
 		HE_LPBYTE					m_pDataBuf;
 		IHE_Read*					m_pFile;	
 	};
-	HE_DWORD						m_FileOffset;
+	HE_ULONG						m_FileOffset;
 
-	HE_DWORD						m_dwObjNum;
-	HE_DWORD						m_dwGenNum;
+	HE_ULONG						m_dwObjNum;
+	HE_ULONG						m_dwGenNum;
 
 	friend class CHE_Allocator;
 	friend class CHE_PDF_Object;
@@ -559,11 +559,11 @@ public:
 
 	HE_LPBYTE						GetData() const { return m_pDataBuf; }
 
-	HE_DWORD						GetSize() const { return m_dwSize; }
+	HE_ULONG						GetSize() const { return m_dwSize; }
 	
 private:
 	HE_LPBYTE						m_pDataBuf;
-	HE_DWORD						m_dwSize;;
+	HE_ULONG						m_dwSize;;
 
 	CHE_PDF_StreamPtr				mStreamPtr;
 };

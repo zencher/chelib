@@ -16,7 +16,7 @@ public:
 	/*~CHE_PDF_OutlineItem();*/
 
 /*private:*/
-	HE_DWORD				mCount;
+	HE_ULONG				mCount;
 	CHE_ByteString			mTitleStrPtr;
 	CHE_PDF_Destination		mDestination;
 
@@ -51,7 +51,7 @@ private:
 
 	CHE_PDF_OutlineItem *	mpRootItem;
 
-	HE_DWORD				mCount;
+	HE_ULONG				mCount;
 };
 
 

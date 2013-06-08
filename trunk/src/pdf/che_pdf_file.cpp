@@ -74,8 +74,8 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 		pCreator->SetEncrypt( mpParser->m_pStrEncrypt );
 	}
 
-	HE_DWORD				objCount = 0;
-	HE_DWORD				offset = 0;
+	HE_ULONG				objCount = 0;
+	HE_ULONG				offset = 0;
 	PDF_RefInfo				refInfo;
 	HE_BOOL					bEncrypt = TRUE;
 
@@ -210,15 +210,15 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 		return FALSE;
 	}
 
-	HE_DWORD objCount = 0;
-	HE_DWORD objInStmCount = 0;
-	HE_DWORD offset = 0;
-	HE_DWORD nextObjNum = mXRefTable.GetMaxObjNum()+1;
+	HE_ULONG objCount = 0;
+	HE_ULONG objInStmCount = 0;
+	HE_ULONG offset = 0;
+	HE_ULONG nextObjNum = mXRefTable.GetMaxObjNum()+1;
 	CHE_PDF_XREF_Entry entry;
 	CHE_PDF_XREF_Table xref( GetAllocator() );
 	PDF_RefInfo refInfo;
-	CHE_Queue< HE_DWORD > objNumQueue;
-	CHE_Queue< HE_DWORD > objOffset;
+	CHE_Queue< HE_ULONG > objNumQueue;
+	CHE_Queue< HE_ULONG > objOffset;
 
 	CHE_PDF_ObjectPtr ObjPtr;
 	CHE_PDF_NamePtr NamePtr;
@@ -324,9 +324,9 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 					
 					if ( objInStmCount == 30 )
 					{
-						HE_DWORD objNum = 0;
-						HE_DWORD offset = 0;
-						HE_DWORD index = 0;
+						HE_ULONG objNum = 0;
+						HE_ULONG offset = 0;
+						HE_ULONG index = 0;
 						CHE_DynBuffer tmpBuf( 1024, 1024 * 8, GetAllocator() );
 						HE_CHAR tmpStr[1024];
 
@@ -388,9 +388,9 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 
 	if ( ! objNumQueue.IsEmpty() )
 	{
-		HE_DWORD objNum = 0;
-		HE_DWORD offset = 0;
-		HE_DWORD index = 0;
+		HE_ULONG objNum = 0;
+		HE_ULONG offset = 0;
+		HE_ULONG index = 0;
 		CHE_DynBuffer tmpBuf( 1024, 1024 * 8, GetAllocator() );
 		HE_CHAR tmpStr[1024];
 		CHE_PDF_StreamPtr StmPtr = CHE_PDF_Stream::Create( nextObjNum++, 0, NULL, GetAllocator() );
@@ -466,13 +466,13 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 
 	CHE_DynBuffer tmpBuf( 1024, 1024, GetAllocator() );
 
-	HE_DWORD lBeginNum = 0;
-	HE_DWORD lNextObjNum = 0;
-	HE_DWORD lCountNum = 0;
+	HE_ULONG lBeginNum = 0;
+	HE_ULONG lNextObjNum = 0;
+	HE_ULONG lCountNum = 0;
 
 	CHE_Queue< CHE_PDF_XREF_Entry > entryList;
 
-	HE_DWORD field1 = 0, field2 = 0, field3 = 0;
+	HE_ULONG field1 = 0, field2 = 0, field3 = 0;
 
 	xref.MoveFirst();
 	if ( ! xref.GetCurNode( entry ) )
@@ -640,7 +640,7 @@ CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const PDF_RefInfo & refInfo )
 	return ObjPtr;
 }
 
-HE_DWORD CHE_PDF_File::GetFileSize() const
+HE_ULONG CHE_PDF_File::GetFileSize() const
 {
 	if ( mpParser )
 	{

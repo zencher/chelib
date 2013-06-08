@@ -4,16 +4,16 @@
 #include "../../include/pdf/che_pdf_objectstring.h"
 
 //obj relative
-static const HE_CHAR * gpStrSingleSpace		= " ";			static const HE_DWORD glStrSingleSpace		= 1;
-static const HE_CHAR * gpStrNullObj			= "null";		static const HE_DWORD glStrNullObj			= 5;
-static const HE_CHAR * gpStrBoolObjFalse	= "false";		static const HE_DWORD glStrBoolObjFalse		= 5;
-static const HE_CHAR * gpStrBoolObjTrue		= "true";		static const HE_DWORD glStrBoolObjTrue		= 4;
-static const HE_CHAR * gpStrNameObjPre		= "/";			static const HE_DWORD glStrNameObjPre		= 1;
-static const HE_CHAR * gpStrStrObjLeft		= "(";			static const HE_DWORD glStrStrObj			= 1;
+static const HE_CHAR * gpStrSingleSpace		= " ";			static const HE_ULONG glStrSingleSpace		= 1;
+static const HE_CHAR * gpStrNullObj			= "null";		static const HE_ULONG glStrNullObj			= 5;
+static const HE_CHAR * gpStrBoolObjFalse	= "false";		static const HE_ULONG glStrBoolObjFalse		= 5;
+static const HE_CHAR * gpStrBoolObjTrue		= "true";		static const HE_ULONG glStrBoolObjTrue		= 4;
+static const HE_CHAR * gpStrNameObjPre		= "/";			static const HE_ULONG glStrNameObjPre		= 1;
+static const HE_CHAR * gpStrStrObjLeft		= "(";			static const HE_ULONG glStrStrObj			= 1;
 static const HE_CHAR * gpStrStrObjRight		= ")";
-static const HE_CHAR * gpStrArrayObjLeft	= "[";			static const HE_DWORD glStrArrayObj			= 1;
+static const HE_CHAR * gpStrArrayObjLeft	= "[";			static const HE_ULONG glStrArrayObj			= 1;
 static const HE_CHAR * gpStrArrayObjRight	= "]";
-static const HE_CHAR * gpStrDictObjLeft		= "<<";			static const HE_DWORD glStrDictObj			= 2;
+static const HE_CHAR * gpStrDictObjLeft		= "<<";			static const HE_ULONG glStrDictObj			= 2;
 static const HE_CHAR * gpStrDictObjRight	= ">>";
 
 HE_BOOL CHE_PDF_ObjectString::FloatToBuf( HE_FLOAT val, CHE_DynBuffer & buf )
@@ -40,7 +40,7 @@ HE_BOOL CHE_PDF_ObjectString::IntegerToBuf( HE_INT32 val, CHE_DynBuffer & buf )
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_ObjectString::DWORDToBuf( HE_DWORD val, CHE_DynBuffer & buf )
+HE_BOOL CHE_PDF_ObjectString::DWORDToBuf( HE_ULONG val, CHE_DynBuffer & buf )
 {
 	static char tempStr[1024];
 	sprintf( tempStr, "%ld", val );
@@ -112,9 +112,9 @@ HE_BOOL CHE_PDF_ObjectString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, CH
 			CHE_PDF_StringPtr ptr = pObj->GetStringPtr();
 			CHE_ByteString str = ptr->GetString();
 			HE_LPBYTE pData = (HE_LPBYTE)( str.GetData() );
-			HE_DWORD length = str.GetLength();
+			HE_ULONG length = str.GetLength();
 			HE_BOOL bHex = FALSE;
-			for ( HE_DWORD i = 0; i < length; i++ )
+			for ( HE_ULONG i = 0; i < length; i++ )
 			{
 				if ( pData[i] > 127 || pData[i] < 32 || pData[i] == '(' || pData[i] == ')' ) //´ýÍêÉÆ
 				{
@@ -130,8 +130,8 @@ HE_BOOL CHE_PDF_ObjectString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, CH
 			}else{
 				buf.Write( (HE_LPCBYTE)"<", 1 );
 				HE_CHAR tmpByte[32];
-				HE_DWORD tmpVal = 0;
-				for ( HE_DWORD i = 0; i < length; i++ )
+				HE_ULONG tmpVal = 0;
+				for ( HE_ULONG i = 0; i < length; i++ )
 				{
 					tmpVal = pData[i];
 					sprintf( tmpByte, "%08lX", tmpVal );
@@ -145,10 +145,10 @@ HE_BOOL CHE_PDF_ObjectString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, CH
 		{
 			CHE_PDF_NamePtr ptr = pObj->GetNamePtr();
 			HE_LPBYTE pData = (HE_LPBYTE)( ptr->GetString().GetData() );
-			HE_DWORD length = ptr->GetString().GetLength();
+			HE_ULONG length = ptr->GetString().GetLength();
 			buf.Write( (HE_LPCBYTE)gpStrNameObjPre, 1 );
 			char tmpStr[16];
-			for ( HE_DWORD i = 0; i < length; ++i )
+			for ( HE_ULONG i = 0; i < length; ++i )
 			{
 				if ( 32 < pData[i] && pData[i] < 127 )
 				{
@@ -190,7 +190,7 @@ HE_BOOL CHE_PDF_ObjectString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, CH
 			CHE_PDF_ArrayPtr ptr = pObj->GetArrayPtr();
 			CHE_PDF_ObjectPtr pElement;
 			buf.Write( (HE_LPCBYTE)gpStrArrayObjLeft, 1 );
-			for ( HE_DWORD i = 0; i < ptr->GetCount(); i++ )
+			for ( HE_ULONG i = 0; i < ptr->GetCount(); i++ )
 			{
 				if ( i != 0 )
 				{
@@ -209,12 +209,12 @@ HE_BOOL CHE_PDF_ObjectString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, CH
 			buf.Write( (HE_LPCBYTE)gpStrDictObjLeft, 2 );
 
 			CHE_ByteString keyStr;
-			for ( HE_DWORD i = 0; i < ptr->GetCount(); i++ )
+			for ( HE_ULONG i = 0; i < ptr->GetCount(); i++ )
 			{
 				if ( ptr->GetKeyByIndex( i, keyStr ) == TRUE )
 				{
 					HE_LPBYTE pData = (HE_LPBYTE)( keyStr.GetData() );
-					HE_DWORD length = keyStr.GetLength();
+					HE_ULONG length = keyStr.GetLength();
 					buf.Write( (HE_LPCBYTE)gpStrNameObjPre, 1 );
 					buf.Write( pData, length );
 					pElement = ptr->GetElementByIndex( i );

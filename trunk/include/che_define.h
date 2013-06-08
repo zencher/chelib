@@ -20,23 +20,28 @@ typedef unsigned char const *  HE_LPCBYTE;
  
 //Short integer (16 bits).
 typedef short  HE_SHORT;
- 
-//16-bit unsigned integer.
-typedef unsigned short  HE_WORD;
- 
-//Pointer to a DWORD.
-typedef unsigned short *  HE_LPWORD;
+
+typedef unsigned short HE_USHORT;
+
+typedef short HE_INT16;
+
+typedef unsigned short HE_UINT16;
  
 //32-bit signed integer.
 typedef int  HE_INT32;
 
+//32-bit unsigned integer.
 typedef unsigned int HE_UINT32;
  
-//32-bit unsigned integer. 
-typedef unsigned long  HE_DWORD;
+//64-bit signed integer.
+typedef long long  HE_INT64;
 
-//Pointer to a DWORD. 
-typedef unsigned long *  HE_LPDWORD;
+//64-bit unsigned integer.
+typedef unsigned long long HE_UINT64;
+
+typedef long HE_LONG;
+
+typedef unsigned long HE_ULONG;
 
 //Boolean variable (should be TRUE or FALSE).
 typedef bool HE_BOOL;
@@ -65,14 +70,6 @@ typedef wchar_t *  HE_LPWSTR;
 //Pointer to constant 16-bit Unicode characters.
 typedef wchar_t const *  HE_LPCWSTR;
 
-typedef long HE_LONG;
-
-//Signed 64-bit integer. 
-typedef long int HE_INT64;
-
-//Unsigned 64-bit integer.
-typedef unsigned long HE_UINT64;
-
 //Signed integral type for pointer precision.
 typedef int  HE_INTPTR;
 
@@ -93,10 +90,10 @@ typedef double HE_DOUBLE;
 
 struct HE_RECT
 {
-	HE_DWORD left;
-	HE_DWORD top;
-	HE_DWORD width;
-	HE_DWORD height;
+	HE_UINT32 left;
+	HE_UINT32 top;
+	HE_UINT32 width;
+	HE_UINT32 height;
 };
 
 #define HE_ABS abs

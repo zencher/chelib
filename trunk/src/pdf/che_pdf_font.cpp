@@ -4186,11 +4186,11 @@ HE_BOOL HE_GetCodeFromName( CHE_ByteString & name, HE_BYTE encoding, HE_BYTE & r
 	return FALSE;
 }
 
-HE_DWORD HE_HexStrToValue( CHE_ByteString & str )
+HE_ULONG HE_HexStrToValue( CHE_ByteString & str )
 {
-	HE_DWORD valRet = 0;
+	HE_ULONG valRet = 0;
 	HE_BYTE tmpByte = 0;
-	for ( HE_DWORD i = 0; i < str.GetLength(); i++ )
+	for ( HE_ULONG i = 0; i < str.GetLength(); i++ )
 	{
 		tmpByte = str[i];
 		valRet = valRet << 8;
@@ -4330,7 +4330,7 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 		}
 
 		mpCodeTable = GetAllocator()->NewArray<HE_WCHAR>( 256 );
-		for ( HE_DWORD i = 0; i < 256; ++i )
+		for ( HE_ULONG i = 0; i < 256; ++i )
 		{
 			mpCodeTable[i] = 0;
 		}
@@ -4366,11 +4366,11 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 		CHE_PDF_ArrayPtr pDifArray = pEncodingDict->GetElement( "Differences", OBJ_TYPE_ARRAY )->GetArrayPtr();
 		if ( pDifArray )
 		{
-			HE_DWORD iCount = pDifArray->GetCount();
-			HE_DWORD iIndex = 0;
+			HE_ULONG iCount = pDifArray->GetCount();
+			HE_ULONG iIndex = 0;
 			HE_BYTE tmpByte;
 			CHE_PDF_ObjectPtr pObj;
-			for ( HE_DWORD i = 0; i < iCount; i++ )
+			for ( HE_ULONG i = 0; i < iCount; i++ )
 			{
 				pObj = pDifArray->GetElement( i );
 				if ( pObj->GetType() == OBJ_TYPE_NUMBER )
@@ -4721,7 +4721,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 		if ( mType == FONT_TYPE1 || mType == FONT_MMTYPE1 )
 		{
 			HE_LPBYTE pBuf = NULL;
-			HE_DWORD bufSize = 0;
+			HE_ULONG bufSize = 0;
 			if ( HE_GetType1BaseFontFile( mBaseFont, pBuf, bufSize ) )
 			{
 				FT_Library ftlib = HE_GetFTLibrary();
@@ -4787,7 +4787,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 	if ( mFace )
 	{
 		FT_Face ftface = (FT_Face)mFace;
-		for ( HE_DWORD i = 0; i < ftface->num_charmaps; ++i )
+		for ( HE_INT32 i = 0; i < ftface->num_charmaps; ++i )
 		{
 			FT_CharMap test = ftface->charmaps[i];
 			if ( mType == FONT_TYPE1 )
@@ -4820,11 +4820,11 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 			CHE_PDF_ArrayPtr pDifArray = objPtr->GetDictPtr()->GetElement( "Differences", OBJ_TYPE_ARRAY )->GetArrayPtr();
 			if ( pDifArray )
 			{
-				HE_DWORD iCount = pDifArray->GetCount();
-				HE_DWORD iIndex = 0;
+				HE_ULONG iCount = pDifArray->GetCount();
+				HE_ULONG iIndex = 0;
 
 				CHE_PDF_ObjectPtr pObj;
-				for ( HE_DWORD i = 0; i < iCount; i++ )
+				for ( HE_ULONG i = 0; i < iCount; i++ )
 				{
 					pObj = pDifArray->GetElement( i );
 					if ( pObj->GetType() == OBJ_TYPE_NUMBER )
@@ -4833,7 +4833,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 					}else if ( pObj->GetType() == OBJ_TYPE_NAME )
 					{
 						CHE_ByteString strTmp = pObj->GetNamePtr()->GetString();
-						HE_DWORD gid = FT_Get_Name_Index( (FT_Face)mFace, (char *)strTmp.GetData() );
+						HE_ULONG gid = FT_Get_Name_Index( (FT_Face)mFace, (char *)strTmp.GetData() );
 						if ( gid > 0 )
 						{
 							*(mEncoding.mpCodeTable + iIndex) = gid;
@@ -4909,7 +4909,7 @@ HE_VOID* CHE_PDF_Font::GetFTFace()
 }
 
 
-HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_DWORD & codeRet ) const
+HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 {
 	if ( mFace == NULL )
 	{
@@ -4960,23 +4960,23 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 	IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize(), GetAllocator() );
 	CHE_PDF_SyntaxParser parser( NULL, GetAllocator() );
 	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
-	HE_DWORD lMaxIndex = 0;
-	HE_DWORD lCodeCount = 0;
+	HE_ULONG lMaxIndex = 0;
+	HE_ULONG lCodeCount = 0;
 	parser.InitParser( pFileRead );
 	while ( parser.GetWord( wordDes ) )
 	{
 		if ( wordDes.type == PARSE_WORD_INTEGER )
 		{
-			HE_DWORD lCount = wordDes.str.GetInteger();
+			HE_ULONG lCount = wordDes.str.GetInteger();
 			if ( parser.GetWord( wordDes ) == FALSE )
 			{
 				break;
 			}
-			HE_DWORD lIndex = 0;
+			HE_ULONG lIndex = 0;
 
 			if ( wordDes.str == "beginbfchar" )
 			{
-				for ( HE_DWORD i = 0; i < lCount; i++ )
+				for ( HE_ULONG i = 0; i < lCount; i++ )
 				{
 					parser.GetWord( wordDes );
 					lIndex = HE_HexStrToValue( wordDes.str );
@@ -4990,11 +4990,11 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 				}
 			}else if ( wordDes.str == "beginbfrange" )
 			{
-				for ( HE_DWORD j = 0; j < lCount; j++ )
+				for ( HE_ULONG j = 0; j < lCount; j++ )
 				{
-					HE_DWORD lIndexEnd = 0;
-					HE_DWORD tmpValue = 0;
-					HE_DWORD offset = 0;
+					HE_ULONG lIndexEnd = 0;
+					HE_ULONG tmpValue = 0;
+					HE_ULONG offset = 0;
 					parser.GetWord( wordDes );
 					lIndex = HE_HexStrToValue( wordDes.str );
 					parser.GetWord( wordDes );
@@ -5014,7 +5014,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 						{
 							lMaxIndex = lIndexEnd;
 						}
-						for ( HE_DWORD i = lIndex ; i <= lIndexEnd; i++ )
+						for ( HE_ULONG i = lIndex ; i <= lIndexEnd; i++ )
 						{
 							pStrObj = pArray->GetElement( i - lIndex )->GetStringPtr();
 							if ( ! pStrObj || pStrObj->GetType() != OBJ_TYPE_STRING )
@@ -5033,7 +5033,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 						{
 							lMaxIndex = lIndexEnd;
 						}
-						for ( HE_DWORD i = lIndex ; i <= lIndexEnd; i++ )
+						for ( HE_ULONG i = lIndex ; i <= lIndexEnd; i++ )
 						{
 							tmpMap->Append( i, (HE_LPVOID)tmpValue );
 							lCodeCount++;
@@ -5051,7 +5051,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 }
 
 
-HE_DWORD CHE_PDF_Font::GetWMode() const
+HE_ULONG CHE_PDF_Font::GetWMode() const
 {
 	if ( mpFontDescriptor )
 	{
@@ -5135,10 +5135,10 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 {
 	if ( mpUnicodeMap )
 	{
-		HE_DWORD tmpCode = 0;
+		HE_ULONG tmpCode = 0;
 		if ( mpUnicodeMap->LookupCode( charCode, tmpCode ) )
 		{
-			codeRet = (HE_DWORD)( tmpCode );
+			codeRet = (HE_ULONG)( tmpCode );
 			return TRUE;
 		}
 		return FALSE;
@@ -5146,7 +5146,7 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 	if ( mpToUnicodeMap )
 	{
 		
-		codeRet = (HE_DWORD)( mpToUnicodeMap->GetItem( charCode ) );
+		codeRet = (HE_ULONG)( mpToUnicodeMap->GetItem( charCode ) );
 		return TRUE;
 	}
 	return FALSE;
@@ -5163,7 +5163,7 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	tmpMatrix.e = 0;
 	tmpMatrix.f = 0;
 
-	HE_DWORD qureyVal = 0;
+	HE_ULONG qureyVal = 0;
 	if ( GetEncodingType() == FONT_ENCODING_NONE )
 	{
 		qureyVal = item.charCode;
@@ -5188,11 +5188,11 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 				if ( objPtr )
 				{
 					HE_BOOL bIndex = FALSE;
-					HE_DWORD indexStart = 0;
-					HE_DWORD indexEnd = 0;
+					HE_ULONG indexStart = 0;
+					HE_ULONG indexEnd = 0;
 					CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
 					CHE_PDF_ArrayPtr tmpArrayPtr;
-					for ( HE_DWORD i = 0; i < arrayPtr->GetCount(); ++i )
+					for ( HE_ULONG i = 0; i < arrayPtr->GetCount(); ++i )
 					{
 						if ( bIndex == FALSE )
 						{
@@ -5264,7 +5264,7 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 }
 
 
-HE_BOOL CHE_PDF_Type0_Font::GetCID( HE_WCHAR charCode, HE_DWORD & codeRet ) const
+HE_BOOL CHE_PDF_Type0_Font::GetCID( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 {
 	if ( mpCIDMap )
 	{
@@ -5302,7 +5302,7 @@ CHE_PDF_Type1_Font::CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit,
  		mLastChar = objPtr->GetNumberPtr()->GetInteger();
 	}
 
-	for ( HE_DWORD i = 0; i < 255; ++i )
+	for ( HE_ULONG i = 0; i < 255; ++i )
 	{
 		mCharWidths[i] = 0;
 	}
@@ -5313,7 +5313,7 @@ CHE_PDF_Type1_Font::CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit,
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
 		if ( arrayPtr )
 		{
-			for ( HE_DWORD i = 0; i < arrayPtr->GetCount(); ++i )
+			for ( HE_ULONG i = 0; i < arrayPtr->GetCount(); ++i )
 			{
 				objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 				if ( objPtr && mFirstChar-1+i >= 0 && mFirstChar-1+i  < 256 )
@@ -5344,7 +5344,7 @@ HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 	if ( mpToUnicodeMap )
 	{
 		HE_LPVOID pRet = mpToUnicodeMap->GetItem( charCode );
-		HE_DWORD dwRet = (HE_DWORD)( pRet );
+		HE_ULONG dwRet = (HE_ULONG)( pRet );
 		codeRet = (HE_WCHAR)( dwRet );
 		return TRUE;
 	}
@@ -5370,7 +5370,7 @@ HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 		if ( ( tmpMatrix.a - 0 ) >= FLT_EPSILON )
 		{
 			tmpMatrix.Concat( matrix );
-			return tmpMatrix.a / 1000.0;
+			return tmpMatrix.a / 1000.0f;
 		}
 	}
 	if ( mFace )
@@ -5385,7 +5385,7 @@ HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 
 			tmpMatrix.Concat( matrix );
 
-			return tmpMatrix.a * 1.0 / ftface->units_per_EM;
+			return tmpMatrix.a * 1.0f / ftface->units_per_EM;
 		}
 	}
 
@@ -5493,7 +5493,7 @@ CHE_PDF_Type3_Font::CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict,
 		if ( encodingDiffArray )
 		{
 			HE_BYTE code = 0;
-			for ( HE_DWORD i = 0; i < encodingDiffArray->GetCount(); ++i )
+			for ( HE_ULONG i = 0; i < encodingDiffArray->GetCount(); ++i )
 			{
 				objPtr = encodingDiffArray->GetElement( i, OBJ_TYPE_NUMBER );
 				if ( objPtr )

@@ -465,7 +465,7 @@ CHE_PDF_NamePtr CHE_PDF_Name::Clone()
 	return ptr;
 }
 
-CHE_PDF_ReferencePtr CHE_PDF_Reference::Create( HE_DWORD refNum, HE_DWORD genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_ReferencePtr CHE_PDF_Reference::Create( HE_ULONG refNum, HE_ULONG genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_ReferencePtr ptr;
 	if ( pAllocator == NULL )
@@ -537,9 +537,9 @@ CHE_PDF_ObjectPtr CHE_PDF_Reference::GetRefObj( PDF_OBJ_TYPE Type )
 		}else if ( ptr->GetType() == OBJ_TYPE_ARRAY )
 		{
 			CHE_PDF_ObjectPtr pElement;
-			HE_DWORD dwCount = ptr->GetArrayPtr()->GetCount();
+			HE_ULONG dwCount = ptr->GetArrayPtr()->GetCount();
 			HE_BOOL bNeedContinue = FALSE;
-			for ( HE_DWORD i = 0; i < dwCount; i++ )
+			for ( HE_ULONG i = 0; i < dwCount; i++ )
 			{
 				pElement = ptr->GetArrayPtr()->GetElement( i, Type );
 				if ( !pElement )
@@ -582,7 +582,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Array::Create( CHE_Allocator * pAllocator /*= NULL*/ )
 	return ptr;
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_DWORD index ) const
+CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_ULONG index ) const
 {
 	if ( index < GetCount() )
 	{
@@ -591,7 +591,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_DWORD index ) const
 	return CHE_PDF_ObjectPtr();
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_DWORD index, PDF_OBJ_TYPE Type )
+CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_ULONG index, PDF_OBJ_TYPE Type )
 {
 	CHE_PDF_ObjectPtr ptr = GetElement( index );
 	if ( ! ptr )
@@ -615,9 +615,9 @@ CHE_PDF_ObjectPtr CHE_PDF_Array::GetElementByType( PDF_OBJ_TYPE Type )
 {
 	CHE_PDF_ObjectPtr ptr;
 
-	HE_DWORD lCount = mArray.size();
+	HE_ULONG lCount = mArray.size();
 
-	for ( HE_DWORD i = 0; i < lCount; i++ )
+	for ( HE_ULONG i = 0; i < lCount; i++ )
 	{
 		ptr = GetElement( i, Type );
 		if ( ptr )
@@ -648,7 +648,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Array::Clone()
 	if ( ptr )
 	{
 		CHE_PDF_ObjectPtr tmpPtr;
-		for ( HE_DWORD i = 0; i < GetCount(); ++i )
+		for ( HE_ULONG i = 0; i < GetCount(); ++i )
 		{
 			tmpPtr = GetElement( i );
 			if ( tmpPtr )
@@ -899,7 +899,7 @@ HE_VOID CHE_PDF_Dictionary::SetAtDictionary( const CHE_ByteString & key, const C
 	}
 }
 
-HE_VOID	CHE_PDF_Dictionary::SetAtReference( const CHE_ByteString & key, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_File * pFile )
+HE_VOID	CHE_PDF_Dictionary::SetAtReference( const CHE_ByteString & key, HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_File * pFile )
 {
 	if ( key.GetLength() > 0 )
 	{
@@ -927,7 +927,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_Dictionary::Clone()
 	{
 		CHE_PDF_ObjectPtr tmpPtr;
 		CHE_ByteString keyStr( GetAllocator() );
-		for ( HE_DWORD i = 0; i < GetCount(); ++i )
+		for ( HE_ULONG i = 0; i < GetCount(); ++i )
 		{
 			GetKeyByIndex( i, keyStr );
 			tmpPtr = GetElementByIndex( i );
@@ -958,7 +958,7 @@ HE_BOOL CHE_PDF_Dictionary::IsModified()
 	return FALSE;
 }
 
-CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_StreamPtr ptr;
 	if ( pAllocator == NULL )
@@ -969,7 +969,7 @@ CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_DWORD objNum, HE_DWORD genNum, CHE_
 	return ptr;
 }
 
-CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_LPBYTE pData, HE_DWORD size, const CHE_PDF_DictionaryPtr & pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ ) 
+CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_LPBYTE pData, HE_ULONG size, const CHE_PDF_DictionaryPtr & pDict, HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ ) 
 {
 	CHE_PDF_StreamPtr ptr;
 	if ( pAllocator == NULL )
@@ -980,7 +980,7 @@ CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_LPBYTE pData, HE_DWORD size, const 
 	return ptr;
 }
 
-CHE_PDF_StreamPtr CHE_PDF_Stream::Create( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, const CHE_PDF_DictionaryPtr pDict, HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ ) 
+CHE_PDF_StreamPtr CHE_PDF_Stream::Create( IHE_Read* pFile, HE_ULONG offset, HE_ULONG size, const CHE_PDF_DictionaryPtr pDict, HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ ) 
 {
 	CHE_PDF_StreamPtr ptr;
 	if ( pAllocator == NULL )
@@ -991,8 +991,8 @@ CHE_PDF_StreamPtr CHE_PDF_Stream::Create( IHE_Read* pFile, HE_DWORD offset, HE_D
 	return ptr;
 }
 
-CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, const CHE_PDF_DictionaryPtr & ptr,
-								HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt,
+CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_ULONG size, const CHE_PDF_DictionaryPtr & ptr,
+								HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt,
 								CHE_Allocator * pAllocator ) : CHE_PDF_Object( OBJ_TYPE_STREAM, pAllocator )
 {
 	m_pEncrypt = pEncrypt;
@@ -1016,8 +1016,8 @@ CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_DWORD size, const CHE_PDF_Di
 	mDictPtr->SetAtInteger( "Length", m_dwSize );
 }
 	
-CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size, const CHE_PDF_DictionaryPtr & ptr,
-								HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt,
+CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_ULONG offset, HE_ULONG size, const CHE_PDF_DictionaryPtr & ptr,
+								HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt,
 								CHE_Allocator * pAllocator ) : CHE_PDF_Object( OBJ_TYPE_STREAM, pAllocator )
 {
 	m_pEncrypt = pEncrypt;
@@ -1044,7 +1044,7 @@ CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_DWORD offset, HE_DWORD size,
 	mDictPtr->SetAtInteger( "Length", m_dwSize );
 }
 
-CHE_PDF_Stream::CHE_PDF_Stream(	HE_DWORD objNum, HE_DWORD genNum, CHE_PDF_Encrypt * pEncrypt,
+CHE_PDF_Stream::CHE_PDF_Stream(	HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt,
 								CHE_Allocator * pAllocator ) : CHE_PDF_Object( OBJ_TYPE_STREAM, pAllocator )
 {
 	m_pEncrypt = pEncrypt;
@@ -1106,7 +1106,7 @@ HE_VOID	CHE_PDF_Stream::SetDict( const CHE_PDF_DictionaryPtr & pDict )
 	SetModified( TRUE );
 }
 
-HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYTE filter/* = STREAM_FILTER_NULL*/ )
+HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_ULONG dwDataSize, HE_BYTE filter/* = STREAM_FILTER_NULL*/ )
 {
 	if ( pData == NULL || dwDataSize == 0 )
 	{
@@ -1223,7 +1223,7 @@ HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_DWORD dwDataSize, HE_BYT
 	return TRUE;
 }
 
-HE_DWORD CHE_PDF_Stream::GetRawData( HE_DWORD offset, HE_LPBYTE pBuf, HE_DWORD buf_size ) const
+HE_ULONG CHE_PDF_Stream::GetRawData( HE_ULONG offset, HE_LPBYTE pBuf, HE_ULONG buf_size ) const
 {
 	if ( pBuf == NULL || buf_size == 0 || offset >= m_dwSize )
  	{
@@ -1276,8 +1276,8 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 		CHE_PDF_DictionaryPtr pDict = pStream->GetDictPtr();
 		if ( pDict )
 		{
-			HE_DWORD lFilterCount = 0;
-			HE_DWORD length = pStream->GetRawSize();
+			HE_ULONG lFilterCount = 0;
+			HE_ULONG length = pStream->GetRawSize();
 			CHE_PDF_ObjectPtr pFilter = pDict->GetElement( "Filter" );
 			CHE_PDF_ObjectPtr pParms = pDict->GetElement( "DecodeParms" );
 			if ( ! pFilter )
@@ -1310,7 +1310,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 			}else if ( pFilter->GetType() == OBJ_TYPE_ARRAY )
 			{
 				CHE_PDF_ArrayPtr tmpArrayPtr = pFilter->GetArrayPtr();
-				for ( HE_DWORD i = 0; i < lFilterCount; i++ )
+				for ( HE_ULONG i = 0; i < lFilterCount; i++ )
 				{
 					pFilterNameArr[i] = tmpArrayPtr->GetElement( i )->GetNamePtr();
 				}
@@ -1321,21 +1321,21 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 			{
 				pParamDictArr[0] = pParms->GetDictPtr();
 			}else if ( pParms && pParms->GetType() == OBJ_TYPE_ARRAY ){
-				HE_DWORD lParamCount = pParms->GetArrayPtr()->GetCount();
-				for ( HE_DWORD i = 0; i < lParamCount; i++ )
+				HE_ULONG lParamCount = pParms->GetArrayPtr()->GetCount();
+				for ( HE_ULONG i = 0; i < lParamCount; i++ )
 				{
 					pParamDictArr[i] = pParms->GetArrayPtr()->GetElement( i )->GetDictPtr();
 				}
 			}
-			HE_DWORD bufSize = (length == 0) ? 1024 : length;
+			HE_ULONG bufSize = (length == 0) ? 1024 : length;
 			CHE_DynBuffer buffer( bufSize, bufSize, GetAllocator() );
-			HE_DWORD lSize = pStream->GetRawSize();
+			HE_ULONG lSize = pStream->GetRawSize();
 			HE_LPBYTE pTmp = NULL;
 			pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
 
 			pStream->GetRawData( 0, pTmp, lSize );
 			CHE_ByteString str( GetAllocator() );
-			for ( HE_DWORD i = 0; i < lFilterCount; i++ )
+			for ( HE_ULONG i = 0; i < lFilterCount; i++ )
 			{
 				str = pFilterNameArr[i]->GetNamePtr()->GetString();
 				if ( str == "ASCIIHexDecode" || str == "AHx" )

@@ -6,19 +6,19 @@
 #define B(a,b)		(a | b<<8)
 #define C(a,b,c)	(a | b<<8 | c<<16)
 
-HE_DWORD StringToDWORD( CHE_ByteString & str )
+HE_ULONG StringToDWORD( CHE_ByteString & str )
 {
 	if ( str.GetLength() == 0 )
 	{
 		return 0;
 	}
-	HE_DWORD length = 4;
+	HE_ULONG length = 4;
 	if ( str.GetLength() < length )
 	{
 		length = str.GetLength();
 	}
-	HE_DWORD valRet = 0;
-	for ( HE_DWORD i = length; i > 0; --i )
+	HE_ULONG valRet = 0;
+	for ( HE_ULONG i = length; i > 0; --i )
 	{
 		valRet = valRet<<8;
 		valRet |= str.GetData()[i-1];
@@ -53,7 +53,7 @@ HE_BOOL CHE_PDF_ContentsParser::Parse( const CHE_PDF_ArrayPtr & pContentArray )
 
 	CHE_DynBuffer buf( 1024 * 4, 1024 * 8, GetAllocator() );
 
-	for ( HE_DWORD i = 0; i < pContentArray->GetCount(); ++i ) 
+	for ( HE_ULONG i = 0; i < pContentArray->GetCount(); ++i ) 
 	{
 		CHE_PDF_StreamPtr pStream = pContentArray->GetElement( i, OBJ_TYPE_STREAM )->GetStreamPtr();
 		if ( pStream )
@@ -722,7 +722,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 		return;
 	}
 	HE_BOOL bOver = FALSE;
-	HE_DWORD dwRet = 1;
+	HE_ULONG dwRet = 1;
 	HE_BYTE byteRet[4];
 	std::vector<HE_BYTE> buffer;
 	while( !bOver )
@@ -1341,7 +1341,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_d()
 			CHE_PDF_ObjectPtr objPtr;
 			CHE_PDF_NumberPtr numberPtr;
 			CHE_PDF_ArrayPtr arrayPtr = mpObj->GetArrayPtr();
-			for ( HE_DWORD i = 0; i < arrayPtr->GetCount(); ++i )
+			for ( HE_ULONG i = 0; i < arrayPtr->GetCount(); ++i )
 			{
 				objPtr = arrayPtr->GetElement( i );
 				if ( objPtr && objPtr->GetType() == OBJ_TYPE_NUMBER )

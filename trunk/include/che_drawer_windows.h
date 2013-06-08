@@ -12,12 +12,12 @@ class CHE_GraphicsDrawer
 {
 public:
 
-	CHE_GraphicsDrawer( HDC hDC, HE_DWORD dibWidth, HE_DWORD dibHeight );
+	CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dibHeight );
 	~CHE_GraphicsDrawer();
 
-	HE_VOID			Resize( HE_DWORD dibWidth, HE_DWORD dibHeight );
-	HE_DWORD		GetWidth() const;
-	HE_DWORD		GetHeight() const;
+	HE_VOID			Resize( HE_ULONG dibWidth, HE_ULONG dibHeight );
+	HE_ULONG		GetWidth() const;
+	HE_ULONG		GetHeight() const;
 	HE_VOID			Clear();
 	HDC				GetMemDC() const;
 	
@@ -27,8 +27,8 @@ public:
 	HE_VOID			SetExtMatrix( const CHE_Matrix & matrix );
 	HE_VOID			SetLineWidth( const HE_FLOAT & lineWidth );
 	HE_VOID			SetMiterLimit( const HE_FLOAT & miterLimit );
-	HE_VOID			SetFillColor( const HE_DWORD & color );
-	HE_VOID			SetStrokeColor( const HE_DWORD & color );
+	HE_VOID			SetFillColor( const HE_ULONG & color );
+	HE_VOID			SetStrokeColor( const HE_ULONG & color );
 	HE_VOID			SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
 	HE_VOID			SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
 	HE_VOID			SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
@@ -39,8 +39,8 @@ public:
 // 	inline CHE_Matrix	GetExtMatrix() const;
  	HE_FLOAT		GetLineWidth() const;
 // 	inline HE_FLOAT		GetMiterLimit() const;
-// 	inline HE_DWORD		GetFillColor() const;
-// 	inline HE_DWORD		GetStrokeColor() const;
+// 	inline HE_ULONG		GetFillColor() const;
+// 	inline HE_ULONG		GetStrokeColor() const;
 	 HE_FLOAT		GetDashPhase() const;
  	 GRAPHICS_STATE_LINECAP		GetLineCap() const;
  	 GRAPHICS_STATE_LINEJOIN		GetLineJion() const;
@@ -66,8 +66,8 @@ private:
 	HDC							m_MemDC;
 	HBITMAP						m_Bitmap;
 	HGDIOBJ						m_OldBitmap;
-	HE_DWORD					m_dwWidth;
-	HE_DWORD					m_dwHeight;
+	HE_ULONG					m_dwWidth;
+	HE_ULONG					m_dwHeight;
 
 	Gdiplus::Graphics *			m_pGraphics;
 	Gdiplus::Pen *				m_pPen;

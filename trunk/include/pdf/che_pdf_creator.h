@@ -18,19 +18,19 @@ public:
 	HE_BOOL						SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { mpEncrypt = pEncrypt; return TRUE; }
 
 	HE_BOOL						SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,
-											HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue );
+											HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_ULONG pValue );
 
 	HE_VOID						OutPutFileHead( PDF_VERSION version );
 
-	HE_DWORD					OutPutObject( const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj );
+	HE_ULONG					OutPutObject( const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj );
 
-	HE_DWORD					OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr, HE_BOOL bEncrypt = FALSE );
+	HE_ULONG					OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr, HE_BOOL bEncrypt = FALSE );
 
-	HE_DWORD					OutPutXRefTable( CHE_PDF_XREF_Table & xref );
+	HE_ULONG					OutPutXRefTable( CHE_PDF_XREF_Table & xref );
 
 	HE_VOID						OutPutTailerDict( const CHE_PDF_DictionaryPtr & pDcit );
 
-	HE_VOID						OutPutFileTailer( HE_DWORD startxref );
+	HE_VOID						OutPutFileTailer( HE_ULONG startxref );
 
 private:
 	CHE_PDF_Creator( IHE_Write * pWrite, CHE_Allocator * pAllocator = NULL );

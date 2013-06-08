@@ -72,7 +72,7 @@ public:
 		return pRet;
 	}
 
-	HE_DWORD GetArgb( CHE_PDF_Color & color );
+	HE_ULONG GetArgb( CHE_PDF_Color & color );
 
 private:
 	PDF_COLORSPACE_TYPE mType;

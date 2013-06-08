@@ -940,7 +940,7 @@ PDF_CMAP_RANGE CMap_Adobe_Japan1_UCS2_Ranges[] = {
 {23053,5,40849},{23055,10,19927},
 };
 
-const HE_WORD CMap_Adobe_Japan1_UCS2_Table[19930] = {
+const HE_UINT16 CMap_Adobe_Japan1_UCS2_Table[19930] = {
 2,48,46,3,115,101,99,3,109,105,110,4,
 88,73,73,73,3,88,73,86,2,88,86,4,
 120,105,105,105,3,120,105,118,2,120,118,2,
@@ -2608,7 +2608,7 @@ PDF_CMAP CMap_Adobe_Japan1_UCS2 = {
 	-1, "Adobe-Japan1-UCS2", "", 0, 0, 1,
 	{ {2,0,65535}, },
 	3734, 3734, (PDF_CMAP_RANGE*) CMap_Adobe_Japan1_UCS2_Ranges,
-	19930, 19930, (HE_WORD*) CMap_Adobe_Japan1_UCS2_Table,
+	19930, 19930, (HE_UINT16*) CMap_Adobe_Japan1_UCS2_Table,
 };
 
 /* 78-EUC-H */
@@ -2760,7 +2760,7 @@ PDF_CMAP_RANGE CMap_78_EUC_H_Ranges[] = {
 {62461,6,83},
 };
 
-const HE_WORD CMap_78_EUC_H_Table[85] = {
+const HE_UINT16 CMap_78_EUC_H_Table[85] = {
 1125,7633,7961,7330,7645,7369,7646,7649,1406,1407,7650,7655,
 5490,1689,7660,7665,1780,7666,1782,7689,2169,7690,7693,6441,
 2629,7713,7720,6766,7733,2910,7734,2918,7744,3045,7745,7746,
@@ -2775,7 +2775,7 @@ PDF_CMAP CMap_78_EUC_H = {
 	-1, "78-EUC-H", "", 0, 0, 3,
 	{ {1,0,128},{2,36512,36575},{2,41377,65278}, },
 	573, 573, (PDF_CMAP_RANGE*) CMap_78_EUC_H_Ranges,
-	85, 85, (HE_WORD*) CMap_78_EUC_H_Table,
+	85, 85, (HE_UINT16*) CMap_78_EUC_H_Table,
 };
 
 /* 78-EUC-V */
@@ -2790,13 +2790,13 @@ PDF_CMAP_RANGE CMap_78_EUC_V_Ranges[] = {
 {42471,0,7936},{42478,0,7937},{42485,5,7938},
 };
 
-const HE_WORD CMap_78_EUC_V_Table[] = { 0 };
+const HE_UINT16 CMap_78_EUC_V_Table[] = { 0 };
 
 PDF_CMAP CMap_78_EUC_V = {
 	-1, "78-EUC-V", "78-EUC-H", 0, 1, 0,
 	{ {0,0,0}, },
 	27, 27, (PDF_CMAP_RANGE*) CMap_78_EUC_V_Ranges,
-	0, 0, (HE_WORD*) CMap_78_EUC_V_Table,
+	0, 0, (HE_UINT16*) CMap_78_EUC_V_Table,
 };
 
 /* 78-H */
@@ -2947,7 +2947,7 @@ PDF_CMAP_RANGE CMap_78_H_Ranges[] = {
 {29521,0,7885},{29522,169,7429},{29565,6,83},
 };
 
-const HE_WORD CMap_78_H_Table[85] = {
+const HE_UINT16 CMap_78_H_Table[85] = {
 1125,7633,7961,7330,7645,7369,7646,7649,1406,1407,7650,7655,
 5490,1689,7660,7665,1780,7666,1782,7689,2169,7690,7693,6441,
 2629,7713,7720,6766,7733,2910,7734,2918,7744,3045,7745,7746,
@@ -2962,7 +2962,7 @@ PDF_CMAP CMap_78_H = {
 	-1, "78-H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	571, 571, (PDF_CMAP_RANGE*) CMap_78_H_Ranges,
-	85, 85, (HE_WORD*) CMap_78_H_Table,
+	85, 85, (HE_UINT16*) CMap_78_H_Table,
 };
 
 /* 78-RKSJ-H */
@@ -3114,7 +3114,7 @@ PDF_CMAP_RANGE CMap_78_RKSJ_H_Ranges[] = {
 {60017,53,7429},{60032,113,7443},{60061,6,81},
 };
 
-const HE_WORD CMap_78_RKSJ_H_Table[83] = {
+const HE_UINT16 CMap_78_RKSJ_H_Table[83] = {
 1125,7633,7961,7330,7645,7369,7646,7649,1406,1407,7650,7655,
 5490,7665,1780,7666,1782,7689,2169,7690,7693,6441,7720,6766,
 7733,2910,7734,2918,7744,3045,7745,7746,3050,7747,3099,7748,
@@ -3128,7 +3128,7 @@ PDF_CMAP CMap_78_RKSJ_H = {
 	-1, "78-RKSJ-H", "", 0, 0, 4,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764}, },
 	575, 575, (PDF_CMAP_RANGE*) CMap_78_RKSJ_H_Ranges,
-	83, 83, (HE_WORD*) CMap_78_RKSJ_H_Table,
+	83, 83, (HE_UINT16*) CMap_78_RKSJ_H_Table,
 };
 
 /* 78-RKSJ-V */
@@ -3143,13 +3143,13 @@ PDF_CMAP_RANGE CMap_78_RKSJ_V_Ranges[] = {
 {33671,0,7936},{33678,0,7937},{33685,5,7938},
 };
 
-const HE_WORD CMap_78_RKSJ_V_Table[] = { 0 };
+const HE_UINT16 CMap_78_RKSJ_V_Table[] = { 0 };
 
 PDF_CMAP CMap_78_RKSJ_V = {
 	-1, "78-RKSJ-V", "78-RKSJ-H", 0, 1, 0,
 	{ {0,0,0}, },
 	27, 27, (PDF_CMAP_RANGE*) CMap_78_RKSJ_V_Ranges,
-	0, 0, (HE_WORD*) CMap_78_RKSJ_V_Table,
+	0, 0, (HE_UINT16*) CMap_78_RKSJ_V_Table,
 };
 
 /* 78-V */
@@ -3164,13 +3164,13 @@ PDF_CMAP_RANGE CMap_78_V_Ranges[] = {
 {9575,0,7936},{9582,0,7937},{9589,5,7938},
 };
 
-const HE_WORD CMap_78_V_Table[] = { 0 };
+const HE_UINT16 CMap_78_V_Table[] = { 0 };
 
 PDF_CMAP CMap_78_V = {
 	-1, "78-V", "78-H", 0, 1, 0,
 	{ {0,0,0}, },
 	27, 27, (PDF_CMAP_RANGE*) CMap_78_V_Ranges,
-	0, 0, (HE_WORD*) CMap_78_V_Table,
+	0, 0, (HE_UINT16*) CMap_78_V_Table,
 };
 
 /* 78ms-RKSJ-H */
@@ -3334,7 +3334,7 @@ PDF_CMAP_RANGE CMap_78ms_RKSJ_H_Ranges[] = {
 {64320,249,8518},{64384,497,8581},{64576,45,8706},
 };
 
-const HE_WORD CMap_78ms_RKSJ_H_Table[125] = {
+const HE_UINT16 CMap_78ms_RKSJ_H_Table[125] = {
 7479,7481,7491,7495,7503,7499,7507,7523,7515,7531,7539,7480,
 7482,7494,7498,7506,7502,7514,7530,7522,7538,7554,7511,7526,
 7519,7534,7542,7508,7527,7516,7535,7545,8038,7588,8040,7590,
@@ -3352,7 +3352,7 @@ PDF_CMAP CMap_78ms_RKSJ_H = {
 	-1, "78ms-RKSJ-H", "", 0, 0, 4,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764}, },
 	623, 623, (PDF_CMAP_RANGE*) CMap_78ms_RKSJ_H_Ranges,
-	125, 125, (HE_WORD*) CMap_78ms_RKSJ_H_Table,
+	125, 125, (HE_UINT16*) CMap_78ms_RKSJ_H_Table,
 };
 
 /* 78ms-RKSJ-V */
@@ -3371,7 +3371,7 @@ PDF_CMAP_RANGE CMap_78ms_RKSJ_V_Ranges[] = {
 {34688,5,7956},
 };
 
-const HE_WORD CMap_78ms_RKSJ_V_Table[41] = {
+const HE_UINT16 CMap_78ms_RKSJ_V_Table[41] = {
 8268,8274,739,738,7481,7479,7495,7503,7499,7491,7523,7515,
 7531,7507,7539,7482,7480,7498,7506,7502,7494,7530,7522,7538,
 7514,7554,7526,7519,7534,7511,7545,7527,7516,7535,7508,7542,
@@ -3382,7 +3382,7 @@ PDF_CMAP CMap_78ms_RKSJ_V = {
 	-1, "78ms-RKSJ-V", "78ms-RKSJ-H", 0, 1, 0,
 	{ {0,0,0}, },
 	41, 41, (PDF_CMAP_RANGE*) CMap_78ms_RKSJ_V_Ranges,
-	41, 41, (HE_WORD*) CMap_78ms_RKSJ_V_Table,
+	41, 41, (HE_UINT16*) CMap_78ms_RKSJ_V_Table,
 };
 
 /* 83pv-RKSJ-H */
@@ -3430,7 +3430,7 @@ PDF_CMAP_RANGE CMap_83pv_RKSJ_H_Ranges[] = {
 {61072,10,68},{61075,25,7624},{61082,0,768},{61083,5,7631},
 };
 
-const HE_WORD CMap_83pv_RKSJ_H_Table[71] = {
+const HE_UINT16 CMap_83pv_RKSJ_H_Table[71] = {
 152,228,124,7479,7481,7491,7495,7503,7499,7507,7523,7515,
 7531,7539,7480,7482,7494,7498,7506,7502,7514,7530,7522,7538,
 7554,7511,7526,7519,7534,7542,7508,7527,7516,7535,7545,762,
@@ -3443,7 +3443,7 @@ PDF_CMAP CMap_83pv_RKSJ_H = {
 	-1, "83pv-RKSJ-H", "", 0, 0, 5,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764},{1,253,255}, },
 	160, 160, (PDF_CMAP_RANGE*) CMap_83pv_RKSJ_H_Ranges,
-	71, 71, (HE_WORD*) CMap_83pv_RKSJ_H_Table,
+	71, 71, (HE_UINT16*) CMap_83pv_RKSJ_H_Table,
 };
 
 /* 90ms-RKSJ-H */
@@ -3484,7 +3484,7 @@ PDF_CMAP_RANGE CMap_90ms_RKSJ_H_Ranges[] = {
 {64320,249,8518},{64384,497,8581},{64576,45,8706},
 };
 
-const HE_WORD CMap_90ms_RKSJ_H_Table[44] = {
+const HE_UINT16 CMap_90ms_RKSJ_H_Table[44] = {
 7479,7481,7491,7495,7503,7499,7507,7523,7515,7531,7539,7480,
 7482,7494,7498,7506,7502,7514,7530,7522,7538,7554,7511,7526,
 7519,7534,7542,7508,7527,7516,7535,7545,8038,7588,8040,7590,
@@ -3495,7 +3495,7 @@ PDF_CMAP CMap_90ms_RKSJ_H = {
 	-1, "90ms-RKSJ-H", "", 0, 0, 4,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764}, },
 	131, 131, (PDF_CMAP_RANGE*) CMap_90ms_RKSJ_H_Ranges,
-	44, 44, (HE_WORD*) CMap_90ms_RKSJ_H_Table,
+	44, 44, (HE_UINT16*) CMap_90ms_RKSJ_H_Table,
 };
 
 /* 90ms-RKSJ-V */
@@ -3514,7 +3514,7 @@ PDF_CMAP_RANGE CMap_90ms_RKSJ_V_Ranges[] = {
 {34688,5,7956},
 };
 
-const HE_WORD CMap_90ms_RKSJ_V_Table[41] = {
+const HE_UINT16 CMap_90ms_RKSJ_V_Table[41] = {
 8268,8274,739,738,7481,7479,7495,7503,7499,7491,7523,7515,
 7531,7507,7539,7482,7480,7498,7506,7502,7494,7530,7522,7538,
 7514,7554,7526,7519,7534,7511,7545,7527,7516,7535,7508,7542,
@@ -3525,7 +3525,7 @@ PDF_CMAP CMap_90ms_RKSJ_V = {
 	-1, "90ms-RKSJ-V", "90ms-RKSJ-H", 0, 1, 0,
 	{ {0,0,0}, },
 	41, 41, (PDF_CMAP_RANGE*) CMap_90ms_RKSJ_V_Ranges,
-	41, 41, (HE_WORD*) CMap_90ms_RKSJ_V_Table,
+	41, 41, (HE_UINT16*) CMap_90ms_RKSJ_V_Table,
 };
 
 /* 90msp-RKSJ-H */
@@ -3566,7 +3566,7 @@ PDF_CMAP_RANGE CMap_90msp_RKSJ_H_Ranges[] = {
 {64384,497,8581},{64576,45,8706},
 };
 
-const HE_WORD CMap_90msp_RKSJ_H_Table[44] = {
+const HE_UINT16 CMap_90msp_RKSJ_H_Table[44] = {
 7479,7481,7491,7495,7503,7499,7507,7523,7515,7531,7539,7480,
 7482,7494,7498,7506,7502,7514,7530,7522,7538,7554,7511,7526,
 7519,7534,7542,7508,7527,7516,7535,7545,8038,7588,8040,7590,
@@ -3577,7 +3577,7 @@ PDF_CMAP CMap_90msp_RKSJ_H = {
 	-1, "90msp-RKSJ-H", "", 0, 0, 4,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764}, },
 	130, 130, (PDF_CMAP_RANGE*) CMap_90msp_RKSJ_H_Ranges,
-	44, 44, (HE_WORD*) CMap_90msp_RKSJ_H_Table,
+	44, 44, (HE_UINT16*) CMap_90msp_RKSJ_H_Table,
 };
 
 /* 90msp-RKSJ-V */
@@ -3596,7 +3596,7 @@ PDF_CMAP_RANGE CMap_90msp_RKSJ_V_Ranges[] = {
 {34688,5,7956},
 };
 
-const HE_WORD CMap_90msp_RKSJ_V_Table[41] = {
+const HE_UINT16 CMap_90msp_RKSJ_V_Table[41] = {
 8268,8274,739,738,7481,7479,7495,7503,7499,7491,7523,7515,
 7531,7507,7539,7482,7480,7498,7506,7502,7494,7530,7522,7538,
 7514,7554,7526,7519,7534,7511,7545,7527,7516,7535,7508,7542,
@@ -3607,7 +3607,7 @@ PDF_CMAP CMap_90msp_RKSJ_V = {
 	-1, "90msp-RKSJ-V", "90msp-RKSJ-H", 0, 1, 0,
 	{ {0,0,0}, },
 	41, 41, (PDF_CMAP_RANGE*) CMap_90msp_RKSJ_V_Ranges,
-	41, 41, (HE_WORD*) CMap_90msp_RKSJ_V_Table,
+	41, 41, (HE_UINT16*) CMap_90msp_RKSJ_V_Table,
 };
 
 /* 90pv-RKSJ-H */
@@ -3658,7 +3658,7 @@ PDF_CMAP_RANGE CMap_90pv_RKSJ_H_Ranges[] = {
 {60807,0,7936},{60814,0,7937},{60821,5,7938},
 };
 
-const HE_WORD CMap_90pv_RKSJ_H_Table[104] = {
+const HE_UINT16 CMap_90pv_RKSJ_H_Table[104] = {
 152,228,124,7479,7481,7491,7495,7503,7499,7507,7523,7515,
 7531,7539,7480,7482,7494,7498,7506,7502,7514,7530,7522,7538,
 7554,7511,7526,7519,7534,7542,7508,7527,7516,7535,7545,7601,
@@ -3674,7 +3674,7 @@ PDF_CMAP CMap_90pv_RKSJ_H = {
 	-1, "90pv-RKSJ-H", "", 0, 0, 5,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764},{1,253,255}, },
 	171, 171, (PDF_CMAP_RANGE*) CMap_90pv_RKSJ_H_Ranges,
-	104, 104, (HE_WORD*) CMap_90pv_RKSJ_H_Table,
+	104, 104, (HE_UINT16*) CMap_90pv_RKSJ_H_Table,
 };
 
 /* 90pv-RKSJ-V */
@@ -3692,7 +3692,7 @@ PDF_CMAP_RANGE CMap_90pv_RKSJ_V_Ranges[] = {
 {34739,10,8},{34749,18,11},{34810,9,8324},
 };
 
-const HE_WORD CMap_90pv_RKSJ_V_Table[16] = {
+const HE_UINT16 CMap_90pv_RKSJ_V_Table[16] = {
 7940,8329,7943,7941,8330,7945,7948,7954,7951,8349,7953,8350,
 8353,8356,8358,8357,
 };
@@ -3701,7 +3701,7 @@ PDF_CMAP CMap_90pv_RKSJ_V = {
 	-1, "90pv-RKSJ-V", "90pv-RKSJ-H", 0, 1, 0,
 	{ {0,0,0}, },
 	39, 39, (PDF_CMAP_RANGE*) CMap_90pv_RKSJ_V_Ranges,
-	16, 16, (HE_WORD*) CMap_90pv_RKSJ_V_Table,
+	16, 16, (HE_UINT16*) CMap_90pv_RKSJ_V_Table,
 };
 
 /* Add-H */
@@ -3844,7 +3844,7 @@ PDF_CMAP_RANGE CMap_Add_H_Ranges[] = {
 {32069,85,7918},{32091,5,8264},{32109,13,736},{32113,13,8182},
 };
 
-const HE_WORD CMap_Add_H_Table[127] = {
+const HE_UINT16 CMap_Add_H_Table[127] = {
 7479,7481,7491,7495,7503,7499,7507,7523,7515,7531,7539,7480,
 7482,7494,7498,7506,7502,7514,7530,7522,7538,7554,7511,7526,
 7519,7534,7542,7508,7527,7516,7535,7545,1125,7633,7962,1206,
@@ -3862,7 +3862,7 @@ PDF_CMAP CMap_Add_H = {
 	-1, "Add-H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	540, 540, (PDF_CMAP_RANGE*) CMap_Add_H_Ranges,
-	127, 127, (HE_WORD*) CMap_Add_H_Table,
+	127, 127, (HE_UINT16*) CMap_Add_H_Table,
 };
 
 /* Add-RKSJ-H */
@@ -4007,7 +4007,7 @@ PDF_CMAP_RANGE CMap_Add_RKSJ_H_Ranges[] = {
 {61325,13,736},{61329,13,8182},
 };
 
-const HE_WORD CMap_Add_RKSJ_H_Table[123] = {
+const HE_UINT16 CMap_Add_RKSJ_H_Table[123] = {
 7479,7481,7491,7495,7503,7499,7507,7523,7515,7531,7539,7480,
 7482,7494,7498,7506,7502,7514,7530,7522,7538,7554,7511,7526,
 7519,7534,7542,7508,7527,7516,7535,7545,1125,7633,7962,1206,
@@ -4025,7 +4025,7 @@ PDF_CMAP CMap_Add_RKSJ_H = {
 	-1, "Add-RKSJ-H", "", 0, 0, 4,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764}, },
 	546, 546, (PDF_CMAP_RANGE*) CMap_Add_RKSJ_H_Ranges,
-	123, 123, (HE_WORD*) CMap_Add_RKSJ_H_Table,
+	123, 123, (HE_UINT16*) CMap_Add_RKSJ_H_Table,
 };
 
 /* Add-RKSJ-V */
@@ -4042,7 +4042,7 @@ PDF_CMAP_RANGE CMap_Add_RKSJ_V_Ranges[] = {
 {60555,5,8349},{60557,14,22},{60565,0,8324},{61330,0,8333},
 };
 
-const HE_WORD CMap_Add_RKSJ_V_Table[26] = {
+const HE_UINT16 CMap_Add_RKSJ_V_Table[26] = {
 8268,8274,8282,8275,8280,8277,7943,7940,8329,7941,8330,7945,
 8338,7947,7951,8348,7953,7950,8344,8347,7954,8343,8358,8357,
 8353,8356,
@@ -4052,7 +4052,7 @@ PDF_CMAP CMap_Add_RKSJ_V = {
 	-1, "Add-RKSJ-V", "Add-RKSJ-H", 0, 1, 0,
 	{ {0,0,0}, },
 	36, 36, (PDF_CMAP_RANGE*) CMap_Add_RKSJ_V_Ranges,
-	26, 26, (HE_WORD*) CMap_Add_RKSJ_V_Table,
+	26, 26, (HE_UINT16*) CMap_Add_RKSJ_V_Table,
 };
 
 /* Add-V */
@@ -4069,7 +4069,7 @@ PDF_CMAP_RANGE CMap_Add_V_Ranges[] = {
 {30571,5,8349},{30573,14,22},{30581,0,8324},{32114,0,8333},
 };
 
-const HE_WORD CMap_Add_V_Table[26] = {
+const HE_UINT16 CMap_Add_V_Table[26] = {
 8268,8274,8282,8275,8280,8277,7943,7940,8329,7941,8330,7945,
 8338,7947,7951,8348,7953,7950,8344,8347,7954,8343,8358,8357,
 8353,8356,
@@ -4079,7 +4079,7 @@ PDF_CMAP CMap_Add_V = {
 	-1, "Add-V", "Add-H", 0, 1, 0,
 	{ {0,0,0}, },
 	36, 36, (PDF_CMAP_RANGE*) CMap_Add_V_Ranges,
-	26, 26, (HE_WORD*) CMap_Add_V_Table,
+	26, 26, (HE_UINT16*) CMap_Add_V_Table,
 };
 
 /* Adobe-Japan1-0 */
@@ -4088,13 +4088,13 @@ PDF_CMAP_RANGE CMap_Adobe_Japan1_0_Ranges[] = {
 {0,33133,0},
 };
 
-const HE_WORD CMap_Adobe_Japan1_0_Table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Japan1_0_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Japan1_0 = {
 	-1, "Adobe-Japan1-0", "", 0, 0, 1,
 	{ {2,0,8447}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Adobe_Japan1_0_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Japan1_0_Table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Japan1_0_Table,
 };
 
 /* Adobe-Japan1-1 */
@@ -4103,13 +4103,13 @@ PDF_CMAP_RANGE CMap_Adobe_Japan1_1_Ranges[] = {
 {0,33433,0},
 };
 
-const HE_WORD CMap_Adobe_Japan1_1_Table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Japan1_1_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Japan1_1 = {
 	-1, "Adobe-Japan1-1", "", 0, 0, 1,
 	{ {2,0,8447}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Adobe_Japan1_1_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Japan1_1_Table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Japan1_1_Table,
 };
 
 /* Adobe-Japan1-2 */
@@ -4118,13 +4118,13 @@ PDF_CMAP_RANGE CMap_Adobe_Japan1_2_Ranges[] = {
 {0,34877,0},
 };
 
-const HE_WORD CMap_Adobe_Japan1_2_Table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Japan1_2_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Japan1_2 = {
 	-1, "Adobe-Japan1-2", "", 0, 0, 1,
 	{ {2,0,8959}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Adobe_Japan1_2_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Japan1_2_Table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Japan1_2_Table,
 };
 
 /* Adobe-Japan1-3 */
@@ -4133,13 +4133,13 @@ PDF_CMAP_RANGE CMap_Adobe_Japan1_3_Ranges[] = {
 {0,37413,0},
 };
 
-const HE_WORD CMap_Adobe_Japan1_3_Table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Japan1_3_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Japan1_3 = {
 	-1, "Adobe-Japan1-3", "", 0, 0, 1,
 	{ {2,0,9471}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Adobe_Japan1_3_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Japan1_3_Table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Japan1_3_Table,
 };
 
 /* Adobe-Japan1-4 */
@@ -4148,13 +4148,13 @@ PDF_CMAP_RANGE CMap_Adobe_Japan1_4_Ranges[] = {
 {0,61773,0},
 };
 
-const HE_WORD CMap_Adobe_Japan1_4_Table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Japan1_4_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Japan1_4 = {
 	-1, "Adobe-Japan1-4", "", 0, 0, 1,
 	{ {2,0,15615}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Adobe_Japan1_4_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Japan1_4_Table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Japan1_4_Table,
 };
 
 /* Adobe-Japan1-5 */
@@ -4163,13 +4163,13 @@ PDF_CMAP_RANGE CMap_Adobe_Japan1_5_Ranges[] = {
 {0,65533,0},{16384,15729,16384},
 };
 
-const HE_WORD CMap_Adobe_Japan1_5_Table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Japan1_5_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Japan1_5 = {
 	-1, "Adobe-Japan1-5", "", 0, 0, 1,
 	{ {2,0,20479}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_Japan1_5_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Japan1_5_Table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Japan1_5_Table,
 };
 
 /* Adobe-Japan1-6 */
@@ -4178,13 +4178,13 @@ PDF_CMAP_RANGE CMap_Adobe_Japan1_6_Ranges[] = {
 {0,65533,0},{16384,26693,16384},
 };
 
-const HE_WORD CMap_Adobe_Japan1_6_Table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Japan1_6_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Japan1_6 = {
 	-1, "Adobe-Japan1-6", "", 0, 0, 1,
 	{ {2,0,23295}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_Japan1_6_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Japan1_6_Table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Japan1_6_Table,
 };
 
 /* EUC-H */
@@ -4215,7 +4215,7 @@ PDF_CMAP_RANGE CMap_EUC_H_Ranges[] = {
 {62629,5,8284},
 };
 
-const HE_WORD CMap_EUC_H_Table[32] = {
+const HE_UINT16 CMap_EUC_H_Table[32] = {
 7479,7481,7491,7495,7503,7499,7507,7523,7515,7531,7539,7480,
 7482,7494,7498,7506,7502,7514,7530,7522,7538,7554,7511,7526,
 7519,7534,7542,7508,7527,7516,7535,7545,
@@ -4225,7 +4225,7 @@ PDF_CMAP CMap_EUC_H = {
 	-1, "EUC-H", "", 0, 0, 3,
 	{ {1,0,128},{2,36512,36575},{2,41377,65278}, },
 	89, 89, (PDF_CMAP_RANGE*) CMap_EUC_H_Ranges,
-	32, 32, (HE_WORD*) CMap_EUC_H_Table,
+	32, 32, (HE_UINT16*) CMap_EUC_H_Table,
 };
 
 /* EUC-V */
@@ -4240,13 +4240,13 @@ PDF_CMAP_RANGE CMap_EUC_V_Ranges[] = {
 {42471,0,7936},{42478,0,7937},{42485,5,7938},
 };
 
-const HE_WORD CMap_EUC_V_Table[] = { 0 };
+const HE_UINT16 CMap_EUC_V_Table[] = { 0 };
 
 PDF_CMAP CMap_EUC_V = {
 	-1, "EUC-V", "EUC-H", 0, 1, 0,
 	{ {0,0,0}, },
 	27, 27, (PDF_CMAP_RANGE*) CMap_EUC_V_Ranges,
-	0, 0, (HE_WORD*) CMap_EUC_V_Table,
+	0, 0, (HE_UINT16*) CMap_EUC_V_Table,
 };
 
 /* Ext-H */
@@ -4407,7 +4407,7 @@ PDF_CMAP_RANGE CMap_Ext_H_Ranges[] = {
 {31868,9,8005},
 };
 
-const HE_WORD CMap_Ext_H_Table[84] = {
+const HE_UINT16 CMap_Ext_H_Table[84] = {
 762,761,769,1125,7633,7645,7369,7646,7649,1406,1407,7650,
 7655,5490,1689,7660,7665,1780,7666,1782,7689,2169,7690,7693,
 6441,2629,7713,7720,6766,7733,2910,7734,2918,7744,3045,7745,
@@ -4421,7 +4421,7 @@ PDF_CMAP CMap_Ext_H = {
 	-1, "Ext-H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	609, 609, (PDF_CMAP_RANGE*) CMap_Ext_H_Ranges,
-	84, 84, (HE_WORD*) CMap_Ext_H_Table,
+	84, 84, (HE_UINT16*) CMap_Ext_H_Table,
 };
 
 /* Ext-RKSJ-H */
@@ -4583,7 +4583,7 @@ PDF_CMAP_RANGE CMap_Ext_RKSJ_H_Ranges[] = {
 {61177,0,751},{61178,9,8005},
 };
 
-const HE_WORD CMap_Ext_RKSJ_H_Table[82] = {
+const HE_UINT16 CMap_Ext_RKSJ_H_Table[82] = {
 762,761,769,1125,7633,7645,7369,7646,7649,1406,1407,7650,
 7655,5490,7665,1780,7666,1782,7689,2169,7690,7693,6441,7720,
 6766,7733,2910,7734,2918,7744,3045,7745,7746,3050,7747,3099,
@@ -4597,7 +4597,7 @@ PDF_CMAP CMap_Ext_RKSJ_H = {
 	-1, "Ext-RKSJ-H", "", 0, 0, 4,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764}, },
 	614, 614, (PDF_CMAP_RANGE*) CMap_Ext_RKSJ_H_Ranges,
-	82, 82, (HE_WORD*) CMap_Ext_RKSJ_H_Table,
+	82, 82, (HE_UINT16*) CMap_Ext_RKSJ_H_Table,
 };
 
 /* Ext-RKSJ-V */
@@ -4613,7 +4613,7 @@ PDF_CMAP_RANGE CMap_Ext_RKSJ_V_Ranges[] = {
 {33678,0,7937},{33685,5,7938},{34655,61,7940},{34688,5,7956},
 };
 
-const HE_WORD CMap_Ext_RKSJ_V_Table[11] = {
+const HE_UINT16 CMap_Ext_RKSJ_V_Table[11] = {
 8268,8274,8272,8271,8281,8276,8279,8278,8269,8273,8283,
 };
 
@@ -4621,7 +4621,7 @@ PDF_CMAP CMap_Ext_RKSJ_V = {
 	-1, "Ext-RKSJ-V", "Ext-RKSJ-H", 0, 1, 0,
 	{ {0,0,0}, },
 	32, 32, (PDF_CMAP_RANGE*) CMap_Ext_RKSJ_V_Ranges,
-	11, 11, (HE_WORD*) CMap_Ext_RKSJ_V_Table,
+	11, 11, (HE_UINT16*) CMap_Ext_RKSJ_V_Table,
 };
 
 /* Ext-V */
@@ -4637,7 +4637,7 @@ PDF_CMAP_RANGE CMap_Ext_V_Ranges[] = {
 {9582,0,7937},{9589,5,7938},{11584,61,7940},{11616,5,7956},
 };
 
-const HE_WORD CMap_Ext_V_Table[11] = {
+const HE_UINT16 CMap_Ext_V_Table[11] = {
 8268,8274,8272,8271,8281,8276,8279,8278,8269,8273,8283,
 };
 
@@ -4645,7 +4645,7 @@ PDF_CMAP CMap_Ext_V = {
 	-1, "Ext-V", "Ext-H", 0, 1, 0,
 	{ {0,0,0}, },
 	32, 32, (PDF_CMAP_RANGE*) CMap_Ext_V_Ranges,
-	11, 11, (HE_WORD*) CMap_Ext_V_Table,
+	11, 11, (HE_UINT16*) CMap_Ext_V_Table,
 };
 
 /* H */
@@ -4675,7 +4675,7 @@ PDF_CMAP_RANGE CMap_H_Ranges[] = {
 {29473,373,7380},{29729,13,7474},{29733,5,8284},
 };
 
-const HE_WORD CMap_H_Table[32] = {
+const HE_UINT16 CMap_H_Table[32] = {
 7479,7481,7491,7495,7503,7499,7507,7523,7515,7531,7539,7480,
 7482,7494,7498,7506,7502,7514,7530,7522,7538,7554,7511,7526,
 7519,7534,7542,7508,7527,7516,7535,7545,
@@ -4685,7 +4685,7 @@ PDF_CMAP CMap_H = {
 	-1, "H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	87, 87, (PDF_CMAP_RANGE*) CMap_H_Ranges,
-	32, 32, (HE_WORD*) CMap_H_Table,
+	32, 32, (HE_UINT16*) CMap_H_Table,
 };
 
 /* Hankaku */
@@ -4696,13 +4696,13 @@ PDF_CMAP_RANGE CMap_Hankaku_Ranges[] = {
 {224,117,541},{254,5,388},
 };
 
-const HE_WORD CMap_Hankaku_Table[] = { 0 };
+const HE_UINT16 CMap_Hankaku_Table[] = { 0 };
 
 PDF_CMAP CMap_Hankaku = {
 	-1, "Hankaku", "", 0, 0, 1,
 	{ {1,0,255}, },
 	10, 10, (PDF_CMAP_RANGE*) CMap_Hankaku_Ranges,
-	0, 0, (HE_WORD*) CMap_Hankaku_Table,
+	0, 0, (HE_UINT16*) CMap_Hankaku_Table,
 };
 
 /* Hiragana */
@@ -4712,13 +4712,13 @@ PDF_CMAP_RANGE CMap_Hiragana_Ranges[] = {
 {49,177,526},{94,5,388},{96,9,571},{102,97,574},
 };
 
-const HE_WORD CMap_Hiragana_Table[] = { 0 };
+const HE_UINT16 CMap_Hiragana_Table[] = { 0 };
 
 PDF_CMAP CMap_Hiragana = {
 	-1, "Hiragana", "", 0, 0, 1,
 	{ {1,0,255}, },
 	8, 8, (PDF_CMAP_RANGE*) CMap_Hiragana_Ranges,
-	0, 0, (HE_WORD*) CMap_Hiragana_Table,
+	0, 0, (HE_UINT16*) CMap_Hiragana_Table,
 };
 
 /* Katakana */
@@ -4727,13 +4727,13 @@ PDF_CMAP_RANGE CMap_Katakana_Ranges[] = {
 {32,253,326},{96,121,391},
 };
 
-const HE_WORD CMap_Katakana_Table[] = { 0 };
+const HE_UINT16 CMap_Katakana_Table[] = { 0 };
 
 PDF_CMAP CMap_Katakana = {
 	-1, "Katakana", "", 0, 0, 1,
 	{ {1,0,255}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Katakana_Ranges,
-	0, 0, (HE_WORD*) CMap_Katakana_Table,
+	0, 0, (HE_UINT16*) CMap_Katakana_Table,
 };
 
 /* NWP-H */
@@ -4900,7 +4900,7 @@ PDF_CMAP_RANGE CMap_NWP_H_Ranges[] = {
 {29521,0,7885},{29522,169,7429},{29565,6,165},
 };
 
-const HE_WORD CMap_NWP_H_Table[167] = {
+const HE_UINT16 CMap_NWP_H_Table[167] = {
 762,761,769,642,673,773,712,715,717,671,718,692,
 636,693,637,663,699,697,700,641,719,678,711,679,
 648,650,646,680,667,681,649,634,638,1006,925,927,
@@ -4921,7 +4921,7 @@ PDF_CMAP CMap_NWP_H = {
 	-1, "NWP-H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	635, 635, (PDF_CMAP_RANGE*) CMap_NWP_H_Ranges,
-	167, 167, (HE_WORD*) CMap_NWP_H_Table,
+	167, 167, (HE_UINT16*) CMap_NWP_H_Table,
 };
 
 /* NWP-V */
@@ -4939,7 +4939,7 @@ PDF_CMAP_RANGE CMap_NWP_V_Ranges[] = {
 {12076,9,7934},{12079,6,11},{12126,6,13},
 };
 
-const HE_WORD CMap_NWP_V_Table[15] = {
+const HE_UINT16 CMap_NWP_V_Table[15] = {
 8268,8274,8272,8271,8281,8276,8279,8278,8269,8273,8283,7933,
 7891,8272,8271,
 };
@@ -4948,7 +4948,7 @@ PDF_CMAP CMap_NWP_V = {
 	-1, "NWP-V", "NWP-H", 0, 1, 0,
 	{ {0,0,0}, },
 	39, 39, (PDF_CMAP_RANGE*) CMap_NWP_V_Ranges,
-	15, 15, (HE_WORD*) CMap_NWP_V_Table,
+	15, 15, (HE_UINT16*) CMap_NWP_V_Table,
 };
 
 /* RKSJ-H */
@@ -4979,7 +4979,7 @@ PDF_CMAP_RANGE CMap_RKSJ_H_Ranges[] = {
 {59968,249,7380},{60032,137,7443},{60067,5,8284},
 };
 
-const HE_WORD CMap_RKSJ_H_Table[32] = {
+const HE_UINT16 CMap_RKSJ_H_Table[32] = {
 7479,7481,7491,7495,7503,7499,7507,7523,7515,7531,7539,7480,
 7482,7494,7498,7506,7502,7514,7530,7522,7538,7554,7511,7526,
 7519,7534,7542,7508,7527,7516,7535,7545,
@@ -4989,7 +4989,7 @@ PDF_CMAP CMap_RKSJ_H = {
 	-1, "RKSJ-H", "", 0, 0, 4,
 	{ {1,0,128},{2,33088,40956},{1,160,223},{2,57408,64764}, },
 	91, 91, (PDF_CMAP_RANGE*) CMap_RKSJ_H_Ranges,
-	32, 32, (HE_WORD*) CMap_RKSJ_H_Table,
+	32, 32, (HE_UINT16*) CMap_RKSJ_H_Table,
 };
 
 /* RKSJ-V */
@@ -5004,13 +5004,13 @@ PDF_CMAP_RANGE CMap_RKSJ_V_Ranges[] = {
 {33671,0,7936},{33678,0,7937},{33685,5,7938},
 };
 
-const HE_WORD CMap_RKSJ_V_Table[] = { 0 };
+const HE_UINT16 CMap_RKSJ_V_Table[] = { 0 };
 
 PDF_CMAP CMap_RKSJ_V = {
 	-1, "RKSJ-V", "RKSJ-H", 0, 1, 0,
 	{ {0,0,0}, },
 	27, 27, (PDF_CMAP_RANGE*) CMap_RKSJ_V_Ranges,
-	0, 0, (HE_WORD*) CMap_RKSJ_V_Table,
+	0, 0, (HE_UINT16*) CMap_RKSJ_V_Table,
 };
 
 /* Roman */
@@ -5019,13 +5019,13 @@ PDF_CMAP_RANGE CMap_Roman_Ranges[] = {
 {32,377,231},
 };
 
-const HE_WORD CMap_Roman_Table[] = { 0 };
+const HE_UINT16 CMap_Roman_Table[] = { 0 };
 
 PDF_CMAP CMap_Roman = {
 	-1, "Roman", "", 0, 0, 1,
 	{ {1,0,255}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Roman_Ranges,
-	0, 0, (HE_WORD*) CMap_Roman_Table,
+	0, 0, (HE_UINT16*) CMap_Roman_Table,
 };
 
 /* UniJIS-UCS2-H */
@@ -6274,7 +6274,7 @@ PDF_CMAP_RANGE CMap_UniJIS_UCS2_H_Ranges[] = {
 {65377,249,327},{65504,5,713},{65506,14,5350},{65512,0,323},
 };
 
-const HE_WORD CMap_UniJIS_UCS2_H_Table[5354] = {
+const HE_UINT16 CMap_UniJIS_UCS2_H_Table[5354] = {
 107,61,99,720,647,152,140,109,153,151,154,129,
 707,694,645,159,778,117,134,160,144,123,695,142,
 696,148,9366,9361,9369,9364,9395,9407,12092,9400,9412,9367,
@@ -6728,7 +6728,7 @@ PDF_CMAP CMap_UniJIS_UCS2_H = {
 	-1, "UniJIS-UCS2-H", "", 0, 0, 2,
 	{ {2,0,55295},{2,57344,65535}, },
 	4964, 4964, (PDF_CMAP_RANGE*) CMap_UniJIS_UCS2_H_Ranges,
-	5354, 5354, (HE_WORD*) CMap_UniJIS_UCS2_H_Table,
+	5354, 5354, (HE_UINT16*) CMap_UniJIS_UCS2_H_Table,
 };
 
 /* UniJIS-UCS2-HW-H */
@@ -6737,13 +6737,13 @@ PDF_CMAP_RANGE CMap_UniJIS_UCS2_HW_H_Ranges[] = {
 {32,237,231},{92,0,8719},{93,133,292},{165,0,291},
 };
 
-const HE_WORD CMap_UniJIS_UCS2_HW_H_Table[] = { 0 };
+const HE_UINT16 CMap_UniJIS_UCS2_HW_H_Table[] = { 0 };
 
 PDF_CMAP CMap_UniJIS_UCS2_HW_H = {
 	-1, "UniJIS-UCS2-HW-H", "UniJIS-UCS2-H", 0, 0, 0,
 	{ {0,0,0}, },
 	4, 4, (PDF_CMAP_RANGE*) CMap_UniJIS_UCS2_HW_H_Ranges,
-	0, 0, (HE_WORD*) CMap_UniJIS_UCS2_HW_H_Table,
+	0, 0, (HE_UINT16*) CMap_UniJIS_UCS2_HW_H_Table,
 };
 
 /* UniJIS-UCS2-HW-V */
@@ -6778,7 +6778,7 @@ PDF_CMAP_RANGE CMap_UniJIS_UCS2_HW_V_Ranges[] = {
 {65507,0,7889},
 };
 
-const HE_WORD CMap_UniJIS_UCS2_HW_V_Table[117] = {
+const HE_UINT16 CMap_UniJIS_UCS2_HW_V_Table[117] = {
 7892,7895,7898,7897,8273,8283,738,736,739,737,8311,8310,
 8312,8012,8014,8011,8013,7495,7497,7496,7498,7503,7505,7504,
 7506,7491,7493,7492,7494,7499,7501,7500,7502,7523,7527,7525,
@@ -6795,7 +6795,7 @@ PDF_CMAP CMap_UniJIS_UCS2_HW_V = {
 	-1, "UniJIS-UCS2-HW-V", "UniJIS-UCS2-H", 0, 1, 0,
 	{ {0,0,0}, },
 	105, 105, (PDF_CMAP_RANGE*) CMap_UniJIS_UCS2_HW_V_Ranges,
-	117, 117, (HE_WORD*) CMap_UniJIS_UCS2_HW_V_Table,
+	117, 117, (HE_UINT16*) CMap_UniJIS_UCS2_HW_V_Table,
 };
 
 /* UniJIS-UCS2-V */
@@ -6829,7 +6829,7 @@ PDF_CMAP_RANGE CMap_UniJIS_UCS2_V_Ranges[] = {
 {65507,0,7889},
 };
 
-const HE_WORD CMap_UniJIS_UCS2_V_Table[117] = {
+const HE_UINT16 CMap_UniJIS_UCS2_V_Table[117] = {
 7892,7895,7898,7897,8273,8283,738,736,739,737,8311,8310,
 8312,8012,8014,8011,8013,7495,7497,7496,7498,7503,7505,7504,
 7506,7491,7493,7492,7494,7499,7501,7500,7502,7523,7527,7525,
@@ -6846,7 +6846,7 @@ PDF_CMAP CMap_UniJIS_UCS2_V = {
 	-1, "UniJIS-UCS2-V", "UniJIS-UCS2-H", 0, 1, 0,
 	{ {0,0,0}, },
 	101, 101, (PDF_CMAP_RANGE*) CMap_UniJIS_UCS2_V_Ranges,
-	117, 117, (HE_WORD*) CMap_UniJIS_UCS2_V_Table,
+	117, 117, (HE_UINT16*) CMap_UniJIS_UCS2_V_Table,
 };
 
 /* UniJISPro-UCS2-HW-V */
@@ -6881,7 +6881,7 @@ PDF_CMAP_RANGE CMap_UniJISPro_UCS2_HW_V_Ranges[] = {
 {65371,14,118},{65507,0,7889},
 };
 
-const HE_WORD CMap_UniJISPro_UCS2_HW_V_Table[122] = {
+const HE_UINT16 CMap_UniJISPro_UCS2_HW_V_Table[122] = {
 7892,7895,7898,7897,8273,8283,738,736,739,737,8311,8310,
 8312,8012,8014,8011,8013,7495,7497,7496,7498,7503,7505,7504,
 7506,7491,7493,7492,7494,7499,7501,7500,7502,7523,7527,7525,
@@ -6899,7 +6899,7 @@ PDF_CMAP CMap_UniJISPro_UCS2_HW_V = {
 	-1, "UniJISPro-UCS2-HW-V", "UniJIS-UCS2-H", 0, 1, 0,
 	{ {0,0,0}, },
 	106, 106, (PDF_CMAP_RANGE*) CMap_UniJISPro_UCS2_HW_V_Ranges,
-	122, 122, (HE_WORD*) CMap_UniJISPro_UCS2_HW_V_Table,
+	122, 122, (HE_UINT16*) CMap_UniJISPro_UCS2_HW_V_Table,
 };
 
 /* UniJISPro-UCS2-V */
@@ -6933,7 +6933,7 @@ PDF_CMAP_RANGE CMap_UniJISPro_UCS2_V_Ranges[] = {
 {65371,14,118},{65507,0,7889},
 };
 
-const HE_WORD CMap_UniJISPro_UCS2_V_Table[122] = {
+const HE_UINT16 CMap_UniJISPro_UCS2_V_Table[122] = {
 7892,7895,7898,7897,8273,8283,738,736,739,737,8311,8310,
 8312,8012,8014,8011,8013,7495,7497,7496,7498,7503,7505,7504,
 7506,7491,7493,7492,7494,7499,7501,7500,7502,7523,7527,7525,
@@ -6951,7 +6951,7 @@ PDF_CMAP CMap_UniJISPro_UCS2_V = {
 	-1, "UniJISPro-UCS2-V", "UniJIS-UCS2-H", 0, 1, 0,
 	{ {0,0,0}, },
 	102, 102, (PDF_CMAP_RANGE*) CMap_UniJISPro_UCS2_V_Ranges,
-	122, 122, (HE_WORD*) CMap_UniJISPro_UCS2_V_Table,
+	122, 122, (HE_UINT16*) CMap_UniJISPro_UCS2_V_Table,
 };
 
 /* V */
@@ -6966,13 +6966,13 @@ PDF_CMAP_RANGE CMap_V_Ranges[] = {
 {9575,0,7936},{9582,0,7937},{9589,5,7938},
 };
 
-const HE_WORD CMap_V_Table[] = { 0 };
+const HE_UINT16 CMap_V_Table[] = { 0 };
 
 PDF_CMAP CMap_V = {
 	-1, "V", "H", 0, 1, 0,
 	{ {0,0,0}, },
 	27, 27, (PDF_CMAP_RANGE*) CMap_V_Ranges,
-	0, 0, (HE_WORD*) CMap_V_Table,
+	0, 0, (HE_UINT16*) CMap_V_Table,
 };
 
 /* WP-Symbol */
@@ -6986,7 +6986,7 @@ PDF_CMAP_RANGE CMap_WP_Symbol_Ranges[] = {
 {115,17,8223},
 };
 
-const HE_WORD CMap_WP_Symbol_Table[9] = {
+const HE_UINT16 CMap_WP_Symbol_Table[9] = {
 8056,8058,8191,8196,8188,8037,7894,8194,8035,
 };
 
@@ -6994,7 +6994,7 @@ PDF_CMAP CMap_WP_Symbol = {
 	-1, "WP-Symbol", "", 0, 0, 1,
 	{ {1,0,255}, },
 	21, 21, (PDF_CMAP_RANGE*) CMap_WP_Symbol_Ranges,
-	9, 9, (HE_WORD*) CMap_WP_Symbol_Table,
+	9, 9, (HE_UINT16*) CMap_WP_Symbol_Table,
 };
 
 /* Adobe-Japan2-0 */
@@ -7003,13 +7003,13 @@ PDF_CMAP_RANGE CMap_Adobe_Japan2_0_Ranges[] = {
 {0,24269,0},
 };
 
-const HE_WORD CMap_Adobe_Japan2_0_Table[] = { 0 };
+const HE_UINT16 CMap_Adobe_Japan2_0_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_Japan2_0 = {
 	-1, "Adobe-Japan2-0", "", 0, 0, 1,
 	{ {2,0,6143}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Adobe_Japan2_0_Ranges,
-	0, 0, (HE_WORD*) CMap_Adobe_Japan2_0_Table,
+	0, 0, (HE_UINT16*) CMap_Adobe_Japan2_0_Table,
 };
 
 /* Hojo-EUC-H */
@@ -7038,13 +7038,13 @@ PDF_CMAP_RANGE CMap_Hojo_EUC_H_Ranges[] = {
 {60065,373,5719},{60321,373,5813},{60577,373,5907},{60833,265,6001},
 };
 
-const HE_WORD CMap_Hojo_EUC_H_Table[] = { 0 };
+const HE_UINT16 CMap_Hojo_EUC_H_Table[] = { 0 };
 
 PDF_CMAP CMap_Hojo_EUC_H = {
 	-1, "Hojo-EUC-H", "", 0, 0, 1,
 	{ {3,41377,65278}, },
 	84, 84, (PDF_CMAP_RANGE*) CMap_Hojo_EUC_H_Ranges,
-	0, 0, (HE_WORD*) CMap_Hojo_EUC_H_Table,
+	0, 0, (HE_UINT16*) CMap_Hojo_EUC_H_Table,
 };
 
 /* Hojo-EUC-V */
@@ -7052,13 +7052,13 @@ PDF_CMAP CMap_Hojo_EUC_H = {
 PDF_CMAP_RANGE CMap_Hojo_EUC_V_Ranges[] = { {0,1,0}
 };
 
-const HE_WORD CMap_Hojo_EUC_V_Table[] = { 0 };
+const HE_UINT16 CMap_Hojo_EUC_V_Table[] = { 0 };
 
 PDF_CMAP CMap_Hojo_EUC_V = {
 	-1, "Hojo-EUC-V", "Hojo-EUC-H", 0, 1, 0,
 	{ {0,0,0}, },
 	0, 0, (PDF_CMAP_RANGE*) CMap_Hojo_EUC_V_Ranges,
-	0, 0, (HE_WORD*) CMap_Hojo_EUC_V_Table,
+	0, 0, (HE_UINT16*) CMap_Hojo_EUC_V_Table,
 };
 
 /* Hojo-H */
@@ -7087,13 +7087,13 @@ PDF_CMAP_RANGE CMap_Hojo_H_Ranges[] = {
 {27169,373,5719},{27425,373,5813},{27681,373,5907},{27937,265,6001},
 };
 
-const HE_WORD CMap_Hojo_H_Table[] = { 0 };
+const HE_UINT16 CMap_Hojo_H_Table[] = { 0 };
 
 PDF_CMAP CMap_Hojo_H = {
 	-1, "Hojo-H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	84, 84, (PDF_CMAP_RANGE*) CMap_Hojo_H_Ranges,
-	0, 0, (HE_WORD*) CMap_Hojo_H_Table,
+	0, 0, (HE_UINT16*) CMap_Hojo_H_Table,
 };
 
 /* Hojo-V */
@@ -7101,13 +7101,13 @@ PDF_CMAP CMap_Hojo_H = {
 PDF_CMAP_RANGE CMap_Hojo_V_Ranges[] = { {0,1,0}
 };
 
-const HE_WORD CMap_Hojo_V_Table[] = { 0 };
+const HE_UINT16 CMap_Hojo_V_Table[] = { 0 };
 
 PDF_CMAP CMap_Hojo_V = {
 	-1, "Hojo-V", "Hojo-H", 0, 1, 0,
 	{ {0,0,0}, },
 	0, 0, (PDF_CMAP_RANGE*) CMap_Hojo_V_Ranges,
-	0, 0, (HE_WORD*) CMap_Hojo_V_Table,
+	0, 0, (HE_UINT16*) CMap_Hojo_V_Table,
 };
 
 /* UniHojo-UCS2-H */
@@ -8112,7 +8112,7 @@ PDF_CMAP_RANGE CMap_UniHojo_UCS2_H_Ranges[] = {
 {40869,0,6067},
 };
 
-const HE_WORD CMap_UniHojo_UCS2_H_Table[283] = {
+const HE_UINT16 CMap_UniHojo_UCS2_H_Table[283] = {
 17,16,18,6,14,97,96,99,105,98,104,69,
 109,113,112,115,114,126,125,128,127,142,144,143,
 146,150,145,76,161,160,163,162,176,79,93,183,
@@ -8143,7 +8143,7 @@ PDF_CMAP CMap_UniHojo_UCS2_H = {
 	-1, "UniHojo-UCS2-H", "", 0, 0, 2,
 	{ {2,0,55295},{2,57344,65535}, },
 	3985, 3985, (PDF_CMAP_RANGE*) CMap_UniHojo_UCS2_H_Ranges,
-	283, 283, (HE_WORD*) CMap_UniHojo_UCS2_H_Table,
+	283, 283, (HE_UINT16*) CMap_UniHojo_UCS2_H_Table,
 };
 
 /* UniHojo-UCS2-V */
@@ -8151,13 +8151,13 @@ PDF_CMAP CMap_UniHojo_UCS2_H = {
 PDF_CMAP_RANGE CMap_UniHojo_UCS2_V_Ranges[] = { {0,1,0}
 };
 
-const HE_WORD CMap_UniHojo_UCS2_V_Table[] = { 0 };
+const HE_UINT16 CMap_UniHojo_UCS2_V_Table[] = { 0 };
 
 PDF_CMAP CMap_UniHojo_UCS2_V = {
 	-1, "UniHojo-UCS2-V", "UniHojo-UCS2-H", 0, 1, 0,
 	{ {0,0,0}, },
 	0, 0, (PDF_CMAP_RANGE*) CMap_UniHojo_UCS2_V_Ranges,
-	0, 0, (HE_WORD*) CMap_UniHojo_UCS2_V_Table,
+	0, 0, (HE_UINT16*) CMap_UniHojo_UCS2_V_Table,
 };
 
 /* UniHojo-UTF16-H */
@@ -9166,7 +9166,7 @@ PDF_CMAP_RANGE CMap_UniHojo_UTF16_H_Ranges[] = {
 {40854,5,6061},{40862,0,6063},{40865,9,6064},{40869,0,6067},
 };
 
-const HE_WORD CMap_UniHojo_UTF16_H_Table[290] = {
+const HE_UINT16 CMap_UniHojo_UTF16_H_Table[290] = {
 17,16,18,6,14,97,96,99,105,98,104,69,
 109,113,112,115,114,126,125,128,127,142,144,143,
 146,150,145,76,161,160,163,162,176,79,93,183,
@@ -9198,7 +9198,7 @@ PDF_CMAP CMap_UniHojo_UTF16_H = {
 	-1, "UniHojo-UTF16-H", "", 0, 0, 3,
 	{ {2,0,55295},{4,56320,57343},{2,57344,65535}, },
 	4004, 4004, (PDF_CMAP_RANGE*) CMap_UniHojo_UTF16_H_Ranges,
-	290, 290, (HE_WORD*) CMap_UniHojo_UTF16_H_Table,
+	290, 290, (HE_UINT16*) CMap_UniHojo_UTF16_H_Table,
 };
 
 /* UniHojo-UTF16-V */
@@ -9206,13 +9206,13 @@ PDF_CMAP CMap_UniHojo_UTF16_H = {
 PDF_CMAP_RANGE CMap_UniHojo_UTF16_V_Ranges[] = { {0,1,0}
 };
 
-const HE_WORD CMap_UniHojo_UTF16_V_Table[] = { 0 };
+const HE_UINT16 CMap_UniHojo_UTF16_V_Table[] = { 0 };
 
 PDF_CMAP CMap_UniHojo_UTF16_V = {
 	-1, "UniHojo-UTF16-V", "UniHojo-UTF16-H", 0, 1, 0,
 	{ {0,0,0}, },
 	0, 0, (PDF_CMAP_RANGE*) CMap_UniHojo_UTF16_V_Ranges,
-	0, 0, (HE_WORD*) CMap_UniHojo_UTF16_V_Table,
+	0, 0, (HE_UINT16*) CMap_UniHojo_UTF16_V_Table,
 };
 
 /* UniJIS-UTF16-H */
@@ -10652,7 +10652,7 @@ PDF_CMAP_RANGE CMap_UniJIS_UTF16_H_Ranges[] = {
 {65506,14,10907},{65512,0,323},
 };
 
-const HE_WORD CMap_UniJIS_UTF16_H_Table[10911] = {
+const HE_UINT16 CMap_UniJIS_UTF16_H_Table[10911] = {
 99,94,100,107,61,93,720,647,152,140,109,153,
 151,154,129,707,694,645,159,778,117,134,160,144,
 123,695,142,696,148,9366,9361,15756,15769,15737,15745,15758,
@@ -11569,7 +11569,7 @@ PDF_CMAP CMap_UniJIS_UTF16_H = {
 	-1, "UniJIS-UTF16-H", "", 0, 0, 3,
 	{ {2,0,55295},{4,56320,57343},{2,57344,65535}, },
 	5726, 5726, (PDF_CMAP_RANGE*) CMap_UniJIS_UTF16_H_Ranges,
-	10911, 10911, (HE_WORD*) CMap_UniJIS_UTF16_H_Table,
+	10911, 10911, (HE_UINT16*) CMap_UniJIS_UTF16_H_Table,
 };
 
 /* UniJIS-UTF16-V */
@@ -11603,7 +11603,7 @@ PDF_CMAP_RANGE CMap_UniJIS_UTF16_V_Ranges[] = {
 {65375,5,12141},{65507,0,7889},
 };
 
-const HE_WORD CMap_UniJIS_UTF16_V_Table[138] = {
+const HE_UINT16 CMap_UniJIS_UTF16_V_Table[138] = {
 7892,7895,7898,7897,8273,8283,738,736,739,737,8311,8310,
 8312,8012,8014,8011,8013,12148,12168,12147,12150,12168,12149,12156,
 12168,12155,12158,12168,12157,8168,8167,8166,12168,8172,8171,8170,
@@ -11622,7 +11622,7 @@ PDF_CMAP CMap_UniJIS_UTF16_V = {
 	-1, "UniJIS-UTF16-V", "UniJIS-UTF16-H", 0, 1, 0,
 	{ {0,0,0}, },
 	102, 102, (PDF_CMAP_RANGE*) CMap_UniJIS_UTF16_V_Ranges,
-	138, 138, (HE_WORD*) CMap_UniJIS_UTF16_V_Table,
+	138, 138, (HE_UINT16*) CMap_UniJIS_UTF16_V_Table,
 };
 
 #endif

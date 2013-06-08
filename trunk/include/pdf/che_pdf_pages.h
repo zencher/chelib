@@ -18,21 +18,21 @@ public:
 
 	~CHE_PDF_PageTree();
 
-	HE_DWORD						GetPageCount();
+	HE_ULONG						GetPageCount();
 
-	CHE_PDF_Page *					GetPage( HE_DWORD index );
+	CHE_PDF_Page *					GetPage( HE_ULONG index );
 
 	HE_VOID							ReleasePage( CHE_PDF_Page * pPage );
 
-	HE_BOOL							GetPageRefInfo( HE_DWORD index, PDF_RefInfo & refRet );
+	HE_BOOL							GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet );
 
-	HE_VOID							AppendPage( HE_DWORD width, HE_DWORD height );
+	HE_VOID							AppendPage( HE_ULONG width, HE_ULONG height );
 
 private:
 
 	HE_VOID							ParseAllPageRefInfo();
 
-	HE_DWORD						mPageCount;
+	HE_ULONG						mPageCount;
 
 	std::vector<PDF_RefInfo>		mPageObjList;
 

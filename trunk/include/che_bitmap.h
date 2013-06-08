@@ -35,7 +35,7 @@ enum HE_BITMAP_COMPRESSION
 	BITMAP_COMPRESSION_BITFIELDS =3
 };
 
-typedef HE_DWORD HE_ARGB;
+typedef HE_INT32 HE_ARGB;
 
 class CHE_Palette : public CHE_Object
 {
@@ -46,17 +46,17 @@ public:
 
 	CHE_Palette & operator=( const CHE_Palette& palette );
 
-	HE_DWORD	GetCount() const;
-	HE_BOOL		GetColor( HE_DWORD index, HE_ARGB & colorRet ) const;
-	HE_BOOL		GetColorIndex( HE_ARGB color, HE_DWORD & indexRet ) const;
-	HE_BOOL		GetNearColorIndex( HE_ARGB color, HE_DWORD & indexRet ) const;
-	HE_BOOL		SetColor( HE_DWORD index, HE_ARGB color );
+	HE_ULONG	GetCount() const;
+	HE_BOOL		GetColor( HE_ULONG index, HE_ARGB & colorRet ) const;
+	HE_BOOL		GetColorIndex( HE_ARGB color, HE_ULONG & indexRet ) const;
+	HE_BOOL		GetNearColorIndex( HE_ARGB color, HE_ULONG & indexRet ) const;
+	HE_BOOL		SetColor( HE_ULONG index, HE_ARGB color );
 	HE_BOOL		IsColorExist( HE_ARGB color ) const;
 private:
 	friend class CHE_Bitmap;
 
 	HE_ARGB *	m_pPalette;
-	HE_DWORD	m_nPaletteSize;			
+	HE_ULONG	m_nPaletteSize;			
 };
 
 
@@ -73,13 +73,13 @@ public:
 	HE_BOOL		Load( HE_LPCSTR );
 	HE_BOOL		Save( HE_LPCSTR );
 
-	HE_DWORD	GetMemBitmapDataSize();
-	HE_BOOL		GetMemBitmapData( HE_LPBYTE buffer, HE_DWORD size );
+	HE_ULONG	GetMemBitmapDataSize();
+	HE_BOOL		GetMemBitmapData( HE_LPBYTE buffer, HE_ULONG size );
 
 	//bitmap basic information
-	HE_DWORD				Width() const { return m_lWidth; } ;
-	HE_DWORD				Height() const { return m_lHeight; } ;
-	HE_DWORD				Pitch() const { return ( ( ( m_lWidth * m_Depth ) + 31 ) & ~31 ) >> 3; } ;
+	HE_ULONG				Width() const { return m_lWidth; } ;
+	HE_ULONG				Height() const { return m_lHeight; } ;
+	HE_ULONG				Pitch() const { return ( ( ( m_lWidth * m_Depth ) + 31 ) & ~31 ) >> 3; } ;
 	HE_BITMAP_DEPTH			Depth() const { return m_Depth; };
 	HE_BITMAP_DIRECTION		Direction() const { return m_Direction; } ;
 	HE_BOOL					IsCompression() const { return ( m_Compression > 0 ) ? TRUE : FALSE; } ;
@@ -92,10 +92,10 @@ public:
 	HE_LPCBYTE				GetBuffer() const { return m_lpBits; } ;
 	
 	//pixel operation
-	HE_BOOL				GetPixelColor( HE_DWORD x, HE_DWORD y, HE_ARGB & colorRet ) const;
-	HE_BOOL				SetPixelColor( HE_DWORD x, HE_DWORD y, HE_ARGB color );
-	HE_BOOL				GetPixelIndex( HE_DWORD x, HE_DWORD y, HE_BYTE & indexRet ) const;
-	HE_BOOL				SetPixelIndex( HE_DWORD x, HE_DWORD y, HE_BYTE index );
+	HE_BOOL				GetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB & colorRet ) const;
+	HE_BOOL				SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB color );
+	HE_BOOL				GetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE & indexRet ) const;
+	HE_BOOL				SetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE index );
 
 	//channel operation
 	HE_BOOL				SetChannel( HE_BITMAP_CHANNEL channel, HE_BYTE vlaue );
@@ -107,11 +107,11 @@ public:
 	//area operation
 	HE_BOOL				Fill( HE_ARGB color );
 	HE_BOOL				Fill( HE_ARGB color, const HE_RECT* rect );
-	HE_VOID				DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength, HE_ARGB color );
-	HE_VOID				DrawLine( HE_DWORD nLine, HE_DWORD nStrat, HE_DWORD nLength, HE_LPBYTE lpDatabuf, HE_DWORD nBufSize );
+	HE_VOID				DrawLine( HE_ULONG nLine, HE_ULONG nStart, HE_ULONG nLength, HE_ARGB color );
+	HE_VOID				DrawLine( HE_ULONG nLine, HE_ULONG nStrat, HE_ULONG nLength, HE_LPBYTE lpDatabuf, HE_ULONG nBufSize );
 
 	//bitmap operation
-	HE_BOOL				Create( HE_DWORD width, HE_DWORD height, HE_BITMAP_DEPTH depth, HE_BITMAP_DIRECTION direction, HE_DWORD bufferSize = 0,
+	HE_BOOL				Create( HE_ULONG width, HE_ULONG height, HE_BITMAP_DEPTH depth, HE_BITMAP_DIRECTION direction, HE_ULONG bufferSize = 0,
 						HE_LPCBYTE buffer = NULL, CHE_Palette* pPalette = NULL );
 	CHE_Bitmap*			Clone( const HE_RECT* pRect = NULL ) const;
 	HE_VOID				Clean();
@@ -119,21 +119,21 @@ public:
 	HE_BOOL				ConvertDetph( HE_BITMAP_DEPTH depth );
 
 	//bitmap operation, for 24bit and 32bit only
-	HE_BOOL				CompositeMask( HE_ARGB color, HE_DWORD x, HE_DWORD y, CHE_Bitmap & maskBitmap );
-	HE_BOOL				Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y );
-	//HE_BOOL			Insert( const CHE_Bitmap & bitmap, HE_DWORD x, HE_DWORD y, CHE_Bitmap & maskBitmap );
+	HE_BOOL				CompositeMask( HE_ARGB color, HE_ULONG x, HE_ULONG y, CHE_Bitmap & maskBitmap );
+	HE_BOOL				Insert( const CHE_Bitmap & bitmap, HE_ULONG x, HE_ULONG y );
+	//HE_BOOL			Insert( const CHE_Bitmap & bitmap, HE_ULONG x, HE_ULONG y, CHE_Bitmap & maskBitmap );
 
-	CHE_Bitmap*			StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWORD flag, HE_RECT * pRect = NULL );
+	CHE_Bitmap*			StretchTo( HE_ULONG desWidth, HE_ULONG desHeight, HE_ULONG flag, HE_RECT * pRect = NULL );
 
 	CHE_Bitmap*			Translate( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT d, HE_FLOAT e, HE_FLOAT f );
 
 
 private:
 
-	HE_DWORD				GetPixelByteIndex( HE_DWORD x, HE_DWORD y ) const;
+	HE_ULONG				GetPixelByteIndex( HE_ULONG x, HE_ULONG y ) const;
 
-	HE_DWORD				m_lWidth;
-	HE_DWORD				m_lHeight;
+	HE_ULONG				m_lWidth;
+	HE_ULONG				m_lHeight;
 	HE_BITMAP_DEPTH			m_Depth;
 	HE_BITMAP_DIRECTION		m_Direction;
 	HE_BITMAP_COMPRESSION	m_Compression;

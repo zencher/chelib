@@ -7,7 +7,7 @@
 
 //string resources for creator
 //file structure relative
-const HE_CHAR * gpStrPDFVersion17			= "%PDF-1.7\n";				const HE_DWORD glStrPDFVersion = 9;
+const HE_CHAR * gpStrPDFVersion17			= "%PDF-1.7\n";				const HE_ULONG glStrPDFVersion = 9;
 const HE_CHAR * gpStrPDFVersion16			= "%PDF-1.6\n";
 const HE_CHAR * gpStrPDFVersion15			= "%PDF-1.5\n";
 const HE_CHAR * gpStrPDFVersion14			= "%PDF-1.4\n";
@@ -15,28 +15,28 @@ const HE_CHAR * gpStrPDFVersion13			= "%PDF-1.3\n";
 const HE_CHAR * gpStrPDFVersion12			= "%PDF-1.2\n";
 const HE_CHAR * gpStrPDFVersion11			= "%PDF-1.1\n";
 const HE_CHAR * gpStrPDFVersion10			= "%PDF-1.0\n";
-const HE_CHAR * gpStrNewLine				= "\n";						const HE_DWORD glStrNewLine = 1;
-const HE_CHAR * gpStrObjBegin				= "obj\n";					const HE_DWORD glStrObjBegin = 4;
-const HE_CHAR * gpStrObjEnd					= "\nendobj\n";				const HE_DWORD glStrObjEnd = 8;
-const HE_CHAR * gpStrXrefMark				= "xref\n";					const HE_DWORD glstrXrefMark = 5;
-const HE_CHAR * gpStrXrefFirstFreeEntry		= "0000000000 65535 f \n";	const HE_DWORD glStrXrefEntry = 20;
-const HE_CHAR * gpStrTrailerMark			= "trailer\n";				const HE_DWORD glStrTrailerMark = 8;
-const HE_CHAR * gpStrXrefStartMark			= "startxref\n";			const HE_DWORD glStrXrefStartMark = 10;
-const HE_CHAR * gpStrFileEnd				= "%%EOF";					const HE_DWORD glStrFileEnd = 5;
-const HE_CHAR * gpStrSingleSpace			= " ";						const HE_DWORD glStrSingleSpace = 1;
+const HE_CHAR * gpStrNewLine				= "\n";						const HE_ULONG glStrNewLine = 1;
+const HE_CHAR * gpStrObjBegin				= "obj\n";					const HE_ULONG glStrObjBegin = 4;
+const HE_CHAR * gpStrObjEnd					= "\nendobj\n";				const HE_ULONG glStrObjEnd = 8;
+const HE_CHAR * gpStrXrefMark				= "xref\n";					const HE_ULONG glstrXrefMark = 5;
+const HE_CHAR * gpStrXrefFirstFreeEntry		= "0000000000 65535 f \n";	const HE_ULONG glStrXrefEntry = 20;
+const HE_CHAR * gpStrTrailerMark			= "trailer\n";				const HE_ULONG glStrTrailerMark = 8;
+const HE_CHAR * gpStrXrefStartMark			= "startxref\n";			const HE_ULONG glStrXrefStartMark = 10;
+const HE_CHAR * gpStrFileEnd				= "%%EOF";					const HE_ULONG glStrFileEnd = 5;
+const HE_CHAR * gpStrSingleSpace			= " ";						const HE_ULONG glStrSingleSpace = 1;
 //obj relative
-const HE_CHAR * gpStrNullObj				= "null";					const HE_DWORD glStrNullObj = 5;
-const HE_CHAR * gpStrBoolObjFalse			= "false";					const HE_DWORD glStrBoolObjFalse = 5;
-const HE_CHAR * gpStrBoolObjTrue			= "true";					const HE_DWORD glStrBoolObjTrue = 4;
-const HE_CHAR * gpStrNameObjPre				= "/";						const HE_DWORD glStrNameObjPre = 1;
-const HE_CHAR * gpStrStrObjLeft				= "(";						const HE_DWORD glStrStrObj = 1;
+const HE_CHAR * gpStrNullObj				= "null";					const HE_ULONG glStrNullObj = 5;
+const HE_CHAR * gpStrBoolObjFalse			= "false";					const HE_ULONG glStrBoolObjFalse = 5;
+const HE_CHAR * gpStrBoolObjTrue			= "true";					const HE_ULONG glStrBoolObjTrue = 4;
+const HE_CHAR * gpStrNameObjPre				= "/";						const HE_ULONG glStrNameObjPre = 1;
+const HE_CHAR * gpStrStrObjLeft				= "(";						const HE_ULONG glStrStrObj = 1;
 const HE_CHAR * gpStrStrObjRight			= ")";
-const HE_CHAR * gpStrArrayObjLeft			= "[";						const HE_DWORD glStrArrayObj = 1;
+const HE_CHAR * gpStrArrayObjLeft			= "[";						const HE_ULONG glStrArrayObj = 1;
 const HE_CHAR * gpStrArrayObjRight			= "]";
-const HE_CHAR * gpStrDictObjLeft			= "<<";						const HE_DWORD glStrDictObj = 2;
+const HE_CHAR * gpStrDictObjLeft			= "<<";						const HE_ULONG glStrDictObj = 2;
 const HE_CHAR * gpStrDictObjRight			= ">>";
-const HE_CHAR * gpStrStreamObjBegin			= "stream\n";				const HE_DWORD glStrStreamObjBegin = 7;
-const HE_CHAR * gpStrStreamObjEnd			= "\nendstream";			const HE_DWORD glStrStreamObjEnd = 10;
+const HE_CHAR * gpStrStreamObjBegin			= "stream\n";				const HE_ULONG glStrStreamObjBegin = 7;
+const HE_CHAR * gpStrStreamObjEnd			= "\nendstream";			const HE_ULONG glStrStreamObjEnd = 10;
 
 CHE_PDF_Creator * CHE_PDF_Creator::Create( IHE_Write * pWrite, CHE_Allocator * pAllocator )
 {
@@ -72,10 +72,10 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 	CHE_PDF_XREF_Table xrefTable;
 // 	CHE_PDF_Object * pObj = NULL;
 // 	CHE_PDF_IndirectObject * pInObj = NULL;
-// 	HE_DWORD lObjCount = pParser->GetUpdatedInObjCount();
+// 	HE_ULONG lObjCount = pParser->GetUpdatedInObjCount();
 // 	if ( lObjCount > 0 )
 // 	{
-// 		for ( HE_DWORD i = 0; i < lObjCount; i++ )
+// 		for ( HE_ULONG i = 0; i < lObjCount; i++ )
 // 		{
 // 			pInObj = pParser->GetUpdatedInObj( i );
 // 			if ( pInObj != NULL )
@@ -92,7 +92,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 		}
 // 	}
 // 
-// 	HE_DWORD xrefOffset = pWrite->GetCurOffset();
+// 	HE_ULONG xrefOffset = pWrite->GetCurOffset();
 // 
 // 	pWrite->WriteBlock( (HE_LPVOID)gpStrXrefMark, glstrXrefMark );
 // 
@@ -101,7 +101,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 	pWrite->WriteBlock(  (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
 // 
 // 	CHE_PDF_XREF_Entry tmpEntry;
-// 	for ( HE_DWORD i = 1; i <= xrefTable.GetMaxObjNum(); i++ )
+// 	for ( HE_ULONG i = 1; i <= xrefTable.GetMaxObjNum(); i++ )
 // 	{
 // 		if ( xrefTable.GetEntry( i, tmpEntry ) == TRUE )
 // 		{
@@ -202,7 +202,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 	CHE_PDF_Array * pWidthsArr = pInWidthArrayObj->GetObj()->GetArrayPtr();
 // 	if ( pWidthsArr )
 // 	{
-// 		for ( HE_DWORD i = 0; i < 256; i++ )
+// 		for ( HE_ULONG i = 0; i < 256; i++ )
 // 		{
 // 			CHE_PDF_Number * pNumber = CHE_PDF_Number::Create( (HE_INT32)1000, GetAllocator() );
 // 			pWidthsArr->Append( pNumber );
@@ -230,7 +230,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // 
 // 
 // CHE_PDF_IndirectObject * CHE_PDF_Creator::AddType1Font(	const CHE_ByteString & baseFont,
-// 														HE_DWORD firstChar /*= 0*/, HE_DWORD lastChar /*= 255*/,
+// 														HE_ULONG firstChar /*= 0*/, HE_ULONG lastChar /*= 255*/,
 // 														PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSI*/,
 // 														CHE_PDF_Array * pWidths /*= NULL*/,
 // 														CHE_PDF_Dictionary * pFontDescriptor /*= NULL*/,
@@ -281,7 +281,7 @@ CHE_PDF_Creator::~CHE_PDF_Creator()
 // }
 
 // CHE_PDF_Dictionary* CHE_PDF_Creator::AddTrueTypeFont(	const CHE_ByteString & baseFont, 
-// 														HE_DWORD firstChar/* = 0*/, HE_DWORD lastChar/* = 255*/,
+// 														HE_ULONG firstChar/* = 0*/, HE_ULONG lastChar/* = 255*/,
 // 														PDF_FONT_ENCODING encoding /*= FONT_ENCODING_WINANSIENCODING*/,
 // 														const CHE_PDF_Array * pWidths/* = NULL*/, 
 // 														const CHE_PDF_Dictionary * pFontDescriptor/* = NULL*/,
@@ -449,24 +449,24 @@ HE_VOID CHE_PDF_Creator::OutPutFileHead( PDF_VERSION version )
 	mpWrite->WriteBlock( (HE_LPVOID)"%\255\255\255\255\255\255\n", 8 );
 }
 
-HE_DWORD CHE_PDF_Creator::OutPutObject( const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj )
+HE_ULONG CHE_PDF_Creator::OutPutObject( const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj )
 {
 	if ( pObj )
 	{
 		return 0;
 	}
-	HE_DWORD offset = mpWrite->GetCurOffset();
+	HE_ULONG offset = mpWrite->GetCurOffset();
 	OutPutObject( mpWrite, refInfo, pObj, NULL );
 	return offset;
 }
 
-HE_DWORD CHE_PDF_Creator::OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr, HE_BOOL bEncrypt )
+HE_ULONG CHE_PDF_Creator::OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr, HE_BOOL bEncrypt )
 {
 	if ( ! objPtr )
 	{
 		return 0;
 	}
-	HE_DWORD offset = mpWrite->GetCurOffset();
+	HE_ULONG offset = mpWrite->GetCurOffset();
 	HE_CHAR tempStr[128];
 	sprintf( tempStr, "%ld %ld obj\n", refInfo.objNum, refInfo.genNum );
 	mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen(tempStr) );
@@ -481,16 +481,16 @@ HE_DWORD CHE_PDF_Creator::OutPutInObject( const PDF_RefInfo & refInfo, const CHE
 	return offset;
 }
 
-HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
+HE_ULONG CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 {
 	HE_CHAR tempStr[128];
-	HE_DWORD lBeginNum = 0;
-	HE_DWORD lNextObjNum = 0;
-	HE_DWORD lCountNum = 0;
+	HE_ULONG lBeginNum = 0;
+	HE_ULONG lNextObjNum = 0;
+	HE_ULONG lCountNum = 0;
 	CHE_PDF_XREF_Entry entry;
 	CHE_Queue< CHE_PDF_XREF_Entry > entryList;
 
-	HE_DWORD offset = mpWrite->GetCurOffset();
+	HE_ULONG offset = mpWrite->GetCurOffset();
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefMark, glstrXrefMark );
 	
 	xref.MoveFirst();
@@ -559,7 +559,7 @@ HE_DWORD CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 	return offset;
 }
 
-HE_VOID	CHE_PDF_Creator::OutPutFileTailer( HE_DWORD startxref )
+HE_VOID	CHE_PDF_Creator::OutPutFileTailer( HE_ULONG startxref )
 {
 	HE_CHAR tempStr[128];
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefStartMark, glStrXrefStartMark );
@@ -610,7 +610,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 			CHE_PDF_StringPtr ptr = pObj->GetStringPtr();
 			CHE_ByteString str = ptr->GetString();
 			HE_LPBYTE pData = (HE_LPBYTE)( str.GetData() );
-			HE_DWORD length = str.GetLength();
+			HE_ULONG length = str.GetLength();
 
 			if ( pEncrypt )
 			{
@@ -621,7 +621,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 				//length += 16;
 			}
 			HE_BOOL bHex = FALSE;
-			for ( HE_DWORD i = 0; i < length; i++ )
+			for ( HE_ULONG i = 0; i < length; i++ )
 			{
 				if ( pData[i] > 127 || pData[i] < 32 || pData[i] == '(' || pData[i] == ')' ) //´ýÍêÉÆ
 				{
@@ -637,8 +637,8 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 			}else{
 				pWrite->WriteBlock( (HE_LPVOID)"<", 1 );
 				HE_CHAR tmpByte[32];
-				HE_DWORD tmpVal = 0;
-				for ( HE_DWORD i = 0; i < length; i++ )
+				HE_ULONG tmpVal = 0;
+				for ( HE_ULONG i = 0; i < length; i++ )
 				{
 					tmpVal = pData[i];
 					sprintf( tmpByte, "%08lX", tmpVal );
@@ -656,10 +656,10 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 		{
 			CHE_PDF_NamePtr ptr = pObj->GetNamePtr();
 			HE_LPBYTE pData = (HE_LPBYTE)( ptr->GetString().GetData() );
-			HE_DWORD length = ptr->GetString().GetLength();
+			HE_ULONG length = ptr->GetString().GetLength();
 			pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
 			char tmpStr[16];
-			for ( HE_DWORD i = 0; i < length; ++i )
+			for ( HE_ULONG i = 0; i < length; ++i )
 			{
 				if ( 32 < pData[i] && pData[i] < 127 )
 				{
@@ -701,7 +701,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 			CHE_PDF_ArrayPtr ptr = pObj->GetArrayPtr();
 			CHE_PDF_ObjectPtr pElement;
 			pWrite->WriteBlock( (HE_LPVOID)gpStrArrayObjLeft, 1 );
-			for ( HE_DWORD i = 0; i < ptr->GetCount(); i++ )
+			for ( HE_ULONG i = 0; i < ptr->GetCount(); i++ )
 			{
 				if ( i != 0 )
 				{
@@ -720,12 +720,12 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 			pWrite->WriteBlock( (HE_LPVOID)gpStrDictObjLeft, 2 );
 
 			CHE_ByteString keyStr;
-			for ( HE_DWORD i = 0; i < ptr->GetCount(); i++ )
+			for ( HE_ULONG i = 0; i < ptr->GetCount(); i++ )
 			{
 				if ( ptr->GetKeyByIndex( i, keyStr ) == TRUE )
 				{
 					HE_LPVOID pData = (HE_LPVOID)( keyStr.GetData() );
-					HE_DWORD length = keyStr.GetLength();
+					HE_ULONG length = keyStr.GetLength();
 					pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
 					pWrite->WriteBlock( pData, length );
 					pElement = ptr->GetElementByIndex( i );
@@ -783,7 +783,7 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 }
 
 HE_BOOL CHE_PDF_Creator::SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,
-										HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_DWORD pValue )
+										HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_ULONG pValue )
 {
 	if ( mpEncrypt )
 	{

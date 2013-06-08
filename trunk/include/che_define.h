@@ -90,10 +90,10 @@ typedef double HE_DOUBLE;
 
 struct HE_RECT
 {
-	HE_UINT32 left;
-	HE_UINT32 top;
-	HE_UINT32 width;
-	HE_UINT32 height;
+	HE_ULONG left;
+	HE_ULONG top;
+	HE_ULONG width;
+	HE_ULONG height;
 };
 
 #define HE_ABS abs

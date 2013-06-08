@@ -238,7 +238,7 @@ HE_VOID CHE_PDF_FlateFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
 
 	stream.zalloc = NULL;
 	stream.zfree = NULL;
-    stream.avail_in = length;
+    stream.avail_in = (HE_INT32)length;
     stream.next_in  = pData;
 	deflateInit( &stream, Z_DEFAULT_COMPRESSION );
 	
@@ -286,7 +286,7 @@ HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
 
 	stream.zalloc = NULL;
 	stream.zfree = NULL;
-	stream.avail_in = length;
+	stream.avail_in = (HE_INT32)length;
 	stream.next_in  = pData;
 	inflateInit( &stream );
 

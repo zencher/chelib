@@ -13,8 +13,8 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	static CHE_PDF_Color strokeColor;
 	static CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );
 	static CHE_PDF_ColorSpace strokeColorSpace( COLORSPACE_DEVICE_GRAY );
-	static HE_DWORD fillColorVal = 0xFF000000;
-	static HE_DWORD strokeColorVal = 0xFF000000;
+	static HE_UINT32 fillColorVal = 0xFF000000;
+	static HE_UINT32 strokeColorVal = 0xFF000000;
 
 	pGState->GetLineWidth( val );
 	drawer.SetLineWidth( val );

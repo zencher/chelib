@@ -62,7 +62,7 @@ HE_VOID CHE_PDF_SyntaxParser::SeekToPrevLine()
 {
 	if ( m_pFileAccess )
 	{
-		while( m_lFilePos >= 0 )
+		while( m_lFilePos > 0 )
 		{
 			HE_BYTE byte = m_pFileAccess->ReadByte( m_lFilePos );
 			switch( byte )
@@ -115,7 +115,7 @@ HE_VOID	CHE_PDF_SyntaxParser::SeekToPrevWord()
 	if ( m_pFileAccess )
 	{
 		HE_BOOL bWordFound = FALSE;
-		while( m_lFilePos >= 0 )
+		while( m_lFilePos > 0 )
 		{
 			HE_BYTE byte = m_pFileAccess->ReadByte( m_lFilePos );
 			switch( byte )

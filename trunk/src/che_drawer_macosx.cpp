@@ -1,6 +1,6 @@
 #include "../include/che_drawer_macosx.h"
 
-CHE_GraphicsDrawer::CHE_GraphicsDrawer( HE_DWORD width, HE_DWORD height )
+CHE_GraphicsDrawer::CHE_GraphicsDrawer( HE_ULONG width, HE_ULONG height )
     : mContentRef( NULL ), mWidth( width ), mHeight( height ),
       mExtMatrix( CHE_Matrix() ), mFillMode( FillMode_Nonzero ), mPathRef( NULL )
 {
@@ -27,7 +27,7 @@ CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
     }
 }
 
-HE_VOID CHE_GraphicsDrawer::Resize( HE_DWORD width, HE_DWORD height )
+HE_VOID CHE_GraphicsDrawer::Resize( HE_ULONG width, HE_ULONG height )
 {
     if ( mContentRef ) {
         CGContextRelease( mContentRef );
@@ -42,12 +42,12 @@ HE_VOID CHE_GraphicsDrawer::Resize( HE_DWORD width, HE_DWORD height )
     mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaPremultipliedLast );
 }
 
-HE_DWORD CHE_GraphicsDrawer::GetWidth() const
+HE_ULONG CHE_GraphicsDrawer::GetWidth() const
 {
     return mWidth;
 }
 
-HE_DWORD CHE_GraphicsDrawer::GetHeight() const
+HE_ULONG CHE_GraphicsDrawer::GetHeight() const
 {
     return mHeight;
 }
@@ -87,7 +87,7 @@ HE_VOID	CHE_GraphicsDrawer::SetMiterLimit( const HE_FLOAT & miterLimit )
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetFillColor( const HE_DWORD & color )
+HE_VOID	CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
 {
     //todo
     if ( mContentRef )
@@ -96,7 +96,7 @@ HE_VOID	CHE_GraphicsDrawer::SetFillColor( const HE_DWORD & color )
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetStrokeColor( const HE_DWORD & color )
+HE_VOID	CHE_GraphicsDrawer::SetStrokeColor( const HE_ULONG & color )
 {
     //todo
     if ( mContentRef )

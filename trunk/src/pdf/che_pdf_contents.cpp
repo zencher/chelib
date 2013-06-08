@@ -776,7 +776,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 	{
 		pDict->SetAtObj( "DecodeParam", mpDecodeParam );
 	}
-	pDict->SetAtInteger( "Length", buffer.size() );
+	pDict->SetAtInteger( "Length", (HE_INT32)buffer.size() );
 
 	CHE_PDF_ColorSpace * pColorspace = NULL;
 	if ( mpColorSpace )

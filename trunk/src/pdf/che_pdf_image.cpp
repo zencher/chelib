@@ -30,9 +30,9 @@ CHE_PDF_ReferencePtr CHE_PDF_Image::InsertImageToFile(	CHE_PDF_File * pFile, PDF
 
 	dictPtr->SetAtName( "Type", "XObject" );
 	dictPtr->SetAtName( "Subtype", "Image" );
-	dictPtr->SetAtInteger( "Width", width );
-	dictPtr->SetAtInteger( "Height", height );
-	dictPtr->SetAtInteger( "BitsPerComponent", bpc );
+	dictPtr->SetAtInteger( "Width", (HE_INT32)width );
+	dictPtr->SetAtInteger( "Height", (HE_INT32)height );
+	dictPtr->SetAtInteger( "BitsPerComponent", (HE_INT32)bpc );
 	dictPtr->SetAtName( "ColorSpace", "DeviceRGB" );
 
 	if ( mask )

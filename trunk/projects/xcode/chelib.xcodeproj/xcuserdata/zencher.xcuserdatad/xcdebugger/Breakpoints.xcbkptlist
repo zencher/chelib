@@ -34,11 +34,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../../src/pdf/che_pdf_font.cpp"
-         timestampString = "391442416.43492"
+         timestampString = "392376409.439592"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "5348"
-         endingLineNumber = "5348"
+         startingLineNumber = "5347"
+         endingLineNumber = "5347"
          landmarkName = "CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR &amp; codeRet )"
          landmarkType = "5">
       </FileBreakpoint>

@@ -1013,7 +1013,7 @@ CHE_PDF_Stream::CHE_PDF_Stream( HE_LPBYTE pData, HE_ULONG size, const CHE_PDF_Di
 	}else{
 		mDictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
 	}
-	mDictPtr->SetAtInteger( "Length", m_dwSize );
+	mDictPtr->SetAtInteger( "Length", (HE_INT32)m_dwSize );
 }
 	
 CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_ULONG offset, HE_ULONG size, const CHE_PDF_DictionaryPtr & ptr,
@@ -1041,7 +1041,7 @@ CHE_PDF_Stream::CHE_PDF_Stream( IHE_Read* pFile, HE_ULONG offset, HE_ULONG size,
 	}else{
 		mDictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
 	}
-	mDictPtr->SetAtInteger( "Length", m_dwSize );
+	mDictPtr->SetAtInteger( "Length", (HE_INT32)m_dwSize );
 }
 
 CHE_PDF_Stream::CHE_PDF_Stream(	HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt,
@@ -1211,7 +1211,7 @@ HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_ULONG dwDataSize, HE_BYT
 		break;
 	}
 	
-	mDictPtr->SetAtInteger( "Length", m_dwSize );
+	mDictPtr->SetAtInteger( "Length", (HE_INT32)m_dwSize );
 
 	if ( m_pEncrypt && m_pEncrypt->IsPasswordOK() )
 	{

@@ -9,12 +9,12 @@
 class CHE_GraphicsDrawer
 {
 public:
-    CHE_GraphicsDrawer( HE_DWORD width, HE_DWORD height );
+    CHE_GraphicsDrawer( HE_ULONG width, HE_ULONG height );
     ~CHE_GraphicsDrawer();
 
-    HE_VOID		Resize( HE_DWORD width, HE_DWORD height );
-    HE_DWORD	GetWidth() const;
-    HE_DWORD	GetHeight() const;
+    HE_VOID		Resize( HE_ULONG width, HE_ULONG height );
+    HE_ULONG	GetWidth() const;
+    HE_ULONG	GetHeight() const;
     HE_VOID		Clear();
 
     //properties setting
@@ -22,8 +22,8 @@ public:
     HE_VOID		SetExtMatrix( const CHE_Matrix & matrix );
     HE_VOID		SetLineWidth( const HE_FLOAT & lineWidth );
     HE_VOID		SetMiterLimit( const HE_FLOAT & miterLimit );
-    HE_VOID		SetFillColor( const HE_DWORD & color );
-    HE_VOID		SetStrokeColor( const HE_DWORD & color );
+    HE_VOID		SetFillColor( const HE_ULONG & color );
+    HE_VOID		SetStrokeColor( const HE_ULONG & color );
     HE_VOID		SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
     HE_VOID		SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
     HE_VOID		SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
@@ -49,8 +49,8 @@ private:
     
     CGContextRef                mContentRef;
     CGColorSpaceRef             mColorSpaceRef;
-    HE_DWORD					mWidth;
-    HE_DWORD					mHeight;
+    HE_ULONG					mWidth;
+    HE_ULONG					mHeight;
     CHE_Matrix                  mMatrix;
     CHE_Matrix					mExtMatrix;
     CGAffineTransform           mAffineTransform;

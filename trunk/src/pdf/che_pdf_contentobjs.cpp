@@ -367,8 +367,8 @@ CHE_Rect CHE_PDF_Text::GetCharRect( HE_ULONG index ) const
 		rect.height = mItems[index].height;
 		if ( face )
 		{
-			rect.bottom = face->descender * 1.0 / face->units_per_EM;
-			rect.height = ( face->ascender - face->descender ) * 1.0 / face->units_per_EM;
+			rect.bottom = face->descender * 1.0f / face->units_per_EM;
+			rect.height = ( face->ascender - face->descender ) * 1.0f / face->units_per_EM;
 		}
 		rect = matrix.Transform( rect );
 	}

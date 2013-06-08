@@ -1068,8 +1068,8 @@ HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_Clip
 // 		}
 		if ( pElement1->GetType() == ContentType_Text && pElement2->GetType() == ContentType_Text )
 		{
-			CHE_PDF_Text * pText1 = (CHE_PDF_Text*)( pElement1 );
-			CHE_PDF_Text * pText2 = (CHE_PDF_Text*)( pElement2 );
+			//CHE_PDF_Text * pText1 = (CHE_PDF_Text*)( pElement1 );
+			//CHE_PDF_Text * pText2 = (CHE_PDF_Text*)( pElement2 );
 			//zctodo
 		}else if ( pElement1->GetType() == ContentType_Path && pElement2->GetType() == ContentType_Path )
 		{

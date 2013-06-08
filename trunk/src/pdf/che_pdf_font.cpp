@@ -5138,14 +5138,13 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 		HE_ULONG tmpCode = 0;
 		if ( mpUnicodeMap->LookupCode( charCode, tmpCode ) )
 		{
-			codeRet = (HE_ULONG)( tmpCode );
+			codeRet = (HE_WCHAR)( tmpCode );
 			return TRUE;
 		}
 		return FALSE;
 	}
 	if ( mpToUnicodeMap )
 	{
-		
 		codeRet = (HE_ULONG)( mpToUnicodeMap->GetItem( charCode ) );
 		return TRUE;
 	}
@@ -5316,7 +5315,7 @@ CHE_PDF_Type1_Font::CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit,
 			for ( HE_ULONG i = 0; i < arrayPtr->GetCount(); ++i )
 			{
 				objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
-				if ( objPtr && mFirstChar-1+i >= 0 && mFirstChar-1+i  < 256 )
+				if ( objPtr && mFirstChar-1+i > 0 && mFirstChar-1+i  < 256 )
 				{
 					mCharWidths[mFirstChar-1+i] = objPtr->GetNumberPtr()->GetInteger();
 				}

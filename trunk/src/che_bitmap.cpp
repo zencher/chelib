@@ -563,11 +563,11 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 		return FALSE;
 	}
 	HE_BITMAPFILEHEADER bfHeader;
-	bfHeader.bfSize = 54 + m_lpPalette->GetCount() * 4 + Pitch() * Height();
+	bfHeader.bfSize = (HE_UINT32)( 54 + m_lpPalette->GetCount() * 4 + Pitch() * Height() );
 	bfHeader.bfType = 0x4D42;
 	bfHeader.bfReserved2 = 0;
 	bfHeader.bfReserved1 = 0;
-	bfHeader.bfOffBits = 54 + m_lpPalette->GetCount() * 4;
+	bfHeader.bfOffBits = (HE_UINT32)( 54 + m_lpPalette->GetCount() * 4 );
 
 	size_t lBytesReaded = fwrite( &(bfHeader.bfType), 1, sizeof(bfHeader.bfType), pfile );
 	lBytesReaded += fwrite( &(bfHeader.bfSize), 1, sizeof(bfHeader.bfSize), pfile );
@@ -582,13 +582,13 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 	}
 	HE_BITMAPINFOHEADER biHeader;
 	biHeader.biSize = 40;
-	biHeader.biWidth = m_lWidth;
+	biHeader.biWidth = (HE_INT32)m_lWidth;
 	HE_LONG lHeight = m_lHeight;
-	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (lHeight) : (-lHeight);
+	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (HE_INT32)(lHeight) : (HE_INT32)(-lHeight);
 	biHeader.biPlanes = 1;
 	biHeader.biBitCount = m_Depth;
 	biHeader.biCompression = m_Compression;
-	biHeader.biSizeImage = Pitch() * Height();
+	biHeader.biSizeImage = (HE_UINT32)( Pitch() * Height() );
 	biHeader.biXPelsPerMeter = 0;
 	biHeader.biYPelsPerMeter = 0;
 	biHeader.biClrUsed = 0;
@@ -656,13 +656,13 @@ HE_BOOL CHE_Bitmap::GetMemBitmapData( HE_LPBYTE buffer, HE_ULONG size )
 
 	HE_BITMAPINFOHEADER biHeader;
 	biHeader.biSize = 40;
-	biHeader.biWidth = m_lWidth;
+	biHeader.biWidth = (HE_INT32)m_lWidth;
 	HE_LONG lHeight = m_lHeight;
-	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (lHeight) : (-lHeight);
+	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (HE_INT32)(lHeight) : (HE_INT32)(-lHeight);
 	biHeader.biPlanes = 1;
 	biHeader.biBitCount = m_Depth;
 	biHeader.biCompression = m_Compression;
-	biHeader.biSizeImage = Pitch() * Height();
+	biHeader.biSizeImage = (HE_UINT32)( Pitch() * Height() );
 	biHeader.biXPelsPerMeter = 0;
 	biHeader.biYPelsPerMeter = 0;
 	biHeader.biClrUsed = 0;

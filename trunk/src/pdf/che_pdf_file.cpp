@@ -178,7 +178,7 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 		newTriailerDict->SetAtArray( "ID", mpParser->mIDArrayPtr->Clone() );
 	}
 
-	newTriailerDict->SetAtInteger( "Size", objCount );
+	newTriailerDict->SetAtInteger( "Size", (HE_INT32)objCount );
 
 	pCreator->OutPutTailerDict( newTriailerDict );
 
@@ -352,8 +352,8 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 
 						offset = tmpBuf.GetSize();
 						DictPtr->SetAtName( "Type", "ObjStm" );
-						DictPtr->SetAtInteger( "N", objInStmCount );
-						DictPtr->SetAtInteger( "First", offset );
+						DictPtr->SetAtInteger( "N", (HE_INT32)objInStmCount );
+						DictPtr->SetAtInteger( "First", (HE_INT32)offset );
 						StmPtr->SetDict( DictPtr );
 
 						tmpBuf.Write( dynBuffer );
@@ -413,8 +413,8 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 
 		offset = tmpBuf.GetSize();
 		DictPtr->SetAtName( "Type", "ObjStm" );
-		DictPtr->SetAtInteger( "N", objInStmCount );
-		DictPtr->SetAtInteger( "First", offset );
+		DictPtr->SetAtInteger( "N", (HE_INT32)objInStmCount );
+		DictPtr->SetAtInteger( "First", (HE_INT32)offset );
 		StmPtr->SetDict( DictPtr );
 
 		tmpBuf.Write( dynBuffer );
@@ -455,7 +455,7 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 	{
 		StmDictPtr->SetAtObj( "Info", ObjPtr->Clone() );
 	}
-	StmDictPtr->SetAtInteger( "Size", objCount );
+	StmDictPtr->SetAtInteger( "Size", (HE_INT32)objCount );
 	CHE_PDF_ArrayPtr ArrayPtr = CHE_PDF_Array::Create( GetAllocator() );
 	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)1, GetAllocator() ) );
 	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)3, GetAllocator() ) );

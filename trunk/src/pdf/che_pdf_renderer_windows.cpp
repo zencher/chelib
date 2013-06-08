@@ -328,7 +328,7 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 					CHE_PDF_Path * pPath = pText->GetGraphPath( j );
 					if ( pPath )
 					{
-						for ( HE_INT32 i = 0; i < pPath->mItems.size(); ++i )
+						for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
 						{
 							switch ( pPath->mItems[i].type )
 							{

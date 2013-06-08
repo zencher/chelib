@@ -110,7 +110,6 @@
 		90A01AEE1754EC43009DCBD9 /* che_pdf_document.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD81754EC43009DCBD9 /* che_pdf_document.h */; };
 		90A01AEF1754EC43009DCBD9 /* che_pdf_font.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD91754EC43009DCBD9 /* che_pdf_font.h */; };
 		90A01AF01754EC43009DCBD9 /* che_pdf_fontmgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADA1754EC43009DCBD9 /* che_pdf_fontmgr.h */; };
-		90A01AF11754EC43009DCBD9 /* che_pdf_graphics.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADB1754EC43009DCBD9 /* che_pdf_graphics.h */; };
 		90A01AF21754EC43009DCBD9 /* che_pdf_graphicsstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADC1754EC43009DCBD9 /* che_pdf_graphicsstate.h */; };
 		90A01AF31754EC43009DCBD9 /* che_pdf_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADD1754EC43009DCBD9 /* che_pdf_image.h */; };
 		90A01AF41754EC43009DCBD9 /* che_pdf_objclone.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADE1754EC43009DCBD9 /* che_pdf_objclone.h */; };
@@ -128,7 +127,6 @@
 		90A01B131754EC65009DCBD9 /* che_pdf_font_type1base14.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B001754EC65009DCBD9 /* che_pdf_font_type1base14.cpp */; };
 		90A01B141754EC65009DCBD9 /* che_pdf_font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B011754EC65009DCBD9 /* che_pdf_font.cpp */; };
 		90A01B151754EC65009DCBD9 /* che_pdf_fontmgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B021754EC65009DCBD9 /* che_pdf_fontmgr.cpp */; };
-		90A01B161754EC65009DCBD9 /* che_pdf_graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B031754EC65009DCBD9 /* che_pdf_graphics.cpp */; };
 		90A01B171754EC65009DCBD9 /* che_pdf_graphicsstate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B041754EC65009DCBD9 /* che_pdf_graphicsstate.cpp */; };
 		90A01B181754EC65009DCBD9 /* che_pdf_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B051754EC65009DCBD9 /* che_pdf_image.cpp */; };
 		90A01B1A1754EC65009DCBD9 /* che_pdf_objclone.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B071754EC65009DCBD9 /* che_pdf_objclone.cpp */; };
@@ -287,7 +285,6 @@
 		90A01AD81754EC43009DCBD9 /* che_pdf_document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_document.h; path = ../../include/pdf/che_pdf_document.h; sourceTree = "<group>"; };
 		90A01AD91754EC43009DCBD9 /* che_pdf_font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_font.h; path = ../../include/pdf/che_pdf_font.h; sourceTree = "<group>"; };
 		90A01ADA1754EC43009DCBD9 /* che_pdf_fontmgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_fontmgr.h; path = ../../include/pdf/che_pdf_fontmgr.h; sourceTree = "<group>"; };
-		90A01ADB1754EC43009DCBD9 /* che_pdf_graphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_graphics.h; path = ../../include/pdf/che_pdf_graphics.h; sourceTree = "<group>"; };
 		90A01ADC1754EC43009DCBD9 /* che_pdf_graphicsstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_graphicsstate.h; path = ../../include/pdf/che_pdf_graphicsstate.h; sourceTree = "<group>"; };
 		90A01ADD1754EC43009DCBD9 /* che_pdf_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_image.h; path = ../../include/pdf/che_pdf_image.h; sourceTree = "<group>"; };
 		90A01ADE1754EC43009DCBD9 /* che_pdf_objclone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_objclone.h; path = ../../include/pdf/che_pdf_objclone.h; sourceTree = "<group>"; };
@@ -305,7 +302,6 @@
 		90A01B001754EC65009DCBD9 /* che_pdf_font_type1base14.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_font_type1base14.cpp; path = ../../src/pdf/che_pdf_font_type1base14.cpp; sourceTree = "<group>"; };
 		90A01B011754EC65009DCBD9 /* che_pdf_font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_font.cpp; path = ../../src/pdf/che_pdf_font.cpp; sourceTree = "<group>"; };
 		90A01B021754EC65009DCBD9 /* che_pdf_fontmgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_fontmgr.cpp; path = ../../src/pdf/che_pdf_fontmgr.cpp; sourceTree = "<group>"; };
-		90A01B031754EC65009DCBD9 /* che_pdf_graphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_graphics.cpp; path = ../../src/pdf/che_pdf_graphics.cpp; sourceTree = "<group>"; };
 		90A01B041754EC65009DCBD9 /* che_pdf_graphicsstate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_graphicsstate.cpp; path = ../../src/pdf/che_pdf_graphicsstate.cpp; sourceTree = "<group>"; };
 		90A01B051754EC65009DCBD9 /* che_pdf_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_image.cpp; path = ../../src/pdf/che_pdf_image.cpp; sourceTree = "<group>"; };
 		90A01B071754EC65009DCBD9 /* che_pdf_objclone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_objclone.cpp; path = ../../src/pdf/che_pdf_objclone.cpp; sourceTree = "<group>"; };
@@ -460,7 +456,6 @@
 				90A01B011754EC65009DCBD9 /* che_pdf_font.cpp */,
 				90A01B001754EC65009DCBD9 /* che_pdf_font_type1base14.cpp */,
 				90A01B021754EC65009DCBD9 /* che_pdf_fontmgr.cpp */,
-				90A01B031754EC65009DCBD9 /* che_pdf_graphics.cpp */,
 				90A01B041754EC65009DCBD9 /* che_pdf_graphicsstate.cpp */,
 				90A01B051754EC65009DCBD9 /* che_pdf_image.cpp */,
 				90A01B071754EC65009DCBD9 /* che_pdf_objclone.cpp */,
@@ -496,7 +491,6 @@
 				909E116E175447F900540539 /* che_pdf_filter.h */,
 				90A01AD91754EC43009DCBD9 /* che_pdf_font.h */,
 				90A01ADA1754EC43009DCBD9 /* che_pdf_fontmgr.h */,
-				90A01ADB1754EC43009DCBD9 /* che_pdf_graphics.h */,
 				90A01ADC1754EC43009DCBD9 /* che_pdf_graphicsstate.h */,
 				90A01ADD1754EC43009DCBD9 /* che_pdf_image.h */,
 				90A01ADE1754EC43009DCBD9 /* che_pdf_objclone.h */,
@@ -746,7 +740,6 @@
 				90A01AEE1754EC43009DCBD9 /* che_pdf_document.h in Headers */,
 				90A01AEF1754EC43009DCBD9 /* che_pdf_font.h in Headers */,
 				90A01AF01754EC43009DCBD9 /* che_pdf_fontmgr.h in Headers */,
-				90A01AF11754EC43009DCBD9 /* che_pdf_graphics.h in Headers */,
 				90A01AF21754EC43009DCBD9 /* che_pdf_graphicsstate.h in Headers */,
 				90A01AF31754EC43009DCBD9 /* che_pdf_image.h in Headers */,
 				90A01AF41754EC43009DCBD9 /* che_pdf_objclone.h in Headers */,
@@ -953,7 +946,6 @@
 				90A01B131754EC65009DCBD9 /* che_pdf_font_type1base14.cpp in Sources */,
 				90A01B141754EC65009DCBD9 /* che_pdf_font.cpp in Sources */,
 				90A01B151754EC65009DCBD9 /* che_pdf_fontmgr.cpp in Sources */,
-				90A01B161754EC65009DCBD9 /* che_pdf_graphics.cpp in Sources */,
 				90A01B171754EC65009DCBD9 /* che_pdf_graphicsstate.cpp in Sources */,
 				90A01B181754EC65009DCBD9 /* che_pdf_image.cpp in Sources */,
 				90A01B1A1754EC65009DCBD9 /* che_pdf_objclone.cpp in Sources */,
@@ -1095,6 +1087,7 @@
 		90C37C9317534E58005D9C8A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
@@ -1103,13 +1096,14 @@
 				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		90C37C9417534E58005D9C8A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
@@ -1118,7 +1112,7 @@
 				PRIVATE_HEADERS_FOLDER_PATH = /usr/local/include;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PUBLIC_HEADERS_FOLDER_PATH = /usr/local/include;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};
@@ -1151,16 +1145,20 @@
 		90C53760175881B40014AC65 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		90C53761175881B40014AC65 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};

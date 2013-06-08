@@ -218,7 +218,7 @@ HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encr
 		{
 			docId[j] = static_cast<unsigned char>( m_ID[j] );
 		}
-		md5.Update( docId, m_ID.GetLength() );
+		md5.Update( docId, (HE_INT32)m_ID.GetLength() );
 	}
 
 	if ( m_bMetaData == FALSE && m_revision >= 4 )
@@ -237,7 +237,7 @@ HE_VOID CHE_PDF_Encrypt::ComputeEncryptionKey( HE_BYTE userPad[32], HE_BYTE encr
 		for ( HE_ULONG k = 0; k < 50; k++ )
 		{
 			md5.Init();
-			md5.Update( encryptionKeyRet, keyLengthInByte );
+			md5.Update( encryptionKeyRet, (HE_INT32)keyLengthInByte );
 			md5.Final( encryptionKeyRet );
 		}
 	}
@@ -261,7 +261,7 @@ HE_VOID CHE_PDF_Encrypt::ComputeUserKey( HE_BYTE encryptionKey[16], HE_BYTE user
 			{
 				docId[j] = static_cast<unsigned char>( m_ID[j] );
 			}
-			md5.Update( docId, m_ID.GetLength() );
+			md5.Update( docId, (HE_INT32)m_ID.GetLength() );
 			GetAllocator()->DeleteArray<HE_BYTE>( docId );
 		}
 
@@ -413,7 +413,7 @@ HE_ULONG CHE_PDF_Encrypt::AESEncrypt( HE_LPBYTE key, HE_ULONG keyLength, HE_LPBY
 		dataRet[i] = key[i];
 	}
 	aes.init( CHE_CRYPT_Rijndael::CBC, CHE_CRYPT_Rijndael::Encrypt, key, CHE_CRYPT_Rijndael::Key16Bytes, dataRet );
-	HE_INT32 len = aes.padEncrypt( data, dataLength, &dataRet[16] );
+	HE_INT32 len = aes.padEncrypt( data, (HE_INT32)dataLength, &dataRet[16] );
 	if ( len < 0 )
 	{
 		return 0;
@@ -431,7 +431,7 @@ HE_ULONG CHE_PDF_Encrypt::AESDecrypt( HE_LPBYTE key, HE_ULONG keyLength, HE_LPBY
 		vector[i] = data[i];
 	}
 	aes.init( CHE_CRYPT_Rijndael::CBC, CHE_CRYPT_Rijndael::Decrypt, key, CHE_CRYPT_Rijndael::Key16Bytes, vector );
-	HE_INT32 len = aes.padDecrypt( &data[16], dataLength-16, dataRet );
+	HE_INT32 len = aes.padDecrypt( &data[16], (HE_INT32)(dataLength-16), dataRet );
 	if ( len < 0 )
 	{
 		return 0;

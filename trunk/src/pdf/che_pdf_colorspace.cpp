@@ -15,18 +15,18 @@ HE_BOOL CHE_PDF_ColorSpace::IsDeviceColorSpace()
 	return FALSE;;
 }
 
-HE_ULONG CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
+HE_UINT32 CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 {
 	switch ( mType )
 	{
 	case COLORSPACE_DEVICE_GRAY:
 	case COLORSPACE_CIEBASE_CALGRAY:
 		{
-			HE_ULONG valRet = 0xFF000000;
-			HE_ULONG tmpByte = 0x00;
+			HE_UINT32 valRet = 0xFF000000;
+			HE_UINT32 tmpByte = 0x00;
 			if ( color.mConponents.size() >= 1 )
 			{
-				tmpByte = color.mConponents[0] * 255;
+				tmpByte = (HE_UINT32)( color.mConponents[0] * 255 );
 				valRet = valRet | tmpByte | tmpByte << 8 | tmpByte << 16;
 			}
 			return valRet;
@@ -34,15 +34,15 @@ HE_ULONG CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 	case COLORSPACE_DEVICE_RGB:
 	case COLORSPACE_CIEBASE_CALRGB:
 		{
-			HE_ULONG valRet = 0xFF000000;
-			HE_ULONG tmpByte1 = 0x00;
-			HE_ULONG tmpByte2 = 0x00;
-			HE_ULONG tmpByte3 = 0x00;
+			HE_UINT32 valRet = 0xFF000000;
+			HE_UINT32 tmpByte1 = 0x00;
+			HE_UINT32 tmpByte2 = 0x00;
+			HE_UINT32 tmpByte3 = 0x00;
 			if ( color.mConponents.size() >= 3 )
 			{
-				tmpByte1 = color.mConponents[0] * 255;
-				tmpByte2 = color.mConponents[1] * 255;
-				tmpByte3 = color.mConponents[2] * 255;
+				tmpByte1 = (HE_UINT32)( color.mConponents[0] * 255 );
+				tmpByte2 = (HE_UINT32)( color.mConponents[1] * 255 );
+				tmpByte3 = (HE_UINT32)( color.mConponents[2] * 255 );
 				valRet = valRet | tmpByte1 << 16 | tmpByte2 << 8 | tmpByte3;
 			}
 			return valRet;
@@ -57,15 +57,15 @@ HE_ULONG CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
 				bgr[1] = ( 1 < color.mConponents[1] + color.mConponents[3] ) ? color.mConponents[1] + color.mConponents[3] : 1;
 				bgr[2] = ( 1 < color.mConponents[0] + color.mConponents[3] ) ? color.mConponents[0] + color.mConponents[3] : 1;
 				
-				HE_ULONG valRet = 0xFF000000;
-				HE_ULONG tmpByte1 = 0x00;
-				HE_ULONG tmpByte2 = 0x00;
-				HE_ULONG tmpByte3 = 0x00;
+				HE_UINT32 valRet = 0xFF000000;
+				HE_UINT32 tmpByte1 = 0x00;
+				HE_UINT32 tmpByte2 = 0x00;
+				HE_UINT32 tmpByte3 = 0x00;
 				if ( color.mConponents.size() >= 3 )
 				{
-					tmpByte1 = bgr[0] * 255;
-					tmpByte2 = bgr[1] * 255;
-					tmpByte3 = bgr[2] * 255;
+					tmpByte1 = (HE_UINT32)( bgr[0] * 255 );
+					tmpByte2 = (HE_UINT32)( bgr[1] * 255 );
+					tmpByte3 = (HE_UINT32)( bgr[2] * 255 );
 					valRet = valRet | tmpByte1 << 16 | tmpByte2 << 8 | tmpByte3;
 				}
 				return valRet;

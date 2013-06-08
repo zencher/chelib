@@ -11,7 +11,7 @@
 #define pdf_range_set_high(r, h) ((r)->extent_flags = (((r)->extent_flags & 3) | ((h - (r)->low) << 2)))
 #define pdf_range_set_flags(r, f) ((r)->extent_flags = (((r)->extent_flags & ~3) | f))
 
-const struct { HE_CHAR * name; PDF_CMAP * cmap; } cmap_table[] =
+const struct { const HE_CHAR * name; PDF_CMAP * cmap; } cmap_table[] =
 {
 	{"78-EUC-H",&CMap_78_EUC_H},
 	{"78-EUC-V",&CMap_78_EUC_V},

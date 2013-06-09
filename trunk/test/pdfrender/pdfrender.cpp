@@ -55,7 +55,13 @@ void RenderPage( HWND hwnd )
 // 	clipRect.bottom = 100;//rect.height /4;
 // 	clipRect.width = 200;//rect.width / 2;
 // 	clipRect.height = 200;//rect.height / 2;
-	gpDrawer = new CHE_GraphicsDrawer( GetDC(hwnd), gPageWidth, gPageHeight );
+
+	if ( gpDrawer == NULL )
+	{
+		gpDrawer = new CHE_GraphicsDrawer( GetDC(hwnd), gPageWidth, gPageHeight );
+	}else{
+		gpDrawer->Resize( gPageWidth, gPageHeight );
+	}
 	CHE_PDF_ContentObjectList contentObjList;
 	QueryPerformanceCounter( &gBegin );
 	GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );

@@ -1,5 +1,5 @@
-#ifndef _CHE_PDF_GRAPHICS_STATE_H_
-#define _CHE_PDF_GRAPHICS_STATE_H_
+#ifndef _CHE_PDF_GSTATE_H_
+#define _CHE_PDF_GSTATE_H_
 
 #include "../che_graphics.h"
 #include "che_pdf_colorspace.h"

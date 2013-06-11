@@ -302,7 +302,7 @@ HE_VOID CHE_GraphicsDrawer::SetLineWidth( const HE_FLOAT & lineWidth )
 {
 	if ( m_pPen )
 	{
-		m_pPen->SetWidth( lineWidth + 0.01 );
+		m_pPen->SetWidth( lineWidth );
 	}
 	mLineWidth = lineWidth;
 }

@@ -86,12 +86,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_graphics.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_graphicsState.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
@@ -167,6 +161,12 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer_windows.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_function.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -236,12 +236,6 @@
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_graphics.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_graphicsstate.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp">
@@ -407,6 +401,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer_windows.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_function.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
   </ItemGroup>

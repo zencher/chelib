@@ -43,7 +43,7 @@ public:
 // 	inline HE_ULONG		GetStrokeColor() const;
 	 HE_FLOAT		GetDashPhase() const;
  	 GRAPHICS_STATE_LINECAP		GetLineCap() const;
- 	 GRAPHICS_STATE_LINEJOIN		GetLineJion() const;
+ 	 GRAPHICS_STATE_LINEJOIN	GetLineJion() const;
 // 	inline GRAPHICS_STATE_DASHPATTERN	GetLineDash() const;
 
 	//path & clip operations

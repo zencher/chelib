@@ -2,7 +2,7 @@
 #define _CHE_PDF_CONTENTOBJS_H_
 
 #include "../che_base.h"
-#include "che_pdf_graphicsstate.h"
+#include "che_pdf_gstate.h"
 #include "che_pdf_font.h"
 #include "che_pdf_contentresmgr.h"
 #include <vector>

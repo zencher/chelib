@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_graphicsstate.h"
+#include "../../include/pdf/che_pdf_gstate.h"
 #include "../../include/pdf/che_pdf_contentobjs.h"
 
 CHE_PDF_StrokeState * CHE_PDF_StrokeState::Clone() const

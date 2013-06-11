@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_contents.h"
-#include "../../include/pdf/che_pdf_graphicsstate.h"
+#include "../../include/pdf/che_pdf_gstate.h"
 
 
 #define A(a)		(a)

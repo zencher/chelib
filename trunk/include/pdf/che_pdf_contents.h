@@ -5,7 +5,7 @@
 #include "../che_datastructure.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_parser.h"
-#include "che_pdf_graphicsState.h"
+#include "che_pdf_gstate.h"
 #include "che_pdf_contentobjs.h"
 #include "che_pdf_fontmgr.h"
 

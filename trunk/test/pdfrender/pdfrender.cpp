@@ -1,10 +1,9 @@
 ﻿#include <windows.h>
 #include <GdiPlus.h>
 
-#include "../../include/pdf/che_pdf_graphics.h"
-#include "../../include/pdf/che_pdf_renderer_windows.h"
 #include "../../include/pdf/che_pdf_contents.h"
 #include "../../include/pdf/che_pdf_document.h"
+#include "../../include/pdf/che_pdf_renderer_windows.h"
 
 using namespace Gdiplus;
 LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );

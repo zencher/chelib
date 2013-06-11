@@ -222,8 +222,7 @@ HE_VOID CHE_GraphicsDrawer::ClipPath()
 	}
 	if ( m_pathToDraw.GetPointCount() > 0 )
 	{
-		Gdiplus::Region reg( &m_pathToDraw );
-		m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
+		m_pGraphics->SetClip( &m_pathToDraw, Gdiplus::CombineModeIntersect );
 		m_pathToDraw.Reset();
 	}
 }
@@ -238,8 +237,7 @@ HE_VOID	CHE_GraphicsDrawer::FillClipPath()
 	if ( m_pathToDraw.GetPointCount() > 0 )
 	{
 		m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
-		Gdiplus::Region reg( &m_pathToDraw );
-		m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
+		m_pGraphics->SetClip( &m_pathToDraw, Gdiplus::CombineModeIntersect );
 		m_pathToDraw.Reset();
 	}
 }
@@ -254,8 +252,7 @@ HE_VOID	CHE_GraphicsDrawer::StrokeClipPath()
 	if ( m_pathToDraw.GetPointCount() > 0 )
 	{
 		m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
-		Gdiplus::Region reg( &m_pathToDraw );
-		m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
+		m_pGraphics->SetClip( &m_pathToDraw, Gdiplus::CombineModeIntersect );
 		m_pathToDraw.Reset();
 	}
 }
@@ -271,8 +268,7 @@ HE_VOID	CHE_GraphicsDrawer::FillStrokeClipPath()
 	{
 		m_pGraphics->FillPath( m_pBrush, &m_pathToDraw );
 		m_pGraphics->DrawPath( m_pPen, &m_pathToDraw );
-		Gdiplus::Region reg( &m_pathToDraw );
-		m_pGraphics->SetClip( &reg, Gdiplus::CombineModeIntersect );
+		m_pGraphics->SetClip( &m_pathToDraw, Gdiplus::CombineModeIntersect );
 		m_pathToDraw.Reset();
 	}	
 }

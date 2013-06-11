@@ -172,6 +172,11 @@ public:
 		mTextYOffset += yOffset;
 	}
 
+	HE_VOID State_TextObject( CHE_PDF_ObjectPtr objPtr )
+	{
+		mTextObj = objPtr;
+	}
+
 	HE_VOID Operator_Td( const HE_FLOAT & tx, const HE_FLOAT & ty )
 	{
 		CHE_Matrix matrix, tmpMatrix;
@@ -222,7 +227,7 @@ public:
 	{
 		if ( pObject && ( pObject->GetType() == ContentType_Path || pObject->GetType() == ContentType_Text ) )
 		{
-			CHE_PDF_GState * pGState = mpGState->Clone();
+			CHE_PDF_GState * pGState = GetGState()->Clone();
 			pObject->SetGState( pGState );
 			GetGState()->PushClipElement( pObject );
 		}
@@ -236,15 +241,16 @@ public:
 			{
 			case ContentType_Text:
 				{
-					CHE_PDF_GState * pGState = mpGState->Clone();
 					CHE_Matrix textMatrix;
-					pGState->GetTextMatrix( textMatrix );
+					mpGState->GetTextMatrix( textMatrix );
 					CHE_Matrix tmpMatrix;
 					tmpMatrix.e = mTextXOffset;
 					tmpMatrix.f = mTextYOffset;
 					tmpMatrix.Concat( textMatrix );
-					pGState->SetTextMatrix( tmpMatrix );
-					pObject->SetGState( pGState );
+					mpGState->SetTextMatrix( tmpMatrix );
+					pObject->SetGState( mpGState->Clone() );
+					CHE_PDF_Text * pText = (CHE_PDF_Text*)( pObject );
+					pText->SetTextObject( mTextObj );
 					GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
 					mpGState->GetTextRenderMode( rm );
 					switch ( rm )
@@ -254,7 +260,7 @@ public:
 					case TextRenderMode_FillStrokeClip:
 					case TextRenderMode_Clip:
 						{
-							Operator_Clip( pObject );
+							Operator_Clip( pObject->Clone() );
 							break;
 						}
 					case TextRenderMode_Invisible:
@@ -283,7 +289,6 @@ public:
 				return;
 			}
 			mpList->Append( pObject );
-
 			CHE_Matrix tmpMatrix = pObject->GetExtMatrix();
 			tmpMatrix.Concat( mExtMatrix );
 			pObject->SetExtMatrix( tmpMatrix );
@@ -343,6 +348,7 @@ private:
 	HE_FLOAT mTextLeading;
 	HE_FLOAT mTextXOffset;
 	HE_FLOAT mTextYOffset;
+	CHE_PDF_ObjectPtr mTextObj;
 };
 
 HE_BOOL GetPageContent( CHE_PDF_DictionaryPtr & pageDict, CHE_PDF_ContentObjectList * pList, CHE_PDF_FontMgr * pFontMgr, CHE_Allocator * pAllocator = NULL );

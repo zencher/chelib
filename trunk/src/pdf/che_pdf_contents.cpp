@@ -363,8 +363,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_dquote()
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
+		mpConstructor->State_TextObject( mpObj );
 		mpConstructor->Operator_Append( pText );
-		pText->SetTextObject( mpObj );
 	}
 	mpConstructor->State_ResetTextOffset();
 }
@@ -375,8 +375,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_squote()
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
+		mpConstructor->State_TextObject( mpObj );
 		mpConstructor->Operator_Append( pText );
-		pText->SetTextObject( mpObj );
 	}
 	mpConstructor->State_ResetTextOffset();
 }
@@ -974,8 +974,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_TJ()
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
+		mpConstructor->State_TextObject( mpObj );
 		mpConstructor->Operator_Append( pText );
-		pText->SetTextObject( mpObj );
 		mpConstructor->State_TextOffset( pText->GetOffSet(), 0 );
 	}
 }
@@ -1034,8 +1034,8 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tj()
 	if ( mpObj )
 	{
 		CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
+		mpConstructor->State_TextObject( mpObj );
 		mpConstructor->Operator_Append( pText );
-		pText->SetTextObject( mpObj );
 		mpConstructor->State_TextOffset( pText->GetOffSet(), 0  );
 	}
 }

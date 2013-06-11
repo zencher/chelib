@@ -167,7 +167,7 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 								}
 							case PathItem_Close:
 								{
-									drawer.ClosePath();
+									//drawer.ClosePath();
 									i+=1;
 									break;
 								}
@@ -175,7 +175,7 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 								break;
 							}
 						}
-						drawer.ClosePath();
+						//drawer.ClosePath();
 						pPath->GetAllocator()->Delete( pPath );
 					}
 				}
@@ -321,88 +321,105 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 			}
 		case ContentType_Text:
 			{
-				drawer.SetMatrix( CHE_Matrix() );
-				CHE_PDF_Text * pText = (CHE_PDF_Text*)(*it);
-				for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
+				GRAPHICS_STATE_TEXTRENDERMODE rm;
+				pGState->GetTextRenderMode( rm );
+				switch( rm )
 				{
-					CHE_PDF_Path * pPath = pText->GetGraphPath( j );
-					if ( pPath )
+				case TextRenderMode_Fill:
+				case TextRenderMode_FillClip:
+				case TextRenderMode_FillStroke:
+				case TextRenderMode_Stroke:
+				case TextRenderMode_StrokeClip:
+				case TextRenderMode_FillStrokeClip:
 					{
-						for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
+						drawer.SetMatrix( CHE_Matrix() );
+						CHE_PDF_Text * pText = (CHE_PDF_Text*)(*it);
+						for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
 						{
-							switch ( pPath->mItems[i].type )
+							CHE_PDF_Path * pPath = pText->GetGraphPath( j );
+							if ( pPath )
 							{
-							case PathItem_MoveTo:
+								for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
 								{
-									drawer.MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-									i+=2;
-									break;
+									switch ( pPath->mItems[i].type )
+									{
+									case PathItem_MoveTo:
+										{
+											drawer.MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+											i+=2;
+											break;
+										}
+									case PathItem_LineTo:
+										{
+											drawer.LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+											i+=2;
+											break;
+										}
+									case PathItem_CurveTo:
+										{
+											drawer.CurveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value,
+												pPath->mItems[i+3].value, pPath->mItems[i+4].value,
+												pPath->mItems[i+5].value, pPath->mItems[i+6].value );
+											i+=6;
+											break;
+										}
+									case PathItem_Rectangle:
+										{
+											drawer.MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+											drawer.LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
+											drawer.LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
+											drawer.LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
+											drawer.ClosePath();
+											i+=4;
+											break;
+										}
+									case PathItem_Close:
+										{
+											drawer.ClosePath();
+											i+=1;
+											break;
+										}
+									default:
+										break;
+									}
 								}
-							case PathItem_LineTo:
-								{
-									drawer.LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-									i+=2;
-									break;
-								}
-							case PathItem_CurveTo:
-								{
-									drawer.CurveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value,
-										pPath->mItems[i+3].value, pPath->mItems[i+4].value,
-										pPath->mItems[i+5].value, pPath->mItems[i+6].value );
-									i+=6;
-									break;
-								}
-							case PathItem_Rectangle:
-								{
-									drawer.MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-									drawer.LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
-									drawer.LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-									drawer.LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-									drawer.ClosePath();
-									i+=4;
-									break;
-								}
-							case PathItem_Close:
-								{
-									drawer.ClosePath();
-									i+=1;
-									break;
-								}
-							default:
-								break;
+								//drawer.ClosePath();
+								pPath->GetAllocator()->Delete( pPath );
 							}
 						}
-						drawer.ClosePath();
-						GRAPHICS_STATE_TEXTRENDERMODE rm;
-						pGState->GetTextRenderMode( rm );
-						switch( rm )
-						{
-						case TextRenderMode_Fill:
-							drawer.FillPath();
-							break;
-						case TextRenderMode_Stroke:
-							drawer.StrokePath();
-							break;
-						case TextRenderMode_FillStroke:
-							drawer.FillStrokePath();
-							break;
-						case TextRenderMode_Invisible:
-							break;
-						case TextRenderMode_FillClip:
-							drawer.FillClipPath();
-							break;
-						case TextRenderMode_StrokeClip:
-							drawer.StrokeClipPath();
-							break;
-						case TextRenderMode_FillStrokeClip:
-							drawer.FillStrokeClipPath();
-							break;
-						case TextRenderMode_Clip:
-							drawer.ClipPath();
-							break;
-						}
-						pPath->GetAllocator()->Delete( pPath );
+						break;
 					}
+				default:
+					break;
+				}
+				switch( rm )
+				{
+				case TextRenderMode_Fill:
+					drawer.FillPath();
+					break;
+				case TextRenderMode_Stroke:
+					drawer.StrokePath();
+					break;
+				case TextRenderMode_FillStroke:
+					drawer.FillStrokePath();
+					break;
+				case TextRenderMode_Invisible:
+					break;
+				case TextRenderMode_FillClip:
+					drawer.FillPath();
+					//drawer.FillClipPath();
+					break;
+				case TextRenderMode_StrokeClip:
+					drawer.StrokePath();
+					//drawer.StrokeClipPath();
+					break;
+				case TextRenderMode_FillStrokeClip:
+					drawer.StrokePath();
+					//drawer.FillStrokeClipPath();
+					break;
+				case TextRenderMode_Clip:
+					//drawer.ClipPath();
+					break;
 				}
 				break;
 			}

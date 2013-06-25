@@ -4,7 +4,7 @@
 #define A(a)		(a)
 #define B(a,b)		(a | b<<8)
 #define C(a,b,c)	(a | b<<8 | c<<16)
-#define D(a,b,c,d)	(a | b<<8 | c<<16 d<<24)
+#define D(a,b,c,d)	(a | b<<8 | c<<16 | d<<24)
 
 HE_ULONG StringToDWORD( CHE_ByteString & str )
 {
@@ -26,14 +26,9 @@ HE_ULONG StringToDWORD( CHE_ByteString & str )
 	return valRet;
 }
 
-CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_ReferencePtr refPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
-	if ( !stmPtr )
-	{
-		return NULL;
-	}
-	CHE_PDF_DictionaryPtr dict = stmPtr->GetDictPtr();
-	if ( !dict )
+	if ( !refPtr )
 	{
 		return NULL;
 	}
@@ -43,21 +38,49 @@ CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_StreamPtr stmPtr, CHE_Alloc
 	}
 
 	CHE_PDF_Function * pTmp = NULL;
-	CHE_PDF_ObjectPtr objPtr = dict->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
+	CHE_PDF_DictionaryPtr dictPtr;
+	CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj( OBJ_TYPE_DICTIONARY );
 	if ( objPtr )
 	{
-		switch( objPtr->GetNumberPtr()->GetInteger() )
+		dictPtr = objPtr->GetDictPtr();
+		objPtr = dictPtr->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
+		if ( objPtr )
 		{
-		case 0:
-			pTmp = pAllocator->New<CHE_PDF_Function_Sampled>( stmPtr, pAllocator );
-			break;
-		case 2:
-			pTmp = pAllocator->New<CHE_PDF_Function_Exponential>( stmPtr, pAllocator );
-			break;
-		case 3:
-			break;
-		case 4:
-			break;
+			switch( objPtr->GetNumberPtr()->GetInteger() )
+			{
+			case 2:
+				pTmp = pAllocator->New<CHE_PDF_Function_Exponential>( dictPtr, pAllocator );
+				break;
+			case 3:
+				pTmp = pAllocator->New<CHE_PDF_Function_Stitching>( dictPtr, pAllocator );
+				break;
+			default:;
+			}
+		}
+	}else{
+		objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
+		if ( objPtr )
+		{
+			CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+			dictPtr = stmPtr->GetDictPtr();
+			if ( dictPtr )
+			{
+				objPtr = dictPtr->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					;
+					switch( objPtr->GetNumberPtr()->GetInteger() )
+					{
+					case 0:
+						pTmp = pAllocator->New<CHE_PDF_Function_Sampled>( stmPtr, pAllocator );
+						break;
+					case 4:
+						pTmp = pAllocator->New<CHE_PDF_Function_PostScript>( stmPtr, pAllocator );
+						break;
+					default:;
+					}
+				}
+			}
 		}
 	}
 	return pTmp;
@@ -146,7 +169,7 @@ CHE_PDF_Function::CHE_PDF_Function( CHE_PDF_DictionaryPtr dict, CHE_Allocator * 
 			{
 				mpDomain[i] = objPtr->GetNumberPtr()->GetFloat();
 			}else{
-				mpDomain[i] = 0f;
+				mpDomain[i] = 0.0f;
 			}
 		}
 	}
@@ -164,14 +187,14 @@ CHE_PDF_Function::CHE_PDF_Function( CHE_PDF_DictionaryPtr dict, CHE_Allocator * 
 			{
 				mpRange[i] = objPtr->GetNumberPtr()->GetFloat();
 			}else{
-				mpRange[i] = 0f;
+				mpRange[i] = 0.0f;
 			}
 		}
 	}
 }
 
 CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( dict, pAllocator ), mBps(1), mOrder(1), mpSize(NULL), mpEncode(NULL), mpDecode(NULL), mpSample(NULL)
+	: CHE_PDF_Function( stmPtr->GetDictPtr(), pAllocator ), mBps(1), mOrder(1), mpSize(NULL), mpEncode(NULL), mpDecode(NULL), mpSample(NULL)
 {
 	CHE_PDF_DictionaryPtr dict = stmPtr->GetDictPtr();
 	CHE_PDF_ObjectPtr objPtr = dict->GetElement( "BitsPerSample", OBJ_TYPE_NUMBER );
@@ -270,16 +293,16 @@ CHE_PDF_Function_Sampled::~CHE_PDF_Function_Sampled()
 	}
 }
 
-CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
+CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator )
+	: CHE_PDF_Function( dictPtr, pAllocator )
 {
-	CHE_PDF_DictionaryPtr dict = stmPtr->GetDictPtr();
-	CHE_PDF_ObjectPtr objPtr = dict->GetElement( "N", OBJ_TYPE_NUMBER );
+	CHE_PDF_ObjectPtr objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
 	if ( objPtr )
 	{
 		mN = objPtr->GetNumberPtr()->GetInteger();
 	}
 
-	objPtr = dict->GetElement( "C0", OBJ_TYPE_ARRAY );
+	objPtr = dictPtr->GetElement( "C0", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
@@ -291,12 +314,12 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( CHE_PDF_StreamPtr st
 			{
 				mpC0[i] = objPtr->GetNumberPtr()->GetFloat();
 			}else{
-				mpC0[i] = 0f;
+				mpC0[i] = 0.0f;
 			}
 		}
 	}
 
-	objPtr = dict->GetElement( "C1", OBJ_TYPE_ARRAY );
+	objPtr = dictPtr->GetElement( "C1", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
@@ -308,7 +331,7 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( CHE_PDF_StreamPtr st
 			{
 				mpC1[i] = objPtr->GetNumberPtr()->GetFloat();
 			}else{
-				mpC1[i] = 0f;
+				mpC1[i] = 0.0f;
 			}
 		}
 	}
@@ -328,8 +351,8 @@ CHE_PDF_Function_Exponential::~CHE_PDF_Function_Exponential()
 	}
 }
 
-CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( stmPtr, pAllocator ), mK(0), mpBounds(NULL), mpEncode(NULL)
+CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator )
+	: CHE_PDF_Function( dictPtr, pAllocator ), mK(0), mpBounds(NULL), mpEncode(NULL)
 {
 	//todo
 }
@@ -340,6 +363,7 @@ CHE_PDF_Function_Stitching::~CHE_PDF_Function_Stitching()
 }
 
 CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
+	: CHE_PDF_Function( stmPtr->GetDictPtr(), pAllocator )
 {
 	CHE_PDF_StreamAcc stmAcc;
 	if ( stmAcc.Attach( stmPtr ) )
@@ -372,7 +396,7 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 						case C( 'e', 'x', 'p' ):
 						case D( 'f', 'l', 'o', 'o' ): //floor
 						case D( 'i', 'd', 'i', 'v' ):
-						case B( 'l', 'n' );
+						case B( 'l', 'n' ):
 						case C( 'l', 'o', 'g' ):
 						case C( 'm', 'o', 'd' ):
 						case C( 'm', 'u', 'l' ):
@@ -398,13 +422,13 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 						case B( 'i', 'f' ):
 						case D( 'i', 'f', 'e', 'l' ): //ifelse
 						case D( 'c', 'o', 'p', 'y' ):
-						case C( 'x', 'o', 'r' ):
 						case C( 'd', 'u', 'p' ):
 						case D( 'e', 'x', 'c', 'h' ):
 						case D( 'i', 'n', 'd', 'e' ): //index
 						case C( 'p', 'o', 'p' ):
 						case D( 'r', 'o', 'l', 'l' ):
 						default:
+							break;
 						}
 						break;
 					}
@@ -416,9 +440,8 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 	}
 }
 
-CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
+CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()
 {
-
 }
 
 

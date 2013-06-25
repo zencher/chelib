@@ -1,6 +1,9 @@
 #ifndef _CHE_PDF_FUNCTION_H_
 #define _CHE_PDF_FUNCTION_H_
 
+#include "../che_base.h"
+#include "che_pdf_objects.h"
+
 enum PDF_FUNCTION_TYPE
 {
 	FUNCTION_TYPE_SAMPLE		= 0,
@@ -58,7 +61,7 @@ enum PDF_FUNCTION_TYPE
 class CHE_PDF_Function : public CHE_Object
 {
 public:
-	static CHE_PDF_Function *	Create( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_Function *	Create( CHE_PDF_ReferencePtr refPtr, CHE_Allocator * pAllocator = NULL );
 	static HE_VOID				Destroy( CHE_PDF_Function * pFunction );
 
 	~CHE_PDF_Function();
@@ -110,7 +113,7 @@ public:
 	~CHE_PDF_Function_Exponential();
 
 private:
-	CHE_PDF_Function_Exponential( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_Exponential( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator );
 
 	HE_INT32	mN;
 	HE_FLOAT*	mpC0;
@@ -125,7 +128,7 @@ public:
 	~CHE_PDF_Function_Stitching();
 
 private:
-	CHE_PDF_Function_Stitching( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator );
 
 	HE_UINT32			mK;
 	HE_FLOAT *			mpBounds;
@@ -138,7 +141,7 @@ private:
 class CHE_PDF_Function_PostScript : public CHE_PDF_Function
 {
 public:
-	~CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );
+	~CHE_PDF_Function_PostScript();
 
 private:
 	CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );

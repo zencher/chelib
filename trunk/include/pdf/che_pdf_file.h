@@ -54,6 +54,8 @@ public:
 
 	CHE_PDF_ArrayPtr		GetIDArray();
 
+	CHE_PDF_XREF_Table *	GetXRefTable() { return &mXRefTable; }
+
 	HE_VOID					CreateTrailerDict();
 
 	HE_VOID					CreateCatalogDict();

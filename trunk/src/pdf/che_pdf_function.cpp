@@ -26,6 +26,25 @@ HE_ULONG StringToDWORD( CHE_ByteString & str )
 	return valRet;
 }
 
+static inline float lerp(float x, float xmin, float xmax, float ymin, float ymax)
+{
+	if (xmin == xmax)
+		return ymin;
+	if (ymin == ymax)
+		return ymin;
+	return ymin + (x - xmin) * (ymax - ymin) / (xmax - xmin);
+}
+
+static inline float fz_clamp(float f, float min, float max)
+{
+	return (f > min ? (f < max ? f : max) : min);
+}
+
+static inline int fz_clampi(int i, float min, float max)
+{
+	return (i > min ? (i < max ? i : max) : min);
+}
+
 CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_ReferencePtr refPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	if ( !refPtr )
@@ -293,6 +312,73 @@ CHE_PDF_Function_Sampled::~CHE_PDF_Function_Sampled()
 	}
 }
 
+HE_BOOL CHE_PDF_Function_Sampled::Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+{
+	if ( input.size() == 0 || input.size() < GetInputCount() )
+	{
+		return FALSE;
+	}
+
+	int e0[MAXM], e1[MAXM], scale[MAXM];
+	float efrac[MAXM];
+	HE_FLOAT x;
+
+	/* encode input coordinates */
+	for ( HE_ULONG i = 0; i < GetInputCount(); ++i )
+	{
+		x = fz_clamp( input[i], GetDomianMin( i ), GetDomianMax( i ) );
+		x = lerp( x, GetDomianMin( i ), GetDomianMax( i ), GetEncodeMin( i ), GetEncodeMax( i ) );
+		x = fz_clamp( x, 0, GetSize( i ) - 1 );
+		e0[i] = floorf(x);
+		e1[i] = ceilf(x);
+		efrac[i] = x - floorf(x);
+	}
+
+	scale[0] = func->n;
+	for (i = 1; i < func->m; i++)
+		scale[i] = scale[i - 1] * func->u.sa.size[i];
+
+	for (i = 0; i < func->n; i++)
+	{
+		if (func->m == 1)
+		{
+			float a = func->u.sa.samples[e0[0] * func->n + i];
+			float b = func->u.sa.samples[e1[0] * func->n + i];
+
+			float ab = a + (b - a) * efrac[0];
+
+			out[i] = lerp(ab, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
+			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+		}
+
+		else if (func->m == 2)
+		{
+			int s0 = func->n;
+			int s1 = s0 * func->u.sa.size[0];
+
+			float a = func->u.sa.samples[e0[0] * s0 + e0[1] * s1 + i];
+			float b = func->u.sa.samples[e1[0] * s0 + e0[1] * s1 + i];
+			float c = func->u.sa.samples[e0[0] * s0 + e1[1] * s1 + i];
+			float d = func->u.sa.samples[e1[0] * s0 + e1[1] * s1 + i];
+
+			float ab = a + (b - a) * efrac[0];
+			float cd = c + (d - c) * efrac[0];
+			float abcd = ab + (cd - ab) * efrac[1];
+
+			out[i] = lerp(abcd, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
+			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+		}
+
+		else
+		{
+			float x = interpolate_sample(func, scale, e0, e1, efrac, func->m - 1, i);
+			out[i] = lerp(x, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
+			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+		}
+	}
+	return TRUE;
+}
+
 CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator )
 	: CHE_PDF_Function( dictPtr, pAllocator )
 {
@@ -349,6 +435,31 @@ CHE_PDF_Function_Exponential::~CHE_PDF_Function_Exponential()
 		GetAllocator()->DeleteArray<HE_FLOAT>( mpC1 );
 		mpC1 = NULL;
 	}
+}
+
+HE_BOOL CHE_PDF_Function_Exponential::Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+{
+	if ( input.size() == 0 || input.size() < GetInputCount() )
+	{
+		return FALSE;
+	}
+
+	output.clear();
+
+	HE_FLOAT tmp1 = powf( GetInputCount(), mN );
+	HE_FLOAT tmp2 = 0.0f;
+	
+	for ( HE_ULONG i = 0; i < mN; ++i )
+	{
+		tmp2 = mpC0[i] + tmp1 * ( mpC1[i] - mpC0[i] );
+		if ( HasRange() )
+		{
+			tmp2 = fz_clamp( tmp2, GetRangeMin(i), GetRangeMin(i) );
+		}
+		output.push_back( tmp2 );
+	}
+
+	return TRUE;
 }
 
 CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator )

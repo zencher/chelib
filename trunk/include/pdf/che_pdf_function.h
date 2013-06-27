@@ -73,6 +73,10 @@ public:
 	HE_FLOAT					GetDomianMax( HE_UINT32 index ) const;
 	HE_FLOAT					GetRangeMin( HE_UINT32 index ) const;
 	HE_FLOAT					GetRangeMax( HE_UINT32 index ) const;
+	HE_BOOL						HasDomian() const { return mpDomain != NULL; }
+	HE_BOOL						HasRange() const { return mpRange != NULL; }
+
+	virtual HE_BOOL				Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output ) = 0;
 
 protected:
 	CHE_PDF_Function( CHE_PDF_DictionaryPtr dict, CHE_Allocator * pAllocator );
@@ -93,8 +97,16 @@ class CHE_PDF_Function_Sampled : public CHE_PDF_Function
 public:
 	~CHE_PDF_Function_Sampled();
 
+	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+
 private:
 	CHE_PDF_Function_Sampled( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );
+
+	HE_INT32 GetSize( HE_UINT32 index ) const;
+	HE_FLOAT GetEncodeMin( HE_UINT32 index ) const;
+	HE_FLOAT GetEncodeMax( HE_UINT32 index ) const;
+	HE_FLOAT GetDecodeMin( HE_UINT32 index ) const;
+	HE_FLOAT GetDecodeMax( HE_UINT32 index ) const;
 
 	HE_BYTE		mBps;
 	HE_BYTE		mOrder;
@@ -112,6 +124,8 @@ class CHE_PDF_Function_Exponential : public CHE_PDF_Function
 public:
 	~CHE_PDF_Function_Exponential();
 
+	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+
 private:
 	CHE_PDF_Function_Exponential( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator );
 
@@ -126,6 +140,8 @@ class CHE_PDF_Function_Stitching : public CHE_PDF_Function
 {
 public:
 	~CHE_PDF_Function_Stitching();
+
+	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
 
 private:
 	CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator );
@@ -142,6 +158,8 @@ class CHE_PDF_Function_PostScript : public CHE_PDF_Function
 {
 public:
 	~CHE_PDF_Function_PostScript();
+
+	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
 
 private:
 	CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );

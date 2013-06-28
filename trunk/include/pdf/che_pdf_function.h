@@ -108,6 +108,8 @@ private:
 	HE_FLOAT GetDecodeMin( HE_UINT32 index ) const;
 	HE_FLOAT GetDecodeMax( HE_UINT32 index ) const;
 
+	float interpolate_sample(int *scale, int *e0, int *e1, float *efrac, int dim, int idx);
+
 	HE_BYTE		mBps;
 	HE_BYTE		mOrder;
 	HE_INT32*	mpSize;
@@ -146,10 +148,13 @@ public:
 private:
 	CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator );
 
+	HE_FLOAT GetEncodeMin( HE_UINT32 index ) const;
+	HE_FLOAT GetEncodeMax( HE_UINT32 index ) const;
+
 	HE_UINT32			mK;
 	HE_FLOAT *			mpBounds;
 	HE_FLOAT *			mpEncode;
-	CHE_PDF_Function *	mpFunctions;
+	CHE_PDF_Function **	mpFunctions;
 
 	friend class CHE_Allocator;
 };

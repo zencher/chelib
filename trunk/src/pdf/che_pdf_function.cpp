@@ -312,6 +312,73 @@ CHE_PDF_Function_Sampled::~CHE_PDF_Function_Sampled()
 	}
 }
 
+float CHE_PDF_Function_Sampled::interpolate_sample( int *scale, int *e0, int *e1, float *efrac, int dim, int idx )
+{
+	float a, b;
+	int idx0, idx1;
+
+	idx0 = e0[dim] * scale[dim] + idx;
+	idx1 = e1[dim] * scale[dim] + idx;
+
+	if (dim == 0)
+	{
+		a = mpSample[idx0];
+		b = mpSample[idx1];
+	}
+	else
+	{
+		a = interpolate_sample(scale, e0, e1, efrac, dim - 1, idx0);
+		b = interpolate_sample(scale, e0, e1, efrac, dim - 1, idx1);
+	}
+
+	return a + (b - a) * efrac[dim];
+}
+
+HE_INT32 CHE_PDF_Function_Sampled::GetSize( HE_UINT32 index ) const
+{
+	if ( index < GetInputCount() && mpSize )
+	{
+		return mpSize[index];
+	}
+	return 0;
+}
+
+HE_FLOAT CHE_PDF_Function_Sampled::GetEncodeMin( HE_UINT32 index ) const
+{
+	if ( index < GetInputCount() && mpEncode )
+	{
+		return mpEncode[index * 2];
+	}
+	return 0;
+}
+
+HE_FLOAT CHE_PDF_Function_Sampled::GetEncodeMax( HE_UINT32 index ) const
+{
+	if ( index < GetInputCount() && mpEncode )
+	{
+		return mpEncode[index * 2 + 1];
+	}
+	return 0;
+}
+
+HE_FLOAT CHE_PDF_Function_Sampled::GetDecodeMin( HE_UINT32 index ) const
+{
+	if ( index < GetInputCount() && mpDecode )
+	{
+		return mpDecode[index * 2];
+	}
+	return 0;
+}
+
+HE_FLOAT CHE_PDF_Function_Sampled::GetDecodeMax( HE_UINT32 index ) const
+{
+	if ( index < GetInputCount() && mpDecode )
+	{
+		return mpDecode[index * 2 + 1];
+	}
+	return 0;
+}
+
 HE_BOOL CHE_PDF_Function_Sampled::Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
 {
 	if ( input.size() == 0 || input.size() < GetInputCount() )
@@ -319,9 +386,10 @@ HE_BOOL CHE_PDF_Function_Sampled::Calculate( std::vector<HE_FLOAT> & input, std:
 		return FALSE;
 	}
 
-	int e0[MAXM], e1[MAXM], scale[MAXM];
-	float efrac[MAXM];
+	int e0[64], e1[64], scale[64];
+	float efrac[64];
 	HE_FLOAT x;
+	HE_FLOAT tmpValue;
 
 	/* encode input coordinates */
 	for ( HE_ULONG i = 0; i < GetInputCount(); ++i )
@@ -334,47 +402,48 @@ HE_BOOL CHE_PDF_Function_Sampled::Calculate( std::vector<HE_FLOAT> & input, std:
 		efrac[i] = x - floorf(x);
 	}
 
-	scale[0] = func->n;
-	for (i = 1; i < func->m; i++)
-		scale[i] = scale[i - 1] * func->u.sa.size[i];
-
-	for (i = 0; i < func->n; i++)
+	scale[0] = GetOutputCount();
+	for ( HE_ULONG i = 1; i < GetInputCount(); ++i )
 	{
-		if (func->m == 1)
+		scale[i] = scale[i - 1] * GetSize( i );
+	}
+
+	for ( HE_ULONG i = 0; i < GetInputCount(); ++i )
+	{
+		if ( GetInputCount() == 1 )
 		{
-			float a = func->u.sa.samples[e0[0] * func->n + i];
-			float b = func->u.sa.samples[e1[0] * func->n + i];
+			float a = mpSample[e0[0] * GetOutputCount() + i];
+			float b = mpSample[e1[0] * GetOutputCount() + i];
 
 			float ab = a + (b - a) * efrac[0];
 
-			out[i] = lerp(ab, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
-			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+			tmpValue = lerp( ab, 0, 1, GetDecodeMin( i ), GetDecodeMax( i ) );
+			tmpValue = fz_clamp( tmpValue, GetRangeMin( i ), GetRangeMax( i ) );
 		}
-
-		else if (func->m == 2)
+		else if ( GetInputCount() == 2 )
 		{
-			int s0 = func->n;
-			int s1 = s0 * func->u.sa.size[0];
+			int s0 = GetOutputCount();
+			int s1 = s0 * GetSize( i );
 
-			float a = func->u.sa.samples[e0[0] * s0 + e0[1] * s1 + i];
-			float b = func->u.sa.samples[e1[0] * s0 + e0[1] * s1 + i];
-			float c = func->u.sa.samples[e0[0] * s0 + e1[1] * s1 + i];
-			float d = func->u.sa.samples[e1[0] * s0 + e1[1] * s1 + i];
+			float a = mpSample[e0[0] * s0 + e0[1] * s1 + i];
+			float b = mpSample[e1[0] * s0 + e0[1] * s1 + i];
+			float c = mpSample[e0[0] * s0 + e1[1] * s1 + i];
+			float d = mpSample[e1[0] * s0 + e1[1] * s1 + i];
 
 			float ab = a + (b - a) * efrac[0];
 			float cd = c + (d - c) * efrac[0];
 			float abcd = ab + (cd - ab) * efrac[1];
 
-			out[i] = lerp(abcd, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
-			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+			tmpValue = lerp( abcd, 0, 1, GetDecodeMin( i ), GetDecodeMax( i ) );
+			tmpValue = fz_clamp( tmpValue, GetRangeMin( i ), GetRangeMax( i ) );
 		}
-
 		else
 		{
-			float x = interpolate_sample(func, scale, e0, e1, efrac, func->m - 1, i);
-			out[i] = lerp(x, 0, 1, func->u.sa.decode[i][0], func->u.sa.decode[i][1]);
-			out[i] = fz_clamp(out[i], func->range[i][0], func->range[i][1]);
+			float x = interpolate_sample(scale, e0, e1, efrac, GetInputCount() - 1, i);
+			tmpValue = lerp( x, 0, 1, GetDecodeMin( i ), GetDecodeMax( i ) );
+			tmpValue = fz_clamp( tmpValue, GetRangeMin( i ), GetRangeMax( i ) );
 		}
+		output.push_back( tmpValue );
 	}
 	return TRUE;
 }
@@ -465,12 +534,154 @@ HE_BOOL CHE_PDF_Function_Exponential::Calculate( std::vector<HE_FLOAT> & input, 
 CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator )
 	: CHE_PDF_Function( dictPtr, pAllocator ), mK(0), mpBounds(NULL), mpEncode(NULL)
 {
-	//todo
+	CHE_PDF_ObjectPtr objPtr;
+	CHE_PDF_ArrayPtr arrayPtr;
+	objPtr = dictPtr->GetElement( "Functions", OBJ_TYPE_ARRAY );
+	if ( objPtr )
+	{
+		arrayPtr = objPtr->GetArrayPtr();
+		mK = arrayPtr->GetCount();
+		if ( mK > 0 )
+		{
+			mpFunctions = GetAllocator()->NewArray<CHE_PDF_Function*>( mK );
+			CHE_PDF_Function * pTmpFunction = NULL;
+			for ( HE_ULONG i = 0; i < mK; ++i )
+			{
+				objPtr = arrayPtr->GetElement( i, OBJ_TYPE_REFERENCE );
+				if ( objPtr )
+				{
+					pTmpFunction = CHE_PDF_Function::Create( objPtr->GetRefPtr(), GetAllocator() );
+					if ( pTmpFunction )
+					{
+						mpFunctions[i] = pTmpFunction;
+					}
+				}
+			}
+		}
+	}
+
+	objPtr = dictPtr->GetElement( "Encode", OBJ_TYPE_ARRAY );
+	if ( objPtr )
+	{
+		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+		mpEncode = GetAllocator()->NewArray<HE_FLOAT>( 2 * GetInputCount() );
+		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 2 * GetInputCount(); ++i )
+		{
+			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				mpEncode[i] = objPtr->GetNumberPtr()->GetFloat();
+			}else{
+				mpEncode[i] = 0;
+			}
+		}
+	}
+
+	objPtr = dictPtr->GetElement( "Bounds", OBJ_TYPE_ARRAY );
+	if ( objPtr )
+	{
+		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+		mpBounds = GetAllocator()->NewArray<HE_FLOAT>( GetInputCount() - 1 );
+		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < GetInputCount() - 1; ++i )
+		{
+			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				mpBounds[i] = objPtr->GetNumberPtr()->GetFloat();
+			}else{
+				mpBounds[i] = 0;
+			}
+		}
+	}
 }
 
 CHE_PDF_Function_Stitching::~CHE_PDF_Function_Stitching()
 {
-	//todo
+	if ( mpFunctions )
+	{
+		GetAllocator()->DeleteArray<CHE_PDF_Function*>( mpFunctions );
+		mpFunctions = NULL;
+	}
+	if ( mpEncode )
+	{
+		GetAllocator()->DeleteArray<HE_FLOAT>( mpEncode );
+		mpBounds = NULL;
+	}
+	if ( mpBounds )
+	{
+		GetAllocator()->DeleteArray<HE_FLOAT>( mpBounds );
+		mpBounds = NULL;
+	}
+}
+
+HE_FLOAT CHE_PDF_Function_Stitching::GetEncodeMin( HE_UINT32 index ) const
+{
+	if ( index < GetInputCount() && mpEncode )
+	{
+		return mpEncode[index * 2];
+	}
+	return 0;
+}
+
+HE_FLOAT CHE_PDF_Function_Stitching::GetEncodeMax( HE_UINT32 index ) const
+{
+	if ( index < GetInputCount() && mpEncode )
+	{
+		return mpEncode[index * 2 + 1];
+	}
+	return 0;
+}
+
+HE_BOOL CHE_PDF_Function_Stitching::Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+{
+	if ( input.size() == 0 )
+	{
+		return FALSE;
+	}
+
+	HE_FLOAT low, high;
+	HE_FLOAT inputValue = input[0];
+
+	inputValue = fz_clamp( inputValue, GetDomianMin( 0 ), GetDomianMax( 0 ) );
+
+	HE_ULONG i = 0;
+	for ( ; i < mK; ++i )
+	{
+		if ( inputValue < mpBounds[i] )
+		{
+			break;
+		}
+	}
+
+	if ( i == 0 && mK == 1 )
+	{
+		low = GetDomianMin( 0 );
+		high = GetDomianMax( 0 );
+	}else if ( i == 0 )
+	{
+		low = GetDomianMin( 0 );
+		high = mpBounds[0];
+	}else if ( i = mK - 1 )
+	{
+		low = mpBounds[mK - 2];
+		high = mpBounds[0];
+	}else{
+		low = mpBounds[i - 1];
+		high = mpBounds[i];
+	}
+
+	inputValue = lerp( inputValue, low, high, GetEncodeMin( i ), GetEncodeMax( i ) );
+
+	std::vector<HE_FLOAT> newInput;
+	newInput.push_back( inputValue );
+
+	CHE_PDF_Function * pFunction = mpFunctions[i];
+	if ( pFunction )
+	{
+		return pFunction->Calculate( newInput, output );
+	}
+
+	return FALSE;
 }
 
 CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
@@ -553,6 +764,11 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 
 CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()
 {
+}
+
+HE_BOOL CHE_PDF_Function_PostScript::Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+{
+	return FALSE;
 }
 
 

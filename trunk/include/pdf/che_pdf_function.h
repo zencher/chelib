@@ -206,7 +206,7 @@ private:
 	HE_VOID Parse();
 
 	HE_BOOL mbParsed;
-	std::vector<CHE_PDF_Function_PostScriptItem> mOperations;
+	std::vector<CHE_PDF_Function_PostScriptItem> mCodes;
 
 	friend class CHE_Allocator;
 };

@@ -685,7 +685,7 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate( std::vector<HE_FLOAT> & input, st
 }
 
 CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( stmPtr->GetDictPtr(), pAllocator )
+	: CHE_PDF_Function( stmPtr->GetDictPtr(), pAllocator ), mbParsed( FALSE )
 {
 	CHE_PDF_StreamAcc stmAcc;
 	if ( stmAcc.Attach( stmPtr ) )
@@ -693,6 +693,9 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 		IHE_Read *  pRead = HE_CreateMemBufRead( stmAcc.GetData(), stmAcc.GetSize(), pAllocator );
 		CHE_PDF_SyntaxParser syntaxParser( NULL, pAllocator );
 		CHE_PDF_ParseWordDes wordDes( pAllocator );
+
+		CHE_PDF_Function_PostScriptItem psItem;
+
 		if ( syntaxParser.InitParser( pRead ) )
 		{
 			while ( syntaxParser.GetWord( wordDes ) )
@@ -700,55 +703,322 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 				switch ( wordDes.type )
 				{
 				case PARSE_WORD_INTEGER:
-					wordDes.str.GetInteger();
-					break;
+					{
+						psItem.mType = PSITEM_INIT;
+						psItem.mIntegerValue = wordDes.str.GetInteger();
+						mCodes.push_back( psItem );
+						break;
+					}
 				case PARSE_WORD_FLOAT:
-					wordDes.str.GetFloat();
+					{
+						psItem.mType = PSITEM_FLOAT;
+						psItem.mFloatValue = wordDes.str.GetFloat();
+						mCodes.push_back( psItem );
+						break;
+					}
 				case PARSE_WORD_UNKNOWN:
 					{
 						switch ( StringToDWORD( wordDes.str ) )
 						{
+						case A( '{' ):
+							{
+								psItem.mType = PSITEM_BLOCK;
+								mCodes.push_back( psItem );
+								break;
+							}
+						case A( '}' ):
+							{
+								psItem.mType = PSITEM_BLOCK;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'a', 'b', 's' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_ABS;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'a', 'd', 'd' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_ADD;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'a', 't', 'a', 'n' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_ATAN;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'c', 'e', 'i', 'l' ): //ceiling
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_CEILING;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'c', 'o', 's' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_COS;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'c', 'v', 'i' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_CVI;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'd', 'i', 'v' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_DIV;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'e', 'x', 'p' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_EXP;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'f', 'l', 'o', 'o' ): //floor
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_FLOOR;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'i', 'd', 'i', 'v' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_IDIV;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'l', 'n' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_LN;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'l', 'o', 'g' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_LOG;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'm', 'o', 'd' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_MOD;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'm', 'u', 'l' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_MUL;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'n', 'e', 'g' ):
-						case D( 'r', 'o', 'n', 'n' ): //round
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_NEG;
+								mCodes.push_back( psItem );
+								break;
+							}
+						case D( 'r', 'o', 'u', 'n' ): //round
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_ROUND;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 's', 'i', 'n' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_SIN;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 's', 'q', 'r', 't' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_SQRT;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 's', 'u', 'b' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_SUB;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 't', 'r', 'u', 'n' ): //truncate
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_TRUNCATE;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'a', 'n', 'd' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_AND;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'b', 'i', 't', 's' ): //bitshift
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_BITSHIFT;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'e', 'q' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_EQ;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'f', 'a', 'l', 's' ): //false
+							{
+								psItem.mType = PSITEM_BOOL;
+								psItem.mBoolValue = FALSE;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'g', 'e' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_GE;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'g', 't' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_GT;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'l', 'e' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_LE;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'l', 't' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_LT;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'n', 'e' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_NE;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'n', 'o', 't' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_NOT;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'o', 'r' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_OR;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 't', 'r', 'u', 'e' ):
+							{
+								psItem.mType = PSITEM_BOOL;
+								psItem.mBoolValue = TRUE;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'x', 'o', 'r' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_XOR;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case B( 'i', 'f' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_IF;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'i', 'f', 'e', 'l' ): //ifelse
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_IFELSE;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'c', 'o', 'p', 'y' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_COPY;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'd', 'u', 'p' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_DUP;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'e', 'x', 'c', 'h' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_EXCH;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'i', 'n', 'd', 'e' ): //index
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_INDEX;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case C( 'p', 'o', 'p' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_POP;
+								mCodes.push_back( psItem );
+								break;
+							}
 						case D( 'r', 'o', 'l', 'l' ):
+							{
+								psItem.mType = PSITEM_OPERATOR;
+								psItem.mOperator = PSOPERATOR_ROLL;
+								mCodes.push_back( psItem );
+								break;
+							}
 						default:
 							break;
 						}
@@ -760,6 +1030,8 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 			}
 		}
 	}
+
+	mbParsed = TRUE;
 }
 
 CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()
@@ -768,7 +1040,14 @@ CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()
 
 HE_BOOL CHE_PDF_Function_PostScript::Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
 {
-	return FALSE;
+	if ( mbParsed == FALSE )
+	{
+		Parse();
+	}
+
+	//todo
+
+	return TRUE;
 }
 
 

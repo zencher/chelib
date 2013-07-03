@@ -17,7 +17,7 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
-    IHE_Read * pFileRead = HE_CreateFileRead( "/Users/zencher/Desktop/test1.pdf" );
+    IHE_Read * pFileRead = HE_CreateFileRead( "/Users/zencher/Desktop/test/test11.pdf" );
     if ( !pFileRead ) {
         cout << "IHE_Read object create failed!" << endl;
         return -1;
@@ -49,6 +49,10 @@ int main(int argc, const char * argv[])
         return -4;
     }
     
+    CHE_PDF_FontMgr fontMgr;
+    CHE_GraphicsDrawer drawer( 1, 1 );
+    char pathStr[1024];
+    
     cout << "Page count : " << pPageTree->GetPageCount() << endl;
     for( size_t i = 0; i < pPageTree->GetPageCount(); ++i )
     {
@@ -61,32 +65,15 @@ int main(int argc, const char * argv[])
         
         CHE_PDF_DictionaryPtr pageDict = pPage->GetPageDict();
         CHE_PDF_ContentObjectList contentList;
-        CHE_PDF_FontMgr fontMgr;
         
         GetPageContent( pageDict, &contentList, &fontMgr );
+        
+        CHE_Rect rect = pPage->GetMediaBox();
+        CHE_PDF_Renderer::Render( contentList, drawer, rect );
+        
+        sprintf( pathStr , "/Users/zencher/page%03d.png", i+1 );
+        drawer.SaveToFile( pathStr );
     }
-
-    /*CHE_PDF_Page * pPage = pPageTree->GetPage( 0 );
-    if ( !pPage )
-    {
-        cout << "Get page object failed!" << endl;
-        return -5;
-    }
-     
-    CHE_PDF_DictionaryPtr pageDict = pPage->GetPageDict();
-    CHE_PDF_ContentObjectList contentList;
-    CHE_PDF_FontMgr fontMgr;
-    
-    GetPageContent( pageDict, &contentList, &fontMgr );
-    CHE_Rect rect;
-    rect.left = 0;
-    rect.bottom = 0;
-    rect.width = 600;
-    rect.height = 600;
-    
-    CHE_GraphicsDrawer drawer(600*96/72.0, 600*96/72.0);
-    
-    CHE_PDF_Renderer::Render( contentList, drawer, rect );*/
     
     return 0;
 }

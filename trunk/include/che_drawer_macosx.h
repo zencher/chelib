@@ -44,6 +44,9 @@ public:
     HE_VOID		StrokeClipPath();
     HE_VOID		FillStrokeClipPath();
     HE_VOID		ResetClip();
+    
+    //todo
+    HE_VOID     SaveToFile( const char * pPath );
 
 private:
     

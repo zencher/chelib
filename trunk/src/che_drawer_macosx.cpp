@@ -4,8 +4,10 @@ CHE_GraphicsDrawer::CHE_GraphicsDrawer( HE_ULONG width, HE_ULONG height )
     : mContentRef( NULL ), mWidth( width ), mHeight( height ),
       mExtMatrix( CHE_Matrix() ), mFillMode( FillMode_Nonzero ), mPathRef( NULL )
 {
-    mColorSpaceRef = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-    mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaPremultipliedLast );
+    mColorSpaceRef = CGColorSpaceCreateDeviceRGB();
+    mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaPremultipliedFirst );
+    CGContextSetShouldAntialias( mContentRef, true );
+    CGContextSetAllowsAntialiasing( mContentRef, true );
     mAffineTransform.a = 1;
     mAffineTransform.b = 0;
     mAffineTransform.c = 0;
@@ -20,10 +22,10 @@ CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
         CGContextRelease( mContentRef );
         mContentRef = NULL;
     }
-    if ( mContentRef )
+    if ( mColorSpaceRef )
     {
         CGColorSpaceRelease( mColorSpaceRef );
-        mContentRef = NULL;
+        mColorSpaceRef = NULL;
     }
 }
 
@@ -33,13 +35,15 @@ HE_VOID CHE_GraphicsDrawer::Resize( HE_ULONG width, HE_ULONG height )
         CGContextRelease( mContentRef );
         mContentRef = NULL;
     }
-    if ( mContentRef )
+    if ( mColorSpaceRef )
     {
         CGColorSpaceRelease( mColorSpaceRef );
-        mContentRef = NULL;
+        mColorSpaceRef = NULL;
     }
-    mColorSpaceRef = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-    mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaPremultipliedLast );
+    mColorSpaceRef = CGColorSpaceCreateDeviceRGB();
+    mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaPremultipliedFirst );
+    CGContextSetShouldAntialias( mContentRef, true );
+    CGContextSetAllowsAntialiasing( mContentRef, true );
 }
 
 HE_ULONG CHE_GraphicsDrawer::GetWidth() const
@@ -89,19 +93,17 @@ HE_VOID	CHE_GraphicsDrawer::SetMiterLimit( const HE_FLOAT & miterLimit )
 
 HE_VOID	CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
 {
-    //todo
     if ( mContentRef )
     {
-        CGContextSetRGBFillColor( mContentRef , 0, 0, 0, 1 );
+        CGContextSetRGBFillColor( mContentRef , (color>>16&0xFF)/256.0, (color>>8&0xFF)/256.0, (color&0xFF)/256.0, (color>>24&0xFF)/256.0 );
     }
 }
 
 HE_VOID	CHE_GraphicsDrawer::SetStrokeColor( const HE_ULONG & color )
 {
-    //todo
     if ( mContentRef )
     {
-        CGContextSetRGBStrokeColor( mContentRef, 0, 0, 0, 1 );
+        CGContextSetRGBStrokeColor( mContentRef, (color>>16&0xFF)/256.0, (color>>8&0xFF)/256.0, (color&0xFF)/256.0, (color>>24&0xFF)/256.0 );
     }
 }
 
@@ -364,4 +366,27 @@ HE_VOID	CHE_GraphicsDrawer::ResetClip()
         CGPathRelease( mPathRef );
         mPathRef = NULL;
     }
+}
+
+HE_VOID CHE_GraphicsDrawer::SaveToFile( const char * pPath )
+{
+    CGImageRef imageRef = CGBitmapContextCreateImage( mContentRef );
+    if ( imageRef == nil )
+    {
+        return;
+    }
+    
+    CFStringRef strTypeRef = CFStringCreateWithCString( kCFAllocatorDefault , "public.png", kCFStringEncodingASCII );
+    
+    CFStringRef strPathRef = CFStringCreateWithCString( kCFAllocatorDefault , pPath, kCFStringEncodingASCII );
+    
+    CFURLRef urlRef = CFURLCreateWithFileSystemPath( kCFAllocatorDefault , strPathRef, kCFURLPOSIXPathStyle, FALSE );
+    
+    CGImageDestinationRef destRef = CGImageDestinationCreateWithURL( urlRef, strTypeRef, 1, nil );
+    
+    CGImageDestinationAddImage( destRef, imageRef, nil );
+    
+    CGImageDestinationFinalize( destRef );
+    
+    CFRelease( destRef );
 }

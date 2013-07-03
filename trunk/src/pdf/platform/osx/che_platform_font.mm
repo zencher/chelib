@@ -1,5 +1,7 @@
 #include "../../../../include/pdf/che_pdf_fontmgr.h"
 
+#import <Foundation/Foundation.h>
+
 class CHE_MacOSXFontMgr : public IHE_SystemFontMgr
 {
 public:
@@ -36,7 +38,16 @@ HE_VOID IHE_SystemFontMgr::Destroy( IHE_SystemFontMgr * pSystemFontMgr )
 CHE_MacOSXFontMgr::CHE_MacOSXFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
     : IHE_SystemFontMgr( pAllocator )
 {
-    
+    NSString * pathStr = [[NSString alloc] initWithCString:"/Library/Fonst/" encoding:NSASCIIStringEncoding];
+    NSArray *contentOfFolder = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:pathStr error:NULL];
+    for (NSString *aPath in contentOfFolder) {
+        NSLog(@"apath: %@", aPath);
+        //NSString * fullPath = [appDocDir stringByAppendingPathComponent:aPath];
+        //BOOL isDir;
+        //if ([[NSFileManager defaultManager] fileExistsAtPath:fullPath isDirectory:&isDir] && !isDir)
+        //{
+        //}
+    }
 }
 
 CHE_MacOSXFontMgr::~CHE_MacOSXFontMgr()

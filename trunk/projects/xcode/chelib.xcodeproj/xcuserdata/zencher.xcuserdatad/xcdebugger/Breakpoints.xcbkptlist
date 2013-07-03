@@ -42,5 +42,18 @@
          landmarkName = "CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR &amp; codeRet )"
          landmarkType = "5">
       </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "pdfDocumentTest/main.cpp"
+         timestampString = "394513113.478179"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "64"
+         endingLineNumber = "64"
+         landmarkName = "main(int argc, const char * argv[])"
+         landmarkType = "7">
+      </FileBreakpoint>
    </FileBreakpoints>
 </Bucket>

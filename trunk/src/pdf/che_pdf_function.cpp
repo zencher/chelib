@@ -1,6 +1,8 @@
 #include "../../include/pdf/che_pdf_function.h"
 #include "../../include/pdf/che_pdf_parser.h"
 
+#include <math.h>
+
 #define A(a)		(a)
 #define B(a,b)		(a | b<<8)
 #define C(a,b,c)	(a | b<<8 | c<<16)

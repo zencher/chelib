@@ -493,3 +493,36 @@ HE_FLOAT CHE_GraphicsDrawer::GetDashPhase() const
 {
 	return mDashPhase;
 }
+
+HE_VOID	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size )
+{
+	if ( m_pGraphics )
+	{
+		HGLOBAL global = ::GlobalAlloc( GMEM_MOVEABLE, size );
+		if( global )
+		{
+			void * dest = ::GlobalLock( global );
+			if( dest )
+			{
+				memcpy( dest, data, size );
+				::GlobalUnlock( global );
+
+				IStream * stream = NULL;
+				if( ::CreateStreamOnHGlobal( global, TRUE, &stream ) != S_OK )
+				{
+					::GlobalFree( global );
+					return;
+				}
+
+				Gdiplus::Image *image = Gdiplus::Image::FromStream( stream );
+				if ( image )
+				{
+					m_pGraphics->DrawImage( image, 0, 0, 1, 1 );
+					stream->Release();
+				}else{
+					::GlobalFree( global );
+				}
+			}
+		}		
+	}
+}

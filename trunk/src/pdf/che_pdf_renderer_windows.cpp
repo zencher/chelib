@@ -423,6 +423,74 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 				}
 				break;
 			}
+		case ContentType_RefImage:
+			{
+				CHE_Matrix newMatirx;
+				newMatirx.a = dipx * scale / 72;
+				newMatirx.b = 0;
+				newMatirx.c = 0;
+				newMatirx.d = dipy * scale / 72;
+				newMatirx.e = 0;
+				newMatirx.f = 0;
+				drawer.SetExtMatrix( newMatirx );
+				drawer.ResetClip();
+				pGState = (*it)->GetGState();
+				if ( pGState )
+				{
+					pClipState = pGState->GetClipState();
+					if ( pClipState )
+					{
+						OutputClipState( drawer, pClipState );
+					}
+					OutputCommonGSatae( drawer, pGState );
+				}
+				CHE_PDF_RefImage * pImage = (CHE_PDF_RefImage*)(*it);
+				CHE_PDF_ReferencePtr refPtr = pImage->GetRef();
+				if ( refPtr )
+				{
+					CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
+					if ( objPtr )
+					{
+						CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+						if ( stmPtr )
+						{
+							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
+							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
+							drawer.DrawImage( IMAGE_BMP, pBuf, stmPtr->GetRawSize() );
+							delete [] pBuf;
+							pBuf = NULL;
+						}
+					}
+				}
+				drawer.SetExtMatrix( tmpMatrix );
+				break;
+			}
+		case ContentType_InlineImage:
+			{
+				CHE_Matrix newMatirx;
+				newMatirx.a = dipx * scale / 72;
+				newMatirx.b = 0;
+				newMatirx.c = 0;
+				newMatirx.d = dipy * scale / 72;
+				newMatirx.e = 0;
+				newMatirx.f = 0;
+				drawer.SetExtMatrix( newMatirx );
+				drawer.ResetClip();
+				pGState = (*it)->GetGState();
+				if ( pGState )
+				{
+					pClipState = pGState->GetClipState();
+					if ( pClipState )
+					{
+						OutputClipState( drawer, pClipState );
+					}
+					OutputCommonGSatae( drawer, pGState );
+				}
+				CHE_PDF_InlineImage * pImage = (CHE_PDF_InlineImage*)(*it);
+				drawer.DrawImage( IMAGE_BMP, pImage->GetData(), pImage->GetDataSize() );
+				drawer.SetExtMatrix( tmpMatrix );
+				break;
+			}
 		default:
 			break;
 		}

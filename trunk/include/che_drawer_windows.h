@@ -8,10 +8,18 @@
 #include <Windows.h>
 #include <GdiPlus.h>
 
+enum ImageTypeSupport
+{
+	IMAGE_BMP,
+	IMAGE_GIF,
+	IMAGE_TIFF,
+	IMAGE_PNG,
+	IMAGE_JPG
+};
+
 class CHE_GraphicsDrawer
 {
 public:
-
 	CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dibHeight );
 	~CHE_GraphicsDrawer();
 
@@ -20,7 +28,6 @@ public:
 	HE_ULONG		GetHeight() const;
 	HE_VOID			Clear();
 	HDC				GetMemDC() const;
-	
 
 	//properties setting
 	HE_VOID			SetMatrix( const CHE_Matrix & matrix );
@@ -60,6 +67,8 @@ public:
 	 HE_VOID		StrokeClipPath();
 	 HE_VOID		FillStrokeClipPath();
 	 HE_VOID		ResetClip();
+
+	 HE_VOID		DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size );
 	
 private:
 	HDC							m_DC;

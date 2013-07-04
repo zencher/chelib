@@ -192,31 +192,33 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
 									HE_FLOAT scale, HE_FLOAT dipx, HE_FLOAT dipy, CHE_Rect * pClipRect )
 {
-	//设置好bitmap的大小和外部matrix
+	//设置好bitmap的大小
 	if ( pClipRect != NULL )
 	{
 		drawer.Resize( pClipRect->width * scale * dipx / 72, pClipRect->height * scale * dipy / 72 );
 	}else{
 		drawer.Resize( pageRect.width * scale * dipx / 72, pageRect.height * scale * dipy / 72 );
 	}
-	CHE_Matrix tmpMatrix;
-	tmpMatrix.a = dipx * scale / 72;
-	tmpMatrix.b = 0;
-	tmpMatrix.c = 0;
-	tmpMatrix.d = - dipy * scale / 72;
-	tmpMatrix.e = 0;
-	tmpMatrix.f = 0;
+
+	//计算外部matrix，以为gdi+的坐标和pdf的不同
 	CHE_Matrix extMatrix;
+	extMatrix.a = dipx * scale / 72;
+	extMatrix.b = 0;
+	extMatrix.c = 0;
+	extMatrix.d = - dipy * scale / 72;
+	extMatrix.e = 0;
+	extMatrix.f = 0;
+	CHE_Matrix tmpMatrix;
 	if ( pClipRect != NULL )
 	{
-		extMatrix.e = - pClipRect->left * dipx * scale / 72;
-		extMatrix.f = ( pClipRect->height + pClipRect->bottom ) * dipy * scale / 72;
+		tmpMatrix.e = - pClipRect->left * dipx * scale / 72;
+		tmpMatrix.f = ( pClipRect->height + pClipRect->bottom ) * dipy * scale / 72;
 	}else{
-		extMatrix.e = 0;
-		extMatrix.f = pageRect.height * dipy * scale / 72;
+		tmpMatrix.e = 0;
+		tmpMatrix.f = pageRect.height * dipy * scale / 72;
 	}
-	tmpMatrix.Concat( extMatrix );
-	drawer.SetExtMatrix( tmpMatrix );
+	extMatrix.Concat( tmpMatrix );
+	drawer.SetExtMatrix( extMatrix );
 
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
@@ -236,6 +238,7 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 			}
 			OutputCommonGSatae( drawer, pGState );
 		}
+
 		switch ( (*it)->GetType() )
 		{
 		case ContentType_Path:
@@ -383,7 +386,6 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 										break;
 									}
 								}
-								//drawer.ClosePath();
 								pPath->GetAllocator()->Delete( pPath );
 							}
 						}

@@ -91,6 +91,41 @@
     <ClCompile Include="..\..\extlib\freetype\src\type1\type1.c" />
     <ClCompile Include="..\..\extlib\freetype\src\type42\type42.c" />
     <ClCompile Include="..\..\extlib\freetype\src\winfonts\winfnt.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_arith.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_arith_iaid.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_arith_int.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_generic.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_halftone.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_huffman.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_image.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_metadata.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_mmr.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_page.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_refinement.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_segment.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_symbol_dict.c" />
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_text.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\bio.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\cidx_manager.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\cio.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\dwt.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\event.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\image.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\j2k.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\j2k_lib.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\jp2.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\jpt.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\mct.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\mqc.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\phix_manager.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\pi.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\ppix_manager.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\raw.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\t1.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\t2.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\tcd.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\tgt.c" />
     <ClCompile Include="..\..\extlib\zlib\adler32.c" />
     <ClCompile Include="..\..\extlib\zlib\compress.c" />
     <ClCompile Include="..\..\extlib\zlib\crc32.c" />
@@ -236,7 +271,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;FT2_BUILD_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;FT2_BUILD_LIBRARY;OPJ_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>

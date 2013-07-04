@@ -45,6 +45,12 @@
     <Filter Include="src\wdm">
       <UniqueIdentifier>{eacbe4b1-f01d-4c6b-b32f-034d028ffed0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="extlib\openjpeg">
+      <UniqueIdentifier>{8832000c-3814-4e1d-9faf-96876f08bad6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="extlib\jbig2dec">
+      <UniqueIdentifier>{05ce4483-1181-46ad-9c8a-0a1d6ee7b588}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h">
@@ -408,6 +414,111 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp">
       <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\bio.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\cidx_manager.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\cio.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\dwt.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\event.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\image.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\j2k.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\j2k_lib.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\jp2.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\jpt.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\mct.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\mqc.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\phix_manager.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\pi.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\ppix_manager.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\raw.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\t1.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\t2.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\tcd.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\tgt.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_arith.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_arith_iaid.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_arith_int.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_generic.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_halftone.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_huffman.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_image.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_metadata.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_mmr.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_page.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_refinement.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_segment.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_symbol_dict.c">
+      <Filter>extlib\jbig2dec</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\jbig2dec\jbig2_text.c">
+      <Filter>extlib\jbig2dec</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

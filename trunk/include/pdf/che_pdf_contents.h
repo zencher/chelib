@@ -241,14 +241,17 @@ public:
 			{
 			case ContentType_Text:
 				{
+					CHE_PDF_GState * pGState = mpGState->Clone();
 					CHE_Matrix textMatrix;
-					mpGState->GetTextMatrix( textMatrix );
+					pGState->GetTextMatrix( textMatrix );
 					CHE_Matrix tmpMatrix;
 					tmpMatrix.e = mTextXOffset;
 					tmpMatrix.f = mTextYOffset;
 					tmpMatrix.Concat( textMatrix );
-					mpGState->SetTextMatrix( tmpMatrix );
-					pObject->SetGState( mpGState->Clone() );
+					pGState->SetTextMatrix( tmpMatrix );
+					pObject->SetGState( pGState );
+
+
 					CHE_PDF_Text * pText = (CHE_PDF_Text*)( pObject );
 					pText->SetTextObject( mTextObj );
 					GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;

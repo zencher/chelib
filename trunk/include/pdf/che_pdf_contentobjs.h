@@ -319,7 +319,7 @@ public:
 	CHE_PDF_ReferencePtr    GetRef() { return mRefPtr; }
     CHE_PDF_StreamPtr       GetStreamPtr() { return mStmPtr; }
     HE_ULONG                GetWidth() const { return mWidth; }
-	HE_ULONG                GetHight() const { return mHeight; }
+	HE_ULONG                GetHeight() const { return mHeight; }
 	HE_ULONG                GetBitps() const { return mBitps; }
 
 private:

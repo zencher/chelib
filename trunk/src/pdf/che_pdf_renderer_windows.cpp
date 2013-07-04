@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_renderer_windows.h"
+#include "../../include/che_bitmap.h"
 
 inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
 {
@@ -428,28 +429,6 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 		case ContentType_RefImage:
 			{
                 CHE_PDF_RefImage * pImage = (CHE_PDF_RefImage*)(*it);
-                
-				CHE_Matrix newMatirx;
-				newMatirx.a = dipx * scale / 72;
-				newMatirx.b = 0;
-				newMatirx.c = 0;
-				newMatirx.d = dipy * scale / 72;
-				newMatirx.e = 0;
-				newMatirx.f = drawer.GetHeight() - pImage->GetHeight();
-				drawer.SetExtMatrix( newMatirx );
-				drawer.ResetClip();
-				pGState = (*it)->GetGState();
-				if ( pGState )
-				{
-					pClipState = pGState->GetClipState();
-					if ( pClipState )
-					{
-						OutputClipState( drawer, pClipState );
-					}
-					OutputCommonGSatae( drawer, pGState );
-				}
-				
-                
 				CHE_PDF_ReferencePtr refPtr = pImage->GetRef();
 				if ( refPtr )
 				{
@@ -467,33 +446,18 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 						}
 					}
 				}
-				drawer.SetExtMatrix( tmpMatrix );
 				break;
 			}
 		case ContentType_InlineImage:
 			{
-				CHE_Matrix newMatirx;
-				newMatirx.a = dipx * scale / 72;
-				newMatirx.b = 0;
-				newMatirx.c = 0;
-				newMatirx.d = dipy * scale / 72;
-				newMatirx.e = 0;
-				newMatirx.f = 0;
-				drawer.SetExtMatrix( newMatirx );
-				drawer.ResetClip();
-				pGState = (*it)->GetGState();
-				if ( pGState )
-				{
-					pClipState = pGState->GetClipState();
-					if ( pClipState )
-					{
-						OutputClipState( drawer, pClipState );
-					}
-					OutputCommonGSatae( drawer, pGState );
-				}
 				CHE_PDF_InlineImage * pImage = (CHE_PDF_InlineImage*)(*it);
-				drawer.DrawImage( IMAGE_BMP, pImage->GetData(), pImage->GetDataSize() );
-				drawer.SetExtMatrix( tmpMatrix );
+				CHE_Bitmap * pBitmap = new CHE_Bitmap;
+				pBitmap->Create( pImage->GetWidth(), pImage->GetHight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, pImage->GetDataSize(), pImage->GetData() );
+				HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()];
+				pBitmap->GetMemBitmapData( pBuf, pBitmap->GetMemBitmapDataSize() );
+				drawer.DrawImage( IMAGE_BMP, pBuf/*pImage->GetData()*/, pBitmap->GetMemBitmapDataSize()/*pImage->GetDataSize()*/ );
+				delete [] pBuf;
+				delete pBitmap;
 				break;
 			}
 		default:

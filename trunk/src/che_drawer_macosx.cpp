@@ -31,7 +31,8 @@ CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
 
 HE_VOID CHE_GraphicsDrawer::Resize( HE_ULONG width, HE_ULONG height )
 {
-    if ( mContentRef ) {
+    if ( mContentRef )
+    {
         CGContextRelease( mContentRef );
         mContentRef = NULL;
     }
@@ -41,9 +42,12 @@ HE_VOID CHE_GraphicsDrawer::Resize( HE_ULONG width, HE_ULONG height )
         mColorSpaceRef = NULL;
     }
     mColorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaPremultipliedFirst );
+    mWidth = width;
+    mHeight = height;
+    mContentRef = CGBitmapContextCreate( NULL, mWidth, mHeight, 8, mWidth * 4, mColorSpaceRef, kCGImageAlphaPremultipliedFirst );
     CGContextSetShouldAntialias( mContentRef, true );
     CGContextSetAllowsAntialiasing( mContentRef, true );
+    
 }
 
 HE_ULONG CHE_GraphicsDrawer::GetWidth() const
@@ -155,13 +159,17 @@ HE_VOID	CHE_GraphicsDrawer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dash
     if ( dashPattern.dashArray.size() > 0 )
     {
         pCGFloatArray = new CGFloat[dashPattern.dashArray.size()];
-    }
-    if ( mContentRef )
-    {
-        CGContextSetLineDash( mContentRef, dashPattern.dashPhase, pCGFloatArray, dashPattern.dashArray.size() );
-    }
-    if ( pCGFloatArray ) {
-        delete [] pCGFloatArray;
+        for ( size_t i = 0 ; i < dashPattern.dashArray.size(); ++i )
+        {
+            pCGFloatArray[i] = dashPattern.dashArray[i];
+        }
+        if ( mContentRef )
+        {
+            CGContextSetLineDash( mContentRef, dashPattern.dashPhase, pCGFloatArray, dashPattern.dashArray.size() );
+        }
+        if ( pCGFloatArray ) {
+            delete [] pCGFloatArray;
+        }
     }
 }
 
@@ -363,8 +371,9 @@ HE_VOID	CHE_GraphicsDrawer::ResetClip()
     if ( mContentRef )
     {
         //todo
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
+        //CGPathRelease( mPathRef );
+        //mPathRef = NULL;
+        //CGContextClip(<#CGContextRef c#>)
     }
 }
 

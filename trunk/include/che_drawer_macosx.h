@@ -47,6 +47,7 @@ public:
     
     //todo
     HE_VOID     SaveToFile( const char * pPath );
+    CGContextRef    GetContextRef() const { return mContentRef; }
 
 private:
     

@@ -141,7 +141,7 @@
 		90C5375C175881B40014AC65 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90C5375B175881B40014AC65 /* main.cpp */; };
 		90C5375E175881B40014AC65 /* pdfDocumentTest.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 90C5375D175881B40014AC65 /* pdfDocumentTest.1 */; };
 		90C53766175887B00014AC65 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C53765175887B00014AC65 /* ApplicationServices.framework */; };
-		90C537691758975B0014AC65 /* CustomView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C537681758975B0014AC65 /* CustomView.m */; };
+		90C537691758975B0014AC65 /* CustomView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90C537681758975B0014AC65 /* CustomView.mm */; };
 		90C5376B1758A37D0014AC65 /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
 		90CC6B261783C5150007082E /* che_platform_font.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90CC6B251783C5150007082E /* che_platform_font.mm */; };
 		90CC6B291783C5270007082E /* che_pdf_function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CC6B271783C5270007082E /* che_pdf_function.cpp */; };
@@ -149,6 +149,7 @@
 		90CC6B2D1783C5450007082E /* che_pdf_function.h in Headers */ = {isa = PBXBuildFile; fileRef = 90CC6B2B1783C5450007082E /* che_pdf_function.h */; };
 		90CC6B2E1783C5450007082E /* che_pdf_gstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 90CC6B2C1783C5450007082E /* che_pdf_gstate.h */; };
 		90CC6B2F1783CA970007082E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C5373F17587FF20014AC65 /* Foundation.framework */; };
+		90CC6B301783D1260007082E /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -330,7 +331,7 @@
 		90C53763175887670014AC65 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		90C53765175887B00014AC65 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		90C537671758975B0014AC65 /* CustomView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomView.h; sourceTree = "<group>"; };
-		90C537681758975B0014AC65 /* CustomView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomView.m; sourceTree = "<group>"; };
+		90C537681758975B0014AC65 /* CustomView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CustomView.mm; sourceTree = "<group>"; };
 		90CC6B251783C5150007082E /* che_platform_font.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = che_platform_font.mm; path = ../../src/pdf/platform/osx/che_platform_font.mm; sourceTree = "<group>"; };
 		90CC6B271783C5270007082E /* che_pdf_function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_function.cpp; path = ../../src/pdf/che_pdf_function.cpp; sourceTree = "<group>"; };
 		90CC6B281783C5270007082E /* che_pdf_gstate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_gstate.cpp; path = ../../src/pdf/che_pdf_gstate.cpp; sourceTree = "<group>"; };
@@ -358,6 +359,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90CC6B301783D1260007082E /* libchelib.a in Frameworks */,
 				90C5373B17587FF20014AC65 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -445,9 +447,6 @@
 		909E1156175447C200540539 /* pdf */ = {
 			isa = PBXGroup;
 			children = (
-				90CC6B271783C5270007082E /* che_pdf_function.cpp */,
-				90CC6B281783C5270007082E /* che_pdf_gstate.cpp */,
-				90CC6B251783C5150007082E /* che_platform_font.mm */,
 				90A01AF71754EC65009DCBD9 /* che_pdf_cmap.cpp */,
 				909E1158175447D700540539 /* che_pdf_collector.cpp */,
 				90A01AF81754EC65009DCBD9 /* che_pdf_colorspace.cpp */,
@@ -465,6 +464,8 @@
 				90A01B011754EC65009DCBD9 /* che_pdf_font.cpp */,
 				90A01B001754EC65009DCBD9 /* che_pdf_font_type1base14.cpp */,
 				90A01B021754EC65009DCBD9 /* che_pdf_fontmgr.cpp */,
+				90CC6B271783C5270007082E /* che_pdf_function.cpp */,
+				90CC6B281783C5270007082E /* che_pdf_gstate.cpp */,
 				90A01B051754EC65009DCBD9 /* che_pdf_image.cpp */,
 				90A01B071754EC65009DCBD9 /* che_pdf_objclone.cpp */,
 				909E115D175447D700540539 /* che_pdf_objects.cpp */,
@@ -474,6 +475,7 @@
 				909E115F175447D700540539 /* che_pdf_parser.cpp */,
 				90C5370717587D450014AC65 /* che_pdf_renderer_macosx.cpp */,
 				909E1160175447D700540539 /* che_pdf_xref.cpp */,
+				90CC6B251783C5150007082E /* che_platform_font.mm */,
 			);
 			name = pdf;
 			sourceTree = "<group>";
@@ -670,7 +672,7 @@
 			isa = PBXGroup;
 			children = (
 				90C537671758975B0014AC65 /* CustomView.h */,
-				90C537681758975B0014AC65 /* CustomView.m */,
+				90C537681758975B0014AC65 /* CustomView.mm */,
 				90C5374C17587FF20014AC65 /* AppDelegate.h */,
 				90C5374D17587FF20014AC65 /* AppDelegate.m */,
 				90C5374F17587FF20014AC65 /* MainMenu.xib */,
@@ -973,7 +975,7 @@
 			files = (
 				90C5374717587FF20014AC65 /* main.m in Sources */,
 				90C5374E17587FF20014AC65 /* AppDelegate.m in Sources */,
-				90C537691758975B0014AC65 /* CustomView.m in Sources */,
+				90C537691758975B0014AC65 /* CustomView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1056,10 +1058,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = _MAC_OS_X_;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -1087,6 +1086,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = _MAC_OS_X_;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;

@@ -196,6 +196,9 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 	}else{
 		drawer.Resize( pageRect.width * scale * dipx / 72, pageRect.height * scale * dipy / 72 );
 	}
+    
+    drawer.Clear();
+    
 	CHE_Matrix tmpMatrix;
 	tmpMatrix.a = dipx * scale / 72;
 	tmpMatrix.b = 0;
@@ -223,13 +226,12 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 		pGState = (*it)->GetGState();
 		if ( pGState )
 		{
-			OutputCommonGSatae( drawer, pGState );
-
 			pClipState = pGState->GetClipState();
 			if ( pClipState )
 			{
 				OutputClipState( drawer, pClipState );
 			}
+            OutputCommonGSatae( drawer, pGState );
 		}
 
 		switch ( (*it)->GetType() )

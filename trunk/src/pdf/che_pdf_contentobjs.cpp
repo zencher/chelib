@@ -752,3 +752,52 @@ CHE_PDF_Form::~CHE_PDF_Form()
 {
 
 }
+
+
+CHE_PDF_RefImage::CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator /*= NULL*/ )
+    : CHE_PDF_NamedContentObject(name, pAllocator), mRefPtr(pRef), mWidth(0), mHeight(0), mBitps(0)
+{
+    if ( mRefPtr )
+    {
+        CHE_PDF_ObjectPtr objPtr = mRefPtr->GetRefObj( OBJ_TYPE_STREAM );
+        if ( objPtr )
+        {
+            mStmPtr = objPtr->GetStreamPtr();
+            CHE_PDF_DictionaryPtr dictPtr = mStmPtr->GetDictPtr();
+            if ( dictPtr )
+            {
+                objPtr = dictPtr->GetElement( "Width", OBJ_TYPE_NUMBER );
+                if ( objPtr )
+                {
+                    mWidth = objPtr->GetNumberPtr()->GetInteger();
+                }
+                objPtr = dictPtr->GetElement( "Height", OBJ_TYPE_NUMBER );
+                if ( objPtr )
+                {
+                    mHeight = objPtr->GetNumberPtr()->GetInteger();
+                }
+                objPtr = dictPtr->GetElement( "BitsPerComponent", OBJ_TYPE_NUMBER );
+                if ( objPtr )
+                {
+                    mBitps = objPtr->GetNumberPtr()->GetInteger();
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -305,8 +305,7 @@ private:
 class CHE_PDF_RefImage : public CHE_PDF_NamedContentObject
 {
 public:
-	CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL )
-		: CHE_PDF_NamedContentObject( name, pAllocator ), mpRef(pRef) {}
+	CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL );
 
 	~CHE_PDF_RefImage() {}
 
@@ -314,13 +313,21 @@ public:
 
 	CHE_PDF_ContentObject * Clone() const
 	{
-		return GetAllocator()->New<CHE_PDF_RefImage>( mName, mpRef, GetAllocator() );
+		return GetAllocator()->New<CHE_PDF_RefImage>( mName, mRefPtr, GetAllocator() );
 	}
 
-	CHE_PDF_ReferencePtr GetRef() { return mpRef; }
+	CHE_PDF_ReferencePtr    GetRef() { return mRefPtr; }
+    CHE_PDF_StreamPtr       GetStreamPtr() { return mStmPtr; }
+    HE_ULONG                GetWidth() const { return mWidth; }
+	HE_ULONG                GetHight() const { return mHeight; }
+	HE_ULONG                GetBitps() const { return mBitps; }
 
 private:
-	CHE_PDF_ReferencePtr mpRef;
+	CHE_PDF_ReferencePtr    mRefPtr;
+    CHE_PDF_StreamPtr       mStmPtr;
+    HE_ULONG                mWidth;
+	HE_ULONG                mHeight;
+	HE_ULONG                mBitps;
 };
 
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject
@@ -418,45 +425,5 @@ public:
 
 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Shading>( mName, GetAllocator() ); }
 };
-
-// class CHE_PDF_PushGState : public CHE_PDF_ContentObject
-// {
-// public:
-// 	CHE_PDF_PushGState( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
-// 
-// 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_PushGState; }
-// 
-// 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_PushGState>( GetAllocator() ); }
-// };
-
-// class CHE_PDF_PopGState : public CHE_PDF_ContentObject
-// {
-// public:
-// 	CHE_PDF_PopGState( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
-// 
-// 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_PopGState; }
-// 
-// 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_PopGState>( GetAllocator() ); }
-// };
-
-// class CHE_PDF_TextBegin : public CHE_PDF_ContentObject
-// {
-// public:
-// 	CHE_PDF_TextBegin( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
-// 
-// 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_TextBegin; }
-// 
-// 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_TextBegin>( GetAllocator() ); }
-// };
-
-// class CHE_PDF_TextEnd : public CHE_PDF_ContentObject
-// {
-// public:
-// 	CHE_PDF_TextEnd( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ) {}
-// 
-// 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_TextEnd; }
-// 
-// 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_TextEnd>( GetAllocator() ); }
-// };
 
 #endif

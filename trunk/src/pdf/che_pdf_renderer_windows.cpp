@@ -427,13 +427,15 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 			}
 		case ContentType_RefImage:
 			{
+                CHE_PDF_RefImage * pImage = (CHE_PDF_RefImage*)(*it);
+                
 				CHE_Matrix newMatirx;
 				newMatirx.a = dipx * scale / 72;
 				newMatirx.b = 0;
 				newMatirx.c = 0;
 				newMatirx.d = dipy * scale / 72;
 				newMatirx.e = 0;
-				newMatirx.f = 0;
+				newMatirx.f = drawer.GetHeight() - pImage->GetHeight();
 				drawer.SetExtMatrix( newMatirx );
 				drawer.ResetClip();
 				pGState = (*it)->GetGState();
@@ -446,7 +448,8 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 					}
 					OutputCommonGSatae( drawer, pGState );
 				}
-				CHE_PDF_RefImage * pImage = (CHE_PDF_RefImage*)(*it);
+				
+                
 				CHE_PDF_ReferencePtr refPtr = pImage->GetRef();
 				if ( refPtr )
 				{

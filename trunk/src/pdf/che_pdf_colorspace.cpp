@@ -224,6 +224,8 @@ HE_UINT32 CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )
             break;
         }
     case COLORSPACE_SPECIAL_PATTERN:
+	case COLORSPACE_SPECIAL_SEPARATION:
+	case COLORSPACE_SPECIAL_DEVICEN:
 	default:
         break;
 	}

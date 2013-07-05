@@ -216,6 +216,18 @@ private:
 	CHE_PDF_Predictor * m_pPredictor;
 };
 
+class CHE_PDF_JPXFilter : public CHE_PDF_Filter
+{
+public:
+    CHE_PDF_JPXFilter( CHE_Allocator * pAllocator = NULL );
+    
+    ~CHE_PDF_JPXFilter();
+    
+    HE_VOID		Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+    
+	HE_VOID		Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+}
+
 class CHE_PDF_JBig2Filter : public CHE_PDF_Filter
 {
 public:

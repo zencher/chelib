@@ -579,7 +579,28 @@ HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 	}
 }
 
-CHE_PDF_JBig2Filter::CHE_PDF_JBig2Filter( CHE_Allocator * pAllocator = NULL )
+CHE_PDF_JPXFilter::CHE_PDF_JPXFilter( CHE_Allocator * pAllocator /*= NULL*/ )
+    : CHE_PDF_Filter(pAllocator)
+{
+    
+}
+
+CHE_PDF_JPXFilter::~CHE_PDF_JPXFilter()
+{
+    
+}
+
+HE_VOID	CHE_PDF_JPXFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+{
+    
+}
+
+HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+{
+    
+}
+
+CHE_PDF_JBig2Filter::CHE_PDF_JBig2Filter( CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_PDF_Filter(pAllocator), mGlobalsParam(NULL), mGlobalsParamLength(0)
 {
 }
@@ -590,12 +611,6 @@ CHE_PDF_JBig2Filter::~CHE_PDF_JBig2Filter()
 
 HE_VOID CHE_PDF_JBig2Filter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0 )
-	{
-		return;
-	}
-
-
 }
 
 HE_VOID CHE_PDF_JBig2Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
@@ -608,15 +623,29 @@ HE_VOID CHE_PDF_JBig2Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
 	Jbig2Ctx *ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, NULL, NULL, NULL );
 	Jbig2GlobalCtx *gctx = NULL;
 	Jbig2Image *page = NULL;
-	int idx = 0;
 
 	if ( mGlobalsParam )
 	{
 		jbig2_data_in( ctx, mGlobalsParam, mGlobalsParamLength );
 		gctx = jbig2_make_global_ctx( ctx );
-		ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, state->gctx, NULL, NULL );
+		ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, gctx, NULL, NULL );
 	}
+    
+	if ( !page )
+	{
+        jbig2_data_in( ctx, pData, length );
+		jbig2_complete_page( ctx );
+		page = jbig2_page_out( ctx );
+        //if page = NULL error happened!
+	}
+    
+    buffer.Clear();
+    buffer.Write( page->data, page->height * page->stride );
 
+    if ( page )
+    {
+		jbig2_release_page( ctx, page );
+    }
 	if ( gctx )
 	{
 		jbig2_global_ctx_free( gctx );

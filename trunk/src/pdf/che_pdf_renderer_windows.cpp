@@ -436,14 +436,31 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 					if ( objPtr )
 					{
 						CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
-						if ( stmPtr )
-						{
-							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
-							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
-							drawer.DrawImage( IMAGE_BMP, pBuf, stmPtr->GetRawSize() );
-							delete [] pBuf;
-							pBuf = NULL;
-						}
+                        CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+                        objPtr = dictPtr->GetElement( "Filter", OBJ_TYPE_NAME );
+                        if ( objPtr )
+                        {
+                            if ( objPtr->GetStringPtr()->GetString() == "JBIG2Decode" )
+                            {
+                                CHE_PDF_StreamAcc stmAcc;
+                                if ( stmAcc.Attach( stmPtr ) )
+                                {
+                                    CHE_Bitmap * pBitmap = new CHE_Bitmap;
+                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, pImage->GetDataSize(), pImage->GetData() );
+                                    HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()];
+                                    pBitmap->GetMemBitmapData( pBuf, pBitmap->GetMemBitmapDataSize() );
+                                    drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize() );
+                                    delete [] pBuf;
+                                    delete pBitmap;
+                                }
+                                break;
+                            }
+                        }
+                        HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
+                        stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
+                        drawer.DrawImage( IMAGE_BMP, pBuf, stmPtr->GetRawSize() );
+                        delete [] pBuf;
+                        pBuf = NULL;
 					}
 				}
 				break;

@@ -494,6 +494,28 @@ HE_FLOAT CHE_GraphicsDrawer::GetDashPhase() const
 	return mDashPhase;
 }
 
+// HE_VOID CHE_GraphicsDrawer::DrawBitmap( HE_ULONG width, HE_ULONG height, HE_BYTE bpc, HE_LPBYTE pData, HE_ULONG size )
+// {
+// 	BITMAPINFO bitmapInfo;
+// 	bitmapInfo.bmiHeader.biSize = 40;
+// 	bitmapInfo.bmiHeader.biWidth = (HE_INT32)width;
+// 	HE_LONG lHeight = height;
+// 	bitmapInfo.bmiHeader.biHeight = (HE_INT32)(-lHeight);
+// 	bitmapInfo.bmiHeader.biPlanes = 1;
+// 	bitmapInfo.bmiHeader.biBitCount = bpc;
+// 	bitmapInfo.bmiHeader.biCompression = 0;
+// 	bitmapInfo.bmiHeader.biSizeImage = (HE_UINT32)( size );
+// 	bitmapInfo.bmiHeader.biXPelsPerMeter = 0;
+// 	bitmapInfo.bmiHeader.biYPelsPerMeter = 0;
+// 	bitmapInfo.bmiHeader.biClrUsed = 0;
+// 	bitmapInfo.bmiHeader.biClrImportant = 0;
+// 
+// 	Gdiplus::Bitmap bitmap( &bitmapInfo, pData );
+// 	Gdiplus::CachedBitmap cacheBitmap( &bitmap, m_pGraphics );
+// 
+// 	m_pGraphics->DrawCachedBitmap( cacheBitmap, 0, 1, 1, -1 );
+// }
+
 HE_VOID	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size )
 {
 	if ( m_pGraphics )

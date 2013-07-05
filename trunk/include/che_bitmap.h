@@ -73,6 +73,8 @@ public:
 	HE_BOOL		Load( HE_LPCSTR );
 	HE_BOOL		Save( HE_LPCSTR );
 
+	HE_BOOL		SaveToMem( HE_LPBYTE buffer, HE_ULONG size );
+
 	HE_ULONG	GetMemBitmapDataSize();
 	HE_BOOL		GetMemBitmapData( HE_LPBYTE buffer, HE_ULONG size );
 

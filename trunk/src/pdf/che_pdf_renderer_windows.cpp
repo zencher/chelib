@@ -447,9 +447,10 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
                                 {
                                     CHE_Bitmap * pBitmap = new CHE_Bitmap;
                                     pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
-                                    HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()];
-                                    pBitmap->GetMemBitmapData( pBuf, pBitmap->GetMemBitmapDataSize() ); //这里的数据不包含文件头，不可用drawImage接口输出
-									drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize() );
+                                    HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+                                    pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+									pBitmap->Save( "d:\\234.bmp" );
+									drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
 									delete [] pBuf;
                                     delete pBitmap;
 									stmAcc.Detach();
@@ -471,9 +472,9 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 				CHE_PDF_InlineImage * pImage = (CHE_PDF_InlineImage*)(*it);
 				CHE_Bitmap * pBitmap = new CHE_Bitmap;
 				pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, pImage->GetDataSize(), pImage->GetData() );
-				HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()];
-				pBitmap->GetMemBitmapData( pBuf, pBitmap->GetMemBitmapDataSize() );
-				drawer.DrawImage( IMAGE_BMP, pBuf/*pImage->GetData()*/, pBitmap->GetMemBitmapDataSize()/*pImage->GetDataSize()*/ );
+				HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+				pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+				drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
 				delete [] pBuf;
 				delete pBitmap;
 				break;

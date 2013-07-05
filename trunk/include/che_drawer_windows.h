@@ -68,6 +68,7 @@ public:
 	 HE_VOID		FillStrokeClipPath();
 	 HE_VOID		ResetClip();
 
+	 //HE_VOID		DrawBitmap( HE_ULONG width, HE_ULONG height, HE_BYTE bpc, HE_LPBYTE pData, HE_ULONG size );
 	 HE_VOID		DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size );
 	
 private:

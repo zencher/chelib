@@ -629,6 +629,78 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 	return TRUE;
 }
 
+HE_BOOL CHE_Bitmap::SaveToMem( HE_LPBYTE buffer, HE_ULONG size )
+{
+	if ( buffer == NULL || size < GetMemBitmapDataSize() + sizeof(HE_BITMAPFILEHEADER) )
+	{
+		return FALSE;
+	}
+
+	HE_ULONG index = 0;
+
+	HE_BITMAPFILEHEADER bfHeader;
+	bfHeader.bfSize = (HE_UINT32)( 54 + m_lpPalette->GetCount() * 4 + Pitch() * Height() );
+	bfHeader.bfType = 0x4D42;
+	bfHeader.bfReserved2 = 0;
+	bfHeader.bfReserved1 = 0;
+	bfHeader.bfOffBits = (HE_UINT32)( 54 + m_lpPalette->GetCount() * 4 );
+
+	memcpy( buffer + index, &(bfHeader.bfSize), sizeof(bfHeader.bfSize) );
+	index += sizeof(bfHeader.bfSize);
+	memcpy( buffer + index, &(bfHeader.bfType), sizeof(bfHeader.bfType) );
+	index += sizeof(bfHeader.bfType);
+	memcpy( buffer + index, &(bfHeader.bfReserved2), sizeof(bfHeader.bfReserved2) );
+	index += sizeof(bfHeader.bfReserved2);
+	memcpy( buffer + index, &(bfHeader.bfReserved1), sizeof(bfHeader.bfReserved1) );
+	index += sizeof(bfHeader.bfReserved1);
+	memcpy( buffer + index, &(bfHeader.bfOffBits), sizeof(bfHeader.bfOffBits) );
+	index += sizeof(bfHeader.bfOffBits);
+
+	HE_BITMAPINFOHEADER biHeader;
+	biHeader.biSize = 40;
+	biHeader.biWidth = (HE_INT32)m_lWidth;
+	HE_LONG lHeight = m_lHeight;
+	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (HE_INT32)(lHeight) : (HE_INT32)(-lHeight);
+	biHeader.biPlanes = 1;
+	biHeader.biBitCount = m_Depth;
+	biHeader.biCompression = m_Compression;
+	biHeader.biSizeImage = (HE_UINT32)( Pitch() * Height() );
+	biHeader.biXPelsPerMeter = 0;
+	biHeader.biYPelsPerMeter = 0;
+	biHeader.biClrUsed = 0;
+	biHeader.biClrImportant = 0;
+	memcpy( buffer + index, &(biHeader.biSize), sizeof(biHeader.biSize) );
+	index += sizeof(biHeader.biSize);
+	memcpy( buffer + index, &(biHeader.biWidth), sizeof(biHeader.biWidth) );
+	index += sizeof(biHeader.biWidth);
+	memcpy( buffer + index, &(biHeader.biHeight), sizeof(biHeader.biHeight) );
+	index += sizeof(biHeader.biHeight);
+	memcpy( buffer + index, &(biHeader.biPlanes), sizeof(biHeader.biPlanes) );
+	index += sizeof(biHeader.biPlanes);
+	memcpy( buffer + index, &(biHeader.biBitCount), sizeof(biHeader.biBitCount) );
+	index += sizeof(biHeader.biBitCount);
+	memcpy( buffer + index, &(biHeader.biCompression), sizeof(biHeader.biCompression) );
+	index += sizeof(biHeader.biCompression);
+	memcpy( buffer + index, &(biHeader.biSizeImage), sizeof(biHeader.biSizeImage) );
+	index += sizeof(biHeader.biSizeImage);
+	memcpy( buffer + index, &(biHeader.biXPelsPerMeter), sizeof(biHeader.biXPelsPerMeter) );
+	index += sizeof(biHeader.biXPelsPerMeter);
+	memcpy( buffer + index, &(biHeader.biYPelsPerMeter), sizeof(biHeader.biYPelsPerMeter) );
+	index += sizeof(biHeader.biYPelsPerMeter);
+	memcpy( buffer + index, &(biHeader.biClrUsed), sizeof(biHeader.biClrUsed) );
+	index += sizeof(biHeader.biClrUsed);
+	memcpy( buffer + index, &(biHeader.biClrImportant), sizeof(biHeader.biClrImportant) );
+	index += sizeof(biHeader.biClrImportant);
+
+	if ( m_lpPalette && m_lpPalette->GetCount() > 0 )
+	{
+		memcpy( buffer + index, m_lpPalette->m_pPalette, m_lpPalette->GetCount() * 4 );
+		index += m_lpPalette->GetCount() * 4;
+	}
+	memcpy( buffer + index, m_lpBits, Pitch() * Height() );
+	return TRUE;
+}
+
 HE_ULONG CHE_Bitmap::GetMemBitmapDataSize()
 {
 	HE_ULONG dwRet = 0;

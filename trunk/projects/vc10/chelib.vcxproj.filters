@@ -523,5 +523,107 @@
     <ClCompile Include="..\..\extlib\jbig2dec\jbig2_text.c">
       <Filter>extlib\jbig2dec</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\openjpeg.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\thix_manager.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\openjpeg\tpix_manager.c">
+      <Filter>extlib\openjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jaricom.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jcomapi.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdapimin.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdapistd.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdarith.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdatadst.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdatasrc.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdcoefct.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdcolor.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jddctmgr.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdhuff.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdinput.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdmainct.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdmarker.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdmaster.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdmerge.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdpostct.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdsample.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jdtrans.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jerror.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jfdctflt.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jfdctfst.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jfdctint.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jidctflt.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jidctfst.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jidctint.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jmemmgr.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jmemnobs.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jquant1.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jquant2.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\extlib\libjpeg\jutils.c">
+      <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

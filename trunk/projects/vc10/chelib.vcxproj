@@ -106,6 +106,37 @@
     <ClCompile Include="..\..\extlib\jbig2dec\jbig2_segment.c" />
     <ClCompile Include="..\..\extlib\jbig2dec\jbig2_symbol_dict.c" />
     <ClCompile Include="..\..\extlib\jbig2dec\jbig2_text.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jaricom.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jcomapi.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdapimin.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdapistd.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdarith.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdatadst.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdatasrc.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdcoefct.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdcolor.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jddctmgr.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdhuff.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdinput.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdmainct.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdmarker.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdmaster.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdmerge.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdpostct.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdsample.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jdtrans.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jerror.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jfdctflt.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jfdctfst.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jfdctint.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jidctflt.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jidctfst.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jidctint.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jmemmgr.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jmemnobs.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jquant1.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jquant2.c" />
+    <ClCompile Include="..\..\extlib\libjpeg\jutils.c" />
     <ClCompile Include="..\..\extlib\openjpeg\bio.c" />
     <ClCompile Include="..\..\extlib\openjpeg\cidx_manager.c" />
     <ClCompile Include="..\..\extlib\openjpeg\cio.c" />
@@ -118,6 +149,7 @@
     <ClCompile Include="..\..\extlib\openjpeg\jpt.c" />
     <ClCompile Include="..\..\extlib\openjpeg\mct.c" />
     <ClCompile Include="..\..\extlib\openjpeg\mqc.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\openjpeg.c" />
     <ClCompile Include="..\..\extlib\openjpeg\phix_manager.c" />
     <ClCompile Include="..\..\extlib\openjpeg\pi.c" />
     <ClCompile Include="..\..\extlib\openjpeg\ppix_manager.c" />
@@ -126,6 +158,8 @@
     <ClCompile Include="..\..\extlib\openjpeg\t2.c" />
     <ClCompile Include="..\..\extlib\openjpeg\tcd.c" />
     <ClCompile Include="..\..\extlib\openjpeg\tgt.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\thix_manager.c" />
+    <ClCompile Include="..\..\extlib\openjpeg\tpix_manager.c" />
     <ClCompile Include="..\..\extlib\zlib\adler32.c" />
     <ClCompile Include="..\..\extlib\zlib\compress.c" />
     <ClCompile Include="..\..\extlib\zlib\crc32.c" />
@@ -239,7 +273,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;FT2_BUILD_LIBRARY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;FT2_BUILD_LIBRARY;OPJ_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>

@@ -1,5 +1,6 @@
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../extlib/zlib/zlib.h"
+#include "../../extlib/jbig2dec/jbig2.h"
 
 HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
@@ -575,5 +576,53 @@ HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 			pData++;
 			length--;
 		}
+	}
+}
+
+CHE_PDF_JBig2Filter::CHE_PDF_JBig2Filter( CHE_Allocator * pAllocator = NULL )
+	: CHE_PDF_Filter(pAllocator), mGlobalsParam(NULL), mGlobalsParamLength(0)
+{
+}
+
+CHE_PDF_JBig2Filter::~CHE_PDF_JBig2Filter()
+{
+}
+
+HE_VOID CHE_PDF_JBig2Filter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+{
+	if ( pData == NULL || length == 0 )
+	{
+		return;
+	}
+
+
+}
+
+HE_VOID CHE_PDF_JBig2Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+{
+	if ( pData == NULL || length == 0 )
+	{
+		return;
+	}
+
+	Jbig2Ctx *ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, NULL, NULL, NULL );
+	Jbig2GlobalCtx *gctx = NULL;
+	Jbig2Image *page = NULL;
+	int idx = 0;
+
+	if ( mGlobalsParam )
+	{
+		jbig2_data_in( ctx, mGlobalsParam, mGlobalsParamLength );
+		gctx = jbig2_make_global_ctx( ctx );
+		ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, state->gctx, NULL, NULL );
+	}
+
+	if ( gctx )
+	{
+		jbig2_global_ctx_free( gctx );
+	}
+	if ( ctx )
+	{
+		jbig2_ctx_free( ctx );
 	}
 }

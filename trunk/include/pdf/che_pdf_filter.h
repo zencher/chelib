@@ -152,6 +152,17 @@ private:
     HE_ULONG	m_tuple;
 };
 
+class CHE_PDF_RLEFileter : public CHE_PDF_Filter
+{
+public:
+	CHE_PDF_RLEFileter( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator ) {}
+	~CHE_PDF_RLEFileter() {};
+
+	HE_VOID Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+
+	HE_VOID Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+};
+
 class CHE_PDF_FlateFilter : public CHE_PDF_Filter
 {
 public:
@@ -171,7 +182,6 @@ private:
 struct TLzwItem {
 	std::vector<unsigned char> value;
 };
-
 typedef std::vector<TLzwItem>     TLzwTable;
 typedef TLzwTable::iterator       TILzwTable;
 typedef TLzwTable::const_iterator TCILzwTable;
@@ -206,15 +216,22 @@ private:
 	CHE_PDF_Predictor * m_pPredictor;
 };
 
-class CHE_PDF_RLEFileter : public CHE_PDF_Filter
+class CHE_PDF_JBig2Filter : public CHE_PDF_Filter
 {
 public:
-	CHE_PDF_RLEFileter( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Filter( pAllocator ) {}
-	~CHE_PDF_RLEFileter() {};
-	
-	HE_VOID Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
-	
-	HE_VOID Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+	CHE_PDF_JBig2Filter( CHE_Allocator * pAllocator = NULL );
+
+	~CHE_PDF_JBig2Filter();
+
+	HE_VOID		SetGlobals( HE_LPBYTE pData, HE_ULONG length );
+
+	HE_VOID		Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+
+	HE_VOID		Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+
+private:
+	HE_LPBYTE	mGlobalsParam;
+	HE_ULONG	mGlobalsParamLength;
 };
 
 #endif

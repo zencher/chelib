@@ -642,6 +642,17 @@ HE_VOID CHE_PDF_JBig2Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
     buffer.Clear();
     buffer.Write( page->data, page->height * page->stride );
 
+	HE_LPBYTE p = buffer.GetData();
+	HE_LPBYTE ep = buffer.GetData() + length;
+	HE_LPBYTE s = page->data;
+	HE_INT32 w = page->height * page->stride;
+	HE_INT32 x = page->;
+
+	while (p < ep && x < w)
+	{
+		*p++ = s[x++] ^ 0xff;
+	}
+
     if ( page )
     {
 		jbig2_release_page( ctx, page );

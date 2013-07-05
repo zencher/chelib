@@ -24,7 +24,7 @@
 #define PACKAGE "jbig2dec"
 #define VERSION "0.11"
 
-#if defined(_MSC_VER) || (defined(__BORLANDC__) && defined(__WIN32__))
+#if defined(_MSC_VER) /*|| (defined(__BORLANDC__) && defined(__WIN32__))*/
   /* Microsoft Visual C++ or Borland C++ */
   typedef signed char             int8_t;
   typedef short int               int16_t;

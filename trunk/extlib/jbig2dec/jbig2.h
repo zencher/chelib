@@ -37,6 +37,8 @@ extern "C" {
 #include "memento.h"
 #endif
 
+#include "os_types.h"
+
 /* warning levels */
 typedef enum {
   JBIG2_SEVERITY_DEBUG,

@@ -226,7 +226,7 @@ public:
     HE_VOID		Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
     
 	HE_VOID		Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
-}
+};
 
 class CHE_PDF_JBig2Filter : public CHE_PDF_Filter
 {

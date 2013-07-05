@@ -378,7 +378,7 @@ public:
 
 	HE_BOOL	IsMask() const { return mbMask; }
 	HE_ULONG GetWidth() const { return mWidth; }
-	HE_ULONG GetHight() const { return mHeight; }
+	HE_ULONG GetHeight() const { return mHeight; }
 	HE_ULONG GetBitps() const { return mBitps; }
 	CHE_PDF_ColorSpace * GetColorspace() const { return mpColorspace; }
 	CHE_PDF_ObjectPtr GetDecode() const { return mDecodeObjPtr; }

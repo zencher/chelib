@@ -291,7 +291,7 @@ HE_BOOL CHE_PDF_ContentString::InlineImageToBuf( const CHE_PDF_InlineImage * pIm
 	CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 
 	CHE_PDF_ObjectString::StringToBuf( "/H ", buf );
-	CHE_PDF_ObjectString::DWORDToBuf( pImage->GetHight(), buf );
+	CHE_PDF_ObjectString::DWORDToBuf( pImage->GetHeight(), buf );
 	CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 
 	CHE_PDF_ObjectString::StringToBuf( "/BPC ", buf );

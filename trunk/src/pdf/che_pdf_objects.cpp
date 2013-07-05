@@ -1443,11 +1443,8 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 					retValue = FALSE;
 				}else if ( str == "JBIG2Decode" )
 				{
-					/*CHE_PDF_HexFilter filter;
+					CHE_PDF_JBig2Filter filter;
 					filter.Decode( pTmp, lSize, buffer );
-					m_pData = new HE_BYTE[buffer.GetSize()];
-					buffer.Read( m_pData, buffer.GetSize() );*/
-					retValue = FALSE;
 				}else if ( str == "DCTDecode" || str == "DCT" )
 				{
 					/*CHE_PDF_HexFilter filter;

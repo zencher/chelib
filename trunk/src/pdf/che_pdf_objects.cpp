@@ -1443,7 +1443,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 					retValue = FALSE;
 				}else if ( str == "JBIG2Decode" )
 				{
-					CHE_PDF_JBig2Filter filter;
+					CHE_PDF_JBig2Filter filter( GetAllocator() );
 					filter.Decode( pTmp, lSize, buffer );
 				}else if ( str == "DCTDecode" || str == "DCT" )
 				{
@@ -1454,11 +1454,8 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 					retValue = FALSE;
 				}else if ( str == "JPXDecode" )
 				{
-					/*CHE_PDF_HexFilter filter;
-					filter.Decode( pTmp, lSize, buffer );
-					m_pData = new HE_BYTE[buffer.GetSize()];
-					buffer.Read( m_pData, buffer.GetSize() );*/
-					retValue = FALSE;
+                    CHE_PDF_JPXFilter fileter( GetAllocator() );
+                    fileter.Decode( pTmp, lSize, buffer );
 				}else if ( str == "Crypt" )
 				{
 					/*CHE_PDF_HexFilter filter;

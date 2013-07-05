@@ -1,6 +1,8 @@
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../extlib/zlib/zlib.h"
 #include "../../extlib/jbig2dec/jbig2.h"
+#define OPJ_STATIC
+#include "../../extlib/openjpeg/openjpeg.h"
 
 HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
@@ -579,6 +581,23 @@ HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 	}
 }
 
+static void fz_opj_error_callback(const char *msg, void *client_data)
+{
+	//fz_context *ctx = (fz_context *)client_data;
+	//fz_warn(ctx, "openjpeg error: %s", msg);
+}
+
+static void fz_opj_warning_callback(const char *msg, void *client_data)
+{
+	//fz_context *ctx = (fz_context *)client_data;
+	//fz_warn(ctx, "openjpeg warning: %s", msg);
+}
+
+static void fz_opj_info_callback(const char *msg, void *client_data)
+{
+	/* fz_warn("openjpeg info: %s", msg); */
+}
+
 CHE_PDF_JPXFilter::CHE_PDF_JPXFilter( CHE_Allocator * pAllocator /*= NULL*/ )
     : CHE_PDF_Filter(pAllocator)
 {
@@ -597,7 +616,126 @@ HE_VOID	CHE_PDF_JPXFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 
 HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
+    if ( !pData || length <= 2 )
+    {
+        return;
+    }
     
+	opj_event_mgr_t     evtmgr;
+	opj_dparameters_t   params;
+	opj_dinfo_t *       info = NULL;
+	opj_cio_t *         cio = NULL;
+	opj_image_t *       jpx = NULL;
+    CODEC_FORMAT        format;
+
+	unsigned char *p;
+
+	int a, n, w, h, depth, sgnd;
+	int x, y, k, v;
+    
+	/* Check for SOC marker -- if found we have a bare J2K stream */
+	if ( pData[0] == 0xFF && pData[1] == 0x4F )
+    {
+		format = CODEC_J2K;
+    }else{
+		format = CODEC_JP2;
+    }
+    
+	memset(&evtmgr, 0, sizeof(evtmgr));
+	evtmgr.error_handler = fz_opj_error_callback;
+	evtmgr.warning_handler = fz_opj_warning_callback;
+	evtmgr.info_handler = fz_opj_info_callback;
+    
+	opj_set_default_decoder_parameters( &params );
+	
+    //if (indexed) ???
+	{
+        params.flags |= OPJ_DPARAMETERS_IGNORE_PCLR_CMAP_CDEF_FLAG;
+    }
+    
+	info = opj_create_decompress( format );
+    
+	opj_set_event_mgr( (opj_common_ptr)info, &evtmgr, NULL );
+	opj_setup_decoder( info, &params );
+    
+	cio = opj_cio_open( (opj_common_ptr)info, pData, length );
+    
+	jpx = opj_decode( info, cio );
+    
+	opj_cio_close( cio );
+	opj_destroy_decompress( info );
+    
+	if ( !jpx )
+    {
+        //decode error!!!
+        return;
+    }
+    
+	for (k = 1; k < jpx->numcomps; k++)
+	{
+		if (jpx->comps[k].w != jpx->comps[0].w)
+		{
+			opj_image_destroy(jpx);
+			//fz_throw(ctx, "image components have different width");
+		}
+		if (jpx->comps[k].h != jpx->comps[0].h)
+		{
+			opj_image_destroy(jpx);
+			//fz_throw(ctx, "image components have different height");
+		}
+		if (jpx->comps[k].prec != jpx->comps[0].prec)
+		{
+			opj_image_destroy(jpx);
+			//fz_throw(ctx, "image components have different precision");
+		}
+	}
+    
+	n = jpx->numcomps;
+	w = jpx->comps[0].w;
+	h = jpx->comps[0].h;
+	depth = jpx->comps[0].prec;
+	sgnd = jpx->comps[0].sgnd;
+    
+	if (jpx->color_space == CLRSPC_SRGB && n == 4) { n = 3; a = 1; }
+	else if (jpx->color_space == CLRSPC_SYCC && n == 4) { n = 3; a = 1; }
+	else if (n == 2) { n = 1; a = 1; }
+	else if (n > 4) { n = 4; a = 1; }
+	else { a = 0; }
+    
+    buffer.Clear();
+    
+	for (y = 0; y < h; y++)
+	{
+		for (x = 0; x < w; x++)
+		{
+			for (k = 0; k < n + a; k++)
+			{
+				v = jpx->comps[k].data[y * w + x];
+				if (sgnd)
+					v = v + (1 << (depth - 1));
+				if (depth > 8)
+					v = v >> (depth - 8);
+				buffer.Write( (HE_LPBYTE)&v, 1 );
+			}
+			if (!a)
+                v = 255;
+                buffer.Write( (HE_LPBYTE)&v, 1 );
+		}
+	}
+    
+/*	if (a)
+	{
+		if (n == 4)
+		{
+			fz_pixmap *tmp = fz_new_pixmap(ctx, fz_device_rgb, w, h);
+			fz_convert_pixmap(ctx, tmp, img);
+			fz_drop_pixmap(ctx, img);
+			img = tmp;
+		}
+		fz_premultiply_pixmap(ctx, img);
+	}*/
+ 
+	opj_image_destroy( jpx );
 }
 
 CHE_PDF_JBig2Filter::CHE_PDF_JBig2Filter( CHE_Allocator * pAllocator /*= NULL*/ )

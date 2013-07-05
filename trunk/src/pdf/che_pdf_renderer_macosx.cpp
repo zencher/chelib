@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_renderer_macosx.h"
-
+#include "../../include/che_bitmap.h"
 
 
 inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
@@ -402,6 +402,75 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 						pPath->GetAllocator()->Delete( pPath );
 					}
 				}
+				break;
+			}
+        case ContentType_RefImage:
+			{
+                CHE_PDF_RefImage * pImage = (CHE_PDF_RefImage*)(*it);
+				CHE_PDF_ReferencePtr refPtr = pImage->GetRef();
+				if ( refPtr )
+				{
+					CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
+					if ( objPtr )
+					{
+						CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+                        CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+                        objPtr = dictPtr->GetElement( "Filter", OBJ_TYPE_NAME );
+                        if ( objPtr )
+                        {
+                            if ( objPtr->GetNamePtr()->GetString() == "JBIG2Decode" )
+                            {
+                                CHE_PDF_StreamAcc stmAcc;
+                                if ( stmAcc.Attach( stmPtr ) )
+                                {
+                                    CHE_Bitmap * pBitmap = new CHE_Bitmap;
+                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
+                                    //HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+                                    //pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+									pBitmap->Save( "d:\\234.bmp" );
+									//drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+									//delete [] pBuf;
+                                    delete pBitmap;
+									stmAcc.Detach();
+                                }
+                                break;
+                            }else if( objPtr->GetNamePtr()->GetString() == "JPXDecode" )
+                            {
+                                CHE_PDF_StreamAcc stmAcc;
+                                if ( stmAcc.Attach( stmPtr ) )
+                                {
+                                    CHE_Bitmap * pBitmap = new CHE_Bitmap;
+                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
+                                    //HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+                                    //pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+									pBitmap->Save( "d:\\235.bmp" );
+									//drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+									//delete [] pBuf;
+                                    delete pBitmap;
+									stmAcc.Detach();
+                                }
+                                break;
+                            }
+                        }
+                        //HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
+                        //stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
+                        //drawer.DrawImage( IMAGE_BMP, pBuf, stmPtr->GetRawSize() );
+                        //delete [] pBuf;
+                        //pBuf = NULL;
+					}
+				}
+				break;
+			}
+        case ContentType_InlineImage:
+			{
+				//CHE_PDF_InlineImage * pImage = (CHE_PDF_InlineImage*)(*it);
+				//CHE_Bitmap * pBitmap = new CHE_Bitmap;
+				//pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, pImage->GetDataSize(), pImage->GetData() );
+				//HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+				//pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+				//drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+				//delete [] pBuf;
+				//delete pBitmap;
 				break;
 			}
 		default:

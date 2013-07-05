@@ -456,6 +456,22 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 									stmAcc.Detach();
                                 }
                                 break;
+                            }else if( objPtr->GetNamePtr()->GetString == "JPXDecode" )
+                            {
+                                CHE_PDF_StreamAcc stmAcc;
+                                if ( stmAcc.Attach( stmPtr ) )
+                                {
+                                    CHE_Bitmap * pBitmap = new CHE_Bitmap;
+                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
+                                    HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+                                    pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+									pBitmap->Save( "d:\\235.bmp" );
+									drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+									delete [] pBuf;
+                                    delete pBitmap;
+									stmAcc.Detach();
+                                }
+                                break;
                             }
                         }
                         HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];

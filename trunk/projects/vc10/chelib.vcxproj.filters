@@ -51,6 +51,9 @@
     <Filter Include="extlib\jbig2dec">
       <UniqueIdentifier>{05ce4483-1181-46ad-9c8a-0a1d6ee7b588}</UniqueIdentifier>
     </Filter>
+    <Filter Include="extlib\libjpeg">
+      <UniqueIdentifier>{494636f7-b6a6-4850-9993-dd0daa6d40c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h">

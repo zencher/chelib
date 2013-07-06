@@ -518,6 +518,10 @@ HE_FLOAT CHE_GraphicsDrawer::GetDashPhase() const
 
 HE_VOID	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size )
 {
+	//Gdiplus::Image img(L"d:\\1.bmp");
+	//m_pGraphics->DrawImage( &img, 0, 1, 1, -1 );
+	//return;
+
 	if ( m_pGraphics )
 	{
 		HGLOBAL global = ::GlobalAlloc( GMEM_MOVEABLE, size );

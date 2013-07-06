@@ -199,6 +199,8 @@ public:
 
 	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const;
 
+	HE_BOOL IsCode( HE_ULONG cpt );
+
 protected:
 	CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_Type0_Font();

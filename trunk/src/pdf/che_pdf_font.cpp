@@ -4370,6 +4370,10 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 			HE_ULONG iIndex = 0;
 			HE_BYTE tmpByte;
 			CHE_PDF_ObjectPtr pObj;
+			if ( iCount > 0 )
+			{
+				mType = FONT_ENCODING_CUSTOM;
+			}
 			for ( HE_ULONG i = 0; i < iCount; i++ )
 			{
 				pObj = pDifArray->GetElement( i );
@@ -4915,15 +4919,8 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 	{
 		return FALSE;
 	}
+	
 	FT_Face ftface = (FT_Face)mFace;
-	if ( mEncoding.GetType() == FONT_ENCODING_CUSTOM )
-	{
-		HE_BOOL bRet = FALSE;
-		HE_WCHAR wcharRet;
-		bRet = mEncoding.GetUnicode( charCode, wcharRet );
-		codeRet = wcharRet;
-		return bRet;
-	}
 
 	codeRet = FT_Get_Char_Index( ftface, charCode );
 	if ( codeRet == 0 )
@@ -4932,6 +4929,14 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 		/* some chinese fonts only ship the similarly looking 0x2026 */
 		if ( codeRet == 0 && charCode == 0x22ef )
 			codeRet = FT_Get_Char_Index( ftface, 0x2026 );
+	}
+	if ( codeRet == 0 && mEncoding.GetType() == FONT_ENCODING_CUSTOM )
+	{
+		HE_BOOL bRet = FALSE;
+		HE_WCHAR wcharRet;
+		bRet = mEncoding.GetUnicode( charCode, wcharRet );
+		codeRet = wcharRet;
+		return bRet;
 	}
 	if ( codeRet == 0 )
 	{
@@ -5262,12 +5267,39 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	return 1;
 }
 
+HE_BOOL CHE_PDF_Type0_Font::IsCode( HE_ULONG cpt )
+{
+	if ( mpCIDMap )
+	{
+		return mpCIDMap->IsCode( cpt );
+	}
+	return FALSE;
+}
 
 HE_BOOL CHE_PDF_Type0_Font::GetCID( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 {
 	if ( mpCIDMap )
 	{
-		return mpCIDMap->LookupCode( charCode, codeRet );
+		if ( mpCIDMap->LookupCode( charCode, codeRet ) )
+		{
+			return TRUE;
+		}
+		HE_ULONG gid = FT_Get_Char_Index( (FT_Face)mFace, codeRet );
+		if ( gid == 0 )
+		{
+			gid = FT_Get_Char_Index( (FT_Face)mFace, 0xf000 + codeRet );
+
+			/* some chinese fonts only ship the similarly looking 0x2026 */
+			if ( gid == 0 && gid == 0x22ef )
+			{
+				gid = FT_Get_Char_Index( (FT_Face)mFace, 0x2026 );
+			}
+			if ( gid != 0 )
+			{
+				codeRet = gid;
+				return TRUE;
+			}
+		}
 	}
 	return FALSE;
 }

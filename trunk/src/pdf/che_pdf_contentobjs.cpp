@@ -137,10 +137,11 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 							//对于简单字体而言，没有编码信息的时候
 							pFont->GetGlyphId( item.charCode, item.gid );
 							pFont->GetUnicode( item.charCode, item.ucs );
-						}
-						else if ( pFont->GetEncodingType() == FONT_ENCODING_BUILDINCMAP )
+						}else if ( pFont->GetEncodingType() == FONT_ENCODING_BUILDINCMAP )
 						{
-							//error
+							//本来说应该是不合适的，但是有可能由于encoding字典有错误，需要做容错处理
+							pFont->GetGlyphId( item.charCode, item.gid );
+							pFont->GetUnicode( item.charCode, item.ucs );
 						}else if ( pFont->GetEncodingType() == FONT_ENCODING_IDENTITY )
 						{
 							item.gid = item.charCode;
@@ -148,6 +149,10 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						}else{
 							pFont->GetGlyphId( item.charCode, item.gid );
 							pFont->GetUnicode( item.charCode, item.ucs );
+							if ( item.gid == 0 )
+							{
+								item.gid = item.charCode;
+							}
 						}
 						item.kerning = kerning;
 						item.width = pFont->GetWidth( item );
@@ -174,10 +179,21 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
 					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
-					for ( HE_ULONG index = 0; index < tmpStr.GetLength(); index+=2 )
+					item.charCode = 0;
+					for ( HE_ULONG index = 0; index < tmpStr.GetLength(); ++index )
 					{
-						item.charCode = HE_BYTE( tmpStr[index] );
-						item.charCode = ( item.charCode << 8 ) + HE_BYTE( tmpStr[index+1] );
+						item.charCode = ( item.charCode << 8 ) + HE_BYTE( tmpStr[index] );
+						if ( pFont->GetEncodingType() == FONT_ENCODING_BUILDINCMAP )
+						{
+							if ( pType0Font->IsCode( item.charCode ) == FALSE )
+							{
+								continue;
+							}
+						}else if ( index % 2 == 0 )
+						{
+							continue;
+						}
+						
 						item.gid = 0;
 						item.cid = 0;
 						item.ucs = 0;
@@ -196,6 +212,21 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 								}else{
 									pFont->GetGlyphId( item.ucs, item.gid );
 								}
+							}else{
+								pFont->GetUnicode( item.charCode, item.ucs );
+								if ( item.ucs == 0 )
+								{
+									item.ucs = item.charCode;
+								}
+								pFont->GetGlyphId( item.charCode, item.gid );
+								if ( item.gid == 0 )
+								{
+									pFont->GetGlyphId( item.ucs, item.gid );
+									if ( item.gid == 0 )
+									{
+										item.gid = item.charCode;
+									}
+								}
 							}
 						}else if ( pFont->GetEncodingType() == FONT_ENCODING_IDENTITY )
 						{
@@ -211,12 +242,19 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 							pFont->GetGlyphId( item.charCode, item.gid );
 							pFont->GetUnicode( item.charCode, item.ucs );
 							pType0Font->GetCID( item.charCode, item.cid );
+							if ( item.gid == 0 )
+							{
+								item.gid = item.charCode;
+							}
 						}
 						item.kerning = kerning;
 						item.width = pFont->GetWidth( item );
 						item.height = 1; //font height??
 						mItems.push_back( item );
 						kerning = 0;
+
+						//very important!
+						item.charCode = 0;
 					}
 				}
 				else if ( tmpArray[i]->GetType() == OBJ_TYPE_NUMBER )

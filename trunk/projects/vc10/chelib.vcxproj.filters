@@ -12,9 +12,6 @@
     <Filter Include="extlib">
       <UniqueIdentifier>{79ec8fab-a6fb-4287-bb64-3938202af7e0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="extlib\zlib">
-      <UniqueIdentifier>{bc646dc1-383f-481b-99b4-32aaeb1a08c2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="extlib\freetype">
       <UniqueIdentifier>{0c7d02a1-2d2a-4a5d-9b81-0ed865ed728f}</UniqueIdentifier>
     </Filter>
@@ -53,6 +50,9 @@
     </Filter>
     <Filter Include="extlib\libjpeg">
       <UniqueIdentifier>{494636f7-b6a6-4850-9993-dd0daa6d40c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="extlib\zlib">
+      <UniqueIdentifier>{bc646dc1-383f-481b-99b4-32aaeb1a08c2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -176,6 +176,9 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\che_image.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -270,9 +273,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp">
       <Filter>src\pdf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\hash\che_hash_md5.cpp">
-      <Filter>src\hash</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp">
       <Filter>src\crypt</Filter>
@@ -624,6 +624,12 @@
     </ClCompile>
     <ClCompile Include="..\..\extlib\libjpeg\jutils.c">
       <Filter>extlib\libjpeg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\che_image.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\hash\che_hash_md5.cpp">
+      <Filter>src\hash</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

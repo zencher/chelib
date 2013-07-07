@@ -293,3 +293,22 @@ HE_BOOL CHE_PDF_CMap::LookupCode( HE_ULONG code, HE_ULONG & codeRet ) const
 	}
 	return FALSE;
 }
+
+HE_BOOL CHE_PDF_CMap::IsCode( HE_ULONG cpt ) const
+{
+	if ( !mpCMap )
+	{
+		return FALSE;
+	}
+	for ( HE_ULONG i = 0; i < mpCMap->codespace_len; ++i )
+	{
+		//if (mpCMap->codespace[i].n == n + 1)
+		//{
+			if ( cpt >= mpCMap->codespace[i].low && cpt <= mpCMap->codespace[i].high )
+			{
+				return TRUE;
+			}
+		//}
+	}
+	return FALSE;
+}

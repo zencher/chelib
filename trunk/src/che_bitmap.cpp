@@ -64,8 +64,8 @@ CHE_Palette::CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette,
 			{
 				m_nPaletteSize = 2;
 				m_pPalette = GetAllocator()->NewArray<HE_ARGB>( 2 );
-				m_pPalette[0] = 0x00000000;
-				m_pPalette[1] = 0x00FFFFFF;
+				m_pPalette[0] = 0xFFFFFFFF;
+				m_pPalette[1] = 0xFF000000;
 				break;
 			}
 		case BITMAP_DEPTH_4BPP:
@@ -631,7 +631,7 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 
 HE_BOOL CHE_Bitmap::SaveToMem( HE_LPBYTE buffer, HE_ULONG size )
 {
-	if ( buffer == NULL || size < GetMemBitmapDataSize() + sizeof(HE_BITMAPFILEHEADER) )
+	if ( buffer == NULL || size < GetMemBitmapDataSize() + 14 )
 	{
 		return FALSE;
 	}
@@ -645,10 +645,10 @@ HE_BOOL CHE_Bitmap::SaveToMem( HE_LPBYTE buffer, HE_ULONG size )
 	bfHeader.bfReserved1 = 0;
 	bfHeader.bfOffBits = (HE_UINT32)( 54 + m_lpPalette->GetCount() * 4 );
 
-	memcpy( buffer + index, &(bfHeader.bfSize), sizeof(bfHeader.bfSize) );
-	index += sizeof(bfHeader.bfSize);
 	memcpy( buffer + index, &(bfHeader.bfType), sizeof(bfHeader.bfType) );
 	index += sizeof(bfHeader.bfType);
+	memcpy( buffer + index, &(bfHeader.bfSize), sizeof(bfHeader.bfSize) );
+	index += sizeof(bfHeader.bfSize);
 	memcpy( buffer + index, &(bfHeader.bfReserved2), sizeof(bfHeader.bfReserved2) );
 	index += sizeof(bfHeader.bfReserved2);
 	memcpy( buffer + index, &(bfHeader.bfReserved1), sizeof(bfHeader.bfReserved1) );

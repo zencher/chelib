@@ -16,8 +16,6 @@ HE_BOOL CHE_PDF_ColorSpace::IsDeviceColorSpace()
 	return FALSE;;
 }
 
-
-
 static inline float fung(float x)
 {
     if (x >= 6.0f / 29.0f)
@@ -28,6 +26,67 @@ static inline float fung(float x)
 static inline float fz_clamp(float f, float min , float max)
 {
     return (f > min ? ( f < max ? f : max) : min );
+}
+
+HE_BYTE CHE_PDF_ColorSpace::GetComponentCount() const
+{
+	switch ( mType )
+	{
+	case COLORSPACE_DEVICE_GRAY:
+	case COLORSPACE_CIEBASE_CALGRAY:
+		{
+			return 1;
+		}
+	case COLORSPACE_DEVICE_RGB:
+	case COLORSPACE_CIEBASE_CALRGB:
+		{
+			return 3;
+		}
+	case COLORSPACE_DEVICE_CMYK:
+	case COLORSPACE_CIEBASE_CALCMYK:
+		{
+			return 4;
+		}
+	case COLORSPACE_CIEBASE_CALLAB:
+		{
+			return 3;
+		}
+	case COLORSPACE_CIEBASE_ICCBASED:
+		{
+			if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
+			{
+				CHE_PDF_ArrayPtr arrayPtr = mpObj->GetArrayPtr();
+				if ( arrayPtr->GetCount() < 2 )
+				{
+					break;
+				}
+				CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
+				if ( !objPtr )
+				{
+					break;
+				}
+				CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+				CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+				if ( !dictPtr )
+				{
+					break;
+				}
+				objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
+				if ( !objPtr ) {
+					break;
+				}
+				return objPtr->GetNumberPtr()->GetInteger();
+			}
+			break;
+		}
+	case COLORSPACE_SPECIAL_INDEXED:
+	case COLORSPACE_SPECIAL_PATTERN:
+	case COLORSPACE_SPECIAL_SEPARATION:
+	case COLORSPACE_SPECIAL_DEVICEN:
+	default:
+		break;
+	}
+	return 0;
 }
 
 HE_UINT32 CHE_PDF_ColorSpace::GetArgb( CHE_PDF_Color & color )

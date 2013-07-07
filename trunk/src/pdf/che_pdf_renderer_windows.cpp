@@ -1,5 +1,16 @@
 #include "../../include/pdf/che_pdf_renderer_windows.h"
-#include "../../include/che_bitmap.h"
+#include "../../include/che_image.h"
+
+// CHE_Bitmap * FlateBitmapDecode( HE_LPBYTE data, HE_ULONG size, HE_ULONG width, HE_ULONG height, HE_ULONG bpc, CHE_PDF_ColorSpace & cs, CHE_Allocator * pAllocator = NULL )
+// {
+// 	if ( pAllocator == NULL )
+// 	{
+// 		pAllocator = GetDefaultAllocator();
+// 	}
+// 
+// 	CHE_Bitmap * pBitmap = pAllocator->New<CHE_Bitmap>( pAllocator );
+// 	pBitmap->Create( width, height, (HE_BITMAP_DEPTH)( bpc * cs.GetComponentCount() ), BITMAP_DIRECTION_DOWN );
+// }
 
 inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
 {
@@ -442,59 +453,95 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
                         {
                             if ( objPtr->GetNamePtr()->GetString() == "JBIG2Decode" )
                             {
-                                CHE_PDF_StreamAcc stmAcc;
-                                if ( stmAcc.Attach( stmPtr ) )
-                                {
-                                    CHE_Bitmap * pBitmap = new CHE_Bitmap;
-                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
-                                    HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-                                    pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-									//pBitmap->Save( "d:\\234.bmp" );
-									drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-									delete [] pBuf;
-                                    delete pBitmap;
-									stmAcc.Detach();
-                                }
-                                break;
+								CHE_ImageDecoder imgDecoder;
+
+								HE_LPBYTE pParam = NULL;
+								HE_ULONG paramSize = 0;
+
+								objPtr = dictPtr->GetElement( "JBIG2Globals", OBJ_TYPE_STREAM );
+								if ( objPtr )
+								{
+									CHE_PDF_StreamPtr paramStrPtr = objPtr->GetStreamPtr();
+									paramSize = paramStrPtr->GetRawSize();
+									pParam = GetDefaultAllocator()->NewArray<HE_BYTE>( paramSize );
+									paramStrPtr->GetRawData( 0, pParam, paramSize );
+								}
+								
+								imgDecoder.SetDecodeParam( pParam, NULL );
+
+								HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
+								stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
+
+								CHE_Bitmap * pBitmap = imgDecoder.Decode( IMAGE_TYPE_JBIG2, pBuf, stmPtr->GetRawSize() );
+
+								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+
+								delete [] pBuf;
+								delete [] bitmap;
+								delete pBitmap;
+								if ( pParam )
+								{
+									GetDefaultAllocator()->DeleteArray( pParam );
+								}
+
                             }else if( objPtr->GetNamePtr()->GetString() == "JPXDecode" )
                             {
-                                CHE_PDF_StreamAcc stmAcc;
-                                if ( stmAcc.Attach( stmPtr ) )
-                                {
-                                    CHE_Bitmap * pBitmap = new CHE_Bitmap;
-                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
-                                    HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-                                    pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-									//pBitmap->Save( "d:\\235.bmp" );
-									drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-									delete [] pBuf;
-                                    delete pBitmap;
-									stmAcc.Detach();
-                                }
-                                break;
+								CHE_ImageDecoder imgDecoder;
+
+								HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
+								stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
+								CHE_Bitmap * pBitmap = imgDecoder.Decode( IMAGE_TYPE_JPX, pBuf, stmPtr->GetRawSize() );
+								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								delete [] pBuf;
+								delete [] bitmap;
+								delete pBitmap;
                             }else if ( objPtr->GetNamePtr()->GetString() == "FlateDecode" )
                             {
-								CHE_PDF_StreamAcc stmAcc;
-								if ( stmAcc.Attach( stmPtr ) )
-								{
-									CHE_Bitmap * pBitmap = new CHE_Bitmap;
-									pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps() * 3), BITMAP_DIRECTION_UP, stmAcc.GetSize(), stmAcc.GetData() );
-									HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-									pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-									//pBitmap->Save( "d:\\236.bmp" );
-									drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-									delete [] pBuf;
-									delete pBitmap;
-									stmAcc.Detach();
-								}
-								break;
-                            }
-                        }
-                        HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
-                        stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
-                        drawer.DrawImage( IMAGE_BMP, pBuf, stmPtr->GetRawSize() );
-                        delete [] pBuf;
-                        pBuf = NULL;
+// 								CHE_PDF_StreamAcc stmAcc;
+// 								CHE_Bitmap bitmap( GetDefaultAllocator() );
+// 								HE_LPBYTE p = NULL;
+// 								HE_ULONG width = 0;
+// 								HE_ULONG height = 0;
+// 								HE_ULONG x = 0;
+// 								HE_ULONG y = 0;
+// 								HE_ARGB color = 0;
+// 								if ( stmAcc.Attach( stmPtr ) )
+// 								{
+// 									p = stmAcc.GetData();
+// 									bitmap.Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps() * 3), BITMAP_DIRECTION_DOWN/*, stmAcc.GetSize(), stmAcc.GetData()*/ );
+// 									bitmap.ExchangeChannel( BITMAP_CHANNEL_Blue, BITMAP_CHANNEL_Red );
+// 									width = bitmap.Width();
+// 									height = bitmap.Height();
+// 									color = 0;
+// 									for ( y = 0; y < height; ++y )
+// 									{
+// 										for ( x = 0 ; x < width; ++x )
+// 										{
+//  											color = 0;
+//  											color = ( color << 8 ) + *( p + ( ( y * width + x ) * 3 ) );
+//  											color = ( color << 8 ) + *( p + ( ( y * width + x ) * 3 + 1 ) );
+// 											color = ( color << 8 ) + *( p + ( ( y * width + x ) * 3 + 2 ) );
+//  											bitmap.SetPixelColor( x, y, color );
+// 										}
+// 									}
+// 
+// 									HE_LPBYTE pBuf = GetDefaultAllocator()->NewArray<HE_BYTE>( bitmap.GetMemBitmapDataSize() + 14 );
+// 									bitmap.SaveToMem( pBuf, bitmap.GetMemBitmapDataSize()+14 );
+// 									drawer.DrawImage( IMAGE_BMP, pBuf, bitmap.GetMemBitmapDataSize()+14 );
+// 									GetDefaultAllocator()->DeleteArray( pBuf );
+// 									stmAcc.Detach();
+							}else{
+								HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
+								stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
+								drawer.DrawImage( IMAGE_BMP, pBuf, stmPtr->GetRawSize() );
+								delete [] pBuf;
+								pBuf = NULL;
+							}
+						}
 					}
 				}
 				break;

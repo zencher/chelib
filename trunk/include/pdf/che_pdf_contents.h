@@ -251,7 +251,6 @@ public:
 					pGState->SetTextMatrix( tmpMatrix );
 					pObject->SetGState( pGState );
 
-
 					CHE_PDF_Text * pText = (CHE_PDF_Text*)( pObject );
 					pText->SetTextObject( mTextObj );
 					GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;

@@ -72,6 +72,8 @@ public:
 		return pRet;
 	}
 
+	HE_BYTE GetComponentCount() const;
+
 	HE_UINT32 GetArgb( CHE_PDF_Color & color );
 
 private:

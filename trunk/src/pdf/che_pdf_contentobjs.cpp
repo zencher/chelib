@@ -563,7 +563,7 @@ CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 			FT_Set_Transform( face, &matrix, &vector );
 			
 			FT_UInt gid = mItems[index].gid;
-			err = FT_Load_Glyph( face, gid, FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO | FT_LOAD_NO_HINTING /*| FT_LOAD_NO_HINTING*//*FT_LOAD_TARGET_MONO*/ );
+			err = FT_Load_Glyph( face, gid, FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO /*| FT_LOAD_NO_HINTING*/ /*| FT_LOAD_NO_HINTING*//*FT_LOAD_TARGET_MONO*/ );
 			
 // 			FT_Outline_Funcs outline_funcs;
 // 			outline_funcs.move_to = move_to;
@@ -574,7 +574,6 @@ CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 // 			outline_funcs.shift = NULL;
 // 			//FT_Outline_Decompose( &face->glyph->outline, &outline_funcs, pPathRet );
 // 
-
 
 			FT_Outline * outline = &face->glyph->outline;
 			void*                    user = (void*)pPathRet;

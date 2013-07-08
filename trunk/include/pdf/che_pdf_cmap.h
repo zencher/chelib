@@ -14,7 +14,7 @@ public:
 
 	HE_BOOL LookupCode( HE_ULONG cpt, HE_ULONG & codeRet ) const;
 
-	HE_BOOL IsCode( HE_ULONG cpt ) const;
+	HE_BOOL IsCode( HE_ULONG cpt, HE_BYTE byteCount ) const;
 
 private:
 	CHE_PDF_CMap( PDF_CMAP * pCmap, HE_BOOL bNeedClear = FALSE, CHE_Allocator * pAllocator = NULL )

@@ -294,7 +294,7 @@ HE_BOOL CHE_PDF_CMap::LookupCode( HE_ULONG code, HE_ULONG & codeRet ) const
 	return FALSE;
 }
 
-HE_BOOL CHE_PDF_CMap::IsCode( HE_ULONG cpt ) const
+HE_BOOL CHE_PDF_CMap::IsCode( HE_ULONG cpt, HE_BYTE byteCount ) const
 {
 	if ( !mpCMap )
 	{
@@ -302,13 +302,13 @@ HE_BOOL CHE_PDF_CMap::IsCode( HE_ULONG cpt ) const
 	}
 	for ( HE_ULONG i = 0; i < mpCMap->codespace_len; ++i )
 	{
-		//if (mpCMap->codespace[i].n == n + 1)
-		//{
+		if (mpCMap->codespace[i].n == byteCount )
+		{
 			if ( cpt >= mpCMap->codespace[i].low && cpt <= mpCMap->codespace[i].high )
 			{
 				return TRUE;
 			}
-		//}
+		}
 	}
 	return FALSE;
 }

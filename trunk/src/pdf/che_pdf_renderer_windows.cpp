@@ -47,8 +47,8 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	pGState->GetFillColorSpace( fillColorSpace );
 	pGState->GetStrokeColorSpace( strokeColorSpace );
 
-	fillColorVal = fillColorSpace.GetArgb( fillColor );
-	strokeColorVal = strokeColorSpace.GetArgb( strokeColor );
+	fillColorVal = fillColorSpace.GetARGBValue( fillColor );
+	strokeColorVal = strokeColorSpace.GetARGBValue( strokeColor );
 	drawer.SetFillColor( fillColorVal );
 	drawer.SetStrokeColor( strokeColorVal );
 	drawer.SetFillMode( FillMode_Nonzero );

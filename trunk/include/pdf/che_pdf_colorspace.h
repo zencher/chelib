@@ -3,15 +3,6 @@
 
 #include "che_pdf_objects.h"
 
-
-// enum PDF_COLORSPACE_TYPE
-// {
-// 	COLORSPACE_DEVICE	= 0x00,
-// 	COLORSPACE_CIEBASE	= 0x01,
-// 	COLORSPACE_SPECIAL	= 0x02
-// };
-
-
 enum PDF_COLORSPACE_TYPE
 {
 	COLORSPACE_DEVICE_GRAY			= 0x01,
@@ -47,51 +38,43 @@ public:
 class CHE_PDF_ColorSpace : public CHE_Object
 {
 public:
-	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mType(type) {}
+	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_ColorSpace();
 
-	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mType(type), mResName(resName), mpObj(pObj) {}
+	PDF_COLORSPACE_TYPE		GetType() const		{ return mType; }
 
-	PDF_COLORSPACE_TYPE GetType() const { return mType; }
+	CHE_ByteString			GetResName() const	{ return mResName; }
 
-	CHE_ByteString GetResName() const { return mResName; }
+	CHE_PDF_ObjectPtr		GetObj() const		{ return mpObj; }
 
-	CHE_PDF_ObjectPtr GetObj() const { return mpObj; }
+	CHE_PDF_ColorSpace *	Clone() const;
 
-	HE_BOOL IsDeviceColorSpace();
+	HE_BOOL					IsDeviceColorSpace() const;
 
-	CHE_PDF_ColorSpace * Clone() const
-	{
-		CHE_PDF_ColorSpace * pRet = GetAllocator()->New<CHE_PDF_ColorSpace>( mType, GetAllocator() );
-		pRet->mResName = mResName;
-		if ( mpObj )
-		{
-			pRet->mpObj = mpObj->Clone();
-		}
-		return pRet;
-	}
+	HE_BYTE					GetComponentCount() const;
 
-	HE_BYTE GetComponentCount() const;
-
-	HE_UINT32 GetArgb( CHE_PDF_Color & color );
+	HE_ARGB					GetARGBValue( CHE_PDF_Color & color ) const;
 
 private:
-	PDF_COLORSPACE_TYPE mType;
-	CHE_PDF_ObjectPtr mpObj;
-	CHE_ByteString mResName;
+	HE_ARGB					lab_to_rgb( CHE_PDF_Color & color ) const;
+
+	PDF_COLORSPACE_TYPE		mType;
+	CHE_PDF_ObjectPtr		mpObj;
+	CHE_ByteString			mResName;
+
+	//for index color space
+	CHE_PDF_ColorSpace *	mpBaseColorspace;
+	HE_ULONG				mIndexCount;
+	HE_LPBYTE				mpIndexTable;
+	HE_ULONG				mIndexTableSize;
 };
 
-CHE_PDF_ColorSpace * GetColorSpace( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL );
-
-CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL );
-
-CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_NamePtr & pName, CHE_Allocator * pAllocator = NULL );
-
-CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ArrayPtr & pArray, CHE_Allocator * pAllocator = NULL );
-
-CHE_PDF_ColorSpace * GetColorSpace( const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL );
-
-CHE_ByteString GetColorSpaceName( CHE_PDF_ColorSpace * pColorSpace );
+CHE_PDF_ColorSpace *	GetColorSpace( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL );
+CHE_PDF_ColorSpace *	GetColorSpace( const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL );
+CHE_PDF_ColorSpace *	GetColorSpace( const CHE_PDF_NamePtr & pName, CHE_Allocator * pAllocator = NULL );
+CHE_PDF_ColorSpace *	GetColorSpace( const CHE_PDF_ArrayPtr & pArray, CHE_Allocator * pAllocator = NULL );
+CHE_PDF_ColorSpace *	GetColorSpace( const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL );
+CHE_ByteString			GetColorSpaceName( CHE_PDF_ColorSpace * pColorSpace );
 
 #endif

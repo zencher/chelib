@@ -180,12 +180,14 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 				{
 					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
 					item.charCode = 0;
+					HE_BYTE byteCount = 0;
 					for ( HE_ULONG index = 0; index < tmpStr.GetLength(); ++index )
 					{
+						++byteCount;
 						item.charCode = ( item.charCode << 8 ) + HE_BYTE( tmpStr[index] );
 						if ( pFont->GetEncodingType() == FONT_ENCODING_BUILDINCMAP )
 						{
-							if ( pType0Font->IsCode( item.charCode ) == FALSE )
+							if ( pType0Font->IsCode( item.charCode, byteCount ) == FALSE )
 							{
 								continue;
 							}
@@ -193,7 +195,6 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						{
 							continue;
 						}
-						
 						item.gid = 0;
 						item.cid = 0;
 						item.ucs = 0;
@@ -255,6 +256,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 
 						//very important!
 						item.charCode = 0;
+						byteCount = 0;
 					}
 				}
 				else if ( tmpArray[i]->GetType() == OBJ_TYPE_NUMBER )

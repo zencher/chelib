@@ -81,6 +81,8 @@ typedef float  HE_FLOAT;
 
 typedef double HE_DOUBLE;
 
+typedef HE_INT32 HE_ARGB;
+
 #define FALSE 0
 #define TRUE 1
 

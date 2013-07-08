@@ -5267,11 +5267,11 @@ HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	return 1;
 }
 
-HE_BOOL CHE_PDF_Type0_Font::IsCode( HE_ULONG cpt )
+HE_BOOL CHE_PDF_Type0_Font::IsCode( HE_ULONG cpt, HE_BYTE byteCount )
 {
 	if ( mpCIDMap )
 	{
-		return mpCIDMap->IsCode( cpt );
+		return mpCIDMap->IsCode( cpt, byteCount );
 	}
 	return FALSE;
 }

@@ -35,8 +35,6 @@ enum HE_BITMAP_COMPRESSION
 	BITMAP_COMPRESSION_BITFIELDS =3
 };
 
-typedef HE_INT32 HE_ARGB;
-
 class CHE_Palette : public CHE_Object
 {
 public:

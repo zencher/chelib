@@ -295,7 +295,7 @@ HE_BOOL CHE_PDF_ContentString::InlineImageToBuf( const CHE_PDF_InlineImage * pIm
 	CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 
 	CHE_PDF_ObjectString::StringToBuf( "/BPC ", buf );
-	CHE_PDF_ObjectString::DWORDToBuf( pImage->GetBitps(), buf );
+	CHE_PDF_ObjectString::DWORDToBuf( pImage->GetBpc(), buf );
 	CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 
 	if ( pImage->IsMask() )

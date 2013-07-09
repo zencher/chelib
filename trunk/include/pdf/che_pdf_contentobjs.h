@@ -2,6 +2,7 @@
 #define _CHE_PDF_CONTENTOBJS_H_
 
 #include "../che_base.h"
+#include "../che_bitmap.h"
 #include "che_pdf_gstate.h"
 #include "che_pdf_font.h"
 #include "che_pdf_contentresmgr.h"
@@ -320,23 +321,23 @@ public:
     CHE_PDF_StreamPtr       GetStreamPtr() { return mStmPtr; }
     HE_ULONG                GetWidth() const { return mWidth; }
 	HE_ULONG                GetHeight() const { return mHeight; }
-	HE_ULONG                GetBitps() const { return mBitps; }
+	HE_ULONG                GetBPC() const { return mBpc; }
 
 private:
 	CHE_PDF_ReferencePtr    mRefPtr;
     CHE_PDF_StreamPtr       mStmPtr;
     HE_ULONG                mWidth;
 	HE_ULONG                mHeight;
-	HE_ULONG                mBitps;
+	HE_ULONG                mBpc;
 };
 
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bps, HE_LPBYTE pBytes, HE_ULONG size,
+	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bpc, HE_LPBYTE pBytes, HE_ULONG size,
 							CHE_PDF_ObjectPtr objPtr = CHE_PDF_ObjectPtr(), CHE_PDF_ColorSpace * pColorspace = NULL, 
 							CHE_Allocator * pAllocator = NULL ) : CHE_PDF_ContentObject( pAllocator ), mbMask( bMask ),
-							mWidth( width ), mHeight( hight ), mBitps( bps ), mpData( NULL), mDataSize( 0 ),
+							mWidth( width ), mHeight( hight ), mBpc( bpc ), mpData( NULL), mDataSize( 0 ),
 							mDecodeObjPtr( objPtr ), mpColorspace( pColorspace  )
 	{
 		if ( pBytes )
@@ -373,24 +374,26 @@ public:
 		{
 			objPtr = mDecodeObjPtr->Clone();
 		}
-		return GetAllocator()->New<CHE_PDF_InlineImage>( mbMask, mWidth, mHeight, mBitps, mpData, mDataSize, objPtr, pTmpColorSpace, GetAllocator() );
+		return GetAllocator()->New<CHE_PDF_InlineImage>( mbMask, mWidth, mHeight, mBpc, mpData, mDataSize, objPtr, pTmpColorSpace, GetAllocator() );
 	}
 
 	HE_BOOL	IsMask() const { return mbMask; }
 	HE_ULONG GetWidth() const { return mWidth; }
 	HE_ULONG GetHeight() const { return mHeight; }
-	HE_ULONG GetBitps() const { return mBitps; }
+	HE_ULONG GetBpc() const { return mBpc; }
 	CHE_PDF_ColorSpace * GetColorspace() const { return mpColorspace; }
 	CHE_PDF_ObjectPtr GetDecode() const { return mDecodeObjPtr; }
 
 	HE_LPBYTE GetData() const { return mpData; }
 	HE_ULONG GetDataSize() const { return mDataSize; }
 
+	CHE_Bitmap * GetBitmap();
+
 private:
 	HE_BOOL				mbMask;
 	HE_ULONG			mWidth;
 	HE_ULONG			mHeight;
-	HE_ULONG			mBitps;
+	HE_ULONG			mBpc;
 	HE_LPBYTE			mpData;
 	HE_ULONG			mDataSize;
 	CHE_PDF_ColorSpace*	mpColorspace;

@@ -1,16 +1,143 @@
 #include "../../include/pdf/che_pdf_renderer_windows.h"
 #include "../../include/che_image.h"
 
-// CHE_Bitmap * FlateBitmapDecode( HE_LPBYTE data, HE_ULONG size, HE_ULONG width, HE_ULONG height, HE_ULONG bpc, CHE_PDF_ColorSpace & cs, CHE_Allocator * pAllocator = NULL )
-// {
-// 	if ( pAllocator == NULL )
-// 	{
-// 		pAllocator = GetDefaultAllocator();
-// 	}
-// 
-// 	CHE_Bitmap * pBitmap = pAllocator->New<CHE_Bitmap>( pAllocator );
-// 	pBitmap->Create( width, height, (HE_BITMAP_DEPTH)( bpc * cs.GetComponentCount() ), BITMAP_DIRECTION_DOWN );
-// }
+CHE_Bitmap * FlateImageToBitmap( CHE_PDF_RefImage * pImage )
+{
+	CHE_Bitmap * pRet = NULL;
+	if ( pImage == NULL )
+	{
+		return pRet;
+	}
+
+	CHE_PDF_ReferencePtr refPtr = pImage->GetRef();
+	if ( refPtr )
+	{
+		CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
+		if ( objPtr )
+		{
+			CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+			CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+			objPtr = dictPtr->GetElement( "Filter", OBJ_TYPE_NAME );
+			if ( objPtr )
+			{
+				if ( objPtr->GetNamePtr()->GetString() == "FlateDecode" )
+				{
+					HE_ULONG width = pImage->GetWidth();
+					HE_ULONG height = pImage->GetHeight();
+					HE_ULONG bpc = pImage->GetBPC();
+					CHE_PDF_ColorSpace * pColorspace = NULL;
+
+					objPtr = dictPtr->GetElement( "ColorSpace", OBJ_TYPE_ARRAY );
+					if ( objPtr )
+					{
+						pColorspace = GetColorSpace( objPtr->GetArrayPtr() );
+					}else{
+						objPtr = dictPtr->GetElement( "ColorSpace", OBJ_TYPE_NAME );
+						if ( objPtr )
+						{
+							pColorspace = GetColorSpace( objPtr->GetNamePtr()->GetString() );
+						}
+					}
+					if ( pColorspace )
+					{
+						CHE_PDF_StreamAcc stmAcc;
+						if ( stmAcc.Attach( stmPtr ) )
+						{
+							HE_LPBYTE pData = stmAcc.GetData();
+							HE_LPBYTE pTmpByte = NULL;
+							HE_ARGB colorARGB = 0xFF000000;
+							CHE_PDF_Color color;
+							HE_ULONG component = pColorspace->GetComponentCount();
+
+							pRet = GetDefaultAllocator()->New<CHE_Bitmap>();
+							
+							if ( pColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+							{
+								component = 1;
+							}
+							pRet->Create( width, height, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_DOWN );
+							if ( bpc == 8 )
+							{
+								for ( HE_ULONG y = 0; y < height; ++y )
+								{
+									for ( HE_ULONG x = 0 ; x < width; ++x )
+									{
+										color.mConponents.clear();
+										pTmpByte = pData + ( ( y * width + x ) * component );
+										for ( HE_ULONG i = 0; i < component; ++i )
+										{
+											if ( pColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+											{
+												color.mConponents.push_back( *( pTmpByte ) );
+											}else{
+												color.mConponents.push_back( *( pTmpByte ) / 255.0f );
+											}
+											pTmpByte++;
+										}
+										colorARGB = pColorspace->GetARGBValue( color );
+										pRet->SetPixelColor( x, y, colorARGB );
+									}
+								}
+							}else if ( bpc == 4 )
+							{
+								HE_ULONG stride = (width * component * bpc + 7) / 8;							
+								HE_BYTE tmpByte = 0;
+//								HE_ULONG byteCount = stride * height;
+// 								if ( byteCount > stmAcc.GetSize() )
+// 								{
+// 									byteCount = stmAcc.GetSize();
+// 								}
+								color.mConponents.clear();
+								for ( HE_ULONG y = 0, x = 0; y < height; ++y )
+								{
+									x = 0;
+									pTmpByte = pData + ( y * stride );
+									for ( HE_ULONG i = 0; i < stride; ++i )
+									{
+										tmpByte = *(pTmpByte + i);
+
+										if ( pColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+										{
+											color.mConponents.push_back( tmpByte >> 4 );
+										}else{
+											color.mConponents.push_back( ( tmpByte >> 4 ) / 16.0f );
+										}
+										if ( color.mConponents.size() == component )
+										{
+											colorARGB = pColorspace->GetARGBValue( color );
+											pRet->SetPixelColor( x++, y, colorARGB );
+											color.mConponents.clear();
+										}
+										if ( pColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+										{
+											color.mConponents.push_back( tmpByte & 0x0F );
+										}else{
+											color.mConponents.push_back( ( tmpByte & 0x0F ) / 16.0f );
+										}
+										if ( color.mConponents.size() == component )
+										{
+											colorARGB = pColorspace->GetARGBValue( color );
+											pRet->SetPixelColor( x++, y, colorARGB );
+											color.mConponents.clear();
+										}
+									}
+								}
+							}else if ( bpc == 2 )
+							{
+							}else if ( bpc == 1 )
+							{
+							}
+							stmAcc.Detach();
+							GetDefaultAllocator()->Delete( pColorspace );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return pRet;
+}
 
 inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
 {
@@ -201,6 +328,11 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 	drawer.ClipPath();
 }
 
+HE_VOID outputForm( CHE_PDF_ContentObject & list, CHE_GraphicsDrawer & drawer )
+{
+
+}
+
 HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
 									HE_FLOAT scale, HE_FLOAT dipx, HE_FLOAT dipy, CHE_Rect * pClipRect )
 {
@@ -253,6 +385,11 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 
 		switch ( (*it)->GetType() )
 		{
+		case ContentType_Form:
+			{
+				CHE_PDF_Form * pForm = (CHE_PDF_Form *)( *it );
+				break;
+			}
 		case ContentType_Path:
 			{
 				CHE_PDF_Path * pPath = (CHE_PDF_Path*)(*it);
@@ -501,39 +638,15 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 								delete pBitmap;
                             }else if ( objPtr->GetNamePtr()->GetString() == "FlateDecode" )
                             {
-// 								CHE_PDF_StreamAcc stmAcc;
-// 								CHE_Bitmap bitmap( GetDefaultAllocator() );
-// 								HE_LPBYTE p = NULL;
-// 								HE_ULONG width = 0;
-// 								HE_ULONG height = 0;
-// 								HE_ULONG x = 0;
-// 								HE_ULONG y = 0;
-// 								HE_ARGB color = 0;
-// 								if ( stmAcc.Attach( stmPtr ) )
-// 								{
-// 									p = stmAcc.GetData();
-// 									bitmap.Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps() * 3), BITMAP_DIRECTION_DOWN/*, stmAcc.GetSize(), stmAcc.GetData()*/ );
-// 									bitmap.ExchangeChannel( BITMAP_CHANNEL_Blue, BITMAP_CHANNEL_Red );
-// 									width = bitmap.Width();
-// 									height = bitmap.Height();
-// 									color = 0;
-// 									for ( y = 0; y < height; ++y )
-// 									{
-// 										for ( x = 0 ; x < width; ++x )
-// 										{
-//  											color = 0;
-//  											color = ( color << 8 ) + *( p + ( ( y * width + x ) * 3 ) );
-//  											color = ( color << 8 ) + *( p + ( ( y * width + x ) * 3 + 1 ) );
-// 											color = ( color << 8 ) + *( p + ( ( y * width + x ) * 3 + 2 ) );
-//  											bitmap.SetPixelColor( x, y, color );
-// 										}
-// 									}
-// 
-// 									HE_LPBYTE pBuf = GetDefaultAllocator()->NewArray<HE_BYTE>( bitmap.GetMemBitmapDataSize() + 14 );
-// 									bitmap.SaveToMem( pBuf, bitmap.GetMemBitmapDataSize()+14 );
-// 									drawer.DrawImage( IMAGE_BMP, pBuf, bitmap.GetMemBitmapDataSize()+14 );
-// 									GetDefaultAllocator()->DeleteArray( pBuf );
-// 									stmAcc.Detach();
+								CHE_Bitmap * pBitmap = FlateImageToBitmap( pImage );
+								if ( pBitmap )
+								{
+									HE_LPBYTE pBuf = GetDefaultAllocator()->NewArray<HE_BYTE>( pBitmap->GetMemBitmapDataSize() + 14 );
+									pBitmap->SaveToMem( pBuf,pBitmap->GetMemBitmapDataSize()+14 );
+									drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+									GetDefaultAllocator()->DeleteArray( pBuf );
+									pBitmap->GetAllocator()->Delete( pBitmap );  
+								}
 							}else{
 								HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
 								stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
@@ -549,13 +662,15 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 		case ContentType_InlineImage:
 			{
 				CHE_PDF_InlineImage * pImage = (CHE_PDF_InlineImage*)(*it);
-				CHE_Bitmap * pBitmap = new CHE_Bitmap;
-				pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, pImage->GetDataSize(), pImage->GetData() );
-				HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-				pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-				drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-				delete [] pBuf;
-				delete pBitmap;
+				CHE_Bitmap * pBitmap = pImage->GetBitmap();
+				if ( pBitmap )
+				{
+					HE_LPBYTE pBuf = GetDefaultAllocator()->NewArray<HE_BYTE>( pBitmap->GetMemBitmapDataSize()+14 );
+					pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+					drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+					GetDefaultAllocator()->DeleteArray( pBuf );
+					pBitmap->GetAllocator()->Delete( pBitmap );
+				}
 				break;
 			}
 		default:

@@ -275,6 +275,9 @@ HE_BYTE CHE_PDF_ColorSpace::GetComponentCount() const
 			break;
 		}
 	case COLORSPACE_SPECIAL_PATTERN:
+		{
+			return 0;
+		}
 	case COLORSPACE_SPECIAL_SEPARATION:
 	case COLORSPACE_SPECIAL_DEVICEN:
 	default:
@@ -549,7 +552,7 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 			if ( mpBaseColorspace  )
 			{
 				HE_BYTE index = (HE_BYTE)(color.mConponents[0]);
-				if ( mpIndexTable && ( index * mpBaseColorspace->GetComponentCount() ) < mIndexTableSize )
+				if ( mpIndexTable && ( index * mpBaseColorspace->GetComponentCount() < mIndexTableSize ) )
 				{
 					HE_BYTE component = 0;
 					CHE_PDF_Color newColor;

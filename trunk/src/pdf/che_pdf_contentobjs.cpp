@@ -794,7 +794,7 @@ CHE_PDF_Form::~CHE_PDF_Form()
 
 
 CHE_PDF_RefImage::CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator /*= NULL*/ )
-    : CHE_PDF_NamedContentObject(name, pAllocator), mRefPtr(pRef), mWidth(0), mHeight(0), mBitps(0)
+    : CHE_PDF_NamedContentObject(name, pAllocator), mRefPtr(pRef), mWidth(0), mHeight(0), mBpc(0)
 {
     if ( mRefPtr )
     {
@@ -818,11 +818,100 @@ CHE_PDF_RefImage::CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_R
                 objPtr = dictPtr->GetElement( "BitsPerComponent", OBJ_TYPE_NUMBER );
                 if ( objPtr )
                 {
-                    mBitps = objPtr->GetNumberPtr()->GetInteger();
+                    mBpc = objPtr->GetNumberPtr()->GetInteger();
                 }
             }
         }
     }
+}
+
+CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
+{
+	CHE_Bitmap * pRet = NULL;
+	if ( mpColorspace == NULL )
+	{
+		return pRet;
+	}
+		
+	HE_LPBYTE pData = mpData;
+	HE_LPBYTE pTmpByte = NULL;
+	HE_ARGB colorARGB = 0xFF000000;
+	CHE_PDF_Color color;
+
+	pRet = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
+	HE_ULONG component = mpColorspace->GetComponentCount();
+	if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+	{
+		component = 1;
+	}
+	pRet->Create( mWidth, mHeight, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_DOWN );
+	if ( mBpc == 8 )
+	{
+		for ( HE_ULONG y = 0; y < mHeight; ++y )
+		{
+			for ( HE_ULONG x = 0 ; x < mWidth; ++x )
+			{
+				color.mConponents.clear();
+				pTmpByte = pData + ( ( y * mWidth + x ) * component );
+				for ( HE_ULONG i = 0; i < component; ++i )
+				{
+					if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+					{
+						color.mConponents.push_back( *( pTmpByte ) );
+					}else{
+						color.mConponents.push_back( *( pTmpByte ) / 255.0f );
+					}
+					pTmpByte++;
+				}
+				colorARGB = mpColorspace->GetARGBValue( color );
+				pRet->SetPixelColor( x, y, colorARGB );
+			}
+		}
+	}else if ( mBpc == 4 )
+	{
+		HE_ULONG stride = (mWidth * component * mBpc + 7) / 8;							
+		HE_BYTE tmpByte = 0;
+		color.mConponents.clear();
+		for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
+		{
+			x = 0;
+			pTmpByte = pData + ( y * stride );
+			for ( HE_ULONG i = 0; i < stride; ++i )
+			{
+				tmpByte = *(pTmpByte + i);
+
+				if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+				{
+					color.mConponents.push_back( tmpByte >> 4 );
+				}else{
+					color.mConponents.push_back( ( tmpByte >> 4 ) / 16.0f );
+				}
+				if ( color.mConponents.size() == component )
+				{
+					colorARGB = mpColorspace->GetARGBValue( color );
+					pRet->SetPixelColor( x++, y, colorARGB );
+					color.mConponents.clear();
+				}
+				if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+				{
+					color.mConponents.push_back( tmpByte & 0x0F );
+				}else{
+					color.mConponents.push_back( ( tmpByte & 0x0F ) / 16.0f );
+				}
+				if ( color.mConponents.size() == component )
+				{
+					colorARGB = mpColorspace->GetARGBValue( color );
+					pRet->SetPixelColor( x++, y, colorARGB );
+					color.mConponents.clear();
+				}
+			}
+		}
+	}else if ( mBpc == 2 )
+	{
+	}else if ( mBpc == 1 )
+	{
+	}
+	return pRet;
 }
 
 

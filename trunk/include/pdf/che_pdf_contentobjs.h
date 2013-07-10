@@ -307,8 +307,7 @@ class CHE_PDF_RefImage : public CHE_PDF_NamedContentObject
 {
 public:
 	CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL );
-
-	~CHE_PDF_RefImage() {}
+	~CHE_PDF_RefImage();
 
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_RefImage; }
 
@@ -322,6 +321,7 @@ public:
     HE_ULONG                GetWidth() const { return mWidth; }
 	HE_ULONG                GetHeight() const { return mHeight; }
 	HE_ULONG                GetBPC() const { return mBpc; }
+	CHE_PDF_ColorSpace*		GetColorspace() const { return mpColorspace; }
 
 private:
 	CHE_PDF_ReferencePtr    mRefPtr;
@@ -329,6 +329,7 @@ private:
     HE_ULONG                mWidth;
 	HE_ULONG                mHeight;
 	HE_ULONG                mBpc;
+	CHE_PDF_ColorSpace*		mpColorspace;
 };
 
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject

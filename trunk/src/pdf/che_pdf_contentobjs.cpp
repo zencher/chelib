@@ -794,7 +794,7 @@ CHE_PDF_Form::~CHE_PDF_Form()
 
 
 CHE_PDF_RefImage::CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator /*= NULL*/ )
-    : CHE_PDF_NamedContentObject(name, pAllocator), mRefPtr(pRef), mWidth(0), mHeight(0), mBpc(0)
+    : CHE_PDF_NamedContentObject(name, pAllocator), mRefPtr(pRef), mWidth(0), mHeight(0), mBpc(0), mpColorspace(NULL)
 {
     if ( mRefPtr )
     {
@@ -820,9 +820,29 @@ CHE_PDF_RefImage::CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_R
                 {
                     mBpc = objPtr->GetNumberPtr()->GetInteger();
                 }
+				objPtr = dictPtr->GetElement( "ColorSpace", OBJ_TYPE_ARRAY );
+				if ( objPtr )
+				{
+					mpColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetArrayPtr(), GetAllocator() );
+				}else{
+					objPtr = dictPtr->GetElement( "ColorSpace", OBJ_TYPE_NAME );
+					if ( objPtr )
+					{
+						mpColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetNamePtr(), GetAllocator() );
+					}
+				}
             }
         }
     }
+}
+
+CHE_PDF_RefImage::~CHE_PDF_RefImage()
+{
+	if ( mpColorspace )
+	{
+		mpColorspace->GetAllocator()->Delete( mpColorspace );
+		mpColorspace = NULL;
+	}
 }
 
 CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()

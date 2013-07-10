@@ -783,22 +783,21 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 	{
 		if ( mpColorSpace->GetType() == OBJ_TYPE_NAME )
 		{
-			CHE_ByteString str = mpColorSpace->GetNamePtr()->GetString();
-			pColorspace = GetColorSpace( str, GetAllocator() );
+			pColorspace = CHE_PDF_ColorSpace::Create( mpColorSpace->GetNamePtr(), GetAllocator() );
 			if ( pColorspace == NULL )
 			{
-				CHE_PDF_ObjectPtr pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, str );
+				CHE_PDF_ObjectPtr pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, pObj->GetNamePtr()->GetString() );
 				if ( ! pObj )
 				{
 					/*assert(0);*/
 					/*error*/
-				}
+				} 
 				if ( pObj->GetType() == OBJ_TYPE_NAME )
 				{
-					pColorspace = GetColorSpace( pObj->GetNamePtr(), GetAllocator() );
+					pColorspace = CHE_PDF_ColorSpace::Create( pObj->GetNamePtr()->GetString(), GetAllocator() );
 				}else if ( pObj->GetType() == OBJ_TYPE_ARRAY )
 				{
-					pColorspace = GetColorSpace( pObj->GetArrayPtr(), GetAllocator() );
+					pColorspace = CHE_PDF_ColorSpace::Create( pObj->GetNamePtr()->GetString(), GetAllocator() );
 				}else{
 					/*assert(0);*/
 					/*error*/
@@ -806,7 +805,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 			}
 		}else if ( mpColorSpace->GetType() == OBJ_TYPE_ARRAY )
 		{
-			pColorspace = GetColorSpace( mpColorSpace->GetArrayPtr(), GetAllocator() );
+			pColorspace = CHE_PDF_ColorSpace::Create( mpColorSpace->GetArrayPtr(), GetAllocator() );
 		}
 		/*assert( 0 );*/
 		/*error*/

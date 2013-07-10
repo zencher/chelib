@@ -38,6 +38,12 @@ public:
 class CHE_PDF_ColorSpace : public CHE_Object
 {
 public:
+	static CHE_PDF_ColorSpace * Create( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ColorSpace *	Create( const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ColorSpace *	Create( const CHE_PDF_NamePtr & pName, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ColorSpace *	Create( const CHE_PDF_ArrayPtr & pArray, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ColorSpace *	Create( const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL );
+
 	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator * pAllocator = NULL );
 	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_ColorSpace();
@@ -45,6 +51,8 @@ public:
 	PDF_COLORSPACE_TYPE		GetType() const		{ return mType; }
 
 	CHE_ByteString			GetResName() const	{ return mResName; }
+
+	CHE_ByteString			GetName() const;
 
 	CHE_PDF_ObjectPtr		GetObj() const		{ return mpObj; }
 
@@ -70,11 +78,5 @@ private:
 	HE_ULONG				mIndexTableSize;
 };
 
-CHE_PDF_ColorSpace *	GetColorSpace( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL );
-CHE_PDF_ColorSpace *	GetColorSpace( const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL );
-CHE_PDF_ColorSpace *	GetColorSpace( const CHE_PDF_NamePtr & pName, CHE_Allocator * pAllocator = NULL );
-CHE_PDF_ColorSpace *	GetColorSpace( const CHE_PDF_ArrayPtr & pArray, CHE_Allocator * pAllocator = NULL );
-CHE_PDF_ColorSpace *	GetColorSpace( const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL );
-CHE_ByteString			GetColorSpaceName( CHE_PDF_ColorSpace * pColorSpace );
 
 #endif

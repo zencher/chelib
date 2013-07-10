@@ -186,6 +186,8 @@ protected:
 	CHE_PDF_FontDescriptor*	mpFontDescriptor;
 	HE_LPBYTE				mpEmbeddedFontFile;
 	HE_ULONG				mFontFileSize;
+	HE_WCHAR*				mCIDTOGID;
+	HE_ULONG				mCIDTOGIDLength;
 
 	friend class CHE_Allocator;
 };

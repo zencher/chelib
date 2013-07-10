@@ -310,7 +310,7 @@ HE_BOOL CHE_PDF_ContentString::InlineImageToBuf( const CHE_PDF_InlineImage * pIm
 		{
 			CHE_PDF_ObjectString::StringToBuf( pImage->GetColorspace()->GetResName(), buf );
 		}else{
-			CHE_PDF_ObjectString::StringToBuf( GetColorSpaceName( pImage->GetColorspace() ), buf );
+			CHE_PDF_ObjectString::StringToBuf( pImage->GetColorspace()->GetName(), buf );
 		}
 		CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 	}

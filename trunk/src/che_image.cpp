@@ -1,5 +1,7 @@
 #include "../include/che_image.h"
+#include "../include/pdf/che_pdf_colorspace.h"
 
+#include "../extlib/libjpeg/jpeglib.h"
 #include "../extlib/openjpeg/openjpeg.h"
 #include "../extlib/jbig2dec/jbig2.h"
 
@@ -24,6 +26,146 @@ HE_VOID CHE_ImageDescriptor::AllocData( HE_ULONG size )
 	}
 	mData = GetAllocator()->NewArray<HE_BYTE>( size );
 	mSize = size;
+}
+
+// #include <jpeglib.h>
+// #include <setjmp.h>
+
+struct jpeg_error_mgr_jmp
+{
+	struct jpeg_error_mgr super;
+	jmp_buf env;
+	char msg[JMSG_LENGTH_MAX];
+};
+
+static void error_exit(j_common_ptr cinfo)
+{
+	struct jpeg_error_mgr_jmp *err = (struct jpeg_error_mgr_jmp *)cinfo->err;
+	cinfo->err->format_message(cinfo, err->msg);
+	longjmp(err->env, 1);
+}
+
+static void init_source(j_decompress_ptr cinfo)
+{
+	/* nothing to do */
+}
+
+static void term_source(j_decompress_ptr cinfo)
+{
+	/* nothing to do */
+}
+
+static boolean fill_input_buffer(j_decompress_ptr cinfo)
+{
+	static unsigned char eoi[2] = { 0xFF, JPEG_EOI };
+	struct jpeg_source_mgr *src = cinfo->src;
+	src->next_input_byte = eoi;
+	src->bytes_in_buffer = 2;
+	return 1;
+}
+
+static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+{
+	struct jpeg_source_mgr *src = cinfo->src;
+	if (num_bytes > 0)
+	{
+		src->next_input_byte += num_bytes;
+		src->bytes_in_buffer -= num_bytes;
+	}
+}
+
+HE_BOOL image_decode_jpeg( HE_LPBYTE data, HE_ULONG size, CHE_ImageDescriptor & desRet )
+{
+	jpeg_decompress_struct cinfo;
+	jpeg_error_mgr_jmp err;
+	struct jpeg_source_mgr src;
+	unsigned char *row[1], *sp, *dp;
+	/*fz_colorspace *colorspace;*/
+	unsigned int x;
+	int k;
+
+	if (setjmp(err.env))
+	{
+// 		if (image)
+// 			fz_drop_pixmap(ctx, image);
+// 		fz_throw(ctx, "jpeg error: %s", err.msg);
+	}
+
+ 	cinfo.err = jpeg_std_error(&err.super);
+ 	err.super.error_exit = error_exit;
+
+	jpeg_create_decompress(&cinfo);
+
+	cinfo.src = &src;
+	src.init_source = init_source;
+	src.fill_input_buffer = fill_input_buffer;
+	src.skip_input_data = skip_input_data;
+	src.resync_to_restart = jpeg_resync_to_restart;
+	src.term_source = term_source;
+	src.next_input_byte = data;
+	src.bytes_in_buffer = size;
+
+	jpeg_read_header(&cinfo, 1);
+
+	jpeg_start_decompress(&cinfo);
+
+// 	if (cinfo.output_components == 1)
+// 		colorspace = fz_device_gray;
+// 	else if (cinfo.output_components == 3)
+// 		colorspace = fz_device_rgb;
+// 	else if (cinfo.output_components == 4)
+// 		colorspace = fz_device_cmyk;
+// 	else
+// 		fz_throw(ctx, "bad number of components in jpeg: %d", cinfo.output_components);
+
+// 	fz_try(ctx)
+// 	{
+// 		image = fz_new_pixmap(ctx, colorspace, cinfo.output_width, cinfo.output_height);
+// 	}
+// 	fz_catch(ctx)
+// 	{
+		jpeg_finish_decompress(&cinfo);
+		jpeg_destroy_decompress(&cinfo);
+// 		fz_throw(ctx, "out of memory");
+// 	}
+
+// 	if (cinfo.density_unit == 1)
+// 	{
+// 		image->xres = cinfo.X_density;
+// 		image->yres = cinfo.Y_density;
+// 	}
+// 	else if (cinfo.density_unit == 2)
+// 	{
+// 		image->xres = cinfo.X_density * 254 / 100;
+// 		image->yres = cinfo.Y_density * 254 / 100;
+// 	}
+// 
+// 	if (image->xres <= 0) image->xres = 72;
+// 	if (image->yres <= 0) image->yres = 72;
+
+/*	fz_clear_pixmap(ctx, image);*/
+
+	row[0] = GetDefaultAllocator()->NewArray<unsigned char>( cinfo.output_components * cinfo.output_width );
+	//row[0] = fz_malloc(ctx, cinfo.output_components * cinfo.output_width);
+	desRet.AllocData( cinfo.output_components * cinfo.output_height * cinfo.output_width );
+	dp = desRet.GetData();
+	while (cinfo.output_scanline < cinfo.output_height)
+	{
+		jpeg_read_scanlines(&cinfo, row, 1);
+		sp = row[0];
+		for (x = 0; x < cinfo.output_width; x++)
+		{
+			for (k = 0; k < cinfo.output_components; k++)
+				*dp++ = *sp++;
+			*dp++ = 255;
+		}
+	}
+	GetDefaultAllocator()->DeleteArray( row[0] );
+
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+
+	return TRUE;
 }
 
 static void fz_opj_error_callback(const char *msg, void *client_data)
@@ -228,6 +370,7 @@ HE_BOOL CHE_ImageDecoder::Decode( HE_IMAGE_TYPE type, HE_LPBYTE data, HE_ULONG s
 	switch ( type )
 	{
 	case IMAGE_TYPE_JPEG:
+		return image_decode_jpeg( data, size, desRet );
 	case IMAGE_TYPE_JPX:
 		return image_decode_jpx( data, size, desRet );
 	case IMAGE_TYPE_JBIG2:
@@ -237,6 +380,135 @@ HE_BOOL CHE_ImageDecoder::Decode( HE_IMAGE_TYPE type, HE_LPBYTE data, HE_ULONG s
 		break;
 	}
 	return FALSE;
+}
+
+CHE_Bitmap * image_decode_jpeg_to_bitmap( HE_LPBYTE data, HE_ULONG size )
+{
+	struct jpeg_decompress_struct cinfo;
+	struct jpeg_source_mgr src;
+	struct jpeg_error_mgr err;
+	jmp_buf jb;
+
+	unsigned char *row[1], *sp, *dp;
+	/*fz_colorspace *colorspace;*/
+	unsigned int x;
+	int k;
+
+	CHE_PDF_ColorSpace * colorspace = NULL;
+
+	cinfo.err = &err;
+	jpeg_std_error(cinfo.err);
+	cinfo.err->error_exit = error_exit;
+	cinfo.client_data = NULL;
+
+	jpeg_create_decompress(&cinfo);
+
+	cinfo.src = &src;
+	src.init_source = init_source;
+	src.fill_input_buffer = fill_input_buffer;
+	src.skip_input_data = skip_input_data;
+	src.resync_to_restart = jpeg_resync_to_restart;
+	src.term_source = term_source;
+	src.next_input_byte = data;
+	src.bytes_in_buffer = size;
+
+	jpeg_read_header(&cinfo, 1);
+
+	/* speed up jpeg decoding a bit */
+	cinfo.dct_method = JDCT_FASTEST;
+	cinfo.do_fancy_upsampling = FALSE;
+
+	jpeg_start_decompress(&cinfo);
+
+	if (cinfo.output_components == 4)
+		colorspace = CHE_PDF_ColorSpace::Create( "DeviceCMYK", GetDefaultAllocator() );
+// 	else if (cinfo.output_components == 3)
+// 		colorspace = fz_device_rgb;
+// 	else if (cinfo.output_components == 4)
+// 		colorspace = fz_device_cmyk;
+	// 	else
+	// 		fz_throw(ctx, "bad number of components in jpeg: %d", cinfo.output_components);
+
+	// 	fz_try(ctx)
+	// 	{
+	// 		image = fz_new_pixmap(ctx, colorspace, cinfo.output_width, cinfo.output_height);
+	// 	}
+	// 	fz_catch(ctx)
+	// 	{
+	//jpeg_finish_decompress(&cinfo);
+	//jpeg_destroy_decompress(&cinfo);
+	// 		fz_throw(ctx, "out of memory");
+	// 	}
+
+	// 	if (cinfo.density_unit == 1)
+	// 	{
+	// 		image->xres = cinfo.X_density;
+	// 		image->yres = cinfo.Y_density;
+	// 	}
+	// 	else if (cinfo.density_unit == 2)
+	// 	{
+	// 		image->xres = cinfo.X_density * 254 / 100;
+	// 		image->yres = cinfo.Y_density * 254 / 100;
+	// 	}
+	// 
+	// 	if (image->xres <= 0) image->xres = 72;
+	// 	if (image->yres <= 0) image->yres = 72;
+
+	/*	fz_clear_pixmap(ctx, image);*/
+
+	row[0] = GetDefaultAllocator()->NewArray<unsigned char>( cinfo.output_components * cinfo.output_width );
+	//row[0] = fz_malloc(ctx, cinfo.output_components * cinfo.output_width);
+
+	CHE_Bitmap * pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+
+	if ( cinfo.output_components == 1 )
+	{
+		pBitmap->Create( cinfo.output_width, cinfo.output_height, BITMAP_DEPTH_8BPP, BITMAP_DIRECTION_DOWN );
+	}else{
+		pBitmap->Create( cinfo.output_width, cinfo.output_height, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_DOWN );
+	}
+	
+	if ( colorspace )
+	{
+		CHE_PDF_Color color;
+		HE_ARGB colorARGB = 0xFF000000;
+		while (cinfo.output_scanline < cinfo.output_height)
+		{
+			jpeg_read_scanlines(&cinfo, row, 1);
+			sp = row[0];
+			for (x = 0; x < cinfo.output_width; x++)
+			{
+				color.mConponents.clear();
+				for (k = 0; k < cinfo.output_components; k++)
+				{
+					color.mConponents.push_back( ( *sp ) / 255.0f );
+					sp++;
+				}
+				colorARGB = colorspace->GetARGBValue( color );
+				pBitmap->SetPixelColor( x, cinfo.output_scanline, colorARGB ); 
+			}
+		}
+	}else{
+		dp = (HE_LPBYTE)( pBitmap->GetBuffer() );
+		while (cinfo.output_scanline < cinfo.output_height)
+		{
+			jpeg_read_scanlines(&cinfo, row, 1);
+			sp = row[0];
+			for (x = 0; x < cinfo.output_width; x++)
+			{
+				for (k = 0; k < cinfo.output_components; k++)
+					*dp++ = *sp++;
+				*dp++ = 255;
+			}
+		}
+	}
+	
+	GetDefaultAllocator()->DeleteArray( row[0] );
+
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+
+	return pBitmap;
 }
 
 CHE_Bitmap * image_decode_jpx_to_bitmap( HE_LPBYTE data, HE_ULONG size )
@@ -421,6 +693,7 @@ CHE_Bitmap * CHE_ImageDecoder::Decode( HE_IMAGE_TYPE type, HE_LPBYTE data, HE_UL
 	switch ( type )
 	{
 	case IMAGE_TYPE_JPEG:
+		return image_decode_jpeg_to_bitmap( data, size );
 	case IMAGE_TYPE_JPX:
 		return image_decode_jpx_to_bitmap( data, size );
 	case IMAGE_TYPE_JBIG2:

@@ -563,6 +563,14 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 					CHE_PDF_ObjectPtr objPtr;
 					CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
 					objPtr = dictPtr->GetElement( "Filter", OBJ_TYPE_NAME );
+					if ( !objPtr )
+					{
+						objPtr = dictPtr->GetElement( "Filter", OBJ_TYPE_ARRAY );
+						if ( objPtr )
+						{
+							objPtr = objPtr->GetArrayPtr()->GetElement( 0, OBJ_TYPE_NAME );
+						}
+					}
 					if ( objPtr )
 					{
 						if ( objPtr->GetNamePtr()->GetString() == "JBIG2Decode" )
@@ -629,7 +637,22 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 								pBitmap->GetAllocator()->Delete( pBitmap );
 								pBitmap = NULL;
 							}
-						}else{
+						}else if ( objPtr->GetNamePtr()->GetString() == "DCTDecode" && pImage->GetColorspace()->GetComponentCount() == 4 )
+						{
+							CHE_ImageDecoder imgDecoder;
+
+							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
+							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
+							CHE_Bitmap * pBitmap = imgDecoder.Decode( IMAGE_TYPE_JPEG, pBuf, stmPtr->GetRawSize() );
+							HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+							pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+							drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+							delete [] pBuf;
+							delete [] bitmap;
+							pBitmap->GetAllocator()->Delete( pBitmap );
+							pBitmap = NULL;
+						}
+						else{
 							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
 							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
 							drawer.DrawImage( IMAGE_BMP, pBuf, stmPtr->GetRawSize() );

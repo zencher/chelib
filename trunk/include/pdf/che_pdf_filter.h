@@ -3,6 +3,7 @@
 
 #include "../che_base.h"
 #include "../che_datastructure.h"
+#include "che_pdf_objects.h"
 
 class CHE_PDF_Filter : public CHE_Object
 {
@@ -214,6 +215,36 @@ private:
     bool          m_bFirst;
 
 	CHE_PDF_Predictor * m_pPredictor;
+};
+
+class CHE_PDF_FaxDecodeParams /*: public CHE_Object*/
+{
+public:
+	CHE_PDF_FaxDecodeParams( CHE_PDF_DictionaryPtr dictPtr/*, CHE_Allocator * pAllocator = NULL*/ );
+	//~CHE_PDF_FaxDecodeParams();
+
+	HE_INT32		k;
+	HE_INT32		columns;
+	HE_INT32		rows;
+	HE_BOOL			eol;
+	HE_BOOL			eba;
+	HE_BOOL			eob;
+	HE_BOOL			bi1;
+};
+
+class CHE_PDF_FaxFilter : public CHE_PDF_Filter
+{
+public:
+	CHE_PDF_FaxFilter( CHE_PDF_FaxDecodeParams * pParams = NULL, CHE_Allocator * pAllocator = NULL );
+
+	~CHE_PDF_FaxFilter();
+
+	HE_VOID		Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+
+	HE_VOID		Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+
+private:
+	CHE_PDF_FaxDecodeParams * mpParams;
 };
 
 class CHE_PDF_JPXFilter : public CHE_PDF_Filter

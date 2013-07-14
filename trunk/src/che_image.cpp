@@ -124,8 +124,8 @@ HE_BOOL image_decode_jpeg( HE_LPBYTE data, HE_ULONG size, CHE_ImageDescriptor & 
 // 	}
 // 	fz_catch(ctx)
 // 	{
-		jpeg_finish_decompress(&cinfo);
-		jpeg_destroy_decompress(&cinfo);
+//		jpeg_finish_decompress(&cinfo);
+//		jpeg_destroy_decompress(&cinfo);
 // 		fz_throw(ctx, "out of memory");
 // 	}
 

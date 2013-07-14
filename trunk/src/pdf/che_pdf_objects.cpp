@@ -1265,224 +1265,232 @@ CHE_PDF_StreamAcc::~CHE_PDF_StreamAcc()
 
 HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 {
-	if ( pStream )
+	if ( ! pStream )
 	{
-		m_pDataBuf = NULL;
-		m_dwSize = 0;
-		mStreamPtr = pStream;
+		return FALSE;
+	}
 
-		HE_BOOL retValue = TRUE;
-		
-		CHE_PDF_DictionaryPtr pDict = pStream->GetDictPtr();
-		if ( pDict )
+	if ( mStreamPtr )
+	{
+		Detach();
+	}
+
+	HE_BOOL retValue = TRUE;
+	CHE_PDF_DictionaryPtr pDict = pStream->GetDictPtr();
+	if ( pDict )
+	{
+		HE_ULONG lFilterCount = 0;
+		HE_ULONG length = pStream->GetRawSize();
+		CHE_PDF_ObjectPtr pFilter = pDict->GetElement( "Filter" );
+		CHE_PDF_ObjectPtr pParms = pDict->GetElement( "DecodeParms" );
+
+		if ( ! pFilter )
 		{
-			HE_ULONG lFilterCount = 0;
-			HE_ULONG length = pStream->GetRawSize();
-			CHE_PDF_ObjectPtr pFilter = pDict->GetElement( "Filter" );
-			CHE_PDF_ObjectPtr pParms = pDict->GetElement( "DecodeParms" );
-			if ( ! pFilter )
-			{
-				m_dwSize = length;
-				m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( length );
-				pStream->GetRawData( 0, m_pDataBuf, length );
-// 				if ( pStream->m_pEncrypt && pStream->m_pEncrypt->IsPasswordOK() == TRUE )
-// 				{
-// 					pStream->m_pEncrypt->Decrypt( m_pDataBuf, length, pStream->GetObjNum(), pStream->GetGenNum() );
-// 				}
-				return TRUE;
-			}else{
-				if ( pFilter->GetType() == OBJ_TYPE_ARRAY )
-				{
-					lFilterCount = pFilter->GetArrayPtr()->GetCount();
-				}else{
-					lFilterCount = 1;
-				}
-			}
-			CHE_PDF_NamePtr * pFilterNameArr = NULL;
-			CHE_PDF_DictionaryPtr * pParamDictArr = NULL;
-	
-			pFilterNameArr = GetAllocator()->NewArray<CHE_PDF_NamePtr>( lFilterCount );
-			pParamDictArr = GetAllocator()->NewArray<CHE_PDF_DictionaryPtr>( lFilterCount );
-
-			if ( pFilter->GetType() == OBJ_TYPE_NAME )
-			{
-				pFilterNameArr[0] = pFilter->GetNamePtr();
-			}else if ( pFilter->GetType() == OBJ_TYPE_ARRAY )
-			{
-				CHE_PDF_ArrayPtr tmpArrayPtr = pFilter->GetArrayPtr();
-				for ( HE_ULONG i = 0; i < lFilterCount; i++ )
-				{
-					pFilterNameArr[i] = tmpArrayPtr->GetElement( i )->GetNamePtr();
-				}
-			}else{
-				return FALSE;
-			}
-			if ( pParms && pParms->GetType() == OBJ_TYPE_DICTIONARY )
-			{
-				pParamDictArr[0] = pParms->GetDictPtr();
-			}else if ( pParms && pParms->GetType() == OBJ_TYPE_ARRAY ){
-				HE_ULONG lParamCount = pParms->GetArrayPtr()->GetCount();
-				for ( HE_ULONG i = 0; i < lParamCount; i++ )
-				{
-					pParamDictArr[i] = pParms->GetArrayPtr()->GetElement( i )->GetDictPtr();
-				}
-			}
-			HE_ULONG bufSize = (length == 0) ? 1024 : length;
-			CHE_DynBuffer buffer( bufSize, bufSize, GetAllocator() );
-			HE_ULONG lSize = pStream->GetRawSize();
-			HE_LPBYTE pTmp = NULL;
-			pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
-
-			pStream->GetRawData( 0, pTmp, lSize );
-			CHE_ByteString str( GetAllocator() );
-			for ( HE_ULONG i = 0; i < lFilterCount; i++ )
-			{
-				str = pFilterNameArr[i]->GetNamePtr()->GetString();
-				if ( str == "ASCIIHexDecode" || str == "AHx" )
-				{
-					CHE_PDF_HexFilter filter( GetAllocator() );
-					filter.Decode( pTmp, lSize, buffer );
-				}else if ( str == "ASCII85Decode" || str == "A85" )
-				{
-					CHE_PDF_ASCII85Filter filter( GetAllocator() );
-					filter.Decode( pTmp, lSize, buffer );
-				}else if ( str == "LZWDecode" || str == "LZW" )
-				{
-					CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
-					if ( ! pDecodeParams )
-					{
-						CHE_PDF_LZWFilter filter( NULL, GetAllocator() );
-						filter.Decode( pTmp, lSize, buffer );
-					}else{
-						HE_BYTE Predictor = 1;
-						HE_BYTE Colors = 1;
-						HE_BYTE BitsPerComponent = 8;
-						HE_BYTE Columns = 8;
-						HE_BYTE EarlyChange = 1;
-						CHE_PDF_ObjectPtr pObj = pDecodeParams->GetElement( "Predictor" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							Predictor = pObj->GetNumberPtr()->GetInteger();
-						}
-						pObj = pDecodeParams->GetElement( "Colors" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							Colors = pObj->GetNumberPtr()->GetInteger();
-						}
-						pObj = pDecodeParams->GetElement( "BitsPerComponent" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							BitsPerComponent = pObj->GetNumberPtr()->GetInteger();
-						}
-						pObj = pDecodeParams->GetElement( "Columns" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							Columns = pObj->GetNumberPtr()->GetInteger();
-						}
-						pObj = pDecodeParams->GetElement( "EarlyChange" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							EarlyChange = pObj->GetNumberPtr()->GetInteger();
-						}
-						CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
-						CHE_PDF_LZWFilter filter( &pPredictor, GetAllocator() );
-						filter.Decode( pTmp, lSize, buffer );
-					}
-				}else if ( str == "FlateDecode" || str == "Fl" )
-				{
-					CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
-					if ( !pDecodeParams )
-					{
-						CHE_PDF_FlateFilter filter( NULL, GetAllocator() );
-						filter.Decode( pTmp, lSize, buffer );
-					}else{
-						HE_BYTE Predictor = 1;
-						HE_BYTE Colors = 1;
-						HE_BYTE BitsPerComponent = 8;
-						HE_BYTE Columns = 8;
-						HE_BYTE EarlyChange = 1;
-						CHE_PDF_ObjectPtr pObj = pDecodeParams->GetElement( "Predictor" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							Predictor = pObj->GetNumberPtr()->GetInteger();
-						}
-						pObj = pDecodeParams->GetElement( "Colors" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							Colors = pObj->GetNumberPtr()->GetInteger();
-						}
-						pObj = pDecodeParams->GetElement( "BitsPerComponent" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							BitsPerComponent = pObj->GetNumberPtr()->GetInteger();
-						}
-						pObj = pDecodeParams->GetElement( "Columns" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							Columns = pObj->GetNumberPtr()->GetInteger();
-						}
-						pObj = pDecodeParams->GetElement( "EarlyChange" );
-						if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							EarlyChange = pObj->GetNumberPtr()->GetInteger();
-						}
-						CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
-						CHE_PDF_FlateFilter filter( &pPredictor, GetAllocator() );
-						filter.Decode( pTmp, lSize, buffer );
-					}
-				}else if ( str == "RunLengthDecode" || str == "RL" )
-				{
-					CHE_PDF_RLEFileter filter( GetAllocator() );
-					filter.Decode( pTmp, lSize, buffer );
-				}else if ( str == "CCITTFaxDecode" || str == "CCF" )
-				{
-					/*CHE_PDF_HexFilter filter;
-					filter.Decode( pTmp, lSize, buffer );
-					m_pData = new HE_BYTE[buffer.GetSize()];
-					buffer.Read( m_pData, buffer.GetSize() );*/
-					retValue = FALSE;
-				}else if ( str == "JBIG2Decode" )
-				{
-					CHE_PDF_JBig2Filter filter( GetAllocator() );
-					filter.Decode( pTmp, lSize, buffer );
-				}else if ( str == "DCTDecode" || str == "DCT" )
-				{
-					/*CHE_PDF_HexFilter filter;
-					filter.Decode( pTmp, lSize, buffer );
-					m_pData = new HE_BYTE[buffer.GetSize()];
-					buffer.Read( m_pData, buffer.GetSize() );*/
-					retValue = FALSE;
-				}else if ( str == "JPXDecode" )
-				{
-                    CHE_PDF_JPXFilter fileter( GetAllocator() );
-                    fileter.Decode( pTmp, lSize, buffer );
-				}else if ( str == "Crypt" )
-				{
-					/*CHE_PDF_HexFilter filter;
-					filter.Decode( pTmp, lSize, buffer );
-					m_pData = new HE_BYTE[buffer.GetSize()];
-					buffer.Read( m_pData, buffer.GetSize() );*/
-					retValue = FALSE;
-				}
-			}
-
-			lSize = buffer.GetSize();
-			GetAllocator()->DeleteArray<HE_BYTE>( pTmp );
-			pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
-			GetAllocator()->DeleteArray<CHE_PDF_NamePtr>( pFilterNameArr );
-			GetAllocator()->DeleteArray<CHE_PDF_DictionaryPtr>( pParamDictArr );
-			buffer.Read( pTmp, lSize );
-
-			m_pDataBuf = pTmp;
-			m_dwSize = lSize;
-
-			return retValue;
-		}else{
-			m_dwSize = pStream->GetRawSize();
-			m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( m_dwSize );
-			pStream->GetRawData( 0, m_pDataBuf, m_dwSize );			
+			m_dwSize = length;
+			m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( length );
+			pStream->GetRawData( 0, m_pDataBuf, length );
 			return TRUE;
 		}
+
+		if ( pFilter->GetType() == OBJ_TYPE_ARRAY )
+		{
+			lFilterCount = pFilter->GetArrayPtr()->GetCount();
+		}else{
+			lFilterCount = 1;
+		}
+
+		CHE_PDF_NamePtr * pFilterNameArr = NULL;
+		CHE_PDF_DictionaryPtr * pParamDictArr = NULL;
+	
+		pFilterNameArr = GetAllocator()->NewArray<CHE_PDF_NamePtr>( lFilterCount );
+		pParamDictArr = GetAllocator()->NewArray<CHE_PDF_DictionaryPtr>( lFilterCount );
+
+		if ( pFilter->GetType() == OBJ_TYPE_NAME )
+		{
+			pFilterNameArr[0] = pFilter->GetNamePtr();
+		}else if ( pFilter->GetType() == OBJ_TYPE_ARRAY )
+		{
+			CHE_PDF_ArrayPtr tmpArrayPtr = pFilter->GetArrayPtr();
+			for ( HE_ULONG i = 0; i < lFilterCount; i++ )
+			{
+				pFilterNameArr[i] = tmpArrayPtr->GetElement( i )->GetNamePtr();
+			}
+		}else{
+			GetAllocator()->DeleteArray<CHE_PDF_NamePtr>( pFilterNameArr );
+			GetAllocator()->DeleteArray<CHE_PDF_DictionaryPtr>( pParamDictArr );
+			return FALSE;
+		}
+
+		if ( pParms && pParms->GetType() == OBJ_TYPE_DICTIONARY )
+		{
+			pParamDictArr[0] = pParms->GetDictPtr();
+		}else if ( pParms && pParms->GetType() == OBJ_TYPE_ARRAY )
+		{
+			HE_ULONG lParamCount = pParms->GetArrayPtr()->GetCount();
+			for ( HE_ULONG i = 0; i < lParamCount; i++ )
+			{
+				pParamDictArr[i] = pParms->GetArrayPtr()->GetElement( i )->GetDictPtr();
+			}
+		}
+
+		HE_ULONG bufSize = (length == 0) ? 1024 : length;
+		CHE_ByteString str( GetAllocator() );
+		CHE_DynBuffer buffer( bufSize, bufSize, GetAllocator() );
+		HE_ULONG lSize = pStream->GetRawSize();
+		HE_LPBYTE pTmp = NULL;
+		pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
+		pStream->GetRawData( 0, pTmp, lSize );
+		
+		for ( HE_ULONG i = 0; i < lFilterCount; i++ )
+		{
+			str = pFilterNameArr[i]->GetNamePtr()->GetString();
+			if ( str == "ASCIIHexDecode" || str == "AHx" )
+			{
+				CHE_PDF_HexFilter filter( GetAllocator() );
+				filter.Decode( pTmp, lSize, buffer );
+			}else if ( str == "ASCII85Decode" || str == "A85" )
+			{
+				CHE_PDF_ASCII85Filter filter( GetAllocator() );
+				filter.Decode( pTmp, lSize, buffer );
+			}else if ( str == "LZWDecode" || str == "LZW" )
+			{
+				CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
+				if ( ! pDecodeParams )
+				{
+					CHE_PDF_LZWFilter filter( NULL, GetAllocator() );
+					filter.Decode( pTmp, lSize, buffer );
+				}else{
+					HE_BYTE Predictor = 1;
+					HE_BYTE Colors = 1;
+					HE_BYTE BitsPerComponent = 8;
+					HE_BYTE Columns = 8;
+					HE_BYTE EarlyChange = 1;
+					CHE_PDF_ObjectPtr pObj = pDecodeParams->GetElement( "Predictor" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						Predictor = pObj->GetNumberPtr()->GetInteger();
+					}
+					pObj = pDecodeParams->GetElement( "Colors" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						Colors = pObj->GetNumberPtr()->GetInteger();
+					}
+					pObj = pDecodeParams->GetElement( "BitsPerComponent" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						BitsPerComponent = pObj->GetNumberPtr()->GetInteger();
+					}
+					pObj = pDecodeParams->GetElement( "Columns" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						Columns = pObj->GetNumberPtr()->GetInteger();
+					}
+					pObj = pDecodeParams->GetElement( "EarlyChange" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						EarlyChange = pObj->GetNumberPtr()->GetInteger();
+					}
+					CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
+					CHE_PDF_LZWFilter filter( &pPredictor, GetAllocator() );
+					filter.Decode( pTmp, lSize, buffer );
+				}
+			}else if ( str == "FlateDecode" || str == "Fl" )
+			{
+				CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
+				if ( !pDecodeParams )
+				{
+					CHE_PDF_FlateFilter filter( NULL, GetAllocator() );
+					filter.Decode( pTmp, lSize, buffer );
+				}else{
+					HE_BYTE Predictor = 1;
+					HE_BYTE Colors = 1;
+					HE_BYTE BitsPerComponent = 8;
+					HE_BYTE Columns = 8;
+					HE_BYTE EarlyChange = 1;
+					CHE_PDF_ObjectPtr pObj = pDecodeParams->GetElement( "Predictor" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						Predictor = pObj->GetNumberPtr()->GetInteger();
+					}
+					pObj = pDecodeParams->GetElement( "Colors" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						Colors = pObj->GetNumberPtr()->GetInteger();
+					}
+					pObj = pDecodeParams->GetElement( "BitsPerComponent" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						BitsPerComponent = pObj->GetNumberPtr()->GetInteger();
+					}
+					pObj = pDecodeParams->GetElement( "Columns" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						Columns = pObj->GetNumberPtr()->GetInteger();
+					}
+					pObj = pDecodeParams->GetElement( "EarlyChange" );
+					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
+					{
+						EarlyChange = pObj->GetNumberPtr()->GetInteger();
+					}
+					CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
+					CHE_PDF_FlateFilter filter( &pPredictor, GetAllocator() );
+					filter.Decode( pTmp, lSize, buffer );
+				}
+			}else if ( str == "RunLengthDecode" || str == "RL" )
+			{
+				CHE_PDF_RLEFileter filter( GetAllocator() );
+				filter.Decode( pTmp, lSize, buffer );
+			}else if ( str == "CCITTFaxDecode" || str == "CCF" )
+			{
+				CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
+				CHE_PDF_FaxDecodeParams params( pDecodeParams );
+				CHE_PDF_FaxFilter filter( &params, GetAllocator() );
+				filter.Decode( pTmp, lSize, buffer );
+			}else if ( str == "JBIG2Decode" )
+			{
+				CHE_PDF_JBig2Filter filter( GetAllocator() );
+				filter.Decode( pTmp, lSize, buffer );
+			}else if ( str == "DCTDecode" || str == "DCT" )
+			{
+				/*CHE_PDF_HexFilter filter;
+				filter.Decode( pTmp, lSize, buffer );
+				m_pData = new HE_BYTE[buffer.GetSize()];
+				buffer.Read( m_pData, buffer.GetSize() );*/
+				retValue = FALSE;
+			}else if ( str == "JPXDecode" )
+			{
+                CHE_PDF_JPXFilter fileter( GetAllocator() );
+                fileter.Decode( pTmp, lSize, buffer );
+			}else if ( str == "Crypt" )
+			{
+				/*CHE_PDF_HexFilter filter;
+				filter.Decode( pTmp, lSize, buffer );
+				m_pData = new HE_BYTE[buffer.GetSize()];
+				buffer.Read( m_pData, buffer.GetSize() );*/
+				retValue = FALSE;
+			}
+
+			if ( retValue == FALSE )
+			{
+				GetAllocator()->DeleteArray<HE_BYTE>( pTmp );
+				GetAllocator()->DeleteArray<CHE_PDF_NamePtr>( pFilterNameArr );
+				GetAllocator()->DeleteArray<CHE_PDF_DictionaryPtr>( pParamDictArr );
+				return FALSE;
+			}else{
+				lSize = buffer.GetSize();
+				GetAllocator()->DeleteArray<HE_BYTE>( pTmp );
+				pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
+				buffer.Read( pTmp, lSize );
+			}
+		}
+		m_pDataBuf = pTmp;
+		m_dwSize = lSize;
+		return retValue;
+	}else{
+		m_dwSize = pStream->GetRawSize();
+		m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( m_dwSize );
+		pStream->GetRawData( 0, m_pDataBuf, m_dwSize );			
+		return TRUE;
 	}
 	return FALSE;
 }

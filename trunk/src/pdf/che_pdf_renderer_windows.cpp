@@ -1,6 +1,46 @@
 #include "../../include/pdf/che_pdf_renderer_windows.h"
 #include "../../include/che_image.h"
 
+CHE_Bitmap * CCITTFaxImageToBitmap( CHE_PDF_RefImage * pImage )
+{
+	CHE_Bitmap * pRet = NULL;
+	if ( pImage == NULL )
+	{
+		return pRet;
+	}
+
+	CHE_PDF_StreamPtr stmPtr = pImage->GetStreamPtr();
+	if ( stmPtr )
+	{
+		CHE_PDF_StreamAcc stmAcc;
+		if ( stmAcc.Attach( stmPtr ) )
+		{
+			HE_LPBYTE pData = stmAcc.GetData();
+			HE_LPBYTE pTargetByte = NULL;
+
+			HE_ULONG bitmapStride = ( ( ( pImage->GetWidth() + 31 ) & ~31 ) >> 3 );
+			HE_ULONG imageStride = ( ( pImage->GetWidth() - 1 ) >> 3 ) + 1;
+
+			pRet = GetDefaultAllocator()->New<CHE_Bitmap>();
+			pRet->Create( pImage->GetWidth(), pImage->GetHeight(), BITMAP_DEPTH_1BPP, BITMAP_DIRECTION_DOWN );
+
+			pTargetByte = (HE_LPBYTE)( pRet->GetBuffer() );
+
+			for ( UINT i = 0; i < pImage->GetHeight(); ++i )
+			{
+				memcpy( pTargetByte, pData, imageStride );
+
+				pTargetByte = pTargetByte + bitmapStride;
+				pData = pData + imageStride;
+			}
+			
+			stmAcc.Detach();
+		}
+	}
+
+	return pRet;
+}
+
 CHE_Bitmap * FlateImageToBitmap( CHE_PDF_RefImage * pImage )
 {
 	CHE_Bitmap * pRet = NULL;
@@ -618,11 +658,14 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
 							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
 							CHE_Bitmap * pBitmap = imgDecoder.Decode( IMAGE_TYPE_JPX, pBuf, stmPtr->GetRawSize() );
-							HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-							pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-							drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+							if ( pBitmap )
+							{
+								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								delete [] bitmap;
+							}
 							delete [] pBuf;
-							delete [] bitmap;
 							pBitmap->GetAllocator()->Delete( pBitmap );
 							pBitmap = NULL;
 						}else if ( objPtr->GetNamePtr()->GetString() == "FlateDecode" )
@@ -644,13 +687,28 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
 							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
 							CHE_Bitmap * pBitmap = imgDecoder.Decode( IMAGE_TYPE_JPEG, pBuf, stmPtr->GetRawSize() );
-							HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-							pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-							drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+							if ( pBitmap )
+							{
+								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								delete [] bitmap;
+							}
 							delete [] pBuf;
-							delete [] bitmap;
 							pBitmap->GetAllocator()->Delete( pBitmap );
 							pBitmap = NULL;
+						}else if ( objPtr->GetNamePtr()->GetString() == "CCITTFaxDecode" )
+						{
+							CHE_Bitmap * pBitmap = CCITTFaxImageToBitmap( pImage );
+							if ( pBitmap )
+							{
+								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
+								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
+								delete [] bitmap;
+								pBitmap->GetAllocator()->Delete( pBitmap );
+								pBitmap = NULL;
+							}
 						}
 						else{
 							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];

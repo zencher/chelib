@@ -1263,9 +1263,9 @@ CHE_PDF_StreamAcc::~CHE_PDF_StreamAcc()
 	mStreamPtr.reset();
 }
 
-HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
+HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & stmPtr, PDF_STREAM_DECODE_MODE mode )
 {
-	if ( ! pStream )
+	if ( ! stmPtr )
 	{
 		return FALSE;
 	}
@@ -1276,11 +1276,11 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 	}
 
 	HE_BOOL retValue = TRUE;
-	CHE_PDF_DictionaryPtr pDict = pStream->GetDictPtr();
+	CHE_PDF_DictionaryPtr pDict = stmPtr->GetDictPtr();
 	if ( pDict )
 	{
 		HE_ULONG lFilterCount = 0;
-		HE_ULONG length = pStream->GetRawSize();
+		HE_ULONG length = stmPtr->GetRawSize();
 		CHE_PDF_ObjectPtr pFilter = pDict->GetElement( "Filter" );
 		CHE_PDF_ObjectPtr pParms = pDict->GetElement( "DecodeParms" );
 
@@ -1288,7 +1288,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 		{
 			m_dwSize = length;
 			m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( length );
-			pStream->GetRawData( 0, m_pDataBuf, length );
+			stmPtr->GetRawData( 0, m_pDataBuf, length );
 			return TRUE;
 		}
 
@@ -1336,13 +1336,21 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 		HE_ULONG bufSize = (length == 0) ? 1024 : length;
 		CHE_ByteString str( GetAllocator() );
 		CHE_DynBuffer buffer( bufSize, bufSize, GetAllocator() );
-		HE_ULONG lSize = pStream->GetRawSize();
+		HE_ULONG lSize = stmPtr->GetRawSize();
 		HE_LPBYTE pTmp = NULL;
 		pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
-		pStream->GetRawData( 0, pTmp, lSize );
+		stmPtr->GetRawData( 0, pTmp, lSize );
 		
 		for ( HE_ULONG i = 0; i < lFilterCount; i++ )
 		{
+			if ( mode == STREAM_DECODE_NOTLASTFILTER )
+			{
+				if ( i + 1 == lFilterCount )
+				{
+					break;
+				}
+			}
+
 			str = pFilterNameArr[i]->GetNamePtr()->GetString();
 			if ( str == "ASCIIHexDecode" || str == "AHx" )
 			{
@@ -1483,13 +1491,17 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & pStream )
 				buffer.Read( pTmp, lSize );
 			}
 		}
+
+		GetAllocator()->DeleteArray<CHE_PDF_NamePtr>( pFilterNameArr );
+		GetAllocator()->DeleteArray<CHE_PDF_DictionaryPtr>( pParamDictArr );
+
 		m_pDataBuf = pTmp;
 		m_dwSize = lSize;
 		return retValue;
 	}else{
-		m_dwSize = pStream->GetRawSize();
+		m_dwSize = stmPtr->GetRawSize();
 		m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( m_dwSize );
-		pStream->GetRawData( 0, m_pDataBuf, m_dwSize );			
+		stmPtr->GetRawData( 0, m_pDataBuf, m_dwSize );			
 		return TRUE;
 	}
 	return FALSE;

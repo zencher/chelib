@@ -545,13 +545,19 @@ private:
 	friend class CHE_PDF_StreamAcc;
 };
 
+enum PDF_STREAM_DECODE_MODE
+{
+	STREAM_DECODE_NORMAL,
+	STREAM_DECODE_NOTLASTFILTER
+};
+
 class CHE_PDF_StreamAcc : public CHE_Object
 {
 public:
 	CHE_PDF_StreamAcc( CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_StreamAcc();
 	
-	HE_BOOL							Attach( const CHE_PDF_StreamPtr & streamPtr );
+	HE_BOOL							Attach( const CHE_PDF_StreamPtr & streamPtr, PDF_STREAM_DECODE_MODE mode = STREAM_DECODE_NORMAL );
 
 	HE_VOID							Detach();
 

@@ -323,6 +323,8 @@ public:
 	HE_ULONG                GetBPC() const { return mBpc; }
 	CHE_PDF_ColorSpace*		GetColorspace() const { return mpColorspace; }
 
+	CHE_Bitmap *			GetBitmap();
+
 private:
 	CHE_PDF_ReferencePtr    mRefPtr;
     CHE_PDF_StreamPtr       mStmPtr;

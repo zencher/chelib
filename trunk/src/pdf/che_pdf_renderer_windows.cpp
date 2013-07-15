@@ -597,126 +597,17 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 		case ContentType_RefImage:
 			{
                 CHE_PDF_RefImage * pImage = (CHE_PDF_RefImage*)(*it);
-				CHE_PDF_StreamPtr stmPtr = pImage->GetStreamPtr();
-				if ( stmPtr )
+				if ( pImage )
 				{
-					CHE_PDF_ObjectPtr objPtr;
-					CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
-					objPtr = dictPtr->GetElement( "Filter", OBJ_TYPE_NAME );
-					if ( !objPtr )
+					CHE_Bitmap * pBitmap = pImage->GetBitmap();
+					if ( pBitmap )
 					{
-						objPtr = dictPtr->GetElement( "Filter", OBJ_TYPE_ARRAY );
-						if ( objPtr )
-						{
-							objPtr = objPtr->GetArrayPtr()->GetElement( 0, OBJ_TYPE_NAME );
-						}
-					}
-					if ( objPtr )
-					{
-						if ( objPtr->GetNamePtr()->GetString() == "JBIG2Decode" )
-						{
-							CHE_ImageDecoder imgDecoder;
-							HE_LPBYTE pParam = NULL;
-							HE_ULONG paramSize = 0;
-
-							objPtr = dictPtr->GetElement( "JBIG2Globals", OBJ_TYPE_STREAM );
-							if ( objPtr )
-							{
-								CHE_PDF_StreamPtr paramStrPtr = objPtr->GetStreamPtr();
-								paramSize = paramStrPtr->GetRawSize();
-								pParam = GetDefaultAllocator()->NewArray<HE_BYTE>( paramSize );
-								paramStrPtr->GetRawData( 0, pParam, paramSize );
-								imgDecoder.SetDecodeParam( pParam, paramSize );
-								//todo
-								//似乎有些不对，这个流要不要解码呢？
-							}
-
-							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
-							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
-
-							CHE_Bitmap * pBitmap = imgDecoder.Decode( IMAGE_TYPE_JBIG2, pBuf, stmPtr->GetRawSize() );
-							if ( pBitmap )
-							{
-								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-								delete [] pBuf;
-								delete [] bitmap;
-								pBitmap->GetAllocator()->Delete( pBitmap );
-								pBitmap = NULL;
-							}
-
-							if ( pParam )
-							{
-								GetDefaultAllocator()->DeleteArray( pParam );
-							}
-
-						}else if( objPtr->GetNamePtr()->GetString() == "JPXDecode" )
-						{
-							CHE_ImageDecoder imgDecoder;
-
-							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
-							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
-							CHE_Bitmap * pBitmap = imgDecoder.Decode( IMAGE_TYPE_JPX, pBuf, stmPtr->GetRawSize() );
-							if ( pBitmap )
-							{
-								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-								delete [] bitmap;
-							}
-							delete [] pBuf;
-							pBitmap->GetAllocator()->Delete( pBitmap );
-							pBitmap = NULL;
-						}else if ( objPtr->GetNamePtr()->GetString() == "FlateDecode" )
-						{
-							CHE_Bitmap * pBitmap = FlateImageToBitmap( pImage );
-							if ( pBitmap )
-							{
-								HE_LPBYTE pBuf = GetDefaultAllocator()->NewArray<HE_BYTE>( pBitmap->GetMemBitmapDataSize() + 14 );
-								pBitmap->SaveToMem( pBuf,pBitmap->GetMemBitmapDataSize()+14 );
-								drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-								GetDefaultAllocator()->DeleteArray( pBuf );
-								pBitmap->GetAllocator()->Delete( pBitmap );
-								pBitmap = NULL;
-							}
-						}else if ( objPtr->GetNamePtr()->GetString() == "DCTDecode" && pImage->GetColorspace()->GetComponentCount() == 4 )
-						{
-							CHE_ImageDecoder imgDecoder;
-
-							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
-							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
-							CHE_Bitmap * pBitmap = imgDecoder.Decode( IMAGE_TYPE_JPEG, pBuf, stmPtr->GetRawSize() );
-							if ( pBitmap )
-							{
-								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-								delete [] bitmap;
-							}
-							delete [] pBuf;
-							pBitmap->GetAllocator()->Delete( pBitmap );
-							pBitmap = NULL;
-						}else if ( objPtr->GetNamePtr()->GetString() == "CCITTFaxDecode" )
-						{
-							CHE_Bitmap * pBitmap = CCITTFaxImageToBitmap( pImage );
-							if ( pBitmap )
-							{
-								HE_LPBYTE bitmap = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
-								pBitmap->SaveToMem( bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-								drawer.DrawImage( IMAGE_BMP, bitmap, pBitmap->GetMemBitmapDataSize()+14 );
-								delete [] bitmap;
-								pBitmap->GetAllocator()->Delete( pBitmap );
-								pBitmap = NULL;
-							}
-						}
-						else{
-							HE_LPBYTE pBuf = new HE_BYTE[stmPtr->GetRawSize()];
-							stmPtr->GetRawData( 0, pBuf, stmPtr->GetRawSize() );
-							drawer.DrawImage( IMAGE_BMP, pBuf, stmPtr->GetRawSize() );
-							delete [] pBuf;
-							pBuf = NULL;
-						}
+						HE_LPBYTE pBuf = GetDefaultAllocator()->NewArray<HE_BYTE>( pBitmap->GetMemBitmapDataSize() + 14 );
+						pBitmap->SaveToMem( pBuf,pBitmap->GetMemBitmapDataSize()+14 );
+						drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
+						GetDefaultAllocator()->DeleteArray( pBuf );
+						pBitmap->GetAllocator()->Delete( pBitmap );
+						pBitmap = NULL;
 					}
 				}
 				break;

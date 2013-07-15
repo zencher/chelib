@@ -422,10 +422,10 @@ CHE_Bitmap * image_decode_jpeg_to_bitmap( HE_LPBYTE data, HE_ULONG size )
 
 	if (cinfo.output_components == 4)
 		colorspace = CHE_PDF_ColorSpace::Create( "DeviceCMYK", GetDefaultAllocator() );
-// 	else if (cinfo.output_components == 3)
-// 		colorspace = fz_device_rgb;
-// 	else if (cinfo.output_components == 4)
-// 		colorspace = fz_device_cmyk;
+ 	else if (cinfo.output_components == 3)
+ 		colorspace = CHE_PDF_ColorSpace::Create( "DeviceRGB", GetDefaultAllocator() );
+ 	else if (cinfo.output_components == 1)
+ 		colorspace = CHE_PDF_ColorSpace::Create( "DeviceGray", GetDefaultAllocator() );
 	// 	else
 	// 		fz_throw(ctx, "bad number of components in jpeg: %d", cinfo.output_components);
 

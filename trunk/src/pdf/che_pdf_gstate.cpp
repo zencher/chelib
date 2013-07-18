@@ -287,7 +287,7 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 		return;
 	}
 	
-	colorRet.mConponents.clear();
+	colorRet.Clear();
 
 	if ( mFlag & GSTATE_FLAG_FillColorSpace )
 	{
@@ -298,25 +298,25 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 		case COLORSPACE_SPECIAL_SEPARATION:
 		case COLORSPACE_SPECIAL_DEVICEN:
 		case COLORSPACE_SPECIAL_INDEXED:
-			colorRet.mConponents.push_back( 0 );
+			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_DEVICE_RGB:
 		case COLORSPACE_CIEBASE_CALRGB:
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_DEVICE_CMYK:
 		case COLORSPACE_CIEBASE_CALCMYK:
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_CIEBASE_CALLAB:
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_CIEBASE_ICCBASED:
 // 			colorRet.mConponents.push_back( 0 );
@@ -328,7 +328,7 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 		default:break;
 		}
 	}else{
-		colorRet.mConponents.push_back( 0 );
+		colorRet.Push( 0 );
 	}
 }
 
@@ -340,7 +340,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 		return;
 	}
 
-	colorRet.mConponents.clear();
+	colorRet.Clear();
 
 	if ( mFlag & GSTATE_FLAG_StrokeColorSpace )
 	{
@@ -351,37 +351,37 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 		case COLORSPACE_SPECIAL_SEPARATION:
 		case COLORSPACE_SPECIAL_DEVICEN:
 		case COLORSPACE_SPECIAL_INDEXED:
-			colorRet.mConponents.push_back( 0 );
+			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_DEVICE_RGB:
 		case COLORSPACE_CIEBASE_CALRGB:
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_DEVICE_CMYK:
 		case COLORSPACE_CIEBASE_CALCMYK:
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_CIEBASE_CALLAB:
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
-			colorRet.mConponents.push_back( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
+			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_CIEBASE_ICCBASED:
-// 			colorRet.mConponents.push_back( 0 );
-// 			colorRet.mConponents.push_back( 0 );
-// 			colorRet.mConponents.push_back( 0 );
-// 			colorRet.mConponents.push_back( 0 );
+// 			colorRet.mConponents.Push( 0 );
+// 			colorRet.mConponents.Push( 0 );
+// 			colorRet.mConponents.Push( 0 );
+// 			colorRet.mConponents.Push( 0 );
 // 			break;
 		case COLORSPACE_SPECIAL_PATTERN:break;
 		default:break;
 		}
 	}else{
-		colorRet.mConponents.push_back( 0 );
+		colorRet.Push( 0 );
 	}
 }
 
@@ -921,7 +921,7 @@ HE_BOOL IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace )
 
 HE_BOOL IsDefColor( const CHE_PDF_Color & color )
 {
-	if ( color.mConponents.size() == 1 && IsFloatEqual( color.mConponents[0], 0 ) )
+	if ( color.GetComponentCount() == 1 && IsFloatEqual( color.GetComponent(0), 0 ) )
 	{
 		return TRUE;
 	}
@@ -939,13 +939,13 @@ HE_BOOL	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSp
 
 HE_BOOL IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 )
 {
-	if ( c1.mConponents.size() != c2.mConponents.size() )
+	if ( c1.GetComponentCount() != c2.GetComponentCount() )
 	{
 		return FALSE;
 	}
-	for ( HE_ULONG i = 0; i < c1.mConponents.size(); ++i )
+	for ( HE_ULONG i = 0; i < c1.GetComponentCount(); ++i )
 	{
-		if ( c1.mConponents[i] != c2.mConponents[i] )
+		if ( c1.GetComponent(i) != c2.GetComponent(i) )
 		{
 			return FALSE;
 		}

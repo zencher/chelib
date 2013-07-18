@@ -709,7 +709,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_G()
 		CHE_PDF_ColorSpace * pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_GRAY, GetAllocator() );
 		mpConstructor->State_StrokeColorSpace( pColorSpace );
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
-		pColor->mConponents.push_back( mOpdFloatStack[0] );
+		pColor->Push( mOpdFloatStack[0] );
 		mpConstructor->State_StrokeColor( pColor );
 	}
 	mpConstructor->State_StrokeColor( NULL );
@@ -786,12 +786,12 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 			pColorspace = CHE_PDF_ColorSpace::Create( mpColorSpace->GetNamePtr(), GetAllocator() );
 			if ( pColorspace == NULL )
 			{
-				CHE_PDF_ObjectPtr pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, pObj->GetNamePtr()->GetString() );
+				CHE_PDF_ObjectPtr pObj = mpContentResMgr->GetResObj( CONTENTRES_COLORSPACE, str );
 				if ( ! pObj )
 				{
 					/*assert(0);*/
 					/*error*/
-				} 
+				}
 				if ( pObj->GetType() == OBJ_TYPE_NAME )
 				{
 					pColorspace = CHE_PDF_ColorSpace::Create( pObj->GetNamePtr()->GetString(), GetAllocator() );
@@ -856,10 +856,10 @@ HE_VOID CHE_PDF_ContentsParser::Handle_K()
 		CHE_PDF_ColorSpace * pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_CMYK, GetAllocator() );
 		mpConstructor->State_StrokeColorSpace( pColorSpace );
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
-		pColor->mConponents.push_back( mOpdFloatStack[0] );
-		pColor->mConponents.push_back( mOpdFloatStack[1] );
-		pColor->mConponents.push_back( mOpdFloatStack[2] );
-		pColor->mConponents.push_back( mOpdFloatStack[3] );
+		pColor->Push( mOpdFloatStack[0] );
+		pColor->Push( mOpdFloatStack[1] );
+		pColor->Push( mOpdFloatStack[2] );
+		pColor->Push( mOpdFloatStack[3] );
 		mpConstructor->State_StrokeColor( pColor );
 	}
 }
@@ -894,9 +894,9 @@ HE_VOID CHE_PDF_ContentsParser::Handle_RG()
 		CHE_PDF_ColorSpace * pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_RGB, GetAllocator() );
 		mpConstructor->State_StrokeColorSpace( pColorSpace );
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
-		pColor->mConponents.push_back( mOpdFloatStack[0] );
-		pColor->mConponents.push_back( mOpdFloatStack[1] );
-		pColor->mConponents.push_back( mOpdFloatStack[2] );
+		pColor->Push( mOpdFloatStack[0] );
+		pColor->Push( mOpdFloatStack[1] );
+		pColor->Push( mOpdFloatStack[2] );
 		mpConstructor->State_StrokeColor( pColor );
 	}
 }
@@ -922,7 +922,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SC()
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
 		for ( size_t i = 0; i < mOpdFloatStack.size(); ++i )
 		{
-			pColor->mConponents.push_back( mOpdFloatStack[i] );
+			pColor->Push( mOpdFloatStack[i] );
 		}
 		mpConstructor->State_StrokeColor( pColor );
 	}
@@ -935,7 +935,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
 		for ( size_t i = 0; i < mOpdFloatStack.size(); ++i )
 		{
-			pColor->mConponents.push_back( mOpdFloatStack[i] );
+			pColor->Push( mOpdFloatStack[i] );
 		}
 		mpConstructor->State_StrokeColor( pColor );
 	}else if ( mName.GetLength() > 0 )
@@ -1411,7 +1411,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_g()
 		CHE_PDF_ColorSpace * pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_GRAY, GetAllocator() );
 		mpConstructor->State_FillColorSpace( pColorSpace );
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
-		pColor->mConponents.push_back( mOpdFloatStack[0] );
+		pColor->Push( mOpdFloatStack[0] );
 		mpConstructor->State_FillColor( pColor );
 	}
 }
@@ -1492,10 +1492,10 @@ HE_VOID CHE_PDF_ContentsParser::Handle_k()
 		CHE_PDF_ColorSpace * pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_CMYK, GetAllocator() );
 		mpConstructor->State_FillColorSpace( pColorSpace );
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
-		pColor->mConponents.push_back( mOpdFloatStack[0] );
-		pColor->mConponents.push_back( mOpdFloatStack[1] );
-		pColor->mConponents.push_back( mOpdFloatStack[2] );
-		pColor->mConponents.push_back( mOpdFloatStack[3] );
+		pColor->Push( mOpdFloatStack[0] );
+		pColor->Push( mOpdFloatStack[1] );
+		pColor->Push( mOpdFloatStack[2] );
+		pColor->Push( mOpdFloatStack[3] );
 		mpConstructor->State_FillColor( pColor );
 	}
 }
@@ -1583,9 +1583,9 @@ HE_VOID CHE_PDF_ContentsParser::Handle_rg()
 		CHE_PDF_ColorSpace * pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_DEVICE_RGB, GetAllocator() );
 		mpConstructor->State_FillColorSpace( pColorSpace );
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
-		pColor->mConponents.push_back( mOpdFloatStack[0] );
-		pColor->mConponents.push_back( mOpdFloatStack[1] );
-		pColor->mConponents.push_back( mOpdFloatStack[2] );
+		pColor->Push( mOpdFloatStack[0] );
+		pColor->Push( mOpdFloatStack[1] );
+		pColor->Push( mOpdFloatStack[2] );
 		mpConstructor->State_FillColor( pColor );
 	}
 }
@@ -1635,7 +1635,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_sc()
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
 		for ( size_t i = 0; i < mOpdFloatStack.size(); ++i )
 		{
-			pColor->mConponents.push_back( mOpdFloatStack[i] );
+			pColor->Push( mOpdFloatStack[i] );
 		}
 		mpConstructor->State_FillColor( pColor );
 	}
@@ -1648,7 +1648,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_scn()
 		CHE_PDF_Color * pColor = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
 		for ( size_t i = 0; i < mOpdFloatStack.size(); ++i )
 		{
-			pColor->mConponents.push_back( mOpdFloatStack[i] );
+			pColor->Push( mOpdFloatStack[i] );
 		}
 		mpConstructor->State_FillColor( pColor );
 	}else if ( mName.GetLength() > 0 )

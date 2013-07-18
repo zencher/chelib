@@ -1365,132 +1365,54 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & stmPtr, PDF_STREAM_
 				CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
 				if ( ! pDecodeParams )
 				{
-					CHE_PDF_LZWFilter filter( NULL, GetAllocator() );
+					CHE_PDF_LZWFilter filter( GetAllocator() );
 					filter.Decode( pTmp, lSize, buffer );
 				}else{
-					HE_BYTE Predictor = 1;
-					HE_BYTE Colors = 1;
-					HE_BYTE BitsPerComponent = 8;
-					HE_BYTE Columns = 1;
-					HE_BYTE EarlyChange = 1;
-					CHE_PDF_ObjectPtr pObj = pDecodeParams->GetElement( "Predictor" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						Predictor = pObj->GetNumberPtr()->GetInteger();
-					}
-					pObj = pDecodeParams->GetElement( "Colors" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						Colors = pObj->GetNumberPtr()->GetInteger();
-					}
-					pObj = pDecodeParams->GetElement( "BitsPerComponent" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						BitsPerComponent = pObj->GetNumberPtr()->GetInteger();
-					}
-					pObj = pDecodeParams->GetElement( "Columns" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						Columns = pObj->GetNumberPtr()->GetInteger();
-					}
-					pObj = pDecodeParams->GetElement( "EarlyChange" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						EarlyChange = pObj->GetNumberPtr()->GetInteger();
-					}
-					CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
-					CHE_PDF_LZWFilter filter( &pPredictor, GetAllocator() );
+					CHE_PDF_Predictor pPredictor( pDecodeParams, GetAllocator() );
+					CHE_PDF_LZWFilter filter( GetAllocator() );
 					filter.Decode( pTmp, lSize, buffer );
+					filter.Decode( pTmp, lSize, buffer );
+					lSize = buffer.GetSize();
+					GetAllocator()->DeleteArray<HE_BYTE>( pTmp );
+					pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
+					buffer.Read( pTmp, lSize );
+					buffer.Clear();
+					pPredictor.Decode( pTmp, lSize, buffer );
 				}
 			}else if ( str == "FlateDecode" || str == "Fl" )
 			{
 				CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
 				if ( !pDecodeParams )
 				{
-					CHE_PDF_FlateFilter filter( NULL, GetAllocator() );
+					CHE_PDF_FlateFilter filter( GetAllocator() );
 					filter.Decode( pTmp, lSize, buffer );
 				}else{
-					HE_BYTE Predictor = 1;
-					HE_BYTE Colors = 1;
-					HE_BYTE BitsPerComponent = 8;
-					HE_BYTE Columns = 1;
-					HE_BYTE EarlyChange = 1;
-					CHE_PDF_ObjectPtr pObj = pDecodeParams->GetElement( "Predictor" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						Predictor = pObj->GetNumberPtr()->GetInteger();
-					}
-					pObj = pDecodeParams->GetElement( "Colors" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						Colors = pObj->GetNumberPtr()->GetInteger();
-					}
-					pObj = pDecodeParams->GetElement( "BitsPerComponent" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						BitsPerComponent = pObj->GetNumberPtr()->GetInteger();
-					}
-					pObj = pDecodeParams->GetElement( "Columns" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						Columns = pObj->GetNumberPtr()->GetInteger();
-					}
-					pObj = pDecodeParams->GetElement( "EarlyChange" );
-					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
-					{
-						EarlyChange = pObj->GetNumberPtr()->GetInteger();
-					}
-					CHE_PDF_Predictor pPredictor( Predictor, Colors, BitsPerComponent, Columns, EarlyChange );
-					CHE_PDF_FlateFilter filter( &pPredictor, GetAllocator() );
+					CHE_PDF_Predictor pPredictor( pDecodeParams, GetAllocator() );
+					CHE_PDF_FlateFilter filter( GetAllocator() );
+				}else if ( str == "JBIG2Decode" )
+				{
+					CHE_PDF_JBig2Filter filter( GetAllocator() );
 					filter.Decode( pTmp, lSize, buffer );
+				}else if ( str == "DCTDecode" || str == "DCT" )
+				{
+					/*CHE_PDF_HexFilter filter;
+					filter.Decode( pTmp, lSize, buffer );
+					m_pData = new HE_BYTE[buffer.GetSize()];
+					buffer.Read( m_pData, buffer.GetSize() );*/
+					retValue = FALSE;
+				}else if ( str == "JPXDecode" )
+				{
+                    CHE_PDF_JPXFilter fileter( GetAllocator() );
+                    fileter.Decode( pTmp, lSize, buffer );
+				}else if ( str == "Crypt" )
+				{
+					/*CHE_PDF_HexFilter filter;
+					filter.Decode( pTmp, lSize, buffer );
+					m_pData = new HE_BYTE[buffer.GetSize()];
+					buffer.Read( m_pData, buffer.GetSize() );*/
+					retValue = FALSE;
 				}
-			}else if ( str == "RunLengthDecode" || str == "RL" )
-			{
-				CHE_PDF_RLEFileter filter( GetAllocator() );
-				filter.Decode( pTmp, lSize, buffer );
-			}else if ( str == "CCITTFaxDecode" || str == "CCF" )
-			{
-				CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
-				CHE_PDF_FaxDecodeParams params( pDecodeParams );
-				CHE_PDF_FaxFilter filter( &params, GetAllocator() );
-				filter.Decode( pTmp, lSize, buffer );
-			}else if ( str == "JBIG2Decode" )
-			{
-				CHE_PDF_JBig2Filter filter( GetAllocator() );
-				filter.Decode( pTmp, lSize, buffer );
-			}else if ( str == "DCTDecode" || str == "DCT" )
-			{
-				/*CHE_PDF_HexFilter filter;
-				filter.Decode( pTmp, lSize, buffer );
-				m_pData = new HE_BYTE[buffer.GetSize()];
-				buffer.Read( m_pData, buffer.GetSize() );*/
-				retValue = FALSE;
-			}else if ( str == "JPXDecode" )
-			{
-                CHE_PDF_JPXFilter fileter( GetAllocator() );
-                fileter.Decode( pTmp, lSize, buffer );
-			}else if ( str == "Crypt" )
-			{
-				/*CHE_PDF_HexFilter filter;
-				filter.Decode( pTmp, lSize, buffer );
-				m_pData = new HE_BYTE[buffer.GetSize()];
-				buffer.Read( m_pData, buffer.GetSize() );*/
-				retValue = FALSE;
 			}
-
-			if ( retValue == FALSE )
-			{
-				GetAllocator()->DeleteArray<HE_BYTE>( pTmp );
-				GetAllocator()->DeleteArray<CHE_PDF_NamePtr>( pFilterNameArr );
-				GetAllocator()->DeleteArray<CHE_PDF_DictionaryPtr>( pParamDictArr );
-				return FALSE;
-			}else{
-				lSize = buffer.GetSize();
-				GetAllocator()->DeleteArray<HE_BYTE>( pTmp );
-				pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );
-				buffer.Read( pTmp, lSize );
-			}
-		}
 
 		GetAllocator()->DeleteArray<CHE_PDF_NamePtr>( pFilterNameArr );
 		GetAllocator()->DeleteArray<CHE_PDF_DictionaryPtr>( pParamDictArr );

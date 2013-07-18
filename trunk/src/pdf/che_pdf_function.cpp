@@ -1088,8 +1088,10 @@ HE_BOOL CHE_PDF_Function_PostScript::Calculate( std::vector<HE_FLOAT> & input, s
 // {
 // 	CHE_PDF_Function_PostScriptItem stack[100];
 // 	int sp;
-// }ps_stack;
-// 
+// }ps_stack;
+
+// 
+
 // static void ps_init_stack(ps_stack *st)
 // {
 // 	memset(st->stack, 0, sizeof(st->stack));
@@ -1239,10 +1241,16 @@ HE_BOOL CHE_PDF_Function_PostScript::Calculate( std::vector<HE_FLOAT> & input, s
 // 		st->stack[st->sp] = st->stack[st->sp - n - 1];
 // 		st->sp++;
 // 	}
-// }
-// 
-// HE_BOOL CHE_PDF_Function_PostScript::RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
-// {
-// 
-// }
+// }
+
+// 
+
+// HE_BOOL CHE_PDF_Function_PostScript::RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+
+// {
+
+// 
+
+// }
+
 

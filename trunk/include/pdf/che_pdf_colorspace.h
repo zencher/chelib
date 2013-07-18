@@ -24,16 +24,56 @@ enum PDF_COLORSPACE_TYPE
 class CHE_PDF_Color : public CHE_Object
 {
 public:
-	CHE_PDF_Color( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
-
-	std::vector<HE_FLOAT> mConponents;
+	CHE_PDF_Color( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ), mIndex(0)
+	{
+		for ( HE_ULONG i = 0; i < 4; ++i )
+		{
+			mComponent[i] = 0.0f;
+		}
+	}
 
 	CHE_PDF_Color * Clone() const
 	{
 		CHE_PDF_Color * pRet = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
-		pRet->mConponents = mConponents;
+		for ( HE_ULONG i = 0; i < 4; ++i )
+		{
+			pRet->mComponent[i] = mComponent[i]; 
+		}
+		pRet->mIndex = mIndex;
 		return pRet;
 	}
+
+	HE_VOID Push( HE_FLOAT val )
+	{
+		if ( mIndex < 4 )
+		{
+			mComponent[mIndex++] = val;
+		}
+	}
+
+	HE_ULONG GetComponentCount() const
+	{
+		return mIndex;
+	}
+
+	HE_FLOAT GetComponent( HE_ULONG index ) const
+	{
+		if ( index < mIndex )
+		{
+			return mComponent[index];
+		}else{
+			return 0.0f;
+		}
+	}
+
+	HE_VOID Clear()
+	{
+		mIndex = 0;
+	}
+
+private:
+	HE_FLOAT mComponent[4];
+	HE_ULONG mIndex;
 };
 
 class CHE_PDF_ColorSpace : public CHE_Object
@@ -71,6 +111,7 @@ private:
 	PDF_COLORSPACE_TYPE		mType;
 	CHE_PDF_ObjectPtr		mpObj;
 	CHE_ByteString			mResName;
+	HE_ULONG				mComponentCount;
 
 	CHE_PDF_ColorSpace *	mpBaseColorspace;
 

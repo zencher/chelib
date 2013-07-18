@@ -308,12 +308,7 @@ HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
 			break;
 		case Z_STREAM_END:
 			nWrittenData = 4096 - stream.avail_out;
-			if ( m_pPredictor )
-			{
-				m_pPredictor->Decode( tmpBuffer, nWrittenData, buffer );
-			}else{
-				buffer.Write( tmpBuffer, nWrittenData );
-			}
+			buffer.Write( tmpBuffer, nWrittenData );
 			inflateEnd( &stream );
 			return;
 			break;
@@ -324,12 +319,7 @@ HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
 			return;
 		}   
 		nWrittenData = 4096 - stream.avail_out;
-		if ( m_pPredictor )
-		{
-			m_pPredictor->Decode( tmpBuffer, nWrittenData, buffer );
-		}else{
-			buffer.Write( tmpBuffer, nWrittenData );
-		}
+		buffer.Write( tmpBuffer, nWrittenData );
 	}
 }
 
@@ -417,10 +407,7 @@ HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
                     data = m_table[code].value;
 				
                 // Write data to the output device
-                if( m_pPredictor ) 
-                    m_pPredictor->Decode( (HE_LPBYTE)(&(data[0])), data.size(), outBuffer );
-                else
-                    outBuffer.Write( (HE_LPBYTE)(&(data[0])), data.size() );
+				outBuffer.Write( (HE_LPBYTE)(&(data[0])), data.size() );
 				
                 m_character = data[0];
                 if( old < m_table.size() ) // fix the first loop
@@ -1332,11 +1319,11 @@ static void fz_opj_info_callback(const char *msg, void *client_data)
 
 CHE_PDF_JPXFilter::CHE_PDF_JPXFilter( CHE_Allocator * pAllocator /*= NULL*/ )
     : CHE_PDF_Filter(pAllocator)
-{   
+{
 }
 
 CHE_PDF_JPXFilter::~CHE_PDF_JPXFilter()
-{   
+{
 }
 
 HE_VOID	CHE_PDF_JPXFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
@@ -1356,8 +1343,6 @@ HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	opj_cio_t *         cio = NULL;
 	opj_image_t *       jpx = NULL;
     CODEC_FORMAT        format;
-
-	unsigned char *p;
 
 	int a, n, w, h, depth, sgnd;
 	int x, y, k, v;

@@ -567,7 +567,7 @@ CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 			FT_Set_Transform( face, &matrix, &vector );
 			
 			FT_UInt gid = mItems[index].gid;
-			err = FT_Load_Glyph( face, gid, FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO | FT_LOAD_NO_HINTING /*| FT_LOAD_NO_HINTING*//*FT_LOAD_TARGET_MONO*/ );
+			err = FT_Load_Glyph( face, gid, FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO /*| FT_LOAD_NO_HINTING*/ /*| FT_LOAD_NO_HINTING*//*FT_LOAD_TARGET_MONO*/ );
 			
 // 			FT_Outline_Funcs outline_funcs;
 // 			outline_funcs.move_to = move_to;
@@ -576,8 +576,8 @@ CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 // 			outline_funcs.cubic_to = cubic_to;
 // 			outline_funcs.delta = NULL;
 // 			outline_funcs.shift = NULL;
-// 			FT_Outline_Decompose( &face->glyph->outline, &outline_funcs, pPathRet );
- 
+// 			//FT_Outline_Decompose( &face->glyph->outline, &outline_funcs, pPathRet );
+// 
 
 			FT_Outline * outline = &face->glyph->outline;
 			void*                    user = (void*)pPathRet;
@@ -1131,15 +1131,15 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 		{
 			for ( HE_ULONG x = 0 ; x < mWidth; ++x )
 			{
-				color.mConponents.clear();
+				color.Clear();
 				pTmpByte = pData + ( ( y * mWidth + x ) * component );
 				for ( HE_ULONG i = 0; i < component; ++i )
 				{
 					if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
 					{
-						color.mConponents.push_back( *( pTmpByte ) );
+						color.Push( *( pTmpByte ) );
 					}else{
-						color.mConponents.push_back( *( pTmpByte ) / 255.0f );
+						color.Push( *( pTmpByte ) / 255.0f );
 					}
 					pTmpByte++;
 				}
@@ -1151,7 +1151,7 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 	{
 		HE_ULONG stride = (mWidth * component * mBpc + 7) / 8;							
 		HE_BYTE tmpByte = 0;
-		color.mConponents.clear();
+		color.Clear();
 		for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
 		{
 			x = 0;
@@ -1162,27 +1162,27 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 
 				if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
 				{
-					color.mConponents.push_back( tmpByte >> 4 );
+					color.Push( tmpByte >> 4 );
 				}else{
-					color.mConponents.push_back( ( tmpByte >> 4 ) / 16.0f );
+					color.Push( ( tmpByte >> 4 ) / 16.0f );
 				}
-				if ( color.mConponents.size() == component )
+				if ( color.GetComponentCount() == component )
 				{
 					colorARGB = mpColorspace->GetARGBValue( color );
 					pRet->SetPixelColor( x++, y, colorARGB );
-					color.mConponents.clear();
+					color.Clear();
 				}
 				if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
 				{
-					color.mConponents.push_back( tmpByte & 0x0F );
+					color.Push( tmpByte & 0x0F );
 				}else{
-					color.mConponents.push_back( ( tmpByte & 0x0F ) / 16.0f );
+					color.Push( ( tmpByte & 0x0F ) / 16.0f );
 				}
-				if ( color.mConponents.size() == component )
+				if ( color.GetComponentCount() == component )
 				{
 					colorARGB = mpColorspace->GetARGBValue( color );
 					pRet->SetPixelColor( x++, y, colorARGB );
-					color.mConponents.clear();
+					color.Clear();
 				}
 			}
 		}

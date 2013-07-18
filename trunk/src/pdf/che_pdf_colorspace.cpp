@@ -16,13 +16,13 @@ static inline float fz_clamp(float f, float min , float max)
 HE_ARGB CHE_PDF_ColorSpace::lab_to_rgb( CHE_PDF_Color & color ) const
 {
 	HE_ARGB valRet = 0xFF000000;
-	if ( color.mConponents.size() >= 3 )
+	if ( color.GetComponentCount() >= 3 )
 	{
 		HE_FLOAT lab[3];
 		HE_FLOAT range[6] = { -100, 100, -100, 100, -100, 100 };
 		for ( HE_BYTE i = 0 ; i < 3; ++i )
 		{
-			lab[i] = color.mConponents[i];
+			lab[i] = color.GetComponent( i );
 		}
 
 		if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
@@ -206,14 +206,14 @@ CHE_PDF_ColorSpace * CHE_PDF_ColorSpace::Create( const CHE_PDF_ReferencePtr & pR
 }
 
 CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_Object(pAllocator), mType(type), mResName(pAllocator), mpBaseColorspace(NULL), mIndexCount(0), 
-	mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
+	: CHE_Object(pAllocator), mType(type), mResName(pAllocator), mComponentCount(0), mpBaseColorspace(NULL),
+	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
 {
 }
 
 CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, 
 	const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_Object(pAllocator), mType(type), mResName(resName), mpObj(pObj), mpBaseColorspace(NULL), 
+	: CHE_Object(pAllocator), mType(type), mResName(resName), mComponentCount(0), mpObj(pObj), mpBaseColorspace(NULL), 
 	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
 {
 	if ( type == COLORSPACE_SPECIAL_INDEXED )
@@ -349,6 +349,29 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_Byte
 				}
 			}
 		}
+	}else if ( COLORSPACE_CIEBASE_ICCBASED )
+	{
+		if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
+		{
+			CHE_PDF_ArrayPtr arrayPtr = mpObj->GetArrayPtr();
+			if ( arrayPtr->GetCount() >= 2 )
+			{
+				CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
+				if ( objPtr )
+				{
+					CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+					CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+					if ( dictPtr )
+					{
+						objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
+						if ( objPtr )
+						{
+							mComponentCount = objPtr->GetNumberPtr()->GetInteger();;
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -473,31 +496,7 @@ HE_BYTE CHE_PDF_ColorSpace::GetComponentCount() const
 		}
 	case COLORSPACE_CIEBASE_ICCBASED:
 		{
-			if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
-			{
-				CHE_PDF_ArrayPtr arrayPtr = mpObj->GetArrayPtr();
-				if ( arrayPtr->GetCount() < 2 )
-				{
-					break;
-				}
-				CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
-				if ( !objPtr )
-				{
-					break;
-				}
-				CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
-				CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
-				if ( !dictPtr )
-				{
-					break;
-				}
-				objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
-				if ( !objPtr ) {
-					break;
-				}
-				return objPtr->GetNumberPtr()->GetInteger();
-			}
-			break;
+			return mComponentCount;
 		}
 	case COLORSPACE_SPECIAL_INDEXED:
 		{
@@ -521,7 +520,7 @@ HE_BYTE CHE_PDF_ColorSpace::GetComponentCount() const
 
 HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 {
-	if ( color.mConponents.size() == 0 )
+	if ( color.GetComponentCount() == 0 )
 	{
 		return 0xFF00000;
 	}
@@ -533,9 +532,9 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 		{
 			HE_ARGB valRet = 0xFF000000;
 			HE_BYTE tmpByte = 0x00;
-			if ( color.mConponents.size() >= 1 )
+			if ( color.GetComponentCount() >= 1 )
 			{
-				tmpByte = color.mConponents[0] * 255;
+				tmpByte = color.GetComponent( 0 ) * 255;
 				valRet = 0xFF000000 + (tmpByte << 16) + (tmpByte << 8) + tmpByte;
 			}
 			return valRet;
@@ -547,11 +546,11 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 			HE_BYTE tmpByte1 = 0x00;
 			HE_BYTE tmpByte2 = 0x00;
 			HE_BYTE tmpByte3 = 0x00;
-			if ( color.mConponents.size() >= 3 )
+			if ( color.GetComponentCount() >= 3 )
 			{
-				tmpByte1 = color.mConponents[0] * 255;
-				tmpByte2 = color.mConponents[1] * 255;
-				tmpByte3 = color.mConponents[2] * 255;
+				tmpByte1 = color.GetComponent( 0 ) * 255;
+				tmpByte2 = color.GetComponent( 1 ) * 255;
+				tmpByte3 = color.GetComponent( 2 ) * 255;
 				valRet = 0xFF000000 + (tmpByte1 << 16) + (tmpByte2 << 8) + tmpByte3;
 			}
 			return valRet;
@@ -559,9 +558,9 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 	case COLORSPACE_DEVICE_CMYK:
 	case COLORSPACE_CIEBASE_CALCMYK:
 		{
-			if ( color.mConponents.size() >= 4 )
+			if ( color.GetComponentCount() >= 4 )
 			{
-				HE_FLOAT c = color.mConponents[0], m = color.mConponents[1], y = color.mConponents[2], k = color.mConponents[3];
+				HE_FLOAT c = color.GetComponent( 0 ), m = color.GetComponent( 1 ), y = color.GetComponent( 2 ), k = color.GetComponent( 3 );
 				HE_FLOAT c1 = 1 - c, m1 = 1 - m, y1 = 1 - y, k1 = 1 - k;
 				HE_FLOAT r, g, b, x;
 				HE_FLOAT rgb[3];
@@ -643,140 +642,117 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 		}
     case COLORSPACE_CIEBASE_ICCBASED:
         {
-            if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
+			switch ( mComponentCount )
             {
-                CHE_PDF_ArrayPtr arrayPtr = mpObj->GetArrayPtr();
-                if ( arrayPtr->GetCount() < 2 )
+            case 1:
                 {
-                    break;
-                }
-                CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
-                if ( !objPtr )
-                {
-                    break;
-                }
-                CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
-                CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
-                if ( !dictPtr )
-                {
-                    break;
-                }
-                objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
-                if ( !objPtr ) {
-                    break;
-                }
-                switch ( objPtr->GetNumberPtr()->GetInteger() )
-                {
-                case 1:
+                    HE_UINT32 valRet = 0xFF000000;
+                    HE_BYTE tmpByte = 0x00;
+                    if ( color.GetComponentCount() >= 1 )
                     {
-                        HE_UINT32 valRet = 0xFF000000;
-                        HE_BYTE tmpByte = 0x00;
-                        if ( color.mConponents.size() >= 1 )
-                        {
-                            tmpByte = color.mConponents[0] * 255;
-                            valRet = 0xFF000000 + (tmpByte << 16) + (tmpByte << 8) + tmpByte;
-                        }
-                        return valRet;
+                        tmpByte = color.GetComponent( 0 ) * 255;
+                        valRet = 0xFF000000 + (tmpByte << 16) + (tmpByte << 8) + tmpByte;
                     }
-                case 3:
+                    return valRet;
+                }
+            case 3:
+                {
+                    HE_UINT32 valRet = 0xFF000000;
+                    HE_BYTE tmpByte1 = 0x00;
+                    HE_BYTE tmpByte2 = 0x00;
+                    HE_BYTE tmpByte3 = 0x00;
+                    if ( color.GetComponentCount() >= 3 )
                     {
-                        HE_UINT32 valRet = 0xFF000000;
-                        HE_BYTE tmpByte1 = 0x00;
-                        HE_BYTE tmpByte2 = 0x00;
-                        HE_BYTE tmpByte3 = 0x00;
-                        if ( color.mConponents.size() >= 3 )
-                        {
-                            tmpByte1 = color.mConponents[0] * 255;
-                            tmpByte2 = color.mConponents[1] * 255;
-                            tmpByte3 = color.mConponents[2] * 255;
-                            valRet = 0xFF000000 + (tmpByte1 << 16) + (tmpByte2 << 8) + tmpByte3;
-                        }
-                        return valRet;
+                        tmpByte1 = color.GetComponent( 0 ) * 255;
+                        tmpByte2 = color.GetComponent( 1 ) * 255;
+                        tmpByte3 = color.GetComponent( 2 ) * 255;
+                        valRet = 0xFF000000 + (tmpByte1 << 16) + (tmpByte2 << 8) + tmpByte3;
                     }
-                case 4:
+                    return valRet;
+                }
+            case 4:
+                {
+                    if ( color.GetComponentCount() >= 4 )
                     {
-                        if ( color.mConponents.size() >= 4 )
-                        {
-							HE_FLOAT c = color.mConponents[0], m = color.mConponents[1], y = color.mConponents[2], k = color.mConponents[3];
-							HE_FLOAT c1 = 1 - c, m1 = 1 - m, y1 = 1 - y, k1 = 1 - k;
-							HE_FLOAT r, g, b, x;
-							HE_FLOAT rgb[3];
-							HE_BYTE br = 0, bg = 0, bb = 0;
-							HE_ARGB valRet = 0;
+						HE_FLOAT c = color.GetComponent(0), m = color.GetComponent(1), y = color.GetComponent(2), k = color.GetComponent(3);
+						HE_FLOAT c1 = 1 - c, m1 = 1 - m, y1 = 1 - y, k1 = 1 - k;
+						HE_FLOAT r, g, b, x;
+						HE_FLOAT rgb[3];
+						HE_BYTE br = 0, bg = 0, bb = 0;
+						HE_ARGB valRet = 0;
 
-							/* this is a matrix multiplication, unrolled for performance */
-							x = c1 * m1 * y1 * k1;	/* 0 0 0 0 */
-							r = g = b = x;
-							x = c1 * m1 * y1 * k;	/* 0 0 0 1 */
-							r += 0.1373 * x;
-							g += 0.1216 * x;
-							b += 0.1255 * x;
-							x = c1 * m1 * y * k1;	/* 0 0 1 0 */
-							r += x;
-							g += 0.9490 * x;
-							x = c1 * m1 * y * k;	/* 0 0 1 1 */
-							r += 0.1098 * x;
-							g += 0.1020 * x;
-							x = c1 * m * y1 * k1;	/* 0 1 0 0 */
-							r += 0.9255 * x;
-							b += 0.5490 * x;
-							x = c1 * m * y1 * k;	/* 0 1 0 1 */
-							r += 0.1412 * x;
-							x = c1 * m * y * k1;	/* 0 1 1 0 */
-							r += 0.9294 * x;
-							g += 0.1098 * x;
-							b += 0.1412 * x;
-							x = c1 * m * y * k;	/* 0 1 1 1 */
-							r += 0.1333 * x;
-							x = c * m1 * y1 * k1;	/* 1 0 0 0 */
-							g += 0.6784 * x;
-							b += 0.9373 * x;
-							x = c * m1 * y1 * k;	/* 1 0 0 1 */
-							g += 0.0588 * x;
-							b += 0.1412 * x;
-							x = c * m1 * y * k1;	/* 1 0 1 0 */
-							g += 0.6510 * x;
-							b += 0.3137 * x;
-							x = c * m1 * y * k;	/* 1 0 1 1 */
-							g += 0.0745 * x;
-							x = c * m * y1 * k1;	/* 1 1 0 0 */
-							r += 0.1804 * x;
-							g += 0.1922 * x;
-							b += 0.5725 * x;
-							x = c * m * y1 * k;	/* 1 1 0 1 */
-							b += 0.0078 * x;
-							x = c * m * y * k1;	/* 1 1 1 0 */
-							r += 0.2118 * x;
-							g += 0.2119 * x;
-							b += 0.2235 * x;
+						/* this is a matrix multiplication, unrolled for performance */
+						x = c1 * m1 * y1 * k1;	/* 0 0 0 0 */
+						r = g = b = x;
+						x = c1 * m1 * y1 * k;	/* 0 0 0 1 */
+						r += 0.1373 * x;
+						g += 0.1216 * x;
+						b += 0.1255 * x;
+						x = c1 * m1 * y * k1;	/* 0 0 1 0 */
+						r += x;
+						g += 0.9490 * x;
+						x = c1 * m1 * y * k;	/* 0 0 1 1 */
+						r += 0.1098 * x;
+						g += 0.1020 * x;
+						x = c1 * m * y1 * k1;	/* 0 1 0 0 */
+						r += 0.9255 * x;
+						b += 0.5490 * x;
+						x = c1 * m * y1 * k;	/* 0 1 0 1 */
+						r += 0.1412 * x;
+						x = c1 * m * y * k1;	/* 0 1 1 0 */
+						r += 0.9294 * x;
+						g += 0.1098 * x;
+						b += 0.1412 * x;
+						x = c1 * m * y * k;	/* 0 1 1 1 */
+						r += 0.1333 * x;
+						x = c * m1 * y1 * k1;	/* 1 0 0 0 */
+						g += 0.6784 * x;
+						b += 0.9373 * x;
+						x = c * m1 * y1 * k;	/* 1 0 0 1 */
+						g += 0.0588 * x;
+						b += 0.1412 * x;
+						x = c * m1 * y * k1;	/* 1 0 1 0 */
+						g += 0.6510 * x;
+						b += 0.3137 * x;
+						x = c * m1 * y * k;	/* 1 0 1 1 */
+						g += 0.0745 * x;
+						x = c * m * y1 * k1;	/* 1 1 0 0 */
+						r += 0.1804 * x;
+						g += 0.1922 * x;
+						b += 0.5725 * x;
+						x = c * m * y1 * k;	/* 1 1 0 1 */
+						b += 0.0078 * x;
+						x = c * m * y * k1;	/* 1 1 1 0 */
+						r += 0.2118 * x;
+						g += 0.2119 * x;
+						b += 0.2235 * x;
 
-							rgb[0] = fz_clamp(r, 0, 1);
-							rgb[1] = fz_clamp(g, 0, 1);
-							rgb[2] = fz_clamp(b, 0, 1);
+						rgb[0] = fz_clamp(r, 0, 1);
+						rgb[1] = fz_clamp(g, 0, 1);
+						rgb[2] = fz_clamp(b, 0, 1);
 
-							br = rgb[0] * 255;
-							bg = rgb[1] * 255;
-							bb = rgb[2] * 255;
+						br = rgb[0] * 255;
+						bg = rgb[1] * 255;
+						bb = rgb[2] * 255;
 
-							valRet = 0xFF000000 + ( br << 16 ) + ( bg << 8 ) + ( bb );
-							return valRet;
+						valRet = 0xFF000000 + ( br << 16 ) + ( bg << 8 ) + ( bb );
+						return valRet;
 //                             HE_FLOAT bgr[3];
 //                             bgr[0] = ( 1 < color.mConponents[2] + color.mConponents[3] ) ? color.mConponents[2] + color.mConponents[3] : 1;
 //                             bgr[1] = ( 1 < color.mConponents[1] + color.mConponents[3] ) ? color.mConponents[1] + color.mConponents[3] : 1;
 //                             bgr[2] = ( 1 < color.mConponents[0] + color.mConponents[3] ) ? color.mConponents[0] + color.mConponents[3] : 1;
 //                             
-//                             HE_UINT32 valRet = 0xFF000000;
+//                             HE_UINT32 valRet = 0xFF000000; 
 //                             HE_UINT32 tmpByte1 = bgr[0] * 255;
 //                             HE_UINT32 tmpByte2 = bgr[1] * 255;
 //                             HE_UINT32 tmpByte3 = bgr[2] * 255;
 //                             valRet = valRet | tmpByte1 << 16 | tmpByte2 << 8 | tmpByte3;
 //                             return valRet;
-                        }
                     }
-                    break;
-                default:
-                    break;
                 }
+                break;
+            default:
+                break;
             }
             break;
         }
@@ -784,16 +760,17 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
         {
 			if ( mpBaseColorspace  )
 			{
-				HE_BYTE index = (HE_BYTE)(color.mConponents[0]);
-				if ( mpIndexTable && ( index * mpBaseColorspace->GetComponentCount() < mIndexTableSize ) )
+				HE_BYTE index = (HE_BYTE)(color.GetComponent(0));
+				HE_ULONG componentCount = mpBaseColorspace->GetComponentCount();
+				if ( mpIndexTable && ( index * componentCount < mIndexTableSize ) )
 				{
 					HE_BYTE component = 0;
 					CHE_PDF_Color newColor;
-					HE_LPBYTE p = mpIndexTable + ( index * mpBaseColorspace->GetComponentCount() );
-					for ( HE_ULONG i = 0; i < mpBaseColorspace->GetComponentCount(); ++i )
+					HE_LPBYTE p = mpIndexTable + ( index * componentCount );
+					for ( HE_ULONG i = 0; i < componentCount; ++i )
 					{
 						component = *(p+i);
-						newColor.mConponents.push_back( component / 255.0f );
+						newColor.Push( component / 255.0f );
 					}
 					return mpBaseColorspace->GetARGBValue( newColor );
 				}
@@ -804,11 +781,11 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 		{
 			if ( mpBaseColorspace && mpFunction )
 			{
-				CHE_PDF_Color newColor;
-				if ( mpFunction->Calculate( color.mConponents, newColor.mConponents ) )
-				{
-					return mpBaseColorspace->GetARGBValue( newColor );
-				}
+// 				CHE_PDF_Color newColor;
+// 				if ( mpFunction->Calculate( color.mConponents, newColor.mConponents ) )
+// 				{
+// 					return mpBaseColorspace->GetARGBValue( newColor );
+// 				}
 			}
 			break;
 		}

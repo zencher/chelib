@@ -61,14 +61,15 @@ enum PDF_FUNCTION_TYPE
 class CHE_PDF_Function : public CHE_Object
 {
 public:
-	static CHE_PDF_Function *	Create( CHE_PDF_ReferencePtr refPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_Function *	Create( CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_Function *	Create( CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator = NULL );
 	static HE_VOID				Destroy( CHE_PDF_Function * pFunction );
 
-	~CHE_PDF_Function();
+	virtual ~CHE_PDF_Function() {};
 
 	PDF_FUNCTION_TYPE			GetType() const { return mType; }
 	HE_UINT32					GetInputCount() const { return mInputCount; } 
-	HE_UINT32					GetOutputCount() const { return mInputCount; }
+	HE_UINT32					GetOutputCount() const { return mOutputCount; }
 	HE_FLOAT					GetDomianMin( HE_UINT32 index ) const;
 	HE_FLOAT					GetDomianMax( HE_UINT32 index ) const;
 	HE_FLOAT					GetRangeMin( HE_UINT32 index ) const;
@@ -162,7 +163,7 @@ private:
 enum PDF_FUNCTION_PSITEM_TYPE
 {
 	PSITEM_BOOL,
-	PSITEM_INIT,
+	PSITEM_INT,
 	PSITEM_FLOAT,
 	PSITEM_OPERATOR,
 	PSITEM_BLOCK
@@ -203,7 +204,9 @@ private:
 	CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );
 
 	HE_BOOL IsParsed() const;
-	HE_VOID Parse();
+	HE_VOID Parse() {};
+
+	//HE_BOOL RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
 
 	HE_BOOL mbParsed;
 	std::vector<CHE_PDF_Function_PostScriptItem> mCodes;

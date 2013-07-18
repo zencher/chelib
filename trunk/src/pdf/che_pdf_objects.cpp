@@ -1371,7 +1371,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & stmPtr, PDF_STREAM_
 					HE_BYTE Predictor = 1;
 					HE_BYTE Colors = 1;
 					HE_BYTE BitsPerComponent = 8;
-					HE_BYTE Columns = 8;
+					HE_BYTE Columns = 1;
 					HE_BYTE EarlyChange = 1;
 					CHE_PDF_ObjectPtr pObj = pDecodeParams->GetElement( "Predictor" );
 					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )
@@ -1413,7 +1413,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & stmPtr, PDF_STREAM_
 					HE_BYTE Predictor = 1;
 					HE_BYTE Colors = 1;
 					HE_BYTE BitsPerComponent = 8;
-					HE_BYTE Columns = 8;
+					HE_BYTE Columns = 1;
 					HE_BYTE EarlyChange = 1;
 					CHE_PDF_ObjectPtr pObj = pDecodeParams->GetElement( "Predictor" );
 					if ( pObj && pObj->GetType() == OBJ_TYPE_NUMBER )

@@ -207,14 +207,14 @@ CHE_PDF_ColorSpace * CHE_PDF_ColorSpace::Create( const CHE_PDF_ReferencePtr & pR
 
 CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mType(type), mResName(pAllocator), mpBaseColorspace(NULL), mIndexCount(0), 
-	mpIndexTable(NULL), mIndexTableSize(0)
+	mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
 {
 }
 
 CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, 
 	const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mType(type), mResName(resName), mpObj(pObj), mpBaseColorspace(NULL), 
-	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0)
+	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
 {
 	if ( type == COLORSPACE_SPECIAL_INDEXED )
 	{
@@ -286,6 +286,69 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_Byte
 				mIndexTableSize = str.GetLength();
 			}
 		}
+	}else if ( type == COLORSPACE_SPECIAL_SEPARATION )
+	{
+		CHE_PDF_ObjectPtr objPtr;
+		CHE_PDF_ArrayPtr arrayPtr;
+		if ( pObj )
+		{
+			if ( pObj->GetType() == OBJ_TYPE_ARRAY )
+			{
+				arrayPtr = pObj->GetArrayPtr();
+			}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
+			{
+				objPtr = pObj->GetRefPtr()->GetRefObj( OBJ_TYPE_ARRAY );
+				if ( objPtr )
+				{
+					arrayPtr = objPtr->GetArrayPtr();
+				}
+			}
+		}
+		if ( arrayPtr && arrayPtr->GetCount() >= 4 )
+		{
+			objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NAME );
+			if ( objPtr )
+			{
+				if ( objPtr->GetNamePtr()->GetString() != "Separation" )
+				{
+					return;
+				}
+			}
+			objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NAME );
+			if ( objPtr )
+			{
+				mName = objPtr->GetNamePtr()->GetString();
+			}else{
+				return;
+			}
+			objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_ARRAY );
+			if ( objPtr )
+			{
+				mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetArrayPtr(), GetAllocator() );
+			}else{ 
+				objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NAME );
+				if ( objPtr )
+				{
+					mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetNamePtr()->GetString(), GetAllocator() );
+				}
+			}
+			if ( mpBaseColorspace == NULL )
+			{
+				return;
+			}
+
+			objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_DICTIONARY );
+			if ( objPtr )
+			{
+				mpFunction = CHE_PDF_Function::Create( objPtr->GetDictPtr(), GetAllocator() );
+			}else{
+				objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_REFERENCE );
+				if ( objPtr )
+				{
+					mpFunction = CHE_PDF_Function::Create( objPtr->GetRefPtr(), GetAllocator() );
+				}
+			}
+		}
 	}
 }
 
@@ -301,6 +364,10 @@ CHE_PDF_ColorSpace::~CHE_PDF_ColorSpace()
 		GetAllocator()->Delete( mpIndexTable );
 		mpIndexTable = NULL;
 	}
+// 	if ( mpFunction )
+// 	{
+// 		GetAllocator()->Delete( mpFunction );
+// 	}
 }
 
 CHE_PDF_ColorSpace * CHE_PDF_ColorSpace::Clone() const
@@ -322,6 +389,11 @@ CHE_PDF_ColorSpace * CHE_PDF_ColorSpace::Clone() const
 		pRet->mpIndexTable = pRet->GetAllocator()->NewArray<HE_BYTE>( mIndexTableSize );
 		memcpy( pRet->mpIndexTable, mpIndexTable, mIndexTableSize );
 		pRet->mIndexTableSize = mIndexTableSize;
+	}
+	if ( mpFunction )
+	{
+		//todo
+		pRet->mpFunction = mpFunction;
 	}
 
 	return pRet;
@@ -728,9 +800,20 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 			}
             break;
         }
-    case COLORSPACE_SPECIAL_PATTERN:
 	case COLORSPACE_SPECIAL_SEPARATION:
+		{
+			if ( mpBaseColorspace && mpFunction )
+			{
+				CHE_PDF_Color newColor;
+				if ( mpFunction->Calculate( color.mConponents, newColor.mConponents ) )
+				{
+					return mpBaseColorspace->GetARGBValue( newColor );
+				}
+			}
+			break;
+		}
 	case COLORSPACE_SPECIAL_DEVICEN:
+	case COLORSPACE_SPECIAL_PATTERN:
 	default:
         break;
 	}

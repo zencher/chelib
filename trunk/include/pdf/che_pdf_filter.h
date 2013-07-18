@@ -18,7 +18,7 @@ public:
 class CHE_PDF_Predictor : public CHE_Object
 {
 public:
-    CHE_PDF_Predictor(	HE_BYTE Predictor = 1, HE_BYTE Colors = 1, HE_BYTE BitsPerComponent = 8, HE_BYTE Columns = 8, HE_BYTE EarlyChange = 1, CHE_Allocator * pAllocator = NULL )
+    CHE_PDF_Predictor(	HE_BYTE Predictor = 1, HE_BYTE Colors = 1, HE_BYTE BitsPerComponent = 8, HE_BYTE Columns = 1, HE_BYTE EarlyChange = 1, CHE_Allocator * pAllocator = NULL )
 		: CHE_Object( pAllocator )
 	{
         m_nPredictor   = Predictor;
@@ -71,7 +71,7 @@ public:
                 switch( m_nCurPredictor )
                 {
                     case 2: // Tiff Predictor
-                        throw 0;
+                        //throw 0;
                         break;
                     case 10: // png none
                     {

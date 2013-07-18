@@ -2,6 +2,7 @@
 #define _CHE_PDF_COLORSPACE_H_
 
 #include "che_pdf_objects.h"
+#include "che_pdf_function.h"
 
 enum PDF_COLORSPACE_TYPE
 {
@@ -71,11 +72,19 @@ private:
 	CHE_PDF_ObjectPtr		mpObj;
 	CHE_ByteString			mResName;
 
-	//for index color space
 	CHE_PDF_ColorSpace *	mpBaseColorspace;
+
+	//for index color space
 	HE_ULONG				mIndexCount;
 	HE_LPBYTE				mpIndexTable;
 	HE_ULONG				mIndexTableSize;
+
+	//for seperation
+	CHE_ByteString			mName;
+	CHE_PDF_Function *		mpFunction;
+
+	//for deviceN
+
 };
 
 

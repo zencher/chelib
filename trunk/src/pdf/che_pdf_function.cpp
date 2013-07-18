@@ -8,7 +8,7 @@
 #define C(a,b,c)	(a | b<<8 | c<<16)
 #define D(a,b,c,d)	(a | b<<8 | c<<16 | d<<24)
 
-HE_ULONG StringToDWORD( CHE_ByteString & str )
+static HE_ULONG StringToDWORD( CHE_ByteString & str )
 {
 	if ( str.GetLength() == 0 )
 	{
@@ -47,7 +47,7 @@ static inline int fz_clampi(int i, float min, float max)
 	return (i > min ? (i < max ? i : max) : min);
 }
 
-CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_ReferencePtr refPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	if ( !refPtr )
 	{
@@ -102,6 +102,35 @@ CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_ReferencePtr refPtr, CHE_Al
 					}
 				}
 			}
+		}
+	}
+	return pTmp;
+}
+
+CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+{
+	if ( !dictPtr )
+	{
+		return NULL;
+	}
+	if ( pAllocator == NULL )
+	{
+		pAllocator = GetDefaultAllocator();
+	}
+
+	CHE_PDF_Function * pTmp = NULL;
+	CHE_PDF_ObjectPtr objPtr = dictPtr->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
+	if ( objPtr )
+	{
+		switch( objPtr->GetNumberPtr()->GetInteger() )
+		{
+		case 2:
+			pTmp = pAllocator->New<CHE_PDF_Function_Exponential>( dictPtr, pAllocator );
+			break;
+		case 3:
+			pTmp = pAllocator->New<CHE_PDF_Function_Stitching>( dictPtr, pAllocator );
+			break;
+		default:;
 		}
 	}
 	return pTmp;
@@ -515,17 +544,20 @@ HE_BOOL CHE_PDF_Function_Exponential::Calculate( std::vector<HE_FLOAT> & input, 
 		return FALSE;
 	}
 
+	HE_FLOAT x = input[0];
+	x = fz_clamp( x, GetDomianMin(0), GetDomianMax(0) );
+
 	output.clear();
 
-	HE_FLOAT tmp1 = powf( GetInputCount(), mN );
+	HE_FLOAT tmp1 = powf( x, GetOutputCount() );
 	HE_FLOAT tmp2 = 0.0f;
 	
-	for ( HE_ULONG i = 0; i < mN; ++i )
+	for ( HE_ULONG i = 0; i < GetOutputCount(); ++i )
 	{
 		tmp2 = mpC0[i] + tmp1 * ( mpC1[i] - mpC0[i] );
 		if ( HasRange() )
 		{
-			tmp2 = fz_clamp( tmp2, GetRangeMin(i), GetRangeMin(i) );
+			tmp2 = fz_clamp( tmp2, GetRangeMin(i), GetRangeMax(i) );
 		}
 		output.push_back( tmp2 );
 	}
@@ -706,7 +738,7 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 				{
 				case PARSE_WORD_INTEGER:
 					{
-						psItem.mType = PSITEM_INIT;
+						psItem.mType = PSITEM_INT;
 						psItem.mIntegerValue = wordDes.str.GetInteger();
 						mCodes.push_back( psItem );
 						break;
@@ -1052,4 +1084,165 @@ HE_BOOL CHE_PDF_Function_PostScript::Calculate( std::vector<HE_FLOAT> & input, s
 	return TRUE;
 }
 
+// typedef struct _ps_stack
+// {
+// 	CHE_PDF_Function_PostScriptItem stack[100];
+// 	int sp;
+// }ps_stack;
+// 
+// static void ps_init_stack(ps_stack *st)
+// {
+// 	memset(st->stack, 0, sizeof(st->stack));
+// 	st->sp = 0;
+// }
+// 
+// #define nelem(x) (sizeof(x)/sizeof((x)[0]))
+// 
+// static inline int ps_overflow(ps_stack *st, int n)
+// {
+// 	return n < 0 || st->sp + n >= nelem(st->stack);
+// }
+// 
+// static inline int ps_underflow(ps_stack *st, int n)
+// {
+// 	return n < 0 || st->sp - n < 0;
+// }
+// 
+// static inline int ps_is_type(ps_stack *st, int t)
+// {
+// 	return !ps_underflow(st, 1) && st->stack[st->sp - 1].mType == t;
+// }
+// 
+// static inline int ps_is_type2(ps_stack *st, int t)
+// {
+// 	return !ps_underflow(st, 2) && st->stack[st->sp - 1].mType == t && st->stack[st->sp - 2].mType == t;
+// }
+// 
+// static void ps_push_bool(ps_stack *st, HE_BOOL b)
+// {
+// 	if (!ps_overflow(st, 1))
+// 	{
+// 		st->stack[st->sp].mType = PSITEM_BOOL;
+// 		st->stack[st->sp].mBoolValue = b;
+// 		st->sp++;
+// 	}
+// }
+// 
+// static void
+// ps_push_int(ps_stack *st, HE_INT32 n)
+// {
+// 	if (!ps_overflow(st, 1))
+// 	{
+// 		st->stack[st->sp].mType = PSITEM_INT;
+// 		st->stack[st->sp].mIntegerValue = n;
+// 		st->sp++;
+// 	}
+// }
+// 
+// static void
+// ps_push_real(ps_stack *st, HE_FLOAT n)
+// {
+// 	if (!ps_overflow(st, 1))
+// 	{
+// 		st->stack[st->sp].mType = PSITEM_FLOAT;
+// 		if (_isnan(n))
+// 		{
+// 			/* Push 1.0, as it's a small known value that won't
+// 			 * cause a divide by 0. Same reason as in fz_atof. */
+// 			n = 1.0;
+// 		}
+// 		st->stack[st->sp].u.f = fz_clamp(n, -FLT_MAX, FLT_MAX);
+// 		st->sp++;
+// 	}
+// }
+// 
+// static int
+// ps_pop_bool(ps_stack *st)
+// {
+// 	if (!ps_underflow(st, 1))
+// 	{
+// 		if (ps_is_type(st, PS_BOOL))
+// 			return st->stack[--st->sp].u.b;
+// 	}
+// 	return 0;
+// }
+// 
+// static int
+// ps_pop_int(ps_stack *st)
+// {
+// 	if (!ps_underflow(st, 1))
+// 	{
+// 		if (ps_is_type(st, PS_INT))
+// 			return st->stack[--st->sp].u.i;
+// 		if (ps_is_type(st, PS_REAL))
+// 			return st->stack[--st->sp].u.f;
+// 	}
+// 	return 0;
+// }
+// 
+// static float
+// ps_pop_real(ps_stack *st)
+// {
+// 	if (!ps_underflow(st, 1))
+// 	{
+// 		if (ps_is_type(st, PS_INT))
+// 			return st->stack[--st->sp].u.i;
+// 		if (ps_is_type(st, PS_REAL))
+// 			return st->stack[--st->sp].u.f;
+// 	}
+// 	return 0;
+// }
+// 
+// static void
+// ps_copy(ps_stack *st, int n)
+// {
+// 	if (!ps_underflow(st, n) && !ps_overflow(st, n))
+// 	{
+// 		memcpy(st->stack + st->sp, st->stack + st->sp - n, n * sizeof(psobj));
+// 		st->sp += n;
+// 	}
+// }
+// 
+// static void
+// ps_roll(ps_stack *st, int n, int j)
+// {
+// 	psobj tmp;
+// 	int i;
+// 
+// 	if (ps_underflow(st, n) || j == 0 || n == 0)
+// 		return;
+// 
+// 	if (j >= 0)
+// 	{
+// 		j %= n;
+// 	}
+// 	else
+// 	{
+// 		j = -j % n;
+// 		if (j != 0)
+// 			j = n - j;
+// 	}
+// 
+// 	for (i = 0; i < j; i++)
+// 	{
+// 		tmp = st->stack[st->sp - 1];
+// 		memmove(st->stack + st->sp - n + 1, st->stack + st->sp - n, n * sizeof(psobj));
+// 		st->stack[st->sp - n] = tmp;
+// 	}
+// }
+// 
+// static void
+// ps_index(ps_stack *st, int n)
+// {
+// 	if (!ps_overflow(st, 1) && !ps_underflow(st, n))
+// 	{
+// 		st->stack[st->sp] = st->stack[st->sp - n - 1];
+// 		st->sp++;
+// 	}
+// }
+// 
+// HE_BOOL CHE_PDF_Function_PostScript::RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+// {
+// 
+// }
 

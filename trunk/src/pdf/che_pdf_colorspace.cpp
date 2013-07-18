@@ -209,6 +209,29 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator 
 	: CHE_Object(pAllocator), mType(type), mResName(pAllocator), mComponentCount(0), mpBaseColorspace(NULL),
 	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
 {
+	switch ( mType )
+	{
+	case COLORSPACE_DEVICE_GRAY:
+	case COLORSPACE_CIEBASE_CALGRAY:
+		{
+			mComponentCount = 1;
+			break;
+		}
+	case COLORSPACE_DEVICE_RGB:
+	case COLORSPACE_CIEBASE_CALRGB:
+	case COLORSPACE_CIEBASE_CALLAB:
+		{
+			mComponentCount = 3;
+			break;
+		}
+	case COLORSPACE_DEVICE_CMYK:
+	case COLORSPACE_CIEBASE_CALCMYK:
+		{
+			mComponentCount = 4;
+			break;
+		}
+	default:;
+	}
 }
 
 CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, 
@@ -216,162 +239,201 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_Byte
 	: CHE_Object(pAllocator), mType(type), mResName(resName), mComponentCount(0), mpObj(pObj), mpBaseColorspace(NULL), 
 	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
 {
-	if ( type == COLORSPACE_SPECIAL_INDEXED )
+	switch ( mType )
 	{
-		CHE_PDF_ObjectPtr objPtr;
-		CHE_PDF_ArrayPtr arrayPtr;
-		if ( pObj )
+	case COLORSPACE_DEVICE_GRAY:
+	case COLORSPACE_CIEBASE_CALGRAY:
 		{
-			if ( pObj->GetType() == OBJ_TYPE_ARRAY )
-			{
-				arrayPtr = pObj->GetArrayPtr();
-			}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
-			{
-				objPtr = pObj->GetRefPtr()->GetRefObj( OBJ_TYPE_ARRAY );
-				if ( objPtr )
-				{
-					arrayPtr = objPtr->GetArrayPtr();
-				}
-			}
+			mComponentCount = 1;
+			break;
 		}
-		if ( arrayPtr && arrayPtr->GetCount() >= 4 )
+	case COLORSPACE_DEVICE_RGB:
+	case COLORSPACE_CIEBASE_CALRGB:
 		{
-			objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NAME );
-			if ( objPtr )
-			{
-				if ( objPtr->GetNamePtr()->GetString() != "Indexed" )
-				{
-					return;
-				}
-			}
-			objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_ARRAY );
-			if ( objPtr )
-			{
-				mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetArrayPtr(), GetAllocator() );
-			}else{ 
-				objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NAME );
-				if ( objPtr )
-				{
-					mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetNamePtr()->GetString(), GetAllocator() );
-				}
-			}
-			if ( mpBaseColorspace == NULL )
-			{
-				return;
-			}
-			objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
-			if ( objPtr )
-			{
-				mIndexCount = objPtr->GetNumberPtr()->GetInteger();
-			}else{
-				//todo clear colorspace
-				return;
-			}
-			objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_STREAM );
-			if ( objPtr )
-			{
-				CHE_PDF_StreamAcc stmAcc( GetAllocator() );
-				if ( stmAcc.Attach( objPtr->GetStreamPtr() ) )
-				{
-					mpIndexTable = GetAllocator()->NewArray<HE_BYTE>( stmAcc.GetSize() );
-					memcpy( mpIndexTable, stmAcc.GetData(), stmAcc.GetSize() );
-					mIndexTableSize = stmAcc.GetSize();
-					stmAcc.Detach();
-				}
-			}else{
-				objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_STRING );
-				CHE_ByteString str = objPtr->GetStringPtr()->GetString();
-				mpIndexTable = GetAllocator()->NewArray<HE_BYTE>( str.GetLength() );
-				memcpy( mpIndexTable, str.GetData(), str.GetLength() );
-				mIndexTableSize = str.GetLength();
-			}
+			mComponentCount = 3;
+			break;
 		}
-	}else if ( type == COLORSPACE_SPECIAL_SEPARATION )
-	{
-		CHE_PDF_ObjectPtr objPtr;
-		CHE_PDF_ArrayPtr arrayPtr;
-		if ( pObj )
+	case COLORSPACE_DEVICE_CMYK:
+	case COLORSPACE_CIEBASE_CALCMYK:
 		{
-			if ( pObj->GetType() == OBJ_TYPE_ARRAY )
-			{
-				arrayPtr = pObj->GetArrayPtr();
-			}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
-			{
-				objPtr = pObj->GetRefPtr()->GetRefObj( OBJ_TYPE_ARRAY );
-				if ( objPtr )
-				{
-					arrayPtr = objPtr->GetArrayPtr();
-				}
-			}
+			mComponentCount = 4;
+			break;
 		}
-		if ( arrayPtr && arrayPtr->GetCount() >= 4 )
+	case COLORSPACE_CIEBASE_ICCBASED:
 		{
-			objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NAME );
-			if ( objPtr )
+			if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
 			{
-				if ( objPtr->GetNamePtr()->GetString() != "Separation" )
+				CHE_PDF_ArrayPtr arrayPtr = mpObj->GetArrayPtr();
+				if ( arrayPtr->GetCount() >= 2 )
 				{
-					return;
-				}
-			}
-			objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NAME );
-			if ( objPtr )
-			{
-				mName = objPtr->GetNamePtr()->GetString();
-			}else{
-				return;
-			}
-			objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_ARRAY );
-			if ( objPtr )
-			{
-				mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetArrayPtr(), GetAllocator() );
-			}else{ 
-				objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NAME );
-				if ( objPtr )
-				{
-					mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetNamePtr()->GetString(), GetAllocator() );
-				}
-			}
-			if ( mpBaseColorspace == NULL )
-			{
-				return;
-			}
-
-			objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_DICTIONARY );
-			if ( objPtr )
-			{
-				mpFunction = CHE_PDF_Function::Create( objPtr->GetDictPtr(), GetAllocator() );
-			}else{
-				objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_REFERENCE );
-				if ( objPtr )
-				{
-					mpFunction = CHE_PDF_Function::Create( objPtr->GetRefPtr(), GetAllocator() );
-				}
-			}
-		}
-	}else if ( COLORSPACE_CIEBASE_ICCBASED )
-	{
-		if ( mpObj && mpObj->GetType() == OBJ_TYPE_ARRAY )
-		{
-			CHE_PDF_ArrayPtr arrayPtr = mpObj->GetArrayPtr();
-			if ( arrayPtr->GetCount() >= 2 )
-			{
-				CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
-				if ( objPtr )
-				{
-					CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
-					CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
-					if ( dictPtr )
+					CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
+					if ( objPtr )
 					{
-						objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
-						if ( objPtr )
+						CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+						CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+						if ( dictPtr )
 						{
-							mComponentCount = objPtr->GetNumberPtr()->GetInteger();;
+							objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
+							if ( objPtr )
+							{
+								mComponentCount = objPtr->GetNumberPtr()->GetInteger();;
+							}
 						}
 					}
 				}
 			}
+			break;
 		}
+	case COLORSPACE_SPECIAL_INDEXED:
+		{
+			CHE_PDF_ObjectPtr objPtr;
+			CHE_PDF_ArrayPtr arrayPtr;
+			if ( pObj )
+			{
+				if ( pObj->GetType() == OBJ_TYPE_ARRAY )
+				{
+					arrayPtr = pObj->GetArrayPtr();
+				}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
+				{
+					objPtr = pObj->GetRefPtr()->GetRefObj( OBJ_TYPE_ARRAY );
+					if ( objPtr )
+					{
+						arrayPtr = objPtr->GetArrayPtr();
+					}
+				}
+			}
+			if ( arrayPtr && arrayPtr->GetCount() >= 4 )
+			{
+				objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NAME );
+				if ( objPtr )
+				{
+					if ( objPtr->GetNamePtr()->GetString() != "Indexed" )
+					{
+						return;
+					}
+				}
+				objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_ARRAY );
+				if ( objPtr )
+				{
+					mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetArrayPtr(), GetAllocator() );
+				}else{ 
+					objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NAME );
+					if ( objPtr )
+					{
+						mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetNamePtr()->GetString(), GetAllocator() );
+					}
+				}
+				if ( mpBaseColorspace == NULL )
+				{
+					return;
+				}
+				objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
+				if ( objPtr )
+				{
+					mIndexCount = objPtr->GetNumberPtr()->GetInteger();
+				}else{
+					//todo clear colorspace
+					return;
+				}
+				objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_STREAM );
+				if ( objPtr )
+				{
+					CHE_PDF_StreamAcc stmAcc( GetAllocator() );
+					if ( stmAcc.Attach( objPtr->GetStreamPtr() ) )
+					{
+						mpIndexTable = GetAllocator()->NewArray<HE_BYTE>( stmAcc.GetSize() );
+						memcpy( mpIndexTable, stmAcc.GetData(), stmAcc.GetSize() );
+						mIndexTableSize = stmAcc.GetSize();
+						stmAcc.Detach();
+					}
+				}else{
+					objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_STRING );
+					CHE_ByteString str = objPtr->GetStringPtr()->GetString();
+					mpIndexTable = GetAllocator()->NewArray<HE_BYTE>( str.GetLength() );
+					memcpy( mpIndexTable, str.GetData(), str.GetLength() );
+					mIndexTableSize = str.GetLength();
+				}
+			}
+			break;
+		}
+	case COLORSPACE_SPECIAL_PATTERN:
+		{
+			mComponentCount = 0;
+			break;
+		}
+	case COLORSPACE_SPECIAL_SEPARATION:
+		{
+			mComponentCount = 1;
+
+			CHE_PDF_ObjectPtr objPtr;
+			CHE_PDF_ArrayPtr arrayPtr;
+			if ( pObj )
+			{
+				if ( pObj->GetType() == OBJ_TYPE_ARRAY )
+				{
+					arrayPtr = pObj->GetArrayPtr();
+				}else if ( pObj->GetType() == OBJ_TYPE_REFERENCE )
+				{
+					objPtr = pObj->GetRefPtr()->GetRefObj( OBJ_TYPE_ARRAY );
+					if ( objPtr )
+					{
+						arrayPtr = objPtr->GetArrayPtr();
+					}
+				}
+			}
+			if ( arrayPtr && arrayPtr->GetCount() >= 4 )
+			{
+				objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NAME );
+				if ( objPtr )
+				{
+					if ( objPtr->GetNamePtr()->GetString() != "Separation" )
+					{
+						return;
+					}
+				}
+				objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NAME );
+				if ( objPtr )
+				{
+					mName = objPtr->GetNamePtr()->GetString();
+				}else{
+					return;
+				}
+				objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_ARRAY );
+				if ( objPtr )
+				{
+					mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetArrayPtr(), GetAllocator() );
+				}else{ 
+					objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NAME );
+					if ( objPtr )
+					{
+						mpBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetNamePtr()->GetString(), GetAllocator() );
+					}
+				}
+				if ( mpBaseColorspace == NULL )
+				{
+					return;
+				}
+
+				objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_DICTIONARY );
+				if ( objPtr )
+				{
+					mpFunction = CHE_PDF_Function::Create( objPtr->GetDictPtr(), GetAllocator() );
+				}else{
+					objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_REFERENCE );
+					if ( objPtr )
+					{
+						mpFunction = CHE_PDF_Function::Create( objPtr->GetRefPtr(), GetAllocator() );
+					}
+				}
+			}
+			break;
+		}
+	case COLORSPACE_SPECIAL_DEVICEN:
+		{
+			mComponentCount = 0;
+			break;
+		}
+	default:;
 	}
 }
 
@@ -418,6 +480,7 @@ CHE_PDF_ColorSpace * CHE_PDF_ColorSpace::Clone() const
 		//todo
 		pRet->mpFunction = mpFunction;
 	}
+	pRet->mComponentCount = mComponentCount;
 
 	return pRet;
 }
@@ -473,49 +536,7 @@ CHE_ByteString CHE_PDF_ColorSpace::GetName() const
 
 HE_BYTE CHE_PDF_ColorSpace::GetComponentCount() const
 {
-	switch ( mType )
-	{
-	case COLORSPACE_DEVICE_GRAY:
-	case COLORSPACE_CIEBASE_CALGRAY:
-		{
-			return 1;
-		}
-	case COLORSPACE_DEVICE_RGB:
-	case COLORSPACE_CIEBASE_CALRGB:
-		{
-			return 3;
-		}
-	case COLORSPACE_DEVICE_CMYK:
-	case COLORSPACE_CIEBASE_CALCMYK:
-		{
-			return 4;
-		}
-	case COLORSPACE_CIEBASE_CALLAB:
-		{
-			return 3;
-		}
-	case COLORSPACE_CIEBASE_ICCBASED:
-		{
-			return mComponentCount;
-		}
-	case COLORSPACE_SPECIAL_INDEXED:
-		{
-			if ( mpBaseColorspace )
-			{
-				return mpBaseColorspace->GetComponentCount();
-			}
-			break;
-		}
-	case COLORSPACE_SPECIAL_PATTERN:
-		{
-			return 0;
-		}
-	case COLORSPACE_SPECIAL_SEPARATION:
-	case COLORSPACE_SPECIAL_DEVICEN:
-	default:
-		break;
-	}
-	return 0;
+	return mComponentCount;
 }
 
 HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
@@ -623,17 +644,6 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 
 				valRet = 0xFF000000 + ( br << 16 ) + ( bg << 8 ) + ( bb );
 				return valRet;
-// 				HE_FLOAT bgr[3];
-// 				bgr[0] = ( 1 < color.mConponents[2] + color.mConponents[3] ) ? color.mConponents[2] + color.mConponents[3] : 1;
-// 				bgr[1] = ( 1 < color.mConponents[1] + color.mConponents[3] ) ? color.mConponents[1] + color.mConponents[3] : 1;
-// 				bgr[2] = ( 1 < color.mConponents[0] + color.mConponents[3] ) ? color.mConponents[0] + color.mConponents[3] : 1;
-// 				
-// 				HE_UINT32 valRet = 0xFF000000;
-// 				HE_UINT32 tmpByte1 = bgr[0] * 255;
-// 				HE_UINT32 tmpByte2 = bgr[1] * 255;
-// 				HE_UINT32 tmpByte3 = bgr[2] * 255;
-//              valRet = valRet | tmpByte1 << 16 | tmpByte2 << 8 | tmpByte3;
-//				return valRet;
 			}
 		}
     case COLORSPACE_CIEBASE_CALLAB:
@@ -737,17 +747,6 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 
 						valRet = 0xFF000000 + ( br << 16 ) + ( bg << 8 ) + ( bb );
 						return valRet;
-//                             HE_FLOAT bgr[3];
-//                             bgr[0] = ( 1 < color.mConponents[2] + color.mConponents[3] ) ? color.mConponents[2] + color.mConponents[3] : 1;
-//                             bgr[1] = ( 1 < color.mConponents[1] + color.mConponents[3] ) ? color.mConponents[1] + color.mConponents[3] : 1;
-//                             bgr[2] = ( 1 < color.mConponents[0] + color.mConponents[3] ) ? color.mConponents[0] + color.mConponents[3] : 1;
-//                             
-//                             HE_UINT32 valRet = 0xFF000000; 
-//                             HE_UINT32 tmpByte1 = bgr[0] * 255;
-//                             HE_UINT32 tmpByte2 = bgr[1] * 255;
-//                             HE_UINT32 tmpByte3 = bgr[2] * 255;
-//                             valRet = valRet | tmpByte1 << 16 | tmpByte2 << 8 | tmpByte3;
-//                             return valRet;
                     }
                 }
                 break;
@@ -781,11 +780,21 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
 		{
 			if ( mpBaseColorspace && mpFunction )
 			{
-// 				CHE_PDF_Color newColor;
-// 				if ( mpFunction->Calculate( color.mConponents, newColor.mConponents ) )
-// 				{
-// 					return mpBaseColorspace->GetARGBValue( newColor );
-// 				}
+ 				CHE_PDF_Color newColor;
+				std::vector<HE_FLOAT> input;
+				std::vector<HE_FLOAT> output;
+				for ( HE_ULONG i = 0; i < color.GetComponentCount(); ++i )
+				{
+					input.push_back( color.GetComponent( i ) );
+				}
+				if ( mpFunction->Calculate( input, output ) )
+				{
+					for ( HE_ULONG j = 0; j < output.size(); ++j )
+					{
+						newColor.Push( output[j] );
+					}
+					return mpBaseColorspace->GetARGBValue( newColor );
+				}
 			}
 			break;
 		}

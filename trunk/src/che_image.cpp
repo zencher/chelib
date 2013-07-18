@@ -387,7 +387,7 @@ CHE_Bitmap * image_decode_jpeg_to_bitmap( HE_LPBYTE data, HE_ULONG size )
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_source_mgr src;
 	struct jpeg_error_mgr err;
-	jmp_buf jb;
+/*	jmp_buf jb;*/
 
 	unsigned char *row[1], *sp, *dp;
 	/*fz_colorspace *colorspace;*/
@@ -478,10 +478,10 @@ CHE_Bitmap * image_decode_jpeg_to_bitmap( HE_LPBYTE data, HE_ULONG size )
 			sp = row[0];
 			for (x = 0; x < cinfo.output_width; x++)
 			{
-				color.mConponents.clear();
+				color.Clear();
 				for (k = 0; k < cinfo.output_components; k++)
 				{
-					color.mConponents.push_back( ( *sp ) / 255.0f );
+					color.Push( ( *sp ) / 255.0f );
 					sp++;
 				}
 				colorARGB = colorspace->GetARGBValue( color );

@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <memory>
 
+
 typedef struct tagHE_BITMAPFILEHEADER
 {
 	HE_UINT16	bfType;

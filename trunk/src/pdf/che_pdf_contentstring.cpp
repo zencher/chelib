@@ -7,9 +7,10 @@
 
 HE_BOOL CHE_PDF_ContentString::ColorToBuf( const CHE_PDF_Color & color, CHE_DynBuffer & buf )
 {
-	for ( size_t i = 0; i < color.mConponents.size(); ++i )
+	HE_ULONG count = color.GetComponentCount();
+	for ( size_t i = 0; i < count; ++i )
 	{
-		CHE_PDF_ObjectString::FloatToBuf( color.mConponents[i], buf );
+		CHE_PDF_ObjectString::FloatToBuf( color.GetComponent(i), buf );
 		CHE_PDF_ObjectString::StringToBuf( " ", buf );
 	}
 
@@ -982,7 +983,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 			CHE_PDF_ObjectString::StringToBuf( " cs\n", buf );
 		}
 
-		if ( fillColor.mConponents.size() > 0 )
+		if ( fillColor.GetComponentCount() > 0 )
 		{
 			ColorToBuf( fillColor,  buf );
 
@@ -1031,7 +1032,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 			CHE_PDF_ObjectString::StringToBuf( " CS\n", buf );
 		}
 
-		if ( strokeColor.mConponents.size() > 0 )
+		if ( strokeColor.GetComponentCount() > 0 )
 		{
 			ColorToBuf( strokeColor,  buf );
 
@@ -1410,7 +1411,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 			CHE_PDF_ObjectString::StringToBuf( " cs\n", buf );
 		}
 
-		if ( targetFillColor.mConponents.size() > 0 )
+		if ( targetFillColor.GetComponentCount() > 0 )
 		{
 			ColorToBuf( targetFillColor, buf );
 
@@ -1462,7 +1463,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 			CHE_PDF_ObjectString::StringToBuf( " CS\n", buf );
 		}
 
-		if ( targetStrokeColor.mConponents.size() > 0 )
+		if ( targetStrokeColor.GetComponentCount() > 0 )
 		{
 			ColorToBuf( targetStrokeColor, buf );
 

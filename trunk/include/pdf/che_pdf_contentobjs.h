@@ -325,6 +325,8 @@ public:
 
 	CHE_Bitmap *			GetBitmap();
 
+	CHE_Bitmap *			FlateStreamToBitmap();
+
 private:
 	CHE_PDF_ReferencePtr    mRefPtr;
     CHE_PDF_StreamPtr       mStmPtr;

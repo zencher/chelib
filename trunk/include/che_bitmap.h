@@ -2,6 +2,7 @@
 #define _CHE_BITMAP_H_
 
 #include "che_base.h"
+#include <vector>
 
 enum HE_BITMAP_DEPTH
 {
@@ -94,6 +95,7 @@ public:
 	//pixel operation
 	HE_BOOL				GetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB & colorRet ) const;
 	HE_BOOL				SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB color );
+	HE_BOOL				SetPixelColor( HE_ULONG x, HE_ULONG y, std::vector<HE_ARGB> & colors );
 	HE_BOOL				GetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE & indexRet ) const;
 	HE_BOOL				SetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE index );
 

@@ -962,8 +962,12 @@ CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 					stmAcc.Detach();
 				}
 			}else{	
-				return FlateStreamToBitmap();
+				pBitmapRet = FlateStreamToBitmap();
 			}
+		}else{
+
+			//raw image
+			pBitmapRet = FlateStreamToBitmap();
 		}
 	}
 	return pBitmapRet;

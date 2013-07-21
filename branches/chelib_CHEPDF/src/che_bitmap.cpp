@@ -64,8 +64,8 @@ CHE_Palette::CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette,
 			{
 				m_nPaletteSize = 2;
 				m_pPalette = GetAllocator()->NewArray<HE_ARGB>( 2 );
-				m_pPalette[0] = 0x00000000;
-				m_pPalette[1] = 0x00FFFFFF;
+				m_pPalette[0] = 0xFFFFFFFF;
+				m_pPalette[1] = 0xFF000000;
 				break;
 			}
 		case BITMAP_DEPTH_4BPP:
@@ -629,6 +629,78 @@ HE_BOOL CHE_Bitmap::Save( HE_LPCSTR filePath )
 	return TRUE;
 }
 
+HE_BOOL CHE_Bitmap::SaveToMem( HE_LPBYTE buffer, HE_DWORD size )
+{
+	if ( buffer == NULL || size < GetMemBitmapDataSize() + 14 )
+	{
+		return FALSE;
+	}
+
+	HE_DWORD index = 0;
+
+	HE_BITMAPFILEHEADER bfHeader;
+	bfHeader.bfSize = (HE_UINT32)( 54 + m_lpPalette->GetCount() * 4 + Pitch() * Height() );
+	bfHeader.bfType = 0x4D42;
+	bfHeader.bfReserved2 = 0;
+	bfHeader.bfReserved1 = 0;
+	bfHeader.bfOffBits = (HE_UINT32)( 54 + m_lpPalette->GetCount() * 4 );
+
+	memcpy( buffer + index, &(bfHeader.bfType), sizeof(bfHeader.bfType) );
+	index += sizeof(bfHeader.bfType);
+	memcpy( buffer + index, &(bfHeader.bfSize), sizeof(bfHeader.bfSize) );
+	index += sizeof(bfHeader.bfSize);
+	memcpy( buffer + index, &(bfHeader.bfReserved2), sizeof(bfHeader.bfReserved2) );
+	index += sizeof(bfHeader.bfReserved2);
+	memcpy( buffer + index, &(bfHeader.bfReserved1), sizeof(bfHeader.bfReserved1) );
+	index += sizeof(bfHeader.bfReserved1);
+	memcpy( buffer + index, &(bfHeader.bfOffBits), sizeof(bfHeader.bfOffBits) );
+	index += sizeof(bfHeader.bfOffBits);
+
+	HE_BITMAPINFOHEADER biHeader;
+	biHeader.biSize = 40;
+	biHeader.biWidth = (HE_INT32)m_lWidth;
+	HE_LONG lHeight = m_lHeight;
+	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (HE_INT32)(lHeight) : (HE_INT32)(-lHeight);
+	biHeader.biPlanes = 1;
+	biHeader.biBitCount = m_Depth;
+	biHeader.biCompression = m_Compression;
+	biHeader.biSizeImage = (HE_UINT32)( Pitch() * Height() );
+	biHeader.biXPelsPerMeter = 0;
+	biHeader.biYPelsPerMeter = 0;
+	biHeader.biClrUsed = 0;
+	biHeader.biClrImportant = 0;
+	memcpy( buffer + index, &(biHeader.biSize), sizeof(biHeader.biSize) );
+	index += sizeof(biHeader.biSize);
+	memcpy( buffer + index, &(biHeader.biWidth), sizeof(biHeader.biWidth) );
+	index += sizeof(biHeader.biWidth);
+	memcpy( buffer + index, &(biHeader.biHeight), sizeof(biHeader.biHeight) );
+	index += sizeof(biHeader.biHeight);
+	memcpy( buffer + index, &(biHeader.biPlanes), sizeof(biHeader.biPlanes) );
+	index += sizeof(biHeader.biPlanes);
+	memcpy( buffer + index, &(biHeader.biBitCount), sizeof(biHeader.biBitCount) );
+	index += sizeof(biHeader.biBitCount);
+	memcpy( buffer + index, &(biHeader.biCompression), sizeof(biHeader.biCompression) );
+	index += sizeof(biHeader.biCompression);
+	memcpy( buffer + index, &(biHeader.biSizeImage), sizeof(biHeader.biSizeImage) );
+	index += sizeof(biHeader.biSizeImage);
+	memcpy( buffer + index, &(biHeader.biXPelsPerMeter), sizeof(biHeader.biXPelsPerMeter) );
+	index += sizeof(biHeader.biXPelsPerMeter);
+	memcpy( buffer + index, &(biHeader.biYPelsPerMeter), sizeof(biHeader.biYPelsPerMeter) );
+	index += sizeof(biHeader.biYPelsPerMeter);
+	memcpy( buffer + index, &(biHeader.biClrUsed), sizeof(biHeader.biClrUsed) );
+	index += sizeof(biHeader.biClrUsed);
+	memcpy( buffer + index, &(biHeader.biClrImportant), sizeof(biHeader.biClrImportant) );
+	index += sizeof(biHeader.biClrImportant);
+
+	if ( m_lpPalette && m_lpPalette->GetCount() > 0 )
+	{
+		memcpy( buffer + index, m_lpPalette->m_pPalette, m_lpPalette->GetCount() * 4 );
+		index += m_lpPalette->GetCount() * 4;
+	}
+	memcpy( buffer + index, m_lpBits, Pitch() * Height() );
+	return TRUE;
+}
+
 HE_DWORD CHE_Bitmap::GetMemBitmapDataSize()
 {
 	HE_DWORD dwRet = 0;
@@ -656,13 +728,13 @@ HE_BOOL CHE_Bitmap::GetMemBitmapData( HE_LPBYTE buffer, HE_DWORD size )
 
 	HE_BITMAPINFOHEADER biHeader;
 	biHeader.biSize = 40;
-	biHeader.biWidth = m_lWidth;
+	biHeader.biWidth = (HE_INT32)m_lWidth;
 	HE_LONG lHeight = m_lHeight;
-	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (lHeight) : (-lHeight);
+	biHeader.biHeight = ( m_Direction == BITMAP_DIRECTION_UP ) ? (HE_INT32)(lHeight) : (HE_INT32)(-lHeight);
 	biHeader.biPlanes = 1;
 	biHeader.biBitCount = m_Depth;
 	biHeader.biCompression = m_Compression;
-	biHeader.biSizeImage = Pitch() * Height();
+	biHeader.biSizeImage = (HE_UINT32)( Pitch() * Height() );
 	biHeader.biXPelsPerMeter = 0;
 	biHeader.biYPelsPerMeter = 0;
 	biHeader.biClrUsed = 0;
@@ -1163,7 +1235,7 @@ HE_BOOL	CHE_Bitmap::Fill( HE_ARGB color )
 		{
 			for ( HE_DWORD i = 0; i+3 < Pitch() * Height(); i+=4 )
 			{
-				*((HE_LPDWORD)(m_lpBits+i)) = color;
+				*((HE_UINT32*)(m_lpBits+i)) = color;
 			}
 			break;
 		}
@@ -1190,16 +1262,16 @@ HE_BOOL	CHE_Bitmap::Fill( HE_ARGB color, const HE_RECT* pRect )
 	{
 		return FALSE;
 	}
-	if ( rect.top < 0 )
-	{
-		rect.height += rect.top;
-		rect.top = 0;
-	}
-	if ( rect.left < 0 )
-	{
-		rect.width += rect.left;
-		rect.left = 0;
-	}
+	//if ( rect.top < 0 )
+	//{
+	//	rect.height += rect.top;
+	//	rect.top = 0;
+	//}
+	//if ( rect.left < 0 )
+	//{
+	//	rect.width += rect.left;
+	//	rect.left = 0;
+	//}
 	
 	for ( HE_DWORD i = rect.top; i < rect.height + rect.top; i++ )
 	{
@@ -1326,7 +1398,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 		{
 			for ( HE_DWORD i = indexB; i < indexE; i+=4 )
 			{
-				*((HE_LPDWORD)(m_lpBits+i)) = color;
+				*((HE_UINT32*)(m_lpBits+i)) = color;
 			}
 			break;
 		}
@@ -1454,7 +1526,7 @@ HE_VOID CHE_Bitmap::DrawLine( HE_DWORD nLine, HE_DWORD nStart, HE_DWORD nLength,
 		{
 			for ( HE_DWORD i = indexB, j = 0; i < indexE; i+=4, j+=4 )
 			{
-				*((HE_LPDWORD)(m_lpBits+i)) = *((HE_LPDWORD)(lpDataBuf+j));
+				*((HE_UINT32*)(m_lpBits+i)) = *((HE_UINT32*)(lpDataBuf+j));
 			}
 			break;
 		}
@@ -1708,14 +1780,14 @@ CHE_Bitmap* CHE_Bitmap::Clone( const HE_RECT* pRect ) const
 		rect.width = pRect->width;
 		rect.height = pRect->height;
 		
-		if ( rect.top < 0 )
-		{
-			rect.top = 0;
-		}
-		if ( rect.left < 0 )
-		{
-			rect.left = 0;
-		}
+		//if ( rect.top < 0 )
+		//{
+		//	rect.top = 0;
+		//}
+		//if ( rect.left < 0 )
+		//{
+		//	rect.left = 0;
+		//}
 		if ( rect.width > Width() - rect.left )
 		{
 			rect.width = Width() - rect.left;
@@ -2178,7 +2250,7 @@ CHE_Bitmap* CHE_Bitmap::StretchTo( HE_DWORD desWidth, HE_DWORD desHeight, HE_DWO
 			HE_BYTE red = 0, green = 0, blue = 0;
 			HE_FLOAT fX = 0, fY = 0;
 			HE_DWORD dwXS = 0, dwXB = 0, dwYS = 0, dwYB = 0;
-			HE_BYTE clrdwXB = 0, clrdwXS = 0, clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
+			HE_BYTE clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
 			HE_ARGB tmpClr = 0xFFFFFFFF;
 			for ( HE_DWORD iY = 0; iY < desHeight; iY++ )
 			{
@@ -2263,7 +2335,7 @@ CHE_Bitmap*	CHE_Bitmap::Translate( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT 
 	HE_BYTE red = 0, green = 0, blue = 0;
 	HE_FLOAT fX = 0, fY = 0;
 	HE_LONG dwXS = 0, dwXB = 0, dwYS = 0, dwYB = 0;
-	HE_BYTE clrdwXB = 0, clrdwXS = 0, clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
+	HE_BYTE clrdwYS = 0, clrdwYB = 0, clrTmp1 = 0, clrTmp2;
 	HE_ARGB tmpClr = 0xFFFFFFFF;
 	for ( HE_DWORD iY = 0; iY < m_lHeight; iY++ )
 	{

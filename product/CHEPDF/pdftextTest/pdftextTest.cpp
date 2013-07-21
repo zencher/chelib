@@ -61,7 +61,7 @@ int main( int argc, char * argv[] )
 // 		}
 
 
-		PDFPage page = CHEPDF_GetPage( doc, 34 );
+		PDFPage page = CHEPDF_GetPage( doc, 0 );
 		PDFPageContent content = CHEPDF_GetPageContent( page ); //获取页面的内容
 		PDFPageWordSet wordset = CHEPDF_GetPageWordSet( content, 2.5 ); //对页面内容进行排版运行，计算出单词保存在wordset中
 		if ( wordset )

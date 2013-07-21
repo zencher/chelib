@@ -8,6 +8,7 @@
 #include "../chelib/extlib/freetype/freetype/ftglyph.h"
 #include "../chelib/extlib/freetype/freetype/ftrender.h"
 
+#include <algorithm>
 
 #include <GdiPlus.h>
 
@@ -778,7 +779,7 @@ unsigned int CHEPDF_GetBitmapDataSize( PDFBitmap bitmap )
 	if ( bitmap )
 	{
 		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
-		return pBitmap->GetMemBitmapDataSize();
+		return pBitmap->GetMemBitmapDataSize() + 14;
 	}
 	return 0;
 }
@@ -793,12 +794,12 @@ PDFStatus CHEPDF_GetBitmapData( PDFBitmap bitmap, unsigned char * pBuf, unsigned
 	if ( bitmap )
 	{
 		CHE_Bitmap * pBitmap = (CHE_Bitmap*)( bitmap );
-		if ( pBitmap->GetMemBitmapDataSize() > bufSize )
+		if ( pBitmap->GetMemBitmapDataSize() + 14 > bufSize )
 		{
 			return PDF_STATUS_ERROR;
 		}
 
-		if ( pBitmap->GetMemBitmapData( pBuf, bufSize ) )
+		if ( pBitmap->SaveToMem( pBuf, bufSize ) )
 		{
 			return PDF_STATUS_OK;
 		}
@@ -824,6 +825,7 @@ PDFStatus CHEPDF_SaveBitmapToFile( PDFBitmap bitmap, char * filePath )
 struct _PDFPageWordStruct
 {
 	std::vector<_PDFPageCharStruct> charVector;
+	PDFRect rect;
 };
 
 struct _PDFPageWordSetStruct
@@ -848,7 +850,13 @@ int _JoinRectToList( std::list<PDFRect> & rectlist, PDFRect rect, std::list<PDFR
 			bMatch = true;
 			break;
 		}
-		//rect在tmpRect之前。。。其实是不是可以不考虑呢？
+		//rect在tmpRect之前
+		if ( fabs( tmpRect.bottom - rect.bottom ) < threshold && fabs( rect.left + rect.width - tmpRect.left ) < threshold )
+		{
+			*it = fz_union_rect( tmpRect, rect );
+			bMatch = true;
+			break;
+		}
 	}
 	if ( bMatch )
 	{
@@ -858,6 +866,42 @@ int _JoinRectToList( std::list<PDFRect> & rectlist, PDFRect rect, std::list<PDFR
 		rectlist.push_back( rect );
 	}
 	return index;
+}
+
+bool SortWord( const _PDFPageWordStruct &v1, const _PDFPageWordStruct &v2 )
+{
+	HE_FLOAT x1 = ( v1.rect.left + v1.rect.width/2.0f );
+	HE_FLOAT y1 = ( v1.rect.bottom + v1.rect.height/2.0f );
+
+	HE_FLOAT x2 = ( v2.rect.left + v2.rect.width/2.0f );
+	HE_FLOAT y2 = ( v2.rect.bottom + v2.rect.height/2.0f );
+
+	HE_FLOAT offset = 0;
+	HE_FLOAT offset1 = v1.rect.height/2.0f;
+	HE_FLOAT offset2 = v2.rect.height/2.0f;
+	if ( offset1 >= offset2 )
+	{
+		offset = offset1;
+	}else{
+		offset = offset2;
+	}
+
+	if ( x2 < x1 )
+	{
+		if ( y2 <= (y1-offset) )
+		{
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}else{
+		if ( y2 <= (y1+offset) )
+		{
+			return TRUE;
+		}else{
+			return FALSE;
+		}
+	}
 }
 
 PDFPageWordSet CHEPDF_GetPageWordSet( PDFPageContent content, float threshold /*= 0.5*/ )
@@ -920,6 +964,19 @@ PDFPageWordSet CHEPDF_GetPageWordSet( PDFPageContent content, float threshold /*
 						}
 					}
 				}
+			}
+
+			if ( pPageWordSet )
+			{
+				std::vector<_PDFPageWordStruct>::iterator wordIt = pPageWordSet->wordVector.begin();
+				std::list<PDFRect>::iterator rectIt = rectList.begin();
+				for ( ; ( wordIt != pPageWordSet->wordVector.end() ) && ( rectIt != rectList.end() ); ++wordIt, ++rectIt )
+				{
+					wordIt->rect = *rectIt;
+				}
+
+				//当文字块分好之后，需要做一个排序
+				std::sort( pPageWordSet->wordVector.begin(), pPageWordSet->wordVector.end(), SortWord );
 			}
 		}
 	}

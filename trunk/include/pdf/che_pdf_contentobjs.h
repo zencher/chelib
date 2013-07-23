@@ -325,15 +325,18 @@ public:
 
 	CHE_Bitmap *			GetBitmap();
 
+private:
 	CHE_Bitmap *			FlateStreamToBitmap();
 
-private:
 	CHE_PDF_ReferencePtr    mRefPtr;
     CHE_PDF_StreamPtr       mStmPtr;
     HE_ULONG                mWidth;
 	HE_ULONG                mHeight;
 	HE_ULONG                mBpc;
 	CHE_PDF_ColorSpace*		mpColorspace;
+	HE_BOOL					mbMask;
+	CHE_PDF_StreamPtr		mMask;
+
 };
 
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject

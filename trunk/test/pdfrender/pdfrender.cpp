@@ -337,34 +337,46 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 				}
 			}else if ( wParam == 'z' || wParam == 'Z' )
 			{
-				gScale+=0.5;
-				gpDrawer->Resize( gPageWidth, gPageHeight );
-				if ( gpPage )
-				{
-					gpPage->GetAllocator()->Delete( gpPage );
+				if(gpDrawer==NULL){
+					MessageBox(hwnd,"You didn't open any file.","Warning",MB_ICONWARNING);
+					return 0;
 				}
-				gpPage = gpPageTree->GetPage( gPageIndex );
-				if ( gpPage )
-				{
-					RenderPage( hwnd );
-					InvalidateRect( hwnd, NULL, FALSE );
+				else{
+					gScale+=0.5;
+					gpDrawer->Resize( gPageWidth, gPageHeight );
+					if ( gpPage )
+					{
+						gpPage->GetAllocator()->Delete( gpPage );
+					}
+					gpPage = gpPageTree->GetPage( gPageIndex );
+					if ( gpPage )
+					{
+						RenderPage( hwnd );
+						InvalidateRect( hwnd, NULL, FALSE );
+					}
 				}
 			}else if ( wParam == 'x' || wParam == 'X' )
 			{
-				if ( gScale - 0.5 >= 0 )
-				{
-					gScale -= 0.5;
+				if( gpDrawer == NULL ){
+					MessageBox( hwnd , "You didn't open any file." ,"Warning" , MB_ICONWARNING);
+					return 0;
 				}
-				gpDrawer->Resize( gPageWidth, gPageHeight );
-				if ( gpPage )
-				{
-					gpPage->GetAllocator()->Delete( gpPage );
-				}
-				gpPage = gpPageTree->GetPage( gPageIndex );
-				if ( gpPage )
-				{
-					RenderPage( hwnd );
-					InvalidateRect( hwnd, NULL, FALSE );
+				else{
+					if ( gScale - 0.5 >= 0 )
+					{
+						gScale -= 0.5;
+					}
+					gpDrawer->Resize( gPageWidth, gPageHeight );
+					if ( gpPage )
+					{
+						gpPage->GetAllocator()->Delete( gpPage );
+					}
+					gpPage = gpPageTree->GetPage( gPageIndex );
+					if ( gpPage )
+					{
+						RenderPage( hwnd );
+						InvalidateRect( hwnd, NULL, FALSE );
+					}
 				}
 			}
 			

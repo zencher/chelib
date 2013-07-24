@@ -471,13 +471,14 @@ CHE_Bitmap * image_decode_jpeg_to_bitmap( HE_LPBYTE data, HE_ULONG size )
 	if ( colorspace )
 	{
 		CHE_PDF_Color color;
-		std::vector<HE_ARGB> colors;
+		HE_ARGB * pColors = GetDefaultAllocator()->NewArray<HE_ARGB>( cinfo.output_width );
+		HE_ULONG colorsIndex = 0;
 		HE_ARGB colorARGB = 0xFF000000;
 		for ( HE_ULONG y = 0; y < cinfo.output_height; ++y  )
 		{
 			jpeg_read_scanlines(&cinfo, row, 1);
 			sp = row[0];
-			colors.clear();
+			colorsIndex = 0;
 			for ( x = 0; x < cinfo.output_width; x++)
 			{
 				color.Clear();
@@ -487,9 +488,9 @@ CHE_Bitmap * image_decode_jpeg_to_bitmap( HE_LPBYTE data, HE_ULONG size )
 					sp++;
 				}
 				colorARGB = colorspace->GetARGBValue( color );
-				colors.push_back( colorARGB );
+				*(pColors+colorsIndex++) = colorARGB;
 			}
-			pBitmap->SetPixelColor( 0, y, colors );
+			pBitmap->SetPixelColor( 0, y, pColors, cinfo.output_width );
 		}
 	}else{
 		dp = (HE_LPBYTE)( pBitmap->GetBuffer() );

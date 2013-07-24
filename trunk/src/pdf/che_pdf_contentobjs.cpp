@@ -4,6 +4,8 @@
 #include "../../extlib/freetype/include/freetype/freetype.h"
 #include "../../extlib/freetype/include/freetype/ftoutln.h"
 
+#include "../../include/che_image.h"
+
 HE_BOOL CHE_PDF_ContentObject::SetGState( CHE_PDF_GState * pGSatae )
 {
 	if ( mpGState )
@@ -847,9 +849,9 @@ CHE_PDF_RefImage::~CHE_PDF_RefImage()
 
 CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 {
-    return StreamToBitmap();
+    //return StreamToBitmap();
     
-	/*CHE_Bitmap * pBitmapRet = NULL;
+	CHE_Bitmap * pBitmapRet = NULL;
 	if( mStmPtr )
 	{
 		HE_BOOL bMultiFilter = FALSE;
@@ -962,15 +964,15 @@ CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 					stmAcc.Detach();
 				}
 			}else{	
-				pBitmapRet = FlateStreamToBitmap();
+				pBitmapRet = StreamToBitmap();
 			}
 		}else{
 
 			//raw image
-			pBitmapRet = FlateStreamToBitmap();
+			pBitmapRet = StreamToBitmap();
 		}
 	}
-	return pBitmapRet;*/
+	return pBitmapRet;
 }
 
 CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()

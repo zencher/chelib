@@ -405,6 +405,19 @@ private:
 	CHE_PDF_FaxDecodeParams * mpParams;
 };
 
+class CHE_PDF_DCTDFilter : public CHE_PDF_Filter
+{
+public:
+    CHE_PDF_DCTDFilter( CHE_Allocator * pAllocator = NULL )
+        : CHE_PDF_Filter(pAllocator) {};
+    
+    ~CHE_PDF_DCTDFilter() {};
+    
+    HE_VOID     Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer ) {};
+    
+    HE_VOID     Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer );
+};
+
 class CHE_PDF_JPXFilter : public CHE_PDF_Filter
 {
 public:

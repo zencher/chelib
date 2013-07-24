@@ -849,7 +849,9 @@ CHE_PDF_RefImage::~CHE_PDF_RefImage()
 
 CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 {
-	CHE_Bitmap * pBitmapRet = NULL;
+    return StreamToBitmap();
+    
+	/*CHE_Bitmap * pBitmapRet = NULL;
 	if( mStmPtr )
 	{
 		HE_BOOL bMultiFilter = FALSE;
@@ -970,10 +972,10 @@ CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 			pBitmapRet = FlateStreamToBitmap();
 		}
 	}
-	return pBitmapRet;
+	return pBitmapRet;*/
 }
 
-CHE_Bitmap * CHE_PDF_RefImage::FlateStreamToBitmap()
+CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 {
 	CHE_Bitmap * pBitmapRet = NULL;
 	if ( mpColorspace && mStmPtr )

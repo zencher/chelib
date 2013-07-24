@@ -1,7 +1,10 @@
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../extlib/zlib/zlib.h"
+#include "../../extlib/libjpeg/jpeglib.h"
 #include "../../extlib/jbig2dec/jbig2.h"
 #include "../../extlib/openjpeg/openjpeg.h"
+
+#include <setjmp.h>
 
 HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
@@ -1299,6 +1302,145 @@ rtc:
 	fax->stage = STATE_DONE;
 	/*return p - buf;*/
 }
+
+
+
+struct jpeg_error_mgr_jmp
+{
+	struct jpeg_error_mgr super;
+	jmp_buf env;
+	char msg[JMSG_LENGTH_MAX];
+};
+
+static void error_exit(j_common_ptr cinfo)
+{
+	struct jpeg_error_mgr_jmp *err = (struct jpeg_error_mgr_jmp *)cinfo->err;
+	cinfo->err->format_message(cinfo, err->msg);
+	longjmp(err->env, 1);
+}
+
+static void init_source(j_decompress_ptr cinfo)
+{
+	/* nothing to do */
+}
+
+static void term_source(j_decompress_ptr cinfo)
+{
+	/* nothing to do */
+}
+
+static boolean fill_input_buffer(j_decompress_ptr cinfo)
+{
+	static unsigned char eoi[2] = { 0xFF, JPEG_EOI };
+	struct jpeg_source_mgr *src = cinfo->src;
+	src->next_input_byte = eoi;
+	src->bytes_in_buffer = 2;
+	return 1;
+}
+
+static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+{
+	struct jpeg_source_mgr *src = cinfo->src;
+	if (num_bytes > 0)
+	{
+		src->next_input_byte += num_bytes;
+		src->bytes_in_buffer -= num_bytes;
+	}
+}
+
+
+HE_VOID CHE_PDF_DCTDFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer &buffer )
+{
+    jpeg_decompress_struct cinfo;
+	jpeg_error_mgr_jmp err;
+	struct jpeg_source_mgr src;
+	unsigned char *row[1], *sp, *dp;
+	unsigned int x;
+	int k;
+    
+	if (setjmp(err.env))
+	{
+        // 		if (image)
+        // 			fz_drop_pixmap(ctx, image);
+        // 		fz_throw(ctx, "jpeg error: %s", err.msg);
+	}
+    
+ 	cinfo.err = jpeg_std_error(&err.super);
+ 	err.super.error_exit = error_exit;
+    
+	jpeg_create_decompress(&cinfo);
+    
+	cinfo.src = &src;
+	src.init_source = init_source;
+	src.fill_input_buffer = fill_input_buffer;
+	src.skip_input_data = skip_input_data;
+	src.resync_to_restart = jpeg_resync_to_restart;
+	src.term_source = term_source;
+	src.next_input_byte = pData;
+	src.bytes_in_buffer = length;
+    
+	jpeg_read_header(&cinfo, 1);
+    
+	jpeg_start_decompress(&cinfo);
+    
+    // 	if (cinfo.output_components == 1)
+    // 		colorspace = fz_device_gray;
+    // 	else if (cinfo.output_components == 3)
+    // 		colorspace = fz_device_rgb;
+    // 	else if (cinfo.output_components == 4)
+    // 		colorspace = fz_device_cmyk;
+    // 	else
+    // 		fz_throw(ctx, "bad number of components in jpeg: %d", cinfo.output_components);
+    
+    // 	fz_try(ctx)
+    // 	{
+    // 		image = fz_new_pixmap(ctx, colorspace, cinfo.output_width, cinfo.output_height);
+    // 	}
+    // 	fz_catch(ctx)
+    // 	{
+    //		jpeg_finish_decompress(&cinfo);
+    //		jpeg_destroy_decompress(&cinfo);
+    // 		fz_throw(ctx, "out of memory");
+    // 	}
+    
+    // 	if (cinfo.density_unit == 1)
+    // 	{
+    // 		image->xres = cinfo.X_density;
+    // 		image->yres = cinfo.Y_density;
+    // 	}
+    // 	else if (cinfo.density_unit == 2)
+    // 	{
+    // 		image->xres = cinfo.X_density * 254 / 100;
+    // 		image->yres = cinfo.Y_density * 254 / 100;
+    // 	}
+    //
+    // 	if (image->xres <= 0) image->xres = 72;
+    // 	if (image->yres <= 0) image->yres = 72;
+    
+    /*	fz_clear_pixmap(ctx, image);*/
+    
+	row[0] = GetAllocator()->NewArray<HE_BYTE>( cinfo.output_components * cinfo.output_width );
+	//row[0] = fz_malloc(ctx, cinfo.output_components * cinfo.output_width);
+	
+	while (cinfo.output_scanline < cinfo.output_height)
+	{
+		jpeg_read_scanlines(&cinfo, row, 1);
+		sp = row[0];
+        buffer.Write( sp, cinfo.output_width * cinfo.output_components );
+		//for (x = 0; x < cinfo.output_width; x++)
+		//{
+		//	for (k = 0; k < cinfo.output_components; k++)
+		//		*dp++ = *sp++;
+		//	*dp++ = 255;
+		//}
+	}
+	GetDefaultAllocator()->DeleteArray( row[0] );
+    
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+}
+
+
 
 static void fz_opj_error_callback(const char *msg, void *client_data)
 {

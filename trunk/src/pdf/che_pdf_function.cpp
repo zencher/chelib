@@ -47,7 +47,7 @@ static inline int fz_clampi(int i, float min, float max)
 	return (i > min ? (i < max ? i : max) : min);
 }
 
-CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_Function * CHE_PDF_Function::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	if ( !refPtr )
 	{
@@ -107,7 +107,7 @@ CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_ReferencePtr & refPtr, CHE_
 	return pTmp;
 }
 
-CHE_PDF_Function * CHE_PDF_Function::Create( CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_Function * CHE_PDF_Function::Create( const CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	if ( !dictPtr )
 	{

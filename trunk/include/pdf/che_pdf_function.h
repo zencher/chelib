@@ -61,8 +61,8 @@ enum PDF_FUNCTION_TYPE
 class CHE_PDF_Function : public CHE_Object
 {
 public:
-	static CHE_PDF_Function *	Create( CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
-	static CHE_PDF_Function *	Create( CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_Function *	Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_Function *	Create( const CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator = NULL );
 	static HE_VOID				Destroy( CHE_PDF_Function * pFunction );
 
 	virtual ~CHE_PDF_Function() {};

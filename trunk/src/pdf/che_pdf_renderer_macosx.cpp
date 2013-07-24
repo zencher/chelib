@@ -36,8 +36,8 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	pGState->GetFillColorSpace( fillColorSpace );
 	pGState->GetStrokeColorSpace( strokeColorSpace );
 
-	fillColorVal = fillColorSpace.GetArgb( fillColor );
-	strokeColorVal = strokeColorSpace.GetArgb( strokeColor );
+	fillColorVal = fillColorSpace.GetARGBValue( fillColor );
+	strokeColorVal = strokeColorSpace.GetARGBValue( strokeColor );
 	drawer.SetFillColor( fillColorVal );
 	drawer.SetStrokeColor( strokeColorVal );
 
@@ -424,7 +424,7 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
                                 if ( stmAcc.Attach( stmPtr ) )
                                 {
                                     CHE_Bitmap * pBitmap = new CHE_Bitmap;
-                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
+                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBPC()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
                                     //HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
                                     //pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
 									pBitmap->Save( "d:\\234.bmp" );
@@ -440,7 +440,7 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
                                 if ( stmAcc.Attach( stmPtr ) )
                                 {
                                     CHE_Bitmap * pBitmap = new CHE_Bitmap;
-                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBitps()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
+                                    pBitmap->Create( pImage->GetWidth(), pImage->GetHeight(), (HE_BITMAP_DEPTH)(pImage->GetBPC()), BITMAP_DIRECTION_DOWN, stmAcc.GetSize(), stmAcc.GetData() );
                                     //HE_LPBYTE pBuf = new HE_BYTE[pBitmap->GetMemBitmapDataSize()+14];
                                     //pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
 									pBitmap->Save( "d:\\235.bmp" );

@@ -33,6 +33,8 @@ public:
 
 	HE_VOID	Clear() { m_lSize = 0; }
 
+	HE_VOID Alloc( HE_ULONG size );
+
 private:
 
 	HE_ULONG	m_lCapacity;

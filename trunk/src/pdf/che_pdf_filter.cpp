@@ -1354,9 +1354,8 @@ HE_VOID CHE_PDF_DCTDFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
     jpeg_decompress_struct cinfo;
 	jpeg_error_mgr_jmp err;
 	struct jpeg_source_mgr src;
-	unsigned char *row[1], *sp, *dp;
-	unsigned int x;
-	int k;
+	HE_LPBYTE p = NULL;
+	HE_BYTE * row[1];
     
 	if (setjmp(err.env))
 	{
@@ -1380,61 +1379,18 @@ HE_VOID CHE_PDF_DCTDFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 	src.bytes_in_buffer = length;
     
 	jpeg_read_header(&cinfo, 1);
-    
 	jpeg_start_decompress(&cinfo);
+
+	buffer.Clear();
     
-    // 	if (cinfo.output_components == 1)
-    // 		colorspace = fz_device_gray;
-    // 	else if (cinfo.output_components == 3)
-    // 		colorspace = fz_device_rgb;
-    // 	else if (cinfo.output_components == 4)
-    // 		colorspace = fz_device_cmyk;
-    // 	else
-    // 		fz_throw(ctx, "bad number of components in jpeg: %d", cinfo.output_components);
-    
-    // 	fz_try(ctx)
-    // 	{
-    // 		image = fz_new_pixmap(ctx, colorspace, cinfo.output_width, cinfo.output_height);
-    // 	}
-    // 	fz_catch(ctx)
-    // 	{
-    //		jpeg_finish_decompress(&cinfo);
-    //		jpeg_destroy_decompress(&cinfo);
-    // 		fz_throw(ctx, "out of memory");
-    // 	}
-    
-    // 	if (cinfo.density_unit == 1)
-    // 	{
-    // 		image->xres = cinfo.X_density;
-    // 		image->yres = cinfo.Y_density;
-    // 	}
-    // 	else if (cinfo.density_unit == 2)
-    // 	{
-    // 		image->xres = cinfo.X_density * 254 / 100;
-    // 		image->yres = cinfo.Y_density * 254 / 100;
-    // 	}
-    //
-    // 	if (image->xres <= 0) image->xres = 72;
-    // 	if (image->yres <= 0) image->yres = 72;
-    
-    /*	fz_clear_pixmap(ctx, image);*/
-    
-	row[0] = GetAllocator()->NewArray<HE_BYTE>( cinfo.output_components * cinfo.output_width );
-	//row[0] = fz_malloc(ctx, cinfo.output_components * cinfo.output_width);
-	
+	p = GetAllocator()->NewArray<HE_BYTE>( cinfo.output_components * cinfo.output_width );
+	row[0] = p;
 	while (cinfo.output_scanline < cinfo.output_height)
 	{
 		jpeg_read_scanlines(&cinfo, row, 1);
-		sp = row[0];
-        buffer.Write( sp, cinfo.output_width * cinfo.output_components );
-		//for (x = 0; x < cinfo.output_width; x++)
-		//{
-		//	for (k = 0; k < cinfo.output_components; k++)
-		//		*dp++ = *sp++;
-		//	*dp++ = 255;
-		//}
+        buffer.Write( p, cinfo.output_width * cinfo.output_components );
 	}
-	GetDefaultAllocator()->DeleteArray( row[0] );
+	GetAllocator()->DeleteArray( p );
     
 	jpeg_finish_decompress(&cinfo);
 	jpeg_destroy_decompress(&cinfo);
@@ -1558,7 +1514,8 @@ HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	else if (n > 4) { n = 4; a = 1; }
 	else { a = 0; }
     
-    buffer.Clear();
+    buffer.Alloc( n * w * h );
+	HE_LPBYTE pByte = buffer.GetData();
     
 	for (y = 0; y < h; y++)
 	{
@@ -1571,25 +1528,14 @@ HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 					v = v + (1 << (depth - 1));
 				if (depth > 8)
 					v = v >> (depth - 8);
-				buffer.Write( (HE_LPBYTE)&v, 1 );
+				*pByte++ = v;
+				//buffer.Write( (HE_LPBYTE)&v, 1 );
 			}
-			if (!a)
-                v = 255;
-                buffer.Write( (HE_LPBYTE)&v, 1 );
+// 			if (!a)
+//                 v = 255;
+//                 buffer.Write( (HE_LPBYTE)&v, 1 );
 		}
 	}
-    
-/*	if (a)
-	{
-		if (n == 4)
-		{
-			fz_pixmap *tmp = fz_new_pixmap(ctx, fz_device_rgb, w, h);
-			fz_convert_pixmap(ctx, tmp, img);
-			fz_drop_pixmap(ctx, img);
-			img = tmp;
-		}
-		fz_premultiply_pixmap(ctx, img);
-	}*/
  
 	opj_image_destroy( jpx );
 }
@@ -1640,12 +1586,12 @@ HE_VOID CHE_PDF_JBig2Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
 	HE_LPBYTE ep = buffer.GetData() + length;
 	HE_LPBYTE s = page->data;
 	HE_INT32 w = page->height * page->stride;
-	HE_INT32 x = 0;
+//	HE_INT32 x = 0;
 
-	while (p < ep && x < w)
-	{
-		*p++ = s[x++] ^ 0xff;
-	}
+// 	while (p < ep && x < w)
+// 	{
+// 		*p++ = s[x++] ^ 0xff;
+// 	}
 
     if ( page )
     {

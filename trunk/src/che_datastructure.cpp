@@ -91,6 +91,23 @@ HE_ULONG CHE_DynBuffer::Write( HE_LPCBYTE pBuffer, HE_ULONG offset, HE_ULONG siz
 	}
 }
 
+HE_VOID CHE_DynBuffer::Alloc( HE_ULONG size )
+{
+	if ( size <= m_lCapacity )
+	{
+		m_lSize = size;
+		return;
+	}
+	if ( m_lpData )
+	{
+		GetAllocator()->DeleteArray( m_lpData );
+	}
+	m_lpData = GetAllocator()->NewArray<HE_BYTE>( size );
+	m_lSize = size;
+	m_lCapacity = size;
+	m_lIncreament = size;
+}
+
 HE_ULONG CHE_DynBuffer::Write( HE_LPCBYTE pBuffer, HE_ULONG size )
 {
 	return Write( pBuffer, m_lSize, size );

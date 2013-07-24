@@ -1412,7 +1412,8 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & stmPtr, PDF_STREAM_
 				filter.Decode( pTmp, lSize, buffer );
 			}else if ( str == "DCTDecode" || str == "DCT" )
 			{
-				retValue = FALSE;
+				CHE_PDF_DCTDFilter filter( GetAllocator() );
+				filter.Decode( pTmp, lSize, buffer );
 			}else if ( str == "JPXDecode" )
 			{
                 CHE_PDF_JPXFilter fileter( GetAllocator() );

@@ -29,7 +29,7 @@ HE_VOID CHE_ImageDescriptor::AllocData( HE_ULONG size )
 }
 
 // #include <jpeglib.h>
-// #include <setjmp.h>
+#include <setjmp.h>
 
 struct jpeg_error_mgr_jmp
 {
@@ -473,7 +473,7 @@ CHE_Bitmap * image_decode_jpeg_to_bitmap( HE_LPBYTE data, HE_ULONG size )
 		CHE_PDF_Color color;
 		std::vector<HE_ARGB> colors;
 		HE_ARGB colorARGB = 0xFF000000;
-		for ( ULONG y = 0; y < cinfo.output_height; ++y  )
+		for ( HE_ULONG y = 0; y < cinfo.output_height; ++y  )
 		{
 			jpeg_read_scanlines(&cinfo, row, 1);
 			sp = row[0];

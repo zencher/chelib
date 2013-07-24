@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		909BC876179F735A00D5CDAF /* che_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909BC875179F735A00D5CDAF /* che_image.cpp */; };
+		909BCD65179F7ABA00D5CDAF /* openjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 909BCD64179F7ABA00D5CDAF /* openjpeg.c */; };
+		909BCD68179F7AE500D5CDAF /* thix_manager.c in Sources */ = {isa = PBXBuildFile; fileRef = 909BCD66179F7AE500D5CDAF /* thix_manager.c */; };
+		909BCD69179F7AE500D5CDAF /* tpix_manager.c in Sources */ = {isa = PBXBuildFile; fileRef = 909BCD67179F7AE500D5CDAF /* tpix_manager.c */; };
 		909D97B7175745F70030BD7E /* che_drawer_macosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 909D97B6175745F70030BD7E /* che_drawer_macosx.h */; };
 		909D97BA175746250030BD7E /* che_drawer_macosx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909D97B8175746250030BD7E /* che_drawer_macosx.cpp */; };
 		909E11331754453600540539 /* che_base.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E112E1754453600540539 /* che_base.cpp */; };
@@ -304,6 +308,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		909BC875179F735A00D5CDAF /* che_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_image.cpp; path = ../../src/che_image.cpp; sourceTree = "<group>"; };
+		909BCD64179F7ABA00D5CDAF /* openjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openjpeg.c; path = ../../extlib/openjpeg/openjpeg.c; sourceTree = "<group>"; };
+		909BCD66179F7AE500D5CDAF /* thix_manager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thix_manager.c; path = ../../extlib/openjpeg/thix_manager.c; sourceTree = "<group>"; };
+		909BCD67179F7AE500D5CDAF /* tpix_manager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tpix_manager.c; path = ../../extlib/openjpeg/tpix_manager.c; sourceTree = "<group>"; };
 		909D97B6175745F70030BD7E /* che_drawer_macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_drawer_macosx.h; path = ../../include/che_drawer_macosx.h; sourceTree = "<group>"; };
 		909D97B8175746250030BD7E /* che_drawer_macosx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_drawer_macosx.cpp; path = ../../src/che_drawer_macosx.cpp; sourceTree = "<group>"; };
 		909E112E1754453600540539 /* che_base.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_base.cpp; path = ../../src/che_base.cpp; sourceTree = "<group>"; };
@@ -638,6 +646,7 @@
 				909E11301754453600540539 /* che_datastructure.cpp */,
 				909D97B8175746250030BD7E /* che_drawer_macosx.cpp */,
 				909E11311754453600540539 /* che_graphics.cpp */,
+				909BC875179F735A00D5CDAF /* che_image.cpp */,
 				909E11321754453600540539 /* che_string.cpp */,
 				909E11441754465F00540539 /* crypt */,
 				909E11461754466A00540539 /* hash */,
@@ -984,6 +993,9 @@
 		90C6FAB817866C7000C50AA5 /* openjpeg */ = {
 			isa = PBXGroup;
 			children = (
+				909BCD66179F7AE500D5CDAF /* thix_manager.c */,
+				909BCD67179F7AE500D5CDAF /* tpix_manager.c */,
+				909BCD64179F7ABA00D5CDAF /* openjpeg.c */,
 				90C6FAB917866CC500C50AA5 /* bio.c */,
 				90C6FABA17866CC500C50AA5 /* bio.h */,
 				90C6FABB17866CC500C50AA5 /* cidx_manager.c */,
@@ -1462,6 +1474,10 @@
 				90C6FBA21786CC6200C50AA5 /* jquant1.c in Sources */,
 				90C6FBA31786CC6200C50AA5 /* jquant2.c in Sources */,
 				90C6FBA41786CC6200C50AA5 /* jutils.c in Sources */,
+				909BC876179F735A00D5CDAF /* che_image.cpp in Sources */,
+				909BCD65179F7ABA00D5CDAF /* openjpeg.c in Sources */,
+				909BCD68179F7AE500D5CDAF /* thix_manager.c in Sources */,
+				909BCD69179F7AE500D5CDAF /* tpix_manager.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1601,6 +1617,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_MAC_OS_X_,
 					HAVE_STDINT_H,
+					OPJ_STATIC,
 					FT2_BUILD_LIBRARY,
 				);
 				HEADER_SEARCH_PATHS = ../../extlib/freetype/include;
@@ -1621,6 +1638,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_MAC_OS_X_,
 					HAVE_STDINT_H,
+					OPJ_STATIC,
 					FT2_BUILD_LIBRARY,
 				);
 				HEADER_SEARCH_PATHS = ../../extlib/freetype/include;
@@ -1639,7 +1657,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "pdfRenderTest/pdfRenderTest-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = _MAC_OS_X_;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					_MAC_OS_X_,
+					OPJ_STATIC,
+				);
 				INFOPLIST_FILE = "pdfRenderTest/pdfRenderTest-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
@@ -1653,7 +1674,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "pdfRenderTest/pdfRenderTest-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = _MAC_OS_X_;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					_MAC_OS_X_,
+					OPJ_STATIC,
+				);
 				INFOPLIST_FILE = "pdfRenderTest/pdfRenderTest-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;

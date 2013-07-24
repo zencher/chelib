@@ -952,7 +952,7 @@ CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 
 					pTargetByte = (HE_LPBYTE)( pBitmapRet->GetBuffer() );
 
-					for ( UINT i = 0; i < mHeight; ++i )
+					for ( HE_ULONG i = 0; i < mHeight; ++i )
 					{
 						memcpy( pTargetByte, pData, imageStride );
 

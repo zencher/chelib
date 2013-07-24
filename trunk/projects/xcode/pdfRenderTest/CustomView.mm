@@ -56,6 +56,8 @@ CHE_PDF_FontMgr fontMgr;
                             
                             CHE_Rect rect = pPage->GetMediaBox();
                             CHE_PDF_Renderer::Render( contentList, drawer, rect );
+                            
+                            drawer.SaveToFile( "/Users/zencher/sdf.png" );
                         }
                     }
                 }

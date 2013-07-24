@@ -991,7 +991,8 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 				HE_BYTE	tmpByte = 0;
 				HE_ARGB colorARGB = 0xFF000000;
 				CHE_PDF_Color color;
-				std::vector<HE_ARGB> colors;
+				HE_ARGB * pColors = GetAllocator()->NewArray<HE_ARGB>( mWidth );
+                HE_ULONG colorsIndex = 0;
 				HE_ULONG component = mpColorspace->GetComponentCount();
 				if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
 				{
@@ -1006,7 +1007,7 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 					color.Clear();
 					for ( HE_ULONG y = 0; y < mHeight; ++y )
 					{
-						colors.clear();
+                        colorsIndex = 0;
 						for ( HE_ULONG x = 0 ; x < mWidth; ++x )
 						{
 							pTmpByte = pData + ( ( y * mWidth + x ) * component );
@@ -1022,9 +1023,9 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 							}
 							colorARGB = mpColorspace->GetARGBValue( color );
 							color.Clear();
-							colors.push_back( colorARGB );
+							*(pColors+colorsIndex++) = colorARGB;
 						}
-						pBitmapRet->SetPixelColor( 0, y, colors );
+						pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 					}
 				}else if ( mBpc == 4 )
 				{
@@ -1032,7 +1033,7 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 					for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
 					{
 						pTmpByte = pData + ( y * stride );
-						colors.clear();
+						colorsIndex = 0;
 						x = 0;
 						for ( HE_ULONG i = 0; i < stride; ++i )
 						{
@@ -1048,8 +1049,8 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 								if ( color.GetComponentCount() == component )
 								{
 									colorARGB = mpColorspace->GetARGBValue( color );
-									colors.push_back( colorARGB );
 									color.Clear();
+                                    *(pColors+colorsIndex++) = colorARGB;
 									if ( ++x == mWidth )
 									{
 										x = 0;
@@ -1058,14 +1059,14 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 								}
 							}
 						}
-						pBitmapRet->SetPixelColor( 0, y, colors );
+						pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 					}
 				}else if ( mBpc == 2 )
 				{
 					color.Clear();
 					for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
 					{
-						colors.clear();
+						colorsIndex = 0;
 						pTmpByte = pData + ( y * stride );
 						x = 0;
 						for ( HE_ULONG i = 0; i < stride; ++i )
@@ -1082,8 +1083,8 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 								if ( color.GetComponentCount() == component )
 								{
 									colorARGB = mpColorspace->GetARGBValue( color );
-									colors.push_back( colorARGB );
 									color.Clear();
+                                    *(pColors+colorsIndex++) = colorARGB;
 									if ( ++x == mWidth )
 									{
 										x = 0;
@@ -1092,14 +1093,14 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 								}
 							}
 						}
-						pBitmapRet->SetPixelColor( 0, y, colors );
+						pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 					}
 				}else if ( mBpc == 1 )
 				{
 					color.Clear();
 					for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
 					{
-						colors.clear();
+						colorsIndex = 0;
 						pTmpByte = pData + ( y * stride );
 						x = 0;
 						for ( HE_ULONG i = 0; i < stride; ++i )
@@ -1111,8 +1112,8 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 								if ( color.GetComponentCount() == component )
 								{
 									colorARGB = mpColorspace->GetARGBValue( color );
-									colors.push_back( colorARGB );
 									color.Clear();
+                                    *(pColors+colorsIndex++) = colorARGB;
 									if ( ++x == mWidth )
 									{
 										x = 0;
@@ -1121,9 +1122,10 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 								}
 							}
 						}
-						pBitmapRet->SetPixelColor( 0, y, colors );
+						pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 					}
 				}
+                GetAllocator()->DeleteArray( pColors );
 			}
 			stmAcc.Detach();
 		}

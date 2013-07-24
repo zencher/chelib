@@ -1135,6 +1135,160 @@ HE_BOOL CHE_Bitmap::SetPixelColor( HE_ULONG x, HE_ULONG y, std::vector<HE_ARGB> 
 	return TRUE;
 }
 
+HE_BOOL CHE_Bitmap::SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB * pColors, HE_ULONG count )
+{
+	if ( x >= Width() )
+	{
+		return FALSE;
+	}
+	if ( y >= Height() )
+	{
+		return FALSE;
+	}
+    if ( pColors == NULL || count == 0 )
+    {
+        return FALSE;
+    }
+        
+    
+	HE_ULONG index = 0;
+	HE_BYTE platteIndex = 0;
+	HE_ULONG tempIndex = 0;
+	HE_ARGB color;
+    if ( Depth() == 32 )
+    {
+        for ( HE_ULONG i = 0; i < count; ++i )
+        {
+            index = GetPixelByteIndex( x++, y );
+            if ( x == m_lWidth )
+            {
+                x = 0;
+                y += 1;
+            }
+            color = *(pColors+i);
+            m_lpBits[index] = (HE_BYTE)( color & 0xFF );
+            m_lpBits[index+1] = (HE_BYTE)( ( color >> 8 ) & 0xFF );
+            m_lpBits[index+2] = (HE_BYTE)( ( color >> 16 ) & 0xFF );
+            m_lpBits[index+3] = (HE_BYTE)( ( color >> 24 ) & 0xFF );
+        }
+    }else if ( Depth() == 24 )
+    {
+        for ( HE_ULONG i = 0; i < count; ++i )
+        {
+            index = GetPixelByteIndex( x++, y );
+            if ( x == m_lWidth )
+            {
+                x = 0;
+                y += 1;
+            }
+            color = *(pColors+i);
+            m_lpBits[index] = (HE_BYTE)( color & 0xFF );
+            m_lpBits[index+1] = (HE_BYTE)( ( color >> 8 ) & 0xFF );
+            m_lpBits[index+2] = (HE_BYTE)( ( color >> 16 ) & 0xFF );
+        }
+    }else if ( Depth() == 8 )
+    {
+        for ( HE_ULONG i = 0; i < count; ++i )
+        {
+            index = GetPixelByteIndex( x++, y );
+            if ( x == m_lWidth )
+            {
+                x = 0;
+                y += 1;
+            }
+            color = *(pColors+i);
+            if ( m_lpPalette->GetNearColorIndex( color, tempIndex ) )
+            {
+                m_lpBits[index] = (HE_BYTE)tempIndex;
+            }
+        }
+    }else if (  Depth() == 4 )
+    {
+        for ( HE_ULONG i = 0; i < count; ++i )
+        {
+            index = GetPixelByteIndex( x++, y );
+            if ( x == m_lWidth )
+            {
+                x = 0;
+                y += 1;
+            }
+            color = *(pColors+i);
+
+            platteIndex = m_lpBits[index];
+            m_lpPalette->GetNearColorIndex( color, tempIndex );
+            if ( x % 2 == 0 )
+            {
+                tempIndex <<= 4;
+                platteIndex &= 0x0F;
+            }else{
+                platteIndex &= 0xF0;
+            }
+            m_lpBits[index] = (HE_BYTE)tempIndex + platteIndex;
+        }
+    }else if ( Depth() == 1 )
+    {
+        for ( HE_ULONG i = 0; i < count; ++i )
+        {
+            index = GetPixelByteIndex( x++, y );
+            if ( x == m_lWidth )
+            {
+                x = 0;
+                y += 1;
+            }
+            color = *(pColors+i);
+            
+            platteIndex = m_lpBits[index];
+            m_lpPalette->GetNearColorIndex( color, tempIndex );
+            switch ( x % 8 )
+            {
+            case 0:
+                platteIndex &= 0x7F;
+                tempIndex <<= 7;
+                tempIndex &= 0x80;
+                break;
+            case 1:
+                platteIndex &= 0xBF;
+                tempIndex <<= 6;
+                tempIndex &= 0x40;
+                break;
+            case 2:
+                platteIndex &= 0xDF;
+                tempIndex <<= 5;
+                tempIndex &= 0x20;
+                break;
+            case 3:
+                platteIndex &= 0xEF;
+                tempIndex <<= 4;
+                tempIndex &= 0x10;
+                break;
+            case 4:
+                platteIndex &= 0xF7;
+                tempIndex <<= 3;
+                tempIndex &= 0x08;
+                break;
+            case 5:
+                platteIndex &= 0xFB;
+                tempIndex <<= 2;
+                tempIndex &= 0x04;
+                break;
+            case 6:
+                platteIndex &= 0xFD;
+                tempIndex <<= 1;
+                tempIndex &= 0x02;
+                break;
+            case 7:
+                platteIndex &= 0xFE;
+                tempIndex &= 0x01;
+                break;
+            default:
+                break;
+            }
+            m_lpBits[index] = (HE_BYTE)tempIndex + platteIndex;
+        }
+    }
+	return TRUE;
+}
+
 HE_BOOL	CHE_Bitmap::GetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE & indexRet ) const
 {
 	if ( x >= Width() )

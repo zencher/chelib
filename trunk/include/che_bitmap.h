@@ -96,6 +96,7 @@ public:
 	HE_BOOL				GetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB & colorRet ) const;
 	HE_BOOL				SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB color );
 	HE_BOOL				SetPixelColor( HE_ULONG x, HE_ULONG y, std::vector<HE_ARGB> & colors );
+    HE_BOOL             SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB* pColors, HE_ULONG count );
 	HE_BOOL				GetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE & indexRet ) const;
 	HE_BOOL				SetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE index );
 

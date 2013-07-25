@@ -4,7 +4,9 @@
 #include "../../extlib/freetype/include/freetype/freetype.h"
 #include "../../extlib/freetype/include/freetype/ftoutln.h"
 
-#include "../../include/che_image.h"
+#include "../../extlib/libjpeg/jpeglib.h"
+#include "../../extlib/openjpeg/openjpeg.h"
+#include "../../extlib/jbig2dec/jbig2.h"
 
 HE_BOOL CHE_PDF_ContentObject::SetGState( CHE_PDF_GState * pGSatae )
 {
@@ -849,8 +851,6 @@ CHE_PDF_RefImage::~CHE_PDF_RefImage()
 
 CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 {
-    //return StreamToBitmap();
-    
 	CHE_Bitmap * pBitmapRet = NULL;
 	if( mStmPtr )
 	{
@@ -884,36 +884,46 @@ CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 
 		if ( filterName.GetLength() > 0 )
 		{
+			HE_ULONG ulSize = 0;
+			HE_LPBYTE pData = NULL;
 			if ( filterName == "JPXDecode" )
 			{
-				CHE_ImageDecoder imgDecoder;
-				HE_LPBYTE pBuf = GetAllocator()->NewArray<HE_BYTE>( mStmPtr->GetRawSize() );
-				mStmPtr->GetRawData( 0, pBuf, mStmPtr->GetRawSize() );
-				pBitmapRet = imgDecoder.Decode( IMAGE_TYPE_JPX, pBuf, mStmPtr->GetRawSize() );
-				GetAllocator()->DeleteArray( pBuf );
-			}else if ( filterName == "DCTDecode" )
-			{
-				CHE_ImageDecoder imgDecoder;
-				HE_LPBYTE pBuf = NULL;
-				HE_ULONG ulSize = 0;
 				if ( bMultiFilter )
 				{
 					CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 					if ( stmAcc.Attach( mStmPtr, STREAM_DECODE_NOTLASTFILTER ) )
 					{
-						pBuf = stmAcc.GetData();
+						pData = stmAcc.GetData();
 						ulSize = stmAcc.GetSize();
-						pBitmapRet = imgDecoder.Decode( IMAGE_TYPE_JPEG, pBuf, ulSize );
+						pBitmapRet = JPXStreamToBitmap( pData, ulSize );
 					}
 				}else{
-					pBuf = GetAllocator()->NewArray<HE_BYTE>( mStmPtr->GetRawSize() );
-					mStmPtr->GetRawData( 0, pBuf, mStmPtr->GetRawSize() );
-					pBitmapRet = imgDecoder.Decode( IMAGE_TYPE_JPEG, pBuf, mStmPtr->GetRawSize() );
-					GetAllocator()->DeleteArray( pBuf );
+					ulSize = mStmPtr->GetRawSize();
+					pData = GetAllocator()->NewArray<HE_BYTE>( ulSize );
+					mStmPtr->GetRawData( 0, pData, ulSize );
+					pBitmapRet = JPXStreamToBitmap( pData, ulSize );
+					GetAllocator()->DeleteArray( pData );
+				}
+			}else if ( filterName == "DCTDecode" )
+			{
+				if ( bMultiFilter )
+				{
+					CHE_PDF_StreamAcc stmAcc( GetAllocator() );
+					if ( stmAcc.Attach( mStmPtr, STREAM_DECODE_NOTLASTFILTER ) )
+					{
+						pData = stmAcc.GetData();
+						ulSize = stmAcc.GetSize();
+						pBitmapRet = JpegStreamToBitmap( pData, ulSize );
+					}
+				}else{
+					ulSize = mStmPtr->GetRawSize();
+					pData = GetAllocator()->NewArray<HE_BYTE>( ulSize );
+					mStmPtr->GetRawData( 0, pData, ulSize );
+					pBitmapRet = JpegStreamToBitmap( pData, ulSize );
+					GetAllocator()->DeleteArray( pData );
 				}
 			}else if ( filterName == "JBIG2Decode" )
 			{
-				CHE_ImageDecoder imgDecoder;
 				HE_LPBYTE pParam = NULL;
 				HE_ULONG paramSize = 0;
 				objPtr = dictPtr->GetElement( "JBIG2Globals", OBJ_TYPE_STREAM );
@@ -921,21 +931,31 @@ CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 				{
 					CHE_PDF_StreamPtr paramStrPtr = objPtr->GetStreamPtr();
 					paramSize = paramStrPtr->GetRawSize();
-					pParam = GetDefaultAllocator()->NewArray<HE_BYTE>( paramSize );
+					pParam = GetAllocator()->NewArray<HE_BYTE>( paramSize );
 					paramStrPtr->GetRawData( 0, pParam, paramSize );
-					imgDecoder.SetDecodeParam( pParam, paramSize );
-					//todo
 					//似乎有些不对，这个流要不要解码呢？
 				}
 
-				HE_LPBYTE pBuf = new HE_BYTE[mStmPtr->GetRawSize()];
-				mStmPtr->GetRawData( 0, pBuf, mStmPtr->GetRawSize() );
-
-				pBitmapRet = imgDecoder.Decode( IMAGE_TYPE_JBIG2, pBuf, mStmPtr->GetRawSize() );
+				if ( bMultiFilter )
+				{
+					CHE_PDF_StreamAcc stmAcc( GetAllocator() );
+					if ( stmAcc.Attach( mStmPtr, STREAM_DECODE_NOTLASTFILTER ) )
+					{
+						pData = stmAcc.GetData();
+						ulSize = stmAcc.GetSize();
+						pBitmapRet = JBig2StreamToBitmap( pData, ulSize, pParam, paramSize );
+					}
+				}else{
+					ulSize = mStmPtr->GetRawSize();
+					pData = GetAllocator()->NewArray<HE_BYTE>( ulSize );
+					mStmPtr->GetRawData( 0, pData, ulSize );
+					pBitmapRet = pBitmapRet = JBig2StreamToBitmap( pData, ulSize, pParam, paramSize );
+					GetAllocator()->DeleteArray( pData );
+				}
 
 				if ( pParam )
 				{
-					GetDefaultAllocator()->DeleteArray( pParam );
+					GetAllocator()->DeleteArray( pParam );
 				}
 			}
 			else if ( filterName == "CCITTFaxDecode" )
@@ -964,18 +984,16 @@ CHE_Bitmap * CHE_PDF_RefImage::GetBitmap()
 					stmAcc.Detach();
 				}
 			}else{	
-				pBitmapRet = StreamToBitmap();
+				pBitmapRet = CommonStreamToBitmap();
 			}
 		}else{
-
-			//raw image
-			pBitmapRet = StreamToBitmap();
+			pBitmapRet = CommonStreamToBitmap();
 		}
 	}
 	return pBitmapRet;
 }
 
-CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
+CHE_Bitmap * CHE_PDF_RefImage::CommonStreamToBitmap()
 {
 	CHE_Bitmap * pBitmapRet = NULL;
 	if ( mStmPtr )
@@ -1135,33 +1153,402 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 	return pBitmapRet;
 }
 
+static void fz_opj_error_callback(const char *msg, void *client_data)
+{
+}
+
+static void fz_opj_warning_callback(const char *msg, void *client_data)
+{
+}
+
+static void fz_opj_info_callback(const char *msg, void *client_data)
+{
+}
+
+CHE_Bitmap * CHE_PDF_RefImage::JPXStreamToBitmap( HE_LPBYTE data, HE_ULONG size )
+{
+	opj_event_mgr_t     evtmgr;
+	opj_dparameters_t   params;
+	opj_dinfo_t *       info = NULL;
+	opj_cio_t *         cio = NULL;
+	opj_image_t *       jpx = NULL;
+	CODEC_FORMAT        format;
+
+	int a, n, w, h, depth, sgnd;
+	int x, y, k, v;
+
+	/* Check for SOC marker -- if found we have a bare J2K stream */
+	if ( data[0] == 0xFF && data[1] == 0x4F )
+	{
+		format = CODEC_J2K;
+	}else{
+		format = CODEC_JP2;
+	}
+
+	memset( &evtmgr, 0, sizeof(evtmgr) );
+	evtmgr.error_handler = fz_opj_error_callback;
+	evtmgr.warning_handler = fz_opj_warning_callback;
+	evtmgr.info_handler = fz_opj_info_callback;
+
+	opj_set_default_decoder_parameters( &params );
+
+// 	//if (indexed) ???
+// 	{
+// 		params.flags |= OPJ_DPARAMETERS_IGNORE_PCLR_CMAP_CDEF_FLAG;
+// 	}
+
+	info = opj_create_decompress( format );
+
+	opj_set_event_mgr( (opj_common_ptr)info, &evtmgr, NULL );
+	opj_setup_decoder( info, &params );
+
+	cio = opj_cio_open( (opj_common_ptr)info, data, size );
+
+	jpx = opj_decode( info, cio );
+
+	opj_cio_close( cio );
+	opj_destroy_decompress( info );
+
+	if ( !jpx )
+	{
+		//decode error!!!
+		return FALSE;
+	}
+
+	for (k = 1; k < jpx->numcomps; k++)
+	{
+		if (jpx->comps[k].w != jpx->comps[0].w)
+		{
+			opj_image_destroy(jpx);
+			return FALSE;
+			//fz_throw(ctx, "image components have different width");
+		}
+		if (jpx->comps[k].h != jpx->comps[0].h)
+		{
+			opj_image_destroy(jpx);
+			return FALSE;
+			//fz_throw(ctx, "image components have different height");
+		}
+		if (jpx->comps[k].prec != jpx->comps[0].prec)
+		{
+			opj_image_destroy(jpx);
+			return FALSE;
+			//fz_throw(ctx, "image components have different precision");
+		}
+	}
+
+	n = jpx->numcomps;
+	w = jpx->comps[0].w;
+	h = jpx->comps[0].h;
+	depth = jpx->comps[0].prec;
+	sgnd = jpx->comps[0].sgnd;
+
+	CHE_Bitmap * pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+	pBitmap->Create( w, h, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_DOWN );
+
+	if (jpx->color_space == CLRSPC_SRGB && n == 4) { n = 3; a = 1; }
+	else if (jpx->color_space == CLRSPC_SYCC && n == 4) { n = 3; a = 1; }
+	else if (n == 2) { n = 1; a = 1; }
+	else if (n > 4) { n = 4; a = 1; }
+	else { a = 0; }
+
+	HE_ARGB color = 0;
+	for (y = 0; y < h; y++)
+	{
+		for (x = 0; x < w; x++)
+		{
+			color = 0;
+			for (k = 0; k < n + a ; ++k )
+			{
+				v = jpx->comps[k].data[y * w + x];
+				if (sgnd)
+					v = v + (1 << (depth - 1));
+				if (depth > 8)
+					v = v >> (depth - 8);
+
+				color = (color << 8) + v;
+			}
+			//if (!a)
+			//	*p++ = 255;
+			pBitmap->SetPixelColor( x, y, color );
+			//pBitmap->ExchangeChannel( BITMAP_CHANNEL_Blue, BITMAP_CHANNEL_Red );
+		}
+	}
+
+	opj_image_destroy( jpx );
+
+	return pBitmap;
+}
+
+// #include <jpeglib.h>
+#include <setjmp.h>
+
+struct jpeg_error_mgr_jmp
+{
+	struct jpeg_error_mgr super;
+	jmp_buf env;
+	char msg[JMSG_LENGTH_MAX];
+};
+
+static void error_exit(j_common_ptr cinfo)
+{
+	struct jpeg_error_mgr_jmp *err = (struct jpeg_error_mgr_jmp *)cinfo->err;
+	cinfo->err->format_message(cinfo, err->msg);
+	longjmp(err->env, 1);
+}
+
+static void init_source(j_decompress_ptr cinfo)
+{
+	/* nothing to do */
+}
+
+static void term_source(j_decompress_ptr cinfo)
+{
+	/* nothing to do */
+}
+
+static boolean fill_input_buffer(j_decompress_ptr cinfo)
+{
+	static unsigned char eoi[2] = { 0xFF, JPEG_EOI };
+	struct jpeg_source_mgr *src = cinfo->src;
+	src->next_input_byte = eoi;
+	src->bytes_in_buffer = 2;
+	return 1;
+}
+
+static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+{
+	struct jpeg_source_mgr *src = cinfo->src;
+	if (num_bytes > 0)
+	{
+		src->next_input_byte += num_bytes;
+		src->bytes_in_buffer -= num_bytes;
+	}
+}
+
+CHE_Bitmap * CHE_PDF_RefImage::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size )
+{
+	struct jpeg_decompress_struct cinfo;
+	struct jpeg_source_mgr src;
+	struct jpeg_error_mgr err;
+	/*	jmp_buf jb;*/
+
+	unsigned char *row[1], *sp, *dp;
+	/*fz_colorspace *colorspace;*/
+	unsigned int x;
+	int k;
+
+	CHE_PDF_ColorSpace * colorspace = NULL;
+
+	cinfo.err = &err;
+	jpeg_std_error(cinfo.err);
+	cinfo.err->error_exit = error_exit;
+	cinfo.client_data = NULL;
+
+	jpeg_create_decompress(&cinfo);
+
+	cinfo.src = &src;
+	src.init_source = init_source;
+	src.fill_input_buffer = fill_input_buffer;
+	src.skip_input_data = skip_input_data;
+	src.resync_to_restart = jpeg_resync_to_restart;
+	src.term_source = term_source;
+	src.next_input_byte = data;
+	src.bytes_in_buffer = size;
+
+	jpeg_read_header(&cinfo, 1);
+
+	/* speed up jpeg decoding a bit */
+	cinfo.dct_method = JDCT_FASTEST;
+	cinfo.do_fancy_upsampling = FALSE;
+
+	jpeg_start_decompress(&cinfo);
+
+	if (cinfo.output_components == 4)
+		colorspace = CHE_PDF_ColorSpace::Create( "DeviceCMYK", GetDefaultAllocator() );
+	else if (cinfo.output_components == 3)
+		colorspace = CHE_PDF_ColorSpace::Create( "DeviceRGB", GetDefaultAllocator() );
+	else if (cinfo.output_components == 1)
+		colorspace = CHE_PDF_ColorSpace::Create( "DeviceGray", GetDefaultAllocator() );
+	// 	else
+	// 		fz_throw(ctx, "bad number of components in jpeg: %d", cinfo.output_components);
+
+	// 	fz_try(ctx)
+	// 	{
+	// 		image = fz_new_pixmap(ctx, colorspace, cinfo.output_width, cinfo.output_height);
+	// 	}
+	// 	fz_catch(ctx)
+	// 	{
+	//jpeg_finish_decompress(&cinfo);
+	//jpeg_destroy_decompress(&cinfo);
+	// 		fz_throw(ctx, "out of memory");
+	// 	}
+
+	// 	if (cinfo.density_unit == 1)
+	// 	{
+	// 		image->xres = cinfo.X_density;
+	// 		image->yres = cinfo.Y_density;
+	// 	}
+	// 	else if (cinfo.density_unit == 2)
+	// 	{
+	// 		image->xres = cinfo.X_density * 254 / 100;
+	// 		image->yres = cinfo.Y_density * 254 / 100;
+	// 	}
+	// 
+	// 	if (image->xres <= 0) image->xres = 72;
+	// 	if (image->yres <= 0) image->yres = 72;
+
+	/*	fz_clear_pixmap(ctx, image);*/
+
+	row[0] = GetDefaultAllocator()->NewArray<unsigned char>( cinfo.output_components * cinfo.output_width );
+	//row[0] = fz_malloc(ctx, cinfo.output_components * cinfo.output_width);
+
+	CHE_Bitmap * pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+
+	if ( cinfo.output_components == 1 )
+	{
+		pBitmap->Create( cinfo.output_width, cinfo.output_height, BITMAP_DEPTH_8BPP, BITMAP_DIRECTION_DOWN );
+	}else{
+		pBitmap->Create( cinfo.output_width, cinfo.output_height, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_DOWN );
+	}
+
+	if ( colorspace )
+	{
+		CHE_PDF_Color color;
+		HE_ARGB * pColors = GetDefaultAllocator()->NewArray<HE_ARGB>( cinfo.output_width );
+		HE_ULONG colorsIndex = 0;
+		HE_ARGB colorARGB = 0xFF000000;
+		for ( HE_ULONG y = 0; y < cinfo.output_height; ++y  )
+		{
+			jpeg_read_scanlines(&cinfo, row, 1);
+			sp = row[0];
+			colorsIndex = 0;
+			for ( x = 0; x < cinfo.output_width; x++)
+			{
+				color.Clear();
+				for (k = 0; k < cinfo.output_components; k++)
+				{
+					color.Push( ( *sp ) / 255.0f );
+					sp++;
+				}
+				colorARGB = colorspace->GetARGBValue( color );
+				*(pColors+colorsIndex++) = colorARGB;
+			}
+			pBitmap->SetPixelColor( 0, y, pColors, cinfo.output_width );
+		}
+	}else{
+		dp = (HE_LPBYTE)( pBitmap->GetBuffer() );
+		while (cinfo.output_scanline < cinfo.output_height)
+		{
+			jpeg_read_scanlines(&cinfo, row, 1);
+			sp = row[0];
+			for (x = 0; x < cinfo.output_width; x++)
+			{
+				for (k = 0; k < cinfo.output_components; k++)
+					*dp++ = *sp++;
+				*dp++ = 255;
+			}
+		}
+	}
+
+	GetDefaultAllocator()->DeleteArray( row[0] );
+
+	jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+
+	return pBitmap;
+}
+
+CHE_Bitmap * CHE_PDF_RefImage::JBig2StreamToBitmap( HE_LPBYTE data, HE_ULONG size, HE_LPBYTE globals, HE_ULONG globalsSize )
+{
+	Jbig2Ctx *ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, NULL, NULL, NULL );
+	Jbig2GlobalCtx *gctx = NULL;
+	Jbig2Image *page = NULL;
+
+	if ( globals )
+ 	{
+		jbig2_data_in( ctx, globals, globalsSize );
+		gctx = jbig2_make_global_ctx( ctx );
+		ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, gctx, NULL, NULL );
+	}
+
+	if ( !page )
+	{
+		jbig2_data_in( ctx, data, size );
+		jbig2_complete_page( ctx );
+		page = jbig2_page_out( ctx );
+		//if page = NULL error happened!
+	}
+
+	//HE_LPBYTE p = desRet.GetData();
+	//HE_LPBYTE ep = desRet.GetData() + desRet.GetSize();
+	HE_LPBYTE s = page->data;
+	HE_INT32 w = page->height * page->stride;
+	HE_INT32 index = 0;
+
+	CHE_Bitmap * pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
+	pBitmap->Create( page->width, page->height, BITMAP_DEPTH_1BPP, BITMAP_DIRECTION_DOWN, w, s );
+
+	//for ( HE_INT32 y = 0; y < page->height; ++y )
+	//{
+	//	for ( HE_INT32 x = 0; x < page->width; ++x )
+	//	{
+	//		pBitmap->SetPixelColor( x, y, s[y * page->stride + x] ^ 0xff );
+	//	}
+	//}
+	// 	while (p < ep && x < w)
+	// 	{
+	// 		*p++ = s[x++] ^ 0xff;
+	// 	}
+
+	if ( page )
+	{
+		jbig2_release_page( ctx, page );
+	}
+	if ( gctx )
+	{
+		jbig2_global_ctx_free( gctx );
+	}
+	if ( ctx )
+	{
+		jbig2_ctx_free( ctx );
+	}
+	return pBitmap;
+}
+
 CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 {
-	CHE_Bitmap * pRet = NULL;
+	CHE_Bitmap * pBitmapRet = NULL;
 	if ( mpColorspace == NULL )
 	{
-		return pRet;
+		return pBitmapRet;
 	}
-		
 	HE_LPBYTE pData = mpData;
 	HE_LPBYTE pTmpByte = NULL;
+	HE_BYTE	tmpByte = 0;
 	HE_ARGB colorARGB = 0xFF000000;
 	CHE_PDF_Color color;
-
-	pRet = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
+	HE_ARGB * pColors = GetAllocator()->NewArray<HE_ARGB>( mWidth );
+	HE_ULONG colorsIndex = 0;
+	
 	HE_ULONG component = mpColorspace->GetComponentCount();
 	if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
 	{
 		component = 1;
 	}
-	pRet->Create( mWidth, mHeight, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_DOWN );
+	HE_ULONG stride = (mWidth * component * mBpc + 7)/8;
+
+	pBitmapRet = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
+	pBitmapRet->Create( mWidth, mHeight, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_DOWN );
+
 	if ( mBpc == 8 )
 	{
+		color.Clear();
 		for ( HE_ULONG y = 0; y < mHeight; ++y )
 		{
+			colorsIndex = 0;
 			for ( HE_ULONG x = 0 ; x < mWidth; ++x )
 			{
-				color.Clear();
 				pTmpByte = pData + ( ( y * mWidth + x ) * component );
 				for ( HE_ULONG i = 0; i < component; ++i )
 				{
@@ -1174,54 +1561,110 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 					pTmpByte++;
 				}
 				colorARGB = mpColorspace->GetARGBValue( color );
-				pRet->SetPixelColor( x, y, colorARGB );
+				color.Clear();
+				*(pColors+colorsIndex++) = colorARGB;
 			}
+			pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 		}
 	}else if ( mBpc == 4 )
 	{
-		HE_ULONG stride = (mWidth * component * mBpc + 7) / 8;							
-		HE_BYTE tmpByte = 0;
 		color.Clear();
 		for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
 		{
-			x = 0;
 			pTmpByte = pData + ( y * stride );
+			colorsIndex = 0;
+			x = 0;
 			for ( HE_ULONG i = 0; i < stride; ++i )
 			{
 				tmpByte = *(pTmpByte + i);
-
-				if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+				for ( HE_ULONG j = 0; j < 2; ++j )
 				{
-					color.Push( tmpByte >> 4 );
-				}else{
-					color.Push( ( tmpByte >> 4 ) / 16.0f );
-				}
-				if ( color.GetComponentCount() == component )
-				{
-					colorARGB = mpColorspace->GetARGBValue( color );
-					pRet->SetPixelColor( x++, y, colorARGB );
-					color.Clear();
-				}
-				if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
-				{
-					color.Push( tmpByte & 0x0F );
-				}else{
-					color.Push( ( tmpByte & 0x0F ) / 16.0f );
-				}
-				if ( color.GetComponentCount() == component )
-				{
-					colorARGB = mpColorspace->GetARGBValue( color );
-					pRet->SetPixelColor( x++, y, colorARGB );
-					color.Clear();
+					if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+					{
+						color.Push( (tmpByte>>(1-j)*4)&0x0F );
+					}else{
+						color.Push( ((tmpByte>>(1-j)*4)&0x0F)/16.0f );
+					}
+					if ( color.GetComponentCount() == component )
+					{
+						colorARGB = mpColorspace->GetARGBValue( color );
+						color.Clear();
+						*(pColors+colorsIndex++) = colorARGB;
+						if ( ++x == mWidth )
+						{
+							x = 0;
+							break;
+						}
+					}
 				}
 			}
+			pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 		}
 	}else if ( mBpc == 2 )
 	{
+		color.Clear();
+		for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
+		{
+			colorsIndex = 0;
+			pTmpByte = pData + ( y * stride );
+			x = 0;
+			for ( HE_ULONG i = 0; i < stride; ++i )
+			{
+				tmpByte = *(pTmpByte + i);
+				for ( HE_ULONG j = 0; j < 4; ++j )
+				{
+					if ( mpColorspace->GetType() == COLORSPACE_SPECIAL_INDEXED )
+					{
+						color.Push( tmpByte>>((3-j)*2) & 0x03 );
+					}else{
+						color.Push( ((tmpByte>>((3-j)*2)) & 0x03) /4.0f );
+					}
+					if ( color.GetComponentCount() == component )
+					{
+						colorARGB = mpColorspace->GetARGBValue( color );
+						color.Clear();
+						*(pColors+colorsIndex++) = colorARGB;
+						if ( ++x == mWidth )
+						{
+							x = 0;
+							break;
+						}
+					}
+				}
+			}
+			pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
+		}
 	}else if ( mBpc == 1 )
 	{
+		color.Clear();
+		for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
+		{
+			colorsIndex = 0;
+			pTmpByte = pData + ( y * stride );
+			x = 0;
+			for ( HE_ULONG i = 0; i < stride; ++i )
+			{
+				tmpByte = *(pTmpByte + i);
+				for ( HE_ULONG j = 0; j < 8; ++j )
+				{
+					color.Push( ( tmpByte >> (7-j) ) & 0x01  );
+					if ( color.GetComponentCount() == component )
+					{
+						colorARGB = mpColorspace->GetARGBValue( color );
+						color.Clear();
+						*(pColors+colorsIndex++) = colorARGB;
+						if ( ++x == mWidth )
+						{
+							x = 0;
+							break;
+						}
+					}
+				}
+			}
+			pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
+		}
 	}
-	return pRet;
+	return pBitmapRet;
 }
 
 

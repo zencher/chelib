@@ -326,7 +326,11 @@ public:
 	CHE_Bitmap *			GetBitmap();
 
 private:
-	CHE_Bitmap *			StreamToBitmap();
+	CHE_Bitmap *			CommonStreamToBitmap();
+	CHE_Bitmap *			JPXStreamToBitmap( HE_LPBYTE pData, HE_ULONG size );
+	CHE_Bitmap *			JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size );
+	CHE_Bitmap *			JBig2StreamToBitmap( HE_LPBYTE data, HE_ULONG size,
+												 HE_LPBYTE globals = NULL, HE_ULONG globalsSize = 0 );
 
 	CHE_PDF_ReferencePtr    mRefPtr;
     CHE_PDF_StreamPtr       mStmPtr;

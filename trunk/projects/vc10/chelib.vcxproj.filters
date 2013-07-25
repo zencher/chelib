@@ -176,9 +176,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\che_image.h">
-      <Filter>include</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -624,9 +621,6 @@
     </ClCompile>
     <ClCompile Include="..\..\extlib\libjpeg\jutils.c">
       <Filter>extlib\libjpeg</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\che_image.cpp">
-      <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp">
       <Filter>src\hash</Filter>

@@ -1,6 +1,4 @@
 #include "../../include/pdf/che_pdf_renderer_windows.h"
-#include "../../include/che_image.h"
-
 
 inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
 {

@@ -339,8 +339,7 @@ private:
 	HE_ULONG                mBpc;
 	CHE_PDF_ColorSpace*		mpColorspace;
 	HE_BOOL					mbMask;
-	CHE_PDF_StreamPtr		mMask;
-
+	CHE_PDF_ObjectPtr		mMaskPtr;
 };
 
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject

@@ -1,4 +1,5 @@
 #include "../include/che_drawer_windows.h"
+#include "../Include/che_bitmap.h"
 
 CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dibHeight )
 {
@@ -518,7 +519,6 @@ HE_FLOAT CHE_GraphicsDrawer::GetDashPhase() const
 
 HE_VOID	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size )
 {
-
 	if ( m_pGraphics )
 	{
 		HGLOBAL global = ::GlobalAlloc( GMEM_MOVEABLE, size );
@@ -541,11 +541,46 @@ HE_VOID	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, HE_LPBYTE data,
 				if ( image )
 				{
 					m_pGraphics->DrawImage( image, 0, 1, 1, -1 );
+
 					stream->Release();
 				}else{
 					::GlobalFree( global );
 				}
 			}
 		}		
+	}
+}
+
+HE_VOID	CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
+{
+	if ( pBitmap == NULL )
+	{
+		return;
+	}
+	if ( m_pGraphics )
+	{
+		switch ( pBitmap->Depth() )
+		{
+		case BITMAP_DEPTH_32BPP:
+			{
+				Gdiplus::Bitmap bitmap( pBitmap->Width(), pBitmap->Height(), pBitmap->Pitch(), PixelFormat32bppARGB, (BYTE*)pBitmap->GetBuffer() );
+				m_pGraphics->DrawImage( &bitmap, 0, 1, 1, -1 );
+				break;
+			}
+		case BITMAP_DEPTH_24BPP:
+			{
+				Gdiplus::Bitmap bitmap( pBitmap->Width(), pBitmap->Height(), pBitmap->Pitch(), PixelFormat24bppRGB, (BYTE*)pBitmap->GetBuffer() );
+				m_pGraphics->DrawImage( &bitmap, 0, 1, 1, -1 );
+				break;
+			}
+		case BITMAP_DEPTH_1BPP:
+			{
+				Gdiplus::Bitmap bitmap( pBitmap->Width(), pBitmap->Height(), pBitmap->Pitch(), PixelFormat1bppIndexed, (BYTE*)pBitmap->GetBuffer() );
+				m_pGraphics->DrawImage( &bitmap, 0, 1, 1, -1 );
+				break;
+			}
+		default:
+			break;
+		}
 	}
 }

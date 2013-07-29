@@ -3,6 +3,7 @@
 
 #include "che_define.h"
 #include "che_graphics.h"
+#include "che_bitmap.h"
 
 //windows implementation
 #include <Windows.h>
@@ -70,6 +71,7 @@ public:
 
 	 //HE_VOID		DrawBitmap( HE_ULONG width, HE_ULONG height, HE_BYTE bpc, HE_LPBYTE pData, HE_ULONG size );
 	 HE_VOID		DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size );
+	 HE_VOID		DrawBitmap( CHE_Bitmap * pBitmap );
 	
 private:
 	HDC							m_DC;

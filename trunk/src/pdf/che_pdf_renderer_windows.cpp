@@ -443,12 +443,9 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 					CHE_Bitmap * pBitmap = pImage->GetBitmap();
 					if ( pBitmap )
 					{
-						HE_LPBYTE pBuf = GetDefaultAllocator()->NewArray<HE_BYTE>( pBitmap->GetMemBitmapDataSize() + 14 );
-						pBitmap->SaveToMem( pBuf,pBitmap->GetMemBitmapDataSize()+14 );
-						drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-						GetDefaultAllocator()->DeleteArray( pBuf );
-						pBitmap->GetAllocator()->Delete( pBitmap );
-						pBitmap = NULL;
+						drawer.DrawBitmap( pBitmap );
+						//pBitmap->GetAllocator()->Delete( pBitmap );
+						//pBitmap = NULL;
 					}
 				}
 				break;
@@ -459,11 +456,9 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 				CHE_Bitmap * pBitmap = pImage->GetBitmap();
 				if ( pBitmap )
 				{
-					HE_LPBYTE pBuf = GetDefaultAllocator()->NewArray<HE_BYTE>( pBitmap->GetMemBitmapDataSize()+14 );
-					pBitmap->SaveToMem( pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-					drawer.DrawImage( IMAGE_BMP, pBuf, pBitmap->GetMemBitmapDataSize()+14 );
-					GetDefaultAllocator()->DeleteArray( pBuf );
-					pBitmap->GetAllocator()->Delete( pBitmap );
+					drawer.DrawBitmap( pBitmap );
+					//pBitmap->GetAllocator()->Delete( pBitmap );
+					//pBitmap = NULL;
 				}
 				break;
 			}

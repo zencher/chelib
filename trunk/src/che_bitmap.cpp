@@ -73,22 +73,22 @@ CHE_Palette::CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette,
 			{
 				m_nPaletteSize = 16;
 				m_pPalette = GetAllocator()->NewArray<HE_ARGB>( 16 );
-				m_pPalette[0] = 0x00FFFFFF;
-				m_pPalette[1] = 0x00FF00FF;
-				m_pPalette[2] = 0x00FFFF00;
-				m_pPalette[3] = 0x0000FFFF;
-				m_pPalette[4] = 0x000000FF;
-				m_pPalette[5] = 0x0000FF00;
-				m_pPalette[6] = 0x00FF0000;
-				m_pPalette[7] = 0x00C0C0C0;
-				m_pPalette[8] = 0x00808080;
-				m_pPalette[9] = 0x00800080;
-				m_pPalette[10] = 0x00808000;
-				m_pPalette[11] = 0x00008080;
-				m_pPalette[12] = 0x00000080;
-				m_pPalette[13] = 0x00008000;
-				m_pPalette[14] = 0x00800000;
-				m_pPalette[15] = 0x00000000;
+				m_pPalette[0] = 0xFFFFFFFF;
+				m_pPalette[1] = 0xFFFF00FF;
+				m_pPalette[2] = 0xFFFFFF00;
+				m_pPalette[3] = 0xFF00FFFF;
+				m_pPalette[4] = 0xFF0000FF;
+				m_pPalette[5] = 0xFF00FF00;
+				m_pPalette[6] = 0xFFFF0000;
+				m_pPalette[7] = 0xFFC0C0C0;
+				m_pPalette[8] = 0xFF808080;
+				m_pPalette[9] = 0xFF800080;
+				m_pPalette[10] = 0xFF808000;
+				m_pPalette[11] = 0xFF008080;
+				m_pPalette[12] = 0xFF000080;
+				m_pPalette[13] = 0xFF008000;
+				m_pPalette[14] = 0xFF800000;
+				m_pPalette[15] = 0xFF000000;
 				break;
 			}
 		case BITMAP_DEPTH_8BPP:

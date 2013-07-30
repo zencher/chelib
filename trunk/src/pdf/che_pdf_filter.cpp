@@ -1243,13 +1243,20 @@ eol:
 	}
 	else
 	{
-		buffer.Write( fax->rp, fax->wp - fax->rp );
-// 
-// 		while (fax->rp < fax->wp /*&& p < ep*/)
+// 		unsigned char * pTmp = fax->rp;
+// 		for ( pTmp = fax->rp; pTmp < fax->wp; ++pTmp )
 // 		{
-// 			tmpByte = *fax->rp++/* ^ 0xff*/;
-// 			buffer.Write( &tmpByte, 1 );
+// 			*pTmp = *pTmp ^ 0xff;
 // 		}
+
+		while (fax->rp < fax->wp /*&& p < ep*/)
+		{
+			tmpByte = *fax->rp++ ^ 0xff;
+			buffer.Write( &tmpByte, 1 );
+		}
+
+//		buffer.Write( fax->rp, fax->wp - fax->rp );
+
 	}
 
 // 	if (fax->rp < fax->wp)

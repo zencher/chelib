@@ -371,9 +371,36 @@ HE_VOID	CHE_GraphicsDrawer::ResetClip()
     if ( mContentRef )
     {
         //todo
-        //CGPathRelease( mPathRef );
-        //mPathRef = NULL;
-        //CGContextClip(<#CGContextRef c#>)
+        CGPathRelease( mPathRef );
+        mPathRef = NULL;
+        CGContextClip( mContentRef );
+    }
+}
+
+HE_VOID CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
+{
+    if ( pBitmap && mContentRef )
+    {
+        CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, pBitmap->GetBuffer(), pBitmap->GetMemBitmapDataSize(), NULL );
+        
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        
+        CGImageRef imageRef = CGImageCreate( pBitmap->Width(), pBitmap->Height(), 8, pBitmap->Depth(),	
+                                             pBitmap->Pitch(), colorSpace, kCGBitmapByteOrderDefault,
+                                            dataRef, NULL, false, kCGRenderingIntentDefault );
+        
+        CHE_Matrix tmpMatrix;
+        tmpMatrix = mMatrix;
+        tmpMatrix.Concat( mExtMatrix );
+
+        CHE_Rect rect;
+        rect.left = 0;
+        rect.bottom = 0;
+        rect.width = 1;
+        rect.height = 1;
+        rect = tmpMatrix.Transform( rect );
+        
+        CGContextDrawImage( mContentRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height), imageRef );
     }
 }
 

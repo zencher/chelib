@@ -4,6 +4,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 
 #include "che_define.h"
+#include "che_bitmap.h"
 #include "che_graphics.h"
 
 class CHE_GraphicsDrawer
@@ -45,8 +46,10 @@ public:
     HE_VOID		FillStrokeClipPath();
     HE_VOID		ResetClip();
     
+    HE_VOID     DrawBitmap( CHE_Bitmap * pBitmap );
+    
     //todo
-    HE_VOID     SaveToFile( const char * pPath );
+    HE_VOID         SaveToFile( const char * pPath );
     CGContextRef    GetContextRef() const { return mContentRef; }
 
 private:

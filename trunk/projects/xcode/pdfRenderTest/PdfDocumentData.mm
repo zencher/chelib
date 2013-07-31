@@ -58,9 +58,9 @@
                             {
                                 pageContents[pageIndex] = allocator->New<CHE_PDF_ContentObjectList>( resDict, allocator );
                                 GetPageContent( pageDict, pageContents[pageIndex], pdfFontMgr, allocator );
-                                //CHE_Rect rect = pdfPage->GetMediaBox();
-                                //CHE_PDF_Renderer::Render( contentList, *pdfDrawer, rect );
-                                //pdfDrawer->SaveToFile( "/Users/zencher/sdf.png" );
+                                CHE_Rect rect = pdfPage->GetMediaBox();
+                                CHE_PDF_Renderer::Render( *pageContents[pageIndex], *pdfDrawer, rect );
+                                pdfDrawer->SaveToFile( "/Users/zencher/sdf1.png" );
                             }
                         }
                     }

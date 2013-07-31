@@ -7,10 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "PdfDocumentData.h"
 
 @interface CustomView : NSView
 {
-    
+    PdfDocumentData * data;
 }
 
 @end

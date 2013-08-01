@@ -45,23 +45,41 @@ HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 		if ( chr >= '0' && chr <= '9' )
 		{
 			val += (chr-'0');
+			if ( bLow == TRUE )
+			{
+				buffer.Write( &val, 1 );
+				val = 0;
+				bLow = FALSE;
+			}else{
+				val *= 16;
+				bLow = TRUE;
+			}
 		}else if ( chr >= 'a' && chr <= 'f' )
 		{
 			val += (chr-'a'+10);
+			if ( bLow == TRUE )
+			{
+				buffer.Write( &val, 1 );
+				val = 0;
+				bLow = FALSE;
+			}else{
+				val *= 16;
+				bLow = TRUE;
+			}
 		}else if ( chr >= 'A' && chr <= 'F' )
 		{
 			val += (chr-'A'+10);
+			if ( bLow == TRUE )
+			{
+				buffer.Write( &val, 1 );
+				val = 0;
+				bLow = FALSE;
+			}else{
+				val *= 16;
+				bLow = TRUE;
+			}
 		}
-		if ( bLow == TRUE )
-		{
-			buffer.Write( &val, 1 );
-			val = 0;
-			bLow = FALSE;
-		}else{
-			val *= 16;
-			bLow = TRUE;
-		}
-        ++pData;
+		++pData;
     }
 }
 

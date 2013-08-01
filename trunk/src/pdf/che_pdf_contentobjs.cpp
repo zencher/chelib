@@ -1032,7 +1032,7 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 			HE_ARGB *		pColors = GetAllocator()->NewArray<HE_ARGB>( mWidth );
 			HE_ULONG		colorIndex = 0;
 			HE_ULONG		componentCount = 1;
-			HE_ULONG		stride = (mWidth * componentCount * mBpc + 7)/8;
+			HE_ULONG		stride = 0;
 			
 			if ( mpColorspace == NULL )
 			{
@@ -1043,6 +1043,8 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 			{
 				componentCount = 1;
 			}
+
+			stride = (mWidth * componentCount * mBpc + 7)/8;
 
 			switch ( mpColorspace->GetType() )
 			{

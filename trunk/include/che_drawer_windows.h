@@ -41,7 +41,8 @@ public:
 	HE_VOID			SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
 	HE_VOID			SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
 	HE_VOID			SetFillMode( GRAPHICS_STATE_FILLMODE mode );
-	HE_VOID			SetInterpolate( HE_BOOL );
+	HE_VOID			SetFillAlpha( HE_FLOAT & alpha );
+	HE_VOID			SetStrokeAlpha( HE_FLOAT & alpha );
 
 // 	//properties getting
 // 	inline CHE_Matrix	GetMatrix() const;
@@ -88,6 +89,8 @@ private:
 	Gdiplus::GraphicsPath		m_path;
 	Gdiplus::GraphicsPath		m_pathToDraw;
 
+	HE_FLOAT					mStrokeAlpha;
+	HE_FLOAT					mFillAlpha;
 	HE_FLOAT					mCurX;
 	HE_FLOAT					mCurY;
 	HE_FLOAT					mBeginX;

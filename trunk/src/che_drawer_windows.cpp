@@ -17,11 +17,8 @@ CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dib
 	rt.bottom = m_dwHeight;
 	FillRect( m_MemDC, &rt, HBRUSH(WHITE_BRUSH) );
 
-	m_pGraphics  = new Gdiplus::Graphics( m_MemDC );
-	m_pGraphics->SetSmoothingMode( Gdiplus::SmoothingModeAntiAlias );
-	m_pGraphics->SetPageUnit( Gdiplus::UnitPixel );
-	m_pPen = new Gdiplus::Pen( Gdiplus::Color( 255, 0, 0, 0 ), 1 );
-	m_pBrush = new Gdiplus::SolidBrush( Gdiplus::Color( 255, 0, 0, 0 ) );
+	mStrokeAlpha = 1;
+	mFillAlpha = 1;
 
 	mCurX = 0;
 	mCurY = 0;
@@ -32,6 +29,12 @@ CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dib
 	mLineCap = LineCap_Butt;
 	mLineJion = LineJoin_Miter;
 	mDashPhase = 0;
+
+	m_pGraphics  = new Gdiplus::Graphics( m_MemDC );
+	m_pGraphics->SetSmoothingMode( Gdiplus::SmoothingModeAntiAlias );
+	m_pGraphics->SetPageUnit( Gdiplus::UnitPixel );
+	m_pPen = new Gdiplus::Pen( Gdiplus::Color( mStrokeAlpha * 255, 0, 0, 0 ), 1 );
+	m_pBrush = new Gdiplus::SolidBrush( Gdiplus::Color( 255, 0, 0, 0 ) );
 }
 
 CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
@@ -459,18 +462,14 @@ HE_VOID CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::SetInterpolate( HE_BOOL bEnable )
+HE_VOID CHE_GraphicsDrawer::SetFillAlpha( HE_FLOAT & alpha )
 {
-	if ( m_pGraphics == NULL )
-	{
-		return;
-	}
-	if ( bEnable )
-	{
-		m_pGraphics->SetInterpolationMode( Gdiplus::InterpolationModeDefault );
-	}else{
-		m_pGraphics->SetInterpolationMode( Gdiplus::InterpolationModeNearestNeighbor );
-	}
+	mFillAlpha = alpha;
+}
+
+HE_VOID	CHE_GraphicsDrawer::SetStrokeAlpha( HE_FLOAT & alpha )
+{
+	mStrokeAlpha = alpha;
 }
 
 HE_VOID CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
@@ -573,25 +572,32 @@ HE_VOID	CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
 	}
 	if ( m_pGraphics )
 	{
+		Gdiplus::ColorMatrix colorMatrix = {	1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+												0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+												0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+												0.0f, 0.0f, 0.0f, mFillAlpha, 0.0f,
+												0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
+		Gdiplus::ImageAttributes imageAtt;
+		imageAtt.SetColorMatrix( &colorMatrix, Gdiplus::ColorMatrixFlagsDefault, Gdiplus::ColorAdjustTypeBitmap );
+
 		switch ( pBitmap->Depth() )
 		{
 		case BITMAP_DEPTH_32BPP:
 			{
 				Gdiplus::Bitmap bitmap( pBitmap->Width(), pBitmap->Height(), pBitmap->Pitch(), PixelFormat32bppARGB, (BYTE*)pBitmap->GetBuffer() );
-				m_pGraphics->DrawImage( &bitmap, 0, 1, 1, -1 );
+				m_pGraphics->DrawImage( &bitmap, Gdiplus::Rect( 0.0f, 1.0f, 1.0f, -1.0f), 0, 0, pBitmap->Width(), pBitmap->Height(), Gdiplus::UnitPixel, &imageAtt  );
 				break;
 			}
 		case BITMAP_DEPTH_24BPP:
 			{
 				Gdiplus::Bitmap bitmap( pBitmap->Width(), pBitmap->Height(), pBitmap->Pitch(), PixelFormat24bppRGB, (BYTE*)pBitmap->GetBuffer() );
-				m_pGraphics->DrawImage( &bitmap, 0, 1, 1, -1 );
-				m_pGraphics->DrawImage( &bitmap, 0, 1 );
+				m_pGraphics->DrawImage( &bitmap, Gdiplus::Rect( 0.0f, 1.0f, 1.0f, -1.0f), 0, 0, pBitmap->Width(), pBitmap->Height(), Gdiplus::UnitPixel, &imageAtt  );
 				break;
 			}
 		case BITMAP_DEPTH_1BPP:
 			{
 				Gdiplus::Bitmap bitmap( pBitmap->Width(), pBitmap->Height(), pBitmap->Pitch(), PixelFormat1bppIndexed, (BYTE*)pBitmap->GetBuffer() );
-				m_pGraphics->DrawImage( &bitmap, 0, 1, 1, -1 );
+				m_pGraphics->DrawImage( &bitmap, Gdiplus::Rect( 0.0f, 1.0f, 1.0f, -1.0f), 0, 0, pBitmap->Width(), pBitmap->Height(), Gdiplus::UnitPixel, &imageAtt  );
 				break;
 			}
 		default:

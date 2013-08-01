@@ -14,6 +14,8 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	static CHE_PDF_ColorSpace strokeColorSpace( COLORSPACE_DEVICE_GRAY );
 	static HE_ULONG fillColorVal = 0xFF000000;
 	static HE_ULONG strokeColorVal = 0xFF000000;
+	static HE_FLOAT fillAlpha = 1.0f;
+	static HE_FLOAT strokeAlpha = 1.0f;
 
 	pGState->GetLineWidth( val );
 	drawer.SetLineWidth( val );
@@ -40,6 +42,18 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	drawer.SetFillColor( fillColorVal );
 	drawer.SetStrokeColor( strokeColorVal );
 	drawer.SetFillMode( FillMode_Nonzero );
+
+	CHE_PDF_ExtGState * extGState =  pGState->GetExtGState();
+	if ( extGState )
+	{
+		fillAlpha = extGState->GetFillAlpha();
+		strokeAlpha = extGState->GetStrokeAlpha();
+	}else{
+		fillAlpha = 1.0f;
+		strokeAlpha = 1.0f;
+	}
+	drawer.SetFillAlpha( fillAlpha );
+	drawer.SetStrokeAlpha( strokeAlpha );
 }
 
 inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState * pClipState )
@@ -374,8 +388,7 @@ inline HE_VOID OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
 
 inline HE_VOID OutputRefImage( CHE_PDF_RefImage * pImage, CHE_GraphicsDrawer & drawer )
 {
-	drawer.SetInterpolate( pImage->IsInterpolate() );
-	if ( pImage->IsInterpolate() )
+	if ( pImage->IsInterpolate() == FALSE )
 	{
 		CHE_Bitmap * pBitmap = pImage->GetBitmap();
 		if ( pBitmap )

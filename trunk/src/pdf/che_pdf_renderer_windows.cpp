@@ -287,7 +287,6 @@ inline HE_VOID OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
         case TextRenderMode_FillStrokeClip:
         {
             drawer.SetMatrix( CHE_Matrix() );
-            CHE_PDF_Text * pText = (CHE_PDF_Text*)(*it);
             for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
             {
                 CHE_PDF_Path * pPath = pText->GetGraphPath( j );
@@ -369,7 +368,7 @@ inline HE_VOID OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
         break;
     case TextRenderMode_Clip:
         break;
-    default:breakl;
+    default:break;
     }
 }
 
@@ -378,6 +377,7 @@ inline HE_VOID OutputRefImage( CHE_PDF_RefImage * pImage, CHE_GraphicsDrawer & d
     CHE_Bitmap * pBitmap = pImage->GetBitmap();
     if ( pBitmap )
     {
+		
         drawer.DrawBitmap( pBitmap );
     }
 }
@@ -396,12 +396,17 @@ inline HE_VOID OutputShading( CHE_PDF_Shading * pShading, CHE_GraphicsDrawer & d
     
 }
 
-HE_VOID outputForm( CHE_PDF_Form * pForm, CHE_GraphicsDrawer & drawer )
+HE_VOID outputForm( CHE_PDF_Form * pForm, CHE_Matrix extMatrix, CHE_GraphicsDrawer & drawer )
 {
     CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
-    ContentObjectList & content = pForm->GetList();
+    CHE_PDF_ContentObjectList & content = pForm->GetList();
 	ContentObjectList::iterator it = content.Begin();
+
+	CHE_Matrix tmpExtMatrix = extMatrix;
+	tmpExtMatrix.Concat( pForm->GetExtMatrix() );
+	drawer.SetExtMatrix( tmpExtMatrix );
+
 	for ( ; it != content.End(); ++it )
 	{
 		drawer.ResetClip();
@@ -445,13 +450,15 @@ HE_VOID outputForm( CHE_PDF_Form * pForm, CHE_GraphicsDrawer & drawer )
             }
             case ContentType_Form:
 			{
-				CHE_PDF_Form * pForm = (CHE_PDF_Form *)( *it );
+				outputForm( (CHE_PDF_Form *)(*it), extMatrix, drawer );
 				break;
 			}
             default:
                 break;
 		}
 	}
+
+	drawer.SetExtMatrix( extMatrix );
 }
 
 HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
@@ -533,7 +540,7 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
             }
         case ContentType_Form:
 			{
-				CHE_PDF_Form * pForm = (CHE_PDF_Form *)( *it );
+				outputForm( (CHE_PDF_Form*)(*it), extMatrix, drawer );
 				break;
 			}
 		default:

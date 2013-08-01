@@ -459,6 +459,20 @@ HE_VOID CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
 	}
 }
 
+HE_VOID CHE_GraphicsDrawer::SetInterpolate( HE_BOOL bEnable )
+{
+	if ( m_pGraphics == NULL )
+	{
+		return;
+	}
+	if ( bEnable )
+	{
+		m_pGraphics->SetInterpolationMode( Gdiplus::InterpolationModeDefault );
+	}else{
+		m_pGraphics->SetInterpolationMode( Gdiplus::InterpolationModeNearestNeighbor );
+	}
+}
+
 HE_VOID CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
 {
 	if ( m_pBrush )
@@ -571,6 +585,7 @@ HE_VOID	CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
 			{
 				Gdiplus::Bitmap bitmap( pBitmap->Width(), pBitmap->Height(), pBitmap->Pitch(), PixelFormat24bppRGB, (BYTE*)pBitmap->GetBuffer() );
 				m_pGraphics->DrawImage( &bitmap, 0, 1, 1, -1 );
+				m_pGraphics->DrawImage( &bitmap, 0, 1 );
 				break;
 			}
 		case BITMAP_DEPTH_1BPP:

@@ -798,8 +798,8 @@ CHE_PDF_Form::~CHE_PDF_Form()
 
 
 CHE_PDF_RefImage::CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator /*= NULL*/ )
-    : CHE_PDF_NamedContentObject(name, pAllocator), mRefPtr(pRef), mWidth(0), mHeight(0), mBpc(0), mpColorspace(NULL), mbMask(FALSE),
-	mMaskDecode(0), mpBitmapCache(NULL)
+    : CHE_PDF_NamedContentObject(name, pAllocator), mRefPtr(pRef), mWidth(0), mHeight(0), mBpc(0), mpColorspace(NULL), mbInterpolate(FALSE),
+    mbMask(FALSE), mMaskDecode(0), mpBitmapCache(NULL)
 {
     if ( mRefPtr )
     {
@@ -836,6 +836,11 @@ CHE_PDF_RefImage::CHE_PDF_RefImage( const CHE_ByteString & name, const CHE_PDF_R
 						mpColorspace = CHE_PDF_ColorSpace::Create( objPtr->GetNamePtr(), GetAllocator() );
 					}
 				}
+                objPtr = dictPtr->GetElement( "Interpolate", OBJ_TYPE_BOOLEAN );
+                if ( objPtr )
+                {
+                    mbInterpolate = objPtr->GetBooleanPtr()->GetValue();
+                }
 				objPtr = dictPtr->GetElement( "ImageMask", OBJ_TYPE_BOOLEAN );
 				if ( objPtr )
 				{

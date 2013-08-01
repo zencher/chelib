@@ -322,7 +322,9 @@ public:
 	HE_ULONG                GetHeight() const { return mHeight; }
 	HE_ULONG                GetBPC() const { return mBpc; }
 	CHE_PDF_ColorSpace*		GetColorspace() const { return mpColorspace; }
-
+    HE_BOOL                 IsMask() const { return mbMask; }
+    HE_BOOL                 IsInterpolate() const { return mbInterpolate; }
+    
 	CHE_Bitmap *			GetBitmap();
 
 private:
@@ -340,6 +342,7 @@ private:
 	HE_ULONG                mHeight;
 	HE_ULONG                mBpc;
 	CHE_PDF_ColorSpace*		mpColorspace;
+    HE_BOOL                 mbInterpolate;
 	HE_BOOL					mbMask;
 	HE_BYTE					mMaskDecode;
 	CHE_PDF_ObjectPtr		mMaskPtr;

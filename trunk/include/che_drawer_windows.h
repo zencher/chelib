@@ -41,6 +41,7 @@ public:
 	HE_VOID			SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
 	HE_VOID			SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
 	HE_VOID			SetFillMode( GRAPHICS_STATE_FILLMODE mode );
+	HE_VOID			SetInterpolate( HE_BOOL );
 
 // 	//properties getting
 // 	inline CHE_Matrix	GetMatrix() const;

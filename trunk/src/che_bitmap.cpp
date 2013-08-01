@@ -1038,7 +1038,7 @@ HE_BOOL CHE_Bitmap::SetPixelColor( HE_ULONG x, HE_ULONG y, std::vector<HE_ARGB> 
 		return FALSE;
 	}
 
-	HE_ULONG index = 0; GetPixelByteIndex( x, y );
+	HE_ULONG index = 0;
 	HE_BYTE platteIndex = 0;
 	HE_ULONG tempIndex = 0;
 	HE_ARGB color;
@@ -1159,11 +1159,11 @@ HE_BOOL CHE_Bitmap::SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB * pColors, HE
     {
         for ( HE_ULONG i = 0; i < count; ++i )
         {
-            index = GetPixelByteIndex( x++, y );
-            if ( x == m_lWidth )
+            index = GetPixelByteIndex( x, y );
+            if ( ++x == m_lWidth )
             {
                 x = 0;
-                y += 1;
+                ++y;
             }
             color = *(pColors+i);
             m_lpBits[index] = (HE_BYTE)( color & 0xFF );
@@ -1175,11 +1175,11 @@ HE_BOOL CHE_Bitmap::SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB * pColors, HE
     {
         for ( HE_ULONG i = 0; i < count; ++i )
         {
-            index = GetPixelByteIndex( x++, y );
-            if ( x == m_lWidth )
+            index = GetPixelByteIndex( x, y );
+            if ( ++x == m_lWidth )
             {
                 x = 0;
-                y += 1;
+                ++y;
             }
             color = *(pColors+i);
             m_lpBits[index] = (HE_BYTE)( color & 0xFF );

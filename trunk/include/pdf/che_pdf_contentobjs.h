@@ -336,6 +336,8 @@ private:
 
 	CHE_Bitmap *			GetStencilMaskingBitmap( HE_LPBYTE pData, HE_ULONG size );
 
+	CHE_Bitmap *			GetExplicitMaskingBitmap( CHE_Bitmap * pBitmapOrig, CHE_PDF_StreamPtr & stmPtr );
+
 	CHE_PDF_ReferencePtr    mRefPtr;
     CHE_PDF_StreamPtr       mStmPtr;
     HE_ULONG                mWidth;

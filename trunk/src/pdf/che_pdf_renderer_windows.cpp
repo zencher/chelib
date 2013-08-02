@@ -388,7 +388,7 @@ inline HE_VOID OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
 
 inline HE_VOID OutputRefImage( CHE_PDF_RefImage * pImage, CHE_GraphicsDrawer & drawer )
 {
-	if ( pImage->IsInterpolate() == FALSE )
+	if ( pImage->IsInterpolate() == TRUE )
 	{
 		CHE_Bitmap * pBitmap = pImage->GetBitmap();
 		if ( pBitmap )
@@ -409,11 +409,17 @@ inline HE_VOID OutputRefImage( CHE_PDF_RefImage * pImage, CHE_GraphicsDrawer & d
 				rect.height = 1;
 				CHE_Matrix matrix = pGState->GetMatrix();
 				rect = matrix.Transform( rect );
-				CHE_Bitmap * pNew = pBitmap->StretchTo( rect.width, rect.height, 0, NULL );
-				if ( pNew )
+
+				if ( rect.width > pBitmap->Width() || rect.height > pBitmap->Height() )
 				{
-					drawer.DrawBitmap( pNew );
-					pNew->GetAllocator()->Delete( pNew ); 
+					CHE_Bitmap * pNew = pBitmap->StretchTo( rect.width, rect.height, 0, NULL );
+					if ( pNew )
+					{
+						drawer.DrawBitmap( pNew );
+						pNew->GetAllocator()->Delete( pNew ); 
+					}
+				}else{
+					drawer.DrawBitmap( pBitmap );
 				}
 			}
 		}

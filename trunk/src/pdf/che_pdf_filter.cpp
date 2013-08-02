@@ -1166,14 +1166,22 @@ HE_VOID CHE_PDF_FaxFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	
 	fz_faxd * fax = &faxs;
 
-
-// 	unsigned char *p = buf;
-// 	unsigned char *ep = buf + len;
 	unsigned char * tmp = NULL;
 	unsigned char tmpByte = 0;
 
 	if (fax->stage == STATE_DONE)
+	{
+		if ( !fax->black_is_1 )
+		{
+			HE_LPBYTE pByte = buffer.GetData();
+			for ( HE_ULONG i = 0; i < buffer.GetSize(); ++i )
+			{
+				*pByte = *pByte ^ 0xFF;
+				++pByte;
+			}
+		}
 		return/* 0*/;
+	}
 
 	if (fax->stage == STATE_EOL)
 		goto eol;
@@ -1250,35 +1258,10 @@ loop:
 eol:
 	fax->stage = STATE_EOL;
 
-	if (fax->black_is_1)
-	{
-		buffer.Write( fax->rp, fax->wp - fax->rp );
-// 		while (fax->rp < fax->wp /*&& p < ep*/)
-// 		{
-// 			tmp = *fax->rp++;
-// 		}
+	buffer.Write( fax->rp, fax->wp - fax->rp );
+
 
 	}
-	else
-	{
-// 		unsigned char * pTmp = fax->rp;
-// 		for ( pTmp = fax->rp; pTmp < fax->wp; ++pTmp )
-// 		{
-// 			*pTmp = *pTmp ^ 0xff;
-// 		}
-
-		while (fax->rp < fax->wp /*&& p < ep*/)
-		{
-			tmpByte = *fax->rp++ ^ 0xff;
-			buffer.Write( &tmpByte, 1 );
-		}
-
-//		buffer.Write( fax->rp, fax->wp - fax->rp );
-
-	}
-
-// 	if (fax->rp < fax->wp)
-// 		return p - buf;
 
 	tmp = fax->ref;
 	fax->ref = fax->dst;
@@ -1326,6 +1309,16 @@ eol:
 rtc:
 	fax->stage = STATE_DONE;
 	/*return p - buf;*/
+
+	if ( !fax->black_is_1 )
+	{
+		HE_LPBYTE pByte = buffer.GetData();
+		for ( HE_ULONG i = 0; i < buffer.GetSize(); ++i )
+		{
+			*pByte = *pByte ^ 0xFF;
+			++pByte;
+		}
+	}
 }
 
 

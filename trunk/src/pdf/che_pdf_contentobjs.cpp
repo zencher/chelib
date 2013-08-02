@@ -1981,14 +1981,15 @@ CHE_Bitmap * CHE_PDF_RefImage::JBig2StreamToBitmap( HE_LPBYTE data, HE_ULONG siz
 		jbig2_data_in( ctx, data, size );
 		jbig2_complete_page( ctx );
 		page = jbig2_page_out( ctx );
-		//if page = NULL error happened!
 	}
 
-	//HE_LPBYTE p = desRet.GetData();
-	//HE_LPBYTE ep = desRet.GetData() + desRet.GetSize();
 	HE_LPBYTE s = page->data;
 	HE_INT32 w = page->height * page->stride;
 	HE_INT32 index = 0;
+	for ( HE_ULONG i = 0; i < w; ++i )
+	{
+		s[i] = s[i] ^ 0xff;
+	}
 
 	if ( mbMask )
 	{
@@ -1997,18 +1998,6 @@ CHE_Bitmap * CHE_PDF_RefImage::JBig2StreamToBitmap( HE_LPBYTE data, HE_ULONG siz
 
 	CHE_Bitmap * pBitmap = GetDefaultAllocator()->New<CHE_Bitmap>( GetDefaultAllocator() );
 	pBitmap->Create( page->width, page->height, BITMAP_DEPTH_1BPP, BITMAP_DIRECTION_DOWN, w, s );
-
-	//for ( HE_INT32 y = 0; y < page->height; ++y )
-	//{
-	//	for ( HE_INT32 x = 0; x < page->width; ++x )
-	//	{
-	//		pBitmap->SetPixelColor( x, y, s[y * page->stride + x] ^ 0xff );
-	//	}
-	//}
-	// 	while (p < ep && x < w)
-	// 	{
-	// 		*p++ = s[x++] ^ 0xff;
-	// 	}
 
 	if ( page )
 	{
@@ -2225,9 +2214,9 @@ CHE_Bitmap * CHE_PDF_RefImage::GetStencilMaskingBitmap( HE_LPBYTE pData, HE_ULON
 			{
 				if ( mMaskDecode == 0 )
 				{
-					colorARGB2 = ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
-				}else{
 					colorARGB2 = 255 - ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
+				}else{
+					colorARGB2 = ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
 				}
 				colorARGB2 = colorARGB2 << 24;
 				colorARGB2 = colorARGB1 & 0x00FFFFFF + colorARGB2;

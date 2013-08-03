@@ -1259,10 +1259,6 @@ eol:
 	fax->stage = STATE_EOL;
 
 	buffer.Write( fax->rp, fax->wp - fax->rp );
-
-
-	}
-
 	tmp = fax->ref;
 	fax->ref = fax->dst;
 	fax->dst = tmp;

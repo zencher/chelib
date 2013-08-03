@@ -181,7 +181,7 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 								}
 							case PathItem_Close:
 								{
-									//drawer.ClosePath();
+									drawer.ClosePath();
 									i+=1;
 									break;
 								}
@@ -189,7 +189,7 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 								break;
 							}
 						}
-						//drawer.ClosePath();
+						drawer.ClosePath();
 						pPath->GetAllocator()->Delete( pPath );
 					}
 				}
@@ -223,7 +223,7 @@ inline HE_VOID OutputPath( CHE_PDF_Path * pPath, CHE_GraphicsDrawer & drawer )
                 p1.y = pPath->mItems[i+2].value;
                 drawer.MoveTo( p1.x, p1.y );
                 i+=2;
-                break;
+				break;
             }
             case PathItem_LineTo:
             {
@@ -242,7 +242,7 @@ inline HE_VOID OutputPath( CHE_PDF_Path * pPath, CHE_GraphicsDrawer & drawer )
                 p3.x = pPath->mItems[i+5].value;
                 p3.y = pPath->mItems[i+6].value;
                 drawer.CurveTo( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
-                i+=6;
+				i+=6;
                 break;
             }
             case PathItem_Rectangle:
@@ -559,7 +559,7 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 		{
 		case ContentType_Path:
 			{
-				OutputPath( (CHE_PDF_Path*)(*it), drawer );
+				OutputPath( (CHE_PDF_Path*)(*it), drawer );	
 				break;
 			}
 		case ContentType_Text:

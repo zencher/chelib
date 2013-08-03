@@ -1692,9 +1692,9 @@ HE_VOID CHE_PDF_ContentsParser::Handle_v()
 			mpPath->mItems.push_back( pathItem );
 			pathItem.value = mOpdFloatStack[1];
 			mpPath->mItems.push_back( pathItem );
-			pathItem.value = mOpdFloatStack[2];
+			mCurX = pathItem.value = mOpdFloatStack[2];
 			mpPath->mItems.push_back( pathItem );
-			pathItem.value = mOpdFloatStack[3];
+			mCurY = pathItem.value = mOpdFloatStack[3];
 			mpPath->mItems.push_back( pathItem );
 		}
 	}
@@ -1725,9 +1725,9 @@ HE_VOID CHE_PDF_ContentsParser::Handle_y()
 			mpPath->mItems.push_back( pathItem );
 			pathItem.value = mOpdFloatStack[3];
 			mpPath->mItems.push_back( pathItem );
-			pathItem.value = mOpdFloatStack[2];
+			mCurX = pathItem.value = mOpdFloatStack[2];
 			mpPath->mItems.push_back( pathItem );
-			pathItem.value = mOpdFloatStack[3];
+			mCurY = pathItem.value = mOpdFloatStack[3];
 			mpPath->mItems.push_back( pathItem );
 		}
 	}

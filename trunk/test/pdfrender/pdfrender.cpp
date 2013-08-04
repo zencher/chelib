@@ -68,7 +68,7 @@ void RenderPage( HWND hwnd )
 	parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 
 	QueryPerformanceCounter( &gBegin );
-	CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale/*, 96, 96, &clipRect*/ );
+	CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale /*, 96, 96, &clipRect*/ );
 	QueryPerformanceCounter( &gEnd );
 	renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 }
@@ -253,6 +253,17 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 		}
 	case WM_CHAR:
 		{
+			if ( wParam == 'f' || wParam == 'F' )
+			{
+				RenderPage( hwnd );
+				InvalidateRect( hwnd, NULL, FALSE );
+			}
+			else
+// 				if ( wParam == 'd' || wParam == 'D' )
+// 			{
+// 				RenderPage( hwnd );
+// 				InvalidateRect( hwnd, NULL, FALSE );
+// 			}else 
 			if ( wParam == 'o' || wParam == 'O' )
 			{
 				static char fileName[1024], fileTitleName[1024];

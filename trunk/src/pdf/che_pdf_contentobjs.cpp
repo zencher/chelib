@@ -1795,7 +1795,7 @@ CHE_Bitmap * CHE_PDF_RefImage::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size
 				colorsIndex = 0;
 				for ( HE_ULONG x = 0; x < cinfo.output_width; x++)
 				{
-					colorARGB = *sp + (*sp << 8) + (*sp << 16);
+					colorARGB = 0xFF000000 + *sp + (*sp << 8) + (*sp << 16);
 					sp++;
 					*(pColors+colorsIndex++) = colorARGB;
 				}
@@ -1819,7 +1819,7 @@ CHE_Bitmap * CHE_PDF_RefImage::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size
 				colorsIndex = 0;
 				for ( HE_ULONG x = 0; x < cinfo.output_width; x++)
 				{
-					colorARGB = *(sp+2) + (*(sp+1) << 8) + (*sp << 16);
+					colorARGB = 0xFF000000 + *(sp+2) + (*(sp+1) << 8) + (*sp << 16);
 					sp += 3;
  					*(pColors+colorsIndex++) = colorARGB;
 				}
@@ -1847,7 +1847,7 @@ CHE_Bitmap * CHE_PDF_RefImage::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size
 					colorsIndex = 0;
 					for ( HE_ULONG x = 0; x < cinfo.output_width; ++x )
 					{
-						colorARGB = *sp + (*sp << 8) + (*sp << 16);
+						colorARGB = 0xFF000000 + *sp + (*sp << 8) + (*sp << 16);
 						sp++;
 						*(pColors+colorsIndex++) = colorARGB;
 					}
@@ -1868,7 +1868,7 @@ CHE_Bitmap * CHE_PDF_RefImage::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size
 					colorsIndex = 0;
 					for ( HE_ULONG x = 0; x < cinfo.output_width; x++)
 					{
-						colorARGB = *(sp+2) + (*(sp+1) << 8) + (*sp << 16);
+						colorARGB = 0xFF000000 + *(sp+2) + (*(sp+1) << 8) + (*sp << 16);
 						sp += 3;
 						*(pColors+colorsIndex++) = colorARGB;
 					}
@@ -2208,20 +2208,20 @@ CHE_Bitmap * CHE_PDF_RefImage::GetStencilMaskingBitmap( HE_LPBYTE pData, HE_ULON
 	HE_BYTE tmpByte = 0xFF;
 	HE_ARGB * pColors = GetAllocator()->NewArray<HE_ARGB>( mWidth );
 
-	for ( HE_ULONG y = 0; y < mHeight; ++y )
+	if ( mBpc == 8 )
 	{
-		pTmpByte = pData + ( y * stride );
-		colorIndex = 0;
-		for ( byteIndex = 0; byteIndex < stride; ++byteIndex )
+		for ( HE_ULONG y = 0; y < mHeight; ++y )
 		{
-			tmpByte = *(pTmpByte + byteIndex);
-			for ( bitIndex = 0; bitIndex < 8; ++bitIndex )
+			pTmpByte = pData + ( y * stride );
+			colorIndex = 0;
+			for ( byteIndex = 0; byteIndex < mWidth; ++byteIndex )
 			{
+				tmpByte = *(pTmpByte + byteIndex);
 				if ( mMaskDecode == 0 )
 				{
-					colorARGB2 = 255 - ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
+					colorARGB2 = 255 - tmpByte;
 				}else{
-					colorARGB2 = ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
+					colorARGB2 = tmpByte;
 				}
 				colorARGB2 = colorARGB2 << 24;
 				colorARGB2 = colorARGB1 & 0x00FFFFFF + colorARGB2;
@@ -2231,9 +2231,38 @@ CHE_Bitmap * CHE_PDF_RefImage::GetStencilMaskingBitmap( HE_LPBYTE pData, HE_ULON
 					break;
 				}
 			}
+			pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 		}
-		pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
+	}else if ( mBpc == 1 )
+	{
+		for ( HE_ULONG y = 0; y < mHeight; ++y )
+		{
+			pTmpByte = pData + ( y * stride );
+			colorIndex = 0;
+			for ( byteIndex = 0; byteIndex < stride; ++byteIndex )
+			{
+				tmpByte = *(pTmpByte + byteIndex);
+				for ( bitIndex = 0; bitIndex < 8; ++bitIndex )
+				{
+					if ( mMaskDecode == 0 )
+					{
+						colorARGB2 = 255 - ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
+					}else{
+						colorARGB2 = ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
+					}
+					colorARGB2 = colorARGB2 << 24;
+					colorARGB2 = colorARGB1 & 0x00FFFFFF + colorARGB2;
+					*(pColors+colorIndex++) = colorARGB2;
+					if ( colorIndex == mWidth )
+					{
+						break;
+					}
+				}
+			}
+			pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
+		}
 	}
+	
 	GetAllocator()->DeleteArray( pColors );
 	return pBitmapRet;
 }

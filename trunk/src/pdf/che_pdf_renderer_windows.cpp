@@ -448,8 +448,17 @@ HE_VOID outputForm( CHE_PDF_Form * pForm, CHE_Matrix extMatrix, CHE_GraphicsDraw
 	ContentObjectList::iterator it = content.Begin();
 
 	CHE_Matrix tmpExtMatrix = extMatrix;
-	tmpExtMatrix.Concat( pForm->GetExtMatrix() );
-	drawer.SetExtMatrix( tmpExtMatrix );
+	CHE_Matrix newExtMatrix;
+	pGState = pForm->GetGState();
+	if ( pGState )
+	{
+		newExtMatrix = pGState->GetMatrix();
+		
+	}
+	newExtMatrix.Concat( pForm->GetExtMatrix() );
+	newExtMatrix.Concat( tmpExtMatrix );
+
+	drawer.SetExtMatrix( newExtMatrix );
 
 	for ( ; it != content.End(); ++it )
 	{

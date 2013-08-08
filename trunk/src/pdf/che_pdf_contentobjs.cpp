@@ -242,6 +242,8 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 								{
 									item.gid = item.charCode;
 								}
+							}else{
+								item.gid = item.charCode;
 							}
 						}else{
 							pFont->GetGlyphId( item.charCode, item.gid );

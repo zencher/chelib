@@ -48,12 +48,14 @@ CHE_GraphicsDrawer * gpDrawer = NULL;
 
 void RenderPage( HWND hwnd )
 {
-	CHE_Rect rect = gpPage->GetMediaBox();
+	CHE_Rect rect = gpPage->GetPageRect();
 // 	CHE_Rect clipRect/* = rect*/;
 // 	clipRect.left = 100;//rect.width / 4;
 // 	clipRect.bottom = 100;//rect.height /4;
 // 	clipRect.width = 200;//rect.width / 2;
 // 	clipRect.height = 200;//rect.height / 2;
+
+	HE_UINT32 rotate = gpPage->GetRotate();
 
 	if ( gpDrawer == NULL )
 	{
@@ -68,7 +70,7 @@ void RenderPage( HWND hwnd )
 	parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 
 	QueryPerformanceCounter( &gBegin );
-	CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, gScale /*, 96, 96, &clipRect*/ );
+	CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, rotate, gScale /*, 96, 96, &clipRect*/ );
 	QueryPerformanceCounter( &gEnd );
 	renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 }

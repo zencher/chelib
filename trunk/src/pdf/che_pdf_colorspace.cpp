@@ -249,6 +249,7 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_Byte
 		}
 	case COLORSPACE_DEVICE_RGB:
 	case COLORSPACE_CIEBASE_CALRGB:
+	case COLORSPACE_CIEBASE_CALLAB:
 		{
 			mComponentCount = 3;
 			break;

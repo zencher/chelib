@@ -515,7 +515,7 @@ HE_VOID outputForm( CHE_PDF_Form * pForm, CHE_Matrix extMatrix, CHE_GraphicsDraw
 }
 
 HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
-									HE_FLOAT scale, HE_FLOAT dipx, HE_FLOAT dipy, CHE_Rect * pClipRect )
+									HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dipx, HE_FLOAT dipy, CHE_Rect * pClipRect )
 {
 	//设置好bitmap的大小
 	if ( pClipRect != NULL )
@@ -537,12 +537,24 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 	if ( pClipRect != NULL )
 	{
 		tmpMatrix.e = - pClipRect->left * dipx * scale / 72;
-		tmpMatrix.f = ( pClipRect->height + pClipRect->bottom ) * dipy * scale / 72;
+		tmpMatrix.f = ( pClipRect->height - + pClipRect->bottom ) * dipy * scale / 72;
 	}else{
 		tmpMatrix.e = 0;
 		tmpMatrix.f = pageRect.height * dipy * scale / 72;
 	}
 	extMatrix.Concat( tmpMatrix );
+	
+ 	CHE_Matrix rectMatrix;
+ 	rectMatrix.e = -pageRect.left;
+ 	rectMatrix.f = -pageRect.bottom;
+
+	CHE_Matrix rotateMatrix;
+	rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
+	rectMatrix.Concat( rotateMatrix ); 
+
+	rectMatrix.Concat( extMatrix );
+	extMatrix = rectMatrix;
+
 	drawer.SetExtMatrix( extMatrix );
 
 	CHE_PDF_GState * pGState = NULL;

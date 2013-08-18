@@ -274,46 +274,12 @@ CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict() const
 
 CHE_Rect CHE_PDF_Page::GetMediaBox() const
 {
-	CHE_Rect rect;
-	CHE_PDF_ArrayPtr arrayPtr = GetMediaBoxArray();
-	if ( arrayPtr )
-	{
-		if ( arrayPtr->GetCount() >= 4 )
-		{
-			HE_FLOAT llx = 0, lly = 0, rux = 0, ruy = 0;
-			CHE_PDF_ObjectPtr objPtr;
-			CHE_PDF_NumberPtr numberPtr;
-			objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
-			if ( objPtr )
-			{
-				numberPtr = objPtr->GetNumberPtr();
-				llx = numberPtr->GetFloat();
-			}
-			objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NUMBER );
-			if ( objPtr )
-			{
-				numberPtr = objPtr->GetNumberPtr();
-				lly = numberPtr->GetFloat();
-			}
-			objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
-			if ( objPtr )
-			{
-				numberPtr = objPtr->GetNumberPtr();
-				rux = numberPtr->GetFloat();
-			}
-			objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_NUMBER );
-			if ( objPtr )
-			{
-				numberPtr = objPtr->GetNumberPtr();
-				ruy = numberPtr->GetFloat();
-			}
-			rect.left = llx;
-			rect.bottom = lly;
-			rect.width = rux - llx;
-			rect.height = ruy - lly;
-		}
-	}
-	return rect;
+	return ArrayToRect( GetMediaBoxArray() );
+}
+
+CHE_Rect CHE_PDF_Page::GetPageRect() const
+{
+	return ArrayToRect( GetArtBoxArray() );
 }
 
 CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray() const
@@ -345,34 +311,90 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray() const
 
 CHE_PDF_ArrayPtr CHE_PDF_Page::GetCropBoxArray() const
 {
-	CHE_PDF_ArrayPtr cropBox;
+	CHE_PDF_ArrayPtr arrayBox;
 	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "CropBox", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
-		cropBox = objPtr->GetArrayPtr();
-		return cropBox;
+		arrayBox = objPtr->GetArrayPtr();
+		return arrayBox;
 	}
+	return GetMediaBoxArray();
+}
 
-	//Search Parent Dict
-	CHE_PDF_ObjectPtr tmpObjPtr;
-	objPtr = mpPageDict->GetElement( "Parent", OBJ_TYPE_DICTIONARY );
-	while ( objPtr )
+CHE_PDF_ArrayPtr CHE_PDF_Page::GetBleedBoxArray() const
+{
+	CHE_PDF_ArrayPtr arrayBox;
+	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "CropBox", OBJ_TYPE_ARRAY );
+	if ( objPtr )
 	{
-		tmpObjPtr = objPtr->GetDictPtr()->GetElement( "CropBox", OBJ_TYPE_ARRAY );
-		if ( tmpObjPtr )
+		arrayBox = objPtr->GetArrayPtr();
+		return arrayBox;
+	}
+	return GetCropBoxArray();
+}
+
+CHE_PDF_ArrayPtr CHE_PDF_Page::GetTrimBoxArray() const
+{
+	CHE_PDF_ArrayPtr arrayBox;
+	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "TrimBox", OBJ_TYPE_ARRAY );
+	if ( objPtr )
+	{
+		arrayBox = objPtr->GetArrayPtr();
+		return arrayBox;
+	}
+	return GetCropBoxArray();
+}
+
+CHE_PDF_ArrayPtr CHE_PDF_Page::GetArtBoxArray() const
+{
+	CHE_PDF_ArrayPtr arrayBox;
+	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "ArtBox", OBJ_TYPE_ARRAY );
+	if ( objPtr )
+	{
+		arrayBox = objPtr->GetArrayPtr();
+		return arrayBox;
+	}
+	return GetCropBoxArray();
+}
+
+CHE_Rect CHE_PDF_Page::ArrayToRect( CHE_PDF_ArrayPtr arrayPtr ) const
+{
+	CHE_Rect rect;
+	if ( arrayPtr && arrayPtr->GetCount() >= 4 )
+	{
+		HE_FLOAT llx = 0, lly = 0, rux = 0, ruy = 0;
+		CHE_PDF_ObjectPtr objPtr;
+		CHE_PDF_NumberPtr numberPtr;
+		objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+		if ( objPtr )
 		{
-			cropBox = tmpObjPtr->GetArrayPtr();
-			break;
+			numberPtr = objPtr->GetNumberPtr();
+			llx = numberPtr->GetFloat();
 		}
-		objPtr = objPtr->GetDictPtr()->GetElement( "Parent", OBJ_TYPE_DICTIONARY );
+		objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			lly = numberPtr->GetFloat();
+		}
+		objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			rux = numberPtr->GetFloat();
+		}
+		objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			ruy = numberPtr->GetFloat();
+		}
+		rect.left = llx;
+		rect.bottom = lly;
+		rect.width = rux - llx;
+		rect.height = ruy - lly;
 	}
-
-	if ( ! cropBox )
-	{
-		cropBox = GetMediaBoxArray();
-	}
-
-	return cropBox;
+	return rect;
 }
 
 HE_INT32 CHE_PDF_Page::GetRotate() const

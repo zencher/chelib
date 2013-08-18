@@ -52,14 +52,22 @@ public:
 
 	CHE_Rect				GetMediaBox() const;
 
+	CHE_Rect				GetPageRect() const;
+
 	CHE_PDF_DictionaryPtr	GetResourcesDict() const;
 
 	CHE_PDF_ArrayPtr		GetMediaBoxArray() const;
 
 	CHE_PDF_ArrayPtr		GetCropBoxArray() const;
 
+	CHE_PDF_ArrayPtr		GetBleedBoxArray() const;
+
+	CHE_PDF_ArrayPtr		GetTrimBoxArray() const;
+
+	CHE_PDF_ArrayPtr		GetArtBoxArray() const;
+
 	HE_INT32				GetRotate() const;
-	
+
 	static HE_BOOL			ReleasePage( CHE_PDF_Page * pPage );
 
 private:
@@ -67,6 +75,8 @@ private:
 		: CHE_Object( pAllocator ), mpPageDict( pPageDict ) {}
 
 	~CHE_PDF_Page() {}
+
+	CHE_Rect				ArrayToRect( CHE_PDF_ArrayPtr arrayPtr ) const;
 
 	CHE_PDF_DictionaryPtr	mpPageDict;
 

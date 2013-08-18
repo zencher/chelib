@@ -7,8 +7,9 @@
 class CHE_PDF_Renderer
 {
 public:
-	static HE_VOID Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
-							HE_FLOAT scale = 1.0, HE_FLOAT dipx = 96, HE_FLOAT dipy = 96, CHE_Rect * pClipRect = NULL );
+	static HE_VOID Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, 
+							CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale = 1.0,
+							HE_FLOAT dipx = 96, HE_FLOAT dipy = 96, CHE_Rect * pClipRect = NULL );
 };
 
 #endif

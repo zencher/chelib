@@ -438,7 +438,7 @@ void MyIHE_WDM_InterActive::InvalidateRect( int left, int top, int right, int bo
 	}
 }
 
-void MyIHE_WDM_InterActive::SetTimer( CHE_WDM_Area * pArea, HE_DWORD elapse )
+void MyIHE_WDM_InterActive::SetTimer( CHE_WDM_Area * pArea, HE_ULONG elapse )
 {
 	// 	if ( mpDlg )
 	// 	{
@@ -454,7 +454,7 @@ void MyIHE_WDM_InterActive::KillTimer( CHE_WDM_Area * pArea )
 	// 	}
 }
 
-HE_BOOL	MyIHE_WDM_InterActive::MeasureString( CHE_WDM_AppearTextPtr ptr, HE_DWORD & width, HE_DWORD & height )
+HE_BOOL	MyIHE_WDM_InterActive::MeasureString( CHE_WDM_AppearTextPtr ptr, HE_ULONG & width, HE_ULONG & height )
 {
 	if ( ! ptr || ! ptr->GetText() )
 	{
@@ -499,13 +499,13 @@ HE_BOOL	MyIHE_WDM_InterActive::MeasureString( CHE_WDM_AppearTextPtr ptr, HE_DWOR
 	return TRUE;
 }
 
-HE_BOOL MyIHE_WDM_InterActive::MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_DWORD count, HE_DWORD & width, HE_DWORD & height )
+HE_BOOL MyIHE_WDM_InterActive::MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_ULONG count, HE_ULONG & width, HE_ULONG & height )
 {
 	if ( ! ptr || ! ptr->GetText() )
 	{
 		return FALSE;
 	}
-	HE_DWORD charCount = wcslen( ptr->GetText() );
+	HE_UINT32 charCount = wcslen( ptr->GetText() );
 	if ( count > charCount )
 	{
 		return FALSE;

@@ -74,7 +74,7 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 
 			CHE_ByteString key;
 			CHE_PDF_ObjectPtr tmpObjPtr;
-			for ( HE_DWORD i = 0; i < OldPageDictPtr->GetCount(); i++ )
+			for ( HE_UINT32 i = 0; i < OldPageDictPtr->GetCount(); i++ )
 			{
 				tmpObjPtr = OldPageDictPtr->GetElementByIndex( i );
 				OldPageDictPtr->GetKeyByIndex( i, key );
@@ -151,7 +151,7 @@ DWORD WINAPI ThreadSplit( LPVOID lpParameter )
 		FILE * pImageFile = NULL;
 		pImageFile = fopen( "resData.dat", "rb" );
 		fseek( pImageFile, 0, SEEK_END );
-		HE_DWORD imageSize = ftell( pImageFile );
+		HE_UINT32 imageSize = ftell( pImageFile );
 		HE_LPBYTE pBuf = new HE_BYTE[imageSize];
 		fseek( pImageFile, 0, SEEK_SET ); 
 		fread( pBuf, 1, imageSize, pImageFile );
@@ -245,7 +245,7 @@ CProcessDlg::CProcessDlg(CWnd* pParent /*=NULL*/)
 	imagePtr->SetImageFile( L"images\\process.png" );
 	imagePtr->SetStyle( APPEAR_IMAGE_STYLE_SINGLE );
 	pTmpArea->AppendAppearItem( imagePtr, AREA_APPEAR_BACKGROUND );
-	pTmpArea->SetClipEnable( TRUE );
+	pTmpArea->EnableClip();
 
 	mpProcess->AppendChild( pTmpArea );
 

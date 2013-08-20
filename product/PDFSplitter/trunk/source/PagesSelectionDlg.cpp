@@ -354,7 +354,7 @@ CPagesSelectionDlg::CPagesSelectionDlg(CWnd* pParent /*=NULL*/)
 	pArea->SetHeight( 10 );
 	pArea->SetPosiX( 40 );
 	pArea->SetPosiY( 65 );
-	pArea->SetClipEnable( TRUE );
+	pArea->EnableClip();
 	
 	imagePtr = CHE_WDM_AppearImage::Create();
 	imagePtr->SetImageFile( L"images\\Scrollf.png" ); 

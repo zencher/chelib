@@ -720,7 +720,7 @@ CPdfSpliterDlg::CPdfSpliterDlg(CWnd* pParent /*=NULL*/)
 	mpItemList->SetPosiY( 125 );
 	mpItemList->SetWidth( 624 );
 	mpItemList->SetHeight( 295 );
-	mpItemList->SetClipEnable( TRUE  );
+	mpItemList->EnableClip();
 	pListBox->AppendChild( mpItemList );
 
 	//list scroll bar

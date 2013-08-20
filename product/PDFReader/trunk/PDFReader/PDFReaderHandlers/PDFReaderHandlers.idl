@@ -1,0 +1,69 @@
+// PDFReaderHandlers.idl : IDL source for PDFReaderHandlers
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (PDFReaderHandlers.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(444F2B48-AB84-4221-8062-629A8C19E176),
+	pointer_default(unique)
+]
+interface IPreview : IUnknown
+{
+};
+
+[
+	object,
+	uuid(CA875004-4472-43A2-B6D0-ADA93D72E6A2),
+	pointer_default(unique)
+]
+interface IThumbnail : IUnknown
+{
+};
+
+[
+	object,
+	uuid(85B00190-843A-4153-B11D-079B05E36653),
+	pointer_default(unique)
+]
+interface ISearch : IUnknown
+{
+};
+
+[
+	uuid(896BC811-9338-4928-9D70-7EFFD5D74CD8),
+	version(1.0),
+]
+library PDFReaderHandlersLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(00E45020-2D16-41AB-8698-BFF5F265438E)
+	]
+	coclass Preview
+	{
+		[default] interface IPreviewHandler;
+	};
+	[
+		uuid(24674777-2A33-43F5-9263-CF62D36644CC)
+	]
+	coclass Thumbnail
+	{
+		[default] interface IThumbnailProvider;
+	};
+	[
+		uuid(B2E72369-9219-4D9D-878A-C846EBD81B3C)
+	]
+	coclass Search
+	{
+		[default] interface IFilter;
+	};
+};
+
+import "shobjidl.idl";
+import "thumbcache.idl";
+import "filter.idl";

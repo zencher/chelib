@@ -719,16 +719,41 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate( std::vector<HE_FLOAT> & input, st
 }
 
 CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( stmPtr->GetDictPtr(), pAllocator ), mbParsed( FALSE )
+	: CHE_PDF_Function( stmPtr->GetDictPtr(), pAllocator ), mbParsed( FALSE ), mStmPtr( stmPtr )
 {
-	CHE_PDF_StreamAcc stmAcc;
-	if ( stmAcc.Attach( stmPtr ) )
-	{
-		IHE_Read *  pRead = HE_CreateMemBufRead( stmAcc.GetData(), stmAcc.GetSize(), pAllocator );
-		CHE_PDF_SyntaxParser syntaxParser( NULL, pAllocator );
-		CHE_PDF_ParseWordDes wordDes( pAllocator );
+}
 
-		CHE_PDF_Function_PostScriptItem psItem;
+CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()
+{
+}
+
+HE_BOOL CHE_PDF_Function_PostScript::Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+{
+	if ( mbParsed == FALSE )
+	{
+		Parse();
+	}
+
+	//todo
+
+	return TRUE;
+}
+
+HE_VOID CHE_PDF_Function_PostScript::Parse()
+{
+	if ( mbParsed != FALSE && !mStmPtr )
+	{
+		return;
+	}
+
+	CHE_PDF_StreamAcc stmAcc;
+	if ( stmAcc.Attach( mStmPtr ) )
+	{
+		IHE_Read *  pRead = HE_CreateMemBufRead( stmAcc.GetData(), stmAcc.GetSize(), GetAllocator() );
+		CHE_PDF_SyntaxParser syntaxParser( NULL, GetAllocator() );
+		CHE_PDF_ParseWordDes wordDes( GetAllocator() );
+
+		PSFuncItem psItem;
 
 		if ( syntaxParser.InitParser( pRead ) )
 		{
@@ -1063,25 +1088,554 @@ CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmP
 				}
 			}
 		}
+
+		HE_DestoryIHERead( pRead );
 	}
 
 	mbParsed = TRUE;
 }
 
-CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()
+HE_BOOL PSFuncStack::Execute( PSFUNCITEM_OPERATOR op )
 {
+	static PSFuncItem * pItem0 = NULL;
+	static PSFuncItem * pItem1 = NULL;
+	static PSFuncItem * pItem2 = NULL;
+	static PSFuncItem * pItem3 = NULL;
+	static PSFuncItem * pTaregtItem = NULL;
+	switch( op )
+	{
+	case PSOPERATOR_ABS:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pTaregtItem = pItem0;
+			if ( pItem0->mType == PSITEM_FLOAT )
+			{
+				pItem0->mFloatValue = fabsf( pItem0->mFloatValue );
+			}else if ( pItem0->mType == PSITEM_INT )
+			{
+				pItem0->mIntegerValue = abs( pItem0->mIntegerValue );
+			}
+			return TRUE;
+		}
+	case PSOPERATOR_ADD:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pItem1 = &mStack[mStackTopIndex-1];
+			pTaregtItem = pItem1;
+			--mStackTopIndex;
+			if ( pItem0->mType == PSITEM_INT )
+			{
+				HE_INT32 val = pItem0->mIntegerValue;
+				if ( pItem1->mType == PSITEM_INT )
+				{
+					pTaregtItem->mIntegerValue += val;
+				}else if ( pItem1->mType == PSITEM_FLOAT )
+				{
+					pTaregtItem->mFloatValue += val;
+				}
+			}else if ( pItem0->mType == PSITEM_FLOAT )
+			{
+				HE_FLOAT val = pItem0->mFloatValue;
+				if ( pItem1->mType == PSITEM_INT )
+				{
+					pTaregtItem->mType = PSITEM_FLOAT;
+					pTaregtItem->mFloatValue = pItem1->mIntegerValue + val;
+				}else if ( pItem1->mType == PSITEM_FLOAT )
+				{
+					pTaregtItem->mFloatValue = pItem1->mFloatValue + val;
+				}
+			}
+			return TRUE;
+		}
+	case PSOPERATOR_AND:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pItem1 = &mStack[mStackTopIndex-1];
+			pTaregtItem = pItem1;
+			--mStackTopIndex;
+			if ( pItem0->mType == PSITEM_INT && pItem1->mType == PSITEM_INT )
+			{
+				pTaregtItem->mType = PSITEM_BOOL;
+				pTaregtItem->mBoolValue = pItem0->mIntegerValue & pItem1->mIntegerValue;
+			}else if ( pItem0->mType == PSITEM_BOOL && pItem1->mType == PSITEM_BOOL )
+			{
+				pTaregtItem->mBoolValue = pItem0->mBoolValue & pItem1->mBoolValue;
+			}
+			break;
+		}
+	case PSOPERATOR_ATAN:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pItem1 = &mStack[mStackTopIndex-1];
+			pTaregtItem = pItem1;
+			--mStackTopIndex;
+
+			HE_FLOAT val = atan2f( pItem0->mFloatValue, pItem1->mFloatValue ) * 57.2957795;
+			if ( val < 0 )
+			{
+				val += 360;
+			}
+			pTaregtItem->mFloatValue = val;
+			break;
+		}
+	case PSOPERATOR_BITSHIFT:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pItem1 = &mStack[mStackTopIndex-1];
+			pTaregtItem = pItem1;
+			--mStackTopIndex;
+
+			if ( pItem0->mIntegerValue > 0 && pItem0->mIntegerValue < 8 * sizeof (pItem0->mIntegerValue))
+			{
+				pTaregtItem->mIntegerValue = pItem1->mIntegerValue << pItem0->mIntegerValue;
+				pTaregtItem->mType = PSITEM_INT;
+			}
+			else if ( pItem0->mIntegerValue < 0 && pItem0->mIntegerValue > -8 * (int)sizeof (pItem0->mIntegerValue) )
+			{
+				pTaregtItem->mIntegerValue = pItem0->mIntegerValue >> - pItem0->mIntegerValue;
+				pTaregtItem->mType = PSITEM_INT;
+			}
+			else
+			{
+				pTaregtItem->mIntegerValue = pItem1->mIntegerValue;
+				pTaregtItem->mType = PSITEM_INT;
+			}
+			break;
+		}
+	case PSOPERATOR_CEILING:
+		{
+			pTaregtItem = &mStack[mStackTopIndex];
+			pTaregtItem->mFloatValue = ceilf(pTaregtItem->mFloatValue);
+			break;
+		}
+	case PSOPERATOR_COPY:
+		{
+			pTaregtItem = &mStack[mStackTopIndex];
+			--mStackTopIndex;
+
+			pItem0 = &mStack[mStackTopIndex-pTaregtItem->mIntegerValue];
+			pItem1 = &mStack[mStackTopIndex];
+
+			for ( pTaregtItem = pItem0; pTaregtItem <= pItem1; ++pTaregtItem )
+			{
+				Push( *pTaregtItem );
+			}
+			break;
+		}
+	case PSOPERATOR_COS:
+		{
+			pTaregtItem = &mStack[mStackTopIndex];
+			pTaregtItem->mFloatValue = cosf( pTaregtItem->mFloatValue / 57.2957795 );
+			break;
+		}
+	case PSOPERATOR_CVI:
+		{
+			pTaregtItem = &mStack[mStackTopIndex];
+			pTaregtItem->mIntegerValue = pTaregtItem->mIntegerValue;
+			pTaregtItem->mType = PSITEM_INT;
+			break;
+		}
+	case PSOPERATOR_CVR:
+		{
+			pTaregtItem = &mStack[mStackTopIndex];
+			pTaregtItem->mFloatValue = pTaregtItem->mFloatValue;
+			pTaregtItem->mType = PSITEM_FLOAT;
+			break;
+		}
+	case PSOPERATOR_DIV:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pItem1 = &mStack[mStackTopIndex-1];
+			pTaregtItem = pItem1;
+			mStackTopIndex--;
+
+			pTaregtItem->mType = PSITEM_FLOAT;
+			if (fabsf(pItem0->mFloatValue) < FLT_EPSILON)
+			{
+				pTaregtItem->mFloatValue = pItem1->mFloatValue / pItem0->mFloatValue;
+			}
+			else
+			{
+				if ( pItem1->mFloatValue >= 0 )
+				{
+					pTaregtItem->mFloatValue = FLT_MAX;
+				}else{
+					pTaregtItem->mFloatValue = -FLT_MAX;
+				}
+			}
+			break;
+		}
+	case PSOPERATOR_DUP:
+		{
+			pTaregtItem = &mStack[mStackTopIndex];
+			Push( *pTaregtItem );
+			break;
+		}
+	case PSOPERATOR_EQ:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pItem1 = &mStack[mStackTopIndex-1];
+			pTaregtItem = pItem1;
+			mStackTopIndex--;
+
+			if ( pItem1->mType == PSITEM_BOOL )
+			{
+				pTaregtItem->mType = PSITEM_BOOL;
+				pTaregtItem->mBoolValue = ( pItem0->mBoolValue == pItem1->mBoolValue );
+			}
+			else if ( pItem1->mType == PSITEM_INT )
+			{
+				pTaregtItem->mType = PSITEM_BOOL;
+				pTaregtItem->mBoolValue = ( pItem0->mIntegerValue == pItem1->mIntegerValue );
+			}
+			else {
+				pTaregtItem->mType = PSITEM_BOOL;
+				pTaregtItem->mBoolValue = ( pItem0->mFloatValue == pItem1->mFloatValue );
+			}
+			break;
+		}
+	case PSOPERATOR_EXCH:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pItem1 = &mStack[mStackTopIndex-1];
+			PSFuncItem tmpVal = *pItem0;
+			*pItem0 = *pItem1;
+			*pItem1 = tmpVal;
+			break;
+		}
+	case PSOPERATOR_EXP:
+		{
+			pItem0 = &mStack[mStackTopIndex];
+			pItem1 = &mStack[mStackTopIndex-1];
+			pTaregtItem = pItem1;
+			mStackTopIndex--;
+			pTaregtItem->mType = PSITEM_FLOAT;
+			pTaregtItem->mFloatValue = powf( pItem0->mFloatValue, pItem1->mFloatValue );
+			break;
+		}
+	case PSOPERATOR_FALSE:
+		{
+			PushBool( FALSE );
+			break;
+		}
+	}
 }
 
-HE_BOOL CHE_PDF_Function_PostScript::Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+HE_BOOL CHE_PDF_Function_PostScript::RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
 {
-	if ( mbParsed == FALSE )
+	PSFuncStack stack;
+	stack.Init();
+
+	if ( mCodes.size() == 0 )
 	{
-		Parse();
+		return FALSE;
 	}
 
-	//todo
+	HE_FLOAT tmpVal = 0.0f;
+	for ( HE_ULONG i = 0; i < input.size(); ++i )
+	{
+		tmpVal = fz_clamp( input[i], GetDomianMin( i ), GetDomianMax( i ) );
+		stack.PushFloat( tmpVal );
+	}
 
-	return TRUE;
+	PSFuncItem * pItem = NULL;
+	PSFuncItem tmpItem;
+	HE_ULONG codeSize = mCodes.size();
+	for ( HE_ULONG codeIndex = 0; codeIndex < codeSize; ++codeIndex )
+	{
+		switch ( mCodes[codeIndex].mType )
+		{
+		case PSITEM_BOOL:
+			{
+				stack.PushBool( mCodes[codeIndex++].mBoolValue );
+				break;
+			}
+		case PSITEM_INT:
+			{
+				stack.PushInteger( mCodes[codeIndex++].mIntegerValue );
+				break;
+			}
+		case PSITEM_FLOAT:
+			{
+				stack.PushFloat( mCodes[codeIndex++].mFloatValue );
+				break;
+			}
+		case PSITEM_BLOCK:
+			{
+				break;
+			}
+		case PSITEM_OPERATOR:
+			{
+				switch( mCodes[codeIndex].mOperator )
+				{
+				case PSOPERATOR_ABS:
+				case PSOPERATOR_ADD:
+				case PSOPERATOR_AND:
+				case PSOPERATOR_ATAN:
+				case PSOPERATOR_BITSHIFT:
+				case PSOPERATOR_COPY:
+				case PSOPERATOR_COS:
+				case PSOPERATOR_DIV:
+				case PSOPERATOR_DUP:
+				case PSOPERATOR_EQ:
+				case PSOPERATOR_EXCH:
+				case PSOPERATOR_EXP:
+				case PSOPERATOR_FALSE:
+					{
+						stack.Execute( mCodes[codeIndex].mOperator );
+						break;
+					}
+
+// 				case PSOPERATOR_FLOOR:
+// 					r1 = ps_pop_real(st);
+// 					ps_push_real(st, floorf(r1));
+// 					break;
+// 
+// 				case PSOPERATOR_GE:
+// 					if (ps_is_type2(st, PS_INT)) {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_bool(st, i1 >= i2);
+// 					}
+// 					else {
+// 						r2 = ps_pop_real(st);
+// 						r1 = ps_pop_real(st);
+// 						ps_push_bool(st, r1 >= r2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_GT:
+// 					if (ps_is_type2(st, PS_INT)) {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_bool(st, i1 > i2);
+// 					}
+// 					else {
+// 						r2 = ps_pop_real(st);
+// 						r1 = ps_pop_real(st);
+// 						ps_push_bool(st, r1 > r2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_IDIV:
+// 					i2 = ps_pop_int(st);
+// 					i1 = ps_pop_int(st);
+// 					if (i2 != 0)
+// 						ps_push_int(st, i1 / i2);
+// 					else
+// 						ps_push_int(st, DIV_BY_ZERO(i1, i2, INT_MIN, INT_MAX));
+// 					break;
+// 
+// 				case PSOPERATOR_INDEX:
+// 					ps_index(st, ps_pop_int(st));
+// 					break;
+// 
+// 				case PSOPERATOR_LE:
+// 					if (ps_is_type2(st, PS_INT)) {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_bool(st, i1 <= i2);
+// 					}
+// 					else {
+// 						r2 = ps_pop_real(st);
+// 						r1 = ps_pop_real(st);
+// 						ps_push_bool(st, r1 <= r2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_LN:
+// 					r1 = ps_pop_real(st);
+// 					/* Bug 692941 - logf as separate statement */
+// 					r2 = logf(r1);
+// 					ps_push_real(st, r2);
+// 					break;
+// 
+// 				case PSOPERATOR_LOG:
+// 					r1 = ps_pop_real(st);
+// 					ps_push_real(st, log10f(r1));
+// 					break;
+// 
+// 				case PSOPERATOR_LT:
+// 					if (ps_is_type2(st, PS_INT)) {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_bool(st, i1 < i2);
+// 					}
+// 					else {
+// 						r2 = ps_pop_real(st);
+// 						r1 = ps_pop_real(st);
+// 						ps_push_bool(st, r1 < r2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_MOD:
+// 					i2 = ps_pop_int(st);
+// 					i1 = ps_pop_int(st);
+// 					if (i2 != 0)
+// 						ps_push_int(st, i1 % i2);
+// 					else
+// 						ps_push_int(st, DIV_BY_ZERO(i1, i2, INT_MIN, INT_MAX));
+// 					break;
+// 
+// 				case PSOPERATOR_MUL:
+// 					if (ps_is_type2(st, PS_INT)) {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_int(st, i1 * i2);
+// 					}
+// 					else {
+// 						r2 = ps_pop_real(st);
+// 						r1 = ps_pop_real(st);
+// 						ps_push_real(st, r1 * r2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_NE:
+// 					if (ps_is_type2(st, PS_BOOL)) {
+// 						b2 = ps_pop_bool(st);
+// 						b1 = ps_pop_bool(st);
+// 						ps_push_bool(st, b1 != b2);
+// 					}
+// 					else if (ps_is_type2(st, PS_INT)) {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_bool(st, i1 != i2);
+// 					}
+// 					else {
+// 						r2 = ps_pop_real(st);
+// 						r1 = ps_pop_real(st);
+// 						ps_push_bool(st, r1 != r2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_NEG:
+// 					if (ps_is_type(st, PS_INT))
+// 						ps_push_int(st, -ps_pop_int(st));
+// 					else
+// 						ps_push_real(st, -ps_pop_real(st));
+// 					break;
+// 
+// 				case PSOPERATOR_NOT:
+// 					if (ps_is_type(st, PS_BOOL))
+// 						ps_push_bool(st, !ps_pop_bool(st));
+// 					else
+// 						ps_push_int(st, ~ps_pop_int(st));
+// 					break;
+// 
+// 				case PSOPERATOR_OR:
+// 					if (ps_is_type2(st, PS_BOOL)) {
+// 						b2 = ps_pop_bool(st);
+// 						b1 = ps_pop_bool(st);
+// 						ps_push_bool(st, b1 || b2);
+// 					}
+// 					else {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_int(st, i1 | i2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_POP:
+// 					if (!ps_underflow(st, 1))
+// 						st->sp--;
+// 					break;
+// 
+// 				case PSOPERATOR_ROLL:
+// 					i2 = ps_pop_int(st);
+// 					i1 = ps_pop_int(st);
+// 					ps_roll(st, i1, i2);
+// 					break;
+// 
+// 				case PSOPERATOR_ROUND:
+// 					if (!ps_is_type(st, PS_INT)) {
+// 						r1 = ps_pop_real(st);
+// 						ps_push_real(st, (r1 >= 0) ? floorf(r1 + 0.5f) : ceilf(r1 - 0.5f));
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_SIN:
+// 					r1 = ps_pop_real(st);
+// 					ps_push_real(st, sinf(r1/RADIAN));
+// 					break;
+// 
+// 				case PSOPERATOR_SQRT:
+// 					r1 = ps_pop_real(st);
+// 					ps_push_real(st, sqrtf(r1));
+// 					break;
+// 
+// 				case PSOPERATOR_SUB:
+// 					if (ps_is_type2(st, PS_INT)) {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_int(st, i1 - i2);
+// 					}
+// 					else {
+// 						r2 = ps_pop_real(st);
+// 						r1 = ps_pop_real(st);
+// 						ps_push_real(st, r1 - r2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_TRUE:
+// 					ps_push_bool(st, 1);
+// 					break;
+// 
+// 				case PSOPERATOR_TRUNCATE:
+// 					if (!ps_is_type(st, PS_INT)) {
+// 						r1 = ps_pop_real(st);
+// 						ps_push_real(st, (r1 >= 0) ? floorf(r1) : ceilf(r1));
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_XOR:
+// 					if (ps_is_type2(st, PS_BOOL)) {
+// 						b2 = ps_pop_bool(st);
+// 						b1 = ps_pop_bool(st);
+// 						ps_push_bool(st, b1 ^ b2);
+// 					}
+// 					else {
+// 						i2 = ps_pop_int(st);
+// 						i1 = ps_pop_int(st);
+// 						ps_push_int(st, i1 ^ i2);
+// 					}
+// 					break;
+// 
+// 				case PSOPERATOR_IF:
+// 					b1 = ps_pop_bool(st);
+// 					if (b1)
+// 						ps_run(ctx, code, st, code[pc + 1].u.block);
+// 					pc = code[pc + 2].u.block;
+// 					break;
+// 
+// 				case PSOPERATOR_IFELSE:
+// 					b1 = ps_pop_bool(st);
+// 					if (b1)
+// 						ps_run(ctx, code, st, code[pc + 1].u.block);
+// 					else
+// 						ps_run(ctx, code, st, code[pc + 0].u.block);
+// 					pc = code[pc + 2].u.block;
+// 					break;
+// 
+// 				case PSOPERATOR_RETURN:
+// 					return;
+
+				default:break;;
+				}
+				break;
+			}
+		default:break;
+		}
+	}
+	
+
+// 	ps_run(ctx, func->u.p.code, &st, 0);
+// 
+// 	for (i = func->n - 1; i >= 0; i--)
+// 	{
+// 		x = ps_pop_real(&st);
+// 		out[i] = fz_clamp(x, func->range[i][0], func->range[i][1]);
+// 	}
+
 }
 
 // typedef struct _ps_stack

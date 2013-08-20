@@ -160,7 +160,7 @@ private:
 	friend class CHE_Allocator;
 };
 
-enum PDF_FUNCTION_PSITEM_TYPE
+enum PSFUNCITEM_TYPE
 {
 	PSITEM_BOOL,
 	PSITEM_INT,
@@ -169,7 +169,7 @@ enum PDF_FUNCTION_PSITEM_TYPE
 	PSITEM_BLOCK
 };
 
-enum PDF_FUNCTION_PSITEM_OPERATOR
+enum PSFUNCITEM_OPERATOR
 {
 	PSOPERATOR_ABS, PSOPERATOR_ADD, PSOPERATOR_AND, PSOPERATOR_ATAN, PSOPERATOR_BITSHIFT,
 	PSOPERATOR_CEILING, PSOPERATOR_COPY, PSOPERATOR_COS, PSOPERATOR_CVI, PSOPERATOR_CVR,
@@ -181,16 +181,132 @@ enum PDF_FUNCTION_PSITEM_OPERATOR
 	PSOPERATOR_SQRT, PSOPERATOR_SUB, PSOPERATOR_TRUE, PSOPERATOR_TRUNCATE, PSOPERATOR_XOR
 };
 
-class CHE_PDF_Function_PostScriptItem
+class PSFuncItem
 {
 public:
-	PDF_FUNCTION_PSITEM_TYPE			mType;
+	PSFUNCITEM_TYPE				mType;
 	union{
-		PDF_FUNCTION_PSITEM_OPERATOR	mOperator;
-		HE_BOOL							mBoolValue;
-		HE_FLOAT						mFloatValue;
-		HE_INT32						mIntegerValue;
+		PSFUNCITEM_OPERATOR		mOperator;
+		HE_BOOL					mBoolValue;
+		HE_FLOAT				mFloatValue;
+		HE_INT32				mIntegerValue;
+		HE_INT32				mBlockIndex;
 	};
+};
+
+class PSFuncStack
+{
+public:
+	PSFuncStack() : mStackTopIndex(0) {}
+
+	HE_VOID	Init()
+	{
+		mStackTopIndex = 0;
+	}
+
+	HE_BOOL IsOverflow( HE_INT32 n = 1 )
+	{
+		if ( mStackTopIndex + n > 100 )
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	HE_BOOL IsUnderflow( HE_INT32 n = 1 )
+	{
+		if ( mStackTopIndex - n < 0 )
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	HE_BOOL Push( PSFuncItem & item )
+	{
+		if ( ! IsOverflow() )
+		{
+			mStack[++mStackTopIndex] = item;
+			return TRUE; 
+		}
+		return FALSE;
+	}
+
+	HE_BOOL PushFloat( HE_FLOAT val )
+	{
+		PSFuncItem item;
+		item.mType = PSITEM_FLOAT;
+		item.mFloatValue = val;
+		return Push( item );
+	} 
+
+	HE_BOOL PushInteger( HE_INT32 val )
+	{
+		PSFuncItem item;
+		item.mType = PSITEM_INT;
+		item.mIntegerValue = val;
+		return Push( item );
+	}
+
+	HE_BOOL PushBool( HE_BOOL val )
+	{
+		PSFuncItem item;
+		item.mType = PSITEM_BOOL;
+		item.mBoolValue = val;
+		return Push( item );
+	}
+
+	HE_BOOL PushOperator( PSFUNCITEM_OPERATOR op )
+	{
+		PSFuncItem item;
+		item.mType = PSITEM_OPERATOR;
+		item.mOperator = op;
+		return Push( item );
+	}
+
+	HE_BOOL Pop( PSFuncItem & item )
+	{
+		if ( ! IsUnderflow() )
+		{
+			item = mStack[mStackTopIndex--];
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	HE_BOOL Pop( PSFuncItem & item, PSFUNCITEM_TYPE type )
+	{
+		if ( mStack[mStackTopIndex].mType == type )
+		{
+			item = mStack[mStackTopIndex--];
+			return TRUE;
+		}
+		return FALSE;
+	}
+
+	HE_BOOL IsType( PSFUNCITEM_TYPE type )
+	{
+		if ( mStack[mStackTopIndex].mType == type )
+		{
+			return TRUE;
+		}
+		return FALSE;
+	} 
+
+	HE_BOOL PopInteger( PSFuncItem & item )
+	{
+		return Pop( item, PSITEM_INT ); 
+	}
+
+	HE_BOOL PopFloat( PSFuncItem & item )
+	{
+		return Pop( item, PSITEM_FLOAT ); 
+	}
+
+	HE_BOOL Execute( PSFUNCITEM_OPERATOR op ); 
+
+	PSFuncItem		mStack[100];
+	HE_INT32		mStackTopIndex;
 };
 
 class CHE_PDF_Function_PostScript : public CHE_PDF_Function
@@ -204,12 +320,14 @@ private:
 	CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );
 
 	HE_BOOL IsParsed() const;
-	HE_VOID Parse() {};
+	
+	HE_VOID Parse();
 
-	//HE_BOOL RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+	HE_BOOL RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
 
-	HE_BOOL mbParsed;
-	std::vector<CHE_PDF_Function_PostScriptItem> mCodes;
+	HE_BOOL						mbParsed;
+	CHE_PDF_StreamPtr			mStmPtr;
+	std::vector<PSFuncItem>		mCodes;
 
 	friend class CHE_Allocator;
 };

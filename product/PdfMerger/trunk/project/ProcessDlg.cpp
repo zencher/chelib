@@ -105,7 +105,7 @@ DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 
 			CHE_ByteString key;
 			CHE_PDF_ObjectPtr tmpObjPtr;
-			for ( HE_DWORD i = 0; i < OldPageDictPtr->GetCount(); i++ )
+			for ( HE_UINT32 i = 0; i < OldPageDictPtr->GetCount(); i++ )
 			{
 				tmpObjPtr = OldPageDictPtr->GetElementByIndex( i );
 				OldPageDictPtr->GetKeyByIndex( i, key );
@@ -204,7 +204,7 @@ DWORD WINAPI ThreadMerge( LPVOID lpParameter )
 
 					CHE_ByteString key;
 					CHE_PDF_ObjectPtr tmpObjPtr;
-					for ( HE_DWORD i = 0; i < OldPageDictPtr->GetCount(); i++ )
+					for ( HE_UINT32 i = 0; i < OldPageDictPtr->GetCount(); i++ )
 					{
 						tmpObjPtr = OldPageDictPtr->GetElementByIndex( i );
 						OldPageDictPtr->GetKeyByIndex( i, key );

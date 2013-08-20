@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PdfMerger", "PdfMerger.vcxproj", "{29763731-5935-47E5-8956-275CC920B0E5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PDFMerger", "PdfMerger.vcxproj", "{29763731-5935-47E5-8956-275CC920B0E5}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PDFMergerResigter", "Resigter\PDFMergerResigter.vcxproj", "{281D1CA9-62B8-4500-8FD5-858A5E87BA5D}"
 EndProject

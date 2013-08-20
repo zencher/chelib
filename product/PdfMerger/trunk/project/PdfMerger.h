@@ -14,7 +14,6 @@ using namespace Gdiplus;
 #include "../project/resource.h"
 
 #include "../../../../trunk/include/wdm/che_wdm.h"
-#include "../../../../trunk/include/wdm/che_wdm_textbox.h"
 #include "../../../../trunk/include/pdf/che_pdf_file.h"
 #include "../../../../trunk/include/pdf/che_pdf_document.h"
 
@@ -52,13 +51,13 @@ public:
 
 	void InvalidateRect( int left, int top, int right, int bottom );
 
-	void SetTimer( CHE_WDM_Area * pArea, HE_DWORD elapse );
+	void SetTimer( CHE_WDM_Area * pArea, HE_ULONG elapse );
 
 	void KillTimer( CHE_WDM_Area * pArea );
 
-	HE_BOOL	MeasureString( CHE_WDM_AppearTextPtr ptr, HE_DWORD & width, HE_DWORD & height );
+	HE_BOOL	MeasureString( CHE_WDM_AppearTextPtr ptr, HE_ULONG & width, HE_ULONG & height );
 
-	HE_BOOL MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_DWORD count, HE_DWORD & width, HE_DWORD & height );
+	HE_BOOL MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_ULONG count, HE_ULONG & width, HE_ULONG & height );
 
 	HE_FLOAT GetFontHeight( CHE_WDM_AppearTextPtr ptr );
 

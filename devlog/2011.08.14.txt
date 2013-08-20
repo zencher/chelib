@@ -1,0 +1,87 @@
+构思整理
+来自近两周
+
+chelib pdf
+
+CHE_PDF_Creator
+
+1. 文档信息（版本，基本信息，metadata。。。）
+2. 页面（页面大小，旋转，页数。。。）
+3. 页面内容（页面内容流（文本，路径，图像，颜色，shading，tiling，form），资源，Annotation。。。）
+4. 加密
+5. 附件文件，包
+
+
+
+
+
+关于www.putaoun.com
+
+putaogun studio的改版，重点强调工作室，和工作室正在进行的的项目，界面设计要简洁美观，视觉元素有冲击力，前卫感和艺术感。
+一些技术文章，研究成果，软件项目介绍等。
+建立其他网站负责专门的产品销售或者暂时不考虑销售相关的事宜，但一定要把putaogun打造起来。
+需要Maya设计一些3D元素。
+
+备忘：
+·xpdf中包含有提取TrueType字体子集的功能。
+·FontLab软件可以用于研究字体
+·FreeHand用于二维矢量图形绘制
+
+
+
+
+chelib pdf类层次
+
+页面内容	CHE_PDF_ContentObject
+			CHE_PDF_Text
+			CHE_PDF_Path
+			CHE_PDF_Shading
+			CHE_PDF_Image
+			CHE_PDF_Form
+			CHE_PDF_Order
+			...
+
+文档和页面	CHE_PDF_Document
+		CHE_PDF_Page
+		CHE_PDF_Resources
+			CHE_PDF_Font
+			...
+
+对象		CHE_PDF_Parser
+		CHE_PDF_Collector
+		CHE_PDF_XrefTable;
+		CHE_PDF_Object
+			CHE_PDF_Null
+			CHE_PDF_Boolean
+			CHE_PDF_Number
+			CHE_PDF_String
+			CHE_PDF_Name
+			CHE_PDF_Array
+			CHE_PDF_Dictionary
+			CHE_PDF_Reference
+
+字节流		CHE_PDF_SyntaxParser
+		IHE_Read
+		IHE_Write
+
+
+
+
+
+
+
+CHE_PDF_XrefTable功能
+1.维护所有间接对象的位置和类型信息
+2.建立一个obj的快速访问机制当xref全部处理完毕后
+3.获取一个间接对象
+
+CHE_PDF_Parser功能
+处于对象层次，使用CHE_PDF_SyntaxParser去获得并维护对象级的信息
+1.获得startxref，并解析所有xref并维护在CHE_PDF_XrefTable内
+2.获取trailer字典，分析并取得Root、Info、Encrypt等信息。
+3.根据ObjNum取得Object并返回给外部，并将夹在的obj存放在一个容器中缓存，并负责智能卸载
+
+CHE_PDF_Document功能
+1.维护页面字典的列表
+2.维护页面使用的资源
+3.获取页面对象和页面

@@ -6,7 +6,7 @@ CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dib
 	m_DC = hDC;
 	m_dwWidth = dibWidth;
 	m_dwHeight = dibHeight;
-	m_MemDC = CreateCompatibleDC( hDC );
+	m_MemDC = CreateCompatibleDC( m_DC );
 	m_Bitmap = CreateCompatibleBitmap( m_DC, m_dwWidth, m_dwHeight );
 	m_OldBitmap = SelectObject( m_MemDC, m_Bitmap );
 
@@ -125,6 +125,20 @@ HE_ULONG CHE_GraphicsDrawer::GetHeight() const
 HDC CHE_GraphicsDrawer::GetMemDC() const
 {
 	return m_MemDC;
+}
+
+HE_BOOL CHE_GraphicsDrawer::GetBitmap( CHE_Bitmap & bitmap )
+{
+	if ( m_Bitmap )
+	{
+		BITMAP info;
+		GetObjectW( m_Bitmap, sizeof(BITMAP), &info );
+		bitmap.Create( m_dwWidth, m_dwHeight, (HE_BITMAP_DEPTH)info.bmBitsPixel, BITMAP_DIRECTION_DOWN );
+		HE_BYTE * pBytes = (HE_LPBYTE)bitmap.GetBuffer();
+		GetBitmapBits( m_Bitmap, info.bmWidthBytes * info.bmHeight, pBytes );
+		return TRUE;
+	}
+	return FALSE;
 }
 
 HE_VOID	CHE_GraphicsDrawer::Clear()

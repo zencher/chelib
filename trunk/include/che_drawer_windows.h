@@ -30,6 +30,8 @@ public:
 	HE_VOID			Clear();
 	HDC				GetMemDC() const;
 
+	HE_BOOL			GetBitmap( CHE_Bitmap & bitmap );
+
 	//properties setting
 	HE_VOID			SetMatrix( const CHE_Matrix & matrix );
 	HE_VOID			SetExtMatrix( const CHE_Matrix & matrix );

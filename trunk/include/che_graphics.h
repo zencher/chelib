@@ -83,6 +83,23 @@ public:
 		return ( fabs(width) < FLT_EPSILON || fabs(height) < FLT_EPSILON );
 	}
 
+	HE_BOOL IsUnion( const CHE_Rect & rect )
+	{
+		CHE_Point p1;
+		CHE_Point p2;
+		p1.x = left + width / 2;
+		p1.y = bottom + height / 2;
+		p2.x = rect.left + rect.width / 2;
+		p2.y = rect.bottom + rect.height / 2;
+		HE_FLOAT xDis = fabsf( p1.x - p2.x );
+		HE_FLOAT yDis = fabsf( p1.y - p2.y );
+		if ( ( xDis < ( rect.width + width ) / 2 ) && ( yDis < ( rect.height + height ) / 2 ) )
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+
 	HE_VOID	Union( const CHE_Rect & rect )
 	{
 		if ( &rect != this )

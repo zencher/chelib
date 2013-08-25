@@ -47,6 +47,10 @@ CPDFReaderDoc::CPDFReaderDoc()
 
 CPDFReaderDoc::~CPDFReaderDoc()
 {
+	if ( mpReaderDoc )
+	{
+		mpReaderDoc->GetAllocator()->Delete( mpReaderDoc );
+	}
 }
 
 BOOL CPDFReaderDoc::OnNewDocument()
@@ -175,6 +179,8 @@ BOOL CPDFReaderDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	WideCharToMultiByte( CP_ACP, 0, lpszPathName, -1, pFilePath, iLen, NULL, NULL );
 	
 	mpReaderDoc->OpenFile( pFilePath );
+
+	//mpReaderDoc->StartParsePageContentThread();
 
 	delete [] pFilePath;
 

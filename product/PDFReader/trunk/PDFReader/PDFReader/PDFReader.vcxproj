@@ -82,7 +82,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(OutDir)ReaderDocument.lib</AdditionalDependencies>
+      <AdditionalDependencies>$(OutDir)ReaderDocument.lib;../../../../../trunk/build/release/win32_vc10/chelib.lib</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

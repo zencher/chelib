@@ -31,7 +31,7 @@
 #include <afxodlgs.h>
 #include <afxrich.h>
 #include <afxhtml.h>
-#include <afxcview.h>
+/*#include <afxCView.h>*/
 #include <afxwinappex.h>
 #include <afxframewndex.h>
 #include <afxmdiframewndex.h>

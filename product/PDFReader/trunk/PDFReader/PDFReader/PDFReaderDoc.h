@@ -46,6 +46,9 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
+public:
+	CReaderDocument * GetReaderDoc() { return mpReaderDoc; }
+
 protected:
 	CReaderDocument *	mpReaderDoc;
 

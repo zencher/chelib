@@ -15,7 +15,7 @@
 #pragma once
 
 
-class CPDFReaderView : public CView
+class CPDFReaderView : public CScrollView
 {
 protected: // create from serialization only
 	CPDFReaderView();
@@ -53,6 +53,13 @@ protected:
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
+public:
+	virtual void OnInitialUpdate();
+//	virtual BOOL OnScrollBy(CSize sizeScroll, BOOL bDoScroll = TRUE);
+
+	long long pageIndex;
+	virtual void OnPrepareDC(CDC* pDC, CPrintInfo* pInfo = NULL);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
 
 #ifndef _DEBUG  // debug version in PDFReaderView.cpp

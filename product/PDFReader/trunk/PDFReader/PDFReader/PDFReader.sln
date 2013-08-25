@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PDFReader", "PDFReader.vcxproj", "{25890AC0-231F-4C94-B632-35DF76CD33F6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C46FA189-D452-42FD-990F-9D5C89566958} = {C46FA189-D452-42FD-990F-9D5C89566958}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PDFReaderHandlers", "..\PDFReaderHandlers\PDFReaderHandlers.vcxproj", "{0786FD43-943E-4C44-A75C-FE2305CF0817}"
 EndProject

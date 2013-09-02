@@ -160,6 +160,8 @@ HE_BOOL	CReaderDocument::OpenFile( char * fileName )
 	{
 		mBitmaps[i] = NULL;
 	}
+
+	mBitmapReady.resize( mpPageTree->GetPageCount(), false );
 	
 	return TRUE;
 }
@@ -200,8 +202,19 @@ CHE_Bitmap * CReaderDocument::GetBitmap( HE_ULONG index )
 	{
 		return NULL;
 	}
-	return mBitmaps[index];
+	if ( mBitmapReady[index] )
+	{
+		return mBitmaps[index];
+	}
+	return NULL;
 }
+
+
+void CReaderDocument::SetBitmapReady( HE_ULONG index )
+{
+	mBitmapReady[index] = true;
+}
+
 
 CHE_Rect CReaderDocument::GetPageRect( HE_ULONG index )
 {

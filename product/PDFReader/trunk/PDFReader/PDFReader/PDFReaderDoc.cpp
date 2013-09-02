@@ -29,6 +29,40 @@
 #define new DEBUG_NEW
 #endif
 
+
+DWORD WINAPI renderMenegerThread( LPVOID pParam/*CPDFReaderDoc * pDoc*/ )
+{
+	CPDFReaderDoc * pDoc = (CPDFReaderDoc*)( pParam );
+	CReaderDocument * pReader = NULL;
+	CRenderManager * pMgr = pDoc->GetRenderManager();
+	WORKITEM item;
+	wchar_t str[128];
+	while ( pMgr )
+	{
+		WaitForSingleObject( pMgr->GetResultEvent(), INFINITE );
+		if ( pMgr->GetResult( item ) )
+		{
+			wsprintf( str, L"%d", item.param );
+			pReader = pDoc->GetReaderDoc();
+			if ( pReader )
+			{
+				pReader->SetBitmapReady( item.param );
+			}
+			if ( pDoc )
+			{
+				CView * pView = NULL;
+				POSITION posi = pDoc->GetFirstViewPosition();
+				pView = pDoc->GetNextView( posi );
+				pView->Invalidate(FALSE);
+			}
+			//MessageBox( NULL, str, L"render over", 0 );
+		}
+	}
+	return 0;
+
+}
+
+
 // CPDFReaderDoc
 
 IMPLEMENT_DYNCREATE(CPDFReaderDoc, CDocument)
@@ -40,9 +74,11 @@ END_MESSAGE_MAP()
 // CPDFReaderDoc construction/destruction
 
 CPDFReaderDoc::CPDFReaderDoc()
+	: mpReaderDoc(NULL), mRenderManager(4)
 {
 	// TODO: add one-time construction code here
-
+	DWORD threadId = 0;
+	CreateThread( NULL, 0, renderMenegerThread, this, 0, &threadId );
 }
 
 CPDFReaderDoc::~CPDFReaderDoc()
@@ -179,8 +215,6 @@ BOOL CPDFReaderDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	WideCharToMultiByte( CP_ACP, 0, lpszPathName, -1, pFilePath, iLen, NULL, NULL );
 	
 	mpReaderDoc->OpenFile( pFilePath );
-
-	//mpReaderDoc->StartParsePageContentThread();
 
 	delete [] pFilePath;
 

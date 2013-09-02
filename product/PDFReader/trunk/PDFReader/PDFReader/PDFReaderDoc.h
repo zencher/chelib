@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "RenderWork.h"
+
 class CReaderDocument;
 
 class CPDFReaderDoc : public CDocument
@@ -48,9 +50,12 @@ public:
 
 public:
 	CReaderDocument * GetReaderDoc() { return mpReaderDoc; }
+	
+	CRenderManager * GetRenderManager() { return &mRenderManager; }
 
 protected:
 	CReaderDocument *	mpReaderDoc;
+	CRenderManager		mRenderManager;
 
 // Generated message map functions
 protected:

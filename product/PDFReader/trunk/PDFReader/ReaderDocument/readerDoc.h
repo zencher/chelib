@@ -21,6 +21,7 @@ public:
 	HE_ULONG	GetPageIndex( HE_ULONG y );
 
 	CHE_Bitmap* GetBitmap( HE_ULONG index );
+	void		SetBitmapReady( HE_ULONG index );
 
 	HE_BOOL					SetCompatibleDC( HDC hdc );
 
@@ -58,6 +59,7 @@ protected:
 	CHE_Rect								mAllPageRect;
 
 	std::vector<CHE_Bitmap*>				mBitmaps;
+	std::vector<bool>						mBitmapReady;
 
 
 private:

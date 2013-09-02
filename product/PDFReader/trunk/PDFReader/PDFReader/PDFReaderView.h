@@ -15,6 +15,8 @@
 #pragma once
 
 
+
+
 class CPDFReaderView : public CScrollView
 {
 protected: // create from serialization only

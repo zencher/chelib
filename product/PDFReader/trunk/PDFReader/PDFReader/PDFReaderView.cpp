@@ -85,6 +85,7 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 	HE_ULONG y = 0;
 	
 	CReaderDocument * pReaderDoc = pDoc->GetReaderDoc();
+	CRenderManager * pRenderManager = pDoc->GetRenderManager();
 	CHE_Rect dcRect;
 	dcRect.left = clientRect.left;
 	dcRect.bottom = clientRect.bottom - clientRect.Height();
@@ -107,6 +108,8 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 		
 		if ( pageRect.IsUnion( dcRect ) )
 		{
+			
+
 			RECT pageOutLine;
 			pageOutLine.left = x-1;
 			pageOutLine.top = y-1;
@@ -120,6 +123,8 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 				CBitmap bitmap;
 				bitmap.CreateBitmap( pBitmap->Width(), pBitmap->Height(), 1, pBitmap->Depth(), pBitmap->GetBuffer() );
 				pDC->DrawState( CPoint(x,y), CSize(pBitmap->Width(), pBitmap->Height()), &bitmap, 0 );
+			}else{
+				pRenderManager->NewWork( i );
 			}
 		}
 		y += pageRect.height;

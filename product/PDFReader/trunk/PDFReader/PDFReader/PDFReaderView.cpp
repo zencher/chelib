@@ -47,6 +47,7 @@ END_MESSAGE_MAP()
 
 
 CPDFReaderView::CPDFReaderView()
+	: mViewMode(0), mPageStartIndex(0), mPageEndIndex(0), mScale(100), mRotate(0)
 {
 	// TODO: add construction code here
 }

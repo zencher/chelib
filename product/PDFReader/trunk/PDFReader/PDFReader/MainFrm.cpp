@@ -88,6 +88,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE1, strTitlePane1, TRUE), strTitlePane1);
 	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE2, strTitlePane2, TRUE), strTitlePane2);
 
+	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(0, _T("100%"), FALSE, NULL, _T("1000%")), _T("Zoom"));
+	//Ribbon滑竿按钮【总结】CMFCRibbonStatusBar的用法-创建及响应 - 尘中远 - 尘中远
+	CMFCRibbonSlider* pSlider = new CMFCRibbonSlider(1);
+	pSlider->SetZoomButtons( TRUE );
+	pSlider->SetRange(0, 200);
+	pSlider->SetPos(100);
+
+	m_wndStatusBar.AddExtendedElement(pSlider, _T("Zoom Slider"));
+
 	// enable Visual Studio 2005 style docking window behavior
 	CDockingManager::SetDockingMode(DT_SMART);
 	// enable Visual Studio 2005 style docking window auto-hide behavior

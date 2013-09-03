@@ -25,7 +25,20 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	CPDFReaderDoc* GetDocument() const;
+	CPDFReaderDoc*	GetDocument() const;
+
+	unsigned int	GetViewMode() const { return mViewMode; }
+	unsigned int	GetPageStartIndex() const { return mPageStartIndex; }
+	unsigned int	GetPageEndIndex() const { return mPageEndIndex; }
+	unsigned int	GetRotate() const { return mRotate; }
+	float			GetScale() const { return mScale; }
+
+private:
+	unsigned int	mViewMode;
+	unsigned int	mPageStartIndex;
+	unsigned int	mPageEndIndex;
+	unsigned int	mRotate;
+	float			mScale;
 
 // Operations
 public:

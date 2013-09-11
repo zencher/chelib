@@ -364,6 +364,7 @@ echo.
     <None Include="res\PDFReader.rc2" />
     <None Include="res\PDFReaderDoc.ico" />
     <None Include="res\ribbon.mfcribbon-ms" />
+    <None Include="res\ribbon1.mfcribbon-ms" />
     <None Include="res\Toolbar.bmp" />
     <None Include="res\Toolbar256.bmp" />
     <None Include="res\writelarge.bmp" />

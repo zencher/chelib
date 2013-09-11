@@ -37,6 +37,7 @@ public:
 // Overrides
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	void OnZoom();
 
 // Implementation
 public:

@@ -33,12 +33,16 @@ public:
 	unsigned int	GetRotate() const { return mRotate; }
 	float			GetScale() const { return mScale; }
 
+	void			SetViewMode( unsigned int mode ) { mViewMode = mode; }
+	void			SetRotate( unsigned int rotate ) { mRotate = rotate; }
+	void			SetScale( float scale ) { mScale = scale; }
+
 private:
-	unsigned int	mViewMode;
+	unsigned int	mViewMode;	//0：单页连续；1: 双页连续；2：单页
 	unsigned int	mPageStartIndex;
 	unsigned int	mPageEndIndex;
-	unsigned int	mRotate;
-	float			mScale;
+	unsigned int	mRotate;	//0：不旋转；90：顺时针90度；180：顺时针180度；270：顺时针270度
+	float			mScale; //8.25% - 6400%, 适合高度，适合宽度，100%
 
 // Operations
 public:
@@ -70,11 +74,9 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	virtual void OnInitialUpdate();
-//	virtual BOOL OnScrollBy(CSize sizeScroll, BOOL bDoScroll = TRUE);
-
-	long long pageIndex;
 	virtual void OnPrepareDC(CDC* pDC, CPrintInfo* pInfo = NULL);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	virtual BOOL OnScrollBy(CSize sizeScroll, BOOL bDoScroll = TRUE);
 };
 
 #ifndef _DEBUG  // debug version in PDFReaderView.cpp

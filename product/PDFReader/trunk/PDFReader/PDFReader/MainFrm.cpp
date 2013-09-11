@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_VIEW_CAPTION_BAR, &CMainFrame::OnViewCaptionBar)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_CAPTION_BAR, &CMainFrame::OnUpdateViewCaptionBar)
 	ON_COMMAND(ID_TOOLS_OPTIONS, &CMainFrame::OnOptions)
+	ON_COMMAND(101010, &CMainFrame::OnZoom)
 END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
@@ -88,9 +89,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE1, strTitlePane1, TRUE), strTitlePane1);
 	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE2, strTitlePane2, TRUE), strTitlePane2);
 
-	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(0, _T("100%"), FALSE, NULL, _T("1000%")), _T("Zoom"));
-	//Ribbon滑竿按钮【总结】CMFCRibbonStatusBar的用法-创建及响应 - 尘中远 - 尘中远
-	CMFCRibbonSlider* pSlider = new CMFCRibbonSlider(1);
+	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(101010, _T("100%"), FALSE, NULL, _T("1000%")), _T("Zoom"));
+	CMFCRibbonSlider* pSlider = new CMFCRibbonSlider(101010);
 	pSlider->SetZoomButtons( TRUE );
 	pSlider->SetRange(0, 200);
 	pSlider->SetPos(100);
@@ -270,4 +270,9 @@ void CMainFrame::OnOptions()
 
 	pOptionsDlg->DoModal();
 	delete pOptionsDlg;
+}
+
+void CMainFrame::OnZoom()
+{
+	MessageBoxA( NULL, "sd", "asd", 0 );
 }

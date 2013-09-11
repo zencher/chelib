@@ -20,6 +20,7 @@
 #endif
 
 #include "PDFReaderDoc.h"
+#include "PDFReaderView.h"
 
 #include "../ReaderDocument/readerDoc.h"
 
@@ -50,12 +51,14 @@ DWORD WINAPI renderMenegerThread( LPVOID pParam/*CPDFReaderDoc * pDoc*/ )
 			}
 			if ( pDoc )
 			{
-				CView * pView = NULL;
+				CPDFReaderView * pView = NULL;
 				POSITION posi = pDoc->GetFirstViewPosition();
-				pView = pDoc->GetNextView( posi );
-				pView->Invalidate(FALSE);
+				pView = (CPDFReaderView *)( pDoc->GetNextView( posi ) );
+				if ( item.param >= pView->GetPageStartIndex() && item.param < pView->GetPageEndIndex() )
+				{
+					pView->Invalidate(FALSE);
+				}
 			}
-			//MessageBox( NULL, str, L"render over", 0 );
 		}
 	}
 	return 0;

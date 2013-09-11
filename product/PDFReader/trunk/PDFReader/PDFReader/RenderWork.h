@@ -59,6 +59,7 @@ private:
 	
 	std::vector<CRenderWorker*>	mWorkers;
 	std::list<WORKITEM>			mWorkList;
+	std::list<WORKITEM>			mWorkingList;
 	std::list<WORKITEM>			mResultList;
 
 	

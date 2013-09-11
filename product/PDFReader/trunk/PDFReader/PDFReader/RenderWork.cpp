@@ -29,7 +29,7 @@ DWORD WINAPI renderThread( LPVOID param )
 		while ( pBoss->GetWork( item ) && ! p->IsOver() )
 		{
 			int param = item.param;
-			Sleep(150);
+			Sleep(50);
 			item.result = param * param;
 			pBoss->SetResult( item );
 		}
@@ -133,6 +133,7 @@ HANDLE CRenderManager::GetResultEvent()
 
 bool CRenderManager::NewWork( int param )
 {
+	bool bExist = false;
 	WORKITEM item;
 	item.param = param;
 	item.result = 0;
@@ -141,11 +142,48 @@ bool CRenderManager::NewWork( int param )
 	if ( mWorkMutex )
 	{
 		WaitForSingleObject( mWorkMutex, INFINITE );
-		mWorkList.push_back( item );
-		ReleaseMutex( mWorkMutex );
-		for ( size_t i = 0; i < mWorkers.size(); ++i )
+		std::list<WORKITEM>::iterator it;
+		for ( it = mWorkList.begin(); it != mWorkList.end(); ++it )
 		{
-			mWorkers[i]->WorkMessage();
+			if ( it->param == param )
+			{
+				bExist = true;
+				break;
+			}
+		}
+		if ( ! bExist )
+		{
+			for ( it = mWorkingList.begin(); it != mWorkingList.end(); ++it )
+			{
+				if ( it->param == param )
+				{
+					bExist = true;
+					break;
+				}
+			}
+		}
+		if ( ! bExist )
+		{
+			for ( it = mResultList.begin(); it != mResultList.end(); ++it )
+			{
+				if ( it->param == param )
+				{
+					bExist = true;
+					break;
+				}
+			}
+		}
+		if ( !bExist )
+		{
+			mWorkList.push_back( item );
+		}
+		ReleaseMutex( mWorkMutex );
+		if ( !bExist )
+		{
+			for ( size_t i = 0; i < mWorkers.size(); ++i )
+			{
+				mWorkers[i]->WorkMessage();
+			}
 		}
 		return true;
 	}
@@ -164,6 +202,7 @@ bool CRenderManager::GetWork( WORKITEM & work )
 		{
 			work = mWorkList.front();
 			mWorkList.pop_front();
+			mWorkingList.push_back( work );
 			bRet = true;
 		}
 		ReleaseMutex( mWorkMutex );

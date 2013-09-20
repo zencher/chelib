@@ -271,4 +271,19 @@ private:
 	
 };
 
+class CHE_Lock
+{
+public:
+	CHE_Lock();
+	~CHE_Lock();
+
+	HE_VOID Lock() const;
+	HE_VOID UnLock() const;
+
+#ifdef WIN32
+	HANDLE	mMutex;
+#endif
+
+};
+
 #endif

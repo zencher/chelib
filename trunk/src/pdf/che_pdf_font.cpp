@@ -6860,6 +6860,16 @@ HE_ULONG CHE_PDF_Font::GetWMode() const
 	return 0;
 }
 
+HE_VOID CHE_PDF_Font::Lock()
+{
+	mLock.Lock();
+}
+
+HE_VOID	CHE_PDF_Font::UnLock()
+{
+	mLock.UnLock();
+}
+
 
 CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_PDF_Font( fontDict, pAllocator ), mpCIDMap( NULL ), mpUnicodeMap( NULL )
@@ -7202,6 +7212,7 @@ HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 	if ( mFace )
 	{
 		FT_Face ftface = (FT_Face)mFace;
+		mLock.Lock();
 		FT_Set_Transform( ftface, NULL, NULL );
 		FT_Error err = FT_Load_Glyph( ftface, item.gid, FT_LOAD_NO_SCALE );
 		if ( err == 0 )
@@ -7211,8 +7222,11 @@ HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_
 
 			tmpMatrix.Concat( matrix );
 
+			mLock.UnLock();
+
 			return tmpMatrix.a * 1.0f / ftface->units_per_EM;
 		}
+		mLock.UnLock();
 	}
 
 	return 0;

@@ -460,20 +460,32 @@ HE_FLOAT CHE_PDF_Text::GetOffSet() const
 	return 0;
 }
 
-HE_FLOAT gCurX = 0;
-HE_FLOAT gCurY = 0;
+
+
+struct _TEXTPATHOUTPUT_PARAM_
+{
+	CHE_PDF_Path *	pPath;
+	HE_FLOAT		curX;
+	HE_FLOAT		curY;
+};
+
 
 inline int move_to(const FT_Vector *p, void *cc)
 {
-	CHE_PDF_Path * pPath = (CHE_PDF_Path*)cc;
+	_TEXTPATHOUTPUT_PARAM_ * param = (_TEXTPATHOUTPUT_PARAM_*)(cc);
+	if ( param == NULL )
+	{
+		return 0;
+	}
+	CHE_PDF_Path * pPath = param->pPath;
 	if ( pPath )
 	{
 		CHE_PDF_PathItem pathItem;
 		pathItem.type = PathItem_MoveTo;
 		pPath->mItems.push_back( pathItem );
-		gCurX = pathItem.value = p->x / 64.0f;
+		param->curX = pathItem.value = p->x / 64.0f;
 		pPath->mItems.push_back( pathItem );
-		gCurY = pathItem.value = p->y / 64.0f;
+		param->curY = pathItem.value = p->y / 64.0f;
 		pPath->mItems.push_back( pathItem );
 	}
 	return 0;
@@ -481,15 +493,20 @@ inline int move_to(const FT_Vector *p, void *cc)
 
 inline int line_to(const FT_Vector *p, void *cc)
 {
-	CHE_PDF_Path * pPath = (CHE_PDF_Path*)cc;
+	_TEXTPATHOUTPUT_PARAM_ * param = (_TEXTPATHOUTPUT_PARAM_*)(cc);
+	if ( param == NULL )
+	{
+		return 0;
+	}
+	CHE_PDF_Path * pPath = param->pPath;
 	if ( pPath )
 	{
 		CHE_PDF_PathItem pathItem;
 		pathItem.type = PathItem_LineTo;
 		pPath->mItems.push_back( pathItem );
-		gCurX = pathItem.value = p->x / 64.0f;
+		param->curX = pathItem.value = p->x / 64.0f;
 		pPath->mItems.push_back( pathItem );
-		gCurY = pathItem.value = p->y / 64.0f;
+		param->curY = pathItem.value = p->y / 64.0f;
 		pPath->mItems.push_back( pathItem );
 	}
 	return 0;
@@ -497,23 +514,28 @@ inline int line_to(const FT_Vector *p, void *cc)
 
 inline int conic_to(const FT_Vector *c, const FT_Vector *p, void *cc)
 {
-	CHE_PDF_Path * pPath = (CHE_PDF_Path*)cc;
+	_TEXTPATHOUTPUT_PARAM_ * param = (_TEXTPATHOUTPUT_PARAM_*)(cc);
+	if ( param == NULL )
+	{
+		return 0;
+	}
+	CHE_PDF_Path * pPath = param->pPath;
 	if ( pPath )
 	{
 		CHE_PDF_PathItem pathItem;
 		pathItem.type = PathItem_CurveTo;
 		pPath->mItems.push_back( pathItem );
-		pathItem.value = (gCurX + c->x / 64.0f * 2) / 3;
+		pathItem.value = (param->curX + c->x / 64.0f * 2) / 3;
 		pPath->mItems.push_back( pathItem );
-		pathItem.value = (gCurY + c->y / 64.0f * 2) / 3;
+		pathItem.value = (param->curY + c->y / 64.0f * 2) / 3;
 		pPath->mItems.push_back( pathItem );
 		pathItem.value = (p->x / 64.0f + c->x / 64.0f * 2) / 3;
 		pPath->mItems.push_back( pathItem );
 		pathItem.value = (p->y / 64.0f + c->y / 64.0f * 2) / 3;
 		pPath->mItems.push_back( pathItem );
-		gCurX = pathItem.value = p->x / 64.0f;
+		param->curX = pathItem.value = p->x / 64.0f;
 		pPath->mItems.push_back( pathItem );
-		gCurY = pathItem.value = p->y / 64.0f;
+		param->curY = pathItem.value = p->y / 64.0f;
 		pPath->mItems.push_back( pathItem );
 	}
 	return 0;
@@ -521,7 +543,12 @@ inline int conic_to(const FT_Vector *c, const FT_Vector *p, void *cc)
 
 inline int cubic_to(const FT_Vector *c1, const FT_Vector *c2, const FT_Vector *p, void *cc)
 {
-	CHE_PDF_Path * pPath = (CHE_PDF_Path*)cc;
+	_TEXTPATHOUTPUT_PARAM_ * param = (_TEXTPATHOUTPUT_PARAM_*)(cc);
+	if ( param == NULL )
+	{
+		return 0;
+	}
+	CHE_PDF_Path * pPath = param->pPath;
 	if ( pPath )
 	{
 		CHE_PDF_PathItem pathItem;
@@ -535,9 +562,9 @@ inline int cubic_to(const FT_Vector *c1, const FT_Vector *c2, const FT_Vector *p
 		pPath->mItems.push_back( pathItem );
 		pathItem.value = c2->y / 64.0f;
 		pPath->mItems.push_back( pathItem );
-		gCurX = pathItem.value = p->x / 64.0f;
+		param->curX = pathItem.value = p->x / 64.0f;
 		pPath->mItems.push_back( pathItem );
-		gCurY = pathItem.value = p->y / 64.0f;
+		param->curY = pathItem.value = p->y / 64.0f;
 		pPath->mItems.push_back( pathItem );
 	}
 	return 0;
@@ -554,11 +581,12 @@ CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 	CHE_PDF_Path * pPathRet = GetAllocator()->New<CHE_PDF_Path>( GetAllocator() );
 	if ( pPathRet )
 	{
-		FT_Face face = (FT_Face)( GetGState()->GetTextFont()->GetFTFace() );
+		CHE_PDF_Font * pFont = GetGState()->GetTextFont();
+		FT_Face face = (FT_Face)( pFont->GetFTFace() );
 		if ( face )
 		{
+			pFont->Lock();
 			FT_Error err = FT_Set_Char_Size( face, 65536, 65536, /*PIXELPERINCH*/72, /*PIXELPERINCH*/72 );
-			
 			CHE_Matrix mtx = GetCharMatrix( index );
 			FT_Matrix matrix;
 			FT_Vector vector;
@@ -580,8 +608,17 @@ CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 			outline_funcs.cubic_to = cubic_to;
 			outline_funcs.delta = NULL;
 			outline_funcs.shift = NULL;
-			FT_Outline_Decompose( &face->glyph->outline, &outline_funcs, pPathRet );
- 
+
+			_TEXTPATHOUTPUT_PARAM_ * pParam = GetAllocator()->New<_TEXTPATHOUTPUT_PARAM_>();
+			pParam->pPath = pPathRet;
+			pParam->curX = 0.0f;
+			pParam->curY = 0.0f;
+
+			FT_Outline_Decompose( &face->glyph->outline, &outline_funcs, pParam );
+
+			GetAllocator()->Delete( pParam );
+
+			pFont->UnLock();
 
 // 			FT_Outline * outline = &face->glyph->outline;
 // 			void*                    user = (void*)pPathRet;

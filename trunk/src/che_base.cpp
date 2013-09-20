@@ -624,3 +624,36 @@ class IHE_File : public CHE_Object
     OSAtomicDecrement32( &mRefCount );
 #endif
 }
+
+
+CHE_Lock::CHE_Lock()
+{
+#ifdef WIN32
+	mMutex = CreateMutex( NULL, FALSE, NULL );
+#endif
+}
+
+CHE_Lock::~CHE_Lock()
+{
+#ifdef WIN32
+	if ( mMutex )
+	{
+		CloseHandle( mMutex );
+		mMutex = NULL;
+	}
+#endif
+}
+
+HE_VOID CHE_Lock::Lock() const
+{
+#ifdef WIN32
+	WaitForSingleObject( mMutex, INFINITE );
+#endif
+}
+
+HE_VOID CHE_Lock::UnLock() const
+{
+#ifdef WIN32
+	ReleaseMutex( mMutex );
+#endif
+}

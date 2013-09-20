@@ -169,6 +169,9 @@ public:
 	CHE_PDF_FontDescriptor*	GetFontDescriptor() const { return mpFontDescriptor; }
 
 	HE_ULONG				GetWMode() const;
+
+	HE_VOID					Lock();
+	HE_VOID					UnLock();
 	
 protected:
 	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
@@ -188,6 +191,8 @@ protected:
 	HE_ULONG				mFontFileSize;
 	HE_WCHAR*				mCIDTOGID;
 	HE_ULONG				mCIDTOGIDLength;
+
+	CHE_Lock				mLock;
 
 	friend class CHE_Allocator;
 };

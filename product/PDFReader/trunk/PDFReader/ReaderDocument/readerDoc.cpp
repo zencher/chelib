@@ -2,42 +2,9 @@
 
 #include <Windows.h>
 
-DWORD WINAPI parseContentThread( PVOID pParam )
-{
-	CReaderDocument * pReaderDoc = (CReaderDocument*)(pParam);
-	if ( pReaderDoc == NULL )
-	{
-		return 0;
-	}
-
-	HE_BOOL bRet = FALSE;
-	HE_ULONG pageCount = pReaderDoc->GetPageCount();
-	for ( HE_ULONG i = 0; i < pageCount; ++i )
-	{
-		bRet = pReaderDoc->IsPageContentParse( i );
-		if ( ! bRet )
-		{
-			pReaderDoc->ParseContentParse( i );
-		}
-	}
-
-	return 0;
-}
-
-DWORD WINAPI renderPageThread( PVOID pParam )
-{
-	return 0;
-}
-
-
-
-
-
-
 CReaderDocument::CReaderDocument( CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mpRead(NULL), mpFile(NULL), mpDocument(NULL),
-	mpPageTree(NULL), mpFontMgr(NULL),mCompatibleDC(NULL), mpThumbnailDrawer(NULL),
-	mpPageDrawer(NULL), mpHugeDrawer(NULL)
+	mpPageTree(NULL), mpFontMgr(NULL)
 {
 }
 
@@ -66,19 +33,6 @@ CReaderDocument::~CReaderDocument()
 	if ( mpFontMgr )
 	{
 		mpFontMgr->GetAllocator()->Delete( mpFontMgr );
-	}
-
-	if ( mpHugeDrawer )
-	{
-		GetAllocator()->Delete( mpHugeDrawer );
-	}
-	if ( mpPageDrawer )
-	{
-		GetAllocator()->Delete( mpPageDrawer );
-	}
-	if ( mpThumbnailDrawer )
-	{
-		GetAllocator()->Delete( mpThumbnailDrawer );
 	}
 
 	if ( mpDocument )
@@ -160,8 +114,6 @@ HE_BOOL	CReaderDocument::OpenFile( char * fileName )
 	{
 		mBitmaps[i] = NULL;
 	}
-
-	mBitmapReady.resize( mpPageTree->GetPageCount(), false );
 	
 	return TRUE;
 }
@@ -192,7 +144,6 @@ HE_ULONG CReaderDocument::GetPageIndex( HE_ULONG y )
 		}
 		iPosi += mPageRects[iRet].height;
 	}
-
 	return iRet;
 }
 
@@ -202,19 +153,17 @@ CHE_Bitmap * CReaderDocument::GetBitmap( HE_ULONG index )
 	{
 		return NULL;
 	}
-	if ( mBitmapReady[index] )
-	{
-		return mBitmaps[index];
-	}
-	return NULL;
+	return mBitmaps[index];
 }
 
-
-void CReaderDocument::SetBitmapReady( HE_ULONG index )
+void CReaderDocument::SetBitmap( HE_ULONG index, CHE_Bitmap * pBitmap )
 {
-	mBitmapReady[index] = true;
+	if ( index > mBitmaps.size() )
+	{
+		return;
+	}
+	mBitmaps[index] = pBitmap;
 }
-
 
 CHE_Rect CReaderDocument::GetPageRect( HE_ULONG index )
 {
@@ -225,104 +174,14 @@ CHE_Rect CReaderDocument::GetPageRect( HE_ULONG index )
 	return CHE_Rect();
 }
 
-HE_BOOL CReaderDocument::RenderPage( HE_ULONG index )
+CHE_PDF_ContentObjectList * CReaderDocument::GetPageConent( HE_ULONG index )
 {
-	if ( index >= mpPageTree->GetPageCount() )
-	{
-		return FALSE;
-	}
-	if ( ! IsPageContentParse( index ) )
+	if ( ! IsPageContentParse(index) )
 	{
 		ParseContentParse( index );
+		return mContents[index];
 	}
-
-	CHE_PDF_ContentObjectList * pList = NULL;
-	pList = mContents[index];
-	if ( pList )
-	{
-		CHE_PDF_Page * pPage = mpPageTree->GetPage( index );
-		if ( pPage )
-		{
-			CHE_Rect rect = pPage->GetPageRect();
-			CHE_GraphicsDrawer * pDrawer = GetPageDrawer();
-			CHE_PDF_Renderer::Render( *pList, *pDrawer, rect, 0, 1 /*, 96, 96, &clipRect*/ );
-			CHE_Bitmap * pBitmap = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
-			if ( pDrawer->GetBitmap( *pBitmap ) )
-			{
-				mBitmaps[index] = pBitmap;
-			}	
-			pPage->GetAllocator()->Delete( pPage );
-			pPage = NULL;
-			return TRUE;
-		}
-	}
-
-	return TRUE;
-}
-
-HE_BOOL	CReaderDocument::SetCompatibleDC( HDC hdc )
-{
-	if ( hdc == NULL )
-	{
-		return FALSE;
-	}
-	mCompatibleDC = hdc;
-	return TRUE;
-}
-
-CHE_GraphicsDrawer * CReaderDocument::GetPageDrawer()
-{
-	if ( mCompatibleDC == NULL )
-	{
-		return NULL;
-	}
-	if ( mpPageDrawer == NULL )
-	{
-		mpPageDrawer = GetAllocator()->New<CHE_GraphicsDrawer>( mCompatibleDC, 1, 1 );
-	}
-	return mpPageDrawer;
-}
-
-CHE_GraphicsDrawer * CReaderDocument::GetThumbnailDrawer()
-{
-	if ( mCompatibleDC == NULL )
-	{
-		return NULL;
-	}
-	if ( mpThumbnailDrawer == NULL )
-	{
-		mpThumbnailDrawer = GetAllocator()->New<CHE_GraphicsDrawer>( mCompatibleDC, 1, 1 );
-	}
-	return mpThumbnailDrawer;
-}
-
-CHE_GraphicsDrawer * CReaderDocument::GetHugeDrawer()
-{
-	if ( mCompatibleDC == NULL )
-	{
-		return NULL;
-	}
-	if ( mpHugeDrawer == NULL )
-	{
-		mpHugeDrawer = GetAllocator()->New<CHE_GraphicsDrawer>( mCompatibleDC, 1, 1 );
-	}
-	return mpHugeDrawer;
-}
-
-void CReaderDocument::StartParsePageContentThread()
-{
-	DWORD threadId = 0;
-	CreateThread( NULL, 0, parseContentThread, (LPVOID)this, 0, &threadId );
-}
-
-void CReaderDocument::StartThumbnailRenderThread()
-{
-
-}
-
-void CReaderDocument::StartPageRenderThread()
-{
-
+	return NULL;
 }
 
 HE_BOOL	CReaderDocument::IsPageContentParse( HE_ULONG pageIndex )

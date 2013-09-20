@@ -74,61 +74,6 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 		return;
 	}
 
-// 	CPoint point = GetScrollPosition();
-// 	CRect clientRect;
-// 	GetClientRect( &clientRect );
-// 	clientRect.left += point.x;
-// 	clientRect.top += point.y;
-// 	clientRect.bottom += point.y;
-// 	clientRect.right += point.x;
-// 
-// 	HE_ULONG x = 0;
-// 	//HE_ULONG y = 0;
-// 	
-// 	CReaderDocument * pReaderDoc = pDoc->GetReaderDoc();
-// 	CRenderManager * pRenderManager = pDoc->GetRenderManager();
-// 	CHE_Rect dcRect;
-// 	dcRect.left = clientRect.left;
-// 	dcRect.bottom = clientRect.bottom - clientRect.Height();
-// 	dcRect.width = clientRect.Width();
-// 	dcRect.height = clientRect.Height();
-// 
-// 	CHE_Rect pageRect;
-// 	for ( HE_ULONG i = 0; i < pReaderDoc->GetPageCount(); ++i )
-// 	{
-// 		pageRect = pReaderDoc->GetPageRect( i );
-// 		pageRect.left = pageRect.left * 96.0f / 72;
-// 		pageRect.bottom = pageRect.bottom * 96.0f / 72;
-// 		pageRect.height = pageRect.height * 96.0f / 72;
-// 		pageRect.width = pageRect.width * 96.0f / 72;
-// 
-// 		if ( dcRect.width > pageRect.width )
-// 		{
-// 			x = ( dcRect.width - pageRect.width ) / 2.0f;
-// 		}
-// 		
-// 		if ( pageRect.IsUnion( dcRect ) )
-// 		{
-// 			RECT pageOutLine;
-// 			pageOutLine.left = x-1;
-// 			pageOutLine.top = pageRect.bottom - pageRect.height - 1;
-// 			pageOutLine.right = x+1 + pageRect.width;
-// 			pageOutLine.bottom = pageRect.bottom +1;
-// 			pDC->Rectangle( &pageOutLine );
-// 			pDC->StrokePath();
-// 			CHE_Bitmap * pBitmap = pReaderDoc->GetBitmap( i );
-// 			if ( pBitmap )
-// 			{
-// 				CBitmap bitmap;
-// 				bitmap.CreateBitmap( pBitmap->Width(), pBitmap->Height(), 1, pBitmap->Depth(), pBitmap->GetBuffer() );
-// 				pDC->DrawState( CPoint(x,pageRect.bottom - pageRect.height), CSize(pBitmap->Width(), pBitmap->Height()), &bitmap, 0 );
-// 			}else{
-// 				pRenderManager->NewWork( i );
-// 			}
-// 		}
-// 		//y += pageRect.height;
-// 	}
-
 	int x = 0;
 
 	CPoint point = GetScrollPosition();
@@ -138,15 +83,10 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 	clientRect.top += point.y;
 	clientRect.bottom += point.y;
 	clientRect.right += point.x;
-	
-// 	CBrush brush;
-// 	brush.CreateSolidBrush( RGB(255, 255, 255) );
-// 
-// 	pDC->FillRect( clientRect, &brush );
 
-// 	wchar_t str[128];
-// 	wsprintfW( str, L"%i-%i", mPageStartIndex, mPageEndIndex );
-// 	pDC->TextOut( clientRect.left + 50, clientRect.top + 100, str );
+ 	//wchar_t str[128];
+ 	//wsprintfW( str, L"%i-%i", mPageStartIndex, mPageEndIndex );
+ 	//pDC->TextOut( clientRect.left + 50, clientRect.top + 100, str );
 
 	CHE_Rect dcRect;
 	dcRect.left = clientRect.left;
@@ -156,8 +96,9 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 
 	CReaderDocument * pReaderDoc = pDoc->GetReaderDoc();
 	CRenderManager * pRenderManager = pDoc->GetRenderManager();
+	CRenderCache * pCache = pDoc->GetRenderCache();
 	CHE_Rect pageRect;
-	for ( HE_ULONG i = mPageStartIndex; i < mPageEndIndex; ++i )
+	for ( HE_ULONG i = mPageStartIndex; i <= mPageEndIndex; ++i )
 	{
 		pageRect = pReaderDoc->GetPageRect( i );
 		pageRect.left = pageRect.left * 96.0f / 72;
@@ -179,50 +120,16 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 			pageOutLine.bottom = pageRect.bottom + pageRect.height+1;
 			pDC->Rectangle( &pageOutLine );
 			pDC->StrokePath();
-			CHE_Bitmap * pBitmap = pReaderDoc->GetBitmap( i );
+			CHE_Bitmap * pBitmap = pCache->GetRenderBitmap( i, mRotate, mScale );
+			//CHE_Bitmap * pBitmap = pReaderDoc->GetBitmap( i );
 			if ( pBitmap )
 			{
 				CBitmap bitmap;
 				bitmap.CreateBitmap( pBitmap->Width(), pBitmap->Height(), 1, pBitmap->Depth(), pBitmap->GetBuffer() );
-				pDC->DrawState( CPoint(x,pageRect.bottom /*- pageRect.height*/), CSize(pBitmap->Width(), pBitmap->Height()), &bitmap, 0 );
+				pDC->DrawState( CPoint(x, pageRect.bottom), CSize(pBitmap->Width(), pBitmap->Height()), &bitmap, 0 );
 			}
 		}
 	}
-// 
-// 	CReaderDocument * pReaderDoc = pDoc->GetReaderDoc();
-// 	CRenderManager * pRenderManager = pDoc->GetRenderManager();
-// 	CHE_Rect pageRect;
-// 	for ( HE_ULONG i = mPageStartIndex; i <= mPageEndIndex; ++i )
-// 	{
-// 		pageRect = pReaderDoc->GetPageRect( i );
-// 		pageRect.left = pageRect.left * 96.0f / 72;
-// 		pageRect.bottom = pageRect.bottom * 96.0f / 72;
-// 		pageRect.height = pageRect.height * 96.0f / 72;
-// 		pageRect.width = pageRect.width * 96.0f / 72;
-// 
-// 		if ( dcRect.width > pageRect.width )
-// 		{
-// 			x = ( dcRect.width - pageRect.width ) / 2.0f;
-// 		}
-// 		
-// 		if ( pageRect.IsUnion( dcRect ) )
-// 		{
-// 			RECT pageOutLine;
-// 			pageOutLine.left = x-1;
-// 			pageOutLine.top = pageRect.bottom - pageRect.height - 1;
-// 			pageOutLine.right = x+1 + pageRect.width;
-// 			pageOutLine.bottom = pageRect.bottom +1;
-// 			pDC->Rectangle( &pageOutLine );
-// 			pDC->StrokePath();
-// 			CHE_Bitmap * pBitmap = pReaderDoc->GetBitmap( i );
-// 			if ( pBitmap )
-// 			{
-// 				CBitmap bitmap;
-// 				bitmap.CreateBitmap( pBitmap->Width(), pBitmap->Height(), 1, pBitmap->Depth(), pBitmap->GetBuffer() );
-// 				pDC->DrawState( CPoint(x,pageRect.bottom /*- pageRect.height*/), CSize(pBitmap->Width(), pBitmap->Height()), &bitmap, 0 );
-// 			}
-// 		}
-// 	}
 }
 
 
@@ -303,16 +210,7 @@ void CPDFReaderView::OnInitialUpdate()
 
 	CHE_Rect rect = pReaderDoc->GetAllPageRect();
 
-	SetScrollSizes( MM_TEXT, CSize( rect.width * 96.0 / 72, rect.height * 96.0 / 72 ), CSize( rect.width * 96.0 / 72, rect.height * 96.0 / ( 72 * pReaderDoc->GetPageCount() ) ), CSize( rect.width * 96.0 / 72, 20 ) );
-
-	HDC hDC = ::GetDC( GetSafeHwnd() );
-
-	pReaderDoc->SetCompatibleDC( hDC );
-
-	for ( HE_ULONG i = 0; i < pReaderDoc->GetPageCount(); ++i )
-	{
-		pReaderDoc->RenderPage( i );
-	}
+	SetScrollSizes( MM_TEXT, CSize( rect.width * 96.0 / 72, rect.height * 96.0 / 72 ), CSize( rect.width * 96.0 / 72, rect.height * 96.0 / ( 72 * pReaderDoc->GetPageCount() ) ), CSize( rect.width * 96.0 / 72, 10 ) );
 }
 
 
@@ -340,7 +238,7 @@ BOOL CPDFReaderView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 	{
 		CReaderDocument * pReaderDoc = pDoc->GetReaderDoc();
 		CRenderManager * pRenderManager = pDoc->GetRenderManager();
-
+		CRenderCache * pCache = pDoc->GetRenderCache();
 		//获得滚动条即将到达的位置
 		CPoint point = GetScrollPosition();
 		point.x += sizeScroll.cx;
@@ -371,28 +269,40 @@ BOOL CPDFReaderView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 			pageRect.height = pageRect.height * 96.0f / 72;
 			pageRect.width = pageRect.width * 96.0f / 72;
 
+			CHE_Rect renderSize;
+			renderSize.left = 0;
+			renderSize.bottom = 0;
+			renderSize.width = pageRect.width * 72.0 / 96;
+			renderSize.height = pageRect.height * 72.0 / 96;
+
 			if ( pageRect.IsUnion( dcRect ) )
 			{
 				if ( bFoundMatch == false )
 				{
 					bFoundMatch = true;
 					mPageStartIndex = i;
+					mPageEndIndex = i;
+				}else{
+					mPageEndIndex = i;
 				}
-				CHE_Bitmap * pBitmap = pReaderDoc->GetBitmap( i );
+				CHE_Bitmap * pBitmap = pCache->GetRenderBitmap( i, mRotate, mScale );
+				//CHE_Bitmap * pBitmap = pReaderDoc->GetBitmap( i );
 				if ( pBitmap == NULL )
 				{
-					pRenderManager->NewWork( i );
+					pRenderManager->NewWork( i, mScale, mRotate, renderSize, pReaderDoc->GetPageConent( i ) );
 				}
 			}else{
 				if ( bFoundMatch == true )
 				{
-					bFoundMatch = false;
-					mPageEndIndex = i;
+					mPageEndIndex = i-1;
 					break;
 				}
 			}
 		}
+
+		pCache->Update( mPageStartIndex, mPageEndIndex, mRotate, mScale );
 	}
 
+	
 	return CScrollView::OnScrollBy(sizeScroll, bDoScroll);
 }

@@ -34,27 +34,38 @@
 DWORD WINAPI renderMenegerThread( LPVOID pParam/*CPDFReaderDoc * pDoc*/ )
 {
 	CPDFReaderDoc * pDoc = (CPDFReaderDoc*)( pParam );
-	CReaderDocument * pReader = NULL;
+	if ( pDoc == NULL  )
+	{
+		return 1;
+	}
 	CRenderManager * pMgr = pDoc->GetRenderManager();
+	CRenderCache * pCache = pDoc->GetRenderCache();
+	//CReaderDocument * pReader = NULL;
 	WORKITEM item;
-	wchar_t str[128];
+	if ( pMgr == NULL  )
+	{
+		return 2;
+	}
 	while ( pMgr )
 	{
 		WaitForSingleObject( pMgr->GetResultEvent(), INFINITE );
-		if ( pMgr->GetResult( item ) )
+		while ( pMgr->GetResult( item ) )
 		{
-			wsprintf( str, L"%d", item.param );
-			pReader = pDoc->GetReaderDoc();
-			if ( pReader )
+			//pReader = pDoc->GetReaderDoc();
+			//if ( pReader && item.pBitmapRet )
+			//{
+			//	pReader->SetBitmap( item.param, item.pBitmapRet );
+			//}
+			if ( item.pBitmapRet )
 			{
-				pReader->SetBitmapReady( item.param );
+				pCache->PushItem( item.param, item.rotate % 360, item.scale, item.pageRect, item.pBitmapRet );
 			}
 			if ( pDoc )
 			{
 				CPDFReaderView * pView = NULL;
 				POSITION posi = pDoc->GetFirstViewPosition();
 				pView = (CPDFReaderView *)( pDoc->GetNextView( posi ) );
-				if ( item.param >= pView->GetPageStartIndex() && item.param < pView->GetPageEndIndex() )
+				if ( item.param >= pView->GetPageStartIndex() && item.param <= pView->GetPageEndIndex() )
 				{
 					pView->Invalidate(FALSE);
 				}
@@ -62,7 +73,6 @@ DWORD WINAPI renderMenegerThread( LPVOID pParam/*CPDFReaderDoc * pDoc*/ )
 		}
 	}
 	return 0;
-
 }
 
 
@@ -77,7 +87,7 @@ END_MESSAGE_MAP()
 // CPDFReaderDoc construction/destruction
 
 CPDFReaderDoc::CPDFReaderDoc()
-	: mpReaderDoc(NULL), mRenderManager(4)
+	: mpReaderDoc(NULL), mRenderManager(4), mRenderCache(100)
 {
 	// TODO: add one-time construction code here
 	DWORD threadId = 0;

@@ -21,25 +21,13 @@ public:
 	HE_ULONG	GetPageIndex( HE_ULONG y );
 
 	CHE_Bitmap* GetBitmap( HE_ULONG index );
-	void		SetBitmapReady( HE_ULONG index );
-
-	HE_BOOL					SetCompatibleDC( HDC hdc );
-
-	CHE_GraphicsDrawer *	GetPageDrawer();
-	CHE_GraphicsDrawer *	GetThumbnailDrawer();
-	CHE_GraphicsDrawer *	GetHugeDrawer();
-
-	HE_VOID StartParsePageContentThread();
-
-	HE_VOID StartThumbnailRenderThread();
-
-	HE_VOID StartPageRenderThread();
+	void		SetBitmap( HE_ULONG index, CHE_Bitmap * pBitmap );
 
 	HE_BOOL	IsPageContentParse( HE_ULONG pageIndex );
 
 	HE_BOOL ParseContentParse( HE_ULONG pageIndex );
 
-	HE_BOOL RenderPage( HE_ULONG pageIndex );
+	CHE_PDF_ContentObjectList * GetPageConent( HE_ULONG index );
 
 protected:
 	IHE_Read *				mpRead;
@@ -48,19 +36,12 @@ protected:
 	CHE_PDF_PageTree *		mpPageTree;
 	CHE_PDF_FontMgr *		mpFontMgr;
 
-	HDC						mCompatibleDC;
-	CHE_GraphicsDrawer *	mpThumbnailDrawer;
-	CHE_GraphicsDrawer *	mpPageDrawer;
-	CHE_GraphicsDrawer *	mpHugeDrawer;
-
 	std::vector<HE_BOOL>					mContentsFlag;
 	std::vector<CHE_PDF_ContentObjectList*> mContents;
 	std::vector<CHE_Rect>					mPageRects;
 	CHE_Rect								mAllPageRect;
 
 	std::vector<CHE_Bitmap*>				mBitmaps;
-	std::vector<bool>						mBitmapReady;
-
 
 private:
 

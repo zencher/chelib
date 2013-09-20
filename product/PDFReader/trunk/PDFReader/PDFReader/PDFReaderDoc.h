@@ -16,6 +16,7 @@
 #pragma once
 
 #include "RenderWork.h"
+#include "RenderCache.h"
 
 class CReaderDocument;
 
@@ -53,9 +54,12 @@ public:
 	
 	CRenderManager * GetRenderManager() { return &mRenderManager; }
 
+	CRenderCache * GetRenderCache() { return &mRenderCache; }
+
 protected:
 	CReaderDocument *	mpReaderDoc;
 	CRenderManager		mRenderManager;
+	CRenderCache		mRenderCache;	
 
 // Generated message map functions
 protected:

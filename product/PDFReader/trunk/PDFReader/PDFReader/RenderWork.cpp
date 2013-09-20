@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include <float.h>
 #include "RenderWork.h"
 
 
@@ -11,7 +12,8 @@ DWORD WINAPI renderThread( LPVOID param )
 
 	CRenderWorker * p = (CRenderWorker*)(param);
 	CRenderManager * pBoss = p->GetBoss();
-	if ( pBoss == NULL )
+	CHE_GraphicsDrawer * pDrawer = p->GetDrawer();
+	if ( pBoss == NULL || pDrawer == NULL )
 	{
 		return 2;
 	}
@@ -28,20 +30,26 @@ DWORD WINAPI renderThread( LPVOID param )
 		dwRet = WaitForSingleObject( workEvent, INFINITE );
 		while ( pBoss->GetWork( item ) && ! p->IsOver() )
 		{
-			int param = item.param;
-			Sleep(50);
-			item.result = param * param;
+			p->SetWorkItem( item );
+			CHE_PDF_Renderer::Render( *(item.pContents), *pDrawer, item.pageRect, item.rotate % 360, item.scale );
+			item.pBitmapRet = p->GetAllocator()->New<CHE_Bitmap>( p->GetAllocator() );
+			pDrawer->GetBitmap( *(item.pBitmapRet) );
 			pBoss->SetResult( item );
 		}
+		item.param = -1;
+		p->SetWorkItem( item );
 	}
 	return 0;
 }
 
 
-CRenderWorker::CRenderWorker()
-	: mIsOver(false), mThreadId(0), mWorkEvent(NULL), mThread(NULL), mpBoss(NULL)
+CRenderWorker::CRenderWorker( CHE_Allocator * pAllocator )
+	:CHE_Object(pAllocator), mIsOver(false), mThreadId(0), mWorkEvent(NULL), mThread(NULL), mpBoss(NULL)
 {
 	mWorkEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
+
+	mDC = GetDC(NULL);
+	mpDrawer = GetAllocator()->New<CHE_GraphicsDrawer>( mDC, 1, 1 );
 	mThread = CreateThread( NULL, 0, renderThread, this, 0, &mThreadId );
 }
 
@@ -57,6 +65,14 @@ CRenderWorker::~CRenderWorker(void)
 	if ( mThread )
 	{
 		CloseHandle( mThread );
+	}
+	if ( mpDrawer )
+	{
+		GetAllocator()->Delete( mpDrawer );
+	}
+	if ( mDC )
+	{
+		ReleaseDC( NULL, mDC );
 	}
 }
 
@@ -131,12 +147,22 @@ HANDLE CRenderManager::GetResultEvent()
 }
 
 
-bool CRenderManager::NewWork( int param )
+bool CRenderManager::NewWork(	int pageIndex, float scale, int rotate, CHE_Rect pageRect,
+								CHE_PDF_ContentObjectList * pContents )
 {
+	if ( pContents == NULL )
+	{
+		return false;
+	}
+
 	bool bExist = false;
 	WORKITEM item;
-	item.param = param;
-	item.result = 0;
+	item.param = pageIndex;
+	item.scale = scale;
+	item.rotate = rotate;
+	item.pageRect = pageRect;
+	item.pContents = pContents;
+	item.pBitmapRet = NULL;
 	item.workerId = 0;
 
 	if ( mWorkMutex )
@@ -145,7 +171,9 @@ bool CRenderManager::NewWork( int param )
 		std::list<WORKITEM>::iterator it;
 		for ( it = mWorkList.begin(); it != mWorkList.end(); ++it )
 		{
-			if ( it->param == param )
+			if (	(it->param == pageIndex) && 
+					(it->scale - scale <= FLT_EPSILON) &&
+					(rotate % 360 == it->rotate % 360) )
 			{
 				bExist = true;
 				break;
@@ -153,9 +181,13 @@ bool CRenderManager::NewWork( int param )
 		}
 		if ( ! bExist )
 		{
-			for ( it = mWorkingList.begin(); it != mWorkingList.end(); ++it )
+			std::vector<CRenderWorker*>::iterator workerIt = mWorkers.begin();
+			for ( ; workerIt != mWorkers.end(); ++workerIt )
 			{
-				if ( it->param == param )
+				WORKITEM & wItem = (*workerIt)->GetWorkItem();
+				if (	(wItem.param == pageIndex) && 
+						(wItem.scale - scale <= FLT_EPSILON) &&
+						(rotate % 360 == wItem.rotate % 360) )
 				{
 					bExist = true;
 					break;
@@ -166,7 +198,9 @@ bool CRenderManager::NewWork( int param )
 		{
 			for ( it = mResultList.begin(); it != mResultList.end(); ++it )
 			{
-				if ( it->param == param )
+				if (	(it->param == pageIndex) && 
+						(it->scale - scale <= FLT_EPSILON) &&
+						(rotate % 360 == it->rotate % 360) )
 				{
 					bExist = true;
 					break;
@@ -200,9 +234,8 @@ bool CRenderManager::GetWork( WORKITEM & work )
 		WaitForSingleObject( mWorkMutex, INFINITE );
 		if ( ! mWorkList.empty() )
 		{
-			work = mWorkList.front();
-			mWorkList.pop_front();
-			mWorkingList.push_back( work );
+			work = mWorkList.back();
+			mWorkList.pop_back();
 			bRet = true;
 		}
 		ReleaseMutex( mWorkMutex );

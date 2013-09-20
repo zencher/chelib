@@ -342,6 +342,9 @@
     <ClInclude Include="RenderWork.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="RenderCache.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PDFReader.cpp">
@@ -366,6 +369,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="RenderWork.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderCache.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

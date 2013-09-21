@@ -77,6 +77,7 @@ public:
 	virtual void OnPrepareDC(CDC* pDC, CPrintInfo* pInfo = NULL);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	virtual BOOL OnScrollBy(CSize sizeScroll, BOOL bDoScroll = TRUE);
+	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 };
 
 #ifndef _DEBUG  // debug version in PDFReaderView.cpp

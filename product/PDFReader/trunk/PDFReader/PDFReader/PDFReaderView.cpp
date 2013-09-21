@@ -41,6 +41,7 @@ BEGIN_MESSAGE_MAP(CPDFReaderView, CScrollView)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_WM_ERASEBKGND()
+	ON_WM_VSCROLL()
 END_MESSAGE_MAP()
 
 // CPDFReaderView construction/destruction
@@ -121,7 +122,6 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 			pDC->Rectangle( &pageOutLine );
 			pDC->StrokePath();
 			CHE_Bitmap * pBitmap = pCache->GetRenderBitmap( i, mRotate, mScale );
-			//CHE_Bitmap * pBitmap = pReaderDoc->GetBitmap( i );
 			if ( pBitmap )
 			{
 				CBitmap bitmap;
@@ -286,7 +286,6 @@ BOOL CPDFReaderView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 					mPageEndIndex = i;
 				}
 				CHE_Bitmap * pBitmap = pCache->GetRenderBitmap( i, mRotate, mScale );
-				//CHE_Bitmap * pBitmap = pReaderDoc->GetBitmap( i );
 				if ( pBitmap == NULL )
 				{
 					pRenderManager->NewWork( i, mScale, mRotate, renderSize, pReaderDoc->GetPageConent( i ) );
@@ -305,4 +304,23 @@ BOOL CPDFReaderView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 
 	
 	return CScrollView::OnScrollBy(sizeScroll, bDoScroll);
+}
+
+
+void CPDFReaderView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+ 	switch ( nSBCode )
+ 	{
+ 	case SB_THUMBTRACK:
+	case SB_THUMBPOSITION:
+		{
+			SCROLLINFO lpScrollInfo;
+			GetScrollInfo( SB_VERT, &lpScrollInfo, SIF_TRACKPOS );
+			nPos = lpScrollInfo.nTrackPos;
+			break;
+		}
+	default:
+		break;
+ 	}
+	CScrollView::OnVScroll( nSBCode, nPos, pScrollBar);
 }

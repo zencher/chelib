@@ -48,6 +48,8 @@ CRenderWorker::CRenderWorker( CHE_Allocator * pAllocator )
 {
 	mWorkEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
 
+	mWorkItem.param = -1;
+
 	mDC = GetDC(NULL);
 	mpDrawer = GetAllocator()->New<CHE_GraphicsDrawer>( mDC, 1, 1 );
 	mThread = CreateThread( NULL, 0, renderThread, this, 0, &mThreadId );

@@ -211,6 +211,10 @@ void CPDFReaderView::OnInitialUpdate()
 	CHE_Rect rect = pReaderDoc->GetAllPageRect();
 
 	SetScrollSizes( MM_TEXT, CSize( rect.width * 96.0 / 72, rect.height * 96.0 / 72 ), CSize( rect.width * 96.0 / 72, rect.height * 96.0 / ( 72 * pReaderDoc->GetPageCount() ) ), CSize( rect.width * 96.0 / 72, 10 ) );
+
+	CRenderManager * pRenderManager = pDoc->GetRenderManager();
+	CHE_Rect pageSize = pReaderDoc->GetPageRect( 0 );
+	pRenderManager->NewWork( 0, mScale, mRotate, pageSize, pReaderDoc->GetPageConent( 0 ) );
 }
 
 

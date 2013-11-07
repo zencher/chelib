@@ -90,7 +90,7 @@ public:
 	CHE_Palette*			GetPalette() const { return m_lpPalette; };
 
 	//access data	
-	HE_LPCBYTE				GetBuffer() const { return m_lpBits; } ;
+	HE_LPBYTE				GetBuffer() const { return m_lpBits; } ;
 	
 	//pixel operation
 	HE_BOOL				GetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB & colorRet ) const;

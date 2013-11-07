@@ -1,104 +1,122 @@
 #include <cstdio>
-#include "../../include/che_datastructure.h"
-#include "../../include/pdf/che_pdf_pages.h"
-#include "../../include/pdf/che_pdf_renderer.h"
-#include "../../include/pdf/che_pdf_text.h"
+#include "../../include/pdf/che_pdf_document.h"
 
 int main( int argc, char **argv )
 {
-	CHE_DefCrtAllocator allocator;
-	CHE_Allocator * pAllocator = &allocator;
 	if ( argc < 2 )
 	{
 		printf( "no param!\n" );
-		return 0;
+		return -1;
 	}
-	
-	IHE_Read * pFileRead = HE_CreateFileRead( argv[1], FILEREAD_MODE_DEFAULT, 4096, pAllocator );
+
+	IHE_Read * pFileRead = HE_CreateFileRead( argv[1] );
 	//IHE_Read * pFileRead = HE_CreateFileRead( argv[1], FILEREAD_MODE_MEMCOPY );
+
 	if ( pFileRead == NULL )
 	{
 		printf( "no file!\n" );
-		return 0;
+		return -2;
 	}else{
 		printf( "%s \n",argv[1] );
-		printf( "file size : %ld\n", pFileRead->GetSize() );
+		printf( "file size : %d\n", pFileRead->GetSize() );
 	}
 
-	try{
-		CHE_PDF_Document doc( pAllocator );
-		doc.Load( pFileRead );
-		HE_DWORD lPageCount = doc.GetPageCount();
-		printf( "page count : %ld\n", lPageCount );
-		CHE_PDF_Page * pTmpPage = NULL;
-		char tmpStr[1024];
-		sprintf( tmpStr, "%s.text.txt", argv[1] );
-		IHE_Write * pWriteText = HE_CreateFileWrite( tmpStr, pAllocator );
-		HE_BYTE pTmp[2] = { 0xFF, 0xFE }; //UTF-16LE BOM
-		if ( pWriteText )
-		{
-			pWriteText->WriteBlock( pTmp, 2 );
-		}
-		sprintf( tmpStr, "%s.content.txt", argv[1] );
-		IHE_Write * pWriteContent = HE_CreateFileWrite( tmpStr, pAllocator );
-		for ( HE_DWORD i = 0; i < doc.GetPageCount(); i++ )
-		{
-			pTmpPage = doc.GetPage( i );
-			if ( pTmpPage == NULL )
-			{
-				printf( "page index : %ld Error, Can not get the page!\n", i+1 );
-				continue;
-			}
-			CHE_DynBuffer buffer( 4096, 4096, pAllocator );
-			pTmpPage->GetPageContent( buffer );
-			HE_BYTE * pData = new HE_BYTE[buffer.GetByteCount()];
-			buffer.Read( pData,  buffer.GetByteCount() );
-			if ( pWriteContent )
-			{
-				pWriteContent->WriteBlock( pData, buffer.GetByteCount() );
-			}
-			delete [] pData;
-			CHE_PDF_TextExtractor textExtractor( pAllocator );
-			CHE_DynWideByteBuffer buf( 4096, 4096, pAllocator );
-			HE_DWORD lcount = textExtractor.Extract( pTmpPage, buf );
-			if ( pWriteText )
-			{
-				if ( sizeof(HE_WCHAR) == 2 )
-				{
-					pWriteText->WriteBlock( (HE_BYTE*)buf.GetData(), buf.GetByteCount() * 2 );
-				}else{
-					HE_CHAR ch;
-					for( HE_DWORD i = 0; i < buf.GetByteCount(); i++ )
-					{
-						ch = buf.GetData()[i] & 0xFF;
-						pWriteText->WriteByte( ch );
-						ch = (buf.GetData()[i] & 0xFF00) >> 8;
-						pWriteText->WriteByte( ch );	
-					}
-				}
-			}
-			if ( pTmpPage )
-			{
-				printf( "page index : %ld ", i+1 );
-				printf( "page width : %.2f ", pTmpPage->GetPageWidth() );
-				printf( "page height : %.2f\n", pTmpPage->GetPageHeight() );
-				pTmpPage->GetAllocator()->Delete( pTmpPage );
-			}
-		}
-		doc.Unload();
-		pWriteContent->Release();
-		pWriteText->Release();
-		pFileRead->Release();
-		HE_DestoryIHEWrite( pWriteContent );
-		HE_DestoryIHEWrite( pWriteText );
-		HE_DestoryIHERead( pFileRead );
-		pWriteContent = NULL;
-		pWriteText = NULL;
-		pFileRead = NULL;
-	}catch(...)
+	CHE_PDF_File file;
+
+	file.Open( pFileRead );
+
+// 	CHE_ByteString password;
+// 	if ( ! file.Authenticate( password ) )
+// 	{
+// 		password = "<Password=\"Swift\" Date=\"2009.01.01\" Copyright=\"Foxit Software\"/>";
+// 
+// 		if ( ! file.Authenticate( password ) )
+// 		{
+// 			printf( "password error!\n" );
+// 			file.Close();
+// 			return -4;
+// 		}
+// 	}
+
+	CHE_PDF_DictionaryPtr infoDict = file.GetInfoDict();
+
+	if ( ! infoDict || infoDict->GetCount() == 0 )
 	{
-		printf( "Error! Crash!\n" );
+		printf( "no info dict!\n" );
+		return -3;
 	}
+
+	HE_BOOL bRet = FALSE;
+	CHE_ByteString keyStr;
+	CHE_PDF_ObjectPtr objPtr;	
+
+	for ( unsigned int i = 0; i < infoDict->GetCount(); ++i )
+	{
+		bRet = infoDict->GetKeyByIndex( i, keyStr );
+		objPtr = infoDict->GetElementByIndex( i );
+
+		if ( ! bRet || ! objPtr )
+		{
+			continue;
+		}
+
+		switch ( objPtr->GetType() )
+		{
+		case OBJ_TYPE_NAME:
+			{
+				printf( "%s : ", keyStr.GetData() );
+
+				CHE_PDF_NamePtr namePtr = objPtr->GetNamePtr();
+				if ( namePtr->GetString().GetLength() > 0 )
+				{
+					printf( "%s", namePtr->GetString().GetData() );
+				}
+				printf( "\n" );
+				break;
+			}
+		case OBJ_TYPE_NUMBER:
+			{
+				printf( "%s : ", keyStr.GetData() );
+				CHE_PDF_NumberPtr number = objPtr->GetNumberPtr();
+				if ( number->IsInteger() )
+				{
+					printf( "%d\n", number->GetInteger() );
+				}else{
+					printf( "%f\n", number->GetFloat() );
+				}
+				break;
+			}
+		case OBJ_TYPE_STRING:
+			{
+				printf( "%s : ", keyStr.GetData() );
+
+				CHE_PDF_StringPtr strPtr = objPtr->GetStringPtr();
+				if ( strPtr->GetString().GetLength() > 0 )
+				{
+					printf( "%s", strPtr->GetString().GetData() );
+				}
+				printf( "\n" );
+				break;
+			}
+		case OBJ_TYPE_BOOLEAN:
+			{
+				printf( "%s : ", keyStr.GetData() );
+				CHE_PDF_BooleanPtr bBool = objPtr->GetBooleanPtr();
+				if ( bBool->GetValue() )
+				{
+					printf( "true\n" );
+				}else{
+					printf( "false\n" );
+				}
+				break;
+			}
+		default:
+			break;
+		}
+	}
+
+	file.Close();
+	HE_DestoryIHERead( pFileRead );
 
 	return 0;
 }

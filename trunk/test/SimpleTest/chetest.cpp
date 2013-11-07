@@ -1,48 +1,104 @@
 #include <cstdio>
 #include <memory.h>
 
+
 #include "../../include/che_bitmap.h"
 #include "../../include/che_datastructure.h"
 #include "../../include/pdf/che_pdf_parser.h"
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../include/pdf/che_pdf_pages.h"
 #include "../../include/pdf/che_pdf_encrypt.h"
-
+#include "../../include/pdf/che_pdf_creator.h"
+#include "../../extlib/freetype/freetype/freetype.h"
 
 int main()
 {
-	CHE_HeapAllocator gDefAlloc;
-	
+// 	CHE_SkipList list;
+//  
+// 	for ( int i = 0; i < 10000; i++ )
+// 	{
+// 		list.Append( i );
+// 	}
+// 
+// 	int x = 0;
+
+
+	//Filter²âÊÔ
+	//CHE_PDF_HexFilter filter;
+// 	HE_BYTE byte[20];
+// 	for ( HE_DWORD i = 0; i < 20; i++ )
+// 	{
+// 		byte[i] = i;
+// 	}
+// 	CHE_DynBuffer buf;
+// 	filter.Encode( byte, 20, buf );
+
+// 	FT_Library ftlib;
+// 	FT_Face ftface;
+// 	FT_Init_FreeType( &ftlib );
+// 	FT_New_Face( ftlib, "c:\\consola.ttf", 0, &ftface );
+// 	const char * pFontName = FT_Get_Postscript_Name( ftface );
+
+	CHE_PDF_Creator creator;
+  
+	creator.NewDocument();
+	CHE_ByteString str = "My PDF File";
+	creator.SetDocumentInfo( DOCUMENT_INFO_TITLE, str );
+	str = "chelib pdf";
+	creator.SetDocumentInfo( DOCUMENT_INFO_AUTHOR, str );
+	creator.SetDocumentInfo( DOCUMENT_INFO_SUBJECT, str );
+	creator.SetDocumentInfo( DOCUMENT_INFO_KEYWORDS, str );
+	creator.SetDocumentInfo( DOCUMENT_INFO_CREATOR, str );
+	creator.SetDocumentInfo( DOCUMENT_INFO_PRODUCER, str );
+	str = "D:20110627152700+08'00";
+	creator.SetDocumentInfo( DOCUMENT_INFO_CREATIONDATE, str );
+	creator.SetDocumentInfo( DOCUMENT_INFO_MODDATE, str );
+
+	CHE_PDF_Dictionary * pFontDict1 = creator.AddType1Font_Standard14( FONT_TYPE1_STANDARD14_TIMES_ROMAN );
+	CHE_PDF_Dictionary * pFontDict2 = creator.AddType1Font_Standard14( FONT_TYPE1_STANDARD14_HELVETICA );
+	CHE_PDF_Dictionary * pFontDict3 = creator.AddTrueTypeFont( "c:\\consola.ttf", TRUE );
+	creator.NewPage( 300, 300 );
+	creator.SetAsPageResource( 0, pFontDict1 );
+	creator.SetAsPageResource( 0, pFontDict2 );
+	creator.SetAsPageResource( 0, pFontDict3 );
+
+	CHE_PDF_Stream * pContentStm = creator.AddStreamAsPageContents( 0 );
+	if ( pContentStm )
+	{
+		HE_LPBYTE pContents = (HE_LPBYTE)"1 0 0 rg\n0 1 0 RG\nBT\n/F2 24 Tf\n50 50 Td\n(Hello World!) Tj\nET\n";
+		pContentStm->SetRawData( pContents, strlen((HE_CHAR*)pContents), STREAM_FILTER_NULL );
+	}
+
+	creator.NewPage( 600, 700 );
+	creator.NewPage( 500, 500 );
+
+	IHE_Write * pWrite = HE_CreateFileWrite( "d:\\adsfdemo.pdf" );
+	creator.Save( pWrite );
+
+
+
+	//CHE_HeapAllocator gDefAlloc;
 	//CHE_ByteString * pStr = NewArray<CHE_ByteString>( 2, gDefAlloc );
-
-	CHE_ByteString * pStr = gDefAlloc.New<CHE_ByteString>( "adsfadsf" );
-
-	gDefAlloc.Delete( pStr );
-
+	//CHE_ByteString * pStr = gDefAlloc.New<CHE_ByteString>( "adsfadsf" );
+	//gDefAlloc.Delete( pStr );
 	//*pStr = "sdfasd";
-
 	//delete pStr;
 	//DeleteArray( pStr, gDefAlloc );
-
 	//IHE_Read * pIHE_Read = HE_CreateFileRead( "D:\\PDFFiles\\AcroJS_7.0.5.pdf" ); //"C:\\EncryptTest.pdf"
 	//CHE_PDF_Parser parser;
 	//parser.StartParse( pIHE_Read );
 	//parser.ParseXRef();
 	//parser.Authenticate( CHE_ByteString("") );
-
 	//CHE_ByteString id1, id2;
 	//CHE_PDF_Dictionary * pRootDict = parser.GetTrailerDict();
 	//CHE_PDF_Array * pIDArray = (CHE_PDF_Array*)pRootDict->GetElement( CHE_ByteString("ID") );
 	//CHE_PDF_String * pID1 = (CHE_PDF_String*)pIDArray->GetElement( 0 );
 	//id1 = pID1->GetString();
-
 	//CHE_PDF_Object * pEncryptRef = pRootDict->GetElement( CHE_ByteString("Encrypt") );
 	//CHE_PDF_IndirectObject * pEncryptInObj = parser.GetIndirectObject( ((CHE_PDF_Reference*)pEncryptRef)->GetRefNuml() );
 //	CHE_PDF_Dictionary * pEncryptDict = pEncryptInObj->GetDict();
-	
 	//HE_BYTE OValue[32];
 	//HE_BYTE UValue[32];
-
 	//CHE_PDF_Object * pElement = pEncryptDict->GetElement( CHE_ByteString("O") );
 	//CHE_ByteString stro = ((CHE_PDF_String*)pElement)->GetString();
 	//pElement = pEncryptDict->GetElement( CHE_ByteString("U") );

@@ -99,14 +99,20 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 	CRenderManager * pRenderManager = pDoc->GetRenderManager();
 	CRenderCache * pCache = pDoc->GetRenderCache();
 	CHE_Rect pageRect;
+	HE_ULONG xOffset = 0;
+	HE_ULONG yOffset = 0;
 	for ( HE_ULONG i = mPageStartIndex; i <= mPageEndIndex; ++i )
 	{
+		yOffset += 5;
+
 		pageRect = pReaderDoc->GetPageRect( i );
 		pageRect.left = pageRect.left * 96.0f / 72;
 		pageRect.bottom = pageRect.bottom * 96.0f / 72;
 		pageRect.height = pageRect.height * 96.0f / 72;
 		pageRect.width = pageRect.width * 96.0f / 72;
 
+		pageRect.bottom += yOffset;
+		
 		if ( dcRect.width > pageRect.width )
 		{
 			x = ( dcRect.width - pageRect.width ) / 2.0f;
@@ -115,20 +121,23 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 		if ( pageRect.IsUnion( dcRect ) )
 		{
 			RECT pageOutLine;
-			pageOutLine.left = x-1;
+			pageOutLine.left = x - 1;
 			pageOutLine.top = pageRect.bottom-1;
 			pageOutLine.right = x + pageRect.width+1;
-			pageOutLine.bottom = pageRect.bottom + pageRect.height+1;
+			pageOutLine.bottom = pageRect.bottom + pageRect.height+1-yOffset;
 			pDC->Rectangle( &pageOutLine );
 			pDC->StrokePath();
-			CHE_Bitmap * pBitmap = pCache->GetRenderBitmap( i, mRotate, mScale );
-			if ( pBitmap )
-			{
-				CBitmap bitmap;
-				bitmap.CreateBitmap( pBitmap->Width(), pBitmap->Height(), 1, pBitmap->Depth(), pBitmap->GetBuffer() );
-				pDC->DrawState( CPoint(x, pageRect.bottom), CSize(pBitmap->Width(), pBitmap->Height()), &bitmap, 0 );
-			}
+
+ 			CHE_Bitmap * pBitmap = pCache->GetRenderBitmap( i, mRotate, mScale );
+ 			if ( pBitmap )
+ 			{
+ 				CBitmap bitmap;
+ 				bitmap.CreateBitmap( pBitmap->Width(), pBitmap->Height(), 1, pBitmap->Depth(), pBitmap->GetBuffer() );
+ 				pDC->DrawState( CPoint(x, pageRect.bottom), CSize(pBitmap->Width(), pBitmap->Height()), &bitmap, 0 );
+ 			}
 		}
+
+		yOffset += 5;
 	}
 }
 

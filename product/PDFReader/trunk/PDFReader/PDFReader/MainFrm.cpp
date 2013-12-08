@@ -36,7 +36,16 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_VIEW_CAPTION_BAR, &CMainFrame::OnViewCaptionBar)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_CAPTION_BAR, &CMainFrame::OnUpdateViewCaptionBar)
 	ON_COMMAND(ID_TOOLS_OPTIONS, &CMainFrame::OnOptions)
-	ON_COMMAND(101010, &CMainFrame::OnZoom)
+	ON_COMMAND(IDC_RIBBON_STATUS_ZOOM_SLIDER, &CMainFrame::OnZoom)
+	ON_COMMAND(IDC_RIBBON_STATUS_ZOOM_BTN, &CMainFrame::OnZoomBtn)
+	ON_COMMAND(IDC_RIBBON_STATUS_PAGENAVI_FIRSTPAGE, &CMainFrame::OnFirstPageBtn)
+	ON_COMMAND(IDC_RIBBON_STATUS_PAGENAVI_PREVIOUSPAGE, &CMainFrame::OnPreviousPageBtn)
+	ON_COMMAND(IDC_RIBBON_STATUS_PAGENAVI_NEXTPAGE, &CMainFrame::OnNextPageBtn)
+	ON_COMMAND(IDC_RIBBON_STATUS_PAGENAVI_LASTPAGE, &CMainFrame::OnLastPageBtn)
+	ON_COMMAND(IDC_RIBBON_STATUS_PAGEVIEWMODE_SINGLEPAGE, &CMainFrame::OnSinglePageBtn)
+	ON_COMMAND(IDC_RIBBON_STATUS_PAGEVIEWMODE_SINGLEPAGE_CONTINUOUS, &CMainFrame::OnSinglePageContinuousBtn)
+	ON_COMMAND(IDC_RIBBON_STATUS_PAGEVIEWMODE_DOUBLEPAGE, &CMainFrame::OnDoublePageBtn)
+	ON_COMMAND(IDC_RIBBON_STATUS_PAGEVIEWMODE_DOUBLEPAGE_CONTINUOUS, &CMainFrame::OnDoublePageBtn)
 END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
@@ -54,8 +63,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CMDIFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
-	BOOL bNameValid;
 
 	// set the visual manager used to draw all user interface elements
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2007));
@@ -80,22 +87,79 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
-	CString strTitlePane1;
-	CString strTitlePane2;
-	bNameValid = strTitlePane1.LoadString(IDS_STATUS_PANE1);
-	ASSERT(bNameValid);
-	bNameValid = strTitlePane2.LoadString(IDS_STATUS_PANE2);
-	ASSERT(bNameValid);
-	m_wndStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE1, strTitlePane1, TRUE), strTitlePane1);
-	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(ID_STATUSBAR_PANE2, strTitlePane2, TRUE), strTitlePane2);
+	BOOL bNameValid;
+	CString resStr;
+	
+	CMFCToolBarImages imageList;
+	imageList.SetImageSize(CSize(16, 16));
+	imageList.Load(IDB_PAGENAVI);
 
-	m_wndStatusBar.AddExtendedElement(new CMFCRibbonStatusBarPane(101010, _T("100%"), FALSE, NULL, _T("1000%")), _T("Zoom"));
-	CMFCRibbonSlider* pSlider = new CMFCRibbonSlider(101010);
-	pSlider->SetZoomButtons( TRUE );
-	pSlider->SetRange(0, 200);
-	pSlider->SetPos(100);
+	mpPageNaviGroup = new CMFCRibbonButtonsGroup;
+	mpPageNaviGroup->SetImages( &imageList, NULL, NULL );
+	mpPageNaviGroup->SetID( IDC_RIBBON_STATUS_PAGENAVI_GROUP );
 
-	m_wndStatusBar.AddExtendedElement(pSlider, _T("Zoom Slider"));
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGENAVI_FIRSTPAGE);
+	ASSERT(bNameValid);
+	mpPageNaviGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGENAVI_FIRSTPAGE, resStr, 0, -1, TRUE ) );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGENAVI_PREVIOUSPAGE);
+	ASSERT(bNameValid);
+	mpPageNaviGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGENAVI_PREVIOUSPAGE, resStr, 1, -1, TRUE ) );
+	
+	mpPageNaviComboBox = new CMFCRibbonComboBox( IDC_RIBBON_STATUS_PAGENAVI_COMBOBOX, TRUE, 100 );
+	mpPageNaviComboBox->SetEditText(_T("1/23"));
+	mpPageNaviGroup->AddButton( mpPageNaviComboBox );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGENAVI_NEXTPAGE);
+	ASSERT(bNameValid);
+	mpPageNaviGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGENAVI_NEXTPAGE, resStr, 2, -1, TRUE ) );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGENAVI_LASTPAGE);
+	ASSERT(bNameValid);
+	mpPageNaviGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGENAVI_LASTPAGE, resStr, 3, -1, TRUE ) );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGENAVI_DES);
+	ASSERT(bNameValid);
+	m_wndStatusBar.AddExtendedElement( mpPageNaviGroup, resStr );
+
+	mpPageViewModeGroup = new CMFCRibbonButtonsGroup;
+	imageList.Load( IDB_PAGEMODE );
+
+	mpPageViewModeGroup->SetImages( &imageList, NULL, NULL );
+	mpPageViewModeGroup->SetID( IDC_RIBBON_STATUS_PAGEVIEWMODE_GROUP );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGEVIEWMODE_SINGLEPAGE);
+	ASSERT(bNameValid);
+	mpPageViewModeGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGEVIEWMODE_SINGLEPAGE, resStr, 0, -1, TRUE ) );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGEVIEWMODE_CONTINUOUSPAGE);
+	ASSERT(bNameValid);
+	mpPageViewModeGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGEVIEWMODE_SINGLEPAGE_CONTINUOUS, resStr, 1, -1, TRUE ) );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGEVIEWMODE_DOUBLEPAGES);
+	ASSERT(bNameValid);
+	mpPageViewModeGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGEVIEWMODE_DOUBLEPAGE, resStr, 2, -1, TRUE ) );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGEVIEWMODE_DOUBLEPAGECONTINUOUS);
+	ASSERT(bNameValid);
+	mpPageViewModeGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGEVIEWMODE_DOUBLEPAGE_CONTINUOUS, resStr, 3, -1, TRUE ) );
+
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGEVIEWMODE);
+	ASSERT(bNameValid);
+	m_wndStatusBar.AddExtendedElement( mpPageViewModeGroup, resStr );
+
+	mpZoomBtn = new CMFCRibbonButton( IDC_RIBBON_STATUS_ZOOM_BTN, _T("  100%") );
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGESCALE);
+	ASSERT(bNameValid);
+	m_wndStatusBar.AddExtendedElement( mpZoomBtn, resStr );
+	
+	mpZoomSlider = new CMFCRibbonSlider(IDC_RIBBON_STATUS_ZOOM_SLIDER);
+	mpZoomSlider->SetZoomButtons( TRUE );
+	mpZoomSlider->SetRange(-100, 100);
+	mpZoomSlider->SetPos(0);
+	bNameValid = resStr.LoadString(IDS_STATUS_PAGESCALE_SLIDER);
+	ASSERT(bNameValid);
+	m_wndStatusBar.AddExtendedElement(mpZoomSlider, resStr  );
 
 	// enable Visual Studio 2005 style docking window behavior
 	CDockingManager::SetDockingMode(DT_SMART);
@@ -274,5 +338,54 @@ void CMainFrame::OnOptions()
 
 void CMainFrame::OnZoom()
 {
-	MessageBoxA( NULL, "sd", "asd", 0 );
+	wchar_t tmpstr[128];
+	wsprintfW( tmpstr, L"%d", mpZoomSlider->GetPos() );
+	mpZoomBtn->SetText( tmpstr );
+ 	mpZoomBtn->Redraw();
+// 	m_wndStatusBar.RecalcLayout();
+}
+
+void CMainFrame::OnZoomBtn(void)
+{
+	MessageBox( _T("OnZoomBtn") );
+}
+
+void CMainFrame::OnFirstPageBtn(void)
+{
+	MessageBox( _T("OnFirstPageBtn") );
+}
+
+void CMainFrame::OnPreviousPageBtn(void)
+{
+	MessageBox( _T("OnPreviousPageBtn") );
+}
+
+void CMainFrame::OnNextPageBtn(void)
+{
+	MessageBox( _T("OnNextPageBtn") );
+}
+
+void CMainFrame::OnLastPageBtn(void)
+{
+	MessageBox( _T("OnLastPageBtn") );
+}
+
+void CMainFrame::OnSinglePageBtn(void)
+{
+	MessageBox( _T("OnSinglePageBtn") );
+}
+
+void CMainFrame::OnSinglePageContinuousBtn(void)
+{
+	MessageBox( _T("OnSinglePageContinuousBtn") );
+}
+
+void CMainFrame::OnDoublePageBtn(void)
+{
+	MessageBox( _T("OnDoublePage") );
+}
+
+void CMainFrame::OnDoublePageContinuousBtn(void)
+{
+	MessageBox( _T("OnDoublePageContinuous") );
 }

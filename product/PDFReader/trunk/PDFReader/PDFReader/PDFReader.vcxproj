@@ -356,6 +356,8 @@ echo.
     <None Include="res\main.bmp" />
     <None Include="res\nav_large.bmp" />
     <None Include="res\nav_large_hc.bmp" />
+    <None Include="res\pagemode.bmp" />
+    <None Include="res\pagenavi .bmp" />
     <None Include="res\pages.bmp" />
     <None Include="res\pages_hc.bmp" />
     <None Include="res\pages_small.bmp" />

@@ -14,6 +14,8 @@
 
 #include "stdafx.h"
 #include "PDFReader.h"
+#include "PDFReaderDoc.h"
+#include "PDFReaderView.h"
 
 #include "MainFrm.h"
 
@@ -46,6 +48,20 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(IDC_RIBBON_STATUS_PAGEVIEWMODE_SINGLEPAGE_CONTINUOUS, &CMainFrame::OnSinglePageContinuousBtn)
 	ON_COMMAND(IDC_RIBBON_STATUS_PAGEVIEWMODE_DOUBLEPAGE, &CMainFrame::OnDoublePageBtn)
 	ON_COMMAND(IDC_RIBBON_STATUS_PAGEVIEWMODE_DOUBLEPAGE_CONTINUOUS, &CMainFrame::OnDoublePageBtn)
+	ON_COMMAND(ID_MENU_SCALE_6400, &CMainFrame::OnMenuScale6400)
+	ON_COMMAND(ID_MENU_SCALE_3200, &CMainFrame::OnMenuScale3200)
+	ON_COMMAND(ID_MENU_SCALE_1600, &CMainFrame::OnMenuScale1600)
+	ON_COMMAND(ID_MENU_SCALE_800, &CMainFrame::OnMenuScale800)
+	ON_COMMAND(ID_MENU_SCALE_400, &CMainFrame::OnMenuScale400)
+	ON_COMMAND(ID_MENU_SCALE_200, &CMainFrame::OnMenuScale200)
+	ON_COMMAND(ID_MENU_SCALE_150, &CMainFrame::OnMenuScale150)
+	ON_COMMAND(ID_MENU_SCALE_125, &CMainFrame::OnMenuScale125)
+	ON_COMMAND(ID_MENU_SCALE_100, &CMainFrame::OnMenuScale100)
+	ON_COMMAND(ID_MENU_SCALE_75, &CMainFrame::OnMenuScale75)
+	ON_COMMAND(ID_MENU_SCALE_50, &CMainFrame::OnMenuScale50)
+	ON_COMMAND(ID_MENU_SCALE_25, &CMainFrame::OnMenuScale25)
+	ON_COMMAND(ID_MENU_SCALE_12, &CMainFrame::OnMenuScale12)
+	ON_UPDATE_COMMAND_UI(IDC_TOOLS_HAND, &CMainFrame::OnUpdateToolsHand)
 END_MESSAGE_MAP()
 
 // CMainFrame construction/destruction
@@ -130,7 +146,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	bNameValid = resStr.LoadString(IDS_STATUS_PAGEVIEWMODE_SINGLEPAGE);
 	ASSERT(bNameValid);
-	mpPageViewModeGroup->AddButton( new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGEVIEWMODE_SINGLEPAGE, resStr, 0, -1, TRUE ) );
+	CMFCRibbonButton * pTmpBtn = new CMFCRibbonButton( IDC_RIBBON_STATUS_PAGEVIEWMODE_SINGLEPAGE, resStr, 0, -1, TRUE );
+	mpPageViewModeGroup->AddButton( pTmpBtn );
 
 	bNameValid = resStr.LoadString(IDS_STATUS_PAGEVIEWMODE_CONTINUOUSPAGE);
 	ASSERT(bNameValid);
@@ -148,7 +165,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	ASSERT(bNameValid);
 	m_wndStatusBar.AddExtendedElement( mpPageViewModeGroup, resStr );
 
+	CMenu menu,*pSubMenu;
+	menu.LoadMenu(IDR_PAGE_SCALE);
+	pSubMenu=menu.GetSubMenu(0);
 	mpZoomBtn = new CMFCRibbonButton( IDC_RIBBON_STATUS_ZOOM_BTN, _T("  100%") );
+	mpZoomBtn->SetMenu( pSubMenu->GetSafeHmenu() );
 	bNameValid = resStr.LoadString(IDS_STATUS_PAGESCALE);
 	ASSERT(bNameValid);
 	m_wndStatusBar.AddExtendedElement( mpZoomBtn, resStr );
@@ -338,11 +359,21 @@ void CMainFrame::OnOptions()
 
 void CMainFrame::OnZoom()
 {
-	wchar_t tmpstr[128];
-	wsprintfW( tmpstr, L"%d", mpZoomSlider->GetPos() );
-	mpZoomBtn->SetText( tmpstr );
- 	mpZoomBtn->Redraw();
-// 	m_wndStatusBar.RecalcLayout();
+	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+	CMDIChildWnd *pChild = (CMDIChildWnd *)pFrame->GetActiveFrame();
+	CPDFReaderView *pView = (CPDFReaderView *)pChild->GetActiveView();
+	if ( pView )
+	{
+		float scale = 1.0f;
+		int posi = mpZoomSlider->GetPos();
+		if ( posi > 0 )
+		{
+			scale += posi * 63.0 / 100.0;  
+		}else{
+			scale += posi * 0.875 / 100.0;
+		}
+		OnScaleChangeTo( scale );
+	}
 }
 
 void CMainFrame::OnZoomBtn(void)
@@ -388,4 +419,102 @@ void CMainFrame::OnDoublePageBtn(void)
 void CMainFrame::OnDoublePageContinuousBtn(void)
 {
 	MessageBox( _T("OnDoublePageContinuous") );
+}
+
+void CMainFrame::OnScaleChangeTo( float scale )
+{
+	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+	CMDIChildWnd *pChild = (CMDIChildWnd *)pFrame->GetActiveFrame();
+	CPDFReaderView *pView = (CPDFReaderView *)pChild->GetActiveView();
+	if ( pView )
+	{
+		pView->SetPageScale( scale );
+		pView->UpdataScrollViewSize();
+		pView->Invalidate();
+		CString str;
+		str.Format( L"%.2f%%", scale * 100 );
+		mpZoomBtn->SetText( str );
+		mpZoomBtn->SetTextAlwaysOnRight( TRUE );
+		m_wndStatusBar.RecalcLayout();
+		m_wndStatusBar.Invalidate();
+	}
+}
+
+void CMainFrame::OnMenuScale6400()
+{
+	OnScaleChangeTo( 64.0f );
+}
+
+void CMainFrame::OnMenuScale3200()
+{
+	OnScaleChangeTo( 32.0f );
+}
+
+void CMainFrame::OnMenuScale1600()
+{
+	OnScaleChangeTo( 16.0f );
+}
+
+
+void CMainFrame::OnMenuScale800()
+{
+	OnScaleChangeTo( 8.0f );
+}
+
+void CMainFrame::OnMenuScale400()
+{
+	OnScaleChangeTo( 4.0f );
+}
+
+void CMainFrame::OnMenuScale200()
+{
+	OnScaleChangeTo( 2.0f );
+}
+
+void CMainFrame::OnMenuScale150()
+{
+	OnScaleChangeTo( 1.5f );
+}
+
+void CMainFrame::OnMenuScale125()
+{
+	OnScaleChangeTo( 1.25f );
+}
+
+void CMainFrame::OnMenuScale100()
+{
+	OnScaleChangeTo( 1.0f );
+}
+
+void CMainFrame::OnMenuScale75()
+{
+	OnScaleChangeTo( 0.75f );
+}
+
+void CMainFrame::OnMenuScale50()
+{
+	OnScaleChangeTo( 0.5f );
+}
+
+void CMainFrame::OnMenuScale25()
+{
+	OnScaleChangeTo( 0.25f );
+}
+
+void CMainFrame::OnMenuScale12()
+{
+	OnScaleChangeTo( 0.125f );
+}
+
+void CMainFrame::OnUpdateToolsHand(CCmdUI *pCmdUI)
+{
+	CMDIFrameWnd *pFrame = (CMDIFrameWnd*)AfxGetApp()->m_pMainWnd;
+	CMDIChildWnd *pChild = (CMDIChildWnd *)pFrame->GetActiveFrame();
+	CPDFReaderView *pView = (CPDFReaderView *)pChild->GetActiveView();
+	if ( pView )
+	{
+		pCmdUI->Enable(TRUE);
+	}else{
+		pCmdUI->Enable(FALSE);
+	}
 }

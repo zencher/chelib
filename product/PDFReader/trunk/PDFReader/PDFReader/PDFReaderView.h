@@ -14,7 +14,21 @@
 
 #pragma once
 
+enum PAGE_VIEW_MODE
+{
+	VIEW_MODE_SINGLEPAGE,
+	VIEW_MODE_SINGLEPAGE_CONTINUOUS,
+	VIEW_MODE_DOUBLEPAGES,
+	VIEW_MODE_DOUBLEPAGES_CONTINUOUS
+};
 
+enum PAGE_VIEW_ROTATE
+{
+	VIEW_ROTATE_0 = 0,
+	VIEW_ROTATE_90 = 90,
+	VIEW_ROTATE_180 = 180,
+	VIEW_ROTATE_270 = 360
+};
 
 
 class CPDFReaderView : public CScrollView
@@ -25,24 +39,32 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	CPDFReaderDoc*	GetDocument() const;
+	CPDFReaderDoc*		GetDocument() const;
 
-	unsigned int	GetViewMode() const { return mViewMode; }
-	unsigned int	GetPageStartIndex() const { return mPageStartIndex; }
-	unsigned int	GetPageEndIndex() const { return mPageEndIndex; }
-	unsigned int	GetRotate() const { return mRotate; }
-	float			GetScale() const { return mScale; }
+	PAGE_VIEW_MODE		GetPageViewMode() const { return mViewMode; }
+	unsigned int		GetPageStartIndex() const { return mPageStartIndex; }
+	unsigned int		GetPageEndIndex() const { return mPageEndIndex; }
+	PAGE_VIEW_ROTATE	GetPageRotate() const { return mRotate; }
+	float				GetPageScale() const { return mScale; }
 
-	void			SetViewMode( unsigned int mode ) { mViewMode = mode; }
-	void			SetRotate( unsigned int rotate ) { mRotate = rotate; }
-	void			SetScale( float scale ) { mScale = scale; }
+	void				SetPageViewMode( PAGE_VIEW_MODE mode ) { mViewMode = mode; }
+	void				SetPageRotate( PAGE_VIEW_ROTATE rotate ) { mRotate = rotate; }
+	void				SetPageScale( float scale ) { mScale = scale; }
+
+	void				UpdataScrollViewSize();
 
 private:
-	unsigned int	mViewMode;	//0：单页连续；1: 双页连续；2：单页
-	unsigned int	mPageStartIndex;
-	unsigned int	mPageEndIndex;
-	unsigned int	mRotate;	//0：不旋转；90：顺时针90度；180：顺时针180度；270：顺时针270度
-	float			mScale; //8.25% - 6400%, 适合高度，适合宽度，100%
+	CHE_Rect			PageRectToViewRect( CHE_Rect & rect );
+	bool				GetPageInViewPosition( unsigned int pageindex, CHE_Rect & rect );
+
+	
+
+private:
+	PAGE_VIEW_MODE		mViewMode;
+	PAGE_VIEW_ROTATE	mRotate;
+	unsigned int		mPageStartIndex;
+	unsigned int		mPageEndIndex;
+	float				mScale;	//8.25% - 6400%, 适合高度，适合宽度，100%
 
 // Operations
 public:

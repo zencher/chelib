@@ -48,7 +48,8 @@ END_MESSAGE_MAP()
 
 
 CPDFReaderView::CPDFReaderView()
-	: mViewMode(0), mPageStartIndex(0), mPageEndIndex(0), mScale(1.0f), mRotate(0)
+	: mViewMode(VIEW_MODE_SINGLEPAGE_CONTINUOUS), mPageStartIndex(0), 
+	mPageEndIndex(0), mScale(1.0f), mRotate(VIEW_ROTATE_0)
 {
 	// TODO: add construction code here
 }
@@ -74,8 +75,8 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 	{
 		return;
 	}
-
-	int x = 0;
+	
+	int x = 10;
 
 	CPoint point = GetScrollPosition();
 	CRect clientRect;
@@ -84,10 +85,16 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 	clientRect.top += point.y;
 	clientRect.bottom += point.y;
 	clientRect.right += point.x;
+	clientRect.left--;
+	clientRect.top--;
+	clientRect.bottom++;
+	clientRect.right++;
+	CBrush * pOld = NULL;
+	CBrush bgbrush( RGB(220,220,220) );
+	pOld = pDC->SelectObject( &bgbrush );
+	pDC->Rectangle( clientRect );
 
- 	//wchar_t str[128];
- 	//wsprintfW( str, L"%i-%i", mPageStartIndex, mPageEndIndex );
- 	//pDC->TextOut( clientRect.left + 50, clientRect.top + 100, str );
+	pDC->SelectObject( pOld );
 
 	CHE_Rect dcRect;
 	dcRect.left = clientRect.left;
@@ -102,16 +109,8 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 	HE_ULONG xOffset = 0;
 	HE_ULONG yOffset = 0;
 	for ( HE_ULONG i = mPageStartIndex; i <= mPageEndIndex; ++i )
-	{
-		yOffset += 5;
-
-		pageRect = pReaderDoc->GetPageRect( i );
-		pageRect.left = pageRect.left * 96.0f / 72;
-		pageRect.bottom = pageRect.bottom * 96.0f / 72;
-		pageRect.height = pageRect.height * 96.0f / 72;
-		pageRect.width = pageRect.width * 96.0f / 72;
-
-		pageRect.bottom += yOffset;
+	{		
+		GetPageInViewPosition( i, pageRect );
 		
 		if ( dcRect.width > pageRect.width )
 		{
@@ -125,7 +124,152 @@ void CPDFReaderView::OnDraw(CDC* pDC)
 			pageOutLine.top = pageRect.bottom-1;
 			pageOutLine.right = x + pageRect.width+1;
 			pageOutLine.bottom = pageRect.bottom + pageRect.height+1-yOffset;
+
+			CPen pen( 0, 1, RGB( 170, 170, 170 ) );
+			pDC->SelectObject( &pen );
 			pDC->Rectangle( &pageOutLine );
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+			CPen pen1( 0, 1, RGB( 175, 175, 175 ) );
+			pDC->SelectObject( &pen1 );
+			pageOutLine.left--;
+  			pageOutLine.top--;
+  			pageOutLine.right++;
+  			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+			CPen pen2( 0, 1, RGB( 180, 180, 180 ) );
+			pDC->SelectObject( &pen2 );
+			pageOutLine.left--;
+			pageOutLine.top--;
+			pageOutLine.right++;
+			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+			CPen pen3( 0, 1, RGB( 185, 185, 185 ) );
+			pDC->SelectObject( &pen3 );
+			pageOutLine.left--;
+			pageOutLine.top--;
+			pageOutLine.right++;
+			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+ 			CPen pen4( 0, 1, RGB( 190, 190, 190 ) );
+ 			pDC->SelectObject( &pen4 );
+			pageOutLine.left--;
+			pageOutLine.top--;
+			pageOutLine.right++;
+			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+			CPen pen5( 0, 1, RGB( 195, 195, 195 ) );
+			pDC->SelectObject( &pen5 );
+			pageOutLine.left--;
+			pageOutLine.top--;
+			pageOutLine.right++;
+			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+			CPen pen6( 0, 1, RGB( 200, 200, 200 ) );
+			pDC->SelectObject( &pen6 );
+			pageOutLine.left--;
+			pageOutLine.top--;
+			pageOutLine.right++;
+			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+			CPen pen7( 0, 1, RGB( 205, 205, 205 ) );
+			pDC->SelectObject( &pen7 );
+			pageOutLine.left--;
+			pageOutLine.top--;
+			pageOutLine.right++;
+			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+			CPen pen8( 0, 1, RGB( 210, 210, 210 ) );
+			pDC->SelectObject( &pen8 );
+			pageOutLine.left--;
+			pageOutLine.top--;
+			pageOutLine.right++;
+			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
+			pDC->StrokePath();
+
+			CPen pen9( 0, 1, RGB( 215, 215, 215 ) );
+			pDC->SelectObject( &pen9 );
+			pageOutLine.left--;
+			pageOutLine.top--;
+			pageOutLine.right++;
+			pageOutLine.bottom++;
+			pDC->BeginPath();
+			pDC->MoveTo( pageOutLine.left, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.top );
+			pDC->LineTo( pageOutLine.right, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.bottom );
+			pDC->LineTo( pageOutLine.left, pageOutLine.top );
+			pDC->EndPath();
 			pDC->StrokePath();
 
  			CHE_Bitmap * pBitmap = pCache->GetRenderBitmap( i, mRotate, mScale );
@@ -136,8 +280,6 @@ void CPDFReaderView::OnDraw(CDC* pDC)
  				pDC->DrawState( CPoint(x, pageRect.bottom), CSize(pBitmap->Width(), pBitmap->Height()), &bitmap, 0 );
  			}
 		}
-
-		yOffset += 5;
 	}
 }
 
@@ -216,14 +358,13 @@ void CPDFReaderView::OnInitialUpdate()
 		return;
 
 	CReaderDocument * pReaderDoc = pDoc->GetReaderDoc();
-
-	CHE_Rect rect = pReaderDoc->GetAllPageRect();
-
-	SetScrollSizes( MM_TEXT, CSize( rect.width * 96.0 / 72, rect.height * 96.0 / 72 ), CSize( rect.width * 96.0 / 72, rect.height * 96.0 / ( 72 * pReaderDoc->GetPageCount() ) ), CSize( rect.width * 96.0 / 72, 10 ) );
-
-	CRenderManager * pRenderManager = pDoc->GetRenderManager();
-	CHE_Rect pageSize = pReaderDoc->GetPageRect( 0 );
-	pRenderManager->NewWork( 0, mScale, mRotate, pageSize, pReaderDoc->GetPageConent( 0 ) );
+	if ( pReaderDoc )
+	{
+		UpdataScrollViewSize();
+		CRenderManager * pRenderManager = pDoc->GetRenderManager();
+		CHE_Rect pageSize = pReaderDoc->GetPageRect( 0 );
+		pRenderManager->NewWork( 0, mScale, mRotate, pageSize, pReaderDoc->GetPageConent( 0 ) );
+	}
 }
 
 
@@ -238,14 +379,14 @@ BOOL CPDFReaderView::OnEraseBkgnd(CDC* pDC)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	//return TRUE;
-	return CScrollView::OnEraseBkgnd(pDC);
+	//return CScrollView::OnEraseBkgnd(pDC);
+
+	return TRUE;
 }
 
 
 BOOL CPDFReaderView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 {
-	// TODO: 在此添加专用代码和/或调用基类
-
 	CPDFReaderDoc* pDoc = GetDocument();
 	if ( pDoc )
 	{
@@ -272,21 +413,16 @@ BOOL CPDFReaderView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 		dcRect.bottom = clientRect.bottom - clientRect.Height();
 		dcRect.width = clientRect.Width();
 		dcRect.height = clientRect.Height();
-		
+
 		bool bFoundMatch = false;
 		for ( HE_ULONG i = 0; i < pReaderDoc->GetPageCount(); ++i )
 		{
-			pageRect = pReaderDoc->GetPageRect( i );
-			pageRect.left = pageRect.left * 96.0f / 72;
-			pageRect.bottom = pageRect.bottom * 96.0f / 72;
-			pageRect.height = pageRect.height * 96.0f / 72;
-			pageRect.width = pageRect.width * 96.0f / 72;
+			GetPageInViewPosition( i, pageRect );
 
-			CHE_Rect renderSize;
-			renderSize.left = 0;
-			renderSize.bottom = 0;
-			renderSize.width = pageRect.width * 72.0 / 96;
-			renderSize.height = pageRect.height * 72.0 / 96;
+			pageRect.left -= 10;
+			pageRect.bottom -= 10;
+			pageRect.width += 10;
+			pageRect.height += 10;
 
 			if ( pageRect.IsUnion( dcRect ) )
 			{
@@ -301,7 +437,10 @@ BOOL CPDFReaderView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 				CHE_Bitmap * pBitmap = pCache->GetRenderBitmap( i, mRotate, mScale );
 				if ( pBitmap == NULL )
 				{
-					pRenderManager->NewWork( i, mScale, mRotate, renderSize, pReaderDoc->GetPageConent( i ) );
+					CHE_Rect pageSize = pReaderDoc->GetPageRect( i );
+					pageSize.left = 0;
+					pageSize.bottom = 0;
+					pRenderManager->NewWork( i, mScale, mRotate, pageSize, pReaderDoc->GetPageConent( i ) );
 				}
 			}else{
 				if ( bFoundMatch == true )
@@ -314,8 +453,6 @@ BOOL CPDFReaderView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 
 		pCache->Update( mPageStartIndex, mPageEndIndex, mRotate, mScale );
 	}
-
-	
 	return CScrollView::OnScrollBy(sizeScroll, bDoScroll);
 }
 
@@ -336,4 +473,103 @@ void CPDFReaderView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		break;
  	}
 	CScrollView::OnVScroll( nSBCode, nPos, pScrollBar);
+}
+
+CHE_Rect CPDFReaderView::PageRectToViewRect( CHE_Rect & rect )
+{
+	CHE_Rect rectRet;
+	float scale = GetPageScale();
+	CHE_Matrix rmatrix;
+	CHE_Matrix smatrix = CHE_Matrix::ScaleMatrix( scale * 96.0 / 72.0, scale * 96.0 / 72.0 );
+	switch ( GetPageRotate() )
+	{
+	case VIEW_ROTATE_0:
+		rmatrix = CHE_Matrix::RotateMatrix( 0 );
+		break;
+	case VIEW_ROTATE_90:
+		rmatrix = CHE_Matrix::RotateMatrix( 90 );
+		break;
+	case VIEW_ROTATE_180:
+		rmatrix = CHE_Matrix::RotateMatrix( 180 );
+		break;
+	case VIEW_ROTATE_270:
+		rmatrix = CHE_Matrix::RotateMatrix( 270 );
+		break;
+	default:
+		break;
+	}
+	smatrix.Concat( rmatrix );
+	rectRet = smatrix.Transform( rect );
+	return rectRet;
+}
+
+bool CPDFReaderView::GetPageInViewPosition( unsigned int pageindex, CHE_Rect & rect )
+{
+	CPDFReaderDoc* pDoc = GetDocument();
+	if ( pDoc )
+	{
+		CReaderDocument * pReaderDoc = pDoc->GetReaderDoc();
+		if ( pReaderDoc )
+		{
+			if ( pageindex >= pReaderDoc->GetPageCount() )
+			{
+				return false;
+			}
+			CHE_Rect pageRect = pReaderDoc->GetPageRect( pageindex );
+			switch ( GetPageViewMode() )
+			{
+			case VIEW_MODE_SINGLEPAGE:
+				{
+					pageRect.left = 0;
+					pageRect.bottom = 0;
+					rect = PageRectToViewRect( pageRect );
+					rect.bottom = 0 + 10 * 2 * pageindex + 10;
+					rect.left = 0;
+					return true;
+				}
+			case VIEW_MODE_SINGLEPAGE_CONTINUOUS:
+				{
+					rect = PageRectToViewRect( pageRect );
+					rect.bottom += 10 * 2 * pageindex + 10;
+					return true;
+				}
+			case VIEW_MODE_DOUBLEPAGES:
+				break;
+			case VIEW_MODE_DOUBLEPAGES_CONTINUOUS:
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	return false;
+}
+
+void CPDFReaderView::UpdataScrollViewSize()
+{
+	CPDFReaderDoc* pDoc = GetDocument();
+	if ( pDoc )
+	{
+		CReaderDocument * pReaderDoc = pDoc->GetReaderDoc();
+		if ( pReaderDoc )
+		{
+			CHE_Rect viewRect( 0.0f, 0.0f, 0.0f, 0.0f );
+			for ( unsigned int i = 0; i < pReaderDoc->GetPageCount(); ++i )
+			{
+				CHE_Rect rect = pReaderDoc->GetPageRect( i );
+				rect.left = 0;
+				rect.bottom = 0;
+				rect = PageRectToViewRect( rect );
+				rect.width += 20;
+				rect.height += 20;
+
+				if ( rect.width > viewRect.width )
+				{
+					viewRect.width = rect.width;
+				}
+				viewRect.height += rect.height;
+			}
+			SetScrollSizes( MM_TEXT, CSize( viewRect.width, viewRect.height ), CSize( viewRect.width, viewRect.height / pReaderDoc->GetPageCount() ), CSize( viewRect.width, 10 ) );
+		}
+	}
 }

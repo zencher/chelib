@@ -85,6 +85,29 @@ protected:
 	afx_msg void OnViewCaptionBar();
 	afx_msg void OnUpdateViewCaptionBar(CCmdUI* pCmdUI);
 	afx_msg void OnOptions();
+	afx_msg void OnZoomBtn(void);
+	afx_msg void OnFirstPageBtn(void);
+	afx_msg void OnPreviousPageBtn(void);
+	afx_msg void OnNextPageBtn(void);
+	afx_msg void OnLastPageBtn(void);
+	afx_msg void OnSinglePageBtn(void);
+	afx_msg void OnSinglePageContinuousBtn(void);
+	afx_msg void OnDoublePageBtn(void);
+	afx_msg void OnDoublePageContinuousBtn(void);
+	afx_msg void OnMenuScale6400();
+	afx_msg void OnMenuScale3200();
+	afx_msg void OnMenuScale1600();
+	afx_msg void OnMenuScale800();
+	afx_msg void OnMenuScale400();
+	afx_msg void OnMenuScale200();
+	afx_msg void OnMenuScale150();
+	afx_msg void OnMenuScale125();
+	afx_msg void OnMenuScale100();
+	afx_msg void OnMenuScale75();
+	afx_msg void OnMenuScale50();
+	afx_msg void OnMenuScale25();
+	afx_msg void OnMenuScale12();
+	afx_msg void OnUpdateToolsHand(CCmdUI *pCmdUI);
 	DECLARE_MESSAGE_MAP()
 
 	BOOL CreateOutlookBar(CMFCOutlookBar& bar, UINT uiID, CMFCShellTreeCtrl& tree, CCalendarBar& calendar, int nInitialWidth);
@@ -96,15 +119,11 @@ protected:
 	CMFCOutlookBarTabCtrl* m_pCurrOutlookWnd;
 	CMFCOutlookBarPane*    m_pCurrOutlookPage;
 public:
-	void OnZoomBtn(void);
-	void OnFirstPageBtn(void);
-	void OnPreviousPageBtn(void);
-	void OnNextPageBtn(void);
-	void OnLastPageBtn(void);
-	void OnSinglePageBtn(void);
-	void OnSinglePageContinuousBtn(void);
-	void OnDoublePageBtn(void);
-	void OnDoublePageContinuousBtn(void);
+
+
+	void OnScaleChangeTo( float scale );
+
+
 };
 
 

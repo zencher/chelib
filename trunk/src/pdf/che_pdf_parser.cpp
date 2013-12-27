@@ -566,7 +566,7 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( CHE_PDF_ParseWordDes & des )
 								case 'e':
 								case 'f':
 									{
-										tmpValue = tmpValue * 16 + (byte - 0x51);
+										tmpValue = tmpValue * 16 + (byte - 0x57);
 										break;
 									}
 								default:

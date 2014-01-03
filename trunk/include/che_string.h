@@ -9,11 +9,12 @@ struct HE_ByteStringData
 	{
 		m_lpString = NULL;
 		m_dwLength = 0;
-		m_dwRef = 1;
+		//m_dwRef = 1;
 	}
 	HE_LPSTR m_lpString;
 	HE_ULONG m_dwLength;
-	HE_ULONG m_dwRef;
+	//HE_ULONG m_dwRef;
+	CHE_RefCount m_dwRef;
 };
 
 class CHE_ByteString : public CHE_Object
@@ -99,7 +100,8 @@ struct HE_WideStringData
 {
 	HE_LPWSTR m_lpString;
 	HE_ULONG m_dwLength;
-	HE_ULONG m_dwRef;
+	//HE_ULONG m_dwRef;
+	CHE_RefCount m_dwRef;
 };
 
 class CHE_WideString : public CHE_Object

@@ -13,7 +13,8 @@ CHE_ByteString::CHE_ByteString( HE_CHAR ch, CHE_Allocator * pAllocator )
 	}else{
 		m_lpData = GetAllocator()->New<HE_ByteStringData>();
 		m_lpData->m_dwLength = 1;
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_lpString[0] = ch;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( 2 );
 		m_lpData->m_lpString[1] = '\0';
@@ -40,7 +41,8 @@ CHE_ByteString::CHE_ByteString( HE_LPCSTR lpStr, HE_LONG nStrSize /* = -1 */, CH
 	if ( nStrlen > 0 )
 	{
 		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_dwLength = nStrlen;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( nStrlen+1 );
 		strcpy( m_lpData->m_lpString, lpStr );
@@ -58,7 +60,8 @@ CHE_ByteString::CHE_ByteString( const CHE_ByteString& str )
 		m_lpData = NULL;
 	}else{
 		m_lpData = str.m_lpData;
-		str.m_lpData->m_dwRef++;
+		//str.m_lpData->m_dwRef++;
+		str.m_lpData->m_dwRef.AddRef();
 	}
 }
 
@@ -66,7 +69,8 @@ HE_VOID CHE_ByteString::Clear()
 {
 	if ( m_lpData )
 	{
-		--(m_lpData->m_dwRef);
+		//--(m_lpData->m_dwRef);
+		m_lpData->m_dwRef.DecRef();
 
 		if ( m_lpData->m_dwRef == 0 && m_lpData->m_lpString )
 		{
@@ -90,7 +94,8 @@ CHE_ByteString& CHE_ByteString::operator=( HE_CHAR ch )
 	
 	m_lpData = GetAllocator()->New<HE_ByteStringData>();
 	m_lpData->m_dwLength = 1;
-	m_lpData->m_dwRef = 1;
+	//m_lpData->m_dwRef = 1;
+	m_lpData->m_dwRef.AddRef();
 	m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( 2 );
 	m_lpData->m_lpString[0] = ch;
 	m_lpData->m_lpString[1] = '\0';
@@ -114,7 +119,8 @@ CHE_ByteString& CHE_ByteString::operator=( HE_LPCSTR lpStr )
 	}
 
 	m_lpData = GetAllocator()->New<HE_ByteStringData>();
-	m_lpData->m_dwRef = 1;
+	//m_lpData->m_dwRef = 1;
+	m_lpData->m_dwRef.AddRef();
 	m_lpData->m_dwLength = nStrlen;
 	m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( nStrlen+1 );
 	strcpy( m_lpData->m_lpString, lpStr );
@@ -139,7 +145,8 @@ CHE_ByteString& CHE_ByteString::operator=( const CHE_ByteString& str )
 	if ( str.m_lpData )
 	{
 		m_lpData = str.m_lpData;
-		str.m_lpData->m_dwRef++;
+		//str.m_lpData->m_dwRef++;
+		str.m_lpData->m_dwRef.AddRef();
 	}
 
 	return *this;
@@ -235,27 +242,29 @@ HE_BOOL	CHE_ByteString::SetData( HE_BYTE * pData, HE_ULONG size )
 	if ( m_lpData == NULL )
 	{
 		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_dwLength = size;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( size+1 );
 		memcpy( m_lpData->m_lpString, pData, size );
 		m_lpData->m_lpString[size] = '\0';
 	}else{
-		m_lpData->m_dwRef--;
+		//m_lpData->m_dwRef--;
+		m_lpData->m_dwRef.DecRef();
 		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
 			{
 				GetAllocator()->DeleteArray<HE_CHAR>( m_lpData->m_lpString );
 			}
-			m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_dwLength = size;
 			m_lpData->m_lpString= GetAllocator()->NewArray<HE_CHAR>( size+1 );
 			memcpy( m_lpData->m_lpString, pData, size );
 			m_lpData->m_lpString[size] = '\0';
 		}else {
 			m_lpData = GetAllocator()->New<HE_ByteStringData>();
-			m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_dwLength = size;
 			m_lpData->m_lpString= GetAllocator()->NewArray<HE_CHAR>( size+1 );
 			memcpy( m_lpData->m_lpString, pData, size );
@@ -500,7 +509,8 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 	if ( m_lpData == NULL )
 	{
 		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_dwLength = 1;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( 2 );
 		m_lpData->m_lpString[0] = ch;
@@ -509,7 +519,8 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 		if ( m_lpData->m_lpString == NULL )
 		{
 			m_lpData->m_dwLength = 1;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef.AddRef();
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( 2 );
 			m_lpData->m_lpString[0] = ch;
 			m_lpData->m_lpString[1] = '\0';
@@ -517,7 +528,8 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 		}
 		HE_LPSTR pTempStr = GetAllocator()->NewArray<HE_CHAR>( strlen(m_lpData->m_lpString)+2 );
 		strcpy( pTempStr, m_lpData->m_lpString );
-		m_lpData->m_dwRef--;
+		//m_lpData->m_dwRef--;
+		m_lpData->m_dwRef.DecRef();
 		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
@@ -526,11 +538,13 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_CHAR ch )
 				m_lpData->m_lpString = NULL;
 			}
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 		}else{
 			m_lpData = GetAllocator()->New<HE_ByteStringData>();
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_lpString = NULL;
 		}
 		
@@ -562,7 +576,8 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_LPCSTR lpStr )
 	{
 		size_t iStrlen = strlen(lpStr);
 		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( iStrlen+1 );
 		strcpy( m_lpData->m_lpString, lpStr );
 		m_lpData->m_dwLength = iStrlen;
@@ -573,14 +588,15 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_LPCSTR lpStr )
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( dwStrlen+1 );
 			strcpy( m_lpData->m_lpString, lpStr );
 			m_lpData->m_dwLength = dwStrlen;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
 			return *this;
 		}
 
 		HE_LPSTR pTempStr = GetAllocator()->NewArray<HE_CHAR>( strlen(m_lpData->m_lpString)+1 );
 		strcpy( pTempStr, m_lpData->m_lpString );
 
-		m_lpData->m_dwRef--;
+		//m_lpData->m_dwRef--;
+		m_lpData->m_dwRef.DecRef();
 		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
@@ -589,11 +605,13 @@ CHE_ByteString& CHE_ByteString::operator+=( HE_LPCSTR lpStr )
 				m_lpData->m_lpString = NULL;
 			}
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 		}else{
 			m_lpData = GetAllocator()->New<HE_ByteStringData>();
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_lpString = NULL;
 		}
 
@@ -619,7 +637,8 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 		HE_LPSTR pTempStr = GetAllocator()->NewArray<HE_CHAR>( strlen(m_lpData->m_lpString)+1 );
 		strcpy( pTempStr, m_lpData->m_lpString );
 
-		m_lpData->m_dwRef--;
+		//m_lpData->m_dwRef--;
+		m_lpData->m_dwRef.DecRef();
 		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
@@ -628,11 +647,13 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 				m_lpData->m_lpString = NULL;
 			}
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 		}else{
 			m_lpData = GetAllocator()->New<HE_ByteStringData>();
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_lpString = NULL;
 		}
 
@@ -653,7 +674,9 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 			HE_LPSTR pTempStr = GetAllocator()->NewArray<HE_CHAR>( strlen(m_lpData->m_lpString)+1 );
 			strcpy( pTempStr, m_lpData->m_lpString );
 
-			m_lpData->m_dwRef-=2;
+			//m_lpData->m_dwRef-=2;
+			m_lpData->m_dwRef.DecRef();
+			m_lpData->m_dwRef.DecRef();
 			if ( m_lpData->m_dwRef == 0 )
 			{
 				if ( m_lpData->m_lpString )
@@ -662,10 +685,14 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 					m_lpData->m_lpString = NULL;
 				}
 				m_lpData->m_dwLength = 0;
-				m_lpData->m_dwRef = 2;
+				//m_lpData->m_dwRef = 2;
+				m_lpData->m_dwRef.AddRef();
+				m_lpData->m_dwRef.AddRef();
 			}else{
 				m_lpData = GetAllocator()->New<HE_ByteStringData>();
-				m_lpData->m_dwRef = 2;
+				//m_lpData->m_dwRef = 2;
+				m_lpData->m_dwRef.AddRef();
+				m_lpData->m_dwRef.AddRef();
 				m_lpData->m_lpString = NULL;
 				m_lpData->m_dwLength = 0;
 			}
@@ -700,13 +727,15 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 					GetAllocator()->DeleteArray<HE_CHAR>( m_lpData->m_lpString );
 					m_lpData->m_lpString = NULL;
 					m_lpData->m_dwLength = 0;
-					m_lpData->m_dwRef = 1;
+					//m_lpData->m_dwRef = 1;
 				}
 			}else{
-				m_lpData->m_dwRef--;
+				//m_lpData->m_dwRef--;
+				m_lpData->m_dwRef.DecRef();
 				m_lpData = GetAllocator()->New<HE_ByteStringData>();
 				m_lpData->m_dwLength = 0;
-				m_lpData->m_dwRef = 1;
+				//m_lpData->m_dwRef = 1;
+				m_lpData->m_dwRef.AddRef();
 				m_lpData->m_lpString = NULL;
 			}
 
@@ -849,7 +878,8 @@ CHE_WideString::CHE_WideString( HE_WCHAR wch, CHE_Allocator * pAllocator ) : CHE
 	}else{
 		m_lpData = GetAllocator()->New<HE_WideStringData>();
 		m_lpData->m_dwLength = 1;
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>(2);
 		m_lpData->m_lpString[0] = wch;
 		m_lpData->m_lpString[1] = '\0';
@@ -875,7 +905,8 @@ CHE_WideString::CHE_WideString( HE_LPCWSTR lpwstr, HE_LONG nStrSize /* = -1 */, 
 	if ( nStrlen > 0 )
 	{
 		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_dwLength = nStrlen;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( nStrlen+1 );
 		wcscpy( m_lpData->m_lpString, lpwstr );
@@ -892,7 +923,8 @@ CHE_WideString::CHE_WideString( const CHE_WideString& wstr ) : CHE_Object( wstr.
 		m_lpData = NULL;
 	}else{
 		m_lpData = wstr.m_lpData;
-		wstr.m_lpData->m_dwRef++;
+		//wstr.m_lpData->m_dwRef++;
+		wstr.m_lpData->m_dwRef.AddRef();
 	}
 }
 
@@ -900,7 +932,8 @@ HE_VOID CHE_WideString::Clear()
 {
 	if ( m_lpData )
 	{
-		--(m_lpData->m_dwRef);
+		//--(m_lpData->m_dwRef);
+		m_lpData->m_dwRef.DecRef();
 
 		if ( m_lpData->m_dwRef == 0 && m_lpData->m_lpString )
 		{
@@ -924,7 +957,8 @@ CHE_WideString& CHE_WideString::operator=( HE_WCHAR wch )
 
 	m_lpData = GetAllocator()->New<HE_WideStringData>();
 	m_lpData->m_dwLength = 1;
-	m_lpData->m_dwRef = 1;
+	//m_lpData->m_dwRef = 1;
+	m_lpData->m_dwRef.AddRef();
 	m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( 2 );
 	m_lpData->m_lpString[0] = wch;
 	m_lpData->m_lpString[1] = (HE_WCHAR)( 0x0000 );
@@ -948,7 +982,8 @@ CHE_WideString& CHE_WideString::operator=( HE_LPCWSTR lpWstr )
 	}
 
 	m_lpData = GetAllocator()->New<HE_WideStringData>();
-	m_lpData->m_dwRef = 1;
+	//m_lpData->m_dwRef = 1;
+	m_lpData->m_dwRef.AddRef();
 	m_lpData->m_dwLength = nStrlen;
 	m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( nStrlen+1 );
 	wcscpy( m_lpData->m_lpString, lpWstr );
@@ -973,7 +1008,8 @@ CHE_WideString& CHE_WideString::operator=( const CHE_WideString& wstr )
 	if ( wstr.m_lpData )
 	{
 		m_lpData = wstr.m_lpData;
-		wstr.m_lpData->m_dwRef++;
+		//wstr.m_lpData->m_dwRef++;
+		wstr.m_lpData->m_dwRef.AddRef();
 	}
 
 	return *this;
@@ -1069,27 +1105,31 @@ HE_BOOL	CHE_WideString::SetData( HE_WCHAR * pData, HE_ULONG size )
 	if ( m_lpData == NULL )
 	{
 		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_dwLength = size;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>(size+1);
 		memcpy( m_lpData->m_lpString, pData, size * sizeof( HE_WCHAR ) );
 		m_lpData->m_lpString[size] = '\0';
 	}else{
-		m_lpData->m_dwRef--;
+		//m_lpData->m_dwRef--;
+		m_lpData->m_dwRef.DecRef();
 		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
 			{
 				GetAllocator()->DeleteArray<HE_WCHAR>( m_lpData->m_lpString );
 			}
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_dwLength = size;
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>(size+1);
 			memcpy( m_lpData->m_lpString, pData, size * sizeof( HE_WCHAR ) );
 			m_lpData->m_lpString[size] = '\0';
 		}else {
 			m_lpData = GetAllocator()->New<HE_WideStringData>();
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_dwLength = size;
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( size+1 );
 			memcpy( m_lpData->m_lpString, pData, size * sizeof( HE_WCHAR ) );
@@ -1332,7 +1372,8 @@ CHE_WideString& CHE_WideString::operator+=( HE_WCHAR wch )
 	if ( m_lpData == NULL )
 	{
 		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_dwLength = 1;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>(2);
 		m_lpData->m_lpString[0] = wch;
@@ -1341,7 +1382,8 @@ CHE_WideString& CHE_WideString::operator+=( HE_WCHAR wch )
 		if ( m_lpData->m_lpString == NULL )
 		{
 			m_lpData->m_dwLength = 1;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>(2);
 			m_lpData->m_lpString[0] = wch;
 			m_lpData->m_lpString[1] = '\0';
@@ -1352,7 +1394,8 @@ CHE_WideString& CHE_WideString::operator+=( HE_WCHAR wch )
 		HE_LPWSTR pTempStr = GetAllocator()->NewArray<HE_WCHAR>( wcslen(m_lpData->m_lpString)+2 );
 		wcscpy( pTempStr, m_lpData->m_lpString );
 		
-		m_lpData->m_dwRef--;
+		//m_lpData->m_dwRef--;
+		m_lpData->m_dwRef.DecRef();
 		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
@@ -1361,11 +1404,13 @@ CHE_WideString& CHE_WideString::operator+=( HE_WCHAR wch )
 				m_lpData->m_lpString = NULL;
 			}
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 		}else{
 			m_lpData = GetAllocator()->New<HE_WideStringData>();
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_lpString = NULL;
 		}
 		
@@ -1397,7 +1442,8 @@ CHE_WideString& CHE_WideString::operator+=( HE_LPCWSTR lpWstr )
 	{
 		size_t iStrlen = wcslen(lpWstr);
 		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		m_lpData->m_dwRef = 1;
+		//m_lpData->m_dwRef = 1;
+		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( iStrlen+1 );
 		wcscpy( m_lpData->m_lpString, lpWstr );
 		m_lpData->m_dwLength = iStrlen;
@@ -1408,7 +1454,8 @@ CHE_WideString& CHE_WideString::operator+=( HE_LPCWSTR lpWstr )
 			m_lpData->m_lpString = GetAllocator()->NewArray<HE_WCHAR>( dwStrlen+1 );
 			wcscpy( m_lpData->m_lpString, lpWstr );
 			m_lpData->m_dwLength = dwStrlen;
-			m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
+			//m_lpData->m_dwRef = 1;
 			
 			return *this;
 		}
@@ -1416,7 +1463,8 @@ CHE_WideString& CHE_WideString::operator+=( HE_LPCWSTR lpWstr )
 		HE_LPWSTR pTempStr = GetAllocator()->NewArray<HE_WCHAR>( wcslen(m_lpData->m_lpString)+1 );
 		wcscpy( pTempStr, m_lpData->m_lpString );
 		
-		m_lpData->m_dwRef--;
+		//m_lpData->m_dwRef--;
+		m_lpData->m_dwRef.DecRef();
 		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
@@ -1425,11 +1473,13 @@ CHE_WideString& CHE_WideString::operator+=( HE_LPCWSTR lpWstr )
 				m_lpData->m_lpString = NULL;
 			}
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 		}else{
 			m_lpData = GetAllocator()->New<HE_WideStringData>();
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_lpString = NULL;
 		}
 		
@@ -1455,7 +1505,8 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 		HE_LPWSTR pTempStr = GetAllocator()->NewArray<HE_WCHAR>( wcslen(m_lpData->m_lpString)+1 );
 		wcscpy( pTempStr, m_lpData->m_lpString );
 
-		m_lpData->m_dwRef--;
+		//m_lpData->m_dwRef--;
+		m_lpData->m_dwRef.DecRef();
 		if ( m_lpData->m_dwRef == 0 )
 		{
 			if ( m_lpData->m_lpString )
@@ -1464,11 +1515,13 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 				m_lpData->m_lpString = NULL;
 			}
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 		}else{
 			m_lpData = GetAllocator()->New<HE_WideStringData>();
 			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef = 1;
+			//m_lpData->m_dwRef = 1;
+			m_lpData->m_dwRef.AddRef();
 			m_lpData->m_lpString = NULL;
 		}
 
@@ -1489,7 +1542,9 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 			HE_LPWSTR pTempStr = GetAllocator()->NewArray<HE_WCHAR>( wcslen(m_lpData->m_lpString)+1 );
 			wcscpy( pTempStr, m_lpData->m_lpString );
 
-			m_lpData->m_dwRef-=2;
+			//m_lpData->m_dwRef-=2;
+			m_lpData->m_dwRef.DecRef();
+			m_lpData->m_dwRef.DecRef();
 			if ( m_lpData->m_dwRef == 0 )
 			{
 				if ( m_lpData->m_lpString )
@@ -1498,10 +1553,14 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 					m_lpData->m_lpString = NULL;
 				}
 				m_lpData->m_dwLength = 0;
-				m_lpData->m_dwRef = 2;
+				//m_lpData->m_dwRef = 2;
+				m_lpData->m_dwRef.AddRef();
+				m_lpData->m_dwRef.AddRef();
 			}else{
 				m_lpData = GetAllocator()->New<HE_WideStringData>();
-				m_lpData->m_dwRef = 2;
+				//m_lpData->m_dwRef = 2;
+				m_lpData->m_dwRef.AddRef();
+				m_lpData->m_dwRef.AddRef();
 				m_lpData->m_lpString = NULL;
 				m_lpData->m_dwLength = 0;
 			}
@@ -1536,13 +1595,15 @@ CHE_WideString& CHE_WideString::operator+=( const CHE_WideString& wstr )
 					GetAllocator()->DeleteArray<HE_WCHAR>( m_lpData->m_lpString );
 					m_lpData->m_lpString = NULL;
 					m_lpData->m_dwLength = 0;
-					m_lpData->m_dwRef = 1;
+					//m_lpData->m_dwRef = 1;
 				}
 			}else{
-				m_lpData->m_dwRef--;
+				//m_lpData->m_dwRef--;
+				m_lpData->m_dwRef.DecRef();
 				m_lpData = GetAllocator()->New<HE_WideStringData>();
 				m_lpData->m_dwLength = 0;
-				m_lpData->m_dwRef = 1;
+				//m_lpData->m_dwRef = 1;
+				m_lpData->m_dwRef.AddRef();
 				m_lpData->m_lpString = NULL;
 			}
 

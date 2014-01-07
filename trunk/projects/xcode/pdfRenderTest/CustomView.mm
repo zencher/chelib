@@ -15,44 +15,87 @@
     self = [super initWithFrame:frame];
     if (self)
     {
-        // Initialization code here.
-        data = [[PdfDocumentData alloc] initWithFilePath:@"/Users/zencher/Desktop/test/test2.pdf"];
+        pdfDocument = [[PdfDocumentData alloc] initWithFilePath:@"/Users/zencher/PDFResearch/Files/澳洲史.pdf"];
+        pageIndex = 0;
+        mouseDownPt.x = 0;
+        mouseDownPt.y = 0;
+        pageOffset.width = 0;
+        pageOffset.height = 0;
     }
     
     return self;
 }
 
 - (void)drawRect:(NSRect)dirtyRect
-{    
-    CGContextRef contextRef = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
-    CGContextMoveToPoint( contextRef , 0, 0 );
-    CGContextAddLineToPoint( contextRef, 100, 100 );
-    CGContextStrokePath( contextRef );
+{
+    NSRect bounds = [self bounds];
     
-    /*CHE_Bitmap bitmap;
-    bitmap.Create( 100 , 100, BITMAP_DEPTH_32BPP, BITMAP_DIRECTION_DOWN );
-    bitmap.Fill( 0xFF225566 );
+    [[NSColor whiteColor] set];
+    NSRectFill( [self bounds] );
     
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    NSLog(@"draw...");
     
-    CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, bitmap.GetBuffer(), 100 * 100 * 4, NULL );
+    /*CGRect pageRect = CGRectMake( 0 + pageOffset.width, bounds.size.height - [pdfDocument getDrawer]->GetHeight() + pageOffset.height, [pdfDocument getDrawer]->GetWidth(), [pdfDocument getDrawer]->GetHeight() );
+    if ( bounds.size.width > [pdfDocument getDrawer]->GetWidth() )
+    {
+        pageRect.origin.x = bounds.size.width - [pdfDocument getDrawer]->GetWidth();
+        pageRect.origin.x /= 2;
+    }
+    if ( bounds.size.height > [pdfDocument getDrawer]->GetHeight() )
+    {
+        pageRect.origin.y = bounds.size.height - [pdfDocument getDrawer]->GetHeight();
+        pageRect.origin.y /= 2;
+    }*/
     
-    CGImageRef imageRef = CGImageCreate( 100, 100, 8, 32, 100 * 4 , NULL, kCGImageAlphaFirst | kCGBitmapByteOrderDefault, dataRef, NULL, false, kCGRenderingIntentDefault );
-    
-    CHE_Matrix matrix( 100, 0, 0, 100, 0, 0 );
-    CHE_Rect rect;
-    rect.left = 0;
-    rect.bottom = 0;
-    rect.width = 1;
-    rect.height = 1;
-    rect = matrix.Transform( rect );
+    CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+    if ( context )
+    {
+        CHE_PDF_Renderer render( context );
+        render.Render( *[pdfDocument getPageContent:pageIndex] );
+    }
+}
 
-    CGContextDrawImage( contextRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height ), imageRef );*/
+- (void)mouseDown:(NSEvent *)theEvent
+{
+    //self->mouseDownPt = [theEvent locationInWindow];
+}
 
-    
-    //CGImageRef imageRef = CGBitmapContextCreateImage( drawer.GetContextRef() );
-    //CGRect rect = CGRectMake( 0 , 0, drawer.GetWidth(), drawer.GetHeight() );
-    //CGContextDrawImage( contextRef , rect, imageRef );
+- (void)mouseDragged:(NSEvent *)theEvent
+{
+    //NSPoint currentLocation = [theEvent locationInWindow];
+    //self->pageOffset.width = currentLocation.x - self->mouseDownPt.x;
+    //self->pageOffset.height = currentLocation.y - self->mouseDownPt.y;
+    //[self setNeedsDisplay:YES];
+}
+
+- (IBAction)onPreviousPage:(id)sender
+{
+    if ( pageIndex > 0 ) {
+        pageIndex--;
+    }
+    [self setNeedsDisplay:YES];
+}
+
+- (IBAction)onNextPage:(id)sender
+{
+    pageIndex++;
+    [self setNeedsDisplay:YES];
+}
+
+- (IBAction)onFileOpen:(id)sender
+{
+    NSOpenPanel *panel = [NSOpenPanel openPanel];
+    //[panel setDirectory:NSHomeDirectory()]; // Set panel's default directory.
+    [panel setAllowedFileTypes:[NSImage imageFileTypes]]; // Set what kind of file to select.
+    // More panel configure code.
+    [panel beginSheetModalForWindow:[self window] completionHandler:
+    (^(NSInteger result)
+    {
+        if(result == NSOKButton)
+        {
+            NSArray *fileURLs = [panel URLs];
+        }
+    })];
 }
 
 @end

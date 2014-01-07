@@ -15,21 +15,17 @@
     self = [super init];
     if ( self )
     {
-        pageIndex       = 0;
         pageCount       = 0;
         fileReadInf     = NULL;
         pdfFile         = NULL;
         pdfDocument     = NULL;
         pdfPageTree     = NULL;
-        pdfPage         = NULL;
         pdfFontMgr      = NULL;
-        pdfDrawer       = NULL;
         
         allocator = GetDefaultAllocator();
         pdfFontMgr = allocator->New<CHE_PDF_FontMgr>( allocator );
-        pdfDrawer = allocator->New<CHE_GraphicsDrawer>( 1, 1 );
         
-        fileReadInf = HE_CreateFileRead( [path cStringUsingEncoding:NSASCIIStringEncoding] );
+        fileReadInf = HE_CreateFileRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
         if ( fileReadInf )
         {
             pdfFile = allocator->New<CHE_PDF_File>( allocator );
@@ -48,27 +44,38 @@
                         {
                             pageContents[i] = NULL;
                         }
-                        
-                        pdfPage = pdfPageTree->GetPage( pageIndex );
-                        if ( pdfPage )
-                        {
-                            CHE_PDF_DictionaryPtr pageDict = pdfPage->GetPageDict();
-                            CHE_PDF_DictionaryPtr resDict = pdfPage->GetResourcesDict();
-                            if ( pageContents[pageIndex] == NULL )
-                            {
-                                pageContents[pageIndex] = allocator->New<CHE_PDF_ContentObjectList>( resDict, allocator );
-                                GetPageContent( pageDict, pageContents[pageIndex], pdfFontMgr, allocator );
-                                CHE_Rect rect = pdfPage->GetMediaBox();
-                                CHE_PDF_Renderer::Render( *pageContents[pageIndex], *pdfDrawer, rect );
-                                pdfDrawer->SaveToFile( "/Users/zencher/sdf1.png" );
-                            }
-                        }
                     }
                 }
             }
         }
     }
     return self;
+}
+
+-(CHE_PDF_ContentObjectList*)getPageContent:(unsigned int)index
+{
+    if ( index < pageCount )
+    {
+        if ( pageContents[index] != NULL )
+        {
+            return pageContents[index];
+        }else{
+            CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
+            if ( pdfPage )
+            {
+                CHE_PDF_DictionaryPtr pageDict = pdfPage->GetPageDict();
+                CHE_PDF_DictionaryPtr resDict = pdfPage->GetResourcesDict();
+                pageContents[index] = allocator->New<CHE_PDF_ContentObjectList>( resDict, allocator );
+                GetPageContent( pageDict, pageContents[index], pdfFontMgr, allocator );
+                if ( pageContents[index] )
+                {
+                    return pageContents[index];
+                }
+            }
+            pdfPageTree->ReleasePage( pdfPage );
+        }
+    }
+    return NULL;
 }
 
 @end

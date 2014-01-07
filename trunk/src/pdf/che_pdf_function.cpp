@@ -2,6 +2,7 @@
 #include "../../include/pdf/che_pdf_parser.h"
 
 #include <math.h>
+#include <float.h>
 
 #define A(a)		(a)
 #define B(a,b)		(a | b<<8)
@@ -1634,7 +1635,8 @@ HE_BOOL CHE_PDF_Function_PostScript::RunCode( std::vector<HE_FLOAT> & input, std
 // 	{
 // 		x = ps_pop_real(&st);
 // 		out[i] = fz_clamp(x, func->range[i][0], func->range[i][1]);
-// 	}
+// 	}
+
 
 }
 

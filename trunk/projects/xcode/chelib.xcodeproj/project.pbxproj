@@ -728,8 +728,6 @@
 		909E1157175447C600540539 /* pdf */ = {
 			isa = PBXGroup;
 			children = (
-				90CC6B2B1783C5450007082E /* che_pdf_function.h */,
-				90CC6B2C1783C5450007082E /* che_pdf_gstate.h */,
 				90A01AD01754EC43009DCBD9 /* che_pdf_cmap.h */,
 				90A01ACF1754EC43009DCBD9 /* che_pdf_cmap_res.h */,
 				909E116A175447F900540539 /* che_pdf_collector.h */,
@@ -747,6 +745,8 @@
 				909E116E175447F900540539 /* che_pdf_filter.h */,
 				90A01AD91754EC43009DCBD9 /* che_pdf_font.h */,
 				90A01ADA1754EC43009DCBD9 /* che_pdf_fontmgr.h */,
+				90CC6B2B1783C5450007082E /* che_pdf_function.h */,
+				90CC6B2C1783C5450007082E /* che_pdf_gstate.h */,
 				90A01ADD1754EC43009DCBD9 /* che_pdf_image.h */,
 				90A01ADE1754EC43009DCBD9 /* che_pdf_objclone.h */,
 				909E116F175447F900540539 /* che_pdf_objects.h */,
@@ -1664,6 +1664,7 @@
 					OPJ_STATIC,
 				);
 				INFOPLIST_FILE = "pdfRenderTest/pdfRenderTest-Info.plist";
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1681,6 +1682,7 @@
 					OPJ_STATIC,
 				);
 				INFOPLIST_FILE = "pdfRenderTest/pdfRenderTest-Info.plist";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};

@@ -4,12 +4,13 @@
 #include <ApplicationServices/ApplicationServices.h>
 
 #include "che_define.h"
-#include "che_bitmap.h"
 #include "che_graphics.h"
+#include "che_bitmap.h"
 
 class CHE_GraphicsDrawer
 {
 public:
+    CHE_GraphicsDrawer( CGContextRef context );
     CHE_GraphicsDrawer( HE_ULONG width, HE_ULONG height );
     ~CHE_GraphicsDrawer();
 
@@ -48,6 +49,10 @@ public:
     
     HE_VOID     DrawBitmap( CHE_Bitmap * pBitmap );
     
+    HE_VOID     SetTextFont( HE_LPBYTE fontData, HE_ULONG dataSize );
+    HE_VOID     SetTextMatrix( CHE_Matrix textMatrix );
+    HE_VOID     DrawText( unsigned short gid );
+    
     //todo
     HE_VOID         SaveToFile( const char * pPath );
     CGContextRef    GetContextRef() const { return mContentRef; }
@@ -60,6 +65,7 @@ private:
     HE_ULONG					mHeight;
     CHE_Matrix                  mMatrix;
     CHE_Matrix					mExtMatrix;
+    CHE_Matrix                  mTextMatrix;
     CGAffineTransform           mAffineTransform;
     GRAPHICS_STATE_FILLMODE     mFillMode;
     CGMutablePathRef            mPathRef;

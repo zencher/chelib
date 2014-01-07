@@ -1,13 +1,25 @@
 #include "../include/che_drawer_macosx.h"
 
+CHE_GraphicsDrawer::CHE_GraphicsDrawer( CGContextRef context )
+{
+    mContentRef = context;
+}
+
 CHE_GraphicsDrawer::CHE_GraphicsDrawer( HE_ULONG width, HE_ULONG height )
     : mContentRef( NULL ), mWidth( width ), mHeight( height ),
       mExtMatrix( CHE_Matrix() ), mFillMode( FillMode_Nonzero ), mPathRef( NULL )
 {
     mColorSpaceRef = CGColorSpaceCreateDeviceRGB();
-    mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaPremultipliedFirst );
+    
+    /*mContentRef = CGBitmapContextCreate( NULL, width, height, 8, width * 4, mColorSpaceRef, kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Host*kCGImageAlphaPremultipliedFirst );
     CGContextSetShouldAntialias( mContentRef, true );
     CGContextSetAllowsAntialiasing( mContentRef, true );
+    CGContextSetShouldSmoothFonts( mContentRef , true );
+    CGContextSetAllowsFontSmoothing( mContentRef, true );
+    CGContextSetShouldSubpixelPositionFonts( mContentRef , true );
+    CGContextSetAllowsFontSubpixelPositioning( mContentRef, true );
+    CGContextSetShouldSubpixelQuantizeFonts( mContentRef , true );
+    CGContextSetAllowsFontSubpixelQuantization( mContentRef, true );*/
     mAffineTransform.a = 1;
     mAffineTransform.b = 0;
     mAffineTransform.c = 0;
@@ -18,7 +30,7 @@ CHE_GraphicsDrawer::CHE_GraphicsDrawer( HE_ULONG width, HE_ULONG height )
 
 CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
 {
-    if ( mContentRef ) {
+    /*if ( mContentRef ) {
         CGContextRelease( mContentRef );
         mContentRef = NULL;
     }
@@ -26,12 +38,12 @@ CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
     {
         CGColorSpaceRelease( mColorSpaceRef );
         mColorSpaceRef = NULL;
-    }
+    }*/
 }
 
 HE_VOID CHE_GraphicsDrawer::Resize( HE_ULONG width, HE_ULONG height )
 {
-    if ( mContentRef )
+    /*if ( mContentRef )
     {
         CGContextRelease( mContentRef );
         mContentRef = NULL;
@@ -44,10 +56,20 @@ HE_VOID CHE_GraphicsDrawer::Resize( HE_ULONG width, HE_ULONG height )
     mColorSpaceRef = CGColorSpaceCreateDeviceRGB();
     mWidth = width;
     mHeight = height;
-    mContentRef = CGBitmapContextCreate( NULL, mWidth, mHeight, 8, mWidth * 4, mColorSpaceRef, kCGImageAlphaPremultipliedFirst );
-    CGContextSetShouldAntialias( mContentRef, true );
-    CGContextSetAllowsAntialiasing( mContentRef, true );
+    mContentRef = CGBitmapContextCreate( NULL, mWidth, mHeight, 8, mWidth * 4, mColorSpaceRef, kCGImageAlphaNoneSkipLast | kCGBitmapByteOrder32Host );
+    //CGContextSetShouldAntialias( mContentRef, true );
+    //CGContextSetAllowsAntialiasing( mContentRef, true );
+    //CGContextSetShouldSubpixelPositionFonts( mContentRef , true );
+    //CGContextSetShouldSubpixelQuantizeFonts( mContentRef , true );
     
+    //CGContextSetShouldAntialias( mContentRef, false );
+    //CGContextSetAllowsAntialiasing( mContentRef, false );
+    //CGContextSetShouldSmoothFonts( mContentRef , false );
+    //CGContextSetAllowsFontSmoothing( mContentRef, false );
+    CGContextSetShouldSubpixelPositionFonts( mContentRef , false );
+    CGContextSetAllowsFontSubpixelPositioning( mContentRef, false );
+    CGContextSetShouldSubpixelQuantizeFonts( mContentRef , false );
+    CGContextSetAllowsFontSubpixelQuantization( mContentRef, false );*/
 }
 
 HE_ULONG CHE_GraphicsDrawer::GetWidth() const
@@ -371,9 +393,9 @@ HE_VOID	CHE_GraphicsDrawer::ResetClip()
     if ( mContentRef )
     {
         //todo
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
-        CGContextClip( mContentRef );
+        //CGPathRelease( mPathRef );
+        //mPathRef = NULL;
+        //CGContextClip(mContentRef)
     }
 }
 
@@ -386,7 +408,7 @@ HE_VOID CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
         
         CGImageRef imageRef = CGImageCreate( pBitmap->Width(), pBitmap->Height(), 8, pBitmap->Depth(),	
-                                             pBitmap->Pitch(), colorSpace, kCGBitmapByteOrderDefault,
+                                             pBitmap->Pitch(), colorSpace, kCGImageAlphaNone,
                                             dataRef, NULL, false, kCGRenderingIntentDefault );
         
         CHE_Matrix tmpMatrix;
@@ -401,7 +423,45 @@ HE_VOID CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
         rect = tmpMatrix.Transform( rect );
         
         CGContextDrawImage( mContentRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height), imageRef );
+        
+        CGImageRelease( imageRef );
     }
+}
+
+HE_VOID CHE_GraphicsDrawer::SetTextFont( HE_LPBYTE fontData, HE_ULONG dataSize )
+{
+    CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, fontData, dataSize, kCFAllocatorNull );
+    if ( dataRef )
+    {
+        CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
+        CGFontRef fontRef = CGFontCreateWithDataProvider( dataProviderRef );
+        CGContextSetFont( mContentRef, fontRef );
+    }
+    
+    //CFMutableStringRef fontName = CFStringCreateMutable( kCFAllocatorDefault, 100 );
+    //CFStringAppendCString( fontName, "Arial", kCFStringEncodingASCII);
+    //CGFontRef cgFont = CGFontCreateWithFontName( fontName );
+    //CGContextSetFont( mContentRef, cgFont );
+}
+
+HE_VOID CHE_GraphicsDrawer::SetTextMatrix( CHE_Matrix textMatrix )
+{
+    mTextMatrix = textMatrix;
+}
+
+HE_VOID CHE_GraphicsDrawer::DrawText( unsigned short gid )
+{
+    CGPoint position;
+    position.x = 0;
+    position.y = 0;
+    CGContextSetFontSize( mContentRef , 1 );
+    
+    CHE_Matrix tmpMatrix;
+    tmpMatrix = mTextMatrix;
+    tmpMatrix.Concat( mExtMatrix );
+    
+    CGContextSetTextMatrix( mContentRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
+    CGContextShowGlyphsAtPositions( mContentRef, &gid, &position, 1 );
 }
 
 HE_VOID CHE_GraphicsDrawer::SaveToFile( const char * pPath )

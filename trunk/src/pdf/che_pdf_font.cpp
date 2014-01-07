@@ -6340,7 +6340,7 @@ CHE_PDF_Font * CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE
 
 CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mType(FONT_TYPE1), mBaseFont(pAllocator), mEncoding(fontDict, pAllocator), mFontDict(fontDict),
-	mFace(NULL), mpToUnicodeMap(NULL), mpFontDescriptor(NULL), mpEmbeddedFontFile(NULL), mFontFileSize(0), mCIDTOGID(NULL), mCIDTOGIDLength(0)
+	mFace(NULL), mpToUnicodeMap(NULL), mpFontDescriptor(NULL), mpEmbeddedFontFile(NULL), mFontFileSize(0), mCIDTOGID(NULL), mCIDTOGIDLength(0), mPlatformFontInfo(NULL), mCleanCallBack(NULL)
 {
 	CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "Subtype", OBJ_TYPE_NAME );
 	if ( objPtr )
@@ -6660,6 +6660,10 @@ CHE_PDF_Font::~CHE_PDF_Font()
 		GetAllocator()->DeleteArray<HE_BYTE>( mpEmbeddedFontFile );
 		mpEmbeddedFontFile = NULL;
 	}
+    if ( mCleanCallBack && mPlatformFontInfo )
+    {
+        mCleanCallBack( mPlatformFontInfo );
+    }
 }
 
 

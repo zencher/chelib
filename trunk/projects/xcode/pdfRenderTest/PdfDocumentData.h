@@ -21,15 +21,15 @@
     CHE_PDF_File *                          pdfFile;
     CHE_PDF_Document *                      pdfDocument;
     CHE_PDF_PageTree *                      pdfPageTree;
-    CHE_PDF_Page *                          pdfPage;
     CHE_PDF_FontMgr *                       pdfFontMgr;
-    CHE_GraphicsDrawer *                    pdfDrawer;
     
-    HE_ULONG                                pageIndex;
     HE_ULONG                                pageCount;
     std::vector<CHE_PDF_ContentObjectList*> pageContents;
 }
 
 -(id)initWithFilePath:(NSString*)path;
+
+
+-(CHE_PDF_ContentObjectList*)getPageContent:(unsigned int)pageIndex;
 
 @end

@@ -10,7 +10,7 @@
 #endif
 
 #ifdef _MAC_OS_X_
-#include "/usr/include/libkern/OSAtomic.h"
+#include <libkern/OSAtomic.h>
 #endif
 
 CHE_DefCrtAllocator gDefCrtAllocator;

@@ -326,14 +326,14 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		default:break;
 		}
 
-		//Çå³ýÎÞÓÃµÄ²Ù×÷Êý
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÃµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½
 		mOpdFloatStack.clear();
 		mpObj.reset();
 		mName.Clear();
 		mString.Clear();
 	}
 
-	//Çå³ýÎÞÓÃµÄ²Ù×÷Êý
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÃµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½
 	mOpdFloatStack.clear();
 	mpObj.reset();
 	mName.Clear();
@@ -551,7 +551,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_CALLAB, mName, pArray->Clone(), GetAllocator() );
 				}else if ( name == "ICCBased" )
 				{
-					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_ICCBASED, mName, pArray->Clone(), GetAllocator() ); //zctodo ICCBased Ó¦¸Ã¼ÌÐøÅÐ¶Ï¾ßÌåµÄÑÕÉ«¿Õ¼äµÄÀàÐÍ
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_ICCBASED, mName, pArray->Clone(), GetAllocator() ); //zctodo ICCBased Ó¦ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½Ð¶Ï¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				}else if ( name == "Indexed" || name == "I" )
 				{
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_SPECIAL_INDEXED, mName, pArray->Clone(), GetAllocator() );

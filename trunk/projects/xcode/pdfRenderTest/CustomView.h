@@ -11,7 +11,16 @@
 
 @interface CustomView : NSView
 {
-    PdfDocumentData * data;
+    unsigned int        pageIndex;
+    PdfDocumentData *   pdfDocument;
+    NSPoint             mouseDownPt;
+    NSSize              pageOffset;
 }
+
+- (IBAction)onNextPage:(id)sender;
+
+- (IBAction)onPreviousPage:(id)sender;
+
+- (IBAction)onFileOpen:(id)sender;
 
 @end

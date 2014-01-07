@@ -1433,7 +1433,8 @@ CHE_Bitmap * CHE_PDF_RefImage::StreamToBitmap()
 					objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
 					if ( objPtr )
 					{
-						pBitmapRet = GetExplicitMaskingBitmap( pBitmapRet, objPtr->GetStreamPtr() );
+                        CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+						pBitmapRet = GetExplicitMaskingBitmap( pBitmapRet, stmPtr );
 					}
 				}
 			}
@@ -1578,7 +1579,8 @@ CHE_Bitmap * CHE_PDF_RefImage::JPXStreamToBitmap( HE_LPBYTE data, HE_ULONG size 
 			objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
 			if ( objPtr )
 			{
-				pBitmapRet = GetExplicitMaskingBitmap( pBitmapRet, objPtr->GetStreamPtr() );
+                CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+				pBitmapRet = GetExplicitMaskingBitmap( pBitmapRet, stmPtr );
 			}
 		}
 	}
@@ -1673,7 +1675,7 @@ CHE_Bitmap * CHE_PDF_RefImage::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size
 	HE_ULONG		componentCount = 1;
 	HE_ULONG		stride = (mWidth * componentCount * mBpc + 7)/8;
 	HE_BYTE			tmpByte = 0;
-	HE_BITMAP_DEPTH	targetDepth = BITMAP_DEPTH_24BPP;
+	HE_BITMAP_DEPTH	targetDepth = BITMAP_DEPTH_32BPP;
 
 	if ( mbMask )
 	{
@@ -1999,7 +2001,8 @@ CHE_Bitmap * CHE_PDF_RefImage::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size
 			objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
 			if ( objPtr )
 			{
-				pBitmapRet = GetExplicitMaskingBitmap( pBitmapRet, objPtr->GetStreamPtr() );
+                CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+				pBitmapRet = GetExplicitMaskingBitmap( pBitmapRet, stmPtr );
 			}
 		}
 	}

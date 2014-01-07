@@ -149,6 +149,7 @@ private:
 
 };
 
+typedef HE_VOID (*PlatformFontInfoCleanCallBack)(HE_LPVOID);
 
 class CHE_PDF_Font : public CHE_Object
 {
@@ -172,27 +173,35 @@ public:
 
 	HE_VOID					Lock();
 	HE_VOID					UnLock();
+    
+    HE_LPBYTE               GetEmbededFont() { return mpEmbeddedFontFile; }
+    HE_ULONG                GetEmbededFontSize() { return mFontFileSize; }
+    
+    HE_LPVOID               GetPlatformFontInfo() { return mPlatformFontInfo; }
+    HE_VOID                 SetPlatformFontInfo( HE_LPVOID pInfo ) { mPlatformFontInfo = pInfo; }
+    HE_VOID                 SetPlatformFontInfoCleanCallBack( PlatformFontInfoCleanCallBack fun ) { mCleanCallBack = fun; }
 	
 protected:
 	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
 	virtual ~CHE_PDF_Font();
 
-	CHE_NumToPtrMap	*		GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream );
+	CHE_NumToPtrMap	*               GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream );
 
-	PDF_FONT_TYPE			mType;
-	CHE_ByteString			mBaseFont;
-	CHE_PDF_Encoding		mEncoding;
-	CHE_PDF_DictionaryPtr	mFontDict;
-	CHE_PDF_DictionaryPtr	mFontDescriptorDict;
-	HE_VOID*				mFace;
-	CHE_NumToPtrMap *		mpToUnicodeMap;
-	CHE_PDF_FontDescriptor*	mpFontDescriptor;
-	HE_LPBYTE				mpEmbeddedFontFile;
-	HE_ULONG				mFontFileSize;
-	HE_WCHAR*				mCIDTOGID;
-	HE_ULONG				mCIDTOGIDLength;
-
-	CHE_Lock				mLock;
+	PDF_FONT_TYPE                   mType;
+	CHE_ByteString                  mBaseFont;
+	CHE_PDF_Encoding                mEncoding;
+	CHE_PDF_DictionaryPtr           mFontDict;
+	CHE_PDF_DictionaryPtr           mFontDescriptorDict;
+	HE_VOID*                        mFace;
+	CHE_NumToPtrMap *               mpToUnicodeMap;
+	CHE_PDF_FontDescriptor*         mpFontDescriptor;
+	HE_LPBYTE                       mpEmbeddedFontFile;
+	HE_ULONG                        mFontFileSize;
+	HE_WCHAR*                       mCIDTOGID;
+	HE_ULONG                        mCIDTOGIDLength;
+    HE_LPVOID                       mPlatformFontInfo;
+    PlatformFontInfoCleanCallBack   mCleanCallBack;
+	CHE_Lock                        mLock;
 
 	friend class CHE_Allocator;
 };

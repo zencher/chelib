@@ -949,6 +949,12 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
 			{
 				mpConstructor->State_StrokeColorSpace( pColorSpace );
 			}
+
+			CHE_PDF_Tiling * pTiling = GetAllocator()->New<CHE_PDF_Tiling>( objPtr->GetRefPtr(), mpFontMgr, GetAllocator() );
+			if ( pTiling )
+			{
+				//todo
+			}
 		}
 	}
 }
@@ -1667,7 +1673,6 @@ HE_VOID CHE_PDF_ContentsParser::Handle_scn()
 			if ( pTiling )
 			{
 				//todo
-				int x = 0;
 			}
 		}
 	}

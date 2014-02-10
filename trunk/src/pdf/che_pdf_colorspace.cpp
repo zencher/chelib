@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_colorspace.h"
+#include "../../include/pdf/che_pdf_contentobjs.h"
 #include <math.h>
 
 static inline float fung(float x)
@@ -207,7 +208,7 @@ CHE_PDF_ColorSpace * CHE_PDF_ColorSpace::Create( const CHE_PDF_ReferencePtr & pR
 
 CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mType(type), mResName(pAllocator), mComponentCount(0), mpBaseColorspace(NULL),
-	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
+	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL), mpTiling(NULL), mpShading(NULL)
 {
 	switch ( mType )
 	{
@@ -237,7 +238,7 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator 
 CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, 
 	const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mType(type), mResName(resName), mComponentCount(0), mpObj(pObj), mpBaseColorspace(NULL), 
-	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL)
+	mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0), mName(pAllocator), mpFunction(NULL), mpTiling(NULL), mpShading(NULL)
 {
 	switch ( mType )
 	{
@@ -454,6 +455,14 @@ CHE_PDF_ColorSpace::~CHE_PDF_ColorSpace()
 // 	{
 // 		GetAllocator()->Delete( mpFunction );
 // 	}
+	if ( mpTiling )
+	{
+		mpTiling->GetAllocator()->Delete( mpTiling );
+	}
+	if ( mpShading )
+	{
+		mpShading->GetAllocator()->Delete( mpShading );
+	}
 }
 
 CHE_PDF_ColorSpace * CHE_PDF_ColorSpace::Clone() const
@@ -805,4 +814,14 @@ HE_ARGB CHE_PDF_ColorSpace::GetARGBValue( CHE_PDF_Color & color ) const
         break;
 	}
     return 0xFF000000;
+}
+
+HE_VOID	CHE_PDF_ColorSpace::SetTiling( CHE_PDF_Tiling * pTiling )
+{
+	mpTiling = pTiling;
+}
+
+HE_VOID	CHE_PDF_ColorSpace::SetShading( CHE_PDF_Shading * pShading )
+{
+	mpShading = pShading;
 }

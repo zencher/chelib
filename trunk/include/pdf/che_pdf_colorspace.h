@@ -76,6 +76,9 @@ private:
 	HE_ULONG mIndex;
 };
 
+class CHE_PDF_Shading;
+class CHE_PDF_Tiling;
+
 class CHE_PDF_ColorSpace : public CHE_Object
 {
 public:
@@ -105,6 +108,10 @@ public:
 
 	HE_ARGB					GetARGBValue( CHE_PDF_Color & color ) const;
 
+	HE_VOID					SetTiling( CHE_PDF_Tiling * pTiling );
+
+	HE_VOID					SetShading( CHE_PDF_Shading * pShading );
+
 private:
 	HE_ARGB					lab_to_rgb( CHE_PDF_Color & color ) const;
 
@@ -126,6 +133,9 @@ private:
 
 	//for deviceN
 
+	//for Pattern
+	CHE_PDF_Tiling *		mpTiling;
+	CHE_PDF_Shading *		mpShading;
 };
 
 

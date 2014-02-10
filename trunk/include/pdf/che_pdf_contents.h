@@ -355,6 +355,10 @@ private:
 
 HE_BOOL GetPageContent( CHE_PDF_DictionaryPtr & pageDict, CHE_PDF_ContentObjectList * pList, CHE_PDF_FontMgr * pFontMgr, CHE_Allocator * pAllocator = NULL );
 
+HE_BOOL	ParseContentStream( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ContentObjectList & contentList, CHE_PDF_FontMgr & fontMgr, CHE_Allocator * pAllocator = NULL );
+
+HE_BOOL ParseContentStream( const CHE_PDF_StreamPtr & stmPtr, CHE_PDF_ContentObjectList & contentList, CHE_PDF_FontMgr & fontMgr, CHE_Allocator * pAllocator = NULL );
+
 class CHE_PDF_ContentsParser : public CHE_Object
 {
 public:

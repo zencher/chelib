@@ -76,8 +76,6 @@ private:
 
 	~CHE_PDF_Page() {}
 
-	CHE_Rect				ArrayToRect( CHE_PDF_ArrayPtr arrayPtr ) const;
-
 	CHE_PDF_DictionaryPtr	mpPageDict;
 
 	friend class CHE_Allocator;

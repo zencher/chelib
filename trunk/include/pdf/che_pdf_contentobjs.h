@@ -5,6 +5,7 @@
 #include "../che_bitmap.h"
 #include "che_pdf_gstate.h"
 #include "che_pdf_font.h"
+#include "che_pdf_fontmgr.h"
 #include "che_pdf_contentresmgr.h"
 #include <vector>
 #include <list>
@@ -20,6 +21,7 @@ enum PDF_CONTENTOBJ_TYPE
 	ContentType_InlineImage = 4,
 	ContentType_Form = 5,
 	ContentType_Shading = 6,
+	ContentType_Tiling = 7
 };
 
 class CHE_PDF_ContentObject : public CHE_Object
@@ -447,6 +449,30 @@ public:
 	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Shading; }
 
 	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Shading>( mName, GetAllocator() ); }
+};
+
+class CHE_PDF_Tiling : public CHE_PDF_ContentObject
+{
+public:
+	CHE_PDF_Tiling( const CHE_PDF_ReferencePtr & ref, CHE_PDF_FontMgr * pFontMgr, CHE_Allocator * pAllocator = NULL );
+
+	PDF_CONTENTOBJ_TYPE GetType() const { return ContentType_Tiling; }
+
+	CHE_PDF_ContentObject * Clone() const { return GetAllocator()->New<CHE_PDF_Tiling>( mRefPtr, mpFontMgr, GetAllocator() ); }
+
+	CHE_PDF_ContentObjectList & GetList() { return mContentList; }
+
+private:
+	CHE_PDF_ReferencePtr		mRefPtr;
+	CHE_PDF_FontMgr *			mpFontMgr;
+	HE_BOOL						mbColored;
+	HE_UINT32					mTilingType;
+	HE_INT32					mXSetp;
+	HE_INT32					mYSetp;
+	CHE_Matrix					mMatrix;
+	CHE_Rect					mBBox;
+	CHE_PDF_ContentObjectList	mContentList;
+
 };
 
 #endif

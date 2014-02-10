@@ -4,6 +4,7 @@
 #include "../che_base.h"
 #include "../che_string.h"
 #include "../che_datastructure.h"
+#include "../che_graphics.h"
 #include "che_pdf_encrypt.h"
 
 #include <vector>
@@ -409,13 +410,17 @@ public:
 
 	CHE_PDF_ObjectPtr				GetElement( HE_ULONG index ) const;
 
-	CHE_PDF_ObjectPtr				GetElement( HE_ULONG index, PDF_OBJ_TYPE Type );
+	CHE_PDF_ObjectPtr				GetElement( HE_ULONG index, PDF_OBJ_TYPE Type ) const;
 
 	CHE_PDF_ObjectPtr				GetElementByType( PDF_OBJ_TYPE Type );
 
 	CHE_PDF_ArrayPtr				Clone();
 
 	HE_BOOL							IsModified();
+
+	HE_BOOL							GetRect( CHE_Rect & rect ) const;
+
+	HE_BOOL							GetMatrix( CHE_Matrix & maxtrix ) const;
 
 private:
 

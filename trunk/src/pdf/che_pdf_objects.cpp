@@ -591,7 +591,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_ULONG index ) const
 	return CHE_PDF_ObjectPtr();
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_ULONG index, PDF_OBJ_TYPE Type )
+CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_ULONG index, PDF_OBJ_TYPE Type ) const
 {
 	CHE_PDF_ObjectPtr ptr = GetElement( index );
 	if ( ! ptr )
@@ -606,7 +606,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Array::GetElement( HE_ULONG index, PDF_OBJ_TYPE Type )
 
 	if ( ptr->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		return ptr->GetRefPtr()->GetRefObj( Type );;
+		return ptr->GetRefPtr()->GetRefObj( Type );
 	}
 	return CHE_PDF_ObjectPtr();
 }
@@ -675,6 +675,104 @@ HE_BOOL CHE_PDF_Array::IsModified()
 			return TRUE;
 		}
 	}
+	return FALSE;
+}
+
+HE_BOOL CHE_PDF_Array::GetRect( CHE_Rect & rect ) const
+{
+	if ( GetCount() >= 4 )
+	{
+		HE_FLOAT llx = 0, lly = 0, rux = 0, ruy = 0;
+		CHE_PDF_ObjectPtr objPtr;
+		CHE_PDF_NumberPtr numberPtr;
+		objPtr = GetElement( 0, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			llx = numberPtr->GetFloat();
+		}
+		objPtr = GetElement( 1, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			lly = numberPtr->GetFloat();
+		}
+		objPtr = GetElement( 2, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			rux = numberPtr->GetFloat();
+		}
+		objPtr = GetElement( 3, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			ruy = numberPtr->GetFloat();
+		}
+		rect.left = llx;
+		rect.bottom = lly;
+		rect.width = rux - llx;
+		rect.height = ruy - lly;
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+HE_BOOL CHE_PDF_Array::GetMatrix( CHE_Matrix & maxtrix ) const
+{
+	if ( GetCount() >= 6 )
+	{
+		HE_FLOAT a = 0, b = 0, c = 0, d = 0, e = 0, f = 0;
+		CHE_PDF_ObjectPtr objPtr;
+		CHE_PDF_NumberPtr numberPtr;
+		objPtr = GetElement( 0, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			a = numberPtr->GetFloat();
+		}
+		objPtr = GetElement( 1, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			b = numberPtr->GetFloat();
+		}
+		objPtr = GetElement( 2, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			c = numberPtr->GetFloat();
+		}
+		objPtr = GetElement( 3, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			d = numberPtr->GetFloat();
+		}
+		objPtr = GetElement( 4, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			e = numberPtr->GetFloat();
+		}
+		objPtr = GetElement( 5, OBJ_TYPE_NUMBER );
+		if ( objPtr )
+		{
+			numberPtr = objPtr->GetNumberPtr();
+			f = numberPtr->GetFloat();
+		}
+		maxtrix.a = a;
+		maxtrix.b = b;
+		maxtrix.c = c;
+		maxtrix.d = d;
+		maxtrix.e = e;
+		maxtrix.f = f;
+
+		return TRUE;
+	}
+
 	return FALSE;
 }
 

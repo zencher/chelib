@@ -274,12 +274,18 @@ CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict() const
 
 CHE_Rect CHE_PDF_Page::GetMediaBox() const
 {
-	return ArrayToRect( GetMediaBoxArray() );
+	CHE_Rect rect;
+	CHE_PDF_ArrayPtr arrayPtr = GetMediaBoxArray();
+	arrayPtr->GetRect( rect );
+	return rect;
 }
 
 CHE_Rect CHE_PDF_Page::GetPageRect() const
 {
-	return ArrayToRect( GetArtBoxArray() );
+	CHE_Rect rect;
+	CHE_PDF_ArrayPtr arrayPtr = GetArtBoxArray();
+	arrayPtr->GetRect( rect );
+	return rect;
 }
 
 CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray() const
@@ -355,46 +361,6 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetArtBoxArray() const
 		return arrayBox;
 	}
 	return GetCropBoxArray();
-}
-
-CHE_Rect CHE_PDF_Page::ArrayToRect( CHE_PDF_ArrayPtr arrayPtr ) const
-{
-	CHE_Rect rect;
-	if ( arrayPtr && arrayPtr->GetCount() >= 4 )
-	{
-		HE_FLOAT llx = 0, lly = 0, rux = 0, ruy = 0;
-		CHE_PDF_ObjectPtr objPtr;
-		CHE_PDF_NumberPtr numberPtr;
-		objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
-		if ( objPtr )
-		{
-			numberPtr = objPtr->GetNumberPtr();
-			llx = numberPtr->GetFloat();
-		}
-		objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NUMBER );
-		if ( objPtr )
-		{
-			numberPtr = objPtr->GetNumberPtr();
-			lly = numberPtr->GetFloat();
-		}
-		objPtr = arrayPtr->GetElement( 2, OBJ_TYPE_NUMBER );
-		if ( objPtr )
-		{
-			numberPtr = objPtr->GetNumberPtr();
-			rux = numberPtr->GetFloat();
-		}
-		objPtr = arrayPtr->GetElement( 3, OBJ_TYPE_NUMBER );
-		if ( objPtr )
-		{
-			numberPtr = objPtr->GetNumberPtr();
-			ruy = numberPtr->GetFloat();
-		}
-		rect.left = llx;
-		rect.bottom = lly;
-		rect.width = rux - llx;
-		rect.height = ruy - lly;
-	}
-	return rect;
 }
 
 HE_INT32 CHE_PDF_Page::GetRotate() const

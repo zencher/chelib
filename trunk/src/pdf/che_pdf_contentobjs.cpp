@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_contentobjs.h"
+#include "../../include/pdf/che_pdf_contents.h"
 
 #include "../../extlib/freetype/include/ft2build.h"
 #include "../../extlib/freetype/include/freetype/freetype.h"
@@ -2477,7 +2478,92 @@ CHE_Bitmap * CHE_PDF_RefImage::GetExplicitMaskingBitmap( CHE_Bitmap * pBitmapOri
 }
 
 
+CHE_PDF_Tiling::CHE_PDF_Tiling( const CHE_PDF_ReferencePtr & ref, CHE_PDF_FontMgr * pFontMgr, CHE_Allocator * pAllocator /*= NULL*/ )
+	: CHE_PDF_ContentObject(pAllocator), mbColored(FALSE), mTilingType(1), mXSetp(100), mYSetp(100), mpFontMgr(pFontMgr)
+{
+	CHE_PDF_ObjectPtr objPtr = ref->GetRefObj( OBJ_TYPE_STREAM );
+	if ( objPtr )
+	{
+		CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+		CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+		if ( dictPtr )
+		{
+			CHE_PDF_ObjectPtr objPtr;
+			CHE_PDF_NamePtr namePtr;
+			CHE_PDF_NumberPtr numberPtr;
+			CHE_PDF_ArrayPtr arrayPtr;
+			objPtr = dictPtr->GetElement( "Type", OBJ_TYPE_NAME );
+			if ( objPtr )
+			{
+				namePtr = objPtr->GetNamePtr();
+				if ( namePtr->GetString() != "Pattern" )
+				{
+					//todo
+				}
+			}
 
+			objPtr = dictPtr->GetElement( "PatternType", OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				HE_INT32 patternType = objPtr->GetNumberPtr()->GetInteger();
+				if ( patternType != 1 )
+				{
+					//not a tiling
+					//todo
+				}
+			}
+
+			objPtr = dictPtr->GetElement( "PaintType", OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				HE_INT32 paintType = objPtr->GetNumberPtr()->GetInteger();
+				if ( paintType == 1 )
+				{
+					mbColored = TRUE;
+				}else if ( paintType == 2 )
+				{
+					mbColored = FALSE;
+				}else{
+					//todo
+				}
+			}
+
+			objPtr = dictPtr->GetElement( "TilingType", OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				mTilingType = objPtr->GetNumberPtr()->GetInteger();
+			}
+
+			objPtr = dictPtr->GetElement( "XStep", OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				mXSetp = objPtr->GetNumberPtr()->GetInteger();
+			}
+
+			objPtr = dictPtr->GetElement( "YStep", OBJ_TYPE_NUMBER );
+			if ( objPtr )
+			{
+				mYSetp = objPtr->GetNumberPtr()->GetInteger();
+			}
+
+			objPtr = dictPtr->GetElement( "BBox", OBJ_TYPE_ARRAY );
+			if ( objPtr )
+			{
+				arrayPtr = objPtr->GetArrayPtr();
+				arrayPtr->GetRect( mBBox );
+			}
+
+			objPtr = dictPtr->GetElement( "Matrix", OBJ_TYPE_ARRAY );
+			if ( objPtr )
+			{
+				arrayPtr = objPtr->GetArrayPtr();
+				arrayPtr->GetMatrix( mMatrix );
+			}
+
+			ParseContentStream( stmPtr, mContentList, *mpFontMgr, pAllocator );
+		}
+	}
+}
 
 
 

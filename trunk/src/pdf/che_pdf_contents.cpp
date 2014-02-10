@@ -326,14 +326,14 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		default:break;
 		}
 
-		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÃµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½
+		//Çå³ýÎÞÓÃµÄ²Ù×÷Êý
 		mOpdFloatStack.clear();
 		mpObj.reset();
 		mName.Clear();
 		mString.Clear();
 	}
 
-	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÃµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½
+	//Çå³ýÎÞÓÃµÄ²Ù×÷Êý
 	mOpdFloatStack.clear();
 	mpObj.reset();
 	mName.Clear();
@@ -551,7 +551,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_CS()
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_CALLAB, mName, pArray->Clone(), GetAllocator() );
 				}else if ( name == "ICCBased" )
 				{
-					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_ICCBASED, mName, pArray->Clone(), GetAllocator() ); //zctodo ICCBased Ó¦ï¿½Ã¼ï¿½ï¿½ï¿½ï¿½Ð¶Ï¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_CIEBASE_ICCBASED, mName, pArray->Clone(), GetAllocator() ); //zctodo ICCBased Ó¦¸Ã¼ÌÐøÅÐ¶Ï¾ßÌåµÄÑÕÉ«¿Õ¼äµÄÀàÐÍ
 				}else if ( name == "Indexed" || name == "I" )
 				{
 					pColorSpace = GetAllocator()->New<CHE_PDF_ColorSpace>( COLORSPACE_SPECIAL_INDEXED, mName, pArray->Clone(), GetAllocator() );
@@ -1662,6 +1662,13 @@ HE_VOID CHE_PDF_ContentsParser::Handle_scn()
 			{
 				mpConstructor->State_FillColorSpace( pColorSpace );
 			}
+
+			CHE_PDF_Tiling * pTiling = GetAllocator()->New<CHE_PDF_Tiling>( objPtr->GetRefPtr(), mpFontMgr, GetAllocator() );
+			if ( pTiling )
+			{
+				//todo
+				int x = 0;
+			}
 		}
 	}
 }
@@ -1817,3 +1824,41 @@ HE_BOOL GetPageContent( CHE_PDF_DictionaryPtr & pageDict, CHE_PDF_ContentObjectL
 
 	return TRUE;
 }
+
+HE_BOOL ParseContentStream( const CHE_PDF_StreamPtr & stmPtr, CHE_PDF_ContentObjectList & contentList, CHE_PDF_FontMgr & fontMgr, CHE_Allocator * pAllocator /*= NULL*/ )
+{
+	if ( ! stmPtr )
+	{
+		return FALSE;
+	}
+	if ( pAllocator == NULL )
+	{
+		pAllocator = GetDefaultAllocator();
+	}
+
+	CHE_PDF_ObjectPtr objPtr;
+	CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+	if ( ! dictPtr )
+	{
+		return FALSE;
+	}
+	objPtr = dictPtr->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
+	if ( ! objPtr )
+	{
+		return FALSE;
+	}
+	contentList.GetResMgr().SetDict( objPtr->GetDictPtr() );
+	CHE_PDF_ContentListConstructor * pConstructor =  pAllocator->New<CHE_PDF_ContentListConstructor>( &contentList, CHE_Matrix(), pAllocator );
+	CHE_PDF_ContentsParser contentsParser( &( contentList.GetResMgr() ), &fontMgr, pConstructor );
+	contentsParser.Parse( stmPtr );
+	pConstructor->GetAllocator()->Delete( pConstructor );
+	return TRUE;
+}
+
+HE_BOOL	ParseContentStream( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ContentObjectList & contentList, CHE_PDF_FontMgr & fontMgr, CHE_Allocator * pAllocator /*= NULL*/ )
+{
+	CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
+	CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+	return ParseContentStream( stmPtr, contentList, fontMgr, pAllocator );
+}
+

@@ -2,7 +2,7 @@
 #define _CHE_PDF_PATTERN_H_
 
 #include "che_pdf_contentlist.h"
-#include "che_pdf_contents.h"
+#include "che_pdf_contentlistbuilder.h"
 #include "che_pdf_component.h"
 #include "che_pdf_componentmgr.h"
 

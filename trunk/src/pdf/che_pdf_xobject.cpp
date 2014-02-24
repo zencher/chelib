@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_xobject.h"
-#include "../../include/pdf/che_pdf_contents.h"
+#include "../../include/pdf/che_pdf_contentlistbuilder.h"
 
 // #include "../../extlib/libjpeg/jpeglib.h"
 // #include "../../extlib/openjpeg/openjpeg.h"

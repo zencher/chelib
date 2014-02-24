@@ -1,5 +1,5 @@
-#ifndef _CHE_PDF_CONTENTS_H_
-#define _CHE_PDF_CONTENTS_H_
+#ifndef _CHE_PDF_CONTENTLISTBUILDER_H_
+#define _CHE_PDF_CONTENTLISTBUILDER_H_
 
 #include "che_pdf_contentlist.h"
 #include "che_pdf_componentmgr.h"

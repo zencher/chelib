@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_contents.h"
+#include "../../include/pdf/che_pdf_contentlistbuilder.h"
 #include "../../include/pdf/che_pdf_contentobjs.h"
 #include "../../include/pdf/che_pdf_parser.h"
 #include "../../include/pdf/che_pdf_gstate.h"

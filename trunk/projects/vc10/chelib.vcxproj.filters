@@ -80,9 +80,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_contents.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_creator.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
@@ -188,6 +185,9 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_component.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_contentlistbuilder.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -239,9 +239,6 @@
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp">
@@ -647,6 +644,9 @@
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_component.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_contentlistbuilder.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
   </ItemGroup>

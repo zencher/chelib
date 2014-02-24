@@ -25,9 +25,9 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 }
 
 CHE_PDF_Document::CHE_PDF_Document( CHE_PDF_File * pFile, CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), mpFile( pFile ), mpPageTree( NULL ), mpFontMgr( NULL )
+	: CHE_Object( pAllocator ), mpFile( pFile ), mpPageTree( NULL ), mpComponentMgr( NULL )
 {
-	mpFontMgr = GetAllocator()->New<CHE_PDF_FontMgr>( GetAllocator() );
+	mpComponentMgr = GetAllocator()->New<CHE_PDF_ComponentMgr>( GetAllocator() );
 }
 
 CHE_PDF_Document::~CHE_PDF_Document()
@@ -36,9 +36,9 @@ CHE_PDF_Document::~CHE_PDF_Document()
 	{
 		mpPageTree->GetAllocator()->Delete( mpPageTree );
 	}
-	if ( mpFontMgr )
+	if ( mpComponentMgr )
 	{
-		mpFontMgr->GetAllocator()->Delete( mpFontMgr );
+		mpComponentMgr->GetAllocator()->Delete( mpComponentMgr );
 	}
 }
 
@@ -60,9 +60,9 @@ CHE_PDF_Page * CHE_PDF_Document::GetPage( HE_ULONG index )
 	return NULL;
 }
 
-CHE_PDF_FontMgr * CHE_PDF_Document::GetFontMgr() const
+CHE_PDF_ComponentMgr * CHE_PDF_Document::GetComponentMgr() const
 {
-	return mpFontMgr;
+	return mpComponentMgr;
 }
 
 HE_BOOL CHE_PDF_Document::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str )

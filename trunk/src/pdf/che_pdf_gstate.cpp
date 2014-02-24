@@ -185,22 +185,22 @@ CHE_PDF_GState::~CHE_PDF_GState()
 	{
 		mpExtState->GetAllocator()->Delete( mpExtState );
 	}
-	if ( mpFillColor )
-	{
-		mpFillColor->GetAllocator()->Delete( mpFillColor );
-	}
-	if ( mpFillColorSpace )
-	{
-		mpFillColorSpace->GetAllocator()->Delete( mpFillColorSpace );
-	}
-	if ( mpStrokeColor )
-	{
-		mpStrokeColor->GetAllocator()->Delete( mpStrokeColor );
-	}
-	if ( mpStrokeColorSpace )
-	{
-		mpStrokeColorSpace->GetAllocator()->Delete( mpStrokeColorSpace );
-	}
+// 	if ( mpFillColor )
+// 	{
+// 		mpFillColor->GetAllocator()->Delete( mpFillColor );
+// 	}
+// 	if ( mFillColorSpace )
+// 	{
+// 		mpFillColorSpace->GetAllocator()->Delete( mpFillColorSpace );
+// 	}
+// 	if ( mpStrokeColor )
+// 	{
+// 		mpStrokeColor->GetAllocator()->Delete( mpStrokeColor );
+// 	}
+// 	if ( mpStrokeColorSpace )
+// 	{
+// 		mpStrokeColorSpace->GetAllocator()->Delete( mpStrokeColorSpace );
+// 	}
 }
 
 CHE_PDF_StrokeState * CHE_PDF_GState::MakeStrokeState()
@@ -244,22 +244,26 @@ CHE_PDF_GState * CHE_PDF_GState::Clone() const
 	CHE_PDF_GState * pRet = GetAllocator()->New<CHE_PDF_GState>( GetAllocator() );
 	pRet->mMatrix = mMatrix;
 	pRet->mFlag = mFlag;
-	if ( mpFillColor )
-	{
-		pRet->mpFillColor = mpFillColor->Clone();
-	}
-	if ( mpFillColorSpace )
-	{
-		pRet->mpFillColorSpace = mpFillColorSpace->Clone();
-	}
-	if ( mpStrokeColor )
-	{
-		pRet->mpStrokeColor = mpStrokeColor->Clone();
-	}
-	if ( mpStrokeColorSpace )
-	{
-		pRet->mpStrokeColorSpace = mpStrokeColorSpace->Clone();
-	}
+	pRet->mFillColor = mFillColor;
+	pRet->mStrokeColor = mStrokeColor;
+	pRet->mFillColorSpace = mFillColorSpace;
+	pRet->mStrokeColorSpace = mStrokeColorSpace;
+// 	if ( mpFillColor )
+// 	{
+// 		pRet->mpFillColor = mpFillColor->Clone();
+// 	}
+// 	if ( mpFillColorSpace )
+// 	{
+// 		pRet->mpFillColorSpace = mpFillColorSpace;
+// 	}
+// 	if ( mpStrokeColor )
+// 	{
+// 		pRet->mpStrokeColor = mpStrokeColor->Clone();
+// 	}
+// 	if ( mpStrokeColorSpace )
+// 	{
+// 		pRet->mpStrokeColorSpace = mpStrokeColorSpace;
+// 	}
 	if ( mpStrokeState )
 	{
 		pRet->mpStrokeState = mpStrokeState->Clone();
@@ -283,7 +287,7 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_FillColor )
 	{
-		colorRet = *mpFillColor;
+		colorRet = mFillColor;
 		return;
 	}
 	
@@ -291,7 +295,7 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 
 	if ( mFlag & GSTATE_FLAG_FillColorSpace )
 	{
-		switch ( mpFillColorSpace->GetType() )
+		switch ( mFillColorSpace->GetType() )
 		{
 		case COLORSPACE_DEVICE_GRAY:
 		case COLORSPACE_CIEBASE_CALGRAY:
@@ -336,7 +340,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_StrokeColor )
 	{
-		colorRet = *mpStrokeColor;
+		colorRet = mStrokeColor;
 		return;
 	}
 
@@ -344,7 +348,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 
 	if ( mFlag & GSTATE_FLAG_StrokeColorSpace )
 	{
-		switch ( mpStrokeColorSpace->GetType() )
+		switch ( mStrokeColorSpace->GetType() )
 		{
 		case COLORSPACE_DEVICE_GRAY:
 		case COLORSPACE_CIEBASE_CALGRAY:
@@ -385,26 +389,24 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 	}
 }
 
-HE_VOID CHE_PDF_GState::GetFillColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) const
+HE_VOID CHE_PDF_GState::GetFillColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_FillColorSpace )
 	{
-		colorSpaceRet = *mpFillColorSpace;
+		colorSpaceRet = mFillColorSpace;
 		return;
 	}
-	CHE_PDF_ColorSpace csRet( COLORSPACE_DEVICE_GRAY );
-	colorSpaceRet = csRet;
+	colorSpaceRet = CHE_PDF_ColorSpace::CreateDeviceGray();
 }
 
-HE_VOID CHE_PDF_GState::GetStrokeColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) const
+HE_VOID CHE_PDF_GState::GetStrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_StrokeColorSpace )
 	{
-		colorSpaceRet = *mpStrokeColorSpace;
+		colorSpaceRet = mStrokeColorSpace;
 		return;
 	}
-	CHE_PDF_ColorSpace csRet( COLORSPACE_DEVICE_GRAY );
-	colorSpaceRet = csRet;
+	colorSpaceRet = CHE_PDF_ColorSpace::CreateDeviceGray();
 }
 
 HE_VOID	CHE_PDF_GState::GetLineWidth( HE_FLOAT & lineWidthRet ) const
@@ -563,64 +565,32 @@ HE_VOID CHE_PDF_GState::SetFlatness( const HE_FLOAT & flatness )
 	mFlatness = flatness;
 }
 
-HE_BOOL CHE_PDF_GState::SetFillColor( CHE_PDF_Color * pColor )
+HE_BOOL CHE_PDF_GState::SetFillColor( const CHE_PDF_Color & color )
 {
-	if ( pColor )
-	{
-		if ( mpFillColor )
-		{
-			mpFillColor->GetAllocator()->Delete( mpFillColor );
-		}
-		mpFillColor = pColor;
-		mFlag |= GSTATE_FLAG_FillColor;
-		return TRUE;
-	}
-	return FALSE;
+	mFillColor = color;
+	mFlag |= GSTATE_FLAG_FillColor;
+	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::SetStrokeColor( CHE_PDF_Color * pColor )
+HE_BOOL CHE_PDF_GState::SetStrokeColor( const CHE_PDF_Color & color )
 {
-	if ( pColor )
-	{
-		if ( mpStrokeColor )
-		{
-			mpStrokeColor->GetAllocator()->Delete( mpStrokeColor );
-		}
-		mpStrokeColor = pColor;
-		mFlag |= GSTATE_FLAG_StrokeColor;
-		return TRUE;
-	}
-	return FALSE;
+	mStrokeColor = color;
+	mFlag |= GSTATE_FLAG_StrokeColor;
+	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::SetFillColorSpace( CHE_PDF_ColorSpace * pColorSpace )
+HE_BOOL CHE_PDF_GState::SetFillColorSpace( CHE_PDF_ColorSpacePtr colorSpace )
 {
-	if ( pColorSpace )
-	{
-		if ( mpFillColorSpace )
-		{
-			mpFillColorSpace->GetAllocator()->Delete( mpFillColorSpace );
-		}
-		mpFillColorSpace = pColorSpace;
-		mFlag |= GSTATE_FLAG_FillColorSpace;
-		return TRUE;
-	}
-	return FALSE;
+	mFillColorSpace = colorSpace;
+	mFlag |= GSTATE_FLAG_FillColorSpace;
+	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::SetStrokeColorSpace( CHE_PDF_ColorSpace * pColorSpace )
+HE_BOOL CHE_PDF_GState::SetStrokeColorSpace( CHE_PDF_ColorSpacePtr colorSpace )
 {
-	if ( pColorSpace )
-	{
-		if ( mpStrokeColorSpace )
-		{
-			mpStrokeColorSpace->GetAllocator()->Delete( mpStrokeColorSpace );
-		}
-		mpStrokeColorSpace = pColorSpace;
-		mFlag |= GSTATE_FLAG_StrokeColorSpace;
-		return TRUE;
-	}
-	return FALSE;
+	mStrokeColorSpace = colorSpace;
+	mFlag |= GSTATE_FLAG_StrokeColorSpace;
+	return TRUE;
 }
 
 HE_VOID	CHE_PDF_GState::SetLineWidth( const HE_FLOAT & lineWidth )
@@ -930,7 +900,8 @@ HE_BOOL IsDefColor( const CHE_PDF_Color & color )
 
 HE_BOOL	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 )
 {
-	if ( cs1.GetType() == cs2.GetType() && cs1.GetResName() == cs2.GetResName() )
+	//zctodo
+	if ( cs1.GetType() == cs2.GetType() /*&& cs1.GetResName() == cs2.GetResName()*/ )
 	{
 		return TRUE;
 	}
@@ -1057,10 +1028,10 @@ HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_Clip
 		{
 			return FALSE;
 		}
-		if ( pElement1->GetExtMatrix() != pElement2->GetExtMatrix() )
-		{
-			return FALSE;
-		}
+// 		if ( pElement1->GetExtMatrix() != pElement2->GetExtMatrix() )
+// 		{
+// 			return FALSE;
+// 		}
 //		zctodo 判断clip对应的图形状态是不是相等
 // 		if ( pElement1->GetGState() != pElement2->GetGState() )
 // 		{
@@ -1080,8 +1051,9 @@ HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_Clip
 // 			{
 // 				return FALSE;
 // 			}
-			if (	pPath1->GetExtMatrix() != pPath2->GetExtMatrix() ||
-					pPath1->GetFillMode() != pPath2->GetFillMode() ||
+			if (	
+// 					pPath1->GetExtMatrix() != pPath2->GetExtMatrix() ||
+// 					pPath1->GetFillMode() != pPath2->GetFillMode() ||
 					pPath1->GetPaintType() != pPath2->GetPaintType() )
 			{
 				return FALSE;

@@ -152,7 +152,7 @@ CHE_PDF_OutlineItem * CHE_PDF_Outline::BuildBrotherTree( CHE_PDF_OutlineItem * p
 			{
 				refPtr = objPtr->GetRefPtr();
 			}else{
-				refPtr.reset();
+				refPtr.Reset();
 			}
 			GetAllocator()->Delete<CHE_PDF_OutlineItem>( pNewItem );
 			pNewItem = NULL;
@@ -173,7 +173,7 @@ CHE_PDF_OutlineItem * CHE_PDF_Outline::BuildBrotherTree( CHE_PDF_OutlineItem * p
 		{
 			refPtr = objPtr->GetRefPtr();
 		}else{
-			refPtr.reset();
+			refPtr.Reset();
 		}
 		pPreItem = pNewItem;
 	}

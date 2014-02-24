@@ -5,7 +5,7 @@
 #include "che_pdf_file.h"
 #include "che_pdf_pages.h"
 #include "che_pdf_outline.h"
-#include "che_pdf_fontmgr.h"
+#include "che_pdf_componentmgr.h"
 
 
 class CHE_PDF_Document : public CHE_Object
@@ -23,7 +23,7 @@ public:
 
 	CHE_PDF_Page *				GetPage( HE_ULONG index );
 
-	CHE_PDF_FontMgr *			GetFontMgr() const;
+	CHE_PDF_ComponentMgr *		GetComponentMgr() const;
 
 	CHE_PDF_Outline *			GetOutline();
 
@@ -42,7 +42,7 @@ private:
 	CHE_PDF_File *				mpFile;
 	CHE_PDF_PageTree *			mpPageTree;
 	CHE_PDF_Outline *			mpOutline;
-	CHE_PDF_FontMgr *			mpFontMgr;
+	CHE_PDF_ComponentMgr *		mpComponentMgr;
 
 	friend class CHE_Allocator;
 };

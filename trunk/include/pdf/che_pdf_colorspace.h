@@ -1,8 +1,10 @@
 #ifndef _CHE_PDF_COLORSPACE_H_
 #define _CHE_PDF_COLORSPACE_H_
 
-#include "che_pdf_objects.h"
+#include "che_pdf_component.h"
+#include "che_pdf_pattern.h"
 #include "che_pdf_function.h"
+
 
 enum PDF_COLORSPACE_TYPE
 {
@@ -20,11 +22,11 @@ enum PDF_COLORSPACE_TYPE
 	COLORSPACE_SPECIAL_DEVICEN		= 0x0C
 };
 
-
 class CHE_PDF_Color : public CHE_Object
 {
 public:
-	CHE_PDF_Color( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ), mIndex(0)
+	CHE_PDF_Color( CHE_Allocator * pAllocator = NULL ) 
+		: CHE_Object( pAllocator ), mIndex(0)
 	{
 		for ( HE_ULONG i = 0; i < 4; ++i )
 		{
@@ -71,71 +73,70 @@ public:
 		mIndex = 0;
 	}
 
+	CHE_PDF_TilingPtr GetTiling() const { return mpTiling; }
+
+	HE_VOID	SetTiling( const CHE_PDF_TilingPtr & pTiling ) { mpTiling = pTiling; }
+
 private:
-	HE_FLOAT mComponent[4];
-	HE_ULONG mIndex;
+	HE_FLOAT				mComponent[4];
+	HE_ULONG				mIndex;
+	CHE_PDF_TilingPtr		mpTiling;
 };
 
-class CHE_PDF_Shading;
-class CHE_PDF_Tiling;
 
-class CHE_PDF_ColorSpace : public CHE_Object
+class CHE_PDF_ColorSpace;
+
+class CHE_PDF_ColorSpacePtr : public CHE_PDF_ComponentPtr
 {
 public:
-	static CHE_PDF_ColorSpace * Create( const CHE_ByteString & name, CHE_Allocator * pAllocator = NULL );
-	static CHE_PDF_ColorSpace *	Create( const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL );
-	static CHE_PDF_ColorSpace *	Create( const CHE_PDF_NamePtr & pName, CHE_Allocator * pAllocator = NULL );
-	static CHE_PDF_ColorSpace *	Create( const CHE_PDF_ArrayPtr & pArray, CHE_Allocator * pAllocator = NULL );
-	static CHE_PDF_ColorSpace *	Create( const CHE_PDF_ReferencePtr & pRef, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_ColorSpace * operator->() const { return (CHE_PDF_ColorSpace*)mpCom; }
+};
 
-	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, CHE_Allocator * pAllocator = NULL );
-	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type, const CHE_ByteString & resName, const CHE_PDF_ObjectPtr & pObj, CHE_Allocator * pAllocator = NULL );
+class CHE_PDF_ColorSpace : public CHE_PDF_Component
+{
+public:
+	static CHE_PDF_ColorSpacePtr CreateDeviceGray();
+
+	static CHE_PDF_ColorSpacePtr CreateDeviceRGB();
+
+	static CHE_PDF_ColorSpacePtr CreateDeviceCMYK();
+
+	static CHE_PDF_ColorSpacePtr CreatePattern();
+
+	static CHE_PDF_ColorSpacePtr Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
+
+	static CHE_PDF_ColorSpacePtr Create( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator = NULL );
+
+	static CHE_PDF_ColorSpacePtr Convert( const CHE_PDF_ComponentPtr & componetPtr );
+
 	~CHE_PDF_ColorSpace();
 
-	PDF_COLORSPACE_TYPE		GetType() const		{ return mType; }
-
-	CHE_ByteString			GetResName() const	{ return mResName; }
-
-	CHE_ByteString			GetName() const;
-
-	CHE_PDF_ObjectPtr		GetObj() const		{ return mpObj; }
-
-	CHE_PDF_ColorSpace *	Clone() const;
-
-	HE_BOOL					IsDeviceColorSpace() const;
+	PDF_COLORSPACE_TYPE		GetColorSpaceType() const { return mColorSpaceType; }
 
 	HE_BYTE					GetComponentCount() const;
 
-	HE_ARGB					GetARGBValue( CHE_PDF_Color & color ) const;
-
-	HE_VOID					SetTiling( CHE_PDF_Tiling * pTiling );
-
-	HE_VOID					SetShading( CHE_PDF_Shading * pShading );
+	HE_ARGB					GetARGBValue( const CHE_PDF_Color & color ) const;
 
 private:
-	HE_ARGB					lab_to_rgb( CHE_PDF_Color & color ) const;
+	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type );
+	CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator = NULL );
 
-	PDF_COLORSPACE_TYPE		mType;
-	CHE_PDF_ObjectPtr		mpObj;
-	CHE_ByteString			mResName;
+	HE_ARGB					lab_to_rgb( const CHE_PDF_Color & color ) const;
+
+	PDF_COLORSPACE_TYPE		mColorSpaceType;
+	CHE_PDF_ObjectPtr		mObjPtr;
+
 	HE_ULONG				mComponentCount;
-
-	CHE_PDF_ColorSpace *	mpBaseColorspace;
 
 	//for index color space
 	HE_ULONG				mIndexCount;
 	HE_LPBYTE				mpIndexTable;
 	HE_ULONG				mIndexTableSize;
 
-	//for seperation
-	CHE_ByteString			mName;
-	CHE_PDF_Function *		mpFunction;
+	CHE_PDF_FunctionPtr		mFunction;
+	CHE_PDF_ColorSpacePtr	mBaseColorspace;
 
-	//for deviceN
-
-	//for Pattern
-	CHE_PDF_Tiling *		mpTiling;
-	CHE_PDF_Shading *		mpShading;
+	friend class CHE_Allocator;
 };
 
 

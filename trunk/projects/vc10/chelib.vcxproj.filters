@@ -30,9 +30,6 @@
     <Filter Include="include\wdm">
       <UniqueIdentifier>{686c123a-3843-434c-9f73-9e40841c4d0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\crypt">
-      <UniqueIdentifier>{9b7e57c2-050b-41e8-b009-1fce0b0be2a0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\hash">
       <UniqueIdentifier>{6325159a-b37c-4391-998a-45cba8b4b075}</UniqueIdentifier>
     </Filter>
@@ -53,6 +50,9 @@
     </Filter>
     <Filter Include="extlib\zlib">
       <UniqueIdentifier>{bc646dc1-383f-481b-99b4-32aaeb1a08c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hash\crypt">
+      <UniqueIdentifier>{9b7e57c2-050b-41e8-b009-1fce0b0be2a0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -119,9 +119,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_fontmgr.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_contentbuilder.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_contentresmgr.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
@@ -129,9 +126,6 @@
       <Filter>include\pdf</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_document.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_image.h">
@@ -142,9 +136,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h">
       <Filter>include\wdm</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_contentstring.h">
-      <Filter>include\pdf</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_objectstring.h">
       <Filter>include\pdf</Filter>
@@ -174,6 +165,27 @@
       <Filter>include\pdf</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_extstate.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_xobject.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_componentmgr.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_pattern.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_contentlist.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_component.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
   </ItemGroup>
@@ -223,12 +235,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_contentbuilder.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
@@ -259,9 +265,6 @@
     <ClCompile Include="..\..\src\wdm\che_wdm_textbox.cpp">
       <Filter>src\wdm</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_contentstring.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_objectstring.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
@@ -272,10 +275,10 @@
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp">
-      <Filter>src\crypt</Filter>
+      <Filter>src\hash\crypt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp">
-      <Filter>src\crypt</Filter>
+      <Filter>src\hash\crypt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\platform\windows\che_platform_font.cpp">
       <Filter>src\pdf</Filter>
@@ -624,6 +627,27 @@
     </ClCompile>
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp">
       <Filter>src\hash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_extstate.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_xobject.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_componentmgr.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_pattern.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_contentlist.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_component.cpp">
+      <Filter>src\pdf</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

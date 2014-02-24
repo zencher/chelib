@@ -1,8 +1,10 @@
 #ifndef _CHE_PDF_FUNCTION_H_
 #define _CHE_PDF_FUNCTION_H_
 
-#include "../che_base.h"
-#include "che_pdf_objects.h"
+#include <vector>
+using namespace std;
+
+#include "che_pdf_component.h"
 
 enum PDF_FUNCTION_TYPE
 {
@@ -58,12 +60,18 @@ enum PDF_FUNCTION_TYPE
 // 	roll
 // };
 
-class CHE_PDF_Function : public CHE_Object
+class CHE_PDF_Function;
+
+class CHE_PDF_FunctionPtr : public CHE_PDF_ComponentPtr
 {
 public:
-	static CHE_PDF_Function *	Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
-	static CHE_PDF_Function *	Create( const CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator = NULL );
-	static HE_VOID				Destroy( CHE_PDF_Function * pFunction );
+	CHE_PDF_Function * operator->() const { return (CHE_PDF_Function*)mpCom; }
+};
+
+class CHE_PDF_Function : public CHE_PDF_Component
+{
+public:
+	static CHE_PDF_FunctionPtr	Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator = NULL );
 
 	virtual ~CHE_PDF_Function() {};
 
@@ -80,7 +88,7 @@ public:
 	virtual HE_BOOL				Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output ) = 0;
 
 protected:
-	CHE_PDF_Function( CHE_PDF_DictionaryPtr dict, CHE_Allocator * pAllocator );
+	CHE_PDF_Function( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
 
 	PDF_FUNCTION_TYPE			mType;
 	HE_UINT32					mInputCount;
@@ -101,7 +109,7 @@ public:
 	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
 
 private:
-	CHE_PDF_Function_Sampled( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
 
 	HE_INT32 GetSize( HE_UINT32 index ) const;
 	HE_FLOAT GetEncodeMin( HE_UINT32 index ) const;
@@ -130,7 +138,7 @@ public:
 	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
 
 private:
-	CHE_PDF_Function_Exponential( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_Exponential( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
 
 	HE_INT32	mN;
 	HE_FLOAT*	mpC0;
@@ -147,15 +155,15 @@ public:
 	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
 
 private:
-	CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_Stitching( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
 
 	HE_FLOAT GetEncodeMin( HE_UINT32 index ) const;
 	HE_FLOAT GetEncodeMax( HE_UINT32 index ) const;
 
-	HE_UINT32			mK;
-	HE_FLOAT *			mpBounds;
-	HE_FLOAT *			mpEncode;
-	CHE_PDF_Function **	mpFunctions;
+	HE_UINT32					mK;
+	vector<HE_FLOAT>			mBounds;
+	vector<HE_FLOAT>			mEncode;
+	vector<CHE_PDF_FunctionPtr>	mFunctions;
 
 	friend class CHE_Allocator;
 };
@@ -317,7 +325,7 @@ public:
 	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
 
 private:
-	CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_PostScript( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
 
 	HE_BOOL IsParsed() const;
 	

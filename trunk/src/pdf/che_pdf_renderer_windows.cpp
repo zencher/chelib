@@ -1,4 +1,6 @@
 #include "../../include/pdf/che_pdf_renderer_windows.h"
+#include "../../include/pdf/che_pdf_gstate.h"
+#include "../../include/pdf/che_pdf_xobject.h"
 
 inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
 {
@@ -10,8 +12,8 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	static GRAPHICS_STATE_TEXTRENDERMODE tm;
 	static CHE_PDF_Color fillColor;
 	static CHE_PDF_Color strokeColor;
-	static CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );
-	static CHE_PDF_ColorSpace strokeColorSpace( COLORSPACE_DEVICE_GRAY );
+	static CHE_PDF_ColorSpacePtr fillColorSpace;
+	static CHE_PDF_ColorSpacePtr strokeColorSpace;
 	static HE_ULONG fillColorVal = 0xFF000000;
 	static HE_ULONG strokeColorVal = 0xFF000000;
 	static HE_FLOAT fillAlpha = 1.0f;
@@ -37,8 +39,8 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	pGState->GetFillColorSpace( fillColorSpace );
 	pGState->GetStrokeColorSpace( strokeColorSpace );
 
-	fillColorVal = fillColorSpace.GetARGBValue( fillColor );
-	strokeColorVal = strokeColorSpace.GetARGBValue( strokeColor );
+	fillColorVal = fillColorSpace->GetARGBValue( fillColor );
+	strokeColorVal = strokeColorSpace->GetARGBValue( strokeColor );
 	drawer.SetFillColor( fillColorVal );
 	drawer.SetStrokeColor( strokeColorVal );
 	drawer.SetFillMode( FillMode_Nonzero );
@@ -386,79 +388,63 @@ inline HE_VOID OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
     }
 }
 
-inline HE_VOID OutputRefImage( CHE_PDF_RefImage * pImage, CHE_GraphicsDrawer & drawer )
-{
-	if ( pImage->IsInterpolate() == TRUE )
-	{
-		CHE_Bitmap * pBitmap = pImage->GetBitmap();
-		if ( pBitmap )
-		{
-			drawer.DrawBitmap( pBitmap );
-		}
-	}else{
-		CHE_Bitmap * pBitmap = pImage->GetBitmap();
-		if ( pBitmap )
-		{
-			CHE_PDF_GState * pGState = pImage->GetGState();
-			if ( pGState )
-			{
-				CHE_Rect rect;
-				rect.left = 0;
-				rect.bottom = 0;
-				rect.width = 1;
-				rect.height = 1;
-				CHE_Matrix matrix = pGState->GetMatrix();
-				rect = matrix.Transform( rect );
-
-				if ( rect.width > pBitmap->Width() || rect.height > pBitmap->Height() )
-				{
-					CHE_Bitmap * pNew = pBitmap->StretchTo( rect.width, rect.height, 0, NULL );
-					if ( pNew )
-					{
-						drawer.DrawBitmap( pNew );
-						pNew->GetAllocator()->Delete( pNew ); 
-					}
-				}else{
-					drawer.DrawBitmap( pBitmap );
-				}
-			}
-		}
-	}
-}
-
 inline HE_VOID OutputInlineImage( CHE_PDF_InlineImage * pImage, CHE_GraphicsDrawer & drawer )
 {
-    CHE_Bitmap * pBitmap = pImage->GetBitmap();
-    if ( pBitmap )
-    {
-        drawer.DrawBitmap( pBitmap );
-    }
-}
-
-inline HE_VOID OutputShading( CHE_PDF_Shading * pShading, CHE_GraphicsDrawer & drawer )
-{
-    
-}
-
-HE_VOID outputForm( CHE_PDF_Form * pForm, CHE_Matrix extMatrix, CHE_GraphicsDrawer & drawer )
-{
-    CHE_PDF_GState * pGState = NULL;
-	CHE_PDF_ClipState * pClipState = NULL;
-    CHE_PDF_ContentObjectList & content = pForm->GetList();
-	ContentObjectList::iterator it = content.Begin();
-
-	CHE_Matrix tmpExtMatrix = extMatrix;
-	CHE_Matrix newExtMatrix;
-	pGState = pForm->GetGState();
-	if ( pGState )
+	CHE_Bitmap * pBitmap = pImage->GetBitmap();
+	if ( pBitmap )
 	{
-		newExtMatrix = pGState->GetMatrix();
-		
+		drawer.DrawBitmap( pBitmap );
 	}
-	newExtMatrix.Concat( pForm->GetExtMatrix() );
-	newExtMatrix.Concat( tmpExtMatrix );
+}
 
-	drawer.SetExtMatrix( newExtMatrix );
+inline HE_VOID OutputRefImage( const CHE_PDF_ImageXObjectPtr & image, CHE_GraphicsDrawer & drawer )
+{
+	// 	if ( pImage->IsInterpolate() == TRUE )
+	// 	{
+	// 		CHE_Bitmap * pBitmap = pImage->GetBitmap();
+	// 		if ( pBitmap )
+	// 		{
+	// 			drawer.DrawBitmap( pBitmap );
+	// 		}
+	// 	}else{
+	// 		CHE_Bitmap * pBitmap = pImage->GetBitmap();
+	// 		if ( pBitmap )
+	// 		{
+	// 			CHE_PDF_GState * pGState = pImage->GetGState();
+	// 			if ( pGState )
+	// 			{
+	// 				CHE_Rect rect;
+	// 				rect.left = 0;
+	// 				rect.bottom = 0;
+	// 				rect.width = 1;
+	// 				rect.height = 1;
+	// 				CHE_Matrix matrix = pGState->GetMatrix();
+	// 				rect = matrix.Transform( rect );
+	// 
+	// 				if ( rect.width > pBitmap->Width() || rect.height > pBitmap->Height() )
+	// 				{
+	// 					CHE_Bitmap * pNew = pBitmap->StretchTo( rect.width, rect.height, 0, NULL );
+	// 					if ( pNew )
+	// 					{
+	// 						drawer.DrawBitmap( pNew );
+	// 						pNew->GetAllocator()->Delete( pNew ); 
+	// 					}
+	// 				}else{
+	// 					drawer.DrawBitmap( pBitmap );
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+}
+
+inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_Matrix & matrix, CHE_GraphicsDrawer & drawer );
+
+inline HE_VOID OutputForm( const CHE_PDF_FormPtr & form, const CHE_Matrix & extMatrix, CHE_GraphicsDrawer & drawer )
+{
+ 	CHE_PDF_GState * pGState = NULL;
+ 	CHE_PDF_ClipState * pClipState = NULL;
+ 	CHE_PDF_ContentObjectList & content = form->GetList();
+ 	ContentObjectList::iterator it = content.Begin();
 
 	for ( ; it != content.End(); ++it )
 	{
@@ -473,45 +459,84 @@ HE_VOID outputForm( CHE_PDF_Form * pForm, CHE_Matrix extMatrix, CHE_GraphicsDraw
 			}
 			OutputCommonGSatae( drawer, pGState );
 		}
-        
+
 		switch ( (*it)->GetType() )
 		{
-            case ContentType_Path:
+		case ContentType_Path:
 			{
 				OutputPath( (CHE_PDF_Path*)(*it), drawer );
 				break;
 			}
-            case ContentType_Text:
+		case ContentType_Text:
 			{
-                OutputText( (CHE_PDF_Text*)(*it), drawer );
+				OutputText( (CHE_PDF_Text*)(*it), drawer );
 				break;
 			}
-            case ContentType_RefImage:
-			{
-				OutputRefImage( (CHE_PDF_RefImage*)(*it), drawer );
-				break;
-			}
-            case ContentType_InlineImage:
+		case ContentType_InlineImage:
 			{
 				OutputInlineImage( (CHE_PDF_InlineImage*)(*it), drawer );
 				break;
 			}
-            case ContentType_Shading:
-            {
-                OutputShading( (CHE_PDF_Shading*)(*it), drawer );
-                break;
-            }
-            case ContentType_Form:
+		case ContentType_Component:
 			{
-				outputForm( (CHE_PDF_Form *)(*it), extMatrix, drawer );
+				OutputComponent( (CHE_PDF_ComponentRef*)(*it), extMatrix, drawer );
 				break;
 			}
-            default:
-                break;
+		default:
+			break;
 		}
 	}
+}
 
-	drawer.SetExtMatrix( extMatrix );
+inline HE_VOID OutputShading( const CHE_PDF_ShadingPtr shading, CHE_GraphicsDrawer & drawer )
+{
+
+}
+
+inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_Matrix & extMatrix, CHE_GraphicsDrawer & drawer )
+{
+	if ( pComponentRef == NULL )
+	{
+		return;
+	}
+
+	CHE_PDF_ComponentPtr componentPtr = pComponentRef->GetComponentPtr();
+
+	switch( componentPtr->GetType() )
+	{
+	case COMPONENT_TYPE_ImageXObject:
+		{
+			OutputRefImage( CHE_PDF_ImageXObject::Convert( componentPtr ), drawer );
+			break;
+		}
+	case COMPONENT_TYPE_FormXObject:
+		{
+			CHE_Matrix tmpExtMatrix = extMatrix;
+			CHE_Matrix newExtMatrix;
+			CHE_PDF_GState * pGState = pComponentRef->GetGState();
+			if ( pGState )
+			{
+				newExtMatrix = pGState->GetMatrix();
+
+			}
+			/*newExtMatrix.Concat( pForm->GetExtMatrix() );*/
+			newExtMatrix.Concat( tmpExtMatrix );
+
+			drawer.SetExtMatrix( newExtMatrix );
+
+			OutputForm( CHE_PDF_Form::Convert( componentPtr ), extMatrix, drawer );
+
+			drawer.SetExtMatrix( extMatrix );
+			break;
+		}
+	case COMPONENT_TYPE_Shading:
+		{
+			//OutputShading( pComponentRef->GetComponentPtr()->GetShadingPtr(), drawer );
+			break;
+		}
+	default:
+		break;
+	}
 }
 
 HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
@@ -588,24 +613,14 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
                 OutputText( (CHE_PDF_Text*)(*it), drawer );
 				break;
 			}
-		case ContentType_RefImage:
-			{
-				OutputRefImage( (CHE_PDF_RefImage*)(*it), drawer );
-				break;
-			}
 		case ContentType_InlineImage:
 			{
 				OutputInlineImage( (CHE_PDF_InlineImage*)(*it), drawer );
 				break;
 			}
-        case ContentType_Shading:
-            {
-                OutputShading( (CHE_PDF_Shading*)(*it), drawer );
-                break;
-            }
-        case ContentType_Form:
+		case ContentType_Component:
 			{
-				outputForm( (CHE_PDF_Form*)(*it), extMatrix, drawer );
+				OutputComponent( (CHE_PDF_ComponentRef*)(*it), extMatrix, drawer );
 				break;
 			}
 		default:

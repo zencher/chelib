@@ -1,8 +1,9 @@
 #ifndef _CHE_PDF_CONTENTRESMGR_H_
 #define _CHE_PDF_CONTENTRESMGR_H_
 
-#include "../che_base.h"
+#include "../che_datastructure.h"
 #include "che_pdf_objects.h"
+#include "che_pdf_component.h"
 
 enum PDF_CONTENTRES_TYPE
 {
@@ -19,10 +20,10 @@ class CHE_PDF_ContentResMgr : public CHE_Object
 {
 public:
 	CHE_PDF_ContentResMgr( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mpResDict( CHE_PDF_Dictionary::Create(  pAllocator) ) {}
+		: CHE_Object(pAllocator), mpResDict(CHE_PDF_Dictionary::Create(pAllocator)), mComponentsMap(pAllocator) {}
 	
 	CHE_PDF_ContentResMgr( const CHE_PDF_DictionaryPtr & pResDict, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mpResDict( pResDict ) {}
+		: CHE_Object(pAllocator), mpResDict(pResDict), mComponentsMap(pAllocator) {}
 
 	HE_VOID SetDict( const CHE_PDF_DictionaryPtr & pDict ) { mpResDict = pDict; }
 
@@ -38,6 +39,13 @@ public:
 
 	CHE_PDF_ObjectPtr GetResObj( const CHE_ByteString & name );
 
+	//for direct reference component
+	CHE_PDF_ComponentPtr GetComponent( const CHE_ByteString & name );
+
+	CHE_PDF_ComponentPtr GetComponent( const CHE_ByteString & name, PDF_CONTENTRES_TYPE type );
+
+	HE_BOOL	PushComponent( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & component );
+
 private:
 	CHE_PDF_DictionaryPtr GetSubDict( PDF_CONTENTRES_TYPE type );
 
@@ -45,7 +53,9 @@ private:
 
 	CHE_ByteString RequestName( const CHE_PDF_DictionaryPtr & pSubDict, const CHE_ByteString & name );
 
-	CHE_PDF_DictionaryPtr mpResDict;
+	CHE_PDF_DictionaryPtr	mpResDict;
+
+	CHE_ByteStringToPtrMap	mComponentsMap;
 };
 
 #endif

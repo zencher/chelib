@@ -161,7 +161,7 @@ public:
 
 	CHE_PDF_Object * operator->() const { return mpObj; }
 
-	HE_VOID	reset( CHE_PDF_Object * pObj = NULL );
+	HE_VOID	Reset( CHE_PDF_Object * pObj = NULL );
 
 protected:
 

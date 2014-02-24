@@ -33,15 +33,17 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_contentbuilder.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_componentmgr.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_component.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_contentlist.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentresmgr.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contents.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_contentstring.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_creator.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_destination.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_document.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_extstate.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_file.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_filter.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h" />
@@ -55,7 +57,9 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_outline.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_pages.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_pattern.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer_windows.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_xobject.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h" />
@@ -182,15 +186,17 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_contentbuilder.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_componentmgr.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_component.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_contentlist.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contents.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_contentstring.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_destination.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_extstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
@@ -205,7 +211,9 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_pattern.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer_windows.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_xobject.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp" />
     <ClCompile Include="..\..\src\pdf\platform\windows\che_platform_font.cpp" />
     <ClCompile Include="..\..\src\wdm\che_wdm.cpp" />
@@ -309,6 +317,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

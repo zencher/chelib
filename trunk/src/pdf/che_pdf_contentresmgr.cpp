@@ -1,5 +1,13 @@
 #include "../../include/pdf/che_pdf_contentresmgr.h"
 
+
+class CHE_PDF_ContentResMgrItem
+{
+public:
+	CHE_PDF_ComponentPtr mComponentPtr;
+};
+
+
 CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, const CHE_PDF_ObjectPtr & pObj )
 {
 	CHE_PDF_DictionaryPtr pSubDict;
@@ -233,4 +241,45 @@ CHE_ByteString CHE_PDF_ContentResMgr::RequestName( const CHE_PDF_DictionaryPtr &
 		return tmpStr;
 	}
 	return "";
+}
+
+CHE_PDF_ComponentPtr CHE_PDF_ContentResMgr::GetComponent( const CHE_ByteString & name )
+{
+	CHE_PDF_ComponentPtr ptr;
+	CHE_PDF_ContentResMgrItem * item = (CHE_PDF_ContentResMgrItem *) mComponentsMap.GetItem( name );
+	if ( item )
+	{
+		ptr = item->mComponentPtr;
+	}
+	return ptr;
+}
+
+CHE_PDF_ComponentPtr CHE_PDF_ContentResMgr::GetComponent( const CHE_ByteString & name, PDF_CONTENTRES_TYPE type )
+{
+	CHE_PDF_ComponentPtr ptr;
+	CHE_PDF_ContentResMgrItem * pItem = (CHE_PDF_ContentResMgrItem *) mComponentsMap.GetItem( name );
+	if ( pItem )
+	{
+		if ( pItem->mComponentPtr && pItem->mComponentPtr->GetType() == type )
+		{
+			ptr = pItem->mComponentPtr;
+		}
+	}
+	return ptr;
+}
+
+HE_BOOL	CHE_PDF_ContentResMgr::PushComponent( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & component )
+{
+	if ( name.GetLength() == 0 )
+	{
+		return FALSE;
+	}
+	if ( component )
+	{
+		CHE_PDF_ContentResMgrItem * pItem = GetAllocator()->New<CHE_PDF_ContentResMgrItem>();
+		pItem->mComponentPtr = component;
+		mComponentsMap.Append( name, pItem );
+		return TRUE;
+	}
+	return FALSE;
 }

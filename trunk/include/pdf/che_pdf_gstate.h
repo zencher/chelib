@@ -161,7 +161,6 @@ class CHE_PDF_GState : public CHE_Object
 public:
 	CHE_PDF_GState( CHE_Allocator * pAllocator = NULL )
 		: CHE_Object(pAllocator), mFlag(0), mRenderIntents(RI_AbsoluteColorimetric), mFlatness(0),
-		mpFillColor(NULL), mpStrokeColor(NULL),mpFillColorSpace(NULL), mpStrokeColorSpace(NULL),
 		mpStrokeState(NULL), mpTextState(NULL), mpClipState(NULL), mpExtState(NULL) {}
 
 	~CHE_PDF_GState();
@@ -180,8 +179,8 @@ public:
 	*/
 	HE_VOID	GetFillColor( CHE_PDF_Color & colorRet ) const;
 	HE_VOID GetStrokeColor( CHE_PDF_Color & colorRet ) const;
-	HE_VOID GetFillColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) const;
-	HE_VOID GetStrokeColorSpace( CHE_PDF_ColorSpace & colorSpaceRet ) const;
+	HE_VOID GetFillColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const;
+	HE_VOID GetStrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const;
 	HE_VOID	GetLineWidth( HE_FLOAT & lineWidthRet ) const;
 	HE_VOID GetMiterLimit( HE_FLOAT & miterLimitRet ) const;
 	HE_VOID GetLineCap( GRAPHICS_STATE_LINECAP & lineCapRet ) const;
@@ -202,10 +201,10 @@ public:
 	HE_VOID SetMatrix( const CHE_Matrix & matirx );
 	HE_VOID SetRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri );
 	HE_VOID SetFlatness( const HE_FLOAT & flatness );
-	HE_BOOL SetFillColor( CHE_PDF_Color * pColor );
-	HE_BOOL SetStrokeColor( CHE_PDF_Color * pColor );
-	HE_BOOL SetFillColorSpace( CHE_PDF_ColorSpace * pColorSpace );
-	HE_BOOL SetStrokeColorSpace( CHE_PDF_ColorSpace * pColorSpace );
+	HE_BOOL SetFillColor( const CHE_PDF_Color & color );
+	HE_BOOL SetStrokeColor( const CHE_PDF_Color & color );
+	HE_BOOL SetFillColorSpace( CHE_PDF_ColorSpacePtr ColorSpace );
+	HE_BOOL SetStrokeColorSpace( CHE_PDF_ColorSpacePtr ColorSpace );
 	HE_VOID	SetLineWidth( const HE_FLOAT & lineWidth );
 	HE_VOID	SetMiterLimit( const HE_FLOAT & miterLimit );
 	HE_VOID	SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
@@ -235,10 +234,10 @@ private:
 	HE_FLOAT						mFlatness;
 	GRAPHICS_STATE_RENDERINTENTS	mRenderIntents;
 	CHE_Matrix						mMatrix;
-	CHE_PDF_Color *					mpFillColor;
-	CHE_PDF_Color *					mpStrokeColor;
-	CHE_PDF_ColorSpace *			mpFillColorSpace;
-	CHE_PDF_ColorSpace *			mpStrokeColorSpace;
+	CHE_PDF_Color					mFillColor;
+	CHE_PDF_Color					mStrokeColor;
+	CHE_PDF_ColorSpacePtr			mFillColorSpace;
+	CHE_PDF_ColorSpacePtr			mStrokeColorSpace;
 	CHE_PDF_StrokeState *			mpStrokeState;
 	CHE_PDF_TextGState *			mpTextState;
 	CHE_PDF_ClipState *				mpClipState;

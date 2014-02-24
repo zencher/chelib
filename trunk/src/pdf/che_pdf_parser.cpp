@@ -1339,7 +1339,7 @@ HE_ULONG CHE_PDF_Parser::ParseXRef()
 	HE_ULONG entryCount = 0;
 	while ( TRUE )
 	{
-		pDict.reset();
+		pDict.Reset();
 		entryCount = ParseXRefTable( offset, pDict );
 		xrefEntryCount += entryCount;
 		if ( pDict )
@@ -1376,7 +1376,7 @@ HE_ULONG CHE_PDF_Parser::ParseXRef()
 		}
 		if ( entryCount == 0 )
 		{
-			pDict.reset();
+			pDict.Reset();
 			entryCount = ParseXRefStream( offset, pDict );
 			xrefEntryCount += entryCount;
 			if ( pDict )
@@ -2285,7 +2285,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Parser::GetObjectInObjStm( CHE_PDF_StreamPtr & pStream
 				{
 					pCurObj = CHE_PDF_Null::Create( GetAllocator() );
 				}else{
-					pCurObj.reset();
+					pCurObj.Reset();
 				}
 				return pCurObj;
 			}

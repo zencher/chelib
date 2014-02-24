@@ -48,101 +48,75 @@ static inline int fz_clampi(int i, float min, float max)
 	return (i > min ? (i < max ? i : max) : min);
 }
 
-CHE_PDF_Function * CHE_PDF_Function::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
-	if ( !refPtr )
+	CHE_PDF_FunctionPtr ptr;
+
+	if ( !rootObjPtr )
 	{
-		return NULL;
+		return ptr;
 	}
 	if ( pAllocator == NULL )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
 
-	CHE_PDF_Function * pTmp = NULL;
+	CHE_PDF_ObjectPtr objPtr;
 	CHE_PDF_DictionaryPtr dictPtr;
-	CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj( OBJ_TYPE_DICTIONARY );
-	if ( objPtr )
-	{
-		dictPtr = objPtr->GetDictPtr();
-		objPtr = dictPtr->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
-		if ( objPtr )
-		{
-			switch( objPtr->GetNumberPtr()->GetInteger() )
-			{
-			case 2:
-				pTmp = pAllocator->New<CHE_PDF_Function_Exponential>( dictPtr, pAllocator );
-				break;
-			case 3:
-				pTmp = pAllocator->New<CHE_PDF_Function_Stitching>( dictPtr, pAllocator );
-				break;
-			default:;
-			}
-		}
-	}else{
-		objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
-		if ( objPtr )
-		{
-			CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
-			dictPtr = stmPtr->GetDictPtr();
-			if ( dictPtr )
-			{
-				objPtr = dictPtr->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
-				if ( objPtr )
-				{
-					;
-					switch( objPtr->GetNumberPtr()->GetInteger() )
-					{
-					case 0:
-						pTmp = pAllocator->New<CHE_PDF_Function_Sampled>( stmPtr, pAllocator );
-						break;
-					case 4:
-						pTmp = pAllocator->New<CHE_PDF_Function_PostScript>( stmPtr, pAllocator );
-						break;
-					default:;
-					}
-				}
-			}
-		}
-	}
-	return pTmp;
-}
-
-CHE_PDF_Function * CHE_PDF_Function::Create( const CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator /*= NULL*/ )
-{
-	if ( !dictPtr )
-	{
-		return NULL;
-	}
-	if ( pAllocator == NULL )
-	{
-		pAllocator = GetDefaultAllocator();
-	}
-
 	CHE_PDF_Function * pTmp = NULL;
-	CHE_PDF_ObjectPtr objPtr = dictPtr->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
+
+	if ( rootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
+	{
+		objPtr = rootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			dictPtr = objPtr->GetDictPtr();
+		}else{
+			objPtr = rootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
+			if ( objPtr )
+			{
+				dictPtr = objPtr->GetStreamPtr()->GetDictPtr();
+			}else{
+				return ptr;
+			}
+		}
+	}else if ( rootObjPtr->GetType() == OBJ_TYPE_DICTIONARY )
+	{
+		dictPtr = rootObjPtr->GetDictPtr();
+	}else{
+		return ptr;
+	}
+
+	objPtr = dictPtr->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
 	if ( objPtr )
 	{
 		switch( objPtr->GetNumberPtr()->GetInteger() )
 		{
+		case 0:
+			pTmp = pAllocator->New<CHE_PDF_Function_Sampled>( rootObjPtr, pAllocator );
+			break;
 		case 2:
-			pTmp = pAllocator->New<CHE_PDF_Function_Exponential>( dictPtr, pAllocator );
+			pTmp = pAllocator->New<CHE_PDF_Function_Exponential>( rootObjPtr, pAllocator );
 			break;
 		case 3:
-			pTmp = pAllocator->New<CHE_PDF_Function_Stitching>( dictPtr, pAllocator );
+			pTmp = pAllocator->New<CHE_PDF_Function_Stitching>( rootObjPtr, pAllocator );
+			break;
+		case 4:
+			pTmp = pAllocator->New<CHE_PDF_Function_PostScript>( rootObjPtr, pAllocator );
 			break;
 		default:;
 		}
 	}
-	return pTmp;
-}
 
-HE_VOID CHE_PDF_Function::Destroy( CHE_PDF_Function * pFunction )
-{
-	if ( pFunction )
+	if ( pTmp )
 	{
-		pFunction->GetAllocator()->Delete<CHE_PDF_Function>( pFunction );
+		if ( ! pTmp->IsError() )
+		{
+			ptr.Reset( pTmp );
+		}
 	}
+
+	return ptr;
 }
 
 HE_FLOAT CHE_PDF_Function::GetDomianMin( HE_UINT32 index ) const
@@ -183,11 +157,28 @@ HE_FLOAT CHE_PDF_Function::GetRangeMax( HE_UINT32 index ) const
 }
 
 
-CHE_PDF_Function::CHE_PDF_Function( CHE_PDF_DictionaryPtr dict, CHE_Allocator * pAllocator )
-	: CHE_Object(pAllocator), mType(FUNCTION_TYPE_SAMPLE), mInputCount(0), mOutputCount(0),
-	mpDomain(NULL), mpRange(NULL), mbRange(FALSE)
+CHE_PDF_Function::CHE_PDF_Function( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
+	: CHE_PDF_Component(COMPONENT_TYPE_Function, rootObjPtr, pAllocator), mType(FUNCTION_TYPE_SAMPLE), 
+	mInputCount(0), mOutputCount(0), mpDomain(NULL), mpRange(NULL), mbRange(FALSE)
 {
-	CHE_PDF_ObjectPtr objPtr = dict->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
+	CHE_PDF_ObjectPtr objPtr;
+	CHE_PDF_DictionaryPtr dictPtr;
+	if ( mRootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
+	{
+		objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			dictPtr = objPtr->GetDictPtr();
+		}
+	}else if ( mRootObjPtr->GetType() == OBJ_TYPE_DICTIONARY )
+	{
+		dictPtr = mRootObjPtr->GetDictPtr();
+	}else{
+		SetError( COMPONENT_ERROR_CONSTRUCTION );
+		return;
+	}
+
+	objPtr = dictPtr->GetElement( "FunctionType", OBJ_TYPE_NUMBER );
 	if ( objPtr )
 	{
 		switch( objPtr->GetNumberPtr()->GetInteger() )
@@ -204,10 +195,13 @@ CHE_PDF_Function::CHE_PDF_Function( CHE_PDF_DictionaryPtr dict, CHE_Allocator * 
 		case 4:
 			mType = FUNCTION_TYPE_POSTSCRIPT;
 			break;
+		default:
+			SetError( COMPONENT_ERROR_CONSTRUCTION );
+			return;
  		}
 	}
 
-	objPtr = dict->GetElement( "Domain", OBJ_TYPE_ARRAY );
+	objPtr = dictPtr->GetElement( "Domain", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr array = objPtr->GetArrayPtr();
@@ -223,9 +217,12 @@ CHE_PDF_Function::CHE_PDF_Function( CHE_PDF_DictionaryPtr dict, CHE_Allocator * 
 				mpDomain[i] = 0.0f;
 			}
 		}
+	}else{
+		SetError( COMPONENT_ERROR_CONSTRUCTION );
+		return;
 	}
 
-	objPtr = dict->GetElement( "Range", OBJ_TYPE_ARRAY );
+	objPtr = dictPtr->GetElement( "Range", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr array = objPtr->GetArrayPtr();
@@ -241,14 +238,32 @@ CHE_PDF_Function::CHE_PDF_Function( CHE_PDF_DictionaryPtr dict, CHE_Allocator * 
 				mpRange[i] = 0.0f;
 			}
 		}
+	}else{
+		SetError( COMPONENT_ERROR_CONSTRUCTION );
+		return;
 	}
 }
 
-CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( stmPtr->GetDictPtr(), pAllocator ), mBps(1), mOrder(1), mpSize(NULL), mpEncode(NULL), mpDecode(NULL), mpSample(NULL)
+CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
+	: CHE_PDF_Function( rootObjPtr, pAllocator ), mBps(1), mOrder(1), mpSize(NULL), mpEncode(NULL), mpDecode(NULL), mpSample(NULL)
 {
+	if ( mRootObjPtr->GetType() != OBJ_TYPE_REFERENCE )
+	{
+		SetError( COMPONENT_ERROR_CONSTRUCTION );
+		return;
+	}
+
+	CHE_PDF_ObjectPtr objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
+	if ( !objPtr )
+	{
+		SetError( COMPONENT_ERROR_CONSTRUCTION );
+		return;
+	}
+
+	CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
 	CHE_PDF_DictionaryPtr dict = stmPtr->GetDictPtr();
-	CHE_PDF_ObjectPtr objPtr = dict->GetElement( "BitsPerSample", OBJ_TYPE_NUMBER );
+	
+	objPtr = dict->GetElement( "BitsPerSample", OBJ_TYPE_NUMBER );
 	if ( objPtr )
 	{
 		mBps = objPtr->GetNumberPtr()->GetInteger();
@@ -480,10 +495,31 @@ HE_BOOL CHE_PDF_Function_Sampled::Calculate( std::vector<HE_FLOAT> & input, std:
 	return TRUE;
 }
 
-CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( dictPtr, pAllocator )
+CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
+	: CHE_PDF_Function( rootObjPtr, pAllocator )
 {
-	CHE_PDF_ObjectPtr objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
+	CHE_PDF_ObjectPtr objPtr;
+	CHE_PDF_DictionaryPtr dictPtr;
+
+	if ( mRootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
+	{
+		objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			dictPtr = objPtr->GetDictPtr();
+		}else{
+			SetError( COMPONENT_ERROR_CONSTRUCTION );
+			return;
+		}
+	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
+	{
+		dictPtr = objPtr->GetDictPtr();
+	}else{
+		SetError( COMPONENT_ERROR_CONSTRUCTION );
+		return;
+	}
+
+	objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
 	if ( objPtr )
 	{
 		mN = objPtr->GetNumberPtr()->GetInteger();
@@ -566,30 +602,45 @@ HE_BOOL CHE_PDF_Function_Exponential::Calculate( std::vector<HE_FLOAT> & input, 
 	return TRUE;
 }
 
-CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( dictPtr, pAllocator ), mK(0), mpBounds(NULL), mpEncode(NULL)
+CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
+	: CHE_PDF_Function( rootObjPtr, pAllocator ), mK(0)
 {
 	CHE_PDF_ObjectPtr objPtr;
-	CHE_PDF_ArrayPtr arrayPtr;
+	CHE_PDF_DictionaryPtr dictPtr;
+
+	if ( mRootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
+	{
+		objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			dictPtr = objPtr->GetDictPtr();
+		}else{
+			SetError( COMPONENT_ERROR_CONSTRUCTION );
+			return;
+		}
+	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
+	{
+		dictPtr = objPtr->GetDictPtr();
+	}else{
+		SetError( COMPONENT_ERROR_CONSTRUCTION );
+		return;
+	}
+
 	objPtr = dictPtr->GetElement( "Functions", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
-		arrayPtr = objPtr->GetArrayPtr();
+		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
 		mK = arrayPtr->GetCount();
 		if ( mK > 0 )
 		{
-			mpFunctions = GetAllocator()->NewArray<CHE_PDF_Function*>( mK );
-			CHE_PDF_Function * pTmpFunction = NULL;
+			CHE_PDF_FunctionPtr tmpFunctionPtr;
 			for ( HE_ULONG i = 0; i < mK; ++i )
 			{
 				objPtr = arrayPtr->GetElement( i, OBJ_TYPE_REFERENCE );
 				if ( objPtr )
 				{
-					pTmpFunction = CHE_PDF_Function::Create( objPtr->GetRefPtr(), GetAllocator() );
-					if ( pTmpFunction )
-					{
-						mpFunctions[i] = pTmpFunction;
-					}
+					tmpFunctionPtr = CHE_PDF_Function::Create( objPtr, GetAllocator() );
+					mFunctions[i] = tmpFunctionPtr;
 				}
 			}
 		}
@@ -599,15 +650,14 @@ CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr di
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-		mpEncode = GetAllocator()->NewArray<HE_FLOAT>( 2 * GetInputCount() );
 		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 2 * GetInputCount(); ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
 			{
-				mpEncode[i] = objPtr->GetNumberPtr()->GetFloat();
+				mEncode.push_back( objPtr->GetNumberPtr()->GetFloat() );
 			}else{
-				mpEncode[i] = 0;
+				mEncode.push_back( 0 );
 			}
 		}
 	}
@@ -616,15 +666,14 @@ CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr di
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-		mpBounds = GetAllocator()->NewArray<HE_FLOAT>( GetInputCount() - 1 );
 		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < GetInputCount() - 1; ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
 			{
-				mpBounds[i] = objPtr->GetNumberPtr()->GetFloat();
+				mBounds.push_back( objPtr->GetNumberPtr()->GetFloat() );
 			}else{
-				mpBounds[i] = 0;
+				mBounds.push_back( 0 );
 			}
 		}
 	}
@@ -632,37 +681,22 @@ CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( CHE_PDF_DictionaryPtr di
 
 CHE_PDF_Function_Stitching::~CHE_PDF_Function_Stitching()
 {
-	if ( mpFunctions )
-	{
-		GetAllocator()->DeleteArray<CHE_PDF_Function*>( mpFunctions );
-		mpFunctions = NULL;
-	}
-	if ( mpEncode )
-	{
-		GetAllocator()->DeleteArray<HE_FLOAT>( mpEncode );
-		mpBounds = NULL;
-	}
-	if ( mpBounds )
-	{
-		GetAllocator()->DeleteArray<HE_FLOAT>( mpBounds );
-		mpBounds = NULL;
-	}
 }
 
 HE_FLOAT CHE_PDF_Function_Stitching::GetEncodeMin( HE_UINT32 index ) const
 {
-	if ( index < GetInputCount() && mpEncode )
+	if ( index < GetInputCount() )
 	{
-		return mpEncode[index * 2];
+		return mEncode[index * 2];
 	}
 	return 0;
 }
 
 HE_FLOAT CHE_PDF_Function_Stitching::GetEncodeMax( HE_UINT32 index ) const
 {
-	if ( index < GetInputCount() && mpEncode )
+	if ( index < GetInputCount() )
 	{
-		return mpEncode[index * 2 + 1];
+		return mEncode[index * 2 + 1];
 	}
 	return 0;
 }
@@ -682,7 +716,7 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate( std::vector<HE_FLOAT> & input, st
 	HE_ULONG i = 0;
 	for ( ; i < mK; ++i )
 	{
-		if ( inputValue < mpBounds[i] )
+		if ( inputValue < mBounds[i] )
 		{
 			break;
 		}
@@ -695,14 +729,14 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate( std::vector<HE_FLOAT> & input, st
 	}else if ( i == 0 )
 	{
 		low = GetDomianMin( 0 );
-		high = mpBounds[0];
+		high = mBounds[0];
 	}else if ( i = mK - 1 )
 	{
-		low = mpBounds[mK - 2];
-		high = mpBounds[0];
+		low = mBounds[mK - 2];
+		high = mBounds[0];
 	}else{
-		low = mpBounds[i - 1];
-		high = mpBounds[i];
+		low = mBounds[i - 1];
+		high = mBounds[i];
 	}
 
 	inputValue = lerp( inputValue, low, high, GetEncodeMin( i ), GetEncodeMax( i ) );
@@ -710,17 +744,17 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate( std::vector<HE_FLOAT> & input, st
 	std::vector<HE_FLOAT> newInput;
 	newInput.push_back( inputValue );
 
-	CHE_PDF_Function * pFunction = mpFunctions[i];
-	if ( pFunction )
+	CHE_PDF_FunctionPtr functionPtr = mFunctions[i];
+	if ( functionPtr )
 	{
-		return pFunction->Calculate( newInput, output );
+		return functionPtr->Calculate( newInput, output );
 	}
 
 	return FALSE;
 }
 
-CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( CHE_PDF_StreamPtr stmPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( stmPtr->GetDictPtr(), pAllocator ), mbParsed( FALSE ), mStmPtr( stmPtr )
+CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
+	: CHE_PDF_Function( rootObjPtr, pAllocator ), mbParsed( FALSE )
 {
 }
 
@@ -1340,7 +1374,6 @@ HE_BOOL CHE_PDF_Function_PostScript::RunCode( std::vector<HE_FLOAT> & input, std
 	}
 
 	PSFuncItem * pItem = NULL;
-	PSFuncItem tmpItem;
 	HE_ULONG codeSize = mCodes.size();
 	for ( HE_ULONG codeIndex = 0; codeIndex < codeSize; ++codeIndex )
 	{

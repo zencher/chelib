@@ -1068,9 +1068,9 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Do()
 			}
 		}else if ( pSubtypeName->GetString() == "Form" )
 		{
-			CHE_PDF_FormPtr formPtr = CHE_PDF_Form::Create( pRef, mpCmptMgr, GetAllocator() );
+			CHE_PDF_FormXObjectPtr formPtr = CHE_PDF_FormXObject::Create( pRef, mpCmptMgr, GetAllocator() );
 
-// 			//CHE_PDF_Form * pForm = GetAllocator()->New<CHE_PDF_Form>( mName, GetAllocator() );
+// 			//CHE_PDF_FormXObject * pForm = GetAllocator()->New<CHE_PDF_FormXObject>( mName, GetAllocator() );
 // 			CHE_PDF_ObjectPtr pTmpObj;
 // 			CHE_PDF_DictionaryPtr pResDict;
 // 			pTmpObj = pStmDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );

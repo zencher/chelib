@@ -62,25 +62,25 @@ private:
 };
 
 
-class CHE_PDF_Form;
+class CHE_PDF_FormXObject;
 
-class CHE_PDF_FormPtr : public CHE_PDF_ComponentPtr
+class CHE_PDF_FormXObjectPtr : public CHE_PDF_ComponentPtr
 {
 public:
-	CHE_PDF_Form * operator->() const { return (CHE_PDF_Form*)mpCom; }
+	CHE_PDF_FormXObject * operator->() const { return (CHE_PDF_FormXObject*)mpCom; }
 };
 
-class CHE_PDF_Form : public CHE_PDF_Component
+class CHE_PDF_FormXObject : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_FormPtr Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_FormXObjectPtr Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
 
-	static CHE_PDF_FormPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
+	static CHE_PDF_FormXObjectPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
 
 	CHE_PDF_ContentObjectList & GetList() { return mList; }
 
 private:
-	CHE_PDF_Form( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
 
 	CHE_PDF_ContentObjectList mList;
 

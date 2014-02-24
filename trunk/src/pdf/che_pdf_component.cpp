@@ -140,9 +140,9 @@ HE_VOID	CHE_PDF_ComponentPtr::Reset( CHE_PDF_Component * pCom /*= NULL*/ )
 // 	return ptr;
 // }
 // 
-// CHE_PDF_FormPtr	CHE_PDF_Component::GetFormPtr() const
+// CHE_PDF_FormXObjectPtr	CHE_PDF_Component::GetFormPtr() const
 // {
-// 	CHE_PDF_FormPtr ptr;
+// 	CHE_PDF_FormXObjectPtr ptr;
 // 	if ( mType == COMPONENT_TYPE_FormXObject )
 // 	{
 // 		ptr.Reset( (CHE_PDF_Component*)this );

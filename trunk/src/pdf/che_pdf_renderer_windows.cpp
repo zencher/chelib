@@ -439,7 +439,7 @@ inline HE_VOID OutputRefImage( const CHE_PDF_ImageXObjectPtr & image, CHE_Graphi
 
 inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_Matrix & matrix, CHE_GraphicsDrawer & drawer );
 
-inline HE_VOID OutputForm( const CHE_PDF_FormPtr & form, const CHE_Matrix & extMatrix, CHE_GraphicsDrawer & drawer )
+inline HE_VOID OutputForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix, CHE_GraphicsDrawer & drawer )
 {
  	CHE_PDF_GState * pGState = NULL;
  	CHE_PDF_ClipState * pClipState = NULL;
@@ -524,7 +524,7 @@ inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_
 
 			drawer.SetExtMatrix( newExtMatrix );
 
-			OutputForm( CHE_PDF_Form::Convert( componentPtr ), extMatrix, drawer );
+			OutputForm( CHE_PDF_FormXObject::Convert( componentPtr ), extMatrix, drawer );
 
 			drawer.SetExtMatrix( extMatrix );
 			break;

@@ -1512,9 +1512,9 @@ CHE_PDF_ImageXObject::~CHE_PDF_ImageXObject()
 // 	return pBitmapRet;
 // }
 
-CHE_PDF_FormPtr CHE_PDF_Form::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*=  NULL*/ )
+CHE_PDF_FormXObjectPtr CHE_PDF_FormXObject::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*=  NULL*/ )
 {
-	CHE_PDF_FormPtr ptr;
+	CHE_PDF_FormXObjectPtr ptr;
 	if ( !refPtr || ! refPtr->GetRefObj( OBJ_TYPE_STREAM ) || pComponentMgr == NULL )
 	{
 		return ptr;
@@ -1523,7 +1523,7 @@ CHE_PDF_FormPtr CHE_PDF_Form::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_P
 	{
 		pAllocator = GetDefaultAllocator();
 	}
-	CHE_PDF_Form * pForm = pAllocator->New<CHE_PDF_Form>( refPtr, pAllocator );
+	CHE_PDF_FormXObject * pForm = pAllocator->New<CHE_PDF_FormXObject>( refPtr, pAllocator );
 	if ( CHE_PDF_ContentListBuilder::ParseContentStream( refPtr, pForm->GetList(), pComponentMgr, pAllocator ) )
 	{
 		ptr.Reset( pForm );
@@ -1533,9 +1533,9 @@ CHE_PDF_FormPtr CHE_PDF_Form::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_P
 	return ptr;
 }
 
-CHE_PDF_FormPtr CHE_PDF_Form::Convert( const CHE_PDF_ComponentPtr & componentPtr )
+CHE_PDF_FormXObjectPtr CHE_PDF_FormXObject::Convert( const CHE_PDF_ComponentPtr & componentPtr )
 {
-	CHE_PDF_FormPtr ptr;
+	CHE_PDF_FormXObjectPtr ptr;
 	if ( componentPtr && componentPtr->GetType() == COMPONENT_TYPE_FormXObject )
 	{
 		ptr.Reset( componentPtr.GetPointer() );
@@ -1543,5 +1543,5 @@ CHE_PDF_FormPtr CHE_PDF_Form::Convert( const CHE_PDF_ComponentPtr & componentPtr
 	return ptr;
 }
 
-CHE_PDF_Form::CHE_PDF_Form( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
+CHE_PDF_FormXObject::CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
 	: CHE_PDF_Component( COMPONENT_TYPE_FormXObject, refPtr, pAllocator ) {}

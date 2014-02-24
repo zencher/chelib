@@ -1,7 +1,7 @@
 ﻿#include <windows.h>
 #include <GdiPlus.h>
 
-#include "../../include/pdf/che_pdf_contents.h"
+#include "../../include/pdf/che_pdf_contentlistbuilder.h"
 #include "../../include/pdf/che_pdf_document.h"
 #include "../../include/pdf/che_pdf_renderer_windows.h"
 
@@ -65,7 +65,7 @@ void RenderPage( HWND hwnd )
 	}
 	CHE_PDF_ContentObjectList contentObjList;
 	QueryPerformanceCounter( &gBegin );
-	GetPageContent( gpPage->GetPageDict(), &contentObjList, gpDocument->GetFontMgr() );
+	CHE_PDF_ContentListBuilder::ParsePageContent( gpPage->GetPageDict(), contentObjList, gpDocument->GetComponentMgr() );
 	QueryPerformanceCounter( &gEnd );
 	parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 

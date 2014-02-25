@@ -1,22 +1,22 @@
-#include "../../include/pdf/che_pdf_extstate.h"
+#include "../../include/pdf/che_pdf_extgstate.h"
 
 
-CHE_PDF_ExtStatePtr CHE_PDF_ExtState::Create( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_ExtGStatePtr CHE_PDF_ExtGState::Create( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
-	CHE_PDF_ExtStatePtr ptr;
+	CHE_PDF_ExtGStatePtr ptr;
 	if ( objPtr )
 	{
 		if ( pAllocator == NULL )
 		{
 			pAllocator = GetDefaultAllocator();
 		}
-		ptr.Reset( pAllocator->New<CHE_PDF_ExtState>( objPtr, pAllocator ) );
+		ptr.Reset( pAllocator->New<CHE_PDF_ExtGState>( objPtr, pAllocator ) );
 	}
 	return ptr;
 }
 
 
-CHE_PDF_ExtState::CHE_PDF_ExtState( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_ExtGState::CHE_PDF_ExtGState( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 	:CHE_PDF_Component( COMPONENT_TYPE_ExtGState, objPtr, pAllocator )/*, mRootObjPtr( objPtr )*/
 {
 	//a lot of work todo!

@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_component.h"
-#include "../../include/pdf/che_pdf_extstate.h"
+#include "../../include/pdf/che_pdf_extgstate.h"
 #include "../../include/pdf/che_pdf_colorspace.h"
 #include "../../include/pdf/che_pdf_pattern.h"
 #include "../../include/pdf/che_pdf_xobject.h"
@@ -10,7 +10,7 @@ HE_VOID	CHE_PDF_Component::Release()
 	switch ( mType )
 	{
 	case COMPONENT_TYPE_ExtGState:
-		GetAllocator()->Delete<CHE_PDF_ExtState>( (CHE_PDF_ExtState*)this );
+		GetAllocator()->Delete<CHE_PDF_ExtGState>( (CHE_PDF_ExtGState*)this );
 		break;
 	case COMPONENT_TYPE_ColorSpace:
 		GetAllocator()->Delete<CHE_PDF_ColorSpace>( (CHE_PDF_ColorSpace*)this );

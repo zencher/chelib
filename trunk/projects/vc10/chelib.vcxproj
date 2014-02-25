@@ -43,7 +43,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_destination.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_document.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_extstate.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_extgstate.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_file.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_filter.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h" />
@@ -196,7 +196,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_destination.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_extstate.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_extgstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />

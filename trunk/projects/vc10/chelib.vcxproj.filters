@@ -164,9 +164,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_extstate.h">
-      <Filter>include\pdf</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_xobject.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
@@ -186,6 +183,9 @@
       <Filter>include\pdf</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_contentlistbuilder.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_extgstate.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
   </ItemGroup>
@@ -625,9 +625,6 @@
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp">
       <Filter>src\hash</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_extstate.cpp">
-      <Filter>src\pdf</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_xobject.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
@@ -647,6 +644,9 @@
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_contentlistbuilder.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_extgstate.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
   </ItemGroup>

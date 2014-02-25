@@ -128,11 +128,18 @@ private:
 
 	HE_ULONG				mComponentCount;
 
-	//for index color space
+	HE_FLOAT				mWhitePoint[3];
+	HE_FLOAT				mBlackPoint[3];
+	HE_FLOAT				mGamma[3];
+	HE_FLOAT				mMatrix[9];
+	HE_FLOAT				mRange[4];
+
+	//for indexed colorspace
 	HE_ULONG				mIndexCount;
 	HE_LPBYTE				mpIndexTable;
 	HE_ULONG				mIndexTableSize;
 
+	//for separation colorspace
 	CHE_PDF_FunctionPtr		mFunction;
 	CHE_PDF_ColorSpacePtr	mBaseColorspace;
 

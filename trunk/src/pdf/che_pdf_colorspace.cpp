@@ -268,6 +268,29 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type )
 	: CHE_PDF_Component(COMPONENT_TYPE_ColorSpace, CHE_PDF_ObjectPtr(), NULL), mColorSpaceType(type),
 	mComponentCount(0), mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0)
 {
+	mWhitePoint[0] = 1.0f;
+	mWhitePoint[1] = 1.0f;
+	mWhitePoint[2] = 1.0f;
+	mBlackPoint[0] = 0.0f;
+	mBlackPoint[1] = 0.0f;
+	mBlackPoint[2] = 0.0f;
+	mGamma[0] = 1.0f;
+	mGamma[1] = 1.0f;
+	mGamma[2] = 1.0f;
+	mMatrix[0] = 1.0f;
+	mMatrix[1] = 0.0f;
+	mMatrix[2] = 0.0f;
+	mMatrix[3] = 0.0f;
+	mMatrix[4] = 1.0f;
+	mMatrix[5] = 0.0f;
+	mMatrix[6] = 0.0f;
+	mMatrix[7] = 0.0f;
+	mMatrix[8] = 1.0f;
+	mRange[0] = -100;
+	mRange[1] = 100;
+	mRange[2] = -100;
+	mRange[3] = 100;
+
 	switch ( GetColorSpaceType() )
 	{
 	case COLORSPACE_DEVICE_GRAY:
@@ -312,6 +335,29 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 		objPtr = rootObjPtr->GetRefPtr()->GetRefObj();	
 	}
 
+	mWhitePoint[0] = 1.0f;
+	mWhitePoint[1] = 1.0f;
+	mWhitePoint[2] = 1.0f;
+	mBlackPoint[0] = 0.0f;
+	mBlackPoint[1] = 0.0f;
+	mBlackPoint[2] = 0.0f;
+	mGamma[0] = 1.0f;
+	mGamma[1] = 1.0f;
+	mGamma[2] = 1.0f;
+	mMatrix[0] = 1.0f;
+	mMatrix[1] = 0.0f;
+	mMatrix[2] = 0.0f;
+	mMatrix[3] = 0.0f;
+	mMatrix[4] = 1.0f;
+	mMatrix[5] = 0.0f;
+	mMatrix[6] = 0.0f;
+	mMatrix[7] = 0.0f;
+	mMatrix[8] = 1.0f;
+	mRange[0] = -100;
+	mRange[1] = 100;
+	mRange[2] = -100;
+	mRange[3] = 100;
+
 	switch( objPtr->GetType() )
 	{
 	case OBJ_TYPE_NAME:
@@ -354,16 +400,20 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 				{
 					mColorSpaceType = COLORSPACE_CIEBASE_CALGRAY;
 					mComponentCount = 1;
+					//todo
 				}else if ( name == "CalRGB" )
 				{
 					mColorSpaceType = COLORSPACE_CIEBASE_CALRGB;
 					mComponentCount = 3;
+					//todo
 				}else if ( name == "CalCMYK" )
 				{
 					mColorSpaceType = COLORSPACE_CIEBASE_CALCMYK;
 					mComponentCount = 4;
+					//not to do
 				}else if ( name == "ICCBased" )
 				{
+					//todo
 					objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
 					if ( objPtr )
 					{
@@ -383,6 +433,7 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 					}
 				}else if ( name == "Lab" )
 				{
+					//todo
 					mColorSpaceType = COLORSPACE_CIEBASE_CALLAB;
 					mComponentCount = 3;
 				}else if ( name == "Indexed" )

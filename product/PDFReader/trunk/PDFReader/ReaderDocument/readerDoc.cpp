@@ -4,7 +4,7 @@
 
 CReaderDocument::CReaderDocument( CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mpRead(NULL), mpFile(NULL), mpDocument(NULL),
-	mpPageTree(NULL), mpFontMgr(NULL)
+	mpPageTree(NULL), mpComponentMgr(NULL)
 {
 }
 
@@ -30,9 +30,9 @@ CReaderDocument::~CReaderDocument()
 		}
 	}
 
-	if ( mpFontMgr )
+	if ( mpComponentMgr )
 	{
-		mpFontMgr->GetAllocator()->Delete( mpFontMgr );
+		mpComponentMgr->GetAllocator()->Delete( mpComponentMgr );
 	}
 
 	if ( mpDocument )
@@ -103,7 +103,7 @@ HE_BOOL	CReaderDocument::OpenFile( char * fileName )
 		mAllPageRect.height += mPageRects[i].height;
 	}
 
-	mpFontMgr = GetAllocator()->New<CHE_PDF_FontMgr>( GetAllocator() );
+	mpComponentMgr = GetAllocator()->New<CHE_PDF_ComponentMgr>( GetAllocator() );
 
 	//设置页面内容列表为空，标志信息为未解析
 	mContents.resize( mpPageTree->GetPageCount(), NULL );
@@ -229,7 +229,7 @@ HE_BOOL CReaderDocument::ParseContentParse( HE_ULONG pageIndex )
 		return FALSE;
 	}
 
-	HE_BOOL bRet = GetPageContent( pPage->GetPageDict(), pContentObjList, mpFontMgr );
+	HE_BOOL bRet = CHE_PDF_ContentListBuilder::ParsePageContent( pPage->GetPageDict(), *pContentObjList, mpComponentMgr );
 	if ( bRet )
 	{
 		mContents[pageIndex] = pContentObjList;

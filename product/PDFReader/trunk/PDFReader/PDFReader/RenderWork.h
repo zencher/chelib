@@ -6,7 +6,7 @@
 
 #include "../../../../../trunk/include/che_bitmap.h"
 #include "../../../../../trunk/include/che_drawer_windows.h"
-#include "../../../../../trunk/include/pdf/che_pdf_contents.h"
+#include "../../../../../trunk/include/pdf/che_pdf_contentlistbuilder.h"
 #include "../../../../../trunk/include/pdf/che_pdf_renderer_windows.h"
 
 struct WORKITEM

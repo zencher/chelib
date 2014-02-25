@@ -1,6 +1,6 @@
 #include "../../../../../trunk/include/pdf/che_pdf_file.h"
 #include "../../../../../trunk/include/pdf/che_pdf_document.h"
-#include "../../../../../trunk/include/pdf/che_pdf_contents.h"
+#include "../../../../../trunk/include/pdf/che_pdf_contentlistbuilder.h"
 #include "../../../../../trunk/include/pdf/che_pdf_renderer_windows.h"
 #include "../../../../../trunk/include/che_drawer_windows.h"
 
@@ -34,7 +34,7 @@ protected:
 	CHE_PDF_File *			mpFile;
 	CHE_PDF_Document *		mpDocument;
 	CHE_PDF_PageTree *		mpPageTree;
-	CHE_PDF_FontMgr *		mpFontMgr;
+	CHE_PDF_ComponentMgr *	mpComponentMgr;
 
 	std::vector<HE_BOOL>					mContentsFlag;
 	std::vector<CHE_PDF_ContentObjectList*> mContents;

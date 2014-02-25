@@ -37,6 +37,7 @@ enum PDF_PARSE_WORD
 
 
 class CHE_PDF_File;
+class CHE_PDF_Collector;
 
 class CHE_PDF_ParseWordDes : public CHE_Object
 {
@@ -125,6 +126,7 @@ public:
 
 	CHE_PDF_ObjectPtr			GetObject();
 	CHE_PDF_ObjectPtr			GetObjectInObjStm( CHE_PDF_StreamPtr & pStream, const PDF_RefInfo & ObjrefInfo, HE_ULONG index );
+	HE_BOOL						GetAllObjectsInObjStm( CHE_PDF_StreamPtr & pStream, CHE_PDF_Collector * pCollector );
 
 /*	CHE_PDF_ReferencePtr		GetEncryptRef() const { return mpEncryptRef; } */
 

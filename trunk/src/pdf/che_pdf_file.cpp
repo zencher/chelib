@@ -643,13 +643,23 @@ CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const PDF_RefInfo & refInfo )
 				mLock.UnLock();
 				return pStm;
 			}
-			ObjPtr = mpParser->GetObjectInObjStm( pStm, refInfo, entry.GetIndex() );
-			if ( ObjPtr )
-			{
-				mObjCollector.Add( refInfo, ObjPtr );
-				mLock.UnLock();
-				return ObjPtr;
-			}
+			//mLock.UnLock();
+			mpParser->GetAllObjectsInObjStm( pStm, &mObjCollector );
+			//mLock.Lock();
+			ObjPtr = mObjCollector.GetObj( refInfo );
+// 			CHE_PDF_StreamPtr pStm = ObjPtr->GetStreamPtr();
+// 			if ( ! pStm )
+// 			{
+// 				mLock.UnLock();
+// 				return pStm;
+// 			}
+// 			ObjPtr = mpParser->GetObjectInObjStm( pStm, refInfo, entry.GetIndex() );
+// 			if ( ObjPtr )
+// 			{
+// 				mObjCollector.Add( refInfo, ObjPtr );
+// 				mLock.UnLock();
+// 				return ObjPtr;
+// 			}
 		}
 	}
 	mLock.UnLock();

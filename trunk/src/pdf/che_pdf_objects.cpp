@@ -1433,7 +1433,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & stmPtr, PDF_STREAM_
 
 		HE_ULONG bufSize = (length == 0) ? 1024 : length;
 		CHE_ByteString str( GetAllocator() );
-		CHE_DynBuffer buffer( bufSize, bufSize, GetAllocator() );
+		CHE_DynBuffer buffer( bufSize * 2, bufSize, GetAllocator() );
 		HE_ULONG lSize = stmPtr->GetRawSize();
 		HE_LPBYTE pTmp = NULL;
 		pTmp = GetAllocator()->NewArray<HE_BYTE>( lSize );

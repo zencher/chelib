@@ -6,7 +6,7 @@
 
 int main( int argc, char **argv )
 {
-	IHE_Read * pFileRead = HE_CreateFileRead( "D:\\Books\\C++Ä£°å.pdf" );
+	IHE_Read * pFileRead = HE_CreateFileRead( argv[1] );
 	if ( pFileRead == NULL )
 	{
 		return FALSE;
@@ -14,6 +14,8 @@ int main( int argc, char **argv )
 
 	CHE_PDF_File file;
 	file.Open( pFileRead );
+
+	printf( "open file %s\n", argv[1] );
 
 	PDF_RefInfo refInfo;
 	CHE_PDF_ObjectPtr objPtr;
@@ -67,6 +69,9 @@ int main( int argc, char **argv )
 									bpc = objPtr->GetNumberPtr()->GetInteger();
 								}
 
+								printf( "object index %d is a image\n", i );
+								printf( "image width %d, image height %d\n", width, height );
+
 								CHE_PDF_StreamAcc stmAcc;
 								stmAcc.Attach( stmPtr );
 
@@ -94,7 +99,7 @@ int main( int argc, char **argv )
 											bitmap.SetPixelColor( x, y, argb );
 										}
 									}
-								}else if ( bpc = 1 )
+								}else
 								{
 									unsigned int byteIndex = 0;
 									unsigned int byteCount = width * bpc / 8;
@@ -110,9 +115,9 @@ int main( int argc, char **argv )
 										for ( unsigned int m = 0; m < byteCount; ++m )
 										{
 											byte = *(pByte + byteIndex + m);
-											for ( unsigned int n = 0; n < 8; ++n )
+											for ( unsigned int n = 0; n < (8/bpc); ++n )
 											{
-												v = (byte >> (7-n)) & 0x1;
+												v = (byte >> ((8-bpc)-n)) & (2^bpc - 1);
 												color.Push( v );
 												argb = csPtr->GetARGBValue( color );
 												color.Clear();
@@ -124,6 +129,8 @@ int main( int argc, char **argv )
 								char tmpStr[128];
 								sprintf( tmpStr, "D:\\%d.bmp", index++ );
 								bitmap.Save( tmpStr );
+
+								printf( "out put image %d.bmp\n", index-1 );
 							}
 						}
 					}

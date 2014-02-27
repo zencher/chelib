@@ -4,8 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "chelib", "..\..\projects\vc10\chelib.vcxproj", "{93D59D50-47AB-4B6D-856D-4B5CD72E7E9F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imageDecode", "imageDecode\imageDecode.vcxproj", "{EA4A9BC7-F87F-45D7-87B3-1FE2BCA1846F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{93D59D50-47AB-4B6D-856D-4B5CD72E7E9F} = {93D59D50-47AB-4B6D-856D-4B5CD72E7E9F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "render", "render\render.vcxproj", "{26C43B2B-E4C3-40E3-B39F-03F852F78E04}"
+	ProjectSection(ProjectDependencies) = postProject
+		{93D59D50-47AB-4B6D-856D-4B5CD72E7E9F} = {93D59D50-47AB-4B6D-856D-4B5CD72E7E9F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

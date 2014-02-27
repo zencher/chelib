@@ -65,7 +65,7 @@ class CHE_PDF_Function;
 class CHE_PDF_FunctionPtr : public CHE_PDF_ComponentPtr
 {
 public:
-	CHE_PDF_Function * operator->() const { return (CHE_PDF_Function*)mpCom; }
+	CHE_PDF_Function * operator->() const;
 };
 
 class CHE_PDF_Function : public CHE_PDF_Component

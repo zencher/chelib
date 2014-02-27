@@ -15,6 +15,9 @@ HE_VOID	CHE_PDF_Component::Release()
 	case COMPONENT_TYPE_ColorSpace:
 		GetAllocator()->Delete<CHE_PDF_ColorSpace>( (CHE_PDF_ColorSpace*)this );
 		break;
+	case COMPONENT_TYPE_Function:
+		GetAllocator()->Delete<CHE_PDF_Function>( (CHE_PDF_Function*)this );
+		break;
 	default:
 		GetAllocator()->Delete<CHE_PDF_Component>( this );
 		break;

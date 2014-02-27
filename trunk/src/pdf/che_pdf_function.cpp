@@ -48,6 +48,11 @@ static inline int fz_clampi(int i, float min, float max)
 	return (i > min ? (i < max ? i : max) : min);
 }
 
+CHE_PDF_Function * CHE_PDF_FunctionPtr::operator->() const
+{
+	return (CHE_PDF_Function*)mpCom;
+}
+
 CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_FunctionPtr ptr;
@@ -110,7 +115,7 @@ CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjP
 
 	if ( pTmp )
 	{
-		if ( ! pTmp->IsError() )
+		if ( !pTmp->IsError() )
 		{
 			ptr.Reset( pTmp );
 		}
@@ -511,10 +516,16 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
 			SetError( COMPONENT_ERROR_CONSTRUCTION );
 			return;
 		}
-	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
+	}else if ( mRootObjPtr->GetType() == OBJ_TYPE_DICTIONARY )
 	{
-		dictPtr = objPtr->GetDictPtr();
+		dictPtr = mRootObjPtr->GetDictPtr();
 	}else{
+		SetError( COMPONENT_ERROR_CONSTRUCTION );
+		return;
+	}
+
+	if ( !dictPtr )
+	{
 		SetError( COMPONENT_ERROR_CONSTRUCTION );
 		return;
 	}

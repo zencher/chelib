@@ -171,55 +171,55 @@ protected:
 class CHE_PDF_NullPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Null * operator->() const { return IsPdfNull( mpObj ) ? (CHE_PDF_Null*)( mpObj )  : NULL ; }
+	CHE_PDF_Null * operator->() const { return /*IsPdfNull( mpObj ) ?*/ (CHE_PDF_Null*)( mpObj ) /* : NULL*/ ; }
 };
 
 class CHE_PDF_BooleanPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Boolean * operator->() const { return IsPdfBoolean( mpObj ) ? (CHE_PDF_Boolean*)( mpObj ) : NULL ; }
+	CHE_PDF_Boolean * operator->() const { return /*IsPdfBoolean( mpObj ) ?*/ (CHE_PDF_Boolean*)( mpObj ) /*: NULL*/ ; }
 };
 
 class CHE_PDF_NumberPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Number * operator->() const { return IsPdfNumber( mpObj ) ? (CHE_PDF_Number*)( mpObj ) : NULL ; }
+	CHE_PDF_Number * operator->() const { return /*IsPdfNumber( mpObj ) ?*/ (CHE_PDF_Number*)( mpObj ) /*: NULL*/ ; }
 };
 
 class CHE_PDF_StringPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_String * operator->() const { return IsPdfString( mpObj ) ? (CHE_PDF_String*)( mpObj ) : NULL ; }
+	CHE_PDF_String * operator->() const { return /*IsPdfString( mpObj ) ?*/ (CHE_PDF_String*)( mpObj ) /*: NULL*/ ; }
 };
 
 class CHE_PDF_NamePtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Name * operator->() const { return IsPdfName( mpObj ) ? (CHE_PDF_Name*)( mpObj ) : NULL ; }
+	CHE_PDF_Name * operator->() const { return /*IsPdfName( mpObj ) ?*/ (CHE_PDF_Name*)( mpObj ) /*: NULL*/ ; }
 };
 
 class CHE_PDF_ReferencePtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Reference * operator->() const { return IsPdfRef( mpObj ) ? (CHE_PDF_Reference*)( mpObj ) : NULL ; }
+	CHE_PDF_Reference * operator->() const { return /*IsPdfRef( mpObj ) ?*/ (CHE_PDF_Reference*)( mpObj ) /*: NULL*/ ; }
 };
 
 class CHE_PDF_ArrayPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Array * operator->() const { return IsPdfArray( mpObj ) ? (CHE_PDF_Array*)( mpObj ) : NULL ; }
+	CHE_PDF_Array * operator->() const { return /*IsPdfArray( mpObj ) ?*/ (CHE_PDF_Array*)( mpObj ) /*: NULL*/ ; }
 };
 
 class CHE_PDF_DictionaryPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Dictionary * operator->() const { return IsPdfDict( mpObj ) ? (CHE_PDF_Dictionary*)( mpObj ) : NULL ; }
+	CHE_PDF_Dictionary * operator->() const { return /*IsPdfDict( mpObj ) ?*/ (CHE_PDF_Dictionary*)( mpObj ) /*: NULL*/ ; }
 };
 
 class CHE_PDF_StreamPtr : public CHE_PDF_ObjectPtr
 {
 public:
-	CHE_PDF_Stream * operator->() const { return IsPdfStream( mpObj ) ? (CHE_PDF_Stream*)( mpObj ) : NULL ; }
+	CHE_PDF_Stream * operator->() const { return /*IsPdfStream( mpObj ) ?*/ (CHE_PDF_Stream*)( mpObj ) /*: NULL*/ ; }
 };
 
 class CHE_PDF_Null	: public CHE_PDF_Object

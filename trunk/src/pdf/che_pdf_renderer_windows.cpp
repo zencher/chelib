@@ -397,44 +397,39 @@ inline HE_VOID OutputInlineImage( CHE_PDF_InlineImage * pImage, CHE_GraphicsDraw
 	}
 }
 
-inline HE_VOID OutputRefImage( const CHE_PDF_ImageXObjectPtr & image, CHE_GraphicsDrawer & drawer )
+inline HE_VOID OutputRefImage( CHE_Matrix & matrix, const CHE_PDF_ImageXObjectPtr & image, CHE_GraphicsDrawer & drawer )
 {
-	// 	if ( pImage->IsInterpolate() == TRUE )
-	// 	{
-	// 		CHE_Bitmap * pBitmap = pImage->GetBitmap();
-	// 		if ( pBitmap )
-	// 		{
-	// 			drawer.DrawBitmap( pBitmap );
-	// 		}
-	// 	}else{
-	// 		CHE_Bitmap * pBitmap = pImage->GetBitmap();
-	// 		if ( pBitmap )
-	// 		{
-	// 			CHE_PDF_GState * pGState = pImage->GetGState();
-	// 			if ( pGState )
-	// 			{
-	// 				CHE_Rect rect;
-	// 				rect.left = 0;
-	// 				rect.bottom = 0;
-	// 				rect.width = 1;
-	// 				rect.height = 1;
-	// 				CHE_Matrix matrix = pGState->GetMatrix();
-	// 				rect = matrix.Transform( rect );
-	// 
-	// 				if ( rect.width > pBitmap->Width() || rect.height > pBitmap->Height() )
-	// 				{
-	// 					CHE_Bitmap * pNew = pBitmap->StretchTo( rect.width, rect.height, 0, NULL );
-	// 					if ( pNew )
-	// 					{
-	// 						drawer.DrawBitmap( pNew );
-	// 						pNew->GetAllocator()->Delete( pNew ); 
-	// 					}
-	// 				}else{
-	// 					drawer.DrawBitmap( pBitmap );
-	// 				}
-	// 			}
-	// 		}
-	// 	}
+	if ( image->IsInterpolate() == TRUE )
+	{
+		CHE_Bitmap * pBitmap = image->GetBitmap();
+		if ( pBitmap )
+		{
+			drawer.DrawBitmap( pBitmap );
+		}
+	}else{
+		CHE_Bitmap * pBitmap = image->GetBitmap();
+		if ( pBitmap )
+		{
+			CHE_Rect rect;
+			rect.left = 0;
+			rect.bottom = 0;
+			rect.width = 1;
+			rect.height = 1;
+			rect = matrix.Transform( rect );
+
+			if ( rect.width > pBitmap->Width() || rect.height > pBitmap->Height() )
+			{
+				CHE_Bitmap * pNew = pBitmap->StretchTo( rect.width, rect.height, 0, NULL );
+				if ( pNew )
+				{
+					drawer.DrawBitmap( pNew );
+					pNew->GetAllocator()->Delete( pNew ); 
+				}
+			}else{
+				drawer.DrawBitmap( pBitmap );
+			}
+		}
+	}
 }
 
 inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_Matrix & matrix, CHE_GraphicsDrawer & drawer );
@@ -506,7 +501,13 @@ inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_
 	{
 	case COMPONENT_TYPE_ImageXObject:
 		{
-			OutputRefImage( CHE_PDF_ImageXObject::Convert( componentPtr ), drawer );
+			CHE_Matrix matrix;
+			CHE_PDF_GState * pGState = pComponentRef->GetGState();
+			if ( pGState )
+			{
+				matrix = pGState->GetMatrix();
+			}
+			OutputRefImage( matrix, CHE_PDF_ImageXObject::Convert( componentPtr ), drawer );
 			break;
 		}
 	case COMPONENT_TYPE_FormXObject:

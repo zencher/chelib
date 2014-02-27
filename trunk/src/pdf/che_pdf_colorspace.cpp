@@ -19,47 +19,58 @@ HE_ARGB CHE_PDF_ColorSpace::lab_to_rgb( const CHE_PDF_Color & color ) const
 	HE_ARGB valRet = 0xFF000000;
 	if ( color.GetComponentCount() >= 3 )
 	{
-		HE_FLOAT lab[3];
-		HE_FLOAT range[6] = { -100, 100, -100, 100, -100, 100 };
-		for ( HE_BYTE i = 0 ; i < 3; ++i )
-		{
-			lab[i] = color.GetComponent( i );
-		}
+		//HE_FLOAT lab[3];
+//		HE_FLOAT range[2] = { -100, 100 };
+// 		for ( HE_BYTE i = 0 ; i < 3; ++i )
+// 		{
+// 			lab[i] = color.GetComponent( i );
+// 		}
 
-		if ( mObjPtr && mObjPtr->GetType() == OBJ_TYPE_ARRAY )
-		{
-			CHE_PDF_ArrayPtr arrayPtr = mObjPtr->GetArrayPtr();
-			CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_DICTIONARY );
-			if ( objPtr )
-			{
-				CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
-				objPtr = dictPtr->GetElement( "Range", OBJ_TYPE_ARRAY );
-				if ( objPtr )
-				{
-					arrayPtr = objPtr->GetArrayPtr();
-					if ( arrayPtr->GetCount() >= 4 )
-					{
-						for ( HE_ULONG i = 0 ; i < 4; ++i )
-						{
-							objPtr = arrayPtr->GetElement( i+2, OBJ_TYPE_NUMBER );
-							if ( objPtr )
-							{
-								range[i+2] = objPtr->GetNumberPtr()->GetInteger();
-							}
-						}
-					}
-				}
-			}
-		}
-
-		lab[0] = lab[0] * ( range[1] - range[0]) + fabs( range[0] );
-		lab[1] = lab[1] * ( range[3] - range[2]) + fabs( range[2] );
-		lab[2] = lab[2] * ( range[5] - range[4]) + fabs( range[4] );
+// 		if ( mObjPtr && mObjPtr->GetType() == OBJ_TYPE_ARRAY )
+// 		{
+// 			CHE_PDF_ArrayPtr arrayPtr = mObjPtr->GetArrayPtr();
+// 			CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_DICTIONARY );
+// 			if ( objPtr )
+// 			{
+// 				CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
+// 				objPtr = dictPtr->GetElement( "Range", OBJ_TYPE_ARRAY );
+// 				if ( objPtr )
+// 				{
+// 					arrayPtr = objPtr->GetArrayPtr();
+// 					if ( arrayPtr->GetCount() >= 4 )
+// 					{
+// 						for ( HE_ULONG i = 0 ; i < 4; ++i )
+// 						{
+// 							objPtr = arrayPtr->GetElement( i+2, OBJ_TYPE_NUMBER );
+// 							if ( objPtr )
+// 							{
+// 								range[i+2] = objPtr->GetNumberPtr()->GetInteger();
+// 							}
+// 						}
+// 					}
+// 				}
+// 			}
+// 		}
 
 		HE_FLOAT lstar , astar, bstar, l , m, n, x , y, z, r , g, b;
-		lstar = lab [0];
-		astar = lab [1];
-		bstar = lab [2];
+
+		lstar = color.GetComponent( 0 );
+		astar = color.GetComponent( 1 );
+		bstar = color.GetComponent( 2 );
+
+// 		lab[0] = lab[0] * ( 100/*range[1]*/ - (-100)/*range[0]*/) + fabs( -100/*range[0]*/ );
+// 		lab[1] = lab[1] * ( mRange[1]/*range[3]*/ - mRange[0]/*range[2]*/) + fabs( mRange[0]/*range[2]*/ );
+// 		lab[2] = lab[2] * ( mRange[3]/*range[5]*/ - mRange[2]/*range[4]*/) + fabs( mRange[2]/*range[4]*/ );
+
+		
+// 		lstar = lab [0];
+// 		astar = lab [1];
+// 		bstar = lab [2];
+
+		lstar *= 300;
+		astar *= ( mRange[1] - mRange[0] ) + fabs( mRange[0] );
+		bstar *= ( mRange[3] - mRange[2] ) + fabs( mRange[2] );
+
 		m = (lstar + 16) / 116;
 		l = m + astar / 500;
 		n = m - bstar / 200;
@@ -171,99 +182,6 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Convert( const CHE_PDF_ComponentPtr & 
 	return ptr;
 }
 
-// CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create( const CHE_PDF_NamePtr & namePtr, CHE_Allocator * pAllocator/*= NULL*/ )
-// {
-// 	if ( namePtr )
-// 	{
-// 		return CHE_PDF_ColorSpace::Create( namePtr->GetString(), pAllocator );
-// 	}
-// 	CHE_PDF_ColorSpacePtr ptr;
-// 	return ptr;
-// }
-
-
-// CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create( const CHE_PDF_ArrayPtr & arrayPtr, CHE_Allocator * pAllocator/*= NULL*/ )
-// {
-// 	CHE_PDF_ColorSpacePtr ptr;
-// 	if ( arrayPtr )
-// 	{
-// 		return ptr;
-// 	}
-// 	if ( arrayPtr->GetCount() == 0 )
-// 	{
-// 		return ptr;
-// 	}
-// 	if ( pAllocator == NULL )
-// 	{
-// 		pAllocator = GetDefaultAllocator();
-// 	}
-// 	CHE_PDF_ObjectPtr objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NAME );
-// 	if ( !objPtr || objPtr->GetType() != OBJ_TYPE_NAME )
-// 	{
-// 		return ptr;
-// 	}
-// 	CHE_ByteString name = objPtr->GetNamePtr()->GetString();
-// 	CHE_PDF_ColorSpace * pColorSpace = NULL;
-// 	if ( name == "CalGray" )
-// 	{
-// 		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( arrayPtr, pAllocator );
-// 	}else if ( name == "CalRGB" )
-// 	{
-// 		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( arrayPtr, pAllocator );
-// 	}else if ( name == "CalCMYK" )
-// 	{
-// 		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( arrayPtr, pAllocator );
-// 	}else if ( name == "ICCBased" )
-// 	{
-// 		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( arrayPtr, pAllocator );
-// 	}else if ( name == "Lab" )
-// 	{
-// 		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( arrayPtr, pAllocator );
-// 	}else if ( name == "Indexed" )
-// 	{
-// 		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( arrayPtr, pAllocator );
-// 	}else if ( name == "Separation" )
-// 	{
-// 		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( arrayPtr, pAllocator );
-// 	}else if ( name == "DeviceN" )
-// 	{
-// 		pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( arrayPtr, pAllocator );
-// 	}
-// 	ptr.Reset( pColorSpace );
-// 	return ptr;
-// }
-
-// CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
-// {
-// 	CHE_PDF_ColorSpacePtr ptr;
-// 	if ( !refPtr )
-// 	{
-// 		return ptr;
-// 	}
-// 	CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj();
-// 	if ( !objPtr )
-// 	{
-// 		return ptr;
-// 	}
-// 	CHE_PDF_ColorSpace * pColorSpace = NULL;
-// 	switch ( objPtr->GetType() )
-// 	{
-// 	case OBJ_TYPE_NAME:
-// 		{
-// 			pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( objPtr, pAllocator );
-// 			break;
-// 		}
-// 	case OBJ_TYPE_ARRAY:
-// 		{
-// 			pColorSpace = pAllocator->New<CHE_PDF_ColorSpace>( objPtr, pAllocator );
-// 			break;
-// 		}
-// 	default:break;
-// 	}
-// 	ptr.Reset( pColorSpace );
-// 	return ptr;
-// }
-
 CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type )
 	: CHE_PDF_Component(COMPONENT_TYPE_ColorSpace, CHE_PDF_ObjectPtr(), NULL), mColorSpaceType(type),
 	mComponentCount(0), mIndexCount(0), mpIndexTable(NULL), mIndexTableSize(0)
@@ -329,12 +247,6 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 	: CHE_PDF_Component(COMPONENT_TYPE_ColorSpace, rootObjPtr, pAllocator), mComponentCount(0), mIndexCount(0), 
 	mpIndexTable(NULL), mIndexTableSize(0)
 {
-	CHE_PDF_ObjectPtr objPtr = rootObjPtr;
-	if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
-	{
-		objPtr = rootObjPtr->GetRefPtr()->GetRefObj();	
-	}
-
 	mWhitePoint[0] = 1.0f;
 	mWhitePoint[1] = 1.0f;
 	mWhitePoint[2] = 1.0f;
@@ -357,6 +269,12 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 	mRange[1] = 100;
 	mRange[2] = -100;
 	mRange[3] = 100;
+
+	CHE_PDF_ObjectPtr objPtr = rootObjPtr;
+	if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
+	{
+		objPtr = rootObjPtr->GetRefPtr()->GetRefObj();	
+	}
 
 	switch( objPtr->GetType() )
 	{
@@ -400,20 +318,20 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 				{
 					mColorSpaceType = COLORSPACE_CIEBASE_CALGRAY;
 					mComponentCount = 1;
-					//todo
 				}else if ( name == "CalRGB" )
 				{
 					mColorSpaceType = COLORSPACE_CIEBASE_CALRGB;
 					mComponentCount = 3;
-					//todo
 				}else if ( name == "CalCMYK" )
 				{
 					mColorSpaceType = COLORSPACE_CIEBASE_CALCMYK;
 					mComponentCount = 4;
-					//not to do
+				}else if ( name == "Lab" )
+				{
+					mColorSpaceType = COLORSPACE_CIEBASE_CALLAB;
+					mComponentCount = 3;
 				}else if ( name == "ICCBased" )
 				{
-					//todo
 					objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
 					if ( objPtr )
 					{
@@ -431,11 +349,6 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 					}else{
 						SetError( COMPONENT_ERROR_CONSTRUCTION );
 					}
-				}else if ( name == "Lab" )
-				{
-					//todo
-					mColorSpaceType = COLORSPACE_CIEBASE_CALLAB;
-					mComponentCount = 3;
 				}else if ( name == "Indexed" )
 				{
 					mColorSpaceType = COLORSPACE_SPECIAL_INDEXED;
@@ -503,13 +416,6 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 						SetError( COMPONENT_ERROR_CONSTRUCTION );
 						return;
 					}else{
-// 						objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_NAME );
-// 						if ( objPtr )
-// 						{
-// 							mName = objPtr->GetNamePtr()->GetString();
-// 						}else{
-// 							return;
-// 						}
 						objPtr = arrayPtr->GetElement( 2 );
 						if ( objPtr )
 						{
@@ -544,6 +450,94 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 			}else{
 				SetError( COMPONENT_ERROR_CONSTRUCTION );
 			}
+
+			objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_DICTIONARY );
+			if ( objPtr )
+			{
+				if ( mColorSpaceType == COLORSPACE_CIEBASE_CALLAB ||
+					 mColorSpaceType == COLORSPACE_CIEBASE_CALGRAY ||
+					 mColorSpaceType == COLORSPACE_CIEBASE_CALRGB )
+				{
+					HE_ULONG count = 0;
+					CHE_PDF_ArrayPtr arrayPtr;
+					CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
+					objPtr = dictPtr->GetElement( "WhitePoint", OBJ_TYPE_ARRAY );
+					if ( objPtr )
+					{
+						arrayPtr = objPtr->GetArrayPtr();
+						count = arrayPtr->GetCount();
+						for ( HE_ULONG i = 0; i < count && i < 3; ++i )
+						{
+							objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+							if ( objPtr )
+							{
+								mWhitePoint[i] = objPtr->GetNumberPtr()->GetFloat();
+							}
+						}
+					}
+
+					objPtr = dictPtr->GetElement( "BlackPoint", OBJ_TYPE_ARRAY );
+					if ( objPtr )
+					{
+						arrayPtr = objPtr->GetArrayPtr();
+						count = arrayPtr->GetCount();
+						for ( HE_ULONG i = 0; i < count && i < 3; ++i )
+						{
+							objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+							if ( objPtr )
+							{
+								mBlackPoint[i] = objPtr->GetNumberPtr()->GetFloat();
+							}
+						}
+					}
+
+					objPtr = dictPtr->GetElement( "Gamma", OBJ_TYPE_ARRAY );
+					if ( objPtr )
+					{
+						arrayPtr = objPtr->GetArrayPtr();
+						count = arrayPtr->GetCount();
+						for ( HE_ULONG i = 0; i < count && i < 3; ++i )
+						{
+							objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+							if ( objPtr )
+							{
+								mGamma[i] = objPtr->GetNumberPtr()->GetFloat();
+							}
+						}
+					}
+
+					objPtr = dictPtr->GetElement( "Range", OBJ_TYPE_ARRAY );
+					if ( objPtr )
+					{
+						arrayPtr = objPtr->GetArrayPtr();
+						count = arrayPtr->GetCount();
+						for ( HE_ULONG i = 0; i < count && i < 4; ++i )
+						{
+							objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+							if ( objPtr )
+							{
+								mRange[i] = objPtr->GetNumberPtr()->GetFloat();
+							}
+						}
+					}
+
+					objPtr = dictPtr->GetElement( "Matrix", OBJ_TYPE_ARRAY );
+					if ( objPtr )
+					{
+						arrayPtr = objPtr->GetArrayPtr();
+						count = arrayPtr->GetCount();
+						for ( HE_ULONG i = 0; i < count && i < 9; ++i )
+						{
+							objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
+							if ( objPtr )
+							{
+								mMatrix[i] = objPtr->GetNumberPtr()->GetFloat();
+							}
+						}
+					}
+				}
+			}
+
 			break;
 		}
 	default:

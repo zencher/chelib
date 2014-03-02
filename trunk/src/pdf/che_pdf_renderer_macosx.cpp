@@ -2,8 +2,8 @@
 #include "../../include/che_bitmap.h"
 
 CHE_PDF_Renderer::CHE_PDF_Renderer( CGContextRef cgContext )
-    :mContextRef(cgContext), mPathRef(NULL), mScale(1.0f), mDipx(96.0f), mDipy(96.0f),
-    mPosiX(0.0f), mPosiY(0.0f), mFillMode(FillMode_Nonzero)
+    : mScale(1.0f), mDipx(96.0f), mDipy(96.0f), mPosiX(0.0f), mPosiY(0.0f), mFillMode(FillMode_Nonzero),
+    mContextRef(cgContext), mPathRef(NULL), mFillColorSpace(NULL), mStrokeColorSpace(NULL), mImageColorSpace(NULL)
 {
 }
 
@@ -13,6 +13,21 @@ CHE_PDF_Renderer::~CHE_PDF_Renderer()
     {
         CGPathRelease( mPathRef );
         mPathRef = NULL;
+    }
+    if ( mFillColorSpace )
+    {
+        CGColorSpaceRelease( mFillColorSpace );
+        mFillColorSpace = NULL;
+    }
+    if ( mStrokeColorSpace )
+    {
+        CGColorSpaceRelease( mStrokeColorSpace );
+        mStrokeColorSpace = NULL;
+    }
+    if ( mImageColorSpace )
+    {
+        CGColorSpaceRelease( mImageColorSpace );
+        mImageColorSpace = NULL;
     }
 }
 
@@ -151,6 +166,194 @@ HE_VOID	CHE_PDF_Renderer::SetStrokeColor( const HE_ULONG & color )
     {
         CGContextSetRGBStrokeColor( mContextRef , (color>>16&0xFF)/256.0, (color>>8&0xFF)/256.0, (color&0xFF)/256.0, (color>>24&0xFF)/256.0 );
     }
+}
+
+HE_VOID CHE_PDF_Renderer::SetFillColor( const CHE_PDF_Color & color )
+{
+    CGFloat val[5];
+    int i = 0;
+    for ( ; i < color.GetComponentCount(); ++i )
+    {
+        val[i] = color.GetComponent( i );
+    }
+    val[i] = 1.0f;
+    CGContextSetFillColor( mContextRef, val );
+}
+
+HE_VOID CHE_PDF_Renderer::SetStrokeColor( const CHE_PDF_Color & color )
+{
+    CGFloat val[5];
+    int i = 0;
+    for ( ; i < color.GetComponentCount(); ++i )
+    {
+        val[i] = color.GetComponent( i );
+    }
+    val[i] = 1.0f;
+    CGContextSetStrokeColor( mContextRef, val );
+}
+
+HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
+{
+    if ( mFillColorSpace )
+    {
+        CGColorSpaceRelease( mFillColorSpace );
+        mFillColorSpace = NULL;
+    }
+    
+    mFillColorSpace = CreateColorSpace( cs );
+    CGContextSetFillColorSpace( mContextRef , mFillColorSpace );
+}
+
+HE_VOID CHE_PDF_Renderer::SetStrokeColorSpace( const CHE_PDF_ColorSpacePtr & cs )
+{
+    if ( mStrokeColorSpace )
+    {
+        CGColorSpaceRelease( mStrokeColorSpace );
+        mStrokeColorSpace = NULL;
+    }
+    
+    mStrokeColorSpace = CreateColorSpace( cs );
+    CGContextSetStrokeColorSpace( mContextRef , mStrokeColorSpace );
+}
+
+CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr & cs )
+{
+    CGColorSpaceRef csRef = NULL;
+    if ( cs )
+    {
+        switch ( cs->GetColorSpaceType() )
+        {
+        case COLORSPACE_DEVICE_GRAY:
+            csRef = CGColorSpaceCreateDeviceGray();
+            break;
+        case COLORSPACE_DEVICE_RGB:
+            csRef = CGColorSpaceCreateDeviceRGB();
+            break;
+        case COLORSPACE_DEVICE_CMYK:
+            csRef = CGColorSpaceCreateDeviceCMYK();
+            break;
+        case COLORSPACE_CIEBASE_CALGRAY:
+            csRef = CGColorSpaceCreateCalibratedGray( cs->mWhitePoint, cs->mBlackPoint, cs->mGamma[0]);
+            break;
+        case COLORSPACE_CIEBASE_CALRGB:
+            csRef = CGColorSpaceCreateCalibratedRGB( cs->mWhitePoint , cs->mBlackPoint, cs->mGamma, cs->mMatrix );
+            break;
+        case COLORSPACE_CIEBASE_CALLAB:
+            csRef = CGColorSpaceCreateLab( cs->mWhitePoint, cs->mBlackPoint, cs->mRange );
+            break;
+        case COLORSPACE_CIEBASE_ICCBASED:
+            {
+                CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( cs->mBaseColorspace );
+                if ( baseColorSpaceRef )
+                {
+                    CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, cs->mStmAcc.GetData(), cs->mStmAcc.GetSize(), NULL );
+                    csRef = CGColorSpaceCreateICCBased( cs->GetComponentCount(), cs->mRange, dataRef, baseColorSpaceRef );
+                    CGDataProviderRelease( dataRef );
+                    CGColorSpaceRelease( baseColorSpaceRef );
+                }
+                break;
+            }
+        case COLORSPACE_SPECIAL_INDEXED:
+            {
+                CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( cs->mBaseColorspace );
+                if ( baseColorSpaceRef )
+                {
+                    csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, cs->mIndexCount - 1, cs->mpIndexTable );
+                    CGColorSpaceRelease( baseColorSpaceRef );
+                }
+                break;
+            }
+        default:
+            break;
+        }
+
+    }
+    return csRef;
+}
+
+CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imagePtr )
+{
+    CGImageRef imgRef = NULL;
+    if ( imagePtr )
+    {
+        CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, imagePtr->GetData(), imagePtr->GetSize(), NULL );
+        if ( dataRef == NULL )
+        {
+            return imgRef;
+        }
+        
+        double * pDecode = NULL;
+        double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
+        
+        CHE_PDF_ColorSpacePtr csPtr = imagePtr->GetColorspace();
+        if ( !csPtr )
+        {
+            if ( imagePtr->IsMask() )
+            {
+                CHE_PDF_ObjectPtr objPtr;
+                CHE_PDF_ArrayPtr arrayPtr = imagePtr->GetDecodeArray();
+                if ( arrayPtr )
+                {
+                    for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 4; ++i )
+                    {
+                        objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+                        if ( objPtr )
+                        {
+                            decode[i] = objPtr->GetNumberPtr()->GetFloat();
+                        }
+                    }
+                    pDecode = decode;
+                }
+                
+                imgRef = CGImageMaskCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), imagePtr->GetBPC(), imagePtr->GetBPC(), (imagePtr->GetWidth() * imagePtr->GetBPC() + 7)/8, dataRef, pDecode, imagePtr->IsInterpolate() );
+                CGDataProviderRelease( dataRef );
+            }
+            return imgRef;
+        }
+        
+        CGColorRenderingIntent ri = kCGRenderingIntentAbsoluteColorimetric;
+        switch ( imagePtr->GetRI() )
+        {
+            case RI_AbsoluteColorimetric:
+                ri = kCGRenderingIntentAbsoluteColorimetric;
+                break;
+            case RI_RelativeColorimetric:
+                ri = kCGRenderingIntentRelativeColorimetric;
+                break;
+            case RI_Saturation:
+                ri = kCGRenderingIntentSaturation;
+                break;
+            case RI_Perceptual:
+                ri = kCGRenderingIntentPerceptual;
+                break;
+            default:
+                break;
+        }
+
+        
+        HE_ULONG bpc = imagePtr->GetBPC();
+        if ( bpc == 0 )
+        {
+            bpc = imagePtr->GetSize() * 8 / ( imagePtr->GetWidth() * imagePtr->GetHeight() * csPtr->GetComponentCount() );
+        }
+        CGColorSpaceRef csRef = CreateColorSpace( csPtr );
+        imgRef = CGImageCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), bpc, bpc*csPtr->GetComponentCount(),
+                               (imagePtr->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
+                               kCGBitmapByteOrderDefault, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
+        CGDataProviderRelease( dataRef );
+        CGColorSpaceRelease( csRef );
+    }
+    return imgRef;
+}
+
+HE_VOID CHE_PDF_Renderer::SetImageColorSpace( const CHE_PDF_ColorSpacePtr & cs )
+{
+    if ( mImageColorSpace )
+    {
+        CGColorSpaceRelease( mImageColorSpace );
+        mImageColorSpace = NULL;
+    }
+    mImageColorSpace = CreateColorSpace( cs );
 }
 
 HE_VOID	CHE_PDF_Renderer::MoveTo( HE_FLOAT x, HE_FLOAT y )
@@ -345,8 +548,8 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
 	static GRAPHICS_STATE_DASHPATTERN lineDash;
 	static CHE_PDF_Color fillColor;
 	static CHE_PDF_Color strokeColor;
-	static CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );
-	static CHE_PDF_ColorSpace strokeColorSpace( COLORSPACE_DEVICE_GRAY );
+	static CHE_PDF_ColorSpacePtr fillColorSpace;
+	static CHE_PDF_ColorSpacePtr strokeColorSpace;
 	static HE_UINT32 fillColorVal = 0xFF000000;
 	static HE_UINT32 strokeColorVal = 0xFF000000;
     
@@ -370,10 +573,11 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
 	pGState->GetFillColorSpace( fillColorSpace );
 	pGState->GetStrokeColorSpace( strokeColorSpace );
     
-	fillColorVal = fillColorSpace.GetARGBValue( fillColor );
-	strokeColorVal = strokeColorSpace.GetARGBValue( strokeColor );
-	SetFillColor( fillColorVal );
-	SetStrokeColor( strokeColorVal );
+    SetFillColorSpace( fillColorSpace );
+    SetStrokeColorSpace( strokeColorSpace );
+    SetFillColor( fillColor );
+    SetStrokeColor( strokeColor );
+    
 	SetFillMode( FillMode_Nonzero );
 	//ResetClip();
 }
@@ -811,30 +1015,120 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawRefImage( CHE_PDF_RefImage * pImage )
+HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 {
-    CHE_Bitmap * pBitmap = pImage->GetBitmap();
-    if ( pBitmap )
+    if ( cmptRef == NULL )
+	{
+		return;
+	}
+    
+	CHE_PDF_ComponentPtr componentPtr = cmptRef->GetComponentPtr();
+    
+	switch( componentPtr->GetType() )
+	{
+        case COMPONENT_TYPE_ImageXObject:
+		{
+			CHE_Matrix matrix;
+			CHE_PDF_GState * pGState = cmptRef->GetGState();
+			if ( pGState )
+			{
+				matrix = pGState->GetMatrix();
+			}
+			DrawRefImage( CHE_PDF_ImageXObject::Convert( componentPtr ) );
+			break;
+		}
+        case COMPONENT_TYPE_FormXObject:
+		{
+			//CHE_Matrix tmpExtMatrix = extMatrix;
+			//CHE_Matrix newExtMatrix;
+			//CHE_PDF_GState * pGState = cmptRef->GetGState();
+			//if ( pGState )
+			//{
+			//	newExtMatrix = pGState->GetMatrix();
+            //
+			//}
+			///*newExtMatrix.Concat( pForm->GetExtMatrix() );*/
+			//newExtMatrix.Concat( tmpExtMatrix );
+            //
+			//drawer.SetExtMatrix( newExtMatrix );
+            //
+			//OutputForm( CHE_PDF_FormXObject::Convert( componentPtr ), extMatrix, drawer );
+            //
+			//drawer.SetExtMatrix( extMatrix );
+			break;
+		}
+        case COMPONENT_TYPE_Shading:
+		{
+            //DrawShading( )
+			//OutputShading( pComponentRef->GetComponentPtr()->GetShadingPtr(), drawer );
+			break;
+		}
+        default:
+            break;
+	}
+}
+
+/*CHE_Bitmap * pBitmap = image->GetBitmap();
+ if ( pBitmap )
+ {
+ CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, pBitmap->GetBuffer(), pBitmap->GetMemBitmapDataSize(), NULL );
+ CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+ CGImageRef imageRef = CGImageCreate( pBitmap->Width(), pBitmap->Height(), 8, pBitmap->Depth(),
+ pBitmap->Pitch(), colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst,
+ dataRef, NULL, false, kCGRenderingIntentDefault );
+ 
+ CHE_Matrix tmpMatrix;
+ tmpMatrix = mMatrix;
+ tmpMatrix.Concat( mExtMatrix );
+ CHE_Rect rect;
+ rect.left = 0;
+ rect.bottom = 0;
+ rect.width = 1;
+ rect.height = 1;
+ rect = tmpMatrix.Transform( rect );
+ CGContextDrawImage( mContextRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height), imageRef );
+ CGImageRelease( imageRef );
+ CGColorSpaceRelease( colorSpace );
+ CGDataProviderRelease( dataRef );
+ }*/
+
+//return;
+
+
+HE_VOID CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
+{
+    if ( image )
     {
-        CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, pBitmap->GetBuffer(), pBitmap->GetMemBitmapDataSize(), NULL );
-        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        CGImageRef imageRef = CGImageCreate( pBitmap->Width(), pBitmap->Height(), 8, pBitmap->Depth(),
-                                            pBitmap->Pitch(), colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst,
-                                            dataRef, NULL, false, kCGRenderingIntentDefault );
+        CGImageRef imgRef = CreateImage( image );
         
-        CHE_Matrix tmpMatrix;
-        tmpMatrix = mMatrix;
-        tmpMatrix.Concat( mExtMatrix );
-        CHE_Rect rect;
-        rect.left = 0;
-        rect.bottom = 0;
-        rect.width = 1;
-        rect.height = 1;
-        rect = tmpMatrix.Transform( rect );
-        CGContextDrawImage( mContextRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height), imageRef );
-        CGImageRelease( imageRef );
-        CGColorSpaceRelease( colorSpace );
-        CGDataProviderRelease( dataRef );
+        CHE_PDF_ImageXObjectPtr maskImagePtr = image->GetMaskImagePtr();
+        if ( !maskImagePtr )
+        {
+            maskImagePtr = image->GetSoftMaskImagePtr();
+        }
+        if ( maskImagePtr )
+        {
+            CGImageRef sImgRef = imgRef;
+            CGImageRef mImgRef = CreateImage( maskImagePtr );
+            imgRef = CGImageCreateWithMask( sImgRef, mImgRef );
+            CGImageRelease( sImgRef );
+            CGImageRelease( mImgRef );
+        }
+        
+        if ( imgRef )
+        {
+            CHE_Matrix tmpMatrix;
+            tmpMatrix = mMatrix;
+            tmpMatrix.Concat( mExtMatrix );
+            CHE_Rect rect;
+            rect.left = 0;
+            rect.bottom = 0;
+            rect.width = 1;
+            rect.height = 1;
+            rect = tmpMatrix.Transform( rect );
+            CGContextDrawImage( mContextRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height), imgRef );
+            CGImageRelease( imgRef );
+        }
     }
 }
 
@@ -845,9 +1139,9 @@ HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
     {
         CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, pBitmap->GetBuffer(), pBitmap->GetMemBitmapDataSize(), NULL );
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        CGImageRef imageRef = CGImageCreate( pBitmap->Width(), pBitmap->Height(), 8, pBitmap->Depth(),
-                                            pBitmap->Pitch(), colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst,
-                                            dataRef, NULL, false, kCGRenderingIntentDefault );
+        CGImageRef imageRef = CGImageCreate(    pBitmap->Width(), pBitmap->Height(), 8, pBitmap->Depth(),
+                                                pBitmap->Pitch(), colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst,
+                                                dataRef, NULL, false, kCGRenderingIntentDefault );
         
         CHE_Matrix tmpMatrix;
         tmpMatrix = mMatrix;
@@ -865,21 +1159,22 @@ HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawShading( CHE_PDF_Shading * pShading )
+
+HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
 {
     
 }
 
-HE_VOID CHE_PDF_Renderer::DrawForm( CHE_PDF_Form * pForm, const CHE_Matrix extMatrix )
+HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix )
 {
-    CHE_PDF_GState * pGState = NULL;
+    /*CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
-    CHE_PDF_ContentObjectList & content = pForm->GetList();
+    CHE_PDF_ContentObjectList & content = form->GetList();
 	ContentObjectList::iterator it = content.Begin();
     
 	CHE_Matrix tmpExtMatrix = extMatrix;
 	CHE_Matrix newExtMatrix;
-	pGState = pForm->GetGState();
+	pGState = form->GetGState();
 	if ( pGState )
 	{
 		newExtMatrix = pGState->GetMatrix();
@@ -917,24 +1212,14 @@ HE_VOID CHE_PDF_Renderer::DrawForm( CHE_PDF_Form * pForm, const CHE_Matrix extMa
                 DrawText( (CHE_PDF_Text*)(*it) );
 				break;
 			}
-            case ContentType_RefImage:
-			{
-				DrawRefImage( (CHE_PDF_RefImage*)(*it) );
-				break;
-			}
             case ContentType_InlineImage:
 			{
 				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
 				break;
 			}
-            case ContentType_Shading:
-            {
-                DrawShading( (CHE_PDF_Shading*)(*it) );
-                break;
-            }
-            case ContentType_Form:
+            case ContentType_Component:
 			{
-				DrawForm( (CHE_PDF_Form *)(*it), newExtMatrix/*extMatrix*/ );
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
 				break;
 			}
             default:
@@ -944,13 +1229,11 @@ HE_VOID CHE_PDF_Renderer::DrawForm( CHE_PDF_Form * pForm, const CHE_Matrix extMa
         RestoreGState();
 	}
     
-	SetExtMatrix( extMatrix );
+	SetExtMatrix( extMatrix );*/
 }
 
 HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content )
 {
-    //Clear();
-    
 	CHE_Matrix tmpMatrix;
 	tmpMatrix.a = mDipx * mScale / 72;
 	tmpMatrix.b = 0;
@@ -1001,24 +1284,14 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content )
                 DrawText( (CHE_PDF_Text*)(*it) );
                 break;
 			}
-            case ContentType_RefImage:
-			{
-				DrawRefImage( (CHE_PDF_RefImage*)(*it) );
-				break;
-			}
             case ContentType_InlineImage:
 			{
 				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
 				break;
 			}
-            case ContentType_Shading:
-            {
-                DrawShading( (CHE_PDF_Shading*)(*it) );
-                break;
-            }
-            case ContentType_Form:
+            case ContentType_Component:
 			{
-				DrawForm( (CHE_PDF_Form*)(*it), extMatrix );
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
 				break;
 			}
             default:

@@ -2,6 +2,9 @@
 #define _CHE_PDF_RENDERER_H_
 
 #include "che_pdf_contentobjs.h"
+#include "che_pdf_xobject.h"
+#include "che_pdf_pattern.h"
+#include "che_pdf_gstate.h"
 #include <ApplicationServices/ApplicationServices.h>
 
 class CHE_PDF_Renderer
@@ -20,14 +23,22 @@ private:
     HE_VOID		SetExtMatrix( const CHE_Matrix & matrix );
     HE_VOID		SetLineWidth( const HE_FLOAT & lineWidth );
     HE_VOID		SetMiterLimit( const HE_FLOAT & miterLimit );
-    HE_VOID		SetFillColor( const HE_ULONG & color );
-    HE_VOID		SetStrokeColor( const HE_ULONG & color );
     HE_VOID		SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
     HE_VOID		SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
     HE_VOID		SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
     HE_VOID		SetFillMode( GRAPHICS_STATE_FILLMODE mode );
     HE_VOID     SetTextFont( CGFontRef font );
     HE_VOID     SetTextMatrix( CHE_Matrix textMatrix );
+    
+    HE_VOID		SetFillColor( const HE_ULONG & color );
+    HE_VOID		SetStrokeColor( const HE_ULONG & color );
+    HE_VOID     SetFillColor( const CHE_PDF_Color & color );
+    HE_VOID     SetStrokeColor( const CHE_PDF_Color & color );
+    HE_VOID     SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs );
+    HE_VOID     SetStrokeColorSpace( const CHE_PDF_ColorSpacePtr & cs );
+    HE_VOID     SetImageColorSpace( const CHE_PDF_ColorSpacePtr & cs );
+    CGColorSpaceRef CreateColorSpace( const CHE_PDF_ColorSpacePtr & cs );
+    CGImageRef      CreateImage( const CHE_PDF_ImageXObjectPtr & imagePtr );
     
     //path & clip operations
     HE_VOID		MoveTo( HE_FLOAT x, HE_FLOAT y );
@@ -51,26 +62,30 @@ private:
     
     HE_VOID     DrawPath( CHE_PDF_Path * pPath );
     HE_VOID     DrawText( CHE_PDF_Text * pText );
-    HE_VOID     DrawTextGlyph( CGGlyph gid );
     HE_VOID     DrawTextAsPath( CHE_PDF_Text * pText );
-    HE_VOID     DrawRefImage( CHE_PDF_RefImage * pImage );
+    HE_VOID     DrawTextGlyph( CGGlyph gid );
     HE_VOID     DrawInlineImage( CHE_PDF_InlineImage * pImage );
-    HE_VOID     DrawShading( CHE_PDF_Shading * pShading );
-    HE_VOID     DrawForm( CHE_PDF_Form * pForm, const CHE_Matrix extMatrix );
+    HE_VOID     DrawComponentRef( CHE_PDF_ComponentRef * cmptRef );
+    HE_VOID     DrawRefImage( const CHE_PDF_ImageXObjectPtr & image );
+    HE_VOID     DrawForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix );
+    HE_VOID     DrawShading( const CHE_PDF_ShadingPtr & shading );
     
 private:
-    CGContextRef                mContextRef;
-    CGMutablePathRef            mPathRef;
     HE_FLOAT                    mScale;
     HE_FLOAT                    mDipx;
     HE_FLOAT                    mDipy;
     HE_FLOAT                    mPosiX;
     HE_FLOAT                    mPosiY;
-    
     CHE_Matrix                  mMatrix;
     CHE_Matrix					mExtMatrix;
     CHE_Matrix                  mTextMatrix;
     GRAPHICS_STATE_FILLMODE     mFillMode;
+    
+    CGContextRef                mContextRef;
+    CGMutablePathRef            mPathRef;
+    CGColorSpaceRef             mFillColorSpace;
+    CGColorSpaceRef             mStrokeColorSpace;
+    CGColorSpaceRef             mImageColorSpace;
 };
 
 #endif

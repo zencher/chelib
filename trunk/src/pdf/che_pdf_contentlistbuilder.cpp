@@ -100,12 +100,12 @@ public:
 		GetGState()->SetStrokeColor( color );
 	}
 
-	HE_VOID State_FillColorSpace( CHE_PDF_ColorSpacePtr & colorSpace )
+	HE_VOID State_FillColorSpace( const CHE_PDF_ColorSpacePtr & colorSpace )
 	{
 		GetGState()->SetFillColorSpace( colorSpace );
 	}
 
-	HE_VOID State_StrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpace )
+	HE_VOID State_StrokeColorSpace( const CHE_PDF_ColorSpacePtr & colorSpace )
 	{
 		GetGState()->SetStrokeColorSpace( colorSpace );
 	}

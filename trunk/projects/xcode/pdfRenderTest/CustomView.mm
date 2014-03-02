@@ -15,7 +15,7 @@
     self = [super initWithFrame:frame];
     if (self)
     {
-        pdfDocument = [[PdfDocumentData alloc] initWithFilePath:@"/Users/zencher/PDFResearch/Files/澳洲史.pdf"];
+        pdfDocument = [[PdfDocumentData alloc] initWithFilePath:@"/Users/zencher/PDFResearch/Files/201200_iOS+5+Core+Frameworks：Develop+and+Design+Working+with+graphics%2C+location%2C+iCloud%2C+and+more.pdf"];
         pageIndex = 0;
         mouseDownPt.x = 0;
         mouseDownPt.y = 0;

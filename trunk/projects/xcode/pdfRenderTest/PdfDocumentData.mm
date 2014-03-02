@@ -20,10 +20,10 @@
         pdfFile         = NULL;
         pdfDocument     = NULL;
         pdfPageTree     = NULL;
-        pdfFontMgr      = NULL;
+        pdfComponentMgr      = NULL;
         
         allocator = GetDefaultAllocator();
-        pdfFontMgr = allocator->New<CHE_PDF_FontMgr>( allocator );
+        pdfComponentMgr = allocator->New<CHE_PDF_ComponentMgr>( allocator );
         
         fileReadInf = HE_CreateFileRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
         if ( fileReadInf )
@@ -66,7 +66,7 @@
                 CHE_PDF_DictionaryPtr pageDict = pdfPage->GetPageDict();
                 CHE_PDF_DictionaryPtr resDict = pdfPage->GetResourcesDict();
                 pageContents[index] = allocator->New<CHE_PDF_ContentObjectList>( resDict, allocator );
-                GetPageContent( pageDict, pageContents[index], pdfFontMgr, allocator );
+                CHE_PDF_ContentListBuilder::ParsePageContent( pageDict, *pageContents[index], pdfComponentMgr, allocator );
                 if ( pageContents[index] )
                 {
                     return pageContents[index];

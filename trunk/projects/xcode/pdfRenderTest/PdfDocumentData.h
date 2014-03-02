@@ -10,7 +10,8 @@
 
 #import "../../../include/pdf/che_pdf_file.h"
 #import "../../../include/pdf/che_pdf_document.h"
-#import "../../../include/pdf/che_pdf_contents.h"
+#import "../../../include/pdf/che_pdf_contentlistbuilder.h"
+#import "../../../include/pdf/che_pdf_componentmgr.h"
 #import "../../../include/pdf/che_pdf_contentobjs.h"
 #import "../../../include/pdf/che_pdf_renderer_macosx.h"
 
@@ -21,7 +22,7 @@
     CHE_PDF_File *                          pdfFile;
     CHE_PDF_Document *                      pdfDocument;
     CHE_PDF_PageTree *                      pdfPageTree;
-    CHE_PDF_FontMgr *                       pdfFontMgr;
+    CHE_PDF_ComponentMgr *                  pdfComponentMgr;
     
     HE_ULONG                                pageCount;
     std::vector<CHE_PDF_ContentObjectList*> pageContents;

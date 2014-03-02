@@ -116,6 +116,20 @@ public:
 	HE_BYTE					GetComponentCount() const;
 
 	HE_ARGB					GetARGBValue( const CHE_PDF_Color & color ) const;
+    
+    HE_DOUBLE				mWhitePoint[3];
+	HE_DOUBLE				mBlackPoint[3];
+	HE_DOUBLE				mGamma[3];
+	HE_DOUBLE				mMatrix[9];
+	HE_DOUBLE				mRange[8];
+    
+    CHE_PDF_StreamAcc       mStmAcc;
+    
+	//for indexed colorspace
+	HE_ULONG				mIndexCount;
+	HE_LPBYTE				mpIndexTable;
+	HE_ULONG				mIndexTableSize;
+    CHE_PDF_ColorSpacePtr	mBaseColorspace;
 
 private:
 	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type );
@@ -128,20 +142,11 @@ private:
 
 	HE_ULONG				mComponentCount;
 
-	HE_FLOAT				mWhitePoint[3];
-	HE_FLOAT				mBlackPoint[3];
-	HE_FLOAT				mGamma[3];
-	HE_FLOAT				mMatrix[9];
-	HE_FLOAT				mRange[4];
 
-	//for indexed colorspace
-	HE_ULONG				mIndexCount;
-	HE_LPBYTE				mpIndexTable;
-	HE_ULONG				mIndexTableSize;
 
 	//for separation colorspace
 	CHE_PDF_FunctionPtr		mFunction;
-	CHE_PDF_ColorSpacePtr	mBaseColorspace;
+	
 
 	friend class CHE_Allocator;
 };

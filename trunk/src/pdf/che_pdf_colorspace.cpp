@@ -208,6 +208,10 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type )
 	mRange[1] = 100;
 	mRange[2] = -100;
 	mRange[3] = 100;
+    mRange[4] = -100;
+	mRange[5] = 100;
+	mRange[6] = -100;
+	mRange[7] = 100;
 
 	switch ( GetColorSpaceType() )
 	{
@@ -265,10 +269,14 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 	mMatrix[6] = 0.0f;
 	mMatrix[7] = 0.0f;
 	mMatrix[8] = 1.0f;
-	mRange[0] = -100;
+    mRange[0] = -100;
 	mRange[1] = 100;
 	mRange[2] = -100;
 	mRange[3] = 100;
+    mRange[4] = -100;
+	mRange[5] = 100;
+	mRange[6] = -100;
+	mRange[7] = 100;
 
 	CHE_PDF_ObjectPtr objPtr = rootObjPtr;
 	if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
@@ -332,6 +340,15 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 					mComponentCount = 3;
 				}else if ( name == "ICCBased" )
 				{
+                    mColorSpaceType = COLORSPACE_CIEBASE_ICCBASED;
+                    mRange[0] = 0.0f;
+                    mRange[1] = 1.0f;
+                    mRange[2] = 0.0f;
+                    mRange[3] = 1.0f;
+                    mRange[4] = 0.0f;
+                    mRange[5] = 1.0f;
+                    mRange[6] = 0.0f;
+                    mRange[7] = 1.0f;
 					objPtr = arrayPtr->GetElement( 1, OBJ_TYPE_STREAM );
 					if ( objPtr )
 					{
@@ -342,16 +359,46 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & rootObjPtr, CH
 							objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
 							if ( objPtr )
 							{
-								mColorSpaceType = COLORSPACE_CIEBASE_ICCBASED;
 								mComponentCount = objPtr->GetNumberPtr()->GetInteger();;
 							}
+                            objPtr = dictPtr->GetElement( "Alternate" );
+                            if ( objPtr )
+                            {
+                                mBaseColorspace = CHE_PDF_ColorSpace::Create( objPtr );
+                            }else
+                            {
+                                if ( mComponentCount == 1 )
+                                {
+                                    mBaseColorspace = CHE_PDF_ColorSpace::CreateDeviceGray();
+                                }else if ( mComponentCount == 3 )
+                                {
+                                    mBaseColorspace = CHE_PDF_ColorSpace::CreateDeviceRGB();
+                                }else{
+                                    mBaseColorspace = CHE_PDF_ColorSpace::CreateDeviceCMYK();
+                                }
+                            }
+                            objPtr = dictPtr->GetElement( "Range", OBJ_TYPE_ARRAY );
+                            if ( objPtr )
+                            {
+                                CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+                                for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 8; ++i )
+                                {
+                                    objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+                                    if ( objPtr )
+                                    {
+                                        mRange[i] = objPtr->GetNumberPtr()->GetFloat();
+                                    }
+                                }
+                            }
 						}
+                        mStmAcc.Attach( stmPtr );
 					}else{
 						SetError( COMPONENT_ERROR_CONSTRUCTION );
 					}
 				}else if ( name == "Indexed" )
 				{
 					mColorSpaceType = COLORSPACE_SPECIAL_INDEXED;
+                    mComponentCount = 1;
 					if ( arrayPtr->GetCount() < 4 )
 					{
 						SetError( COMPONENT_ERROR_CONSTRUCTION );

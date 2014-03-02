@@ -2,6 +2,7 @@
 #define _CHE_PDF_XOBJECT_H_
 
 #include "../che_bitmap.h"
+#include "../che_graphics.h"
 #include "che_pdf_contentlist.h"
 #include "che_pdf_colorspace.h"
 #include "che_pdf_componentmgr.h"
@@ -24,7 +25,6 @@ public:
 
 	~CHE_PDF_ImageXObject();
 
-	CHE_PDF_ReferencePtr    GetRef() { return mRefPtr; }
 	CHE_PDF_StreamPtr       GetStreamPtr() { return mStmPtr; }
 	HE_ULONG                GetWidth() const { return mWidth; }
 	HE_ULONG                GetHeight() const { return mHeight; }
@@ -32,7 +32,17 @@ public:
 	CHE_PDF_ColorSpacePtr	GetColorspace() const { return mColorspace; }
 	HE_BOOL                 IsMask() const { return mbMask; }
 	HE_BOOL                 IsInterpolate() const { return mbInterpolate; }
-
+    HE_LPBYTE               GetData();
+    HE_ULONG                GetSize();
+    
+    CHE_PDF_ArrayPtr        GetDecodeArray() const { return mDecodeArray; }
+    
+    CHE_PDF_ObjectPtr		GetMaskPtr() const { return mMaskPtr; }
+    CHE_PDF_ImageXObjectPtr GetMaskImagePtr() const { return mMaskImagePtr; }
+    CHE_PDF_ImageXObjectPtr GetSoftMaskImagePtr() const { return mSoftMaskImagePtr; }
+    
+    GRAPHICS_STATE_RENDERINTENTS GetRI() const { return mRI; }
+    
 	CHE_Bitmap *			GetBitmap();
 
 private:
@@ -45,18 +55,30 @@ private:
 	CHE_Bitmap *			GetStencilMaskingBitmap( HE_LPBYTE pData, HE_ULONG size );
 	CHE_Bitmap *			GetExplicitMaskingBitmap( CHE_Bitmap * pBitmapOrig, CHE_PDF_StreamPtr & stmPtr );
 
-	CHE_PDF_ReferencePtr    mRefPtr;
-	CHE_PDF_StreamPtr       mStmPtr;
-
+	//CHE_PDF_ReferencePtr    mRefPtr;
+	
 	HE_ULONG                mWidth;
 	HE_ULONG                mHeight;
 	HE_ULONG                mBpc;
+    HE_BOOL                 mbInterpolate;
+    CHE_PDF_StreamPtr       mStmPtr;
+    CHE_PDF_StreamAcc       mStmAcc;
 	CHE_PDF_ColorSpacePtr	mColorspace;
-	HE_BOOL                 mbInterpolate;
-	HE_BOOL					mbMask;
-	HE_BYTE					mMaskDecode;
+	
+	
+	
+    
+    HE_BOOL					mbMask;
 	CHE_PDF_ObjectPtr		mMaskPtr;
-	CHE_Bitmap *			mpBitmapCache;
+    CHE_PDF_ImageXObjectPtr mMaskImagePtr;
+    CHE_PDF_ImageXObjectPtr mSoftMaskImagePtr;
+    
+    CHE_PDF_ArrayPtr        mDecodeArray;
+    
+    GRAPHICS_STATE_RENDERINTENTS mRI;
+    
+    CHE_Bitmap *			mpBitmapCache;
+    
 
 	friend class CHE_Allocator;
 };

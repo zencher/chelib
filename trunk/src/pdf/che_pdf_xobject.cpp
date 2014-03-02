@@ -30,13 +30,14 @@ CHE_PDF_ImageXObjectPtr CHE_PDF_ImageXObject::Convert( const CHE_PDF_ComponentPt
 	return ptr;
 }
 
+
 CHE_PDF_ImageXObject::CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
-	: CHE_PDF_Component( COMPONENT_TYPE_ImageXObject, refPtr, pAllocator ), mRefPtr(refPtr), mWidth(0), mHeight(0), 
-	mBpc(0),mbInterpolate(FALSE), mbMask(FALSE), mMaskDecode(0), mpBitmapCache(NULL)
+	: CHE_PDF_Component( COMPONENT_TYPE_ImageXObject, refPtr, pAllocator ), mWidth(0), mHeight(0), mBpc(0),
+mbInterpolate(FALSE), mStmAcc(pAllocator), mbMask(FALSE), mpBitmapCache(NULL), mRI(RI_AbsoluteColorimetric)
 {
-	if ( mRefPtr )
+	if ( refPtr )
 	{
-		CHE_PDF_ObjectPtr objPtr = mRefPtr->GetRefObj( OBJ_TYPE_STREAM );
+		CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj( OBJ_TYPE_STREAM );
 		if ( objPtr )
 		{
 			mStmPtr = objPtr->GetStreamPtr();
@@ -79,7 +80,8 @@ CHE_PDF_ImageXObject::CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr,
 				objPtr = dictPtr->GetElement( "Decode", OBJ_TYPE_ARRAY );
 				if ( objPtr )
 				{
-					CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+                    mDecodeArray = objPtr->GetArrayPtr();
+					/*CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
 					if ( arrayPtr->GetCount() == 2 )
 					{
 						objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
@@ -93,16 +95,46 @@ CHE_PDF_ImageXObject::CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr,
 							}
 							mbMask = TRUE;
 						}
-					}
+					}*/
 				}
+                objPtr = dictPtr->GetElement( "Intent", OBJ_TYPE_NAME );
+                if ( objPtr )
+                {
+                    CHE_ByteString str = objPtr->GetNamePtr()->GetString();
+                    if ( str == "AbsoluteColorimetric" )
+                    {
+                        mRI = RI_AbsoluteColorimetric;
+                    }else if ( str == "RelativeColorimetric" )
+                    {
+                        mRI = RI_RelativeColorimetric;
+                    }else if ( str == "Saturation" )
+                    {
+                        mRI = RI_Saturation;
+                    }else{
+                        mRI = RI_Perceptual;
+                    }
+                }
 				if ( mbMask == FALSE )
 				{
 					objPtr = dictPtr->GetElement( "Mask" );
 					if ( objPtr )
 					{
 						mMaskPtr = objPtr;
-					}else{
-						mMaskPtr = dictPtr->GetElement( "SMask" );
+                        if ( mMaskPtr->GetType() == OBJ_TYPE_REFERENCE )
+                        {
+                            if ( mMaskPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM ) )
+                            {
+                                mMaskImagePtr = CHE_PDF_ImageXObject::Create( mMaskPtr->GetRefPtr() );
+                            }
+                        }
+					}
+                    else
+                    {
+						objPtr = dictPtr->GetElement( "SMask" );
+                        if ( objPtr && objPtr->GetType() == OBJ_TYPE_REFERENCE )
+                        {
+                            mSoftMaskImagePtr = CHE_PDF_ImageXObject::Create( objPtr->GetRefPtr() );
+                        }
 					}
 				}
 			}
@@ -118,6 +150,27 @@ CHE_PDF_ImageXObject::~CHE_PDF_ImageXObject()
 		mpBitmapCache->GetAllocator()->Delete( mpBitmapCache );
 		mpBitmapCache = NULL;
 	}
+}
+
+HE_LPBYTE CHE_PDF_ImageXObject::GetData()
+{
+    HE_LPBYTE lpByte = mStmAcc.GetData();
+    if ( lpByte == NULL )
+    {
+        mStmAcc.Attach( mStmPtr );
+        lpByte = mStmAcc.GetData();
+    }
+    return lpByte;
+}
+
+HE_ULONG CHE_PDF_ImageXObject::GetSize()
+{
+    HE_LPBYTE lpByte = mStmAcc.GetData();
+    if ( lpByte == NULL )
+    {
+        mStmAcc.Attach( mStmPtr );
+    }
+    return mStmAcc.GetSize();
 }
 
 CHE_Bitmap * CHE_PDF_ImageXObject::GetBitmap()
@@ -1288,12 +1341,12 @@ CHE_Bitmap * CHE_PDF_ImageXObject::GetStencilMaskingBitmap( HE_LPBYTE pData, HE_
 			for ( byteIndex = 0; byteIndex < mWidth; ++byteIndex )
 			{
 				tmpByte = *(pTmpByte + byteIndex);
-				if ( mMaskDecode == 0 )
-				{
-					colorARGB2 = 255 - tmpByte;
-				}else{
+				//if ( mMaskDecode == 0 )
+				//{
+				//	colorARGB2 = 255 - tmpByte;
+				//}else{
 					colorARGB2 = tmpByte;
-				}
+				//}
 				colorARGB2 = colorARGB2 << 24;
 				colorARGB2 = colorARGB1 & 0x00FFFFFF + colorARGB2;
 				*(pColors+colorIndex++) = colorARGB2;
@@ -1315,12 +1368,12 @@ CHE_Bitmap * CHE_PDF_ImageXObject::GetStencilMaskingBitmap( HE_LPBYTE pData, HE_
 				tmpByte = *(pTmpByte + byteIndex);
 				for ( bitIndex = 0; bitIndex < 8; ++bitIndex )
 				{
-					if ( mMaskDecode == 0 )
-					{
-						colorARGB2 = 255 - ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
-					}else{
+					//if ( mMaskDecode == 0 )
+					//{
+					//	colorARGB2 = 255 - ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
+					//}else{
 						colorARGB2 = ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
-					}
+					//}
 					colorARGB2 = colorARGB2 << 24;
 					colorARGB2 = colorARGB1 & 0x00FFFFFF + colorARGB2;
 					*(pColors+colorIndex++) = colorARGB2;

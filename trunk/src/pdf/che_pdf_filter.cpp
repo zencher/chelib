@@ -1563,6 +1563,12 @@ CHE_PDF_JBig2Filter::~CHE_PDF_JBig2Filter()
 {
 }
 
+HE_VOID CHE_PDF_JBig2Filter::SetGlobals( HE_LPBYTE pData, HE_ULONG length )
+{
+	mGlobalsParam = pData;
+	mGlobalsParamLength = length;
+}
+
 HE_VOID CHE_PDF_JBig2Filter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
 {
 }
@@ -1600,6 +1606,7 @@ HE_VOID CHE_PDF_JBig2Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
  	while (x < w)
  	{
  		*p++ = ~ s[x++];
+		//*p++ = s[x++] ^ 0xff;
  	}
     
     buffer.Clear();

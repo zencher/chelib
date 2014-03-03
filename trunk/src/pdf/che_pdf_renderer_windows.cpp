@@ -1,6 +1,7 @@
 #include "../../include/pdf/che_pdf_renderer_windows.h"
 #include "../../include/pdf/che_pdf_gstate.h"
 #include "../../include/pdf/che_pdf_xobject.h"
+#include "../../include/pdf/che_pdf_imageraster.h"
 
 inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
 {
@@ -399,15 +400,17 @@ inline HE_VOID OutputInlineImage( CHE_PDF_InlineImage * pImage, CHE_GraphicsDraw
 
 inline HE_VOID OutputRefImage( CHE_Matrix & matrix, const CHE_PDF_ImageXObjectPtr & image, CHE_GraphicsDrawer & drawer )
 {
+	CHE_PDF_ImageRaster raster;
 	if ( image->IsInterpolate() == TRUE )
 	{
-		CHE_Bitmap * pBitmap = image->GetBitmap();
+		CHE_Bitmap * pBitmap = raster.GetBitmap( image );
 		if ( pBitmap )
 		{
 			drawer.DrawBitmap( pBitmap );
+			pBitmap->GetAllocator()->Delete( pBitmap );
 		}
 	}else{
-		CHE_Bitmap * pBitmap = image->GetBitmap();
+		CHE_Bitmap * pBitmap = raster.GetBitmap( image );
 		if ( pBitmap )
 		{
 			CHE_Rect rect;
@@ -423,10 +426,12 @@ inline HE_VOID OutputRefImage( CHE_Matrix & matrix, const CHE_PDF_ImageXObjectPt
 				if ( pNew )
 				{
 					drawer.DrawBitmap( pNew );
+					pBitmap->GetAllocator()->Delete( pBitmap );
 					pNew->GetAllocator()->Delete( pNew ); 
 				}
 			}else{
 				drawer.DrawBitmap( pBitmap );
+				pBitmap->GetAllocator()->Delete( pBitmap );
 			}
 		}
 	}

@@ -1506,7 +1506,18 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & stmPtr, PDF_STREAM_
 				filter.Decode( pTmp, lSize, buffer );
 			}else if ( str == "JBIG2Decode" )
 			{
+				CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 				CHE_PDF_JBig2Filter filter( GetAllocator() );
+				CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
+				if ( pDecodeParams )
+				{
+					CHE_PDF_ObjectPtr ptr = pDecodeParams->GetElement( "JBIG2Globals", OBJ_TYPE_STREAM );
+					if ( ptr )
+					{
+						stmAcc.Attach( ptr->GetStreamPtr() );
+						filter.SetGlobals( stmAcc.GetData(), stmAcc.GetSize() );
+					}
+				}
 				filter.Decode( pTmp, lSize, buffer );
 			}else if ( str == "DCTDecode" || str == "DCT" )
 			{

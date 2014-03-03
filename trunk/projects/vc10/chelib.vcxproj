@@ -51,6 +51,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_function.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_image.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_imageraster.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objectstring.h" />
@@ -205,6 +206,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_function.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objectstring.cpp" />

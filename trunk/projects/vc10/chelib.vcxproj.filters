@@ -188,6 +188,9 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_extgstate.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_imageraster.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\che_base.cpp">
@@ -647,6 +650,9 @@
       <Filter>src\pdf</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_extgstate.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
   </ItemGroup>

@@ -261,7 +261,7 @@ public:
 		{
 			if ( mPredictor == 1 )
 			{
-				buffer.Write( pData, mStride );
+				buffer.Write( p, mStride );
 				p += mStride;
 			}
 			else if ( mPredictor == 2)

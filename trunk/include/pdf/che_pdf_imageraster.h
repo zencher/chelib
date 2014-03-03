@@ -20,7 +20,7 @@ private:
 
 	CHE_Bitmap * GetBitmapAsMask( const CHE_PDF_ImageXObjectPtr & imgPtr );
 
-	CHE_Bitmap * GetBitmapWithImageMask( const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr );
+	CHE_Bitmap * GetBitmapWithImageMask( const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr, BOOL bExplicit = FALSE );
 };
 
 #endif

@@ -34,7 +34,7 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapSimpleImp( const CHE_PDF_ImageXObject
 		}
 		if ( imgPtr->GetSoftMaskImagePtr() )
 		{
-			return GetBitmapWithImageMask( imgPtr, imgPtr->GetSoftMaskImagePtr() );
+			return GetBitmapWithImageMask( imgPtr, imgPtr->GetSoftMaskImagePtr(), TRUE );
 		}
 
 		CHE_PDF_Color color;
@@ -339,7 +339,7 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapAsMask( const CHE_PDF_ImageXObjectPtr
 	return pBitmapRet;
 }
 
-CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask( const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr )
+CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask( const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr, BOOL bExplicit/*= FALSE*/ )
 {
 	CHE_Bitmap * pBitmapRet = NULL;
 	if ( imgPtr && maskPtr )
@@ -383,6 +383,11 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask( const CHE_PDF_ImageXOb
 					bMaskDecode = TRUE;
 				}
 			}
+		}
+
+		if ( bExplicit == FALSE )
+		{
+			bMaskDecode = !bMaskDecode;
 		}
 
 		HE_ULONG x = 0;

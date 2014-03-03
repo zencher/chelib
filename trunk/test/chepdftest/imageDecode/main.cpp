@@ -102,29 +102,68 @@ int main( int argc, char **argv )
 								}else
 								{
 									unsigned int byteIndex = 0;
-									unsigned int byteCount = width * bpc / 8;
+									unsigned int stride = (width * cscc * bpc + 7)/8;
 									BYTE byte = 0;
+									BYTE tmpByte = 0;
+									BYTE bitoffset = ((1<<bpc) - 1);
 									float v = 0;
-									if ( width * bpc % 8 != 0 )
-									{
-										++byteCount;
-									}
+									PDF_COLORSPACE_TYPE type = csPtr->GetColorSpaceType();
 									for ( unsigned int y = 0; y < height; ++y )
 									{
-										byteIndex = y * width * bpc / 8;
-										for ( unsigned int m = 0; m < byteCount; ++m )
+										byteIndex = y * stride;
+										unsigned int x = 0;
+										for ( unsigned int m = 0; m < stride; ++m )
 										{
 											byte = *(pByte + byteIndex + m);
 											for ( unsigned int n = 0; n < (8/bpc); ++n )
 											{
-												v = (byte >> ((8-bpc)-n)) & (2^bpc - 1);
+												tmpByte = (byte>>(8-bpc*(n+1))) & bitoffset;
+												if ( type == COLORSPACE_SPECIAL_INDEXED )
+												{
+													v = tmpByte;
+												} else{
+													v = tmpByte * 1.0 / bitoffset;
+												}
 												color.Push( v );
-												argb = csPtr->GetARGBValue( color );
-												color.Clear();
-												bitmap.SetPixelColor( m * 8 + n, y, argb );
+												if ( color.GetComponentCount() == cscc )
+												{
+													argb = csPtr->GetARGBValue( color );
+													color.Clear();
+													bitmap.SetPixelColor( x++, y, argb );
+												}
+												if ( x == width )
+												{
+													break;
+												}
 											}
 										}
 									}
+
+
+// 									unsigned int byteIndex = 0;
+// 									unsigned int byteCount = width * bpc / 8;
+// 									BYTE byte = 0;
+// 									float v = 0;
+// 									if ( width * bpc % 8 != 0 )
+// 									{
+// 										++byteCount;
+// 									}
+// 									for ( unsigned int y = 0; y < height; ++y )
+// 									{
+// 										byteIndex = y * width * bpc / 8;
+// 										for ( unsigned int m = 0; m < byteCount; ++m )
+// 										{
+// 											byte = *(pByte + byteIndex + m);
+// 											for ( unsigned int n = 0; n < (8/bpc); ++n )
+// 											{
+// 												v = (byte >> ((8-bpc)-n)) & (2^bpc - 1);
+// 												color.Push( v );
+// 												argb = csPtr->GetARGBValue( color );
+// 												color.Clear();
+// 												bitmap.SetPixelColor( m * 8 + n, y, argb );
+// 											}
+// 										}
+// 									}
 								}
 								char tmpStr[128];
 								sprintf( tmpStr, "D:\\%d.bmp", index++ );

@@ -285,26 +285,26 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         double * pDecode = NULL;
         double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
         
+        CHE_PDF_ArrayPtr arrayPtr = imagePtr->GetDecodeArray();
+        if ( arrayPtr )
+        {
+            CHE_PDF_ObjectPtr objPtr;
+            for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 4; ++i )
+            {
+                objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+                if ( objPtr )
+                {
+                    decode[i] = objPtr->GetNumberPtr()->GetFloat();
+                }
+            }
+            pDecode = decode;
+        }
+        
         CHE_PDF_ColorSpacePtr csPtr = imagePtr->GetColorspace();
         if ( !csPtr )
         {
             if ( imagePtr->IsMask() )
             {
-                CHE_PDF_ObjectPtr objPtr;
-                CHE_PDF_ArrayPtr arrayPtr = imagePtr->GetDecodeArray();
-                if ( arrayPtr )
-                {
-                    for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 4; ++i )
-                    {
-                        objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
-                        if ( objPtr )
-                        {
-                            decode[i] = objPtr->GetNumberPtr()->GetFloat();
-                        }
-                    }
-                    pDecode = decode;
-                }
-                
                 imgRef = CGImageMaskCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), imagePtr->GetBPC(), imagePtr->GetBPC(), (imagePtr->GetWidth() * imagePtr->GetBPC() + 7)/8, dataRef, pDecode, imagePtr->IsInterpolate() );
                 CGDataProviderRelease( dataRef );
             }
@@ -1015,7 +1015,7 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
+HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, const CHE_Matrix & extMatrix )
 {
     if ( cmptRef == NULL )
 	{
@@ -1028,72 +1028,33 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 	{
         case COMPONENT_TYPE_ImageXObject:
 		{
-			CHE_Matrix matrix;
-			CHE_PDF_GState * pGState = cmptRef->GetGState();
-			if ( pGState )
-			{
-				matrix = pGState->GetMatrix();
-			}
 			DrawRefImage( CHE_PDF_ImageXObject::Convert( componentPtr ) );
 			break;
 		}
         case COMPONENT_TYPE_FormXObject:
 		{
-			//CHE_Matrix tmpExtMatrix = extMatrix;
-			//CHE_Matrix newExtMatrix;
-			//CHE_PDF_GState * pGState = cmptRef->GetGState();
-			//if ( pGState )
-			//{
-			//	newExtMatrix = pGState->GetMatrix();
-            //
-			//}
-			///*newExtMatrix.Concat( pForm->GetExtMatrix() );*/
-			//newExtMatrix.Concat( tmpExtMatrix );
-            //
-			//drawer.SetExtMatrix( newExtMatrix );
-            //
-			//OutputForm( CHE_PDF_FormXObject::Convert( componentPtr ), extMatrix, drawer );
-            //
-			//drawer.SetExtMatrix( extMatrix );
+			CHE_Matrix tmpExtMatrix = extMatrix;
+			CHE_Matrix newExtMatrix;
+			CHE_PDF_GState * pGState = cmptRef->GetGState();
+			if ( pGState )
+			{
+                newExtMatrix = pGState->GetMatrix();
+			}
+			newExtMatrix.Concat( tmpExtMatrix );
+			SetExtMatrix( newExtMatrix );
+            DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ), mExtMatrix );
+			SetExtMatrix( extMatrix );
 			break;
 		}
         case COMPONENT_TYPE_Shading:
 		{
             //DrawShading( )
-			//OutputShading( pComponentRef->GetComponentPtr()->GetShadingPtr(), drawer );
 			break;
 		}
         default:
             break;
 	}
 }
-
-/*CHE_Bitmap * pBitmap = image->GetBitmap();
- if ( pBitmap )
- {
- CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, pBitmap->GetBuffer(), pBitmap->GetMemBitmapDataSize(), NULL );
- CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
- CGImageRef imageRef = CGImageCreate( pBitmap->Width(), pBitmap->Height(), 8, pBitmap->Depth(),
- pBitmap->Pitch(), colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst,
- dataRef, NULL, false, kCGRenderingIntentDefault );
- 
- CHE_Matrix tmpMatrix;
- tmpMatrix = mMatrix;
- tmpMatrix.Concat( mExtMatrix );
- CHE_Rect rect;
- rect.left = 0;
- rect.bottom = 0;
- rect.width = 1;
- rect.height = 1;
- rect = tmpMatrix.Transform( rect );
- CGContextDrawImage( mContextRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height), imageRef );
- CGImageRelease( imageRef );
- CGColorSpaceRelease( colorSpace );
- CGDataProviderRelease( dataRef );
- }*/
-
-//return;
-
 
 HE_VOID CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
 {
@@ -1167,28 +1128,13 @@ HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
 
 HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix )
 {
-    /*CHE_PDF_GState * pGState = NULL;
-	CHE_PDF_ClipState * pClipState = NULL;
-    CHE_PDF_ContentObjectList & content = form->GetList();
-	ContentObjectList::iterator it = content.Begin();
-    
-	CHE_Matrix tmpExtMatrix = extMatrix;
-	CHE_Matrix newExtMatrix;
-	pGState = form->GetGState();
-	if ( pGState )
-	{
-		newExtMatrix = pGState->GetMatrix();
-		
-	}
-	newExtMatrix.Concat( pForm->GetExtMatrix() );
-	newExtMatrix.Concat( tmpExtMatrix );
-    
-	SetExtMatrix( newExtMatrix );
-    
-	for ( ; it != content.End(); ++it )
+    CHE_PDF_ContentObjectList & list = form->GetList();
+    ContentObjectList::iterator it = list.Begin();
+    CHE_PDF_GState * pGState = NULL;
+    CHE_PDF_ClipState * pClipState = NULL;
+	for ( ; it != list.End(); ++it )
 	{
         StoreGState();
-		//ResetClip();
 		pGState = (*it)->GetGState();
 		if ( pGState )
 		{
@@ -1219,17 +1165,14 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form, const C
 			}
             case ContentType_Component:
 			{
-				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
 				break;
 			}
             default:
                 break;
 		}
-        
         RestoreGState();
 	}
-    
-	SetExtMatrix( extMatrix );*/
 }
 
 HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content )
@@ -1291,7 +1234,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content )
 			}
             case ContentType_Component:
 			{
-				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
 				break;
 			}
             default:

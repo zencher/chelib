@@ -65,7 +65,7 @@ private:
     HE_VOID     DrawTextAsPath( CHE_PDF_Text * pText );
     HE_VOID     DrawTextGlyph( CGGlyph gid );
     HE_VOID     DrawInlineImage( CHE_PDF_InlineImage * pImage );
-    HE_VOID     DrawComponentRef( CHE_PDF_ComponentRef * cmptRef );
+    HE_VOID     DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, const CHE_Matrix & extMatrix );
     HE_VOID     DrawRefImage( const CHE_PDF_ImageXObjectPtr & image );
     HE_VOID     DrawForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix );
     HE_VOID     DrawShading( const CHE_PDF_ShadingPtr & shading );

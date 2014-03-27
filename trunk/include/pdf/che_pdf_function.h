@@ -5,6 +5,7 @@
 using namespace std;
 
 #include "che_pdf_component.h"
+#include "che_pdf_parser.h"
 
 enum PDF_FUNCTION_TYPE
 {
@@ -14,51 +15,6 @@ enum PDF_FUNCTION_TYPE
 	FUNCTION_TYPE_POSTSCRIPT	= 4
 };
 
-// enum PDF_FUNCTION_POSTSCRIPT_KEYWORD
-// {
-// 	POSTSCRIPT_abs,
-// 	POSTSCRIPT_add
-// 	POSTSCRIPT_atan
-// 	POSTSCRIPT_ceiling
-// 	POSTSCRIPT_cos
-// 	POSTSCRIPT_cvi
-// 	POSTSCRIPT_cvr
-// 	POSTSCRIPT_div
-// 	POSTSCRIPT_exp
-// 	POSTSCRIPT_floor
-// 	POSTSCRIPT_idiv
-// 	ln
-// 	log
-// 	mod
-// 	mul
-// 	neg
-// 	round
-// 	sin
-// 	sqrt
-// 	sub
-// 	truncate
-// 	and
-// 	bitshift
-// 	eq
-// 	false
-// 	ge
-// 	gt
-// 	le 
-// 	lt
-// 	ne
-// 	not
-// 	or
-// 	true
-// 	xor
-// 	if
-// 	ifelse
-// 	copy
-// 	dup
-// 	exch
-// 	index
-// 	pop
-// 	roll
-// };
 
 class CHE_PDF_Function;
 
@@ -230,30 +186,39 @@ public:
 		return FALSE;
 	}
 
-	HE_BOOL Push( PSFuncItem & item )
+	HE_BOOL IsType( PSFUNCITEM_TYPE type )
 	{
-		if ( ! IsOverflow() )
+		if ( ! IsUnderflow() )
 		{
-			mStack[++mStackTopIndex] = item;
-			return TRUE; 
+			if ( mStack[mStackTopIndex-1].mType == type )
+			{
+				return TRUE;
+			}
 		}
 		return FALSE;
 	}
 
-	HE_BOOL PushFloat( HE_FLOAT val )
+	HE_BOOL IsType2( PSFUNCITEM_TYPE type )
 	{
-		PSFuncItem item;
-		item.mType = PSITEM_FLOAT;
-		item.mFloatValue = val;
-		return Push( item );
-	} 
+		if ( ! IsUnderflow( 2 ) )
+		{
+			if (	mStack[mStackTopIndex-1].mType == type &&
+					mStack[mStackTopIndex-2].mType == type )
+			{
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
 
-	HE_BOOL PushInteger( HE_INT32 val )
+	HE_BOOL Push( PSFuncItem & item )
 	{
-		PSFuncItem item;
-		item.mType = PSITEM_INT;
-		item.mIntegerValue = val;
-		return Push( item );
+		if ( ! IsOverflow() )
+		{
+			mStack[mStackTopIndex++] = item;
+			return TRUE; 
+		}
+		return FALSE;
 	}
 
 	HE_BOOL PushBool( HE_BOOL val )
@@ -264,54 +229,121 @@ public:
 		return Push( item );
 	}
 
-	HE_BOOL PushOperator( PSFUNCITEM_OPERATOR op )
+	HE_BOOL PushInteger( HE_INT32 val )
 	{
 		PSFuncItem item;
-		item.mType = PSITEM_OPERATOR;
-		item.mOperator = op;
+		item.mType = PSITEM_INT;
+		item.mIntegerValue = val;
 		return Push( item );
 	}
 
-	HE_BOOL Pop( PSFuncItem & item )
+	HE_BOOL PushFloat( HE_FLOAT val )
+	{
+		PSFuncItem item;
+		item.mType = PSITEM_FLOAT;
+		item.mFloatValue = val;
+		return Push( item );
+	}
+
+	HE_BOOL PopBool( HE_BOOL & valRet )
+	{
+		if ( !IsUnderflow() )
+		{
+			if ( IsType(PSITEM_BOOL) )
+			{
+				valRet = mStack[--mStackTopIndex].mBoolValue;
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+
+	HE_BOOL PopInteger( HE_INT32 & valRet )
 	{
 		if ( ! IsUnderflow() )
 		{
-			item = mStack[mStackTopIndex--];
-			return TRUE;
+			if ( IsType( PSITEM_INT ) )
+			{
+				valRet = mStack[--mStackTopIndex].mIntegerValue;
+				return TRUE;
+			}else if ( IsType( PSITEM_FLOAT ) )
+			{
+				valRet = mStack[--mStackTopIndex].mFloatValue;
+				return TRUE;
+			}
 		}
 		return FALSE;
 	}
 
-	HE_BOOL Pop( PSFuncItem & item, PSFUNCITEM_TYPE type )
+	HE_BOOL PopFloat( HE_FLOAT & valRet )
 	{
-		if ( mStack[mStackTopIndex].mType == type )
+		if ( ! IsUnderflow() )
 		{
-			item = mStack[mStackTopIndex--];
-			return TRUE;
+			if ( IsType( PSITEM_INT ) )
+			{
+				valRet = mStack[--mStackTopIndex].mIntegerValue;
+				return TRUE;
+			}else if ( IsType( PSITEM_FLOAT ) )
+			{
+				valRet = mStack[--mStackTopIndex].mFloatValue;
+				return TRUE;
+			}
 		}
 		return FALSE;
 	}
 
-	HE_BOOL IsType( PSFUNCITEM_TYPE type )
+	HE_BOOL Copy( HE_INT32 n )
 	{
-		if ( mStack[mStackTopIndex].mType == type )
+		if ( !IsUnderflow( n ) && !IsOverflow( n ) )
 		{
+			memcpy( mStack + mStackTopIndex, mStack + mStackTopIndex - n, n * sizeof(PSFuncItem) );
+			mStackTopIndex += n;
 			return TRUE;
 		}
 		return FALSE;
-	} 
-
-	HE_BOOL PopInteger( PSFuncItem & item )
-	{
-		return Pop( item, PSITEM_INT ); 
 	}
 
-	HE_BOOL PopFloat( PSFuncItem & item )
-	{
-		return Pop( item, PSITEM_FLOAT ); 
+	HE_BOOL Roll( HE_INT32 n, HE_INT32 j )
+ 	{
+		PSFuncItem item;
+		HE_INT32 i;
+
+		if ( IsOverflow( n ) || j == 0 || n == 0 )
+		{
+			return FALSE;
+		}
+
+		if ( j > 0 )
+		{
+			j %= n;
+		}else{
+			j = -j % n;
+			if ( j != 0 )
+			{
+				j = n - j;
+			}
+		}
+
+		for ( i = 0; i < j; i++ )
+		{
+			item = mStack[mStackTopIndex-1];
+			memmove( mStack + mStackTopIndex - n + 1, mStack + mStackTopIndex - n, n * sizeof(PSFuncItem) );
+			mStack[mStackTopIndex-n] = item;
+		}
+
+		return TRUE;
 	}
 
-	HE_BOOL Execute( PSFUNCITEM_OPERATOR op ); 
+	HE_BOOL Index( HE_INT32 n )
+	{
+		if (!IsOverflow() && !IsUnderflow(n) )
+		{
+			mStack[mStackTopIndex] = mStack[mStackTopIndex - n - 1];
+			mStackTopIndex++;
+			return TRUE;
+		}
+		return FALSE;
+	}
 
 	PSFuncItem		mStack[100];
 	HE_INT32		mStackTopIndex;
@@ -331,7 +363,11 @@ private:
 	
 	HE_VOID Parse();
 
+	HE_VOID ParseImp( CHE_PDF_SyntaxParser & syntaxParser );
+
 	HE_BOOL RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+
+	HE_BOOL RunCodeImp( PSFuncStack & stack, HE_ULONG codeIndex );
 
 	HE_BOOL						mbParsed;
 	CHE_PDF_StreamPtr			mStmPtr;

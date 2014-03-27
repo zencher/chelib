@@ -1,5 +1,4 @@
 #include "../../include/pdf/che_pdf_function.h"
-#include "../../include/pdf/che_pdf_parser.h"
 
 #include <math.h>
 #include <float.h>
@@ -47,6 +46,8 @@ static inline int fz_clampi(int i, float min, float max)
 {
 	return (i > min ? (i < max ? i : max) : min);
 }
+
+#define DIV_BY_ZERO(a, b, min, max) (((a) < 0) ^ ((b) < 0) ? (min) : (max))
 
 CHE_PDF_Function * CHE_PDF_FunctionPtr::operator->() const
 {
@@ -174,6 +175,15 @@ CHE_PDF_Function::CHE_PDF_Function( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Al
 		if ( objPtr )
 		{
 			dictPtr = objPtr->GetDictPtr();
+		}else{
+			objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
+			if ( objPtr )
+			{
+				dictPtr = objPtr->GetStreamPtr()->GetDictPtr();
+			}else{
+				SetError( COMPONENT_ERROR_CONSTRUCTION );
+				return;
+			}
 		}
 	}else if ( mRootObjPtr->GetType() == OBJ_TYPE_DICTIONARY )
 	{
@@ -767,6 +777,7 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate( std::vector<HE_FLOAT> & input, st
 CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
 	: CHE_PDF_Function( rootObjPtr, pAllocator ), mbParsed( FALSE )
 {
+	mStmPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM )->GetStreamPtr();
 }
 
 CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()
@@ -780,9 +791,392 @@ HE_BOOL CHE_PDF_Function_PostScript::Calculate( std::vector<HE_FLOAT> & input, s
 		Parse();
 	}
 
-	//todo
+	return RunCode( input, output );
+}
 
-	return TRUE;
+HE_VOID CHE_PDF_Function_PostScript::ParseImp( CHE_PDF_SyntaxParser & syntaxParser )
+{
+	PSFuncItem psItem;
+	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
+
+	while ( syntaxParser.GetWord( wordDes ) )
+	{
+		switch ( wordDes.type )
+		{
+		case PARSE_WORD_INTEGER:
+			{
+				psItem.mType = PSITEM_INT;
+				psItem.mIntegerValue = wordDes.str.GetInteger();
+				mCodes.push_back( psItem );
+				break;
+			}
+		case PARSE_WORD_FLOAT:
+			{
+				psItem.mType = PSITEM_FLOAT;
+				psItem.mFloatValue = wordDes.str.GetFloat();
+				mCodes.push_back( psItem );
+				break;
+			}
+		case PARSE_WORD_UNKNOWN:
+			{
+				switch ( StringToDWORD( wordDes.str ) )
+				{
+				case A( '{' ):
+					{
+						size_t opposi = mCodes.size();
+
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_IFELSE;
+						mCodes.push_back( psItem );
+						psItem.mType = PSITEM_BLOCK;
+						mCodes.push_back( psItem );
+						psItem.mType = PSITEM_BLOCK;
+						mCodes.push_back( psItem );
+						psItem.mType = PSITEM_BLOCK;
+						mCodes.push_back( psItem );
+
+						size_t ifposi = mCodes.size();
+						ParseImp( syntaxParser );
+
+						size_t elseposi = mCodes.size();
+
+						size_t tmpPosi = syntaxParser.GetPos();
+						if ( syntaxParser.GetWord( wordDes ) && wordDes.type == PARSE_WORD_UNKNOWN && StringToDWORD( wordDes.str ) == A('{') )
+						{
+							syntaxParser.SetPos( tmpPosi );
+							ParseImp( syntaxParser );
+						}else{
+							syntaxParser.SetPos( tmpPosi );
+						}
+
+						tmpPosi = syntaxParser.GetPos();
+						if ( syntaxParser.GetWord( wordDes ) && wordDes.type == PARSE_WORD_UNKNOWN )
+						{
+							switch ( StringToDWORD( wordDes.str ) )
+							{
+							case B( 'i', 'f' ):
+								{
+									mCodes[opposi].mOperator = PSOPERATOR_IF;
+									break;
+								}
+							case D( 'i', 'f', 'e', 'l' ):
+								{
+									mCodes[opposi].mOperator = PSOPERATOR_IFELSE;
+									break;
+								}
+							default:
+								syntaxParser.SetPos( tmpPosi );
+								break;
+							}
+							mCodes[opposi+1].mBlockIndex = ifposi;
+							mCodes[opposi+2].mBlockIndex = elseposi;
+							mCodes[opposi+3].mBlockIndex = mCodes.size();
+						}
+						break;
+					}
+				case A( '}' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_RETURN;
+						mCodes.push_back( psItem );
+						return;
+					}
+				case C( 'a', 'b', 's' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_ABS;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'a', 'd', 'd' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_ADD;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'a', 't', 'a', 'n' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_ATAN;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'c', 'e', 'i', 'l' ): //ceiling
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_CEILING;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'c', 'o', 's' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_COS;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'c', 'v', 'i' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_CVI;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'd', 'i', 'v' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_DIV;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'e', 'x', 'p' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_EXP;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'f', 'l', 'o', 'o' ): //floor
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_FLOOR;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'i', 'd', 'i', 'v' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_IDIV;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case B( 'l', 'n' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_LN;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'l', 'o', 'g' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_LOG;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'm', 'o', 'd' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_MOD;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'm', 'u', 'l' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_MUL;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'n', 'e', 'g' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_NEG;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'r', 'o', 'u', 'n' ): //round
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_ROUND;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 's', 'i', 'n' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_SIN;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 's', 'q', 'r', 't' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_SQRT;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 's', 'u', 'b' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_SUB;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 't', 'r', 'u', 'n' ): //truncate
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_TRUNCATE;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'a', 'n', 'd' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_AND;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'b', 'i', 't', 's' ): //bitshift
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_BITSHIFT;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case B( 'e', 'q' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_EQ;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'f', 'a', 'l', 's' ): //false
+					{
+						psItem.mType = PSITEM_BOOL;
+						psItem.mBoolValue = FALSE;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case B( 'g', 'e' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_GE;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case B( 'g', 't' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_GT;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case B( 'l', 'e' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_LE;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case B( 'l', 't' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_LT;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case B( 'n', 'e' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_NE;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'n', 'o', 't' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_NOT;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case B( 'o', 'r' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_OR;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 't', 'r', 'u', 'e' ):
+					{
+						psItem.mType = PSITEM_BOOL;
+						psItem.mBoolValue = TRUE;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'x', 'o', 'r' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_XOR;
+						mCodes.push_back( psItem );
+						break;
+					}
+				//case B( 'i', 'f' ):
+				//	{
+				//		psItem.mType = PSITEM_OPERATOR;
+				//		psItem.mOperator = PSOPERATOR_IF;
+				//		mCodes.push_back( psItem );
+				//		break;
+				//	}
+				//case D( 'i', 'f', 'e', 'l' ): //ifelse
+				//	{
+				//		psItem.mType = PSITEM_OPERATOR;
+				//		psItem.mOperator = PSOPERATOR_IFELSE;
+				//		mCodes.push_back( psItem );
+				//		break;
+				//	}
+				case D( 'c', 'o', 'p', 'y' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_COPY;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'd', 'u', 'p' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_DUP;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'e', 'x', 'c', 'h' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_EXCH;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'i', 'n', 'd', 'e' ): //index
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_INDEX;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case C( 'p', 'o', 'p' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_POP;
+						mCodes.push_back( psItem );
+						break;
+					}
+				case D( 'r', 'o', 'l', 'l' ):
+					{
+						psItem.mType = PSITEM_OPERATOR;
+						psItem.mOperator = PSOPERATOR_ROLL;
+						mCodes.push_back( psItem );
+						break;
+					}
+				default:
+					break;
+				}
+				break;
+			}
+		default:
+			break;
+		}
+	}
 }
 
 HE_VOID CHE_PDF_Function_PostScript::Parse()
@@ -798,571 +1192,438 @@ HE_VOID CHE_PDF_Function_PostScript::Parse()
 		IHE_Read *  pRead = HE_CreateMemBufRead( stmAcc.GetData(), stmAcc.GetSize(), GetAllocator() );
 		CHE_PDF_SyntaxParser syntaxParser( NULL, GetAllocator() );
 		CHE_PDF_ParseWordDes wordDes( GetAllocator() );
-
-		PSFuncItem psItem;
-
 		if ( syntaxParser.InitParser( pRead ) )
 		{
-			while ( syntaxParser.GetWord( wordDes ) )
+			if ( syntaxParser.GetWord( wordDes ) )
 			{
-				switch ( wordDes.type )
+				if ( wordDes.type == PARSE_WORD_UNKNOWN && StringToDWORD(wordDes.str) == A( '{' ) )
 				{
-				case PARSE_WORD_INTEGER:
-					{
-						psItem.mType = PSITEM_INT;
-						psItem.mIntegerValue = wordDes.str.GetInteger();
-						mCodes.push_back( psItem );
-						break;
-					}
-				case PARSE_WORD_FLOAT:
-					{
-						psItem.mType = PSITEM_FLOAT;
-						psItem.mFloatValue = wordDes.str.GetFloat();
-						mCodes.push_back( psItem );
-						break;
-					}
-				case PARSE_WORD_UNKNOWN:
-					{
-						switch ( StringToDWORD( wordDes.str ) )
-						{
-						case A( '{' ):
-							{
-								psItem.mType = PSITEM_BLOCK;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case A( '}' ):
-							{
-								psItem.mType = PSITEM_BLOCK;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'a', 'b', 's' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_ABS;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'a', 'd', 'd' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_ADD;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'a', 't', 'a', 'n' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_ATAN;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'c', 'e', 'i', 'l' ): //ceiling
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_CEILING;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'c', 'o', 's' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_COS;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'c', 'v', 'i' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_CVI;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'd', 'i', 'v' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_DIV;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'e', 'x', 'p' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_EXP;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'f', 'l', 'o', 'o' ): //floor
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_FLOOR;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'i', 'd', 'i', 'v' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_IDIV;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'l', 'n' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_LN;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'l', 'o', 'g' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_LOG;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'm', 'o', 'd' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_MOD;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'm', 'u', 'l' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_MUL;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'n', 'e', 'g' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_NEG;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'r', 'o', 'u', 'n' ): //round
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_ROUND;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 's', 'i', 'n' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_SIN;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 's', 'q', 'r', 't' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_SQRT;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 's', 'u', 'b' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_SUB;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 't', 'r', 'u', 'n' ): //truncate
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_TRUNCATE;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'a', 'n', 'd' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_AND;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'b', 'i', 't', 's' ): //bitshift
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_BITSHIFT;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'e', 'q' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_EQ;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'f', 'a', 'l', 's' ): //false
-							{
-								psItem.mType = PSITEM_BOOL;
-								psItem.mBoolValue = FALSE;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'g', 'e' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_GE;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'g', 't' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_GT;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'l', 'e' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_LE;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'l', 't' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_LT;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'n', 'e' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_NE;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'n', 'o', 't' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_NOT;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'o', 'r' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_OR;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 't', 'r', 'u', 'e' ):
-							{
-								psItem.mType = PSITEM_BOOL;
-								psItem.mBoolValue = TRUE;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'x', 'o', 'r' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_XOR;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case B( 'i', 'f' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_IF;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'i', 'f', 'e', 'l' ): //ifelse
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_IFELSE;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'c', 'o', 'p', 'y' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_COPY;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'd', 'u', 'p' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_DUP;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'e', 'x', 'c', 'h' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_EXCH;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'i', 'n', 'd', 'e' ): //index
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_INDEX;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case C( 'p', 'o', 'p' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_POP;
-								mCodes.push_back( psItem );
-								break;
-							}
-						case D( 'r', 'o', 'l', 'l' ):
-							{
-								psItem.mType = PSITEM_OPERATOR;
-								psItem.mOperator = PSOPERATOR_ROLL;
-								mCodes.push_back( psItem );
-								break;
-							}
-						default:
-							break;
-						}
-						break;
-					}
-				default:
-					break;
+					ParseImp( syntaxParser );
 				}
 			}
 		}
-
 		HE_DestoryIHERead( pRead );
 	}
 
 	mbParsed = TRUE;
 }
 
-HE_BOOL PSFuncStack::Execute( PSFUNCITEM_OPERATOR op )
+HE_BOOL CHE_PDF_Function_PostScript::RunCodeImp( PSFuncStack & stack, HE_ULONG pc )
 {
-	static PSFuncItem * pItem0 = NULL;
-	static PSFuncItem * pItem1 = NULL;
-	static PSFuncItem * pItem2 = NULL;
-	static PSFuncItem * pItem3 = NULL;
-	static PSFuncItem * pTaregtItem = NULL;
-	switch( op )
+	HE_INT32 i1 = 0, i2 = 0;
+	HE_FLOAT r1 = 0.0f, r2 = 0.0f;
+	HE_BOOL b1 = FALSE, b2 = FALSE;
+
+	while ( TRUE )
 	{
-	case PSOPERATOR_ABS:
+		switch (mCodes[pc].mType)
 		{
-			pItem0 = &mStack[mStackTopIndex];
-			pTaregtItem = pItem0;
-			if ( pItem0->mType == PSITEM_FLOAT )
-			{
-				pItem0->mFloatValue = fabsf( pItem0->mFloatValue );
-			}else if ( pItem0->mType == PSITEM_INT )
-			{
-				pItem0->mIntegerValue = abs( pItem0->mIntegerValue );
-			}
-			return TRUE;
-		}
-	case PSOPERATOR_ADD:
-		{
-			pItem0 = &mStack[mStackTopIndex];
-			pItem1 = &mStack[mStackTopIndex-1];
-			pTaregtItem = pItem1;
-			--mStackTopIndex;
-			if ( pItem0->mType == PSITEM_INT )
-			{
-				HE_INT32 val = pItem0->mIntegerValue;
-				if ( pItem1->mType == PSITEM_INT )
-				{
-					pTaregtItem->mIntegerValue += val;
-				}else if ( pItem1->mType == PSITEM_FLOAT )
-				{
-					pTaregtItem->mFloatValue += val;
-				}
-			}else if ( pItem0->mType == PSITEM_FLOAT )
-			{
-				HE_FLOAT val = pItem0->mFloatValue;
-				if ( pItem1->mType == PSITEM_INT )
-				{
-					pTaregtItem->mType = PSITEM_FLOAT;
-					pTaregtItem->mFloatValue = pItem1->mIntegerValue + val;
-				}else if ( pItem1->mType == PSITEM_FLOAT )
-				{
-					pTaregtItem->mFloatValue = pItem1->mFloatValue + val;
-				}
-			}
-			return TRUE;
-		}
-	case PSOPERATOR_AND:
-		{
-			pItem0 = &mStack[mStackTopIndex];
-			pItem1 = &mStack[mStackTopIndex-1];
-			pTaregtItem = pItem1;
-			--mStackTopIndex;
-			if ( pItem0->mType == PSITEM_INT && pItem1->mType == PSITEM_INT )
-			{
-				pTaregtItem->mType = PSITEM_BOOL;
-				pTaregtItem->mBoolValue = pItem0->mIntegerValue & pItem1->mIntegerValue;
-			}else if ( pItem0->mType == PSITEM_BOOL && pItem1->mType == PSITEM_BOOL )
-			{
-				pTaregtItem->mBoolValue = pItem0->mBoolValue & pItem1->mBoolValue;
-			}
+		case PSITEM_INT:
+			stack.PushInteger( mCodes[pc++].mIntegerValue );
 			break;
-		}
-	case PSOPERATOR_ATAN:
-		{
-			pItem0 = &mStack[mStackTopIndex];
-			pItem1 = &mStack[mStackTopIndex-1];
-			pTaregtItem = pItem1;
-			--mStackTopIndex;
 
-			HE_FLOAT val = atan2f( pItem0->mFloatValue, pItem1->mFloatValue ) * 57.2957795;
-			if ( val < 0 )
-			{
-				val += 360;
-			}
-			pTaregtItem->mFloatValue = val;
+		case PSITEM_FLOAT:
+			stack.PushFloat( mCodes[pc++].mFloatValue );
 			break;
-		}
-	case PSOPERATOR_BITSHIFT:
-		{
-			pItem0 = &mStack[mStackTopIndex];
-			pItem1 = &mStack[mStackTopIndex-1];
-			pTaregtItem = pItem1;
-			--mStackTopIndex;
 
-			if ( pItem0->mIntegerValue > 0 && pItem0->mIntegerValue < 8 * sizeof (pItem0->mIntegerValue))
+		case PSITEM_OPERATOR:
+			switch ( mCodes[pc++].mOperator )
 			{
-				pTaregtItem->mIntegerValue = pItem1->mIntegerValue << pItem0->mIntegerValue;
-				pTaregtItem->mType = PSITEM_INT;
-			}
-			else if ( pItem0->mIntegerValue < 0 && pItem0->mIntegerValue > -8 * (int)sizeof (pItem0->mIntegerValue) )
-			{
-				pTaregtItem->mIntegerValue = pItem0->mIntegerValue >> - pItem0->mIntegerValue;
-				pTaregtItem->mType = PSITEM_INT;
-			}
-			else
-			{
-				pTaregtItem->mIntegerValue = pItem1->mIntegerValue;
-				pTaregtItem->mType = PSITEM_INT;
-			}
-			break;
-		}
-	case PSOPERATOR_CEILING:
-		{
-			pTaregtItem = &mStack[mStackTopIndex];
-			pTaregtItem->mFloatValue = ceilf(pTaregtItem->mFloatValue);
-			break;
-		}
-	case PSOPERATOR_COPY:
-		{
-			pTaregtItem = &mStack[mStackTopIndex];
-			--mStackTopIndex;
-
-			pItem0 = &mStack[mStackTopIndex-pTaregtItem->mIntegerValue];
-			pItem1 = &mStack[mStackTopIndex];
-
-			for ( pTaregtItem = pItem0; pTaregtItem <= pItem1; ++pTaregtItem )
-			{
-				Push( *pTaregtItem );
-			}
-			break;
-		}
-	case PSOPERATOR_COS:
-		{
-			pTaregtItem = &mStack[mStackTopIndex];
-			pTaregtItem->mFloatValue = cosf( pTaregtItem->mFloatValue / 57.2957795 );
-			break;
-		}
-	case PSOPERATOR_CVI:
-		{
-			pTaregtItem = &mStack[mStackTopIndex];
-			pTaregtItem->mIntegerValue = pTaregtItem->mIntegerValue;
-			pTaregtItem->mType = PSITEM_INT;
-			break;
-		}
-	case PSOPERATOR_CVR:
-		{
-			pTaregtItem = &mStack[mStackTopIndex];
-			pTaregtItem->mFloatValue = pTaregtItem->mFloatValue;
-			pTaregtItem->mType = PSITEM_FLOAT;
-			break;
-		}
-	case PSOPERATOR_DIV:
-		{
-			pItem0 = &mStack[mStackTopIndex];
-			pItem1 = &mStack[mStackTopIndex-1];
-			pTaregtItem = pItem1;
-			mStackTopIndex--;
-
-			pTaregtItem->mType = PSITEM_FLOAT;
-			if (fabsf(pItem0->mFloatValue) < FLT_EPSILON)
-			{
-				pTaregtItem->mFloatValue = pItem1->mFloatValue / pItem0->mFloatValue;
-			}
-			else
-			{
-				if ( pItem1->mFloatValue >= 0 )
+			case PSOPERATOR_ABS:
+				if (stack.IsType(PSITEM_INT))
 				{
-					pTaregtItem->mFloatValue = FLT_MAX;
+					if ( stack.PopInteger(i1) )
+					{
+						stack.PushInteger( abs(i1) );
+					}
 				}else{
-					pTaregtItem->mFloatValue = -FLT_MAX;
+					if ( stack.PopFloat(r1) )
+					{
+						stack.PushFloat(fabsf(r1));
+					}
 				}
-			}
-			break;
-		}
-	case PSOPERATOR_DUP:
-		{
-			pTaregtItem = &mStack[mStackTopIndex];
-			Push( *pTaregtItem );
-			break;
-		}
-	case PSOPERATOR_EQ:
-		{
-			pItem0 = &mStack[mStackTopIndex];
-			pItem1 = &mStack[mStackTopIndex-1];
-			pTaregtItem = pItem1;
-			mStackTopIndex--;
+				break;
 
-			if ( pItem1->mType == PSITEM_BOOL )
-			{
-				pTaregtItem->mType = PSITEM_BOOL;
-				pTaregtItem->mBoolValue = ( pItem0->mBoolValue == pItem1->mBoolValue );
+			case PSOPERATOR_ADD:
+				if ( stack.IsType2( PSITEM_INT ) )
+				{
+					i1 = 0;
+					i2 = 0;
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushInteger(i1 + i2);
+				}else{
+					r1 = 0.0f;
+					r2 = 0.0f;
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushFloat(r1 + r2);
+				}
+				break;
+
+			case PSOPERATOR_AND:
+				if ( stack.IsType2( PSITEM_INT ) )
+				{
+					i1 = 0;
+					i2 = 0;
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushInteger(i1 & i2);
+				}else {
+					b1 = FALSE;
+					b2 = FALSE;
+					stack.PopBool(b2);
+					stack.PopBool(b1);
+					stack.PushBool( b1 && b2 );
+				}
+				break;
+
+			case PSOPERATOR_ATAN:
+				stack.PopFloat( r2 );
+				stack.PopFloat( r1 );
+				r1 = atan2f(r1, r2) * 57.2957795;
+				if (r1 < 0)
+					r1 += 360;
+				stack.PushFloat( r1 );
+				break;
+
+			case PSOPERATOR_BITSHIFT:
+				stack.PopInteger(i2);
+				stack.PopInteger(i1);
+				if (i2 > 0 && i2 < 8 * sizeof (i2))
+					stack.PushInteger(i1 << i2);
+				else if (i2 < 0 && i2 > -8 * (int)sizeof (i2))
+					stack.PushInteger((int)((unsigned int)i1 >> -i2));
+				else
+					stack.PushInteger(i1);
+				break;
+
+			case PSOPERATOR_CEILING:
+				stack.PopFloat( r1 );
+				stack.PushFloat(ceilf(r1));
+				break;
+
+			case PSOPERATOR_COPY:
+				stack.PopInteger(i1);
+				stack.Copy(i1);
+				break;
+
+			case PSOPERATOR_COS:
+				stack.PopFloat(r1);
+				stack.PushFloat(cosf(r1/57.2957795));
+				break;
+
+			case PSOPERATOR_CVI:
+				stack.PopInteger(i1);
+				stack.PushInteger(i1);
+				break;
+
+			case PSOPERATOR_CVR:
+				stack.PopFloat(r1);
+				stack.PushFloat(r1);
+				break;
+
+			case PSOPERATOR_DIV:
+				stack.PopFloat(r2);
+				stack.PopFloat(r1);
+				if (fabsf(r2) >= FLT_EPSILON)
+					stack.PushFloat(r1 / r2);
+				else
+					stack.PushFloat( DIV_BY_ZERO(r1, r2, -FLT_MAX, FLT_MAX) );
+				break;
+
+			case PSOPERATOR_DUP:
+				stack.Copy(1);
+				break;
+
+			case PSOPERATOR_EQ:
+				if (stack.IsType2(PSITEM_BOOL))
+				{
+					stack.PopBool(b2);
+					stack.PopBool(b1);
+					stack.PushBool(b1==b2);
+				}
+				else if (stack.IsType2(PSITEM_INT))
+				{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushBool(i1==i2);
+				}else{
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushBool(r1==r2);
+				}
+				break;
+
+			case PSOPERATOR_EXCH:
+				stack.Roll(2, 1);
+				break;
+
+			case PSOPERATOR_EXP:
+				stack.PopFloat(r2);
+				stack.PopFloat(r1);
+				stack.PushFloat(powf(r1, r2));
+				break;
+
+			case PSOPERATOR_FALSE:
+				stack.PushBool(FALSE);
+				break;
+
+			case PSOPERATOR_FLOOR:
+				stack.PopFloat(r1);
+				stack.PushFloat(floorf(r1));
+				break;
+
+			case PSOPERATOR_GE:
+				if ( stack.IsType2(PSITEM_INT) )
+				{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushBool(i1>=i2);
+				}else{
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushBool(r1>=r2);
+				}
+				break;
+
+			case PSOPERATOR_GT:
+				if ( stack.IsType2(PSITEM_INT) )
+				{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushBool(i1>i2);
+				}else{
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushBool(r1>r2);
+				}
+				break;
+
+			case PSOPERATOR_IDIV:
+				stack.PopInteger(i2);
+				stack.PopInteger(i1);
+				if (i2 != 0)
+					stack.PushInteger(i1 / i2);
+				else
+					stack.PushInteger(DIV_BY_ZERO(i1, i2, INT_MIN, INT_MAX));
+				break;
+
+			case PSOPERATOR_INDEX:
+				stack.PopInteger(i1);
+				stack.Index(i1);
+				break;
+
+			case PSOPERATOR_LE:
+				if (stack.IsType2(PSITEM_INT))
+				{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushBool(i1 <= i2);
+				}
+				else {
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushBool(r1 <= r2);
+				}
+				break;
+
+			case PSOPERATOR_LN:
+				stack.PopFloat(r1);
+				r2 = logf(r1);
+				stack.PushFloat(r2);
+				break;
+
+			case PSOPERATOR_LOG:
+				stack.PopFloat(r1);
+				stack.PushFloat(log10f(r1));
+				break;
+
+			case PSOPERATOR_LT:
+				if (stack.IsType2(PSITEM_INT))
+				{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushBool(i1 < i2);
+				}
+				else {
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushBool(r1 < r2);
+				}
+				break;
+
+			case PSOPERATOR_MOD:
+				stack.PopInteger(i2);
+				stack.PopInteger(i1);
+				if (i2 != 0)
+					stack.PushInteger(i1 % i2);
+				else
+					stack.PushInteger(DIV_BY_ZERO(i1, i2, INT_MIN, INT_MAX));
+				break;
+
+			case PSOPERATOR_MUL:
+				if (stack.IsType2(PSITEM_INT))
+				{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushInteger(i1 * i2);
+				}else{
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushFloat(r1 * r2);
+				}
+				break;
+
+			case PSOPERATOR_NE:
+				if (stack.IsType2(PSITEM_BOOL))
+				{
+					stack.PopBool(b2);
+					stack.PopBool(b1);
+					stack.PushBool(b1 != b2);
+				}
+				else if (stack.IsType2(PSITEM_INT))
+				{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushBool(i1 != i2);
+				}else{
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushBool(r1 != r2);
+				}
+				break;
+
+			case PSOPERATOR_NEG:
+				if (stack.IsType(PSITEM_INT))
+				{
+					stack.PopInteger(i1);
+					stack.PushInteger(-i1);
+				}else{
+					stack.PopFloat(r1);
+					stack.PushFloat(-r1);
+				}
+				break;
+
+			case PSOPERATOR_NOT:
+				if (stack.IsType(PSITEM_BOOL))
+				{
+					stack.PopBool(b1);
+					stack.PushBool(!b1);
+				}else{
+					stack.PopInteger(i1);
+					stack.PushInteger(~i1);
+				}
+				break;
+
+			case PSOPERATOR_OR:
+				if (stack.IsType2(PSITEM_BOOL))
+				{
+					stack.PopBool(b2);
+					stack.PopBool(b1);
+					stack.PushBool(b1 || b2);
+				}else{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushInteger(i1 | i2);
+				}
+				break;
+
+			case PSOPERATOR_POP:
+				if ( !stack.IsUnderflow() )
+				{
+					stack.mStackTopIndex--;
+				}
+				break;
+
+			case PSOPERATOR_ROLL:
+				stack.PopInteger(i2);
+				stack.PopInteger(i1);
+				stack.Roll(i1,i2);
+				break;
+
+			case PSOPERATOR_ROUND:
+				if ( !stack.IsType(PSITEM_INT) )
+				{
+					stack.PopFloat(r1);
+					stack.PushFloat( (r1 >= 0) ? floorf(r1 + 0.5f) : ceilf(r1 - 0.5f) );
+				}
+				break;
+
+			case PSOPERATOR_SIN:
+				stack.PopFloat(r1);
+				stack.PushFloat(sinf(r1/57.2957795));
+				break;
+
+			case PSOPERATOR_SQRT:
+				stack.PopFloat(r1);
+				stack.PushFloat(sqrtf(r1));
+				break;
+
+			case PSOPERATOR_SUB:
+				if (stack.IsType2(PSITEM_INT))
+				{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushInteger(i1 - i2);
+				}else{
+					stack.PopFloat(r2);
+					stack.PopFloat(r1);
+					stack.PushFloat(r1 - r2);
+				}
+				break;
+
+			case PSOPERATOR_TRUE:
+				stack.PushBool(TRUE);
+				break;
+
+			case PSOPERATOR_TRUNCATE:
+				if (!stack.IsType(PSITEM_INT))
+				{
+					stack.PopFloat(r1);
+					stack.PushFloat((r1 >= 0) ? floorf(r1) : ceilf(r1));
+				}
+				break;
+
+			case PSOPERATOR_XOR:
+				if ( stack.IsType2(PSITEM_BOOL) )
+				{
+					stack.PopBool(b2);
+					stack.PopBool(b1);
+					stack.PushBool(b1 ^ b2);
+				}else{
+					stack.PopInteger(i2);
+					stack.PopInteger(i1);
+					stack.PushInteger(i1 ^ i2);
+				}
+				break;
+
+			case PSOPERATOR_IF:
+				stack.PopBool(b1);
+				if (b1)
+					RunCodeImp( stack, mCodes[pc + 1].mBlockIndex);
+				pc = mCodes[pc + 2].mBlockIndex;
+				break;
+
+			case PSOPERATOR_IFELSE:
+				stack.PopBool(b1);
+				if (b1)
+					RunCodeImp(stack, mCodes[pc + 1].mBlockIndex);
+				else
+					RunCodeImp(stack, mCodes[pc + 0].mBlockIndex);
+				pc = mCodes[pc + 2].mBlockIndex;
+				break;
+
+			case PSOPERATOR_RETURN:
+				return TRUE;
+
+			default:
+				return FALSE;
 			}
-			else if ( pItem1->mType == PSITEM_INT )
-			{
-				pTaregtItem->mType = PSITEM_BOOL;
-				pTaregtItem->mBoolValue = ( pItem0->mIntegerValue == pItem1->mIntegerValue );
-			}
-			else {
-				pTaregtItem->mType = PSITEM_BOOL;
-				pTaregtItem->mBoolValue = ( pItem0->mFloatValue == pItem1->mFloatValue );
-			}
 			break;
-		}
-	case PSOPERATOR_EXCH:
-		{
-			pItem0 = &mStack[mStackTopIndex];
-			pItem1 = &mStack[mStackTopIndex-1];
-			PSFuncItem tmpVal = *pItem0;
-			*pItem0 = *pItem1;
-			*pItem1 = tmpVal;
-			break;
-		}
-	case PSOPERATOR_EXP:
-		{
-			pItem0 = &mStack[mStackTopIndex];
-			pItem1 = &mStack[mStackTopIndex-1];
-			pTaregtItem = pItem1;
-			mStackTopIndex--;
-			pTaregtItem->mType = PSITEM_FLOAT;
-			pTaregtItem->mFloatValue = powf( pItem0->mFloatValue, pItem1->mFloatValue );
-			break;
-		}
-	case PSOPERATOR_FALSE:
-		{
-			PushBool( FALSE );
-			break;
+
+		default:
+			return FALSE;
 		}
 	}
 }
@@ -1384,473 +1645,18 @@ HE_BOOL CHE_PDF_Function_PostScript::RunCode( std::vector<HE_FLOAT> & input, std
 		stack.PushFloat( tmpVal );
 	}
 
-	PSFuncItem * pItem = NULL;
-	HE_ULONG codeSize = mCodes.size();
-	for ( HE_ULONG codeIndex = 0; codeIndex < codeSize; ++codeIndex )
-	{
-		switch ( mCodes[codeIndex].mType )
+	RunCodeImp( stack, 0 );
+
+	HE_ULONG i = 0;
+ 	while ( stack.PopFloat( tmpVal ) )
+ 	{
+		if ( HasRange() )
 		{
-		case PSITEM_BOOL:
-			{
-				stack.PushBool( mCodes[codeIndex++].mBoolValue );
-				break;
-			}
-		case PSITEM_INT:
-			{
-				stack.PushInteger( mCodes[codeIndex++].mIntegerValue );
-				break;
-			}
-		case PSITEM_FLOAT:
-			{
-				stack.PushFloat( mCodes[codeIndex++].mFloatValue );
-				break;
-			}
-		case PSITEM_BLOCK:
-			{
-				break;
-			}
-		case PSITEM_OPERATOR:
-			{
-				switch( mCodes[codeIndex].mOperator )
-				{
-				case PSOPERATOR_ABS:
-				case PSOPERATOR_ADD:
-				case PSOPERATOR_AND:
-				case PSOPERATOR_ATAN:
-				case PSOPERATOR_BITSHIFT:
-				case PSOPERATOR_COPY:
-				case PSOPERATOR_COS:
-				case PSOPERATOR_DIV:
-				case PSOPERATOR_DUP:
-				case PSOPERATOR_EQ:
-				case PSOPERATOR_EXCH:
-				case PSOPERATOR_EXP:
-				case PSOPERATOR_FALSE:
-					{
-						stack.Execute( mCodes[codeIndex].mOperator );
-						break;
-					}
-
-// 				case PSOPERATOR_FLOOR:
-// 					r1 = ps_pop_real(st);
-// 					ps_push_real(st, floorf(r1));
-// 					break;
-// 
-// 				case PSOPERATOR_GE:
-// 					if (ps_is_type2(st, PS_INT)) {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_bool(st, i1 >= i2);
-// 					}
-// 					else {
-// 						r2 = ps_pop_real(st);
-// 						r1 = ps_pop_real(st);
-// 						ps_push_bool(st, r1 >= r2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_GT:
-// 					if (ps_is_type2(st, PS_INT)) {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_bool(st, i1 > i2);
-// 					}
-// 					else {
-// 						r2 = ps_pop_real(st);
-// 						r1 = ps_pop_real(st);
-// 						ps_push_bool(st, r1 > r2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_IDIV:
-// 					i2 = ps_pop_int(st);
-// 					i1 = ps_pop_int(st);
-// 					if (i2 != 0)
-// 						ps_push_int(st, i1 / i2);
-// 					else
-// 						ps_push_int(st, DIV_BY_ZERO(i1, i2, INT_MIN, INT_MAX));
-// 					break;
-// 
-// 				case PSOPERATOR_INDEX:
-// 					ps_index(st, ps_pop_int(st));
-// 					break;
-// 
-// 				case PSOPERATOR_LE:
-// 					if (ps_is_type2(st, PS_INT)) {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_bool(st, i1 <= i2);
-// 					}
-// 					else {
-// 						r2 = ps_pop_real(st);
-// 						r1 = ps_pop_real(st);
-// 						ps_push_bool(st, r1 <= r2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_LN:
-// 					r1 = ps_pop_real(st);
-// 					/* Bug 692941 - logf as separate statement */
-// 					r2 = logf(r1);
-// 					ps_push_real(st, r2);
-// 					break;
-// 
-// 				case PSOPERATOR_LOG:
-// 					r1 = ps_pop_real(st);
-// 					ps_push_real(st, log10f(r1));
-// 					break;
-// 
-// 				case PSOPERATOR_LT:
-// 					if (ps_is_type2(st, PS_INT)) {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_bool(st, i1 < i2);
-// 					}
-// 					else {
-// 						r2 = ps_pop_real(st);
-// 						r1 = ps_pop_real(st);
-// 						ps_push_bool(st, r1 < r2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_MOD:
-// 					i2 = ps_pop_int(st);
-// 					i1 = ps_pop_int(st);
-// 					if (i2 != 0)
-// 						ps_push_int(st, i1 % i2);
-// 					else
-// 						ps_push_int(st, DIV_BY_ZERO(i1, i2, INT_MIN, INT_MAX));
-// 					break;
-// 
-// 				case PSOPERATOR_MUL:
-// 					if (ps_is_type2(st, PS_INT)) {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_int(st, i1 * i2);
-// 					}
-// 					else {
-// 						r2 = ps_pop_real(st);
-// 						r1 = ps_pop_real(st);
-// 						ps_push_real(st, r1 * r2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_NE:
-// 					if (ps_is_type2(st, PS_BOOL)) {
-// 						b2 = ps_pop_bool(st);
-// 						b1 = ps_pop_bool(st);
-// 						ps_push_bool(st, b1 != b2);
-// 					}
-// 					else if (ps_is_type2(st, PS_INT)) {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_bool(st, i1 != i2);
-// 					}
-// 					else {
-// 						r2 = ps_pop_real(st);
-// 						r1 = ps_pop_real(st);
-// 						ps_push_bool(st, r1 != r2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_NEG:
-// 					if (ps_is_type(st, PS_INT))
-// 						ps_push_int(st, -ps_pop_int(st));
-// 					else
-// 						ps_push_real(st, -ps_pop_real(st));
-// 					break;
-// 
-// 				case PSOPERATOR_NOT:
-// 					if (ps_is_type(st, PS_BOOL))
-// 						ps_push_bool(st, !ps_pop_bool(st));
-// 					else
-// 						ps_push_int(st, ~ps_pop_int(st));
-// 					break;
-// 
-// 				case PSOPERATOR_OR:
-// 					if (ps_is_type2(st, PS_BOOL)) {
-// 						b2 = ps_pop_bool(st);
-// 						b1 = ps_pop_bool(st);
-// 						ps_push_bool(st, b1 || b2);
-// 					}
-// 					else {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_int(st, i1 | i2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_POP:
-// 					if (!ps_underflow(st, 1))
-// 						st->sp--;
-// 					break;
-// 
-// 				case PSOPERATOR_ROLL:
-// 					i2 = ps_pop_int(st);
-// 					i1 = ps_pop_int(st);
-// 					ps_roll(st, i1, i2);
-// 					break;
-// 
-// 				case PSOPERATOR_ROUND:
-// 					if (!ps_is_type(st, PS_INT)) {
-// 						r1 = ps_pop_real(st);
-// 						ps_push_real(st, (r1 >= 0) ? floorf(r1 + 0.5f) : ceilf(r1 - 0.5f));
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_SIN:
-// 					r1 = ps_pop_real(st);
-// 					ps_push_real(st, sinf(r1/RADIAN));
-// 					break;
-// 
-// 				case PSOPERATOR_SQRT:
-// 					r1 = ps_pop_real(st);
-// 					ps_push_real(st, sqrtf(r1));
-// 					break;
-// 
-// 				case PSOPERATOR_SUB:
-// 					if (ps_is_type2(st, PS_INT)) {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_int(st, i1 - i2);
-// 					}
-// 					else {
-// 						r2 = ps_pop_real(st);
-// 						r1 = ps_pop_real(st);
-// 						ps_push_real(st, r1 - r2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_TRUE:
-// 					ps_push_bool(st, 1);
-// 					break;
-// 
-// 				case PSOPERATOR_TRUNCATE:
-// 					if (!ps_is_type(st, PS_INT)) {
-// 						r1 = ps_pop_real(st);
-// 						ps_push_real(st, (r1 >= 0) ? floorf(r1) : ceilf(r1));
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_XOR:
-// 					if (ps_is_type2(st, PS_BOOL)) {
-// 						b2 = ps_pop_bool(st);
-// 						b1 = ps_pop_bool(st);
-// 						ps_push_bool(st, b1 ^ b2);
-// 					}
-// 					else {
-// 						i2 = ps_pop_int(st);
-// 						i1 = ps_pop_int(st);
-// 						ps_push_int(st, i1 ^ i2);
-// 					}
-// 					break;
-// 
-// 				case PSOPERATOR_IF:
-// 					b1 = ps_pop_bool(st);
-// 					if (b1)
-// 						ps_run(ctx, code, st, code[pc + 1].u.block);
-// 					pc = code[pc + 2].u.block;
-// 					break;
-// 
-// 				case PSOPERATOR_IFELSE:
-// 					b1 = ps_pop_bool(st);
-// 					if (b1)
-// 						ps_run(ctx, code, st, code[pc + 1].u.block);
-// 					else
-// 						ps_run(ctx, code, st, code[pc + 0].u.block);
-// 					pc = code[pc + 2].u.block;
-// 					break;
-// 
-// 				case PSOPERATOR_RETURN:
-// 					return;
-
-				default:break;;
-				}
-				break;
-			}
-		default:break;
+			tmpVal = fz_clamp( tmpVal, GetRangeMin(i), GetRangeMax(i) );
 		}
+		output.push_back( tmpVal );
+		i++;
 	}
-	
 
-// 	ps_run(ctx, func->u.p.code, &st, 0);
-// 
-// 	for (i = func->n - 1; i >= 0; i--)
-// 	{
-// 		x = ps_pop_real(&st);
-// 		out[i] = fz_clamp(x, func->range[i][0], func->range[i][1]);
-// 	}
-
-
+	return TRUE;
 }
-
-// typedef struct _ps_stack
-// {
-// 	CHE_PDF_Function_PostScriptItem stack[100];
-// 	int sp;
-// }ps_stack;
-
-// 
-
-// static void ps_init_stack(ps_stack *st)
-// {
-// 	memset(st->stack, 0, sizeof(st->stack));
-// 	st->sp = 0;
-// }
-// 
-// #define nelem(x) (sizeof(x)/sizeof((x)[0]))
-// 
-// static inline int ps_overflow(ps_stack *st, int n)
-// {
-// 	return n < 0 || st->sp + n >= nelem(st->stack);
-// }
-// 
-// static inline int ps_underflow(ps_stack *st, int n)
-// {
-// 	return n < 0 || st->sp - n < 0;
-// }
-// 
-// static inline int ps_is_type(ps_stack *st, int t)
-// {
-// 	return !ps_underflow(st, 1) && st->stack[st->sp - 1].mType == t;
-// }
-// 
-// static inline int ps_is_type2(ps_stack *st, int t)
-// {
-// 	return !ps_underflow(st, 2) && st->stack[st->sp - 1].mType == t && st->stack[st->sp - 2].mType == t;
-// }
-// 
-// static void ps_push_bool(ps_stack *st, HE_BOOL b)
-// {
-// 	if (!ps_overflow(st, 1))
-// 	{
-// 		st->stack[st->sp].mType = PSITEM_BOOL;
-// 		st->stack[st->sp].mBoolValue = b;
-// 		st->sp++;
-// 	}
-// }
-// 
-// static void
-// ps_push_int(ps_stack *st, HE_INT32 n)
-// {
-// 	if (!ps_overflow(st, 1))
-// 	{
-// 		st->stack[st->sp].mType = PSITEM_INT;
-// 		st->stack[st->sp].mIntegerValue = n;
-// 		st->sp++;
-// 	}
-// }
-// 
-// static void
-// ps_push_real(ps_stack *st, HE_FLOAT n)
-// {
-// 	if (!ps_overflow(st, 1))
-// 	{
-// 		st->stack[st->sp].mType = PSITEM_FLOAT;
-// 		if (_isnan(n))
-// 		{
-// 			/* Push 1.0, as it's a small known value that won't
-// 			 * cause a divide by 0. Same reason as in fz_atof. */
-// 			n = 1.0;
-// 		}
-// 		st->stack[st->sp].u.f = fz_clamp(n, -FLT_MAX, FLT_MAX);
-// 		st->sp++;
-// 	}
-// }
-// 
-// static int
-// ps_pop_bool(ps_stack *st)
-// {
-// 	if (!ps_underflow(st, 1))
-// 	{
-// 		if (ps_is_type(st, PS_BOOL))
-// 			return st->stack[--st->sp].u.b;
-// 	}
-// 	return 0;
-// }
-// 
-// static int
-// ps_pop_int(ps_stack *st)
-// {
-// 	if (!ps_underflow(st, 1))
-// 	{
-// 		if (ps_is_type(st, PS_INT))
-// 			return st->stack[--st->sp].u.i;
-// 		if (ps_is_type(st, PS_REAL))
-// 			return st->stack[--st->sp].u.f;
-// 	}
-// 	return 0;
-// }
-// 
-// static float
-// ps_pop_real(ps_stack *st)
-// {
-// 	if (!ps_underflow(st, 1))
-// 	{
-// 		if (ps_is_type(st, PS_INT))
-// 			return st->stack[--st->sp].u.i;
-// 		if (ps_is_type(st, PS_REAL))
-// 			return st->stack[--st->sp].u.f;
-// 	}
-// 	return 0;
-// }
-// 
-// static void
-// ps_copy(ps_stack *st, int n)
-// {
-// 	if (!ps_underflow(st, n) && !ps_overflow(st, n))
-// 	{
-// 		memcpy(st->stack + st->sp, st->stack + st->sp - n, n * sizeof(psobj));
-// 		st->sp += n;
-// 	}
-// }
-// 
-// static void
-// ps_roll(ps_stack *st, int n, int j)
-// {
-// 	psobj tmp;
-// 	int i;
-// 
-// 	if (ps_underflow(st, n) || j == 0 || n == 0)
-// 		return;
-// 
-// 	if (j >= 0)
-// 	{
-// 		j %= n;
-// 	}
-// 	else
-// 	{
-// 		j = -j % n;
-// 		if (j != 0)
-// 			j = n - j;
-// 	}
-// 
-// 	for (i = 0; i < j; i++)
-// 	{
-// 		tmp = st->stack[st->sp - 1];
-// 		memmove(st->stack + st->sp - n + 1, st->stack + st->sp - n, n * sizeof(psobj));
-// 		st->stack[st->sp - n] = tmp;
-// 	}
-// }
-// 
-// static void
-// ps_index(ps_stack *st, int n)
-// {
-// 	if (!ps_overflow(st, 1) && !ps_underflow(st, n))
-// 	{
-// 		st->stack[st->sp] = st->stack[st->sp - n - 1];
-// 		st->sp++;
-// 	}
-// }
-
-// 
-
-// HE_BOOL CHE_PDF_Function_PostScript::RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
-
-// {
-
-// 
-
-// }
-
-

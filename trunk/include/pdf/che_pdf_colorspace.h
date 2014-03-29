@@ -73,14 +73,9 @@ public:
 		mIndex = 0;
 	}
 
-	CHE_PDF_TilingPtr GetTiling() const { return mpTiling; }
-
-	HE_VOID	SetTiling( const CHE_PDF_TilingPtr & pTiling ) { mpTiling = pTiling; }
-
 private:
 	HE_FLOAT				mComponent[4];
 	HE_ULONG				mIndex;
-	CHE_PDF_TilingPtr		mpTiling;
 };
 
 
@@ -130,6 +125,10 @@ public:
 	HE_LPBYTE				mpIndexTable;
 	HE_ULONG				mIndexTableSize;
     CHE_PDF_ColorSpacePtr	mBaseColorspace;
+    
+    CHE_PDF_TilingPtr GetTiling() const { return mpTiling; }
+    
+	HE_VOID	SetTiling( const CHE_PDF_TilingPtr & pTiling ) { mpTiling = pTiling; }
 
 private:
 	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type );
@@ -143,9 +142,10 @@ private:
 	HE_ULONG				mComponentCount;
 
 
-
 	//for separation colorspace
 	CHE_PDF_FunctionPtr		mFunction;
+    
+    CHE_PDF_TilingPtr		mpTiling;
 	
 
 	friend class CHE_Allocator;

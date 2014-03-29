@@ -13,14 +13,14 @@
 {
     unsigned int        pageIndex;
     PdfDocumentData *   pdfDocument;
-    NSPoint             mouseDownPt;
-    NSSize              pageOffset;
 }
 
-- (IBAction)onNextPage:(id)sender;
+-(void)newDocument:(PdfDocumentData*)doc;
 
-- (IBAction)onPreviousPage:(id)sender;
+-(void)closeDocument;
 
-- (IBAction)onFileOpen:(id)sender;
+-(void)onPrePage;
+
+-(void)onNextPage;
 
 @end

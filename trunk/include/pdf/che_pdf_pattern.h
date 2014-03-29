@@ -43,11 +43,23 @@ public:
 	static CHE_PDF_TilingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
 
 	static CHE_PDF_TilingPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
-
+    
+    HE_BOOL IsColored() const { return mbColored; }
+    
+    HE_UINT32 GetTilingType() const { return mTilingType; }
+    
+    CHE_Matrix GetMatrix() const { return mMatrix; }
+    
+    HE_INT32 GetXStep() const { return mXSetp; }
+    
+    HE_INT32 GetYStep() const { return mYSetp; }
+    
+    CHE_Rect GetBBox() const { return mBBox; }
+    
+    CHE_PDF_ContentObjectList & GetList() { return mContentList; }
+    
 private:
 	CHE_PDF_Tiling( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
-
-	CHE_PDF_ContentObjectList & GetList() { return mContentList; }
 
 private:
 	HE_BOOL						mbColored;

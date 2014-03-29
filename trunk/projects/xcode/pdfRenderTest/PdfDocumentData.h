@@ -30,7 +30,8 @@
 
 -(id)initWithFilePath:(NSString*)path;
 
-
 -(CHE_PDF_ContentObjectList*)getPageContent:(unsigned int)pageIndex;
+
+-(CHE_Rect)getPageRect:(unsigned int)pageIndex;
 
 @end

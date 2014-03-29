@@ -142,7 +142,7 @@
 		90C5374517587FF20014AC65 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 90C5374317587FF20014AC65 /* InfoPlist.strings */; };
 		90C5374717587FF20014AC65 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C5374617587FF20014AC65 /* main.m */; };
 		90C5374B17587FF20014AC65 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 90C5374917587FF20014AC65 /* Credits.rtf */; };
-		90C5374E17587FF20014AC65 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C5374D17587FF20014AC65 /* AppDelegate.m */; };
+		90C5374E17587FF20014AC65 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90C5374D17587FF20014AC65 /* AppDelegate.mm */; };
 		90C5375117587FF20014AC65 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 90C5374F17587FF20014AC65 /* MainMenu.xib */; };
 		90C5375C175881B40014AC65 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90C5375B175881B40014AC65 /* main.cpp */; };
 		90C5375E175881B40014AC65 /* pdfDocumentTest.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 90C5375D175881B40014AC65 /* pdfDocumentTest.1 */; };
@@ -454,7 +454,7 @@
 		90C5374817587FF20014AC65 /* pdfRenderTest-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "pdfRenderTest-Prefix.pch"; sourceTree = "<group>"; };
 		90C5374A17587FF20014AC65 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		90C5374C17587FF20014AC65 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		90C5374D17587FF20014AC65 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		90C5374D17587FF20014AC65 /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		90C5375017587FF20014AC65 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		90C53759175881B40014AC65 /* pdfDocumentTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pdfDocumentTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		90C5375B175881B40014AC65 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -930,7 +930,7 @@
 				90C537671758975B0014AC65 /* CustomView.h */,
 				90C537681758975B0014AC65 /* CustomView.mm */,
 				90C5374C17587FF20014AC65 /* AppDelegate.h */,
-				90C5374D17587FF20014AC65 /* AppDelegate.m */,
+				90C5374D17587FF20014AC65 /* AppDelegate.mm */,
 				90C5374F17587FF20014AC65 /* MainMenu.xib */,
 				90C5374117587FF20014AC65 /* Supporting Files */,
 			);
@@ -1495,7 +1495,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				90C5374717587FF20014AC65 /* main.m in Sources */,
-				90C5374E17587FF20014AC65 /* AppDelegate.m in Sources */,
+				90C5374E17587FF20014AC65 /* AppDelegate.mm in Sources */,
 				90C537691758975B0014AC65 /* CustomView.mm in Sources */,
 				909AE1B817A0BCD200B8A633 /* PdfDocumentData.mm in Sources */,
 			);

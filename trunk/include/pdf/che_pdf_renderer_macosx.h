@@ -5,7 +5,9 @@
 #include "che_pdf_xobject.h"
 #include "che_pdf_pattern.h"
 #include "che_pdf_gstate.h"
-#include <ApplicationServices/ApplicationServices.h>
+#import <ApplicationServices/ApplicationServices.h>
+#import <CoreGraphics/CGPattern.h>
+#import <CoreGraphics/CoreGraphics.h>
 
 class CHE_PDF_Renderer
 {
@@ -13,10 +15,10 @@ public:
     CHE_PDF_Renderer( CGContextRef cgContext );
     ~CHE_PDF_Renderer();
     
-    HE_VOID     SetDIP( HE_FLOAT dipx, HE_FLOAT dipy );
-    HE_VOID     SetScale( HE_FLOAT scale );
-    HE_VOID     SetPosition( HE_FLOAT x, HE_FLOAT y );
-    HE_VOID     Render( CHE_PDF_ContentObjectList & content );
+    //HE_VOID     SetDIP( HE_FLOAT dipx, HE_FLOAT dipy );
+    //HE_VOID     SetScale( HE_FLOAT scale );
+    //HE_VOID     SetPosition( HE_FLOAT x, HE_FLOAT y );
+    HE_VOID     Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy );
     
 private:
     HE_VOID		SetMatrix( const CHE_Matrix & matrix );
@@ -71,11 +73,6 @@ private:
     HE_VOID     DrawShading( const CHE_PDF_ShadingPtr & shading );
     
 private:
-    HE_FLOAT                    mScale;
-    HE_FLOAT                    mDipx;
-    HE_FLOAT                    mDipy;
-    HE_FLOAT                    mPosiX;
-    HE_FLOAT                    mPosiY;
     CHE_Matrix                  mMatrix;
     CHE_Matrix					mExtMatrix;
     CHE_Matrix                  mTextMatrix;

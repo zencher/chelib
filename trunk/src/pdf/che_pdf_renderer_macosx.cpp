@@ -1,9 +1,26 @@
-#include "../../include/pdf/che_pdf_renderer_macosx.h"
+#import "../../include/pdf/che_pdf_renderer_macosx.h"
+#import <CoreGraphics/CGPattern.h>
 #include "../../include/che_bitmap.h"
 
+
+
+
+void TilingDrawCallBack( void *info, CGContextRef c )
+{
+    if ( c == NULL )
+    {
+        return;
+    }
+    
+    CHE_PDF_Tiling * pTiling = (CHE_PDF_Tiling*)( info );
+}
+
+
+
+
 CHE_PDF_Renderer::CHE_PDF_Renderer( CGContextRef cgContext )
-    : mScale(1.0f), mDipx(96.0f), mDipy(96.0f), mPosiX(0.0f), mPosiY(0.0f), mFillMode(FillMode_Nonzero),
-    mContextRef(cgContext), mPathRef(NULL), mFillColorSpace(NULL), mStrokeColorSpace(NULL), mImageColorSpace(NULL)
+    : mFillMode(FillMode_Nonzero),mContextRef(cgContext), mPathRef(NULL),
+mFillColorSpace(NULL), mStrokeColorSpace(NULL), mImageColorSpace(NULL)
 {
 }
 
@@ -29,23 +46,6 @@ CHE_PDF_Renderer::~CHE_PDF_Renderer()
         CGColorSpaceRelease( mImageColorSpace );
         mImageColorSpace = NULL;
     }
-}
-
-HE_VOID CHE_PDF_Renderer::SetDIP( HE_FLOAT dipx, HE_FLOAT dipy )
-{
-    mDipx = dipx;
-    mDipy = dipy;
-}
-
-HE_VOID CHE_PDF_Renderer::SetScale( HE_FLOAT scale )
-{
-    mScale = scale;
-}
-
-HE_VOID CHE_PDF_Renderer::SetPosition( HE_FLOAT x, HE_FLOAT y )
-{
-    mPosiX = x;
-    mPosiY = y;
 }
 
 HE_VOID	CHE_PDF_Renderer::SetMatrix( const CHE_Matrix & matrix )
@@ -200,8 +200,37 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
         mFillColorSpace = NULL;
     }
     
-    mFillColorSpace = CreateColorSpace( cs );
-    CGContextSetFillColorSpace( mContextRef , mFillColorSpace );
+    if ( cs->GetColorSpaceType() == COLORSPACE_SPECIAL_PATTERN )
+    {
+        CHE_PDF_TilingPtr tilingPtr = cs->GetTiling();
+        
+        CHE_Rect rect = tilingPtr->GetBBox();
+        CGRect bounds = CGRectMake( rect.left, rect.bottom, rect.width, rect.height );
+        
+        CHE_Matrix tmpMatrix = tilingPtr->GetMatrix();
+        tmpMatrix.Concat( mExtMatrix );
+        
+        CGAffineTransform matrix = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f );
+        
+        bool bColored = tilingPtr->IsColored();
+        
+        CGPatternCallbacks callbacks;
+        callbacks.drawPattern = TilingDrawCallBack;
+        callbacks.releaseInfo = NULL;
+        
+        CGPatternRef patternRef = CGPatternCreate(  (void*)(tilingPtr.GetPointer()), bounds, matrix,
+                                                    tilingPtr->GetXStep(), tilingPtr->GetYStep(),
+                                                    kCGPatternTilingNoDistortion, bColored,
+                                                    &callbacks );
+        
+        CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( NULL );
+        CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
+        CGFloat alpha;
+        CGContextSetFillPattern( mContextRef, patternRef, &alpha );
+    }else{
+        mFillColorSpace = CreateColorSpace( cs );
+        CGContextSetFillColorSpace( mContextRef , mFillColorSpace );
+    }
 }
 
 HE_VOID CHE_PDF_Renderer::SetStrokeColorSpace( const CHE_PDF_ColorSpacePtr & cs )
@@ -579,7 +608,6 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
     SetStrokeColor( strokeColor );
     
 	SetFillMode( FillMode_Nonzero );
-	//ResetClip();
 }
 
 HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
@@ -598,6 +626,12 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
 		{
 			continue;
 		}
+        
+        CHE_PDF_GState * pGState = pObj->GetGState();
+        if ( pGState )
+        {
+            SetCommonGState( pGState );
+        }
         
 		switch ( pObj->GetType() )
 		{
@@ -1033,6 +1067,9 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, cons
 		}
         case COMPONENT_TYPE_FormXObject:
 		{
+<<<<<<< .mine
+            StoreGState();
+            
 			CHE_Matrix tmpExtMatrix = extMatrix;
 			CHE_Matrix newExtMatrix;
 			CHE_PDF_GState * pGState = cmptRef->GetGState();
@@ -1044,6 +1081,21 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, cons
 			SetExtMatrix( newExtMatrix );
             DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ), mExtMatrix );
 			SetExtMatrix( extMatrix );
+            
+            RestoreGState();
+=======
+			CHE_Matrix tmpExtMatrix = extMatrix;
+			CHE_Matrix newExtMatrix;
+			CHE_PDF_GState * pGState = cmptRef->GetGState();
+			if ( pGState )
+			{
+                newExtMatrix = pGState->GetMatrix();
+			}
+			newExtMatrix.Concat( tmpExtMatrix );
+			SetExtMatrix( newExtMatrix );
+            DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ), mExtMatrix );
+			SetExtMatrix( extMatrix );
+>>>>>>> .r801
 			break;
 		}
         case COMPONENT_TYPE_Shading:
@@ -1081,13 +1133,8 @@ HE_VOID CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
             CHE_Matrix tmpMatrix;
             tmpMatrix = mMatrix;
             tmpMatrix.Concat( mExtMatrix );
-            CHE_Rect rect;
-            rect.left = 0;
-            rect.bottom = 0;
-            rect.width = 1;
-            rect.height = 1;
-            rect = tmpMatrix.Transform( rect );
-            CGContextDrawImage( mContextRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height), imgRef );
+            CGContextConcatCTM( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
+            CGContextDrawImage( mContextRef, CGRectMake(0, 0, 1, 1), imgRef );
             CGImageRelease( imgRef );
         }
     }
@@ -1175,16 +1222,18 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form, const C
 	}
 }
 
-HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content )
+HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy )
 {
-	CHE_Matrix tmpMatrix;
-	tmpMatrix.a = mDipx * mScale / 72;
-	tmpMatrix.b = 0;
-	tmpMatrix.c = 0;
-	tmpMatrix.d = mDipy * mScale / 72;
-	tmpMatrix.e = 0;
-	tmpMatrix.f = 0;
 	CHE_Matrix extMatrix;
+	extMatrix.a = dpix * scale / 72;
+	extMatrix.b = 0;
+	extMatrix.c = 0;
+	extMatrix.d = -dpiy * scale / 72;
+	extMatrix.e = 0;
+	extMatrix.f = 0;
+	CHE_Matrix tmpMatrix;
+    tmpMatrix.e = 0;
+    tmpMatrix.f = pageRect.height * scale * dpiy / 72;
 	//if ( pClipRect != NULL )
 	//{
 	//	extMatrix.e = - pClipRect->left * dipx * scale / 72;
@@ -1193,10 +1242,20 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content )
 	//	extMatrix.e = 0;
 	//	extMatrix.f = pageRect.height * dipy * scale / 72;
 	//}
-	tmpMatrix.Concat( extMatrix );
-	SetExtMatrix( tmpMatrix );
     
+    extMatrix.Concat( tmpMatrix );
+	
+    CHE_Matrix rectMatrix;
+    rectMatrix.e = 0;
+    rectMatrix.f = 0;
     
+    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
+    rectMatrix.Concat( rotateMatrix );
+	rectMatrix.Concat( extMatrix );
+    extMatrix = rectMatrix;
+    
+    SetExtMatrix( extMatrix );
+
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
 	ContentObjectList::iterator it = content.Begin();

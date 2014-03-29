@@ -1380,11 +1380,19 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
 				CHE_PDF_ComponentPtr cmptPtr = mpCmptMgr->GetComponent( refPtr, COMPONENT_TYPE_Tiling );
 				if ( cmptPtr )
 				{
-					color.SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+					//color.SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                    
+                    CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
+                    csptr->SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                    mpConstructor->State_StrokeColorSpace( csptr );
 				}else{
 					CHE_PDF_TilingPtr tilingPtr = CHE_PDF_Tiling::Create( objPtr, mpCmptMgr, GetAllocator() );
 					mpCmptMgr->PushComponent( objPtr->GetRefPtr(), tilingPtr );
-					color.SetTiling( tilingPtr );
+					//color.SetTiling( tilingPtr );
+                    
+                    CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
+                    csptr->SetTiling( CHE_PDF_Tiling::Convert( tilingPtr ) );
+                    mpConstructor->State_StrokeColorSpace( csptr );
 				}
 			}
 		}
@@ -1401,11 +1409,19 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
 			CHE_PDF_ComponentPtr cmptPtr = mpCmptMgr->GetComponent( refPtr, COMPONENT_TYPE_Tiling );
 			if ( cmptPtr )
 			{
-				color.SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+				//color.SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                
+                CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
+                csptr->SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                mpConstructor->State_StrokeColorSpace( csptr );
 			}else{
 				CHE_PDF_TilingPtr tilingPtr = CHE_PDF_Tiling::Create( objPtr, mpCmptMgr, GetAllocator() );
 				mpCmptMgr->PushComponent( objPtr->GetRefPtr(), tilingPtr );
-				color.SetTiling( tilingPtr );
+				//color.SetTiling( tilingPtr );
+                
+                CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
+                csptr->SetTiling( CHE_PDF_Tiling::Convert( tilingPtr ) );
+                mpConstructor->State_StrokeColorSpace( csptr );
 			}
 			mpConstructor->State_StrokeColor( color );
 		}
@@ -1820,22 +1836,21 @@ HE_VOID CHE_PDF_ContentsParser::Handle_gs()
 		objPtr = mpContentResMgr->GetResObj( CONTENTRES_EXTGSTATE, mName );
 		if ( objPtr )
 		{
-			//todo
-//			if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
-// 			{
-// 				objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
-// 				if ( objPtr )
-// 				{
-// 					dictPtr = objPtr->GetDictPtr();
-// 				}
-// 			}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
-// 			{
-// 				dictPtr = objPtr->GetDictPtr();
-// 			}
-// 			if ( dictPtr )
-// 			{
-// 				mpConstructor->State_ExtGState( mName, dictPtr );
-// 			}
+			if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
+			{
+				objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+				if ( objPtr )
+				{
+					dictPtr = objPtr->GetDictPtr();
+				}
+			}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
+			{
+				dictPtr = objPtr->GetDictPtr();
+			}
+			if ( dictPtr )
+			{
+				mpConstructor->State_ExtGState( mName, dictPtr );
+			}
 		}
 	}
 }
@@ -2056,11 +2071,19 @@ HE_VOID CHE_PDF_ContentsParser::Handle_scn()
 				CHE_PDF_ComponentPtr cmptPtr = mpCmptMgr->GetComponent( refPtr, COMPONENT_TYPE_Tiling );
 				if ( cmptPtr )
 				{
-					color.SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                    //color.SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                    
+                    CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
+                    csptr->SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                    mpConstructor->State_FillColorSpace( csptr );
 				}else{
 					CHE_PDF_TilingPtr tilingPtr = CHE_PDF_Tiling::Create( objPtr, mpCmptMgr, GetAllocator() );
 					mpCmptMgr->PushComponent( objPtr->GetRefPtr(), tilingPtr );
-					color.SetTiling( tilingPtr );
+					//color.SetTiling( tilingPtr );
+                    
+                    CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
+                    csptr->SetTiling( tilingPtr );
+                    mpConstructor->State_FillColorSpace( csptr );
 				}
 			}
 		}
@@ -2077,11 +2100,18 @@ HE_VOID CHE_PDF_ContentsParser::Handle_scn()
 			CHE_PDF_ComponentPtr cmptPtr = mpCmptMgr->GetComponent( refPtr, COMPONENT_TYPE_Tiling );
 			if ( cmptPtr )
 			{
-				color.SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+				//color.SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
+                csptr->SetTiling( CHE_PDF_Tiling::Convert( cmptPtr ) );
+                mpConstructor->State_FillColorSpace( csptr );
 			}else{
 				CHE_PDF_TilingPtr tilingPtr = CHE_PDF_Tiling::Create( objPtr, mpCmptMgr, GetAllocator() );
 				mpCmptMgr->PushComponent( objPtr->GetRefPtr(), tilingPtr );
-				color.SetTiling( tilingPtr );
+				//color.SetTiling( tilingPtr );
+                
+                CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
+                csptr->SetTiling( tilingPtr );
+                mpConstructor->State_FillColorSpace( csptr );
 			}
 			mpConstructor->State_FillColor( color );
 		}

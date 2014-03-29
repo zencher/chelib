@@ -137,39 +137,27 @@
         <window title="pdfRenderTest" allowsToolTipsWhenApplicationIsInactive="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <rect key="contentRect" x="449" y="160" width="720" height="480"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1600" height="878"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1920" height="1058"/>
             <view key="contentView" id="372">
                 <rect key="frame" x="0.0" y="0.0" width="720" height="480"/>
                 <autoresizingMask key="autoresizingMask"/>
-                <subviews>
-                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="ToI-ck-vLp" customClass="CustomView">
-                        <rect key="frame" x="0.0" y="0.0" width="720" height="480"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    </customView>
-                </subviews>
-                <constraints>
-                    <constraint firstItem="ToI-ck-vLp" firstAttribute="leading" secondItem="372" secondAttribute="leading" id="HqA-3W-IyO"/>
-                    <constraint firstItem="ToI-ck-vLp" firstAttribute="top" secondItem="372" secondAttribute="top" id="hlF-eV-xAp"/>
-                    <constraint firstAttribute="bottom" secondItem="ToI-ck-vLp" secondAttribute="bottom" id="nAG-rx-HrX"/>
-                    <constraint firstAttribute="trailing" secondItem="ToI-ck-vLp" secondAttribute="trailing" id="oqA-0x-fID"/>
-                </constraints>
             </view>
             <toolbar key="toolbar" implicitIdentifier="4DCA6E62-FC0B-45A9-9F52-9C7E7B285C61" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="small" id="547">
                 <allowedToolbarItems>
                     <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="548"/>
                     <toolbarItem implicitItemIdentifier="B7A700C0-013D-41D6-A1B3-9249AC924662" label="previous page" paletteLabel="previous page" tag="-1" image="NSGoLeftTemplate" id="553">
                         <connections>
-                            <action selector="onPreviousPage:" target="ToI-ck-vLp" id="kAZ-aE-EDH"/>
+                            <action selector="onPreviousPage:" target="494" id="LKp-dK-3s8"/>
                         </connections>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="2F1E5B06-AD09-4D0F-B0D6-F84A146E0274" label="next page" paletteLabel="next page" tag="-1" image="NSGoRightTemplate" id="554">
                         <connections>
-                            <action selector="onNextPage:" target="ToI-ck-vLp" id="tX0-o6-p9x"/>
+                            <action selector="onNextPage:" target="494" id="EEO-tS-VPM"/>
                         </connections>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="8BB9D3DF-F0D0-457F-B6F6-8303843717E0" label="open file" paletteLabel="open file" tag="-1" image="NSFolder" id="NGi-Mw-yn4">
                         <connections>
-                            <action selector="onFileOpen:" target="ToI-ck-vLp" id="NXn-VP-eDE"/>
+                            <action selector="onFileOpen:" target="494" id="XxQ-g4-cfD"/>
                         </connections>
                     </toolbarItem>
                 </allowedToolbarItems>

@@ -78,4 +78,19 @@
     return NULL;
 }
 
+-(CHE_Rect)getPageRect:(unsigned int)index
+{
+    CHE_Rect rect;
+    if ( index < pageCount )
+    {
+        CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
+        if ( pdfPage )
+        {
+            rect = pdfPage->GetPageRect();
+            pdfPageTree->ReleasePage( pdfPage );
+        }
+    }
+    return rect;
+}
+
 @end

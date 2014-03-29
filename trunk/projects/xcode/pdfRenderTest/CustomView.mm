@@ -15,43 +15,32 @@
     self = [super initWithFrame:frame];
     if (self)
     {
-        pdfDocument = [[PdfDocumentData alloc] initWithFilePath:@"/Users/zencher/PDFResearch/Files/201200_iOS+5+Core+Frameworks：Develop+and+Design+Working+with+graphics%2C+location%2C+iCloud%2C+and+more.pdf"];
-        pageIndex = 0;
-        mouseDownPt.x = 0;
-        mouseDownPt.y = 0;
-        pageOffset.width = 0;
-        pageOffset.height = 0;
     }
-    
     return self;
+}
+
+-(BOOL)isFlipped
+{
+    return YES;
 }
 
 - (void)drawRect:(NSRect)dirtyRect
 {
-    NSRect bounds = [self bounds];
-    
-    [[NSColor whiteColor] set];
-    NSRectFill( [self bounds] );
+    //NSRect bounds = [self bounds];
+    //[[NSColor whiteColor] set];
+    //NSRectFill( [self bounds] );
     
     NSLog(@"draw...");
     
-    /*CGRect pageRect = CGRectMake( 0 + pageOffset.width, bounds.size.height - [pdfDocument getDrawer]->GetHeight() + pageOffset.height, [pdfDocument getDrawer]->GetWidth(), [pdfDocument getDrawer]->GetHeight() );
-    if ( bounds.size.width > [pdfDocument getDrawer]->GetWidth() )
+    if ( pdfDocument )
     {
-        pageRect.origin.x = bounds.size.width - [pdfDocument getDrawer]->GetWidth();
-        pageRect.origin.x /= 2;
-    }
-    if ( bounds.size.height > [pdfDocument getDrawer]->GetHeight() )
-    {
-        pageRect.origin.y = bounds.size.height - [pdfDocument getDrawer]->GetHeight();
-        pageRect.origin.y /= 2;
-    }*/
-    
-    CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
-    if ( context )
-    {
-        CHE_PDF_Renderer render( context );
-        render.Render( *[pdfDocument getPageContent:pageIndex] );
+        CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+        if ( context )
+        {
+            CHE_PDF_Renderer render( context );
+            CHE_Rect rect = [pdfDocument getPageRect:pageIndex];
+            render.Render( *[pdfDocument getPageContent:pageIndex], rect, 0, 1, 96, 96 );
+        }
     }
 }
 
@@ -68,34 +57,56 @@
     //[self setNeedsDisplay:YES];
 }
 
-- (IBAction)onPreviousPage:(id)sender
+-(void)newDocument:(PdfDocumentData*)doc
 {
-    if ( pageIndex > 0 ) {
+    pdfDocument = doc;
+    pageIndex = 0;
+    CHE_Rect rect = [pdfDocument getPageRect:pageIndex];
+    NSRect frame;
+    frame.size.width = 96.0 * rect.width / 72;
+    frame.size.height = 96.0 * rect.height / 72;
+    frame.origin.x = 96.0 * rect.left / 72;
+    frame.origin.y = 96.0 * rect.bottom / 72;
+    [self setFrame:frame];
+    [self setNeedsDisplay:YES];
+}
+
+-(void)closeDocument
+{
+    pdfDocument = nil;
+    pageIndex = 0;
+    NSRect rect;
+    [self setFrame:rect];
+    [self setNeedsDisplay:YES];
+}
+
+- (void)onPrePage
+{
+    if ( pageIndex > 0 )
+    {
         pageIndex--;
     }
+    CHE_Rect rect = [pdfDocument getPageRect:pageIndex];
+    NSRect frame;
+    frame.size.width = 96.0 * rect.width / 72;
+    frame.size.height = 96.0 * rect.height / 72;
+    frame.origin.x = 96.0 * rect.left / 72;
+    frame.origin.y = 96.0 * rect.bottom / 72;
+    [self setFrame:frame];
     [self setNeedsDisplay:YES];
 }
 
-- (IBAction)onNextPage:(id)sender
+- (void)onNextPage
 {
     pageIndex++;
+    CHE_Rect rect = [pdfDocument getPageRect:pageIndex];
+    NSRect frame;
+    frame.size.width = 96.0 * rect.width / 72;
+    frame.size.height = 96.0 * rect.height / 72;
+    frame.origin.x = 96.0 * rect.left / 72;
+    frame.origin.y = 96.0 * rect.bottom / 72;
+    [self setFrame:frame];
     [self setNeedsDisplay:YES];
-}
-
-- (IBAction)onFileOpen:(id)sender
-{
-    NSOpenPanel *panel = [NSOpenPanel openPanel];
-    //[panel setDirectory:NSHomeDirectory()]; // Set panel's default directory.
-    [panel setAllowedFileTypes:[NSImage imageFileTypes]]; // Set what kind of file to select.
-    // More panel configure code.
-    [panel beginSheetModalForWindow:[self window] completionHandler:
-    (^(NSInteger result)
-    {
-        if(result == NSOKButton)
-        {
-            NSArray *fileURLs = [panel URLs];
-        }
-    })];
 }
 
 @end

@@ -1,6 +1,7 @@
 #include "../../include/pdf/che_pdf_contentlistbuilder.h"
 #include "../../include/pdf/che_pdf_contentobjs.h"
 #include "../../include/pdf/che_pdf_parser.h"
+#include "../../include/pdf/che_pdf_extgstate.h"
 #include "../../include/pdf/che_pdf_gstate.h"
 #include "../../include/pdf/che_pdf_xobject.h"
 #include "../../include/pdf/che_pdf_pattern.h"
@@ -85,9 +86,9 @@ public:
 		GetGState()->SetFlatness( flatness );
 	}
 
-	HE_VOID State_ExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr )
+	HE_VOID State_ExtGState( const CHE_ByteString & resName, const CHE_PDF_ExtGStatePtr & extgstate )
 	{
-		GetGState()->PushExtGState( resName, dictPtr );
+		GetGState()->PushExtGState( resName, extgstate );
 	}
 
 	HE_VOID State_FillColor( CHE_PDF_Color & color )
@@ -1819,21 +1820,22 @@ HE_VOID CHE_PDF_ContentsParser::Handle_gs()
 		objPtr = mpContentResMgr->GetResObj( CONTENTRES_EXTGSTATE, mName );
 		if ( objPtr )
 		{
-			if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
-			{
-				objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
-				if ( objPtr )
-				{
-					dictPtr = objPtr->GetDictPtr();
-				}
-			}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
-			{
-				dictPtr = objPtr->GetDictPtr();
-			}
-			if ( dictPtr )
-			{
-				mpConstructor->State_ExtGState( mName, dictPtr );
-			}
+			//todo
+//			if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
+// 			{
+// 				objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+// 				if ( objPtr )
+// 				{
+// 					dictPtr = objPtr->GetDictPtr();
+// 				}
+// 			}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
+// 			{
+// 				dictPtr = objPtr->GetDictPtr();
+// 			}
+// 			if ( dictPtr )
+// 			{
+// 				mpConstructor->State_ExtGState( mName, dictPtr );
+// 			}
 		}
 	}
 }

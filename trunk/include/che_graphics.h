@@ -54,6 +54,22 @@ enum GRAPHICS_STATE_TEXTRENDERMODE
 	TextRenderMode_Clip = 7
 };
 
+enum GRAPHICS_STATE_BLENDMODE
+{
+	BlendMode_Normal		= 0,
+	BlendMode_Multiply		= 1,
+	BlendMode_Screen		= 2,
+	BlendMode_Overlay		= 3,
+	BlendMode_Darken		= 4,
+	BlendMode_Lighten		= 5,
+	BlendMode_ColorDodge	= 6,
+	BlendMode_ColorBurn		= 7,
+	BlendMode_HardLight		= 8,
+	BlendMode_SoftLight		= 9,
+	BlendMode_Difference	= 10,
+	BlendMode_Exclusion		= 11
+};
+
 enum GRAPHICS_STATE_FILLMODE
 {
 	FillMode_Nonzero = 0,

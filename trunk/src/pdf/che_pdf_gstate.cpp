@@ -97,45 +97,92 @@ CHE_PDF_ClipState * CHE_PDF_ClipState::Clone() const
 	return pRet;
 }
 
-HE_BOOL CHE_PDF_ExtGState::PushExtStateName( const CHE_ByteString & name, CHE_PDF_DictionaryPtr dictPtr )
+HE_BOOL CHE_PDF_ExtGStateStack::PushExtStateName( const CHE_ByteString & name, const CHE_PDF_ExtGStatePtr & extgstate )
 {
-	if ( ! dictPtr )
+	if ( ! extgstate )
 	{
 		return FALSE;
 	}
-	std::list<CHE_ByteString>::iterator it = mExtDictNameList.begin();
-	for ( ; it != mExtDictNameList.end(); ++it )
+	std::list<CHE_ByteString>::iterator itn = mExtGStateName.begin();
+	for ( ; itn != mExtGStateName.end(); ++itn )
 	{
-		if ( *it == name )
+		if ( *itn == name )
 		{
-			mExtDictNameList.erase( it );
+			mExtGStateName.erase( itn );
 			break;
 		}
 	}
-	mExtDictNameList.push_back( name );
-	CHE_PDF_ObjectPtr pTmpObj = dictPtr->GetElement( "CA", OBJ_TYPE_NUMBER );
-	if ( pTmpObj )
+	mExtGStateName.push_back( name );
+
+	CHE_PDF_ObjectPtr objPtr;
+	std::vector<CHE_PDF_ExtGStateItem>::iterator iti = extgstate->mStateItems.begin();
+	for ( ; iti != extgstate->mStateItems.end(); ++iti )
 	{
-		mStrokeAlpha = pTmpObj->GetNumberPtr()->GetFloat();
-	}
-	pTmpObj = dictPtr->GetElement( "ca", OBJ_TYPE_NUMBER );
-	if ( pTmpObj )
-	{
-		mFillAlpha = pTmpObj->GetNumberPtr()->GetFloat();
+		switch ( iti->type )
+		{
+		case PDF_EXTGSTATE_BM:
+			{
+				CHE_ByteString blendName = iti->objPtr->GetNamePtr()->GetString();
+				if ( blendName == "Normal" )
+				{
+					mBlendMode = BlendMode_Normal;
+				}else if ( blendName == "ColorBurn" )
+				{
+					mBlendMode = BlendMode_ColorBurn;
+				}else if ( blendName == "ColorDodge" )
+				{
+					mBlendMode = BlendMode_ColorDodge;
+				}else if ( blendName == "Darken" )
+				{
+					mBlendMode = BlendMode_Darken;
+				}else if ( blendName == "Difference" )
+				{
+					mBlendMode = BlendMode_Difference;
+				}else if ( blendName == "Exclusion" )
+				{
+					mBlendMode = BlendMode_Exclusion;
+				}else if ( blendName == "HardLight" )
+				{
+					mBlendMode = BlendMode_HardLight;
+				}else if ( blendName == "Lighten" )
+				{
+					mBlendMode = BlendMode_Lighten;
+				}else if ( blendName == "Multiply" )
+				{
+					mBlendMode = BlendMode_Multiply;
+				}else if ( blendName == "Overlay" )
+				{
+					mBlendMode = BlendMode_Overlay;
+				}else if ( blendName == "Screen" )
+				{
+					mBlendMode = BlendMode_Screen;
+				}else if ( blendName == "SoftLight" )
+				{
+					mBlendMode = BlendMode_SoftLight;
+				}
+				break;
+			}
+		case PDF_EXTGSTATE_CA:
+			mStrokeAlpha = iti->objPtr->GetNumberPtr()->GetFloat();
+			break;
+		case PDF_EXTGSTATE_ca:
+			mFillAlpha = iti->objPtr->GetNumberPtr()->GetFloat();
+		default:break;
+		}
 	}
 	return TRUE;
 }
 
-CHE_PDF_ExtGState * CHE_PDF_ExtGState::Clone() const
+CHE_PDF_ExtGStateStack * CHE_PDF_ExtGStateStack::Clone() const
 {
-	CHE_PDF_ExtGState * pRet = GetAllocator()->New<CHE_PDF_ExtGState>( GetAllocator() );
-	pRet->mExtDictNameList = mExtDictNameList;
+	CHE_PDF_ExtGStateStack * pRet = GetAllocator()->New<CHE_PDF_ExtGStateStack>( GetAllocator() );
+	pRet->mExtGStateName = mExtGStateName;
 	pRet->mFillAlpha = mFillAlpha;
 	pRet->mStrokeAlpha = mStrokeAlpha;
 	return pRet;
 }
 
-bool CHE_PDF_ExtGState::operator == ( const CHE_PDF_ExtGState & gs ) const
+bool CHE_PDF_ExtGStateStack::operator == ( const CHE_PDF_ExtGStateStack & gs ) const
 {
 	if ( ! IsFloatEqual( mFillAlpha, gs.mFillAlpha ) ||
 		 ! IsFloatEqual( mStrokeAlpha, gs.mFillAlpha ) )
@@ -143,10 +190,10 @@ bool CHE_PDF_ExtGState::operator == ( const CHE_PDF_ExtGState & gs ) const
 		return false;
 	}
 
-	std::list<CHE_ByteString>::const_iterator it = mExtDictNameList.begin();
-	std::list<CHE_ByteString>::const_iterator tmpIt = gs.mExtDictNameList.begin();
+	std::list<CHE_ByteString>::const_iterator it = mExtGStateName.begin();
+	std::list<CHE_ByteString>::const_iterator tmpIt = gs.mExtGStateName.begin();
 
-	for ( ; it != mExtDictNameList.end() && tmpIt != gs.mExtDictNameList.end() ; ++it, ++tmpIt )
+	for ( ; it != mExtGStateName.end() && tmpIt != gs.mExtGStateName.end() ; ++it, ++tmpIt )
 	{
 		if ( *it != *tmpIt )
 		{
@@ -154,7 +201,7 @@ bool CHE_PDF_ExtGState::operator == ( const CHE_PDF_ExtGState & gs ) const
 		}
 	}
 
-	if ( tmpIt != gs.mExtDictNameList.end() || it != mExtDictNameList.end() )
+	if ( tmpIt != gs.mExtGStateName.end() || it != mExtGStateName.end() )
 	{
 		return false;
 	}
@@ -162,7 +209,7 @@ bool CHE_PDF_ExtGState::operator == ( const CHE_PDF_ExtGState & gs ) const
 	return true;
 }
 
-bool CHE_PDF_ExtGState::operator != ( const CHE_PDF_ExtGState & gs ) const
+bool CHE_PDF_ExtGStateStack::operator != ( const CHE_PDF_ExtGStateStack & gs ) const
 {
 	return ! operator==( gs );
 }
@@ -185,22 +232,6 @@ CHE_PDF_GState::~CHE_PDF_GState()
 	{
 		mpExtState->GetAllocator()->Delete( mpExtState );
 	}
-// 	if ( mpFillColor )
-// 	{
-// 		mpFillColor->GetAllocator()->Delete( mpFillColor );
-// 	}
-// 	if ( mFillColorSpace )
-// 	{
-// 		mpFillColorSpace->GetAllocator()->Delete( mpFillColorSpace );
-// 	}
-// 	if ( mpStrokeColor )
-// 	{
-// 		mpStrokeColor->GetAllocator()->Delete( mpStrokeColor );
-// 	}
-// 	if ( mpStrokeColorSpace )
-// 	{
-// 		mpStrokeColorSpace->GetAllocator()->Delete( mpStrokeColorSpace );
-// 	}
 }
 
 CHE_PDF_StrokeState * CHE_PDF_GState::MakeStrokeState()
@@ -230,11 +261,11 @@ CHE_PDF_ClipState *	CHE_PDF_GState::MakeClipState()
 	return mpClipState;
 }
 
-CHE_PDF_ExtGState *	CHE_PDF_GState::MakeExtGState()
+CHE_PDF_ExtGStateStack *	CHE_PDF_GState::MakeExtGState()
 {
 	if ( !mpExtState )
 	{
-		mpExtState = GetAllocator()->New<CHE_PDF_ExtGState>( GetAllocator() );
+		mpExtState = GetAllocator()->New<CHE_PDF_ExtGStateStack>( GetAllocator() );
 	}
 	return mpExtState;
 }
@@ -248,22 +279,7 @@ CHE_PDF_GState * CHE_PDF_GState::Clone() const
 	pRet->mStrokeColor = mStrokeColor;
 	pRet->mFillColorSpace = mFillColorSpace;
 	pRet->mStrokeColorSpace = mStrokeColorSpace;
-// 	if ( mpFillColor )
-// 	{
-// 		pRet->mpFillColor = mpFillColor->Clone();
-// 	}
-// 	if ( mpFillColorSpace )
-// 	{
-// 		pRet->mpFillColorSpace = mpFillColorSpace;
-// 	}
-// 	if ( mpStrokeColor )
-// 	{
-// 		pRet->mpStrokeColor = mpStrokeColor->Clone();
-// 	}
-// 	if ( mpStrokeColorSpace )
-// 	{
-// 		pRet->mpStrokeColorSpace = mpStrokeColorSpace;
-// 	}
+
 	if ( mpStrokeState )
 	{
 		pRet->mpStrokeState = mpStrokeState->Clone();
@@ -695,61 +711,67 @@ HE_BOOL CHE_PDF_GState::PushClipElement( CHE_PDF_ContentObject * pElement )
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr )
+HE_BOOL CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, const CHE_PDF_ExtGStatePtr & extgstate )
 {
-	MakeExtGState()->PushExtStateName( resName, dictPtr );
-    
-    //todo
-    //make the common gstate data into the common gstate holder
-    if ( dictPtr )
-    {
-        CHE_PDF_ObjectPtr objPtr;
-        objPtr = dictPtr->GetElement( "LW", OBJ_TYPE_NUMBER );
-        if ( objPtr )
-        {
-            SetLineWidth( objPtr->GetNumberPtr()->GetFloat() );
-        }
-        objPtr = dictPtr->GetElement( "ML", OBJ_TYPE_NUMBER );
-        if ( objPtr )
-        {
-            SetMiterLimit( objPtr->GetNumberPtr()->GetFloat() );
-        }
-        objPtr = dictPtr->GetElement( "LC", OBJ_TYPE_NUMBER );
-        if ( objPtr ) {
-            switch ( objPtr->GetNumberPtr()->GetInteger() )
-            {
-            case 0:
-                SetLineCap( LineCap_Butt );
-                break;
-            case 1:
-                SetLineCap( LineCap_Round );
-                break;
-            case 2:
-                SetLineCap( LineCap_Square );
-                break;
-            default:
-                break;
-            }
-        }
-        objPtr = dictPtr->GetElement( "LJ", OBJ_TYPE_NUMBER );
-        if ( objPtr ) {
-            switch ( objPtr->GetNumberPtr()->GetInteger() )
-            {
-                case 0:
-                    SetLineJoin( LineJoin_Miter );
-                    break;
-                case 1:
-                    SetLineJoin( LineJoin_Round );
-                    break;
-                case 2:
-                    SetLineJoin( LineJoin_Bevel );
-                    break;
-                default:
-                    break;
-            }
-        }
-        //more work to do
-    }
+	MakeExtGState()->PushExtStateName( resName, extgstate );
+
+	CHE_PDF_ObjectPtr objPtr;
+	std::vector<CHE_PDF_ExtGStateItem>::iterator iti = extgstate->mStateItems.begin();
+	for ( ; iti != extgstate->mStateItems.end(); ++iti )
+	{
+		switch ( iti->type )
+		{
+		case PDF_EXTGSTATE_LW:
+			{
+				SetLineWidth( iti->objPtr->GetNumberPtr()->GetFloat() );
+				break;
+			}
+		case PDF_EXTGSTATE_LC:
+			{
+				switch ( iti->objPtr->GetNumberPtr()->GetInteger() )
+				{
+				case 0:
+					SetLineCap( LineCap_Butt );
+					break;
+				case 1:
+					SetLineCap( LineCap_Round );
+					break;
+				case 2:
+					SetLineCap( LineCap_Square );
+					break;
+				default:
+					break;
+				}
+				break;
+			}
+		case PDF_EXTGSTATE_LJ:
+			{
+				switch ( iti->objPtr->GetNumberPtr()->GetInteger() )
+				{
+				case 0:
+					SetLineJoin( LineJoin_Miter );
+					break;
+				case 1:
+					SetLineJoin( LineJoin_Round );
+					break;
+				case 2:
+					SetLineJoin( LineJoin_Bevel );
+					break;
+				default:
+					break;
+				}
+			}
+		case PDF_EXTGSTATE_ML:
+			{
+				SetMiterLimit( iti->objPtr->GetNumberPtr()->GetFloat() );
+				break;
+			}
+		case PDF_EXTGSTATE_D:
+		case PDF_EXTGSTATE_RI:
+		case PDF_EXTGSTATE_FL:
+		default:break;
+		}
+	}
 
 	return TRUE;
 }
@@ -924,7 +946,7 @@ HE_BOOL IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 )
 	return TRUE;
 }
 
-HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_ExtGState * pExtGS2 )
+HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 )
 {
 	if ( pExtGS1 == pExtGS2 )
 	{
@@ -938,16 +960,16 @@ HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_ExtGS
 
 	if (	! IsFloatEqual( pExtGS1->GetFillAlpha(), pExtGS2->GetFillAlpha() )		|| 
 			! IsFloatEqual( pExtGS1->GetStrokeAlpha(), pExtGS2->GetStrokeAlpha() )	||
-			pExtGS1->mExtDictNameList.size() != pExtGS2->mExtDictNameList.size() )
+			pExtGS1->mExtGStateName.size() != pExtGS2->mExtGStateName.size() )
 	{
 		return FALSE;
 	}
 
 	std::list<CHE_ByteString>::const_iterator it1, it2;
-	it1 = pExtGS1->mExtDictNameList.begin();
-	it2 = pExtGS2->mExtDictNameList.begin();
+	it1 = pExtGS1->mExtGStateName.begin();
+	it2 = pExtGS2->mExtGStateName.begin();
 
-	for ( ; it1 != pExtGS1->mExtDictNameList.end() && it2 != pExtGS2->mExtDictNameList.end(); ++it1, ++it2 )
+	for ( ; it1 != pExtGS1->mExtGStateName.end() && it2 != pExtGS2->mExtGStateName.end(); ++it1, ++it2 )
 	{
 		if ( *it1 != *it2 )
 		{
@@ -957,7 +979,7 @@ HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_ExtGS
 	return TRUE;
 }
 
-HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_ExtGState * pExtGS2 )
+HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 )
 {
 	if ( pExtGS1 == NULL && pExtGS2 != NULL )
 	{
@@ -974,15 +996,15 @@ HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_Ex
 		return FALSE;
 	}
 
-	if ( pExtGS2->mExtDictNameList.size() <= pExtGS1->mExtDictNameList.size() )
+	if ( pExtGS2->mExtGStateName.size() <= pExtGS1->mExtGStateName.size() )
 	{
 		return FALSE;
 	}
 
 	std::list<CHE_ByteString>::const_iterator it1, it2;
-	it1 = pExtGS1->mExtDictNameList.begin();
-	it2 = pExtGS2->mExtDictNameList.begin();
-	for ( ; it1 != pExtGS1->mExtDictNameList.end(); ++it1, ++it2 )
+	it1 = pExtGS1->mExtGStateName.begin();
+	it2 = pExtGS2->mExtGStateName.begin();
+	for ( ; it1 != pExtGS1->mExtGStateName.end(); ++it1, ++it2 )
 	{
 		if ( *it1 != *it2 )
 		{

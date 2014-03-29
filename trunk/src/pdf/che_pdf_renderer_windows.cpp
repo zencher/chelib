@@ -46,7 +46,7 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	drawer.SetStrokeColor( strokeColorVal );
 	drawer.SetFillMode( FillMode_Nonzero );
 
-	CHE_PDF_ExtGState * extGState =  pGState->GetExtGState();
+	CHE_PDF_ExtGStateStack * extGState =  pGState->GetExtGState();
 	if ( extGState )
 	{
 		fillAlpha = extGState->GetFillAlpha();

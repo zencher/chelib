@@ -3,6 +3,7 @@
 
 #include "../che_graphics.h"
 #include "che_pdf_colorspace.h"
+#include "che_pdf_extgstate.h"
 #include "che_pdf_font.h"
 #include <list>
 
@@ -110,29 +111,33 @@ public:
 private:
 };
 
-class CHE_PDF_ExtGState : public CHE_Object
+class CHE_PDF_ExtGStateStack : public CHE_Object
 {
 public:
-	CHE_PDF_ExtGState( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mStrokeAlpha(1), mFillAlpha(1) {}
+	CHE_PDF_ExtGStateStack( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object(pAllocator), mStrokeAlpha(1), mFillAlpha(1), mBlendMode(BlendMode_Normal) {}
 
-	HE_BOOL PushExtStateName( const CHE_ByteString & name, CHE_PDF_DictionaryPtr dictPtr );
+	HE_BOOL PushExtStateName( const CHE_ByteString & name, const CHE_PDF_ExtGStatePtr & extgstate );
 
 	HE_FLOAT GetStrokeAlpha() const { return mStrokeAlpha; }
 
 	HE_FLOAT GetFillAlpha() const { return mFillAlpha; }
 
-	CHE_PDF_ExtGState * Clone() const;
+	GRAPHICS_STATE_BLENDMODE GetBlendMode() const { return mBlendMode; }
 
-	bool operator == ( const CHE_PDF_ExtGState & gs ) const;
+	CHE_PDF_ExtGStateStack * Clone() const;
 
-	bool operator != ( const CHE_PDF_ExtGState & gs ) const;
+	bool operator == ( const CHE_PDF_ExtGStateStack & gs ) const;
 
-	std::list<CHE_ByteString> mExtDictNameList;
+	bool operator != ( const CHE_PDF_ExtGStateStack & gs ) const;
+
+	std::list<CHE_ByteString>			mExtGStateName;
+	std::list<CHE_PDF_ExtGStatePtr>		mExtGStateStack;
 
 private:
-	HE_FLOAT mStrokeAlpha;
-	HE_FLOAT mFillAlpha;
+	HE_FLOAT							mStrokeAlpha;
+	HE_FLOAT							mFillAlpha;
+	GRAPHICS_STATE_BLENDMODE			mBlendMode;
 };
 
 #define GSTATE_FLAG_FillColor			0x00000001
@@ -155,6 +160,7 @@ private:
 #define GSTATE_FLAG_StrokeAlpha			0x00020000
 #define GSTATE_FLAG_RenderIntents		0x00040000
 #define GSTATE_FLAG_Flatness			0x00080000
+#define GSTATE_FLAG_BlendMode			0x00100000
 
 class CHE_PDF_GState : public CHE_Object
 {
@@ -196,7 +202,7 @@ public:
 	HE_VOID GetTextFontResName( CHE_ByteString & resNameRet ) const;
 	HE_VOID GetTextRenderMode( GRAPHICS_STATE_TEXTRENDERMODE & rm ) const;
 	CHE_PDF_ClipState * GetClipState() const { return mpClipState; }
-	CHE_PDF_ExtGState * GetExtGState() const { return mpExtState; }
+	CHE_PDF_ExtGStateStack * GetExtGState() const { return mpExtState; }
 
 	HE_VOID SetMatrix( const CHE_Matrix & matirx );
 	HE_VOID SetRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri );
@@ -220,7 +226,7 @@ public:
 	HE_VOID SetTextRise( const HE_FLOAT & rise );
 	HE_VOID SetTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm );
 	HE_BOOL PushClipElement( CHE_PDF_ContentObject * pElement );
-	HE_BOOL PushExtGState( const CHE_ByteString & resName, CHE_PDF_DictionaryPtr dictPtr );
+	HE_BOOL PushExtGState( const CHE_ByteString & resName, const CHE_PDF_ExtGStatePtr & extgstate );
 
 	HE_VOID	CopyTextState( CHE_PDF_GState * pGState );
 
@@ -228,7 +234,7 @@ private:
 	CHE_PDF_StrokeState *			MakeStrokeState();
 	CHE_PDF_TextGState *			MakeTextState();
 	CHE_PDF_ClipState *				MakeClipState();
-	CHE_PDF_ExtGState *				MakeExtGState();
+	CHE_PDF_ExtGStateStack *		MakeExtGState();
 
 	HE_UINT32						mFlag;
 	HE_FLOAT						mFlatness;
@@ -241,7 +247,7 @@ private:
 	CHE_PDF_StrokeState *			mpStrokeState;
 	CHE_PDF_TextGState *			mpTextState;
 	CHE_PDF_ClipState *				mpClipState;
-	CHE_PDF_ExtGState *				mpExtState;
+	CHE_PDF_ExtGStateStack *		mpExtState;
 };
 
 HE_BOOL	IsFloatEqual( const HE_FLOAT &, const HE_FLOAT & );
@@ -269,8 +275,8 @@ HE_BOOL IsDefColor( const CHE_PDF_Color & color );
 HE_BOOL	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 );
 HE_BOOL IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 );
 
-HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_ExtGState * pExtGS2 );
-HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGState * pExtGS1, const CHE_PDF_ExtGState * pExtGS2 );
+HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 );
+HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 );
 
 HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 );
 HE_BOOL IsClipStateContinue( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 );

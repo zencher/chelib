@@ -56,6 +56,8 @@ class CHE_PDF_ExtGState : protected CHE_PDF_Component
 public:
 	static CHE_PDF_ExtGStatePtr Create( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator = NULL );
 
+	static CHE_PDF_ExtGStatePtr Convert( const CHE_PDF_ComponentPtr & componetPtr );
+
 	std::vector<CHE_PDF_ExtGStateItem> mStateItems;
 
 private:

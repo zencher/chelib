@@ -27,6 +27,17 @@ CHE_PDF_ExtGStatePtr CHE_PDF_ExtGState::Create( const CHE_PDF_ObjectPtr & objPtr
 }
 
 
+CHE_PDF_ExtGStatePtr CHE_PDF_ExtGState::Convert( const CHE_PDF_ComponentPtr & componetPtr )
+{
+	CHE_PDF_ExtGStatePtr ptr;
+	if ( componetPtr && componetPtr->GetType() == COMPONENT_TYPE_ExtGState )
+	{
+		ptr.Reset( componetPtr.GetPointer() );
+	}
+	return ptr;
+}
+
+
 CHE_PDF_ExtGState::CHE_PDF_ExtGState( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator /*= NULL*/ )
 	:CHE_PDF_Component( COMPONENT_TYPE_ExtGState, rootObjPtr, pAllocator )
 {

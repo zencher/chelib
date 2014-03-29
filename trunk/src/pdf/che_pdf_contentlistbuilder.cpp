@@ -1831,25 +1831,34 @@ HE_VOID CHE_PDF_ContentsParser::Handle_gs()
 {
 	if ( mName.GetLength() > 0 )
 	{
-		CHE_PDF_ObjectPtr objPtr;
-		CHE_PDF_DictionaryPtr dictPtr;
-		objPtr = mpContentResMgr->GetResObj( CONTENTRES_EXTGSTATE, mName );
-		if ( objPtr )
+		CHE_PDF_ComponentPtr cmptPtr = mpContentResMgr->GetComponent( mName, CONTENTRES_EXTGSTATE );
+		if ( cmptPtr )
 		{
-			if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
+			mpConstructor->State_ExtGState( mName, CHE_PDF_ExtGState::Convert( cmptPtr ) );
+		}else{
+			CHE_PDF_ObjectPtr objPtr = mpContentResMgr->GetResObj( CONTENTRES_EXTGSTATE, mName );
+			if ( ! objPtr )
 			{
-				objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
-				if ( objPtr )
-				{
-					dictPtr = objPtr->GetDictPtr();
-				}
-			}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
-			{
-				dictPtr = objPtr->GetDictPtr();
+				return;
 			}
-			if ( dictPtr )
+			if ( IsPdfRefPtr( objPtr ) )
 			{
-				mpConstructor->State_ExtGState( mName, dictPtr );
+				CHE_PDF_ComponentPtr cmptPtr = mpCmptMgr->GetComponent( objPtr->GetRefPtr(), COMPONENT_TYPE_ExtGState );
+				if ( cmptPtr )
+				{
+					mpConstructor->State_ExtGState( mName, CHE_PDF_ExtGState::Convert( cmptPtr ) );
+				}else{
+					CHE_PDF_ExtGStatePtr extGStatePtr = CHE_PDF_ExtGState::Create( objPtr, GetAllocator() );
+					mpCmptMgr->PushComponent( objPtr->GetRefPtr(), extGStatePtr );
+					mpConstructor->State_ExtGState( mName, extGStatePtr );
+				}
+			}else{
+				CHE_PDF_ExtGStatePtr extGStatePtr = CHE_PDF_ExtGState::Create( objPtr, GetAllocator() );
+				if ( extGStatePtr )
+				{
+					mpContentResMgr->PushComponent( mName, extGStatePtr );
+					mpConstructor->State_ExtGState( mName, extGStatePtr );
+				}
 			}
 		}
 	}

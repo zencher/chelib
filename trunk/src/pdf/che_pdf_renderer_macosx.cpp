@@ -139,6 +139,63 @@ HE_VOID	CHE_PDF_Renderer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
     mFillMode = mode;
 }
 
+HE_VOID CHE_PDF_Renderer::SetBlendMode( GRAPHICS_STATE_BLENDMODE mode )
+{
+    switch ( mode )
+    {
+        case BlendMode_Normal:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeNormal );
+            break;
+        case BlendMode_Multiply:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeMultiply );
+            break;
+        case BlendMode_Screen:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeScreen );
+            break;
+        case BlendMode_Overlay:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeOverlay );
+            break;
+        case BlendMode_Darken:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeDarken );
+            break;
+        case BlendMode_Lighten:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeLighten );
+            break;
+        case BlendMode_ColorDodge:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeColorDodge );
+            break;
+        case BlendMode_ColorBurn:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeColorBurn );
+            break;
+        case BlendMode_HardLight:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeHardLight );
+            break;
+        case BlendMode_SoftLight:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeSoftLight );
+            break;
+        case BlendMode_Difference:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeDifference );
+            break;
+        case BlendMode_Exclusion:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeExclusion );
+            break;
+        case BlendMode_Hue:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeHue );
+            break;
+        case BlendMode_Saturation:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeSaturation );
+            break;
+        case BlendMode_Color:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeColor );
+            break;
+        case BlendMode_Luminosity:
+            CGContextSetBlendMode( mContextRef, kCGBlendModeLuminosity );
+            break;
+        default:
+            break;
+    }
+}
+
 HE_VOID CHE_PDF_Renderer::SetTextFont( CGFontRef font )
 {
     if ( mContextRef )
@@ -287,10 +344,14 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                 CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( cs->mBaseColorspace );
                 if ( baseColorSpaceRef )
                 {
-                    csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, cs->mIndexCount - 1, cs->mpIndexTable );
+                    csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, cs->mIndexCount, cs->mpIndexTable );
                     CGColorSpaceRelease( baseColorSpaceRef );
                 }
                 break;
+            }
+        case COLORSPACE_SPECIAL_SEPARATION:
+            {
+                csRef = CreateColorSpace( cs->mBaseColorspace );
             }
         default:
             break;
@@ -604,10 +665,54 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
     
     SetFillColorSpace( fillColorSpace );
     SetStrokeColorSpace( strokeColorSpace );
+    
+    if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
+    {
+        CHE_PDF_FunctionPtr funcPtr = fillColorSpace->GetFunction();
+        std::vector<HE_FLOAT> input;
+        std::vector<HE_FLOAT> output;
+        for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
+        {
+            input.push_back( fillColor.GetComponent( i ) );
+        }
+        funcPtr->Calculate( input, output );
+        fillColor.Clear();
+        for ( size_t j = 0; j < output.size(); ++j )
+        {
+            fillColor.Push( output[j] );
+        }
+    }
+    
+    if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
+    {
+        CHE_PDF_FunctionPtr funcPtr = strokeColorSpace->GetFunction();
+        std::vector<HE_FLOAT> input;
+        std::vector<HE_FLOAT> output;
+        for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
+        {
+            input.push_back( strokeColor.GetComponent( i ) );
+        }
+        funcPtr->Calculate( input, output );
+        strokeColor.Clear();
+        for ( size_t j = 0; j < output.size(); ++j )
+        {
+            strokeColor.Push( output[j] );
+        }
+    }
+    
     SetFillColor( fillColor );
     SetStrokeColor( strokeColor );
     
 	SetFillMode( FillMode_Nonzero );
+}
+
+HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
+{
+    if ( pExtGState )
+    {
+        GRAPHICS_STATE_BLENDMODE blendMode = pExtGState->GetBlendMode();
+        SetBlendMode( blendMode );
+    }
 }
 
 HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
@@ -911,23 +1016,59 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
         {
             SetMatrix( CHE_Matrix() );
             //对于Fill类型的文本输出，可以使用系统原生文本输出接口，以获得次像素支持
-            
+
             CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
             if ( pFont->GetPlatformFontInfo() )
             {
                 CGFontRef fontRef = (CGFontRef)pFont->GetPlatformFontInfo();
                 SetTextFont( fontRef );
             }else{
-                CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, pFont->GetEmbededFont(), pFont->GetEmbededFontSize(), kCFAllocatorNull );
-                if ( dataRef )
+                if ( pFont->GetEmbededFontSize() )
                 {
-                    CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
-                    CGFontRef fontRef = CGFontCreateWithDataProvider( dataProviderRef );
-                    if ( fontRef )
+                    CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, pFont->GetEmbededFont(), pFont->GetEmbededFontSize(), kCFAllocatorNull );
+                    if ( dataRef )
                     {
-                        pFont->SetPlatformFontInfo( fontRef );
-                        pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
-                        SetTextFont( fontRef );
+                        CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
+                        CGFontRef fontRef = CGFontCreateWithDataProvider( dataProviderRef );
+                        if ( fontRef )
+                        {
+                            pFont->SetPlatformFontInfo( fontRef );
+                            pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
+                            SetTextFont( fontRef );
+                        }
+                        else{
+                            return DrawTextAsPath( pText );
+                        }
+                    }
+                }else{
+                    CHE_ByteString fontPath = pFont->GetFontPath();
+                    if ( fontPath.GetLength() > 0 )
+                    {
+                        FILE * pFile = fopen( fontPath.GetData(), "rb" );
+                        if ( pFile )
+                        {
+                            fseek( pFile, 0, SEEK_END );
+                            long posi = ftell( pFile );
+                            unsigned char * data = new unsigned char[posi];
+                            fseek( pFile, 0, SEEK_SET);
+                            fread( data, 1, posi, pFile);
+                            
+                            CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, data, posi, kCFAllocatorNull );
+                            if ( dataRef )
+                            {
+                                CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
+                                CGFontRef fontRef = CGFontCreateWithDataProvider( dataProviderRef );
+                                if ( fontRef )
+                                {
+                                    pFont->SetPlatformFontInfo( fontRef );
+                                    pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
+                                    SetTextFont( fontRef );
+                                }
+                                else{
+                                    return DrawTextAsPath( pText );
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1067,7 +1208,7 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, cons
 		}
         case COMPONENT_TYPE_FormXObject:
 		{
-<<<<<<< .mine
+//<<<<<<< .mine
             StoreGState();
             
 			CHE_Matrix tmpExtMatrix = extMatrix;
@@ -1083,19 +1224,19 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, cons
 			SetExtMatrix( extMatrix );
             
             RestoreGState();
-=======
-			CHE_Matrix tmpExtMatrix = extMatrix;
-			CHE_Matrix newExtMatrix;
-			CHE_PDF_GState * pGState = cmptRef->GetGState();
-			if ( pGState )
-			{
-                newExtMatrix = pGState->GetMatrix();
-			}
-			newExtMatrix.Concat( tmpExtMatrix );
-			SetExtMatrix( newExtMatrix );
-            DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ), mExtMatrix );
-			SetExtMatrix( extMatrix );
->>>>>>> .r801
+//=======
+//			CHE_Matrix tmpExtMatrix = extMatrix;
+//			CHE_Matrix newExtMatrix;
+//			CHE_PDF_GState * pGState = cmptRef->GetGState();
+//			if ( pGState )
+//			{
+//                newExtMatrix = pGState->GetMatrix();
+//			}
+//			newExtMatrix.Concat( tmpExtMatrix );
+//			SetExtMatrix( newExtMatrix );
+//            DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ), mExtMatrix );
+//			SetExtMatrix( extMatrix );
+//>>>>>>> .r801
 			break;
 		}
         case COMPONENT_TYPE_Shading:
@@ -1258,6 +1399,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
+    CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
 	ContentObjectList::iterator it = content.Begin();
 	for ( ; it != content.End(); ++it )
 	{
@@ -1272,6 +1414,11 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 				SetClipState( pClipState );
 			}
             SetCommonGState( pGState );
+            pExtGStateStack = pGState->GetExtGState();
+            if ( pExtGStateStack )
+            {
+                SetExtGState( pExtGStateStack );
+            }
 		}
         
 		switch ( (*it)->GetType() )

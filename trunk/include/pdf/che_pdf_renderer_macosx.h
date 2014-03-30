@@ -29,6 +29,7 @@ private:
     HE_VOID		SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
     HE_VOID		SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
     HE_VOID		SetFillMode( GRAPHICS_STATE_FILLMODE mode );
+    HE_VOID     SetBlendMode( GRAPHICS_STATE_BLENDMODE mode );
     HE_VOID     SetTextFont( CGFontRef font );
     HE_VOID     SetTextMatrix( CHE_Matrix textMatrix );
     
@@ -60,6 +61,7 @@ private:
     HE_VOID     RestoreGState();
     
     HE_VOID     SetCommonGState( CHE_PDF_GState * pGState );
+    HE_VOID     SetExtGState( CHE_PDF_ExtGStateStack * pExtGState );
     HE_VOID     SetClipState( CHE_PDF_ClipState * pClipState );
     
     HE_VOID     DrawPath( CHE_PDF_Path * pPath );

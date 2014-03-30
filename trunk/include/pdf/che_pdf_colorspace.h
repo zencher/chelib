@@ -112,6 +112,8 @@ public:
 
 	HE_ARGB					GetARGBValue( const CHE_PDF_Color & color ) const;
     
+    CHE_PDF_FunctionPtr     GetFunction() const { return mFunction; }
+    
     HE_DOUBLE				mWhitePoint[3];
 	HE_DOUBLE				mBlackPoint[3];
 	HE_DOUBLE				mGamma[3];

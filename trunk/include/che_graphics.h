@@ -67,7 +67,11 @@ enum GRAPHICS_STATE_BLENDMODE
 	BlendMode_HardLight		= 8,
 	BlendMode_SoftLight		= 9,
 	BlendMode_Difference	= 10,
-	BlendMode_Exclusion		= 11
+	BlendMode_Exclusion		= 11,
+    BlendMode_Hue           = 12,
+    BlendMode_Saturation    = 13,
+    BlendMode_Color         = 14,
+    BlendMode_Luminosity    = 15
 };
 
 enum GRAPHICS_STATE_FILLMODE

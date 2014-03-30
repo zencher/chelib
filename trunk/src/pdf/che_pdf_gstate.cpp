@@ -159,6 +159,18 @@ HE_BOOL CHE_PDF_ExtGStateStack::PushExtStateName( const CHE_ByteString & name, c
 				}else if ( blendName == "SoftLight" )
 				{
 					mBlendMode = BlendMode_SoftLight;
+				}else if ( blendName == "Hue" )
+				{
+					mBlendMode = BlendMode_Hue;
+				}else if ( blendName == "Saturation" )
+				{
+					mBlendMode = BlendMode_Saturation;
+				}else if ( blendName == "Color" )
+				{
+					mBlendMode = BlendMode_Color;
+				}else if ( blendName == "Luminosity" )
+				{
+					mBlendMode = BlendMode_Luminosity;
 				}
 				break;
 			}

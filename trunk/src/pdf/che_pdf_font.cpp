@@ -5952,7 +5952,7 @@ IHE_SystemFontMgr * HE_GetSystemFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
 
 
 CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_Object( pAllocator ), mType( FONT_ENCODING_NONE ), mbCodeTableRelease( FALSE ), mpCodeTable( NULL )
+	: CHE_Object( pAllocator ), mType( FONT_ENCODING_NONE ), mBaseType( FONT_ENCODING_NONE ), mbCodeTableRelease( FALSE ), mpCodeTable( NULL )
 {
 	//还需要完善对于Type3字体的Encoding的支持，还要添加字体类型的配合判断
 
@@ -5974,48 +5974,58 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 	}
 	if ( !objPtr )
 	{
+        mType = FONT_ENCODING_PDFDOC;
+        mBaseType = FONT_ENCODING_PDFDOC;
+        mpCodeTable = (HE_WCHAR*)gPdfDocEncoding;
 		return;
 	}
 
 	CHE_ByteString	str;
-
 	if ( objPtr->GetType() == OBJ_TYPE_NAME )
 	{
 		str = objPtr->GetNamePtr()->GetString();
 		if ( str == "MacRomanEncoding" )
 		{
 			mType = FONT_ENCODING_MACROMAN;
+            mBaseType = FONT_ENCODING_MACROMAN;
 			mpCodeTable = (HE_WCHAR*)gMacRomanEncoding;
 		}else if ( str == "MacExpertEncoding" )
 		{
 			mType = FONT_ENCODING_MACEXPERT;
+            mBaseType = FONT_ENCODING_MACEXPERT;
 			mpCodeTable = (HE_WCHAR*)gMacExpertEncoding;
 		}else if ( str == "WinAnsiEncoding" )
 		{
 			mType = FONT_ENCODING_WINANSI;
+            mBaseType = FONT_ENCODING_WINANSI;
 			mpCodeTable = (HE_WCHAR*)gWinAnsiEncoding;
 		}else if ( str == "StandardEncoding" )
 		{
 			mType = FONT_ENCODING_STANDARD;
+            mBaseType = FONT_ENCODING_STANDARD;
 			mpCodeTable = (HE_WCHAR*)gStandardEncoding;
 		}else if ( str == "PdfZapfDingbatsEncoding" )
 		{
 			mType = FONT_ENCODING_ZAPFDINGBAT;
+            mBaseType = FONT_ENCODING_ZAPFDINGBAT;
 			mpCodeTable = (HE_WCHAR*)gPdfZapfDingbatsEncoding;
 		}else if ( str == "SymbolEncoding" )
 		{
 			mType = FONT_ENCODING_SYMBOL;
+            mBaseType = FONT_ENCODING_SYMBOL;
 			mpCodeTable = (HE_WCHAR*)gSymbolEncoding;
 		}else if ( str == "Identity-H" || str == "Identity-V" )
 		{
 			mType = FONT_ENCODING_IDENTITY;
+            mBaseType = FONT_ENCODING_IDENTITY;
 		}else{
-			//mType = FONT_ENCODING_WINANSI;
 			mType = FONT_ENCODING_BUILDINCMAP;
+            mBaseType = FONT_ENCODING_BUILDINCMAP;
 		}
 	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
 	{
-		mType = FONT_ENCODING_STANDARD;
+        mType = FONT_ENCODING_CUSTOM;
+		mBaseType = FONT_ENCODING_STANDARD;
 
 		CHE_PDF_DictionaryPtr pEncodingDict = objPtr->GetDictPtr();
 		objPtr = pEncodingDict->GetElement( "BaseEncoding", OBJ_TYPE_NAME );
@@ -6024,25 +6034,25 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 			str = objPtr->GetNamePtr()->GetString();
 			if ( str == "MacRomanEncoding" )
 			{
-				mType = FONT_ENCODING_MACROMAN;
+				mBaseType = FONT_ENCODING_MACROMAN;
 			}else if ( str == "MacExpertEncoding" )
 			{
-				mType = FONT_ENCODING_MACEXPERT;
+				mBaseType = FONT_ENCODING_MACEXPERT;
 			}else if ( str == "WinAnsiEncoding" )
 			{
-				mType = FONT_ENCODING_WINANSI;
+				mBaseType = FONT_ENCODING_WINANSI;
 			}else if ( str == "StandardEncoding" )
 			{
-				mType = FONT_ENCODING_STANDARD;
+				mBaseType = FONT_ENCODING_STANDARD;
 			}else if ( str == "PdfZapfDingbatsEncoding" )
 			{
-				mType = FONT_ENCODING_ZAPFDINGBAT;
+				mBaseType = FONT_ENCODING_ZAPFDINGBAT;
 			}else if ( str == "SymbolEncoding" )
 			{
-				mType = FONT_ENCODING_SYMBOL;
+				mBaseType = FONT_ENCODING_SYMBOL;
 			}
 		}else{
-			mType = FONT_ENCODING_CUSTOM;
+			mBaseType = FONT_ENCODING_STANDARD;
 		}
 
 		mpCodeTable = GetAllocator()->NewArray<HE_WCHAR>( 256 );
@@ -6052,7 +6062,7 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 		}
 		mbCodeTableRelease = TRUE;
 
-		switch ( mType )
+		switch ( mBaseType )
 		{ 
 		case FONT_ENCODING_PDFDOC:
 			memcpy( (HE_LPVOID)mpCodeTable, gPdfDocEncoding, sizeof(HE_WCHAR) * 256 );
@@ -6086,10 +6096,10 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 			HE_ULONG iIndex = 0;
 			HE_BYTE tmpByte;
 			CHE_PDF_ObjectPtr pObj;
-			if ( iCount > 0 )
-			{
-				mType = FONT_ENCODING_CUSTOM;
-			}
+//			if ( iCount > 0 )
+//			{
+//				mType = FONT_ENCODING_CUSTOM;
+//			}
 			for ( HE_ULONG i = 0; i < iCount; i++ )
 			{
 				pObj = pDifArray->GetElement( i );
@@ -6126,6 +6136,10 @@ PDF_FONT_ENCODING CHE_PDF_Encoding::GetType() const
 	return mType;
 }
 
+PDF_FONT_ENCODING CHE_PDF_Encoding::GetBaseType() const
+{
+    return mBaseType;
+}
 
 HE_BOOL CHE_PDF_Encoding::GetUnicode( HE_BYTE charCode, HE_WCHAR & codeRet ) const
 {
@@ -6337,6 +6351,19 @@ CHE_PDF_Font * CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE
 	return pFont;
 }
 
+static int ft_char_index(FT_Face face, int cid)
+{
+	int gid = FT_Get_Char_Index(face, cid);
+	if (gid == 0)
+		gid = FT_Get_Char_Index(face, 0xf000 + cid);
+    
+	/* some chinese fonts only ship the similarly looking 0x2026 */
+	if (gid == 0 && cid == 0x22ef)
+		gid = FT_Get_Char_Index(face, 0x2026);
+    
+	return gid;
+}
+
 
 CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mType(FONT_TYPE1), mBaseFont(pAllocator), mEncoding(fontDict, pAllocator), mFontDict(fontDict),
@@ -6465,6 +6492,8 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 			{
 				FT_Library ftlib = HE_GetFTLibrary();
 				FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, (FT_Face*)&mFace );
+                mFontFileSize = bufSize;
+                mpEmbeddedFontFile = pBuf;
 			}else if ( mpFontDescriptor )
 			{
 				//对于无法通过baseFont获得对于的文件的，应该通过某种其他的规则获得替代字体
@@ -6503,7 +6532,20 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 // 					if ( filePath.GetLength() == 0 )
 // 					{					
 //					}
-
+                    
+#ifdef _MAC_OS_X_
+                    
+                    if ( mType == FONT_TYPE0 )
+                    {
+                        filePath = "/Library/Fonts/Songti.ttc";
+                        
+                    }else{
+                        filePath = "/System/Library/Fonts/Helvetica.dfont";
+                    }
+				
+#endif
+                
+#ifdef WIN32
 					filePath = pSystemFontMgr->GetFontFilePath( "微软雅黑" );
 					if ( filePath.GetLength() == 0 )
 					{
@@ -6513,13 +6555,22 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 							filePath = pSystemFontMgr->GetFontFilePath( "黑体" );
 						}
 					}
-				}
+#endif
 
+                }
+                
 				FT_Library ftlib = HE_GetFTLibrary();
 				FT_New_Face( ftlib, filePath.GetData(), 0, (FT_Face*)&mFace );
+                mFontPath = filePath;
 			}
 		}
 	}
+    
+    
+    if ( mType == FONT_TYPE0 )
+    {
+        return;
+    }
 
 	//处理一下字体的charmap
 	FT_CharMap cmap = NULL;
@@ -6549,92 +6600,185 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 			FT_Set_Charmap( ftface, cmap );
 		}
 	}
+    
+    CHE_ByteString estrings[256];
+    mCIDTOGID = GetAllocator()->NewArray<HE_WCHAR>( 256 );
+    mCIDTOGIDLength = 256;
+    if ( mFace )
+    {
+        for ( HE_INT32 i = 0; i < 256; ++i )
+        {
+            mCIDTOGID[i] = ft_char_index( (FT_Face)mFace, i );
+        }
+    }
+    
+    switch ( mEncoding.GetBaseType() )
+    {
+        case FONT_ENCODING_STANDARD:
+            for ( HE_ULONG i = 0; i < 256; ++i )
+            {
+                estrings[i] = pdf_standard[i];
+            }
+            break;
+        case FONT_ENCODING_WINANSI:
+            for ( HE_ULONG i = 0; i < 256; ++i )
+            {
+                estrings[i] = pdf_win_ansi[i];
+            }
+            break;
+        case FONT_ENCODING_MACROMAN:
+            for ( HE_ULONG i = 0; i < 256; ++i )
+            {
+                estrings[i] = pdf_mac_roman[i];
+            }
+            break;
+        case FONT_ENCODING_MACEXPERT:
+            for ( HE_ULONG i = 0; i < 256; ++i )
+            {
+                estrings[i] = pdf_mac_expert[i];
+            }
+            break;
+        default:break ;
+    }
+    
+    CHE_PDF_DictionaryPtr EncodingDict;
+    objPtr = fontDict->GetElement( "Encoding", OBJ_TYPE_DICTIONARY );
+    if ( objPtr )
+    {
+        EncodingDict = objPtr->GetDictPtr();
+        
+        CHE_PDF_ArrayPtr pDifArray = EncodingDict->GetElement( "Differences", OBJ_TYPE_ARRAY )->GetArrayPtr();
+        if ( pDifArray )
+        {
+            HE_ULONG iCount = pDifArray->GetCount();
+            HE_ULONG iIndex = 0;
+            
+            CHE_PDF_ObjectPtr pObj;
+            for ( HE_ULONG i = 0; i < iCount; i++ )
+            {
+                pObj = pDifArray->GetElement( i );
+                if ( pObj->GetType() == OBJ_TYPE_NUMBER )
+                {
+                    iIndex = pObj->GetNumberPtr()->GetInteger();
+                }else if ( pObj->GetType() == OBJ_TYPE_NAME )
+                {
+                    estrings[iIndex] = pObj->GetNamePtr()->GetString();
+                    iIndex++;
+                    // 							CHE_ByteString strTmp = pObj->GetNamePtr()->GetString();
+                    // 							HE_ULONG gid = FT_Get_Name_Index( (FT_Face)mFace, (char *)strTmp.GetData() );
+                    // 							if ( gid > 0 )
+                    // 							{
+                    // 								*(mEncoding.mpCodeTable + iIndex) = gid;
+                    // 								iIndex++;
+                    // 							}
+                }
+            }
+        }
+    }
+
 
 	if ( mType == FONT_TYPE1 )
 	{
-		if ( mEncoding.GetType() == FONT_ENCODING_CUSTOM )
-		{
-			//now mEncoding contains gid info
-
-			CHE_ByteString estrings[256];
-			mCIDTOGID = GetAllocator()->NewArray<HE_WCHAR>( 256 );
-			mCIDTOGIDLength = 256;
-			for ( HE_ULONG i = 0; i < 256; ++i )
-			{
-				mCIDTOGID[i] = FT_Get_Char_Index( (FT_Face)mFace, i );
-			}
-
-			CHE_PDF_ObjectPtr objPtr;
-			CHE_PDF_DictionaryPtr EncodingDict;
-			objPtr = fontDict->GetElement( "Encoding", OBJ_TYPE_DICTIONARY );
-			if ( objPtr )
-			{
-				EncodingDict = objPtr->GetDictPtr();
-
-				objPtr = EncodingDict->GetElement( "BaseEncoding", OBJ_TYPE_NAME );
-				if ( objPtr )
-				{
-					CHE_ByteString str = objPtr->GetNamePtr()->GetString();
-					if ( str == "WinAnsiEncoding" )
-					{
-						for ( HE_ULONG i = 0; i < 256; ++i )
-						{
-							estrings[i] = pdf_win_ansi[i];
-						}
-					}
-				}
-
-				CHE_PDF_ArrayPtr pDifArray = EncodingDict->GetElement( "Differences", OBJ_TYPE_ARRAY )->GetArrayPtr();
-				if ( pDifArray )
-				{
-					HE_ULONG iCount = pDifArray->GetCount();
-					HE_ULONG iIndex = 0;
-
-					CHE_PDF_ObjectPtr pObj;
-					for ( HE_ULONG i = 0; i < iCount; i++ )
-					{
-						pObj = pDifArray->GetElement( i );
-						if ( pObj->GetType() == OBJ_TYPE_NUMBER )
-						{
-							iIndex = pObj->GetNumberPtr()->GetInteger();
-						}else if ( pObj->GetType() == OBJ_TYPE_NAME )
-						{
-							estrings[iIndex] = pObj->GetNamePtr()->GetString();
-							iIndex++;
-// 							CHE_ByteString strTmp = pObj->GetNamePtr()->GetString();
-// 							HE_ULONG gid = FT_Get_Name_Index( (FT_Face)mFace, (char *)strTmp.GetData() );
-// 							if ( gid > 0 )
-// 							{
-// 								*(mEncoding.mpCodeTable + iIndex) = gid;
-// 								iIndex++;
-// 							}
-						}
-					}
-				}
-			}
-
-			for ( HE_ULONG i = 0; i < 256; ++i )
-			{
-				if ( estrings[i].GetLength() > 0 )
-				{
-					mCIDTOGID[i] = FT_Get_Name_Index( (FT_Face)mFace, (char*)( estrings[i].GetData() ) );
-					if ( mCIDTOGID[i] == 0 )
-					{
-						int aglcode = pdf_lookup_agl( (char*)( estrings[i].GetData() ) );
-						const char **dupnames = pdf_lookup_agl_duplicates(aglcode);
-						while (*dupnames)
-						{
-							mCIDTOGID[i] = FT_Get_Name_Index( (FT_Face)mFace, (char*)*dupnames);
-							if (mCIDTOGID[i])
-								break;
-							dupnames++;
-						}
-					}
-				}
-			}
-		}
+        
+        for ( HE_ULONG i = 0; i < 256; ++i )
+        {
+            if ( estrings[i].GetLength() > 0 )
+            {
+                mCIDTOGID[i] = FT_Get_Name_Index( (FT_Face)mFace, (char*)( estrings[i].GetData() ) );
+                if ( mCIDTOGID[i] == 0 )
+                {
+                    int aglcode = pdf_lookup_agl( (char*)( estrings[i].GetData() ) );
+                    const char **dupnames = pdf_lookup_agl_duplicates(aglcode);
+                    while (*dupnames)
+                    {
+                        mCIDTOGID[i] = FT_Get_Name_Index( (FT_Face)mFace, (char*)*dupnames);
+                        if (mCIDTOGID[i])
+                            break;
+                        dupnames++;
+                    }
+                }
+            }
+        }
 	}
-	 
+    
+    /* encode by glyph name where we can */
+    if ( mType == FONT_TRUETYPE )
+    {
+        /* Unicode cmap */
+        if ( mpFontDescriptor && !mpFontDescriptor->IsSymbolic() && ((FT_Face)mFace)->charmap && ((FT_Face)mFace)->charmap->platform_id == 3)
+        {
+            for ( HE_ULONG i = 0; i < 256; ++i )
+            {
+                if ( estrings[i].GetData() )
+                {
+                    int aglcode = pdf_lookup_agl( (char*)(estrings[i].GetData()));
+                    if (!aglcode)
+                        mCIDTOGID[i] = FT_Get_Name_Index(((FT_Face)mFace), (char*)(estrings[i].GetData()));
+                    //else
+                        //mCIDTOGID[i] = ft_char_index(((FT_Face)mFace), aglcode);
+                }
+            }
+        }
+        
+        /* MacRoman cmap */
+        //else if (mpFontDescriptor && !mpFontDescriptor->IsSymbolic() && ((FT_Face)mFace)->charmap->platform_id == 1)
+        //{
+        //    for ( HE_ULONG i = 0; i < 256; i++ )
+        //    {
+        //        if (estrings[i].GetData())
+        //        {
+        //            int k = lookup_mre_code((char*)(estrings[i].GetData()));
+        //            if (k <= 0)
+        //                mCIDTOGID[i] = FT_Get_Name_Index(((FT_Face)mFace), (char*)(estrings[i].GetData()));
+        //            //else
+        //            //    mCIDTOGID[i] = ft_char_index(((FT_Face)mFace), k);
+        //        }
+        //    }
+        //}
+        
+        /* Symbolic cmap */
+        else if (!((FT_Face)mFace)->charmap || ((FT_Face)mFace)->charmap->encoding != FT_ENCODING_MS_SYMBOL)
+        {
+            for ( HE_ULONG i = 0; i < 256; i++)
+            {
+                if (estrings[i].GetData())
+                {
+                    mCIDTOGID[i] = FT_Get_Name_Index(((FT_Face)mFace), (char*)(estrings[i].GetData()));
+                    //if (mCIDTOGID[i] == 0)
+                    //    mCIDTOGID[i] = ft_char_index(((FT_Face)mFace), i);
+                }
+            }
+        }
+    }
+    
+    
+    /* try to reverse the glyph names from the builtin encoding */
+    for ( HE_ULONG i = 0; i < 256; i++)
+    {
+        if ( mCIDTOGID[i] && estrings[i].GetData() == NULL )
+        {
+            if (FT_HAS_GLYPH_NAMES(((FT_Face)mFace)))
+            {
+                //FT_Get_Glyph_Name(((FT_Face)mFace), mCIDTOGID[i], ebuffer[i], 32);
+                //if (fterr)
+                //    fz_warn(ctx, "freetype get glyph name (gid %d): %s", etable[i], ft_error_string(fterr));
+                //if (ebuffer[i][0])
+                //    estrings[i] = ebuffer[i];
+            }
+            else
+            {
+                estrings[i] = (char*) pdf_win_ansi[i]; /* discard const */
+            }
+        }
+    }
+    
+    /* symbolic Type 1 fonts with an implicit encoding and non-standard glyph names */
+    if ( mType == FONT_TYPE1 && mpFontDescriptor && mpFontDescriptor->IsSymbolic() )
+    {
+        for ( HE_ULONG i = 0; i < 256; i++)
+            if (mCIDTOGID[i] && estrings[i].GetData() && !pdf_lookup_agl( (char*)(estrings[i].GetData())))
+                estrings[i] = (char*) pdf_standard[i];
+    }
 }
 
 
@@ -6702,6 +6846,51 @@ HE_VOID* CHE_PDF_Font::GetFTFace()
 	return mFace;
 }
 
+HE_ULONG CHE_PDF_Font::GetFTFaceGlyphCount() const
+{
+    if ( mFace )
+    {
+        return ((FT_Face)mFace)->num_glyphs;
+    }
+    return 0;
+}
+
+CHE_ByteString CHE_PDF_Font::GetGlyphNameForStandard( HE_WCHAR id ) const
+{
+    CHE_ByteString strRet;
+    if ( id <= 255 && id >= 0 )
+    {
+        strRet = pdf_standard[id];
+    }
+    return strRet;
+}
+
+HE_WCHAR CHE_PDF_Font::GetGlyphIdForStrandard( HE_WCHAR id ) const
+{
+    CHE_ByteString strRet;
+    if ( id <= 255 && id >= 0 && mFace )
+    {
+        strRet = pdf_standard[id];
+        if ( strRet.GetLength() > 0 )
+        {
+            HE_WCHAR gid = FT_Get_Name_Index( (FT_Face)mFace, (char*)( strRet.GetData() ) );
+            if ( gid == 0 )
+            {
+                int aglcode = pdf_lookup_agl( (char*)( strRet.GetData() ) );
+                const char **dupnames = pdf_lookup_agl_duplicates(aglcode);
+                while (*dupnames)
+                {
+                    gid = FT_Get_Name_Index( (FT_Face)mFace, (char*)*dupnames);
+                    if (gid)
+                        break;
+                    dupnames++;
+                }
+            }
+            return gid;
+        }
+    }
+    return 0;
+}
 
 HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 {
@@ -6709,9 +6898,51 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 	{
 		return FALSE;
 	}
+    
+    //for simple font: mCIDTOGID means charcode to gid
+    //for composite font: mCIDTOGID means cid to gid
+    if ( mCIDTOGID )
+	{
+		if ( charCode < mCIDTOGIDLength )
+		{
+			codeRet = mCIDTOGID[charCode];
+			if ( codeRet != 0 )
+            {
+                return TRUE;
+            }
+		}
+	}
+
+    switch ( mEncoding.mType )
+    {
+    case FONT_ENCODING_NONE:
+        return FALSE;
+    case FONT_ENCODING_STANDARD:
+    case FONT_ENCODING_PDFDOC:
+    case FONT_ENCODING_WINANSI:
+    case FONT_ENCODING_MACROMAN:
+    case FONT_ENCODING_MACEXPERT:
+    case FONT_ENCODING_SYMBOL:
+    case FONT_ENCODING_ZAPFDINGBAT:
+    case FONT_ENCODING_CUSTOM:
+        mEncoding.GetUnicode( (HE_BYTE)charCode, charCode );
+        break;
+    case FONT_ENCODING_IDENTITY:
+        {
+            if ( ! GetUnicode( charCode, charCode ) )
+            {
+                codeRet = charCode;
+                return FALSE;
+            }
+        }
+        return TRUE;
+    case FONT_ENCODING_BUILDINCMAP:
+        break;
+    default:
+        return FALSE;
+    }
 	
 	FT_Face ftface = (FT_Face)mFace;
-
 	codeRet = FT_Get_Char_Index( ftface, charCode );
 	if ( codeRet == 0 )
 	{
@@ -6720,23 +6951,7 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 		if ( codeRet == 0 && charCode == 0x22ef )
 			codeRet = FT_Get_Char_Index( ftface, 0x2026 );
 	}
-	if ( mCIDTOGID )
-	{
-		if ( charCode < mCIDTOGIDLength )
-		{
-			codeRet = mCIDTOGID[charCode];
-			return TRUE;
-		}
-	}
-	if ( codeRet == 0 && mEncoding.GetType() == FONT_ENCODING_CUSTOM )
-	{
-		//默认mEncoding中是存放unicode编码的，可是捏，被custom之后，就有可能变成了gid了。
-		HE_BOOL bRet = FALSE;
-		HE_WCHAR wcharRet;
-		bRet = mEncoding.GetUnicode( charCode, wcharRet );
-		codeRet = wcharRet;
-		return bRet;
-	}
+
 	if ( codeRet == 0 )
 	{
 		return FALSE;
@@ -6904,6 +7119,26 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 		}
 		if ( mDescdtFontDict )
 		{
+            objPtr = mDescdtFontDict->GetElement( "CIDToGIDMap", OBJ_TYPE_REFERENCE );
+            if ( objPtr )
+            {
+                objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
+                if ( objPtr )
+                {
+                    CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+                    CHE_PDF_StreamAcc stmAcc;
+                    if ( stmAcc.Attach( stmPtr ) )
+                    {
+                        mCIDTOGIDLength = stmAcc.GetSize() / 2;
+                        mCIDTOGID = GetAllocator()->NewArray<HE_WCHAR>( mCIDTOGIDLength );
+                        for ( size_t i = 0 ; i < mCIDTOGIDLength; ++i )
+                        {
+                            mCIDTOGID[i] = ( stmAcc.GetData()[i*2] << 8 ) + stmAcc.GetData()[i*2+1];
+                        }
+                    }
+                }
+            }
+            
 			objPtr = mDescdtFontDict->GetElement( "CIDSystemInfo", OBJ_TYPE_DICTIONARY );
 			if ( objPtr )
 			{
@@ -6942,6 +7177,93 @@ CHE_PDF_Type0_Font::CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, 
 			}
 		}
 	}	
+}
+
+
+HE_BOOL CHE_PDF_Type0_Font::HandleEncoding( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const
+{
+    ucs = 0;
+    gid = 0;
+    cid = 0;
+    switch ( mEncoding.GetType() )
+    {
+    case FONT_ENCODING_NONE:
+        {
+            gid = charCode;
+            GetUnicode( charCode, ucs );
+            break;
+        }
+    case FONT_ENCODING_BUILDINCMAP:
+        {
+            if ( GetCID( charCode, cid ) )
+            {
+                if ( ! GetUnicode( cid, ucs ) )
+                {
+                    GetGlyphId( charCode, gid );
+                }else{
+                    if ( ! GetGlyphId( ucs, gid ) )
+                    {
+                        GetGlyphId( charCode, gid );
+                    }
+                }
+            }else{
+                GetUnicode( charCode, ucs );
+                if ( ucs == 0 )
+                {
+                    ucs = charCode;
+                }
+                GetGlyphId( charCode, gid );
+                if ( gid == 0 )
+                {
+                    GetGlyphId( ucs, gid );
+                    if ( gid == 0 )
+                    {
+                        gid = charCode;
+                    }
+                }
+            }
+            break;
+        }
+    case FONT_ENCODING_IDENTITY:
+        {
+            if ( GetCID( charCode, cid ) )
+            {
+                GetGlyphId( cid, gid );
+                if ( GetUnicode( charCode, ucs ) )
+                {
+                    if ( ! GetGlyphId( ucs, gid ) )
+                    {
+                        gid = charCode;
+                    }
+                }else{
+                   //error
+                }
+            }else{
+                gid = charCode;
+                GetUnicode( charCode, ucs );
+            }
+            break;
+        }
+    default:
+        {
+            GetUnicode( charCode, ucs );
+            GetCID( charCode, cid );
+            if ( ! GetGlyphId( charCode, gid ) )
+            {
+                if ( ! GetGlyphId( ucs, gid ) )
+                {
+                    GetGlyphId( cid, gid );
+                }
+            }
+            if ( gid == 0 )
+            {
+                gid = charCode;
+            }
+        }
+        break;
+    }
+    
+    return TRUE;
 }
 
 
@@ -7171,9 +7493,58 @@ CHE_PDF_Type1_Font::~CHE_PDF_Type1_Font()
 }
 
 
+HE_BOOL CHE_PDF_Type1_Font::HandleEncoding( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const
+{
+    cid = 0;
+    ucs = 0;
+    gid = 0;
+    
+    HE_BOOL bUCSGet = GetUnicode( charCode, ucs );
+    if ( ! bUCSGet )
+    {
+        ucs = charCode;
+    }
+    
+    //for simple font: mCIDTOGID means charcode to gid
+    if ( mCIDTOGID )
+	{
+		if ( charCode < mCIDTOGIDLength )
+		{
+			gid = mCIDTOGID[charCode];
+			if ( gid != 0 )
+            {
+                return TRUE;
+            }
+		}
+	}
+    
+    if ( mFace )
+	{
+        FT_Face ftface = (FT_Face)mFace;
+        gid = FT_Get_Char_Index( ftface, ucs );
+        //if ( gid == 0 )
+        //{
+        //    gid = FT_Get_Char_Index( ftface, 0xf000 + ucs );
+        //    /* some chinese fonts only ship the similarly looking 0x2026 */
+        //    if ( gid == 0 && ucs == 0x22ef )
+        //        gid = FT_Get_Char_Index( ftface, 0x2026 );
+        //}
+	}
+    
+    if ( gid == 0 )
+    {
+        gid = charCode;
+    }
+    
+	return TRUE;
+}
+
+
 HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const
 {
-	if ( mEncoding.GetType() != FONT_ENCODING_CUSTOM )
+	if (    mEncoding.GetType() != FONT_ENCODING_NONE &&
+            mEncoding.GetType() != FONT_ENCODING_IDENTITY &&
+            mEncoding.GetType() != FONT_ENCODING_BUILDINCMAP )
 	{
 		if ( mEncoding.GetUnicode( (HE_BYTE)charCode, codeRet ) )
 		{

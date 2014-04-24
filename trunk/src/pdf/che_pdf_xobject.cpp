@@ -1341,12 +1341,12 @@ CHE_Bitmap * CHE_PDF_ImageXObject::GetStencilMaskingBitmap( HE_LPBYTE pData, HE_
 			for ( byteIndex = 0; byteIndex < mWidth; ++byteIndex )
 			{
 				tmpByte = *(pTmpByte + byteIndex);
-				if ( mDecodeArray/*mMaskDecode == 0*/ )
-				{
-					colorARGB2 = 255 - tmpByte;
-				}else{
+				//if ( mMaskDecode == 0 )
+				//{
+				//	colorARGB2 = 255 - tmpByte;
+				//}else{
 					colorARGB2 = tmpByte;
-				}
+				//}
 				colorARGB2 = colorARGB2 << 24;
 				colorARGB2 = colorARGB1 & 0x00FFFFFF + colorARGB2;
 				*(pColors+colorIndex++) = colorARGB2;
@@ -1368,12 +1368,12 @@ CHE_Bitmap * CHE_PDF_ImageXObject::GetStencilMaskingBitmap( HE_LPBYTE pData, HE_
 				tmpByte = *(pTmpByte + byteIndex);
 				for ( bitIndex = 0; bitIndex < 8; ++bitIndex )
 				{
-					if ( mDecodeArray/*mMaskDecode == 0*/ )
-					{
-						colorARGB2 = 255 - ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
-					}else{
+					//if ( mMaskDecode == 0 )
+					//{
+					//	colorARGB2 = 255 - ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
+					//}else{
 						colorARGB2 = ((tmpByte>>(7-bitIndex))&0x01)*255.0f;
-					}
+					//}
 					colorARGB2 = colorARGB2 << 24;
 					colorARGB2 = colorARGB1 & 0x00FFFFFF + colorARGB2;
 					*(pColors+colorIndex++) = colorARGB2;

@@ -93,28 +93,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						item.gid = 0;
 						item.cid = 0;
 						item.ucs = 0;
-						if ( pFont->GetEncodingType() == FONT_ENCODING_NONE )
-						{
-							//对于简单字体而言，没有编码信息的时候
-							pFont->GetGlyphId( item.charCode, item.gid );
-							pFont->GetUnicode( item.charCode, item.ucs );
-						}else if ( pFont->GetEncodingType() == FONT_ENCODING_BUILDINCMAP )
-						{
-							//本来说应该是不合适的，但是有可能由于encoding字典有错误，需要做容错处理
-							pFont->GetGlyphId( item.charCode, item.gid );
-							pFont->GetUnicode( item.charCode, item.ucs );
-						}else if ( pFont->GetEncodingType() == FONT_ENCODING_IDENTITY )
-						{
-							item.gid = item.charCode;
-							pFont->GetUnicode( item.charCode, item.ucs );
-						}else{
-							pFont->GetGlyphId( item.charCode, item.gid );
-							pFont->GetUnicode( item.charCode, item.ucs );
-							if ( item.gid == 0 )
-							{
-								item.gid = item.charCode;
-							}
-						}
+                        pFont->HandleEncoding( item.charCode, item.ucs, item.gid, item.cid );
 						item.kerning = kerning;
 						item.width = pFont->GetWidth( item );
 						item.height = 1; //font height??
@@ -159,58 +138,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						item.gid = 0;
 						item.cid = 0;
 						item.ucs = 0;
-						if ( pFont->GetEncodingType() == FONT_ENCODING_NONE )
-						{
-							item.gid = item.charCode;
-							pFont->GetUnicode( item.charCode, item.ucs );
-						}
-						else if ( pFont->GetEncodingType() == FONT_ENCODING_BUILDINCMAP )
-						{
-							if ( pType0Font->GetCID( item.charCode, item.cid ) )
-							{
-								if ( ! pFont->GetUnicode( item.cid, item.ucs ) )
-								{
-									pFont->GetGlyphId( item.charCode, item.gid );
-								}else{
-									pFont->GetGlyphId( item.ucs, item.gid );
-								}
-							}else{
-								pFont->GetUnicode( item.charCode, item.ucs );
-								if ( item.ucs == 0 )
-								{
-									item.ucs = item.charCode;
-								}
-								pFont->GetGlyphId( item.charCode, item.gid );
-								if ( item.gid == 0 )
-								{
-									pFont->GetGlyphId( item.ucs, item.gid );
-									if ( item.gid == 0 )
-									{
-										item.gid = item.charCode;
-									}
-								}
-							}
-						}else if ( pFont->GetEncodingType() == FONT_ENCODING_IDENTITY )
-						{
-							if ( pFont->GetUnicode( item.charCode, item.ucs ) )
-							{
-								item.cid = 0;
-								if ( ! pFont->GetGlyphId( item.ucs, item.gid ) )
-								{
-									item.gid = item.charCode;
-								}
-							}else{
-								item.gid = item.charCode;
-							}
-						}else{
-							pFont->GetGlyphId( item.charCode, item.gid );
-							pFont->GetUnicode( item.charCode, item.ucs );
-							pType0Font->GetCID( item.charCode, item.cid );
-							if ( item.gid == 0 )
-							{
-								item.gid = item.charCode;
-							}
-						}
+                        pFont->HandleEncoding( item.charCode, item.ucs, item.gid, item.cid );
 						item.kerning = kerning;
 						item.width = pFont->GetWidth( item );
 						item.height = 1; //font height??

@@ -1014,13 +1014,17 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
         case TextRenderMode_StrokeClip:
         case TextRenderMode_FillStrokeClip:
         {
+            //return DrawTextAsPath( pText );
+            
             SetMatrix( CHE_Matrix() );
             //对于Fill类型的文本输出，可以使用系统原生文本输出接口，以获得次像素支持
 
+            CGFontRef fontRef = NULL;
+            
             CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
             if ( pFont->GetPlatformFontInfo() )
             {
-                CGFontRef fontRef = (CGFontRef)pFont->GetPlatformFontInfo();
+                fontRef = (CGFontRef)pFont->GetPlatformFontInfo();
                 SetTextFont( fontRef );
             }else{
                 if ( pFont->GetEmbededFontSize() )
@@ -1029,12 +1033,17 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                     if ( dataRef )
                     {
                         CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
-                        CGFontRef fontRef = CGFontCreateWithDataProvider( dataProviderRef );
+                        fontRef = CGFontCreateWithDataProvider( dataProviderRef );
                         if ( fontRef )
                         {
-                            pFont->SetPlatformFontInfo( fontRef );
-                            pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
-                            SetTextFont( fontRef );
+                            //if ( CGFontGetNumberOfGlyphs(fontRef) == pFont->GetFTFaceGlyphCount() )
+                            //{
+                                pFont->SetPlatformFontInfo( fontRef );
+                                pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
+                                SetTextFont( fontRef );
+                            //}else{
+                            //    return DrawTextAsPath( pText );
+                            //}
                         }
                         else{
                             return DrawTextAsPath( pText );
@@ -1057,7 +1066,7 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                             if ( dataRef )
                             {
                                 CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
-                                CGFontRef fontRef = CGFontCreateWithDataProvider( dataProviderRef );
+                                fontRef = CGFontCreateWithDataProvider( dataProviderRef );
                                 if ( fontRef )
                                 {
                                     pFont->SetPlatformFontInfo( fontRef );
@@ -1079,6 +1088,33 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                 textMatirx = pText->GetCharMatrix( i );
                 SetTextMatrix( textMatirx );
                 DrawTextGlyph( pText->mItems[i].gid );
+                
+                /*if ( fontRef && CGFontGetNumberOfGlyphs(fontRef) != pFont->GetFTFaceGlyphCount() )
+                {
+                    CHE_ByteString name = pFont->GetGlyphNameForStandard( pText->mItems[i].gid );
+                    if ( name.GetLength() != 0 )
+                    {
+                        CGGlyph gid = CGFontGetGlyphWithGlyphName( fontRef, CFStringCreateWithCString( kCFAllocatorDefault, name.GetData(), kCFStringEncodingASCII ));
+                        DrawTextGlyph( gid );
+
+                    }else{
+                        DrawTextGlyph( pText->mItems[i].gid );
+                    }
+                    DrawTextGlyph( pText->mItems[i].gid );
+                }else{
+                     DrawTextGlyph( pText->mItems[i].gid );
+                }*/
+                
+                //if ( pFont->GetPlatformFontInfo() == gfont )
+                //{
+                //    DrawTextGlyph( 76 );
+                //    //if ( gindex > gcount )
+                //    //{
+                //    //    gindex = 0;
+                //    //}
+                //}else{
+                //    DrawTextGlyph( pText->mItems[i].gid );
+                //}
             }
             break;
         }

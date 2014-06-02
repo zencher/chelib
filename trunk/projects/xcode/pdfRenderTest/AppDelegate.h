@@ -7,14 +7,15 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "CustomView.h"
+#import "CHEPDFView.h"
 #import "PdfDocumentData.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
-    NSScrollView * mScrollView;
-    CustomView * mContentView;
-    PdfDocumentData * mPdfDocument;
+    //NSScrollView * mScrollView;
+    //CustomView * mContentView;
+    //PdfDocumentData * mPdfDocument;
+    CHEPDFView * displayScrollView;
 }
 
 @property (assign) IBOutlet NSWindow *window;
@@ -22,6 +23,8 @@
 - (IBAction)onNextPage:(id)sender;
 
 - (IBAction)onPreviousPage:(id)sender;
+
+- (IBAction)onScaleChanged:(id)sender;
 
 - (void) openPanelDidEnd:(NSOpenPanel *)sheet
               returnCode:(int)returnCode

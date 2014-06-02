@@ -4,6 +4,12 @@
 
 
 
+struct TilingCallBackInfo
+{
+    CHE_PDF_Renderer *  render;
+    CHE_PDF_Component * tiling;
+};
+
 
 void TilingDrawCallBack( void *info, CGContextRef c )
 {
@@ -12,7 +18,51 @@ void TilingDrawCallBack( void *info, CGContextRef c )
         return;
     }
     
-    CHE_PDF_Tiling * pTiling = (CHE_PDF_Tiling*)( info );
+    TilingCallBackInfo * pInfo = (TilingCallBackInfo *)info;
+    
+    CHE_PDF_Tiling * pTiling = (CHE_PDF_Tiling*)( pInfo->tiling );
+    if ( pTiling )
+    {
+        CHE_Rect rect;
+        rect.left = 0;
+        rect.bottom = 0;
+        rect.width = pTiling->GetXStep();
+        rect.height = pTiling->GetYStep();
+        
+        CHE_PDF_Renderer render( c );
+        //render.SetPosition( pInfo->x, pInfo->y );
+        
+//        CHE_Matrix tmpMatrix = pTiling->GetMatrix();
+//        tmpMatrix.Concat( pInfo->render->GetExtMatrix() );
+        
+        //CGAffineTransform matrix = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f );
+        
+//        render.SetExtMatrix( tmpMatrix );
+        
+        //if ( ! pTiling->IsColored() )
+        //{
+        //    render.SetNoColor(true);
+        //    CGContextSetRGBFillColor( c, 1, 0, 0, 1 );
+        //}
+        
+        render.RenderTiling( pTiling->GetList(), rect, 0, 1, 72, 72 );
+    }
+    
+    /*CGFloat subunit = 50; // the pattern cell itself is 16 by 18
+    
+    CGRect  myRect1 = {{0,0}, {subunit, subunit}},
+    myRect2 = {{subunit, subunit}, {subunit, subunit}},
+    myRect3 = {{0,subunit}, {subunit, subunit}},
+    myRect4 = {{subunit,0}, {subunit, subunit}};
+    
+    CGContextSetRGBFillColor (c, 0, 0, 1, 0.5);
+    CGContextFillRect (c, myRect1);
+    CGContextSetRGBFillColor (c, 1, 0, 0, 0.5);
+    CGContextFillRect (c, myRect2);
+    CGContextSetRGBFillColor (c, 0, 1, 0, 0.5);
+    CGContextFillRect (c, myRect3);
+    CGContextSetRGBFillColor (c, .5, 0, .5, 0.5);
+    CGContextFillRect (c, myRect4);*/
 }
 
 
@@ -20,7 +70,7 @@ void TilingDrawCallBack( void *info, CGContextRef c )
 
 CHE_PDF_Renderer::CHE_PDF_Renderer( CGContextRef cgContext )
     : mFillMode(FillMode_Nonzero),mContextRef(cgContext), mPathRef(NULL),
-mFillColorSpace(NULL), mStrokeColorSpace(NULL), mImageColorSpace(NULL)
+mFillColorSpace(NULL), mStrokeColorSpace(NULL), mImageColorSpace(NULL), mPosiX(0), mPosiY(0)
 {
 }
 
@@ -46,6 +96,12 @@ CHE_PDF_Renderer::~CHE_PDF_Renderer()
         CGColorSpaceRelease( mImageColorSpace );
         mImageColorSpace = NULL;
     }
+}
+
+HE_VOID CHE_PDF_Renderer::SetPosition( HE_FLOAT x, HE_FLOAT y )
+{
+    mPosiX = x;
+    mPosiY = y;
 }
 
 HE_VOID	CHE_PDF_Renderer::SetMatrix( const CHE_Matrix & matrix )
@@ -271,14 +327,20 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
         
         bool bColored = tilingPtr->IsColored();
         
+        TilingCallBackInfo * pInfo = GetDefaultAllocator()->New<TilingCallBackInfo>();
+        pInfo->tiling = tilingPtr.GetPointer();
+        pInfo->render = this;
+        
         CGPatternCallbacks callbacks;
         callbacks.drawPattern = TilingDrawCallBack;
         callbacks.releaseInfo = NULL;
         
-        CGPatternRef patternRef = CGPatternCreate(  (void*)(tilingPtr.GetPointer()), bounds, matrix,
+        
+        CGPatternRef patternRef = CGPatternCreate(  (void*)(pInfo), bounds, matrix,
                                                     tilingPtr->GetXStep(), tilingPtr->GetYStep(),
                                                     kCGPatternTilingNoDistortion, bColored,
                                                     &callbacks );
+        
         
         CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( NULL );
         CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
@@ -658,6 +720,13 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
 	matrix = pGState->GetMatrix();
 	SetMatrix( matrix );
     
+    SetFillMode( FillMode_Nonzero );
+    
+    //if ( mbNoColor )
+    //{
+    //    return;
+    //}
+    
 	pGState->GetFillColor( fillColor );
 	pGState->GetStrokeColor( strokeColor );
 	pGState->GetFillColorSpace( fillColorSpace );
@@ -702,8 +771,6 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
     
     SetFillColor( fillColor );
     SetStrokeColor( strokeColor );
-    
-	SetFillMode( FillMode_Nonzero );
 }
 
 HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
@@ -958,6 +1025,8 @@ HE_VOID CHE_PDF_Renderer::DrawTextGlyph( CGGlyph gid )
     tmpMatrix.Concat( mExtMatrix );
     CGContextSetTextMatrix( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f) );
     CGContextShowGlyphsAtPositions( mContextRef, &gid, &position, 1 );
+    
+    //CGContextShowGlyphs( mContextRef, &gid, 1 );
 }
 
 HE_VOID CGFontCleanCallBack( HE_LPVOID info )
@@ -971,6 +1040,10 @@ HE_VOID CGFontCleanCallBack( HE_LPVOID info )
 
 HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
 {
+    static size_t gcount = 0;
+    static size_t gindex = 0;
+    static CGFontRef gfont = NULL;
+    
     GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
     CHE_PDF_GState * pGState = pText->GetGState();
     if ( pGState )
@@ -1032,6 +1105,10 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                     CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, pFont->GetEmbededFont(), pFont->GetEmbededFontSize(), kCFAllocatorNull );
                     if ( dataRef )
                     {
+                        //FILE * pFile = fopen( "/Users/zencher/Desktop/d.ttf" , "wb+");
+                        //fwrite( pFont->GetEmbededFont(), 1, pFont->GetEmbededFontSize(), pFile );
+                        //fclose(pFile);
+                        
                         CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
                         fontRef = CGFontCreateWithDataProvider( dataProviderRef );
                         if ( fontRef )
@@ -1061,6 +1138,8 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                             unsigned char * data = new unsigned char[posi];
                             fseek( pFile, 0, SEEK_SET);
                             fread( data, 1, posi, pFile);
+                            
+                            
                             
                             CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, data, posi, kCFAllocatorNull );
                             if ( dataRef )
@@ -1399,8 +1478,83 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form, const C
 	}
 }
 
+HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list, const CHE_Matrix & extMatrix )
+{
+    ContentObjectList::iterator it = list.Begin();
+    //CHE_PDF_GState * pGState = NULL;
+    //CHE_PDF_ClipState * pClipState = NULL;
+	for ( ; it != list.End(); ++it )
+	{
+        //StoreGState();
+		//pGState = (*it)->GetGState();
+		//if ( pGState )
+		//{
+		//	pClipState = pGState->GetClipState();
+		//	if ( pClipState )
+		//	{
+		//		SetClipState( pClipState );
+		//	}
+		//	SetCommonGState( pGState );
+		//}
+        
+		switch ( (*it)->GetType() )
+		{
+            case ContentType_Path:
+			{
+				DrawPath( (CHE_PDF_Path*)(*it) );
+				break;
+			}
+            case ContentType_Text:
+			{
+                DrawText( (CHE_PDF_Text*)(*it) );
+				break;
+			}
+            case ContentType_InlineImage:
+			{
+				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
+				break;
+			}
+            case ContentType_Component:
+			{
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
+				break;
+			}
+            default:
+                break;
+		}
+        //RestoreGState();
+	}
+}
+
 HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy )
 {
+    mbNoColor = FALSE;
+    
+    
+    //计算extMatrix
+    CHE_Matrix rectMatrix;
+    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
+    CHE_Matrix transformMatrix1 = CHE_Matrix::TranslateMatrix( -pageRect.width/2, -pageRect.height/2 );
+    CHE_Matrix transformMatrix2 = CHE_Matrix::TranslateMatrix( pageRect.width/2, pageRect.height/2 );
+    rectMatrix.Concat( transformMatrix1 );
+    rectMatrix.Concat( rotateMatrix );
+    rectMatrix.Concat( transformMatrix2 );
+    
+    CHE_Rect newPageRect = rectMatrix.Transform( pageRect );
+    
+    /*CHE_Matrix extMatrix;
+    extMatrix.a = dpix * scale / 72;
+	extMatrix.b = 0;
+	extMatrix.c = 0;
+	extMatrix.d = -dpiy * scale / 72;
+	extMatrix.e = mPosiX;
+	extMatrix.f = mPosiY;
+    
+    CHE_Matrix tmpMatrix = CHE_Matrix::TranslateMatrix( 0, -pageRect.height-pageRect.bottom );
+    tmpMatrix.Concat( extMatrix );
+    rectMatrix.Concat( tmpMatrix );
+    extMatrix = rectMatrix;*/
+    
 	CHE_Matrix extMatrix;
 	extMatrix.a = dpix * scale / 72;
 	extMatrix.b = 0;
@@ -1409,30 +1563,23 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 	extMatrix.e = 0;
 	extMatrix.f = 0;
 	CHE_Matrix tmpMatrix;
-    tmpMatrix.e = 0;
-    tmpMatrix.f = pageRect.height * scale * dpiy / 72;
-	//if ( pClipRect != NULL )
-	//{
-	//	extMatrix.e = - pClipRect->left * dipx * scale / 72;
-	//	extMatrix.f = ( pClipRect->height + pClipRect->bottom ) * dipy * scale / 72;
-	//}else{
-	//	extMatrix.e = 0;
-	//	extMatrix.f = pageRect.height * dipy * scale / 72;
-	//}
-    
+    tmpMatrix.e = mPosiX - newPageRect.left * scale * dpix / 72;
+    tmpMatrix.f = mPosiY + newPageRect.bottom * scale * dpix / 72 + newPageRect.height * scale * dpiy / 72;
     extMatrix.Concat( tmpMatrix );
-	
-    CHE_Matrix rectMatrix;
-    rectMatrix.e = 0;
-    rectMatrix.f = 0;
-    
-    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
-    rectMatrix.Concat( rotateMatrix );
 	rectMatrix.Concat( extMatrix );
     extMatrix = rectMatrix;
-    
     SetExtMatrix( extMatrix );
+    
+    
+    
+    //clip当前页面绘制的区域
+    CGContextSaveGState( mContextRef );
+    newPageRect = extMatrix.Transform( pageRect );
+    CGContextAddRect( mContextRef, CGRectMake( newPageRect.left, newPageRect.bottom, newPageRect.width, newPageRect.height ) );
+    CGContextClip( mContextRef );
 
+    
+    
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
     CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
@@ -1485,4 +1632,66 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
         
         RestoreGState();
 	}
+    
+    CGContextRestoreGState( mContextRef );
+}
+
+HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy )
+{
+    CGContextSaveGState( mContextRef );
+    
+	CHE_PDF_GState * pGState = NULL;
+	CHE_PDF_ClipState * pClipState = NULL;
+    CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
+	ContentObjectList::iterator it = content.Begin();
+	for ( ; it != content.End(); ++it )
+	{
+        StoreGState();
+        
+		pGState = (*it)->GetGState();
+		if ( pGState )
+		{
+			pClipState = pGState->GetClipState();
+			if ( pClipState )
+			{
+				SetClipState( pClipState );
+			}
+            SetCommonGState( pGState );
+            pExtGStateStack = pGState->GetExtGState();
+            if ( pExtGStateStack )
+            {
+                SetExtGState( pExtGStateStack );
+            }
+		}
+        
+		switch ( (*it)->GetType() )
+		{
+            case ContentType_Path:
+			{
+				DrawPath( (CHE_PDF_Path*)(*it) );
+				break;
+			}
+            case ContentType_Text:
+			{
+                DrawText( (CHE_PDF_Text*)(*it) );
+                break;
+			}
+            case ContentType_InlineImage:
+			{
+				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
+				break;
+			}
+            case ContentType_Component:
+			{
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
+				break;
+			}
+            default:
+                break;
+		}
+        
+        RestoreGState();
+	}
+    
+    CGContextRestoreGState( mContextRef );
 }

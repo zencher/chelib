@@ -222,6 +222,8 @@ CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( const CHE_ByteString & fontNa
 		}
 	}
     NSLog( @"return : %s", fontPath.GetData() );
+
+    
 	return fontPath;
 }
 

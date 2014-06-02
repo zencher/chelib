@@ -8,6 +8,7 @@
 
 #ifdef _MAC_OS_X_
 #include <malloc/malloc.h>
+#include <pthread.h>
 #else
 #include <malloc.h>
 #endif
@@ -277,11 +278,15 @@ public:
 	CHE_Lock();
 	~CHE_Lock();
 
-	HE_VOID Lock() const;
-	HE_VOID UnLock() const;
+	HE_VOID Lock();
+	HE_VOID UnLock();
 
 #ifdef WIN32
 	HANDLE	mMutex;
+#endif
+    
+#ifdef _MAC_OS_X_
+    pthread_mutex_t mMutex;
 #endif
 
 };

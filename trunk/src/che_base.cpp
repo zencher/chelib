@@ -631,6 +631,10 @@ CHE_Lock::CHE_Lock()
 #ifdef WIN32
 	mMutex = CreateMutex( NULL, FALSE, NULL );
 #endif
+
+#ifdef _MAC_OS_X_
+    pthread_mutex_init(&mMutex, NULL);
+#endif
 }
 
 CHE_Lock::~CHE_Lock()
@@ -642,18 +646,30 @@ CHE_Lock::~CHE_Lock()
 		mMutex = NULL;
 	}
 #endif
+    
+#ifdef _MAC_OS_X_
+    pthread_mutex_destroy(&mMutex);
+#endif
 }
 
-HE_VOID CHE_Lock::Lock() const
+HE_VOID CHE_Lock::Lock()
 {
 #ifdef WIN32
 	WaitForSingleObject( mMutex, INFINITE );
 #endif
+    
+#ifdef _MAC_OS_X_
+    //pthread_mutex_lock(&mMutex);
+#endif
 }
 
-HE_VOID CHE_Lock::UnLock() const
+HE_VOID CHE_Lock::UnLock()
 {
 #ifdef WIN32
 	ReleaseMutex( mMutex );
+#endif
+    
+#ifdef _MAC_OS_X_
+    //pthread_mutex_unlock(&mMutex);
 #endif
 }

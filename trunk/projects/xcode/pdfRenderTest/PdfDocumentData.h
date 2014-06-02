@@ -32,6 +32,8 @@
 
 -(CHE_PDF_ContentObjectList*)getPageContent:(unsigned int)pageIndex;
 
+-(HE_ULONG)getPageCount;
+
 -(CHE_Rect)getPageRect:(unsigned int)pageIndex;
 
 @end

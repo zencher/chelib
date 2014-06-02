@@ -2,7 +2,6 @@
 
 CHE_PDF_TilingPtr CHE_PDF_Tiling::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/ )
 {
-
 	CHE_PDF_TilingPtr ptr;
 	if ( rootObjPtr && rootObjPtr->GetType() == OBJ_TYPE_REFERENCE && pComponentMgr != NULL )
 	{

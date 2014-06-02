@@ -78,6 +78,11 @@
     return NULL;
 }
 
+-(HE_ULONG)getPageCount
+{
+    return pdfPageTree->GetPageCount();
+}
+
 -(CHE_Rect)getPageRect:(unsigned int)index
 {
     CHE_Rect rect;

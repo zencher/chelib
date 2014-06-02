@@ -59,7 +59,7 @@ HE_BOOL	CHE_PDF_ComponentMgr::PushComponent( const CHE_PDF_ReferencePtr & refPtr
 	{
 		CHE_PDF_ComponentMgrItem * pItem = GetAllocator()->New<CHE_PDF_ComponentMgrItem>();
 		pItem->mComponentPtr = component;
-		mComponentsMap.Append( refPtr->GetGenNum(), pItem );
+		mComponentsMap.Append( refPtr->GetRefNum(), pItem );
 		return TRUE;
 	}
 	return FALSE;

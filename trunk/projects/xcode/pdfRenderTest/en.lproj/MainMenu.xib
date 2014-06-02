@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="5053" systemVersion="13C64" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment defaultVersion="1070" identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="5053"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -160,11 +160,25 @@
                             <action selector="onFileOpen:" target="494" id="XxQ-g4-cfD"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="08750F9A-9965-4DD8-B0C1-6C16E2C999ED" label="scale" paletteLabel="scale" id="ZKj-CJ-kLS">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="96" height="21"/>
+                        <size key="maxSize" width="96" height="21"/>
+                        <slider key="view" verticalHuggingPriority="750" id="5m3-Ac-lYP">
+                            <rect key="frame" x="0.0" y="14" width="96" height="21"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="f3A-uC-4h7"/>
+                        </slider>
+                        <connections>
+                            <action selector="onScaleChanged:" target="494" id="bbK-SE-UTA"/>
+                        </connections>
+                    </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="NGi-Mw-yn4"/>
                     <toolbarItem reference="553"/>
                     <toolbarItem reference="554"/>
+                    <toolbarItem reference="ZKj-CJ-kLS"/>
                 </defaultToolbarItems>
             </toolbar>
         </window>

@@ -77,7 +77,7 @@ typedef int  HE_INTPTR;
 typedef unsigned int HE_UINTPTR;
 
 //32-bit floating-point number.
-typedef float  HE_FLOAT;
+typedef double  HE_FLOAT;
 
 typedef double HE_DOUBLE;
 

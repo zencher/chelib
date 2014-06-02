@@ -6546,15 +6546,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 #endif
                 
 #ifdef WIN32
-					filePath = pSystemFontMgr->GetFontFilePath( "Î¢ÈíÑÅºÚ" );
-					if ( filePath.GetLength() == 0 )
-					{
-						filePath = pSystemFontMgr->GetFontFilePath( "ËÎÌå" );
-						if ( filePath.GetLength() == 0 )
-						{
-							filePath = pSystemFontMgr->GetFontFilePath( "ºÚÌå" );
-						}
-					}
+                filePath = pSystemFontMgr->GetFontFilePath( "simsun" );
 #endif
 
                 }
@@ -7288,7 +7280,7 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix /*= CHE_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type0_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix /*= CHE_Matrix()*/ )
 {
 	CHE_Matrix tmpMatrix;
 	tmpMatrix.a = 0;
@@ -7564,7 +7556,7 @@ HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 }
 
 
-HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix /*= CHE_Matrix()*/ ) const
+HE_FLOAT CHE_PDF_Type1_Font::GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix /*= CHE_Matrix()*/ )
 {
 	CHE_Matrix tmpMatrix;
 	tmpMatrix.a = 0;

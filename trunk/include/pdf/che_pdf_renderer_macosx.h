@@ -15,12 +15,19 @@ public:
     CHE_PDF_Renderer( CGContextRef cgContext );
     ~CHE_PDF_Renderer();
     
-    //HE_VOID     SetDIP( HE_FLOAT dipx, HE_FLOAT dipy );
-    //HE_VOID     SetScale( HE_FLOAT scale );
-    //HE_VOID     SetPosition( HE_FLOAT x, HE_FLOAT y );
+    HE_VOID     SetPosition( HE_FLOAT x, HE_FLOAT y );
+    
     HE_VOID     Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy );
     
-private:
+    HE_VOID     RenderTiling( CHE_PDF_ContentObjectList & context, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy );
+    
+public:
+    
+    HE_VOID     SetNoColor( HE_BOOL bVal ) { mbNoColor = bVal; }
+    HE_BOOL     IsNoColor() const { return mbNoColor; }
+    
+    CHE_Matrix GetExtMatrix() const { return mExtMatrix; }
+    
     HE_VOID		SetMatrix( const CHE_Matrix & matrix );
     HE_VOID		SetExtMatrix( const CHE_Matrix & matrix );
     HE_VOID		SetLineWidth( const HE_FLOAT & lineWidth );
@@ -74,11 +81,19 @@ private:
     HE_VOID     DrawForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix );
     HE_VOID     DrawShading( const CHE_PDF_ShadingPtr & shading );
     
+public:
+    HE_VOID     DrawContentObjectList( CHE_PDF_ContentObjectList & list, const CHE_Matrix & extMatrix );
+    
 private:
     CHE_Matrix                  mMatrix;
     CHE_Matrix					mExtMatrix;
     CHE_Matrix                  mTextMatrix;
     GRAPHICS_STATE_FILLMODE     mFillMode;
+    
+    HE_BOOL                     mbNoColor;
+    
+    HE_FLOAT                    mPosiX;
+    HE_FLOAT                    mPosiY;
     
     CGContextRef                mContextRef;
     CGMutablePathRef            mPathRef;

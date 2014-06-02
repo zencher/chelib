@@ -173,7 +173,7 @@ public:
     
     virtual HE_BOOL         HandleEncoding( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const = 0;
 
-	virtual HE_FLOAT		GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const = 0;
+	virtual HE_FLOAT		GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) = 0;
 
 	CHE_PDF_FontDescriptor*	GetFontDescriptor() const { return mpFontDescriptor; }
 
@@ -226,7 +226,7 @@ public:
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
 	HE_BOOL GetCID( HE_WCHAR charCode, HE_ULONG & codeRet ) const;
 
-	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const;
+	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() );
 
 	HE_BOOL IsCode( HE_ULONG cpt, HE_BYTE byteCount );
 
@@ -249,7 +249,7 @@ public:
     
 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
 	
-	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() ) const;
+	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() );
 
 protected:
 	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );

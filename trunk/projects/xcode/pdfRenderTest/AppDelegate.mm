@@ -7,30 +7,28 @@
 //
 
 #import "AppDelegate.h"
-#import "CustomView.h"
 
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    // Insert code here to initialize your application
-    mScrollView = [[NSScrollView alloc] initWithFrame:[[_window contentView] frame]];
-    [mScrollView setHasVerticalScroller:YES];
-    [mScrollView setHasHorizontalScroller:YES];
-    [mScrollView setBorderType:NSNoBorder];
-    mContentView = [[CustomView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100)];
-    [mScrollView setDocumentView:mContentView];
-    [_window setContentView:mScrollView];
+    displayScrollView = [[CHEPDFView alloc] initWithFrame:[[_window contentView] frame]];
+    [_window setContentView:displayScrollView];
 }
 
 - (IBAction)onNextPage:(id)sender
 {
-    [mContentView onNextPage];
+    //[mContentView onNextPage];
 }
 
 - (IBAction)onPreviousPage:(id)sender
 {
-    [mContentView onPrePage];
+    //[mContentView onPrePage];
+}
+
+- (IBAction)onScaleChanged:(id)sender
+{
+    int x = 0;
 }
 
 - (void) openPanelDidEnd:(NSOpenPanel *)sheet
@@ -40,8 +38,7 @@
     if (returnCode == NSOKButton)
     {
         NSArray *fileNames = [sheet filenames];
-        mPdfDocument = [[PdfDocumentData alloc] initWithFilePath:[fileNames objectAtIndex: 0]];
-        [mContentView newDocument:mPdfDocument];
+        [displayScrollView loadFile:[fileNames objectAtIndex: 0]];
     }
     
 }

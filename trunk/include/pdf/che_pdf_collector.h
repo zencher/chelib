@@ -2,76 +2,57 @@
 #define _CHE_PDF_COLLECTOR_H_
 
 #include "../che_base.h"
-#include "../che_datastructure.h"
 #include "che_pdf_objects.h"
 
-class CHE_PDF_CollectorNode
-{
-public:
+#include <unordered_map>
 
-	CHE_PDF_CollectorNode() { m_RefInfo.objNum = 0; m_RefInfo.genNum = 0; }
-
-	CHE_PDF_CollectorNode( PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & ObjPtr )
-		: mObjPtr( ObjPtr ) { m_RefInfo.objNum = refInfo.objNum; m_RefInfo.genNum = refInfo.genNum; }
-
-	CHE_PDF_CollectorNode & operator = ( const CHE_PDF_CollectorNode & node );
-
-	PDF_RefInfo m_RefInfo;
-
-	CHE_PDF_ObjectPtr mObjPtr;
-};
-
-bool operator == ( const CHE_PDF_CollectorNode & node1, const CHE_PDF_CollectorNode & node2 );
-bool operator >  ( const CHE_PDF_CollectorNode & node1, const CHE_PDF_CollectorNode & node2 );
-bool operator <  ( const CHE_PDF_CollectorNode & node1, const CHE_PDF_CollectorNode & node2 );
+using namespace std;
 
 class CHE_PDF_Collector : public CHE_Object
 {
 public:
-
-	CHE_PDF_Collector( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ), m_QuickReq( pAllocator ) {}
-
+	CHE_PDF_Collector( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
 	~CHE_PDF_Collector() { Clear(); }
 
-	HE_ULONG GetCount() { return m_QuickReq.GetCount(); }
+	HE_ULONG GetCount() { return mMap.size(); }
 
-	HE_BOOL Add( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & ObjPtr )
+	HE_BOOL Add( HE_ULONG objNum, const CHE_PDF_ObjectPtr & ObjPtr )
 	{
 		if ( ! ObjPtr )
 		{
 			return FALSE;
 		}
-        CHE_PDF_CollectorNode tmpNode( refInfo, ObjPtr );
-		if ( m_QuickReq.Append( tmpNode ) )
+		mMap[objNum] = ObjPtr;
+		return TRUE;
+	}
+
+	HE_BOOL IsExist( HE_ULONG objNum )
+	{
+		if ( mMap.count( objNum ) )
 		{
 			return TRUE;
 		}
 		return FALSE;
 	}
 
-	HE_BOOL IsExist( PDF_RefInfo refInfo )
+	CHE_PDF_ObjectPtr GetObj( HE_ULONG objNum )
 	{
-		return m_QuickReq.IsExist( CHE_PDF_CollectorNode( refInfo, CHE_PDF_ObjectPtr() ) );
-	}
-
-	CHE_PDF_ObjectPtr GetObj( PDF_RefInfo refInfo )
-	{
-		CHE_PDF_CollectorNode node( refInfo, CHE_PDF_ObjectPtr() );
-		if ( m_QuickReq.Find( node ) )
+		unordered_map<HE_ULONG,CHE_PDF_ObjectPtr>::iterator it;
+		it = mMap.find( objNum );
+		if ( it != mMap.end() )
 		{
-			return node.mObjPtr;
+			return it->second;
 		}
 		return CHE_PDF_ObjectPtr(); 
 	}
 
 	HE_VOID Clear()
 	{
-		m_QuickReq.Clear();
+		mMap.clear();
 	}
 
 private:
-
-	CHE_SkipList<CHE_PDF_CollectorNode>	m_QuickReq;
+	unordered_map<HE_ULONG,CHE_PDF_ObjectPtr> mMap;
 };
 
 #endif

@@ -42,11 +42,11 @@ class CHE_PDF_Collector;
 class CHE_PDF_ParseWordDes : public CHE_Object
 {
 public:
-	CHE_PDF_ParseWordDes( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ), str( pAllocator ) {};
+	CHE_PDF_ParseWordDes( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator )/*, str( pAllocator )*/ {};
 
 	PDF_PARSE_WORD	type;
 	HE_ULONG		offset;
-	CHE_ByteString	str;
+	//CHE_ByteString	str;
 };
 
 class CHE_PDF_SyntaxParser : public CHE_Object
@@ -84,8 +84,15 @@ public:
 	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）	*/
 	CHE_PDF_DictionaryPtr	GetDictionaryPtr();
 
+	HE_BOOL				IsWord( const char * words );
+
+	HE_INT32			GetInteger();
+	HE_FLOAT			GetFloat();
+
+	CHE_ByteString		GetString();
+
 private:
-	HE_VOID				SubmitBufferStr( CHE_ByteString & str );
+	HE_VOID				SubmitBufferStr(/* CHE_ByteString & str*/ );
 
 	HE_ULONG			m_lFilePos;
 	HE_ULONG			m_lFileSize;
@@ -110,7 +117,7 @@ private:
 class CHE_PDF_Parser : public CHE_Object
 {
 public:
-	static CHE_PDF_Parser * Create( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XREF_Table * pXrefTable, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_Parser * Create( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XRefTable * pXrefTable, CHE_Allocator * pAllocator = NULL );
 
 	~CHE_PDF_Parser();
 
@@ -131,7 +138,7 @@ public:
 /*	CHE_PDF_ReferencePtr		GetEncryptRef() const { return mpEncryptRef; } */
 
 private:
-	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XREF_Table * pXrefTable, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XRefTable * pXrefTable, CHE_Allocator * pAllocator = NULL );
 
 	HE_ULONG					GetStartxref( HE_ULONG range );
 
@@ -148,7 +155,7 @@ private:
 	IHE_Read *					m_pIHE_FileRead;
 	HE_ULONG					m_lStartxref;
 	
-	CHE_PDF_XREF_Table *		mpXRefTable;
+	CHE_PDF_XRefTable *		mpXRefTable;
 
 	CHE_PDF_Encrypt	*			m_pStrEncrypt;
 	CHE_PDF_Encrypt	*			m_pStmEncrypt;

@@ -164,14 +164,14 @@ HE_VOID CHE_GraphicsDrawer::MoveTo( HE_FLOAT x, HE_FLOAT y )
 
 HE_VOID CHE_GraphicsDrawer::LineTo( HE_FLOAT x, HE_FLOAT y )
 {
-	m_path.AddLine( mCurX, mCurY, x, y );
+	m_path.AddLine( (HE_INT32)mCurX, (HE_INT32)mCurY, (HE_INT32)x, (HE_INT32)y );
 	mCurX = x;
 	mCurY = y;
 }
 
 HE_VOID CHE_GraphicsDrawer::CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 )
 {
-	m_path.AddBezier( mCurX, mCurY, x1, y1, x2, y2, x3, y3 );
+	m_path.AddBezier( (HE_INT32)mCurX, (HE_INT32)mCurY, (HE_INT32)x1, (HE_INT32)y1, (HE_INT32)x2, (HE_INT32)y2, (HE_INT32)x3, (HE_DOUBLE)y3 );
 	mCurX = x3;
 	mCurY = y3;
 }

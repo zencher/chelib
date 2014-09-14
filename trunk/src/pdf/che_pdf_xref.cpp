@@ -1,34 +1,7 @@
 #include "../../include/pdf/che_pdf_xref.h"
 #include <memory.h>
 
-bool operator == ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 )
-{
-	if ( node1.ObjNum == node2.ObjNum )
-	{
-		return true;
-	}
-	return false;
-}
-
-bool operator >  ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 )
-{
-	if ( node1.ObjNum > node2.ObjNum )
-	{
-		return true;
-	}
-	return false;
-}
-
-bool operator <  ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 )
-{
-	if ( node1.ObjNum < node2.ObjNum )
-	{
-		return true;
-	}
-	return false;
-}
-
-CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry()
+CHE_PDF_XRefEntry::CHE_PDF_XRefEntry()
 {
 	Type = XREF_ENTRY_TYPE_FREE;
 	ObjNum = 0;
@@ -36,7 +9,7 @@ CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry()
 	Field2 = 0;
 }
 
-CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_ULONG num, HE_ULONG f1, HE_ULONG f2 )
+CHE_PDF_XRefEntry::CHE_PDF_XRefEntry( PDF_XREF_ENTRY_TYPE type, HE_ULONG num, HE_ULONG f1, HE_ULONG f2 )
 {
 	Type = type;
 	ObjNum = num;
@@ -44,24 +17,24 @@ CHE_PDF_XREF_Entry::CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_ULONG num, 
 	Field2 = f2;
 }
 
-CHE_PDF_XREF_Table::CHE_PDF_XREF_Table( CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), mMaxObjNum( 0 ), mList( pAllocator ) {}
+CHE_PDF_XRefTable::CHE_PDF_XRefTable( CHE_Allocator * pAllocator )
+	: CHE_Object( pAllocator ), mMaxObjNum( 0 ) {}
 
-CHE_PDF_XREF_Table::~CHE_PDF_XREF_Table()
+CHE_PDF_XRefTable::~CHE_PDF_XRefTable()
 {
 	Clear();
 }
 
-HE_VOID CHE_PDF_XREF_Table::Clear()
+HE_VOID CHE_PDF_XRefTable::Clear()
 {
 	mTrailerDict.clear();
-	mList.Clear();
+	mMap.clear();
 }
 
-HE_BOOL CHE_PDF_XREF_Table::Add( const CHE_PDF_XREF_Entry & entry )
+HE_BOOL CHE_PDF_XRefTable::Add( const CHE_PDF_XRefEntry & entry )
 {
-	CHE_PDF_XREF_Entry tmpEntry = entry;
-	if ( mList.Append( tmpEntry ) && entry.ObjNum > mMaxObjNum )
+	mMap[entry.ObjNum] = entry;
+	if ( entry.ObjNum > mMaxObjNum )
 	{
 		mMaxObjNum = entry.ObjNum;
 		return TRUE;
@@ -69,32 +42,16 @@ HE_BOOL CHE_PDF_XREF_Table::Add( const CHE_PDF_XREF_Entry & entry )
 	return FALSE;
 }
 
-HE_BOOL CHE_PDF_XREF_Table::Get( HE_ULONG objNum, CHE_PDF_XREF_Entry & entryRet )
-{
-	entryRet.ObjNum  = objNum;
-	return mList.Find( entryRet );
-}
-
-HE_BOOL CHE_PDF_XREF_Table::Update( HE_ULONG objNum, const CHE_PDF_XREF_Entry & entry )
-{
-	CHE_PDF_XREF_Entry tmpEntry = entry;
-	tmpEntry.ObjNum = objNum;
-	return mList.Update( tmpEntry );
-}
-
-HE_VOID CHE_PDF_XREF_Table::AddNewEntry( CHE_PDF_XREF_Entry & entryRet )
+HE_VOID CHE_PDF_XRefTable::AddNewEntry( CHE_PDF_XRefEntry & entryRet )
 {
 	entryRet.ObjNum = ++mMaxObjNum;
 	entryRet.Type = XREF_ENTRY_TYPE_NEW;
 	entryRet.Field1 = 0;
 	entryRet.Field2 = 0;
-	if ( ! mList.Append( entryRet ) )
-	{
-		--mMaxObjNum;
-	}
+	mMap[entryRet.ObjNum] = entryRet;
 }
 
-HE_BOOL CHE_PDF_XREF_Table::AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict )
+HE_BOOL CHE_PDF_XRefTable::AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict )
 {
 	if ( pDict )
 	{
@@ -104,11 +61,45 @@ HE_BOOL CHE_PDF_XREF_Table::AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict 
 	return FALSE;
 }
 
-CHE_PDF_DictionaryPtr CHE_PDF_XREF_Table::GetTrailer( HE_ULONG index /*= 0*/ ) const
+CHE_PDF_DictionaryPtr CHE_PDF_XRefTable::GetTrailer( HE_ULONG index /*= 0*/ ) const
 {
 	if ( index >= mTrailerDict.size() )
 	{
 		return CHE_PDF_DictionaryPtr();
 	}
 	return mTrailerDict[index];
+}
+
+HE_BOOL CHE_PDF_XRefTable::Get( HE_ULONG objNum, CHE_PDF_XRefEntry & entryRet )
+{
+	unordered_map<HE_ULONG,CHE_PDF_XRefEntry>::iterator it;
+	it = mMap.find( objNum );
+	if ( it != mMap.end() )
+	{
+		entryRet = it->second;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL CHE_PDF_XRefTable::GetCurNode( CHE_PDF_XRefEntry & entryRet )
+{
+	if ( mIt != mMap.end() )
+	{
+		entryRet = mIt->second;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+HE_BOOL CHE_PDF_XRefTable::Update( HE_ULONG objNum, const CHE_PDF_XRefEntry & entry )
+{
+	unordered_map<HE_ULONG,CHE_PDF_XRefEntry>::iterator it;
+	it = mMap.find( objNum );
+	if ( it != mMap.end() )
+	{
+		it->second = entry;
+		return TRUE;
+	}
+	return FALSE;
 }

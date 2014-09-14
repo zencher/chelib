@@ -26,7 +26,7 @@ public:
 
 	HE_ULONG					OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr, HE_BOOL bEncrypt = FALSE );
 
-	HE_ULONG					OutPutXRefTable( CHE_PDF_XREF_Table & xref );
+	HE_ULONG					OutPutXRefTable( CHE_PDF_XRefTable & xref );
 
 	HE_VOID						OutPutTailerDict( const CHE_PDF_DictionaryPtr & pDcit );
 

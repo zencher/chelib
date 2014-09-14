@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_file.h"
-#include "../../include/pdf/che_pdf_creator.h"
+//#include "../../include/pdf/che_pdf_creator.h"
 
 CHE_PDF_File::CHE_PDF_File( CHE_Allocator * pAllocator )
 	: CHE_Object(pAllocator), mpParser(NULL), mVersion(PDF_VERSION_1_7), mObjCollector(pAllocator), mXRefTable(pAllocator) {}
@@ -63,132 +63,132 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 		return FALSE;
 	}
 
-	CHE_PDF_Creator * pCreator = CHE_PDF_Creator::Create( pWrite, GetAllocator() );
-	if ( pCreator == NULL )
-	{
-		return FALSE;
-	}
+// 	//CHE_PDF_Creator * pCreator = CHE_PDF_Creator::Create( pWrite, GetAllocator() );
+// 	if ( pCreator == NULL )
+// 	{
+// 		return FALSE;
+// 	}
+// 
+// 	if ( mpParser && mpParser->m_pStrEncrypt )
+// 	{
+// 		pCreator->SetEncrypt( mpParser->m_pStrEncrypt );
+// 	}
+// 
+// 	HE_ULONG				objCount = 0;
+// 	HE_ULONG				offset = 0;
+// 	PDF_RefInfo				refInfo;
+// 	HE_BOOL					bEncrypt = TRUE;
+// 
+// 	CHE_PDF_ObjectPtr		ObjPtr;
+// 	CHE_PDF_NamePtr			NamePtr;
+// 	CHE_PDF_DictionaryPtr	DictPtr;
+// 
+// 	CHE_PDF_XRefEntry		entry;
+// 	CHE_PDF_XRefTable		xref( GetAllocator() );
+// 
+// 	//PDF File Head
+// 	pCreator->OutPutFileHead( GetPDFVersion() );
+// 
+// 	//XRef Beginning
+// 	entry.ObjNum = 0;
+// 	entry.Field1 = 0;
+// 	entry.Field2 = 65535;
+// 	entry.Type = XREF_ENTRY_TYPE_FREE;
+// 	++objCount;
+// 	xref.Add( entry );
+// 
+// 	mLock.Lock();
+// 
+// 	//Out put all objects
+// 	mXRefTable.MoveFirst();
+// 	while( !mXRefTable.IsEOF() )
+// 	{
+// 		if ( mXRefTable.GetCurNode( entry ) && entry.GetObjNum() != 0 )
+// 		{
+// 			refInfo.objNum = entry.GetObjNum();
+// 			refInfo.genNum = 0;
+// 
+// 			if (	mpParser && mpParser->mEncryptRef &&
+// 					mpParser->mEncryptRef->GetRefInfo().objNum == refInfo.objNum &&
+// 					mpParser->mEncryptRef->GetRefInfo().genNum == refInfo.genNum )
+// 			{
+// 				bEncrypt = FALSE;
+// 			}else{
+// 				bEncrypt = TRUE;
+// 			}
+// 
+// 			ObjPtr = GetObject( refInfo );
+// 			if ( ObjPtr )
+// 			{
+// 				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
+// 				{
+// 					DictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
+// 					CHE_PDF_ObjectPtr tmpObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
+// 					if ( tmpObjPtr )
+// 					{
+// 						NamePtr = tmpObjPtr->GetNamePtr();
+// 					}
+// 					if ( NamePtr )
+// 					{
+// 						if ( ( NamePtr->GetString() == "ObjStm" ) || ( NamePtr->GetString() == "XRef" ) )
+// 						{
+// 							mXRefTable.MoveNext();
+// 							NamePtr.Reset();
+// 							continue;
+// 						}
+// 					}
+// 				}
+// 
+// 				offset = pCreator->OutPutInObject( refInfo, ObjPtr, bEncrypt );
+// 
+// 				entry.Type = XREF_ENTRY_TYPE_COMMON;
+// 				entry.ObjNum = refInfo.objNum;
+// 				entry.Field1 = offset;
+// 				entry.Field2 = 0;
+// 				++objCount;
+// 
+// 				xref.Add( entry );
+// 			}
+// 		}
+// 		mXRefTable.MoveNext();
+// 	}
+// 
+// 	mLock.UnLock();
+// 
+// 	offset = pCreator->OutPutXRefTable( xref );
+// 
+// 	DictPtr = GetTrailerDict();
+// 
+// 	CHE_PDF_DictionaryPtr newTriailerDict = CHE_PDF_Dictionary::Create( GetAllocator() );
+// 
+// 	ObjPtr = DictPtr->GetElement( "Root", OBJ_TYPE_REFERENCE );
+// 	if ( ObjPtr )
+// 	{
+// 		newTriailerDict->SetAtObj( "Root", ObjPtr );
+// 	}
+// 	ObjPtr = DictPtr->GetElement( "Info", OBJ_TYPE_REFERENCE );
+// 	if ( ObjPtr )
+// 	{
+// 		newTriailerDict->SetAtObj( "Info", ObjPtr->GetRefPtr() );
+// 	}
+// 
+// 	if ( mpParser && mpParser->mEncryptRef )
+// 	{
+// 		newTriailerDict->SetAtReference( "Encrypt", mpParser->mEncryptRef->GetRefInfo().objNum, mpParser->mEncryptRef->GetRefInfo().genNum, this );
+// 	}
+// 
+// 	if ( mpParser && mpParser->mIDArrayPtr )
+// 	{
+// 		newTriailerDict->SetAtArray( "ID", mpParser->mIDArrayPtr->Clone() );
+// 	}
+// 
+// 	newTriailerDict->SetAtInteger( "Size", (HE_INT32)objCount );
 
-	if ( mpParser && mpParser->m_pStrEncrypt )
-	{
-		pCreator->SetEncrypt( mpParser->m_pStrEncrypt );
-	}
-
-	HE_ULONG				objCount = 0;
-	HE_ULONG				offset = 0;
-	PDF_RefInfo				refInfo;
-	HE_BOOL					bEncrypt = TRUE;
-
-	CHE_PDF_ObjectPtr		ObjPtr;
-	CHE_PDF_NamePtr			NamePtr;
-	CHE_PDF_DictionaryPtr	DictPtr;
-
-	CHE_PDF_XREF_Entry		entry;
-	CHE_PDF_XREF_Table		xref( GetAllocator() );
-
-	//PDF File Head
-	pCreator->OutPutFileHead( GetPDFVersion() );
-
-	//XRef Beginning
-	entry.ObjNum = 0;
-	entry.Field1 = 0;
-	entry.Field2 = 65535;
-	entry.Type = XREF_ENTRY_TYPE_FREE;
-	++objCount;
-	xref.Add( entry );
-
-	mLock.Lock();
-
-	//Out put all objects
-	mXRefTable.MoveFirst();
-	while( !mXRefTable.IsEOF() )
-	{
-		if ( mXRefTable.GetCurNode( entry ) && entry.GetObjNum() != 0 )
-		{
-			refInfo.objNum = entry.GetObjNum();
-			refInfo.genNum = 0;
-
-			if (	mpParser && mpParser->mEncryptRef &&
-					mpParser->mEncryptRef->GetRefInfo().objNum == refInfo.objNum &&
-					mpParser->mEncryptRef->GetRefInfo().genNum == refInfo.genNum )
-			{
-				bEncrypt = FALSE;
-			}else{
-				bEncrypt = TRUE;
-			}
-
-			ObjPtr = GetObject( refInfo );
-			if ( ObjPtr )
-			{
-				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
-				{
-					DictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
-					CHE_PDF_ObjectPtr tmpObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
-					if ( tmpObjPtr )
-					{
-						NamePtr = tmpObjPtr->GetNamePtr();
-					}
-					if ( NamePtr )
-					{
-						if ( ( NamePtr->GetString() == "ObjStm" ) || ( NamePtr->GetString() == "XRef" ) )
-						{
-							mXRefTable.MoveNext();
-							NamePtr.Reset();
-							continue;
-						}
-					}
-				}
-
-				offset = pCreator->OutPutInObject( refInfo, ObjPtr, bEncrypt );
-
-				entry.Type = XREF_ENTRY_TYPE_COMMON;
-				entry.ObjNum = refInfo.objNum;
-				entry.Field1 = offset;
-				entry.Field2 = 0;
-				++objCount;
-
-				xref.Add( entry );
-			}
-		}
-		mXRefTable.MoveNext();
-	}
-
-	mLock.UnLock();
-
-	offset = pCreator->OutPutXRefTable( xref );
-
-	DictPtr = GetTrailerDict();
-
-	CHE_PDF_DictionaryPtr newTriailerDict = CHE_PDF_Dictionary::Create( GetAllocator() );
-
-	ObjPtr = DictPtr->GetElement( "Root", OBJ_TYPE_REFERENCE );
-	if ( ObjPtr )
-	{
-		newTriailerDict->SetAtObj( "Root", ObjPtr );
-	}
-	ObjPtr = DictPtr->GetElement( "Info", OBJ_TYPE_REFERENCE );
-	if ( ObjPtr )
-	{
-		newTriailerDict->SetAtObj( "Info", ObjPtr->GetRefPtr() );
-	}
-
-	if ( mpParser && mpParser->mEncryptRef )
-	{
-		newTriailerDict->SetAtReference( "Encrypt", mpParser->mEncryptRef->GetRefInfo().objNum, mpParser->mEncryptRef->GetRefInfo().genNum, this );
-	}
-
-	if ( mpParser && mpParser->mIDArrayPtr )
-	{
-		newTriailerDict->SetAtArray( "ID", mpParser->mIDArrayPtr->Clone() );
-	}
-
-	newTriailerDict->SetAtInteger( "Size", (HE_INT32)objCount );
-
-	pCreator->OutPutTailerDict( newTriailerDict );
-
-	pCreator->OutPutFileTailer( offset );
-
-	pCreator->GetAllocator()->Delete( pCreator );
+// 	pCreator->OutPutTailerDict( newTriailerDict );
+// 
+// 	pCreator->OutPutFileTailer( offset );
+// 
+// 	pCreator->GetAllocator()->Delete( pCreator );
 
 	return TRUE;
 }
@@ -200,392 +200,392 @@ HE_BOOL CHE_PDF_File::SaveCompact( IHE_Write * pWrite )
 		return FALSE;
 	}
 
-	CHE_PDF_Creator * pCreator = CHE_PDF_Creator::Create( pWrite, GetAllocator() );
-	if ( pCreator == NULL )
-	{
-		return FALSE;
-	}
-
-	CHE_DynBuffer dynBuffer( 1024, 1024 * 4, GetAllocator() );
-	IHE_Write * pBufWrite = HE_CreateDynBufferWrite( &dynBuffer, GetAllocator() );
-	if ( pWrite == NULL )
-	{
-		pCreator->GetAllocator()->Delete( pCreator );
-		return FALSE;
-	}
-
-	HE_ULONG objCount = 0;
-	HE_ULONG objInStmCount = 0;
-	HE_ULONG offset = 0;
-	HE_ULONG nextObjNum = mXRefTable.GetMaxObjNum()+1;
-	CHE_PDF_XREF_Entry entry;
-	CHE_PDF_XREF_Table xref( GetAllocator() );
-	PDF_RefInfo refInfo;
-	CHE_Queue< HE_ULONG > objNumQueue;
-	CHE_Queue< HE_ULONG > objOffset;
-
-	CHE_PDF_ObjectPtr ObjPtr;
-	CHE_PDF_NamePtr NamePtr;
-	CHE_PDF_DictionaryPtr DictPtr;
-
-	pCreator->OutPutFileHead( GetPDFVersion() );
-
-	entry.ObjNum = 0;
-	entry.Field1 = 0;
-	entry.Field2 = 65535;
-	entry.Type = XREF_ENTRY_TYPE_FREE;
-
-	xref.Add( entry );
-	++objCount;
-
-	mLock.Lock();
-
-	mXRefTable.MoveFirst();
-	while( !mXRefTable.IsEOF() )
-	{
-		if ( mXRefTable.GetCurNode( entry ) && entry.GetObjNum() != 0 )
-		{
-			refInfo.objNum = entry.GetObjNum();
-			refInfo.genNum = 0;
-			ObjPtr = GetObject( refInfo );
-			if ( ObjPtr )
-			{
-				//跳过不需要输出的对象流对象和交叉索引流对象
-				if ( IsPdfStreamPtr( ObjPtr ) )
-				{
-					DictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
-					
-					CHE_PDF_ObjectPtr tmpObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
-					if ( tmpObjPtr )
-					{
-						NamePtr = tmpObjPtr->GetNamePtr();
-						if ( NamePtr )
-						{
-							if ( NamePtr->GetString() == "ObjStm" || NamePtr->GetString() == "XRef" )
-							{
-								mXRefTable.MoveNext();
-								continue;
-							}
-						}
-					}
-				}
-				entry.Type = XREF_ENTRY_TYPE_FREE;
-				xref.Add( entry );
-				++objCount;
-			}
-		}
-		mXRefTable.MoveNext();
-	}
-
-	mLock.UnLock();
-
-	CHE_PDF_ReferencePtr RefPtr;
-	CHE_PDF_DictionaryPtr trailerDictPtr = GetTrailerDict();
-
-// 	ObjPtr = trailerDictPtr->GetElement( "Root", OBJ_TYPE_REFERENCE );
-// 
-// 	if ( ObjPtr )
+// 	CHE_PDF_Creator * pCreator = CHE_PDF_Creator::Create( pWrite, GetAllocator() );
+// 	if ( pCreator == NULL )
 // 	{
-// 		RefPtr = ObjPtr->GetRefPtr();
-// 		refInfo = RefPtr->GetRefInfo();
+// 		return FALSE;
+// 	}
 // 
-// 		offset = pCreator->OutPutInObject( refInfo, RefPtr->GetRefObj() );
+// 	CHE_DynBuffer dynBuffer( 1024, 1024 * 4, GetAllocator() );
+// 	IHE_Write * pBufWrite = HE_CreateDynBufferWrite( &dynBuffer, GetAllocator() );
+// 	if ( pWrite == NULL )
+// 	{
+// 		pCreator->GetAllocator()->Delete( pCreator );
+// 		return FALSE;
+// 	}
 // 
+// 	HE_ULONG objCount = 0;
+// 	HE_ULONG objInStmCount = 0;
+// 	HE_ULONG offset = 0;
+// 	HE_ULONG nextObjNum = mXRefTable.GetMaxObjNum()+1;
+// 	CHE_PDF_XRefEntry entry;
+// 	CHE_PDF_XRefTable xref( GetAllocator() );
+// 	PDF_RefInfo refInfo;
+// 	CHE_Queue< HE_ULONG > objNumQueue;
+// 	CHE_Queue< HE_ULONG > objOffset;
+// 
+// 	CHE_PDF_ObjectPtr ObjPtr;
+// 	CHE_PDF_NamePtr NamePtr;
+// 	CHE_PDF_DictionaryPtr DictPtr;
+// 
+// 	pCreator->OutPutFileHead( GetPDFVersion() );
+// 
+// 	entry.ObjNum = 0;
+// 	entry.Field1 = 0;
+// 	entry.Field2 = 65535;
+// 	entry.Type = XREF_ENTRY_TYPE_FREE;
+// 
+// 	xref.Add( entry );
+// 	++objCount;
+// 
+// 	mLock.Lock();
+// 
+// 	mXRefTable.MoveFirst();
+// 	while( !mXRefTable.IsEOF() )
+// 	{
+// 		if ( mXRefTable.GetCurNode( entry ) && entry.GetObjNum() != 0 )
+// 		{
+// 			refInfo.objNum = entry.GetObjNum();
+// 			refInfo.genNum = 0;
+// 			ObjPtr = GetObject( refInfo );
+// 			if ( ObjPtr )
+// 			{
+// 				//跳过不需要输出的对象流对象和交叉索引流对象
+// 				if ( IsPdfStreamPtr( ObjPtr ) )
+// 				{
+// 					DictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
+// 					
+// 					CHE_PDF_ObjectPtr tmpObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
+// 					if ( tmpObjPtr )
+// 					{
+// 						NamePtr = tmpObjPtr->GetNamePtr();
+// 						if ( NamePtr )
+// 						{
+// 							if ( NamePtr->GetString() == "ObjStm" || NamePtr->GetString() == "XRef" )
+// 							{
+// 								mXRefTable.MoveNext();
+// 								continue;
+// 							}
+// 						}
+// 					}
+// 				}
+// 				entry.Type = XREF_ENTRY_TYPE_FREE;
+// 				xref.Add( entry );
+// 				++objCount;
+// 			}
+// 		}
+// 		mXRefTable.MoveNext();
+// 	}
+// 
+// 	mLock.UnLock();
+// 
+// 	CHE_PDF_ReferencePtr RefPtr;
+// 	CHE_PDF_DictionaryPtr trailerDictPtr = GetTrailerDict();
+// 
+// // 	ObjPtr = trailerDictPtr->GetElement( "Root", OBJ_TYPE_REFERENCE );
+// // 
+// // 	if ( ObjPtr )
+// // 	{
+// // 		RefPtr = ObjPtr->GetRefPtr();
+// // 		refInfo = RefPtr->GetRefInfo();
+// // 
+// // 		offset = pCreator->OutPutInObject( refInfo, RefPtr->GetRefObj() );
+// // 
+// // 		entry.Type = XREF_ENTRY_TYPE_COMMON;
+// // 		entry.ObjNum = refInfo.objNum;
+// // 		entry.Field1 = offset;
+// // 		entry.Field2 = 0;
+// // 		xref.Update( refInfo.objNum, entry );
+// // 	}
+// 
+// 	xref.MoveFirst();
+// 	while( !xref.IsEOF() )
+// 	{
+// 		if ( xref.GetCurNode( entry ) && entry.GetObjNum() != 0 )
+// 		{
+// 			if ( entry.GetType() == XREF_ENTRY_TYPE_FREE )
+// 			{
+// 				refInfo.objNum = entry.GetObjNum();
+// 				refInfo.genNum = 0;
+// 				ObjPtr = GetObject( refInfo );
+// 				if ( ! ObjPtr )
+// 				{
+// 					xref.MoveNext();
+// 					continue;
+// 				}
+// 				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
+// 				{
+// 					offset = pCreator->OutPutInObject( refInfo, ObjPtr );
+// 					entry.Type = XREF_ENTRY_TYPE_COMMON;
+// 					entry.ObjNum = refInfo.objNum;
+// 					entry.Field1 = offset;
+// 					entry.Field2 = 0;
+// 					xref.Update( refInfo.objNum, entry );
+// 				}else if ( entry.GetGenNum() == 0  )
+// 				{
+// 					offset = pBufWrite->GetCurOffset();
+// 					CHE_PDF_Creator::OutPutObject( pBufWrite, refInfo, ObjPtr );
+// 					pBufWrite->WriteByte( '\n' );
+// 					objNumQueue.Push( refInfo.objNum );
+// 					objOffset.Push( offset );
+// 					++objInStmCount;
+// 					
+// 					if ( objInStmCount == 30 )
+// 					{
+// 						HE_ULONG objNum = 0;
+// 						HE_ULONG offset = 0;
+// 						HE_ULONG index = 0;
+// 						CHE_DynBuffer tmpBuf( 1024, 1024 * 8, GetAllocator() );
+// 						HE_CHAR tmpStr[1024];
+// 
+// 						CHE_PDF_StreamPtr StmPtr = CHE_PDF_Stream::Create( nextObjNum++, 0, NULL, GetAllocator() );
+// 
+// 						CHE_PDF_DictionaryPtr DictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
+// 
+// 						while( objNumQueue.Pop( objNum ) )
+// 						{
+// 							objOffset.Pop( offset );
+// 
+// 							entry.Type = XREF_ENTRY_TYPE_COMPRESSED;
+// 							entry.ObjNum = objNum;
+// 							entry.Field1 = nextObjNum-1;
+// 							entry.Field2 = index;
+// 							xref.Update( objNum, entry );
+// 
+// 							sprintf( tmpStr, "%ld %ld ", objNum, offset );
+// 							tmpBuf.Write( (HE_LPCBYTE)(&(tmpStr[0])), strlen(tmpStr) );
+// 
+// 							++index;
+// 						}
+// 
+// 						offset = tmpBuf.GetSize();
+// 						DictPtr->SetAtName( "Type", "ObjStm" );
+// 						DictPtr->SetAtInteger( "N", (HE_INT32)objInStmCount );
+// 						DictPtr->SetAtInteger( "First", (HE_INT32)offset );
+// 						StmPtr->SetDict( DictPtr );
+// 
+// 						tmpBuf.Write( dynBuffer );
+// 						StmPtr->SetRawData( tmpBuf.GetData(), tmpBuf.GetSize(), STREAM_FILTER_NULL );
+// 
+// 						refInfo.objNum = nextObjNum - 1;
+// 						refInfo.genNum = 0;
+// 
+// 						offset = pCreator->OutPutInObject( refInfo, StmPtr );
+// 						entry.Type = XREF_ENTRY_TYPE_COMMON;
+// 						entry.ObjNum = nextObjNum-1;
+// 						entry.Field1 = offset;
+// 						entry.Field2 = 0;
+// 						xref.Add( entry );
+// 
+// 						dynBuffer.Clear();
+// 						objInStmCount = 0;
+// 						++objCount;
+// 					}
+// 				}else{
+// 					offset = pCreator->OutPutInObject( refInfo, ObjPtr );
+// 					entry.Type = XREF_ENTRY_TYPE_COMMON;
+// 					entry.ObjNum = refInfo.objNum;
+// 					entry.Field1 = offset;
+// 					entry.Field2 = 0;
+// 					xref.Update( refInfo.objNum, entry );
+// 				}
+// 			}
+// 		}
+// 		xref.MoveNext();
+// 	}
+// 
+// 	if ( ! objNumQueue.IsEmpty() )
+// 	{
+// 		HE_ULONG objNum = 0;
+// 		HE_ULONG offset = 0;
+// 		HE_ULONG index = 0;
+// 		CHE_DynBuffer tmpBuf( 1024, 1024 * 8, GetAllocator() );
+// 		HE_CHAR tmpStr[1024];
+// 		CHE_PDF_StreamPtr StmPtr = CHE_PDF_Stream::Create( nextObjNum++, 0, NULL, GetAllocator() );
+// 		CHE_PDF_DictionaryPtr DictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
+// 		while( objNumQueue.Pop( objNum ) )
+// 		{
+// 			objOffset.Pop( offset );
+// 
+// 			entry.Type = XREF_ENTRY_TYPE_COMPRESSED;
+// 			entry.ObjNum = objNum;
+// 			entry.Field1 = nextObjNum-1;
+// 			entry.Field2 = index;
+// 			xref.Update( objNum, entry );
+// 
+// 			sprintf( tmpStr, "%ld %ld ", objNum, offset );
+// 			tmpBuf.Write( (HE_LPCBYTE)( &(tmpStr[0]) ), strlen(tmpStr) );
+// 
+// 			++index;
+// 		}
+// 
+// 		offset = tmpBuf.GetSize();
+// 		DictPtr->SetAtName( "Type", "ObjStm" );
+// 		DictPtr->SetAtInteger( "N", (HE_INT32)objInStmCount );
+// 		DictPtr->SetAtInteger( "First", (HE_INT32)offset );
+// 		StmPtr->SetDict( DictPtr );
+// 
+// 		tmpBuf.Write( dynBuffer );
+// 		StmPtr->SetRawData( tmpBuf.GetData(), tmpBuf.GetSize(), STREAM_FILTER_FLATE );
+// 
+// 		refInfo.objNum = nextObjNum - 1;
+// 		refInfo.genNum = 0;
+// 		offset = pCreator->OutPutInObject( refInfo, StmPtr );
 // 		entry.Type = XREF_ENTRY_TYPE_COMMON;
-// 		entry.ObjNum = refInfo.objNum;
+// 		entry.ObjNum = nextObjNum - 1;
 // 		entry.Field1 = offset;
 // 		entry.Field2 = 0;
-// 		xref.Update( refInfo.objNum, entry );
+// 		xref.Add( entry );
+// 
+// 		dynBuffer.Clear();
+// 		objInStmCount = 0;
+// 
+// 		++objCount;
 // 	}
-
-	xref.MoveFirst();
-	while( !xref.IsEOF() )
-	{
-		if ( xref.GetCurNode( entry ) && entry.GetObjNum() != 0 )
-		{
-			if ( entry.GetType() == XREF_ENTRY_TYPE_FREE )
-			{
-				refInfo.objNum = entry.GetObjNum();
-				refInfo.genNum = 0;
-				ObjPtr = GetObject( refInfo );
-				if ( ! ObjPtr )
-				{
-					xref.MoveNext();
-					continue;
-				}
-				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
-				{
-					offset = pCreator->OutPutInObject( refInfo, ObjPtr );
-					entry.Type = XREF_ENTRY_TYPE_COMMON;
-					entry.ObjNum = refInfo.objNum;
-					entry.Field1 = offset;
-					entry.Field2 = 0;
-					xref.Update( refInfo.objNum, entry );
-				}else if ( entry.GetGenNum() == 0  )
-				{
-					offset = pBufWrite->GetCurOffset();
-					CHE_PDF_Creator::OutPutObject( pBufWrite, refInfo, ObjPtr );
-					pBufWrite->WriteByte( '\n' );
-					objNumQueue.Push( refInfo.objNum );
-					objOffset.Push( offset );
-					++objInStmCount;
-					
-					if ( objInStmCount == 30 )
-					{
-						HE_ULONG objNum = 0;
-						HE_ULONG offset = 0;
-						HE_ULONG index = 0;
-						CHE_DynBuffer tmpBuf( 1024, 1024 * 8, GetAllocator() );
-						HE_CHAR tmpStr[1024];
-
-						CHE_PDF_StreamPtr StmPtr = CHE_PDF_Stream::Create( nextObjNum++, 0, NULL, GetAllocator() );
-
-						CHE_PDF_DictionaryPtr DictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
-
-						while( objNumQueue.Pop( objNum ) )
-						{
-							objOffset.Pop( offset );
-
-							entry.Type = XREF_ENTRY_TYPE_COMPRESSED;
-							entry.ObjNum = objNum;
-							entry.Field1 = nextObjNum-1;
-							entry.Field2 = index;
-							xref.Update( objNum, entry );
-
-							sprintf( tmpStr, "%ld %ld ", objNum, offset );
-							tmpBuf.Write( (HE_LPCBYTE)(&(tmpStr[0])), strlen(tmpStr) );
-
-							++index;
-						}
-
-						offset = tmpBuf.GetSize();
-						DictPtr->SetAtName( "Type", "ObjStm" );
-						DictPtr->SetAtInteger( "N", (HE_INT32)objInStmCount );
-						DictPtr->SetAtInteger( "First", (HE_INT32)offset );
-						StmPtr->SetDict( DictPtr );
-
-						tmpBuf.Write( dynBuffer );
-						StmPtr->SetRawData( tmpBuf.GetData(), tmpBuf.GetSize(), STREAM_FILTER_NULL );
-
-						refInfo.objNum = nextObjNum - 1;
-						refInfo.genNum = 0;
-
-						offset = pCreator->OutPutInObject( refInfo, StmPtr );
-						entry.Type = XREF_ENTRY_TYPE_COMMON;
-						entry.ObjNum = nextObjNum-1;
-						entry.Field1 = offset;
-						entry.Field2 = 0;
-						xref.Add( entry );
-
-						dynBuffer.Clear();
-						objInStmCount = 0;
-						++objCount;
-					}
-				}else{
-					offset = pCreator->OutPutInObject( refInfo, ObjPtr );
-					entry.Type = XREF_ENTRY_TYPE_COMMON;
-					entry.ObjNum = refInfo.objNum;
-					entry.Field1 = offset;
-					entry.Field2 = 0;
-					xref.Update( refInfo.objNum, entry );
-				}
-			}
-		}
-		xref.MoveNext();
-	}
-
-	if ( ! objNumQueue.IsEmpty() )
-	{
-		HE_ULONG objNum = 0;
-		HE_ULONG offset = 0;
-		HE_ULONG index = 0;
-		CHE_DynBuffer tmpBuf( 1024, 1024 * 8, GetAllocator() );
-		HE_CHAR tmpStr[1024];
-		CHE_PDF_StreamPtr StmPtr = CHE_PDF_Stream::Create( nextObjNum++, 0, NULL, GetAllocator() );
-		CHE_PDF_DictionaryPtr DictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
-		while( objNumQueue.Pop( objNum ) )
-		{
-			objOffset.Pop( offset );
-
-			entry.Type = XREF_ENTRY_TYPE_COMPRESSED;
-			entry.ObjNum = objNum;
-			entry.Field1 = nextObjNum-1;
-			entry.Field2 = index;
-			xref.Update( objNum, entry );
-
-			sprintf( tmpStr, "%ld %ld ", objNum, offset );
-			tmpBuf.Write( (HE_LPCBYTE)( &(tmpStr[0]) ), strlen(tmpStr) );
-
-			++index;
-		}
-
-		offset = tmpBuf.GetSize();
-		DictPtr->SetAtName( "Type", "ObjStm" );
-		DictPtr->SetAtInteger( "N", (HE_INT32)objInStmCount );
-		DictPtr->SetAtInteger( "First", (HE_INT32)offset );
-		StmPtr->SetDict( DictPtr );
-
-		tmpBuf.Write( dynBuffer );
-		StmPtr->SetRawData( tmpBuf.GetData(), tmpBuf.GetSize(), STREAM_FILTER_FLATE );
-
-		refInfo.objNum = nextObjNum - 1;
-		refInfo.genNum = 0;
-		offset = pCreator->OutPutInObject( refInfo, StmPtr );
-		entry.Type = XREF_ENTRY_TYPE_COMMON;
-		entry.ObjNum = nextObjNum - 1;
-		entry.Field1 = offset;
-		entry.Field2 = 0;
-		xref.Add( entry );
-
-		dynBuffer.Clear();
-		objInStmCount = 0;
-
-		++objCount;
-	}
-
-	CHE_PDF_DictionaryPtr StmDictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
-	CHE_PDF_StreamPtr StmPtr = CHE_PDF_Stream::Create( 0, 0, NULL, GetAllocator() );
-
-	refInfo.objNum = xref.GetMaxObjNum() + 1;
-	refInfo.genNum = 0;
-	
-	StmPtr->SetDict( StmDictPtr );
-
-	StmDictPtr->SetAtName( "Type", "XRef" );
-
-	ObjPtr = trailerDictPtr->GetElement( "Root", OBJ_TYPE_REFERENCE );
-	if ( ObjPtr )
-	{
-		StmDictPtr->SetAtObj( "Root", ObjPtr->Clone() );
-	}
-	ObjPtr = trailerDictPtr->GetElement( "Info", OBJ_TYPE_REFERENCE );
-	if ( ObjPtr )
-	{
-		StmDictPtr->SetAtObj( "Info", ObjPtr->Clone() );
-	}
-	StmDictPtr->SetAtInteger( "Size", (HE_INT32)objCount );
-	CHE_PDF_ArrayPtr ArrayPtr = CHE_PDF_Array::Create( GetAllocator() );
-	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)1, GetAllocator() ) );
-	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)3, GetAllocator() ) );
-	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)1, GetAllocator() ) );
-	StmDictPtr->SetAtArray( "W", ArrayPtr );
-	ArrayPtr  = CHE_PDF_Array::Create( GetAllocator() );
-	StmDictPtr->SetAtArray( "Index", ArrayPtr );
-
-	CHE_DynBuffer tmpBuf( 1024, 1024, GetAllocator() );
-
-	HE_ULONG lBeginNum = 0;
-	HE_ULONG lNextObjNum = 0;
-	HE_ULONG lCountNum = 0;
-
-	CHE_Queue< CHE_PDF_XREF_Entry > entryList;
-
-	HE_ULONG field1 = 0, field2 = 0, field3 = 0;
-
-	xref.MoveFirst();
-	if ( ! xref.GetCurNode( entry ) )
-	{
-		return FALSE/*offset*/;
-	}
-	lBeginNum = entry.GetObjNum();
-	lNextObjNum = lBeginNum + 1;
-	lCountNum = 1;
-	entryList.Push( entry );
-
-	xref.MoveNext();
-	while( !xref.IsEOF() )
-	{
-		if ( xref.GetCurNode( entry ) )
-		{
-			if ( entry.GetObjNum() == lNextObjNum )
-			{
-				entryList.Push( entry );
-				++lCountNum;
-			}else{
-				CHE_PDF_XREF_Entry tmpEntry;
-				ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)lBeginNum, GetAllocator() ) );
-				ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)lCountNum, GetAllocator() ) );
-				while( entryList.Pop( tmpEntry ) )
-				{
-					switch ( tmpEntry.GetType() )
-					{
-					case XREF_ENTRY_TYPE_FREE:
-						field1 = 0; field2 = tmpEntry.GetObjNum(); field3 = tmpEntry.GetGenNum();
-						break;
-					case XREF_ENTRY_TYPE_COMMON:
-						field1 = 1; field2 = tmpEntry.GetOffset(); field3 = tmpEntry.GetGenNum();
-						break;
-					case XREF_ENTRY_TYPE_COMPRESSED:
-						field1 = 2; field2 = tmpEntry.GetParentObjNum(); field3 = tmpEntry.GetIndex();
-						break;
-                    case XREF_ENTRY_TYPE_NEW:
-                        break;
-					}
-					HE_BYTE byte = 0;
-					tmpBuf.Write( HE_LPCBYTE( &field1 ), 1 );
-					byte = (HE_BYTE)( field2 >> 16 );
-					tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
-					byte = (HE_BYTE)( field2 >> 8 );
-					tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
-					byte = (HE_BYTE)( field2 );
-					tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
-					tmpBuf.Write( HE_LPCBYTE( &field3 ), 1 );
-				}
-				entryList.Push( entry );
-				lBeginNum = entry.GetObjNum();
-				lCountNum = 1;
-				lNextObjNum = lBeginNum;
-			}
-			++lNextObjNum;
-		}else{
-			break;
-		}
-		xref.MoveNext();
-	}
-
-	if ( lCountNum > 0 )
-	{
-		CHE_PDF_XREF_Entry tmpEntry;
-		ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)lBeginNum, GetAllocator() ) );
-		ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)lCountNum, GetAllocator() ) );
-		while( entryList.Pop( tmpEntry ) )
-		{
-			switch ( tmpEntry.GetType() )
-			{
-			case XREF_ENTRY_TYPE_FREE:
-				field1 = 0; field2 = tmpEntry.GetObjNum(); field3 = tmpEntry.GetGenNum();
-				break;
-			case XREF_ENTRY_TYPE_COMMON:
-				field1 = 1; field2 = tmpEntry.GetOffset(); field3 = tmpEntry.GetGenNum();
-				break;
-			case XREF_ENTRY_TYPE_COMPRESSED:
-				field1 = 2; field2 = tmpEntry.GetParentObjNum(); field3 = tmpEntry.GetIndex();
-				break;
-            case XREF_ENTRY_TYPE_NEW:
-                break;
-			}
-			HE_BYTE byte = 0;
-			tmpBuf.Write( HE_LPCBYTE( &field1 ), 1 );
-			byte = (HE_BYTE)( field2 >> 16 );
-			tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
-			byte = (HE_BYTE)( field2 >> 8 );
-			tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
-			byte = (HE_BYTE)( field2 );
-			tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
-			tmpBuf.Write( HE_LPCBYTE( &field3 ), 1 );
-		}
-	}
-
-	StmPtr->SetRawData( tmpBuf.GetData(), tmpBuf.GetSize(), STREAM_FILTER_FLATE );
-
-	refInfo.objNum = nextObjNum + 1;
-	refInfo.genNum= 0;
-
-	offset = pCreator->OutPutInObject( refInfo, StmPtr );
-
-	pCreator->OutPutFileTailer( offset );
-
-	pCreator->GetAllocator()->Delete( pCreator );
+// 
+// 	CHE_PDF_DictionaryPtr StmDictPtr = CHE_PDF_Dictionary::Create( GetAllocator() );
+// 	CHE_PDF_StreamPtr StmPtr = CHE_PDF_Stream::Create( 0, 0, NULL, GetAllocator() );
+// 
+// 	refInfo.objNum = xref.GetMaxObjNum() + 1;
+// 	refInfo.genNum = 0;
+// 	
+// 	StmPtr->SetDict( StmDictPtr );
+// 
+// 	StmDictPtr->SetAtName( "Type", "XRef" );
+// 
+// 	ObjPtr = trailerDictPtr->GetElement( "Root", OBJ_TYPE_REFERENCE );
+// 	if ( ObjPtr )
+// 	{
+// 		StmDictPtr->SetAtObj( "Root", ObjPtr->Clone() );
+// 	}
+// 	ObjPtr = trailerDictPtr->GetElement( "Info", OBJ_TYPE_REFERENCE );
+// 	if ( ObjPtr )
+// 	{
+// 		StmDictPtr->SetAtObj( "Info", ObjPtr->Clone() );
+// 	}
+// 	StmDictPtr->SetAtInteger( "Size", (HE_INT32)objCount );
+// 	CHE_PDF_ArrayPtr ArrayPtr = CHE_PDF_Array::Create( GetAllocator() );
+// 	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)1, GetAllocator() ) );
+// 	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)3, GetAllocator() ) );
+// 	ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)1, GetAllocator() ) );
+// 	StmDictPtr->SetAtArray( "W", ArrayPtr );
+// 	ArrayPtr  = CHE_PDF_Array::Create( GetAllocator() );
+// 	StmDictPtr->SetAtArray( "Index", ArrayPtr );
+// 
+// 	CHE_DynBuffer tmpBuf( 1024, 1024, GetAllocator() );
+// 
+// 	HE_ULONG lBeginNum = 0;
+// 	HE_ULONG lNextObjNum = 0;
+// 	HE_ULONG lCountNum = 0;
+// 
+// 	CHE_Queue< CHE_PDF_XRefEntry > entryList;
+// 
+// 	HE_ULONG field1 = 0, field2 = 0, field3 = 0;
+// 
+// 	xref.MoveFirst();
+// 	if ( ! xref.GetCurNode( entry ) )
+// 	{
+// 		return FALSE/*offset*/;
+// 	}
+// 	lBeginNum = entry.GetObjNum();
+// 	lNextObjNum = lBeginNum + 1;
+// 	lCountNum = 1;
+// 	entryList.Push( entry );
+// 
+// 	xref.MoveNext();
+// 	while( !xref.IsEOF() )
+// 	{
+// 		if ( xref.GetCurNode( entry ) )
+// 		{
+// 			if ( entry.GetObjNum() == lNextObjNum )
+// 			{
+// 				entryList.Push( entry );
+// 				++lCountNum;
+// 			}else{
+// 				CHE_PDF_XRefEntry tmpEntry;
+// 				ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)lBeginNum, GetAllocator() ) );
+// 				ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)lCountNum, GetAllocator() ) );
+// 				while( entryList.Pop( tmpEntry ) )
+// 				{
+// 					switch ( tmpEntry.GetType() )
+// 					{
+// 					case XREF_ENTRY_TYPE_FREE:
+// 						field1 = 0; field2 = tmpEntry.GetObjNum(); field3 = tmpEntry.GetGenNum();
+// 						break;
+// 					case XREF_ENTRY_TYPE_COMMON:
+// 						field1 = 1; field2 = tmpEntry.GetOffset(); field3 = tmpEntry.GetGenNum();
+// 						break;
+// 					case XREF_ENTRY_TYPE_COMPRESSED:
+// 						field1 = 2; field2 = tmpEntry.GetParentObjNum(); field3 = tmpEntry.GetIndex();
+// 						break;
+//                     case XREF_ENTRY_TYPE_NEW:
+//                         break;
+// 					}
+// 					HE_BYTE byte = 0;
+// 					tmpBuf.Write( HE_LPCBYTE( &field1 ), 1 );
+// 					byte = (HE_BYTE)( field2 >> 16 );
+// 					tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
+// 					byte = (HE_BYTE)( field2 >> 8 );
+// 					tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
+// 					byte = (HE_BYTE)( field2 );
+// 					tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
+// 					tmpBuf.Write( HE_LPCBYTE( &field3 ), 1 );
+// 				}
+// 				entryList.Push( entry );
+// 				lBeginNum = entry.GetObjNum();
+// 				lCountNum = 1;
+// 				lNextObjNum = lBeginNum;
+// 			}
+// 			++lNextObjNum;
+// 		}else{
+// 			break;
+// 		}
+// 		xref.MoveNext();
+// 	}
+// 
+// 	if ( lCountNum > 0 )
+// 	{
+// 		CHE_PDF_XRefEntry tmpEntry;
+// 		ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)lBeginNum, GetAllocator() ) );
+// 		ArrayPtr->Append( CHE_PDF_Number::Create( (HE_INT32)lCountNum, GetAllocator() ) );
+// 		while( entryList.Pop( tmpEntry ) )
+// 		{
+// 			switch ( tmpEntry.GetType() )
+// 			{
+// 			case XREF_ENTRY_TYPE_FREE:
+// 				field1 = 0; field2 = tmpEntry.GetObjNum(); field3 = tmpEntry.GetGenNum();
+// 				break;
+// 			case XREF_ENTRY_TYPE_COMMON:
+// 				field1 = 1; field2 = tmpEntry.GetOffset(); field3 = tmpEntry.GetGenNum();
+// 				break;
+// 			case XREF_ENTRY_TYPE_COMPRESSED:
+// 				field1 = 2; field2 = tmpEntry.GetParentObjNum(); field3 = tmpEntry.GetIndex();
+// 				break;
+//             case XREF_ENTRY_TYPE_NEW:
+//                 break;
+// 			}
+// 			HE_BYTE byte = 0;
+// 			tmpBuf.Write( HE_LPCBYTE( &field1 ), 1 );
+// 			byte = (HE_BYTE)( field2 >> 16 );
+// 			tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
+// 			byte = (HE_BYTE)( field2 >> 8 );
+// 			tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
+// 			byte = (HE_BYTE)( field2 );
+// 			tmpBuf.Write( HE_LPCBYTE( &byte ), 1 );
+// 			tmpBuf.Write( HE_LPCBYTE( &field3 ), 1 );
+// 		}
+// 	}
+// 
+// 	StmPtr->SetRawData( tmpBuf.GetData(), tmpBuf.GetSize(), STREAM_FILTER_FLATE );
+// 
+// 	refInfo.objNum = nextObjNum + 1;
+// 	refInfo.genNum= 0;
+// 
+// 	offset = pCreator->OutPutInObject( refInfo, StmPtr );
+// 
+// 	pCreator->OutPutFileTailer( offset );
+// 
+// 	pCreator->GetAllocator()->Delete( pCreator );
  
  	return TRUE;
 }
@@ -602,7 +602,7 @@ HE_BOOL CHE_PDF_File::Authenticate( const CHE_ByteString & password ) const
 CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const PDF_RefInfo & refInfo )
 {
 	mLock.Lock();
-	CHE_PDF_ObjectPtr ObjPtr = mObjCollector.GetObj( refInfo );
+	CHE_PDF_ObjectPtr ObjPtr = mObjCollector.GetObj( refInfo.objNum );
 	if ( ObjPtr )
 	{
 		mLock.UnLock();
@@ -613,7 +613,7 @@ CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const PDF_RefInfo & refInfo )
 		mLock.UnLock();
 		return ObjPtr;
 	}
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	if ( mXRefTable.Get( refInfo.objNum, entry ) )
 	{
 		if ( entry.GetType() == XREF_ENTRY_TYPE_COMMON )
@@ -622,7 +622,7 @@ CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const PDF_RefInfo & refInfo )
 			ObjPtr = mpParser->GetObject();
 			if ( ObjPtr )
 			{
-				mObjCollector.Add( refInfo, ObjPtr );
+				mObjCollector.Add( refInfo.objNum, ObjPtr );
 				mLock.UnLock();
 				return ObjPtr;
 			}
@@ -646,7 +646,7 @@ CHE_PDF_ObjectPtr CHE_PDF_File::GetObject( const PDF_RefInfo & refInfo )
 			//mLock.UnLock();
 			mpParser->GetAllObjectsInObjStm( pStm, &mObjCollector );
 			//mLock.Lock();
-			ObjPtr = mObjCollector.GetObj( refInfo );
+			ObjPtr = mObjCollector.GetObj( refInfo.objNum );
 // 			CHE_PDF_StreamPtr pStm = ObjPtr->GetStreamPtr();
 // 			if ( ! pStm )
 // 			{
@@ -788,7 +788,7 @@ CHE_PDF_ArrayPtr CHE_PDF_File::GetIDArray()
 
 HE_VOID CHE_PDF_File::CreateTrailerDict()
 {
-	CHE_PDF_DictionaryPtr pTmpDict =  CHE_PDF_Dictionary::Create( GetAllocator() );
+	CHE_PDF_DictionaryPtr pTmpDict = CHE_PDF_Dictionary::Create( GetAllocator() );
 	mLock.Lock();
 	mXRefTable.AddTrailerDict( pTmpDict );
 	mLock.UnLock();
@@ -827,7 +827,7 @@ HE_VOID CHE_PDF_File::CreateCatalogDict()
 
 PDF_RefInfo CHE_PDF_File::CreateNullObject( CHE_PDF_NullPtr & ptrRet )
 {
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
@@ -839,7 +839,7 @@ PDF_RefInfo CHE_PDF_File::CreateNullObject( CHE_PDF_NullPtr & ptrRet )
 		mXRefTable.AddNewEntry( entry );
 		refInfo.objNum = entry.GetObjNum();
 		refInfo.genNum = entry.GetGenNum();
-		mObjCollector.Add( refInfo, ptrRet );
+		mObjCollector.Add( refInfo.objNum, ptrRet );
 		mLock.UnLock();
 	}
 	return refInfo;
@@ -847,7 +847,7 @@ PDF_RefInfo CHE_PDF_File::CreateNullObject( CHE_PDF_NullPtr & ptrRet )
 
 PDF_RefInfo CHE_PDF_File::CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet )
 {
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
@@ -859,7 +859,7 @@ PDF_RefInfo CHE_PDF_File::CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet )
 		mXRefTable.AddNewEntry( entry );
 		refInfo.objNum = entry.GetObjNum();
 		refInfo.genNum = entry.GetGenNum();
-		mObjCollector.Add( refInfo, ptrRet );
+		mObjCollector.Add( refInfo.objNum, ptrRet );
 		mLock.UnLock();
 	}
 	return refInfo;
@@ -867,7 +867,7 @@ PDF_RefInfo CHE_PDF_File::CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet )
 
 PDF_RefInfo CHE_PDF_File::CreateNumberObject( CHE_PDF_NumberPtr & ptrRet )
 {
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
@@ -879,7 +879,7 @@ PDF_RefInfo CHE_PDF_File::CreateNumberObject( CHE_PDF_NumberPtr & ptrRet )
 		mXRefTable.AddNewEntry( entry );
 		refInfo.objNum = entry.GetObjNum();
 		refInfo.genNum = entry.GetGenNum();
-		mObjCollector.Add( refInfo, ptrRet );
+		mObjCollector.Add( refInfo.objNum, ptrRet );
 		mLock.UnLock();
 	}
 	return refInfo;
@@ -887,7 +887,7 @@ PDF_RefInfo CHE_PDF_File::CreateNumberObject( CHE_PDF_NumberPtr & ptrRet )
 
 PDF_RefInfo CHE_PDF_File::CreateStringObject( CHE_PDF_StringPtr & ptrRet )
 {
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
@@ -899,7 +899,7 @@ PDF_RefInfo CHE_PDF_File::CreateStringObject( CHE_PDF_StringPtr & ptrRet )
 		mXRefTable.AddNewEntry( entry );
 		refInfo.objNum = entry.GetObjNum();
 		refInfo.genNum = entry.GetGenNum();
-		mObjCollector.Add( refInfo, ptrRet );
+		mObjCollector.Add( refInfo.objNum, ptrRet );
 		mLock.UnLock();
 	}
 	return refInfo;
@@ -907,7 +907,7 @@ PDF_RefInfo CHE_PDF_File::CreateStringObject( CHE_PDF_StringPtr & ptrRet )
 
 PDF_RefInfo CHE_PDF_File::CreateNameObject( CHE_PDF_NamePtr & ptrRet )
 {
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
@@ -919,7 +919,7 @@ PDF_RefInfo CHE_PDF_File::CreateNameObject( CHE_PDF_NamePtr & ptrRet )
 		mXRefTable.AddNewEntry( entry );
 		refInfo.objNum = entry.GetObjNum();
 		refInfo.genNum = entry.GetGenNum();
-		mObjCollector.Add( refInfo, ptrRet );
+		mObjCollector.Add( refInfo.objNum, ptrRet );
 		mLock.UnLock();
 	}
 	return refInfo;
@@ -927,7 +927,7 @@ PDF_RefInfo CHE_PDF_File::CreateNameObject( CHE_PDF_NamePtr & ptrRet )
 
 PDF_RefInfo CHE_PDF_File::CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet )
 {
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
@@ -939,7 +939,7 @@ PDF_RefInfo CHE_PDF_File::CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet )
 		mXRefTable.AddNewEntry( entry );
 		refInfo.objNum = entry.GetObjNum();
 		refInfo.genNum = entry.GetGenNum();
-		mObjCollector.Add( refInfo, ptrRet );
+		mObjCollector.Add( refInfo.objNum, ptrRet );
 		mLock.UnLock();
 	}
 	return refInfo;
@@ -947,7 +947,7 @@ PDF_RefInfo CHE_PDF_File::CreateArrayObject( CHE_PDF_ArrayPtr & ptrRet )
 
 PDF_RefInfo CHE_PDF_File::CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet )
 {
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
@@ -959,7 +959,7 @@ PDF_RefInfo CHE_PDF_File::CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet )
 		mXRefTable.AddNewEntry( entry );
 		refInfo.objNum = entry.GetObjNum();
 		refInfo.genNum = entry.GetGenNum();
-		mObjCollector.Add( refInfo, ptrRet );
+		mObjCollector.Add( refInfo.objNum, ptrRet );
 		mLock.UnLock();
 	}
 	return refInfo;
@@ -967,7 +967,7 @@ PDF_RefInfo CHE_PDF_File::CreateDictObject( CHE_PDF_DictionaryPtr & ptrRet )
 
 PDF_RefInfo CHE_PDF_File::CreateStreamObject( CHE_PDF_StreamPtr & ptrRet )
 {
-	CHE_PDF_XREF_Entry entry;
+	CHE_PDF_XRefEntry entry;
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
@@ -981,7 +981,7 @@ PDF_RefInfo CHE_PDF_File::CreateStreamObject( CHE_PDF_StreamPtr & ptrRet )
 	{
 		refInfo.objNum = entry.GetObjNum();
 		refInfo.genNum = entry.GetGenNum();
-		mObjCollector.Add( refInfo, ptrRet );
+		mObjCollector.Add( refInfo.objNum, ptrRet );
 	}
 
 	mLock.UnLock();

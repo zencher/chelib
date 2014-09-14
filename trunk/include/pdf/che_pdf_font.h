@@ -3,6 +3,7 @@
 
 #include "../che_base.h"
 #include "../che_graphics.h"
+#include "../che_datastructure.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_cmap.h"
 

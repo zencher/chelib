@@ -6978,28 +6978,28 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 	{
 		if ( wordDes.type == PARSE_WORD_INTEGER )
 		{
-			HE_ULONG lCount = wordDes.str.GetInteger();
+			HE_ULONG lCount = parser.GetInteger();//wordDes.str.GetInteger();
 			if ( parser.GetWord( wordDes ) == FALSE )
 			{
 				break;
 			}
 			HE_ULONG lIndex = 0;
 
-			if ( wordDes.str == "beginbfchar" )
+			if ( parser.IsWord( "beginbfchar" )/*wordDes.str == "beginbfchar"*/ )
 			{
 				for ( HE_ULONG i = 0; i < lCount; i++ )
 				{
 					parser.GetWord( wordDes );
-					lIndex = HE_HexStrToValue( wordDes.str );
+					lIndex = HE_HexStrToValue( parser.GetString()/*wordDes.str*/ );
 					if ( lIndex > lMaxIndex )
 					{
 						lMaxIndex = lIndex;
 					}
 					parser.GetWord( wordDes );
-					tmpMap->Append( lIndex, (HE_LPVOID)HE_HexStrToValue( wordDes.str ) );
+					tmpMap->Append( lIndex, (HE_LPVOID)HE_HexStrToValue( parser.GetString()/*wordDes.str*/ ) );
 					lCodeCount++;
 				}
-			}else if ( wordDes.str == "beginbfrange" )
+			}else if ( parser.IsWord( "beginbfrange" ) /*wordDes.str == "beginbfrange"*/ )
 			{
 				for ( HE_ULONG j = 0; j < lCount; j++ )
 				{
@@ -7007,9 +7007,9 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 					HE_ULONG tmpValue = 0;
 					HE_ULONG offset = 0;
 					parser.GetWord( wordDes );
-					lIndex = HE_HexStrToValue( wordDes.str );
+					lIndex = HE_HexStrToValue( parser.GetString()/*wordDes.str*/ );
 					parser.GetWord( wordDes );
-					lIndexEnd = HE_HexStrToValue( wordDes.str );
+					lIndexEnd = HE_HexStrToValue( parser.GetString()/*wordDes.str*/ );
 					offset = parser.GetPos();
 					parser.GetWord( wordDes );
 					if ( wordDes.type == PARSE_WORD_ARRAY_B )
@@ -7039,7 +7039,7 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 						}
 					}else if ( wordDes.type == PARSE_WORD_STRING )
 					{
-						tmpValue = HE_HexStrToValue( wordDes.str );
+						tmpValue = HE_HexStrToValue( parser.GetString()/*wordDes.str*/ );
 						if ( lIndexEnd > lMaxIndex )
 						{
 							lMaxIndex = lIndexEnd;

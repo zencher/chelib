@@ -3,11 +3,14 @@
 
 #include "../che_base.h"
 #include "../che_string.h"
-#include "../che_datastructure.h"
 #include "../che_graphics.h"
 #include "che_pdf_encrypt.h"
 
+#include <string>
 #include <vector>
+#include <unordered_map>
+
+using namespace std;
 
 
 enum PDF_OBJ_TYPE
@@ -438,15 +441,15 @@ public:
 
 	static CHE_PDF_DictionaryPtr	Create( CHE_Allocator * pAllocator = NULL );
 
-	HE_ULONG						GetCount() { return mKeys.size(); }
+	HE_ULONG						GetCount() { return mMap.size()/*mKeys.size()*/; }
 
 	CHE_PDF_ObjectPtr				GetElement( const CHE_ByteString & key ) const;
 
 	CHE_PDF_ObjectPtr				GetElement( const CHE_ByteString & key, PDF_OBJ_TYPE type );
 
-	CHE_PDF_ObjectPtr				GetElementByIndex( HE_ULONG index ) const { return mPtrs[index]; }
+	//CHE_PDF_ObjectPtr				GetElementByIndex( HE_ULONG index ) const { return mPtrs[index]; }
 
-	HE_BOOL							GetKeyByIndex( HE_ULONG index, CHE_ByteString & strRet ) const { strRet = mKeys[index]; return TRUE; }
+	//HE_BOOL							GetKeyByIndex( HE_ULONG index, CHE_ByteString & strRet ) const { strRet = mKeys[index]; return TRUE; }
 
 	HE_VOID							SetAtObj( const CHE_ByteString & key, const CHE_PDF_ObjectPtr & ptr );
 
@@ -475,9 +478,11 @@ public:
 private:
 	CHE_PDF_Dictionary( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object( OBJ_TYPE_DICTIONARY, pAllocator ) {}
 
-	std::vector<CHE_PDF_ObjectPtr>	mPtrs;
+	//std::vector<CHE_PDF_ObjectPtr>	mPtrs;
 
-	std::vector<CHE_ByteString>		mKeys;
+	//std::vector<CHE_ByteString>		mKeys;
+
+	unordered_map<string,CHE_PDF_ObjectPtr> mMap;
 
 	friend class CHE_Allocator;
 	friend class CHE_PDF_Object;

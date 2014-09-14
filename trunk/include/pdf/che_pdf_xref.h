@@ -3,8 +3,11 @@
 
 #include "../che_base.h"
 #include "che_pdf_objects.h"
-#include <vector>
 
+#include <vector>
+#include <unordered_map>
+
+using namespace std;
 
 enum PDF_XREF_ENTRY_TYPE
 {
@@ -15,83 +18,55 @@ enum PDF_XREF_ENTRY_TYPE
 };
 
 
-class CHE_PDF_XREF_Entry
+class CHE_PDF_XRefEntry
 {
 public:
+	CHE_PDF_XRefEntry();
+	CHE_PDF_XRefEntry( PDF_XREF_ENTRY_TYPE type, HE_ULONG objNum, HE_ULONG f1, HE_ULONG f2 );
 
-	CHE_PDF_XREF_Entry();
-
-	CHE_PDF_XREF_Entry( PDF_XREF_ENTRY_TYPE type, HE_ULONG objNum, HE_ULONG f1, HE_ULONG f2 );
-
-	PDF_XREF_ENTRY_TYPE		GetType() { return Type; }
-
-	HE_ULONG				GetObjNum() { return ObjNum; }
-
-	HE_ULONG				GetOffset() { return Field1; }
-
-	HE_ULONG				GetGenNum() { return Field2; }
-
-	HE_ULONG				GetParentObjNum() { return Field1; }
-
-	HE_ULONG				GetIndex() { return Field2; }
+	PDF_XREF_ENTRY_TYPE		GetType() const { return Type; }
+	HE_ULONG				GetObjNum() const { return ObjNum; }
+	HE_ULONG				GetOffset() const { return Field1; }
+	HE_ULONG				GetGenNum() const { return Field2; }
+	HE_ULONG				GetParentObjNum() const { return Field1; }
+	HE_ULONG				GetIndex() const { return Field2; }
 
 	PDF_XREF_ENTRY_TYPE		Type;
-
 	HE_ULONG				ObjNum;
-
 	HE_ULONG				Field1;
-
 	HE_ULONG				Field2;
 };
 
-bool operator == ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 );
 
-bool operator >  ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 );
-
-bool operator <  ( const CHE_PDF_XREF_Entry & node1, const CHE_PDF_XREF_Entry & node2 );
-
-class CHE_PDF_XREF_Table : public CHE_Object
+class CHE_PDF_XRefTable : public CHE_Object
 {
 public:
+	CHE_PDF_XRefTable( CHE_Allocator * pAllocator = NULL );
+	~CHE_PDF_XRefTable();
 
-	CHE_PDF_XREF_Table( CHE_Allocator * pAllocator = NULL );
+	HE_BOOL					Add( const CHE_PDF_XRefEntry & entry );
+	HE_VOID					AddNewEntry( CHE_PDF_XRefEntry & entryRet );
+	HE_BOOL					AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict );
 
-	~CHE_PDF_XREF_Table();
+	HE_VOID					Clear();
 
-	HE_BOOL								Add( const CHE_PDF_XREF_Entry & entry );
+	HE_BOOL					Get( HE_ULONG objNum, CHE_PDF_XRefEntry & entryRet );
+	HE_ULONG				GetTrailerCount() const { return mTrailerDict.size(); }
+	CHE_PDF_DictionaryPtr	GetTrailer( HE_ULONG index = 0 ) const;
+	HE_ULONG				GetMaxObjNum() const { return mMaxObjNum; }
 
-	HE_VOID								AddNewEntry( CHE_PDF_XREF_Entry & entryRet );
+	HE_BOOL					IsEOF() { return mIt == mMap.end(); }
+	HE_VOID					MoveFirst() { mIt = mMap.begin(); }
+	HE_VOID					MoveNext() { ++mIt; }
 
-	HE_BOOL								AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict );
-
-	HE_VOID								Clear();
-
-	HE_BOOL								Get( HE_ULONG objNum, CHE_PDF_XREF_Entry & entryRet );
-
-	HE_ULONG							GetTrailerCount() { return mTrailerDict.size(); }
-
-	CHE_PDF_DictionaryPtr				GetTrailer( HE_ULONG index = 0 ) const;
-
-	HE_ULONG							GetMaxObjNum() const { return mMaxObjNum; }
-
-	HE_BOOL								Update( HE_ULONG objNum, const CHE_PDF_XREF_Entry & entryRet );
-
-	HE_BOOL								IsEOF() { return mList.IsEOF(); }
-
-	HE_VOID								MoveFirst() { mList.MoveFirst(); }
-
-	HE_VOID								MoveNext() { mList.MoveNext(); }
-
-
-	HE_BOOL								GetCurNode( CHE_PDF_XREF_Entry & entryRet ) { return mList.GetCurNode( entryRet ); }
+	HE_BOOL					GetCurNode( CHE_PDF_XRefEntry & entryRet );
+	HE_BOOL					Update( HE_ULONG objNum, const CHE_PDF_XRefEntry & entryRet );
 
 private:
-	
-	HE_ULONG							mMaxObjNum;
-
-	std::vector<CHE_PDF_DictionaryPtr>	mTrailerDict;
-
-	CHE_SkipList<CHE_PDF_XREF_Entry>	mList;
+	HE_ULONG											mMaxObjNum;
+	std::vector<CHE_PDF_DictionaryPtr>					mTrailerDict;
+	unordered_map<HE_ULONG,CHE_PDF_XRefEntry>			mMap;
+	unordered_map<HE_ULONG,CHE_PDF_XRefEntry>::iterator	mIt;
 };
 
 #endif

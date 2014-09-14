@@ -789,12 +789,17 @@ CHE_PDF_DictionaryPtr CHE_PDF_Dictionary::Create( CHE_Allocator * pAllocator /*=
 
 CHE_PDF_ObjectPtr CHE_PDF_Dictionary::GetElement( const CHE_ByteString & key )const
 {
-	for ( size_t i = 0; i < mKeys.size(); ++i )
+// 	for ( size_t i = 0; i < mKeys.size(); ++i )
+// 	{
+// 		if ( mKeys[i] == key )
+// 		{
+// 			return mPtrs[i];
+// 		}
+// 	}
+	unordered_map<string,CHE_PDF_ObjectPtr>::const_iterator it = mMap.find( string(key.GetData()) );
+	if ( it != mMap.end() )
 	{
-		if ( mKeys[i] == key )
-		{
-			return mPtrs[i];
-		}
+		return it->second;
 	}
 	return CHE_PDF_ObjectPtr();
 }
@@ -824,17 +829,18 @@ HE_VOID CHE_PDF_Dictionary::SetAtObj( const CHE_ByteString & key, const CHE_PDF_
 {
 	if ( key.GetLength() > 0 )
 	{
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
 
+		mMap[string(key.GetData())] = ptr;
 		SetModified( TRUE );
 	}
 }
@@ -843,17 +849,19 @@ HE_VOID	CHE_PDF_Dictionary::SetAtNull( const CHE_ByteString & key )
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_NullPtr ptr = CHE_PDF_Null::Create( GetAllocator() );
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+ 		CHE_PDF_NullPtr ptr = CHE_PDF_Null::Create( GetAllocator() );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
+
+		mMap[string(key.GetData())] = ptr;
 
 		SetModified( TRUE );
 	}
@@ -863,17 +871,19 @@ HE_VOID	CHE_PDF_Dictionary::SetAtBoolean( const CHE_ByteString & key, HE_BOOL va
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_BooleanPtr ptr = CHE_PDF_Boolean::Create( value, GetAllocator() );
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+ 		CHE_PDF_BooleanPtr ptr = CHE_PDF_Boolean::Create( value, GetAllocator() );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
+		
+		mMap[string(key.GetData())] = ptr;
 
 		SetModified( TRUE );
 	}
@@ -884,16 +894,18 @@ HE_VOID	CHE_PDF_Dictionary::SetAtInteger( const CHE_ByteString & key, HE_INT32 v
 	if ( key.GetLength() > 0 )
 	{
 		CHE_PDF_NumberPtr ptr = CHE_PDF_Number::Create( value, GetAllocator() );
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
+
+		mMap[string(key.GetData())] = ptr;
 
 		SetModified( TRUE );
 	}
@@ -904,37 +916,39 @@ HE_VOID	CHE_PDF_Dictionary::SetAtFloatNumber( const CHE_ByteString & key, HE_FLO
 	if ( key.GetLength() > 0 )
 	{
 		CHE_PDF_NumberPtr ptr = CHE_PDF_Number::Create( value, GetAllocator() );
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
 
+		mMap[string(key.GetData())] = ptr;
 		SetModified( TRUE );
 	}
 }
 
-HE_VOID	CHE_PDF_Dictionary::SetAtString( const CHE_ByteString & key, const CHE_ByteString & string )
+HE_VOID	CHE_PDF_Dictionary::SetAtString( const CHE_ByteString & key, const CHE_ByteString & str )
 {
 	if ( key.GetLength() > 0 )
 	{
-		CHE_PDF_StringPtr ptr = CHE_PDF_String::Create( string, GetAllocator() );
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+ 		CHE_PDF_StringPtr ptr = CHE_PDF_String::Create( str, GetAllocator() );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
 
+		mMap[string(key.GetData())] = ptr;
 		SetModified( TRUE );
 	}
 }
@@ -944,17 +958,18 @@ HE_VOID	CHE_PDF_Dictionary::SetAtName( const CHE_ByteString & key, const CHE_Byt
 	if ( key.GetLength() > 0 )
 	{
 		CHE_PDF_NamePtr ptr = CHE_PDF_Name::Create( name, GetAllocator() );
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
 
+		mMap[string(key.GetData())] = ptr;
 		SetModified( TRUE );
 	}
 }
@@ -963,17 +978,18 @@ HE_VOID	CHE_PDF_Dictionary::SetAtArray( const CHE_ByteString & key, const CHE_PD
 {
 	if ( key.GetLength() > 0 && ptr )
 	{
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
 
+		mMap[string(key.GetData())] = ptr;
 		SetModified( TRUE );
 	}
 }
@@ -982,17 +998,18 @@ HE_VOID CHE_PDF_Dictionary::SetAtDictionary( const CHE_ByteString & key, const C
 {
 	if ( key.GetLength() > 0 && ptr )
 	{
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
 
+		mMap[string(key.GetData())] = ptr;
 		SetModified( TRUE );
 	}
 }
@@ -1002,17 +1019,18 @@ HE_VOID	CHE_PDF_Dictionary::SetAtReference( const CHE_ByteString & key, HE_ULONG
 	if ( key.GetLength() > 0 )
 	{
 		CHE_PDF_ReferencePtr ptr = CHE_PDF_Reference::Create( objNum, genNum, pFile, GetAllocator() );
-		for ( size_t i = 0; i < mKeys.size(); ++i )
-		{
-			if ( mKeys[i] == key )
-			{
-				mPtrs[i] = ptr;
-				return;
-			}
-		}
-		mKeys.push_back( key );
-		mPtrs.push_back( ptr );
+// 		for ( size_t i = 0; i < mKeys.size(); ++i )
+// 		{
+// 			if ( mKeys[i] == key )
+// 			{
+// 				mPtrs[i] = ptr;
+// 				return;
+// 			}
+// 		}
+// 		mKeys.push_back( key );
+// 		mPtrs.push_back( ptr );
 
+		mMap[string(key.GetData())] = ptr;
 		SetModified( TRUE );
 	}
 }
@@ -1023,17 +1041,23 @@ CHE_PDF_DictionaryPtr CHE_PDF_Dictionary::Clone()
 	ptr.Reset( GetAllocator()->New<CHE_PDF_Dictionary>( GetAllocator() ) );
 	if ( ptr )
 	{
-		CHE_PDF_ObjectPtr tmpPtr;
-		CHE_ByteString keyStr( GetAllocator() );
-		for ( HE_ULONG i = 0; i < GetCount(); ++i )
+//		CHE_PDF_ObjectPtr tmpPtr;
+// 		CHE_ByteString keyStr( GetAllocator() );
+// 		for ( HE_ULONG i = 0; i < GetCount(); ++i )
+// 		{
+// 			GetKeyByIndex( i, keyStr );
+// 			tmpPtr = GetElementByIndex( i );
+// 			if ( tmpPtr )
+// 			{
+// 				tmpPtr = tmpPtr->Clone();
+// 			}
+// 			ptr->SetAtObj( keyStr, tmpPtr );
+// 		}
+
+		unordered_map<string,CHE_PDF_ObjectPtr>::iterator it;
+		for ( it = mMap.begin(); it != mMap.end(); ++it )
 		{
-			GetKeyByIndex( i, keyStr );
-			tmpPtr = GetElementByIndex( i );
-			if ( tmpPtr )
-			{
-				tmpPtr = tmpPtr->Clone();
-			}
-			ptr->SetAtObj( keyStr, tmpPtr );
+			ptr->SetAtObj( it->first.c_str(), it->second );
 		}
 	}
 	return ptr;
@@ -1045,9 +1069,19 @@ HE_BOOL CHE_PDF_Dictionary::IsModified()
 	{
 		return TRUE;
 	}
-	for ( size_t i = 0; i < mPtrs.size(); ++i )
+// 	for ( size_t i = 0; i < mPtrs.size(); ++i )
+// 	{
+// 		if ( mPtrs[i]->IsModified() )
+// 		{
+// 			mModified = TRUE;
+// 			return TRUE;
+// 		}
+// 	}
+	unordered_map<string,CHE_PDF_ObjectPtr>::iterator it;
+	for ( it = mMap.begin(); it != mMap.end(); ++it )
 	{
-		if ( mPtrs[i]->IsModified() )
+		//ptr->SetAtObj( it->first.c_str(), it->second );
+		if ( it->second->IsModified() )
 		{
 			mModified = TRUE;
 			return TRUE;
@@ -1506,18 +1540,7 @@ HE_BOOL CHE_PDF_StreamAcc::Attach( const CHE_PDF_StreamPtr & stmPtr, PDF_STREAM_
 				filter.Decode( pTmp, lSize, buffer );
 			}else if ( str == "JBIG2Decode" )
 			{
-				CHE_PDF_StreamAcc stmAcc( GetAllocator() );
 				CHE_PDF_JBig2Filter filter( GetAllocator() );
-				CHE_PDF_DictionaryPtr pDecodeParams = pParamDictArr[i];
-				if ( pDecodeParams )
-				{
-					CHE_PDF_ObjectPtr ptr = pDecodeParams->GetElement( "JBIG2Globals", OBJ_TYPE_STREAM );
-					if ( ptr )
-					{
-						stmAcc.Attach( ptr->GetStreamPtr() );
-						filter.SetGlobals( stmAcc.GetData(), stmAcc.GetSize() );
-					}
-				}
 				filter.Decode( pTmp, lSize, buffer );
 			}else if ( str == "DCTDecode" || str == "DCT" )
 			{

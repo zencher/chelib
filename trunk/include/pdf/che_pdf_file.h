@@ -37,7 +37,7 @@ public:
 	CHE_PDF_DictionaryPtr	GetRootDict();
 	CHE_PDF_DictionaryPtr	GetInfoDict();
 	CHE_PDF_ArrayPtr		GetIDArray();
-	CHE_PDF_XREF_Table *	GetXRefTable() { return &mXRefTable; }
+	CHE_PDF_XRefTable *		GetXRefTable() { return &mXRefTable; }
 	CHE_PDF_ObjectPtr		GetObject( const PDF_RefInfo & refInfo );
 
 	HE_VOID					SetPDFVersion( PDF_VERSION version );
@@ -63,7 +63,7 @@ private:
 	PDF_VERSION				mVersion;
 	CHE_PDF_Parser *		mpParser;
 	CHE_PDF_Collector		mObjCollector;
-	CHE_PDF_XREF_Table		mXRefTable;
+	CHE_PDF_XRefTable		mXRefTable;
 };
 
 #endif

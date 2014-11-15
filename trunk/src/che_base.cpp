@@ -605,6 +605,259 @@ class IHE_File : public CHE_Object
 	virtual HE_VOID		Release() = 0;
 };
 
+CHE_DynBuffer::CHE_DynBuffer( HE_ULONG capacity /*= 1024*/, HE_ULONG increament /*= 1024*/, CHE_Allocator * pAllocator /*= NULL*/ )
+	: CHE_Object( pAllocator )
+{
+	m_lCapacity = capacity;
+	m_lIncreament = increament;
+
+	m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity );
+	memset( m_lpData, 0, m_lCapacity );
+	m_lSize = 0;
+}
+
+CHE_DynBuffer::CHE_DynBuffer( const CHE_DynBuffer & buf )
+	: CHE_Object( buf.GetAllocator() )
+{
+	m_lCapacity = buf.m_lCapacity;
+	m_lIncreament = buf.m_lIncreament;
+	m_lSize = buf.m_lSize;
+	m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity );
+	memset( m_lpData, 0, m_lCapacity );
+	if ( m_lSize > 0 )
+	{
+		memcpy( m_lpData, buf.m_lpData, m_lSize );
+	}
+}
+
+CHE_DynBuffer::~CHE_DynBuffer()
+{
+	if ( m_lpData )
+	{
+		GetAllocator()->DeleteArray<HE_BYTE>( m_lpData );
+		m_lpData = NULL;
+	}
+}
+
+const CHE_DynBuffer & CHE_DynBuffer::operator = ( const CHE_DynBuffer & buf )
+{
+	if ( this != &buf )
+	{
+		if ( m_lpData )
+		{
+			GetAllocator()->DeleteArray<HE_BYTE>( m_lpData );
+		}
+		m_lCapacity = buf.m_lCapacity;
+		m_lIncreament = buf.m_lIncreament;
+		m_lSize = buf.m_lSize;
+		m_lpData = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity );
+		memset( m_lpData, 0, m_lCapacity );
+		if ( m_lSize > 0 )
+		{
+			memcpy( m_lpData, buf.m_lpData, m_lSize );
+		}
+	}
+	return *this;
+}
+
+HE_ULONG CHE_DynBuffer::Write( HE_LPCBYTE pBuffer, HE_ULONG offset, HE_ULONG size )
+{
+	if ( pBuffer == NULL || size == 0 || offset > m_lSize )
+	{
+		return 0;
+	}
+
+	if ( size + offset > m_lCapacity )
+	{
+		HE_ULONG lNeed = size + offset - m_lCapacity;
+		if ( lNeed <= m_lIncreament )
+		{
+			lNeed = 1;
+		}else{
+			lNeed = (HE_ULONG)( lNeed / m_lIncreament ) + 1;
+		}
+		HE_LPBYTE tmp = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity + lNeed * m_lIncreament );
+		memset( tmp, 0, m_lCapacity + lNeed * m_lIncreament );
+		memcpy( tmp, m_lpData, m_lSize );
+		memcpy( tmp + offset, pBuffer, size );
+		GetAllocator()->DeleteArray<HE_BYTE>( m_lpData );
+		m_lpData = tmp;
+		m_lSize = offset + size;
+		m_lCapacity += lNeed * m_lIncreament;
+		return size;
+	}else{
+		memcpy( m_lpData + offset, pBuffer, size );
+		m_lSize = offset + size;
+		return size;
+	}
+}
+
+HE_VOID CHE_DynBuffer::Alloc( HE_ULONG size )
+{
+	if ( size <= m_lCapacity )
+	{
+		m_lSize = size;
+		return;
+	}
+	if ( m_lpData )
+	{
+		GetAllocator()->DeleteArray( m_lpData );
+	}
+	m_lpData = GetAllocator()->NewArray<HE_BYTE>( size );
+	m_lSize = size;
+	m_lCapacity = size;
+	m_lIncreament = size;
+}
+
+HE_ULONG CHE_DynBuffer::Write( HE_LPCBYTE pBuffer, HE_ULONG size )
+{
+	return Write( pBuffer, m_lSize, size );
+	// 	if ( pBuffer == NULL || size == 0 )
+	// 	{
+	// 		return 0;
+	// 	}
+	// 
+	// 	if ( m_lSize + size > m_lCapacity )
+	// 	{
+	// 		HE_ULONG lNeed = m_lSize + size - m_lCapacity;
+	// 		if ( lNeed <= m_lIncreament )
+	// 		{
+	// 			lNeed = 1;
+	// 		}else{
+	// 			lNeed = (HE_ULONG)( lNeed / m_lIncreament ) + 1;
+	// 		}
+	// 		HE_LPBYTE tmp = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity + lNeed * m_lIncreament );
+	// 		memset( tmp, 0, m_lCapacity + lNeed * m_lIncreament );
+	// 		memcpy( tmp, m_lpData, m_lSize );
+	// 		memcpy( tmp+m_lSize, pBuffer, size );
+	// 		GetAllocator()->DeleteArray<HE_BYTE>( m_lpData );
+	// 		m_lpData = tmp;
+	// 		m_lSize += size;
+	// 		m_lCapacity += lNeed*m_lIncreament;
+	// 		return size;
+	// 	}else{
+	// 		memcpy( m_lpData+m_lSize, pBuffer, size );
+	// 		m_lSize += size;
+	// 		return size;
+	// 	}
+}
+
+HE_ULONG CHE_DynBuffer::Write( const CHE_DynBuffer & dynBuffer )
+{
+	if ( dynBuffer.m_lpData == NULL || dynBuffer.m_lSize == 0 )
+	{
+		return 0;
+	}
+
+	if ( m_lSize + dynBuffer.m_lSize > m_lCapacity )
+	{
+		HE_ULONG lNeed = m_lSize + dynBuffer.m_lSize - m_lCapacity;
+		if ( lNeed <= m_lIncreament )
+		{
+			lNeed = 1;
+		}else{
+			lNeed = (HE_ULONG)( lNeed / m_lIncreament ) + 1;
+		}
+		HE_LPBYTE tmp = GetAllocator()->NewArray<HE_BYTE>( m_lCapacity + lNeed * m_lIncreament );
+		memset( tmp, 0, m_lCapacity + lNeed * m_lIncreament );
+		memcpy( tmp, m_lpData, m_lSize );
+		memcpy( tmp+m_lSize, dynBuffer.m_lpData, dynBuffer.m_lSize );
+		GetAllocator()->DeleteArray<HE_BYTE>( m_lpData );
+		m_lpData = tmp;
+		m_lSize += dynBuffer.m_lSize;
+		m_lCapacity += lNeed*m_lIncreament;
+		return dynBuffer.m_lSize;
+	}else{
+		memcpy( m_lpData+m_lSize, dynBuffer.m_lpData, dynBuffer.m_lSize );
+		m_lSize += dynBuffer.m_lSize;
+		return dynBuffer.m_lSize;
+	}
+}
+
+HE_ULONG CHE_DynBuffer::Read( HE_LPBYTE pBuffer, HE_ULONG size )
+{
+	if ( pBuffer == NULL || size == 0 )
+	{
+		return 0;
+	}
+
+	if ( m_lSize < size )
+	{
+		size = m_lSize;
+	}
+
+	memcpy( pBuffer, m_lpData, size );
+
+	return size;
+}
+
+HE_BOOL CHE_DynBuffer::ReadByte( HE_ULONG offset, HE_LPBYTE pByte )
+{
+	if ( offset < m_lSize  )
+	{
+		*pByte = *(m_lpData+offset);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+class IHE_DynBufferWrite : public IHE_Write
+{
+public:
+	IHE_DynBufferWrite( CHE_DynBuffer * pBuffer, CHE_Allocator * pAllocator = NULL )
+		: IHE_Write( pAllocator ), mpBuffer( pBuffer ) {}
+
+	~IHE_DynBufferWrite() {}
+
+	HE_ULONG	GetSize()
+	{
+		if ( mpBuffer )
+		{
+			return mpBuffer->GetSize();
+		}
+		return 0;
+	}
+
+	HE_ULONG	GetCurOffset()
+	{
+		if ( GetSize() == 0 )
+		{
+			return 0;
+		}
+		return GetSize()-1;
+	}
+
+	HE_ULONG	Flush() { return 0; } 
+
+	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_ULONG offset, HE_ULONG size )
+	{
+		if ( mpBuffer == NULL || pData == NULL || size == 0 || offset > GetSize() )
+		{
+			return FALSE;
+		}
+		mpBuffer->Write( (HE_LPCBYTE)pData, offset, size );
+		return TRUE;
+	}
+
+	void		Release() {}
+
+private:
+	CHE_DynBuffer * mpBuffer;
+};
+
+IHE_Write * HE_CreateDynBufferWrite( CHE_DynBuffer * pBuffer, CHE_Allocator * pAllocator )
+{
+	if ( pBuffer == NULL )
+	{
+		return NULL;
+	}
+	if ( pAllocator == NULL )
+	{
+		pAllocator = GetDefaultAllocator();
+	}
+	return pAllocator->New<IHE_DynBufferWrite>( pBuffer, pAllocator );
+}
+
 /*inline*/ HE_VOID CHE_RefCount::AddRef()
 {
 #ifdef WIN32

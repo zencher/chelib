@@ -250,6 +250,47 @@ IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_ULONG lSize, CHE_Allocator * 
 HE_VOID		HE_DestoryIHERead( IHE_Read * pIHERead );
 
 
+class CHE_DynBuffer : public CHE_Object
+{
+public:
+	CHE_DynBuffer( HE_ULONG capacity = 1024, HE_ULONG increament = 1024, CHE_Allocator * pAllocator = NULL );
+	CHE_DynBuffer( const CHE_DynBuffer & buf );
+	~CHE_DynBuffer();
+
+	const CHE_DynBuffer & operator = ( const CHE_DynBuffer & buf );
+
+	HE_LPBYTE GetData() { return m_lpData; }
+
+	HE_ULONG GetCapacity() { return m_lCapacity; }
+
+	HE_ULONG GetSize() { return m_lSize; }
+
+	HE_ULONG Write( HE_LPCBYTE pBuffer, HE_ULONG offset, HE_ULONG size );
+
+	HE_ULONG Write( HE_LPCBYTE pBuffer, HE_ULONG size );
+
+	HE_ULONG Read( HE_LPBYTE pBuffer, HE_ULONG size );
+
+	HE_BOOL ReadByte( HE_ULONG offset, HE_LPBYTE pByte );
+
+	HE_ULONG Write( const CHE_DynBuffer & dynBuffer );
+
+	HE_VOID	Clear() { m_lSize = 0; }
+
+	HE_VOID Alloc( HE_ULONG size );
+
+private:
+
+	HE_ULONG	m_lCapacity;
+	HE_ULONG	m_lIncreament;
+
+	HE_LPBYTE	m_lpData;
+	HE_ULONG	m_lSize;
+};
+
+IHE_Write * HE_CreateDynBufferWrite( CHE_DynBuffer * pBuffer, CHE_Allocator * pAllocator = NULL );
+
+
 class CHE_RefCount
 {
 public:

@@ -41,11 +41,10 @@ CHE_ByteString::CHE_ByteString( HE_LPCSTR lpStr, HE_LONG nStrSize /* = -1 */, CH
 	if ( nStrlen > 0 )
 	{
 		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		//m_lpData->m_dwRef = 1;
 		m_lpData->m_dwRef.AddRef();
 		m_lpData->m_dwLength = nStrlen;
 		m_lpData->m_lpString = GetAllocator()->NewArray<HE_CHAR>( nStrlen+1 );
-		strcpy( m_lpData->m_lpString, lpStr );
+		memcpy( m_lpData->m_lpString, lpStr, nStrlen );
 		m_lpData->m_lpString[nStrlen] = '\0';
 	}else{
 		m_lpData = NULL;

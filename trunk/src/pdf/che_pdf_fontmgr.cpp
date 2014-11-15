@@ -1,5 +1,4 @@
 #include "../../include/pdf/che_pdf_fontmgr.h"
-#include "../../include/che_datastructure.h"
 
 CHE_PDF_FontMgr::CHE_PDF_FontMgr( CHE_Allocator * pAllocator /*= NULL*/ ) : CHE_Object( pAllocator )
 {

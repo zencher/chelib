@@ -1,4 +1,3 @@
-#include "../../include/che_datastructure.h"
 #include "../../include/pdf/che_pdf_objects.h"
 #include "../../include/pdf/che_pdf_filter.h"
 #include "../../include/pdf/che_pdf_parser.h"

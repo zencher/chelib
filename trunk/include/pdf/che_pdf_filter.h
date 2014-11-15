@@ -2,7 +2,6 @@
 #define _CHE_PDF_FILTER_H_
 
 #include "../che_base.h"
-#include "../che_datastructure.h"
 #include "che_pdf_objects.h"
 
 class CHE_PDF_Filter : public CHE_Object

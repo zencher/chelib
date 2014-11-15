@@ -1,7 +1,6 @@
 #ifndef _CHE_PDF_CONTENTRESMGR_H_
 #define _CHE_PDF_CONTENTRESMGR_H_
 
-#include "../che_datastructure.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_component.h"
 

@@ -1,7 +1,6 @@
 #ifndef _CHE_PDF_OBJCLONE_H_
 #define _CHE_PDF_OBJCLONE_H_
 
-#include "../../include/che_datastructure.h"
 #include "../../include/pdf/che_pdf_file.h"
 
 class IHE_ObjectCloneMgr

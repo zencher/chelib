@@ -2,7 +2,6 @@
 #define _CHE_PDF_PAGES_H_
 
 #include "../che_base.h"
-#include "../che_datastructure.h"
 #include "../che_graphics.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_file.h"

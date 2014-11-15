@@ -1,4 +1,3 @@
-#include "../../include/che_datastructure.h"
 #include "../../include/pdf/che_pdf_font.h"
 #include "../../include/pdf/che_pdf_parser.h"
 #include "../../include/pdf/che_pdf_contentobjs.h"

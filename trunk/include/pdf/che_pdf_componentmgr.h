@@ -4,6 +4,7 @@
 #include "che_pdf_component.h"
 #include "che_pdf_fontmgr.h"
 
+#include <unordered_map>
 
 class CHE_PDF_ComponentMgr : public CHE_Object
 {
@@ -22,7 +23,7 @@ public:
 
 private:
 	CHE_PDF_FontMgr	mFontMgr;
-	CHE_NumToPtrMap mComponentsMap;
+	std::unordered_map<HE_ULONG,CHE_PDF_ComponentPtr> mComponentsMap;
 };
 
 #endif

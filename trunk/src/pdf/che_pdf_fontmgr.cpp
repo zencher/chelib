@@ -1,25 +1,24 @@
 #include "../../include/pdf/che_pdf_fontmgr.h"
 #include "../../include/che_datastructure.h"
 
-CHE_PDF_FontMgr::CHE_PDF_FontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_Object( pAllocator ), mNumToFontMap( pAllocator )
+CHE_PDF_FontMgr::CHE_PDF_FontMgr( CHE_Allocator * pAllocator /*= NULL*/ ) : CHE_Object( pAllocator )
 {
 }
 
 CHE_PDF_FontMgr::~CHE_PDF_FontMgr()
 {
-	HE_LPCVOID lpVoid = NULL;
 	CHE_PDF_Font * pFont = NULL;
-	for ( HE_ULONG i = 0; i < mNumToFontMap.GetCount(); ++i )
+
+	std::unordered_map<HE_ULONG,CHE_PDF_Font*>::iterator it;
+	for ( it = mFontMap.begin(); it != mFontMap.end(); ++it )
 	{
-		lpVoid = mNumToFontMap.GetItemByIndex( i );
-		if ( lpVoid )
+		pFont = it->second;
+		if ( pFont )
 		{
-			pFont = (CHE_PDF_Font *)( lpVoid );
 			pFont->GetAllocator()->Delete( pFont ); 
 		}
 	}
-	mNumToFontMap.Clear();
+	mFontMap.clear();
 }
 
 CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( const CHE_PDF_ReferencePtr & pReference )
@@ -29,8 +28,9 @@ CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( const CHE_PDF_ReferencePtr & pReferenc
 		return NULL;
 	}
 	HE_ULONG objNum = pReference->GetRefNum();
-	HE_LPCVOID lpVoid = mNumToFontMap.GetItem( objNum );
-	if ( lpVoid == NULL )
+	std::unordered_map<HE_ULONG,CHE_PDF_Font*>::iterator it;
+	it = mFontMap.find( objNum );
+	if ( it == mFontMap.end() )
 	{
 		CHE_PDF_ObjectPtr pTmpObj = pReference->GetRefObj( OBJ_TYPE_DICTIONARY );
 		if ( ! pTmpObj )
@@ -41,13 +41,13 @@ CHE_PDF_Font * CHE_PDF_FontMgr::LoadFont( const CHE_PDF_ReferencePtr & pReferenc
 		if ( pDict )
 		{
 
-			CHE_PDF_Font * pTmpFont = CHE_PDF_Font::Create( pDict, pDict->GetAllocator() );
-			if ( pTmpFont )
+			CHE_PDF_Font * pNewFont = CHE_PDF_Font::Create( pDict, pDict->GetAllocator() );
+			if ( pNewFont )
 			{
-				mNumToFontMap.Append( objNum, (HE_LPVOID)( pTmpFont ) );
-				return pTmpFont;
+				mFontMap.insert( pair<HE_ULONG,CHE_PDF_Font*>( objNum, pNewFont ) );
+				return pNewFont;
 			}
 		}
 	}
-	return (CHE_PDF_Font*)(lpVoid);
+	return it->second;
 }

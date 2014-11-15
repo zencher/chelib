@@ -7,6 +7,8 @@
 #include "che_pdf_objects.h"
 #include "che_pdf_cmap.h"
 
+#include <unordered_map>
+
 enum PDF_FONT_TYPE
 {
 	FONT_TYPE0		= 0x00,
@@ -196,7 +198,7 @@ protected:
 	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
 	virtual ~CHE_PDF_Font();
 
-	CHE_NumToPtrMap	*               GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream );
+	void 					GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream );
 
 	PDF_FONT_TYPE                   mType;
 	CHE_ByteString                  mBaseFont;
@@ -204,7 +206,6 @@ protected:
 	CHE_PDF_DictionaryPtr           mFontDict;
 	CHE_PDF_DictionaryPtr           mFontDescriptorDict;
 	HE_VOID*                        mFace;
-	CHE_NumToPtrMap *               mpToUnicodeMap;
 	CHE_PDF_FontDescriptor*         mpFontDescriptor;
 	HE_LPBYTE                       mpEmbeddedFontFile;
 	HE_ULONG                        mFontFileSize;
@@ -214,6 +215,8 @@ protected:
     PlatformFontInfoCleanCallBack   mCleanCallBack;
 	CHE_Lock                        mLock;
     CHE_ByteString                  mFontPath;
+
+	std::unordered_map<HE_UINT32,HE_UINT32> mToUnicodeMap;
 
 	friend class CHE_Allocator;
 };

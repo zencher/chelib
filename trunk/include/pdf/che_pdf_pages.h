@@ -7,6 +7,8 @@
 #include "che_pdf_objects.h"
 #include "che_pdf_file.h"
 
+#include <stack>
+
 class CHE_PDF_Page;
 class CHE_PDF_Document;
 
@@ -36,7 +38,7 @@ private:
 
 	std::vector<PDF_RefInfo>		mPageObjList;
 
-	CHE_Stack<CHE_PDF_ReferencePtr>	mPageNodeStack;
+	std::stack<CHE_PDF_ReferencePtr>mPageNodeStack;
 
 	CHE_PDF_File *					mpFile;
 

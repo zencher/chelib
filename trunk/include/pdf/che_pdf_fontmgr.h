@@ -3,6 +3,7 @@
 
 #include "../che_base.h"
 #include "che_pdf_font.h"
+#include <unordered_map>
 
 class CHE_PDF_FontMgr : public CHE_Object
 {
@@ -14,7 +15,7 @@ public:
 	CHE_PDF_Font * LoadFont( const CHE_PDF_ReferencePtr & pReference );
 
 private:
-	CHE_NumToPtrMap mNumToFontMap;
+	std::unordered_map<HE_ULONG,CHE_PDF_Font*>	mFontMap;
 };
 
 

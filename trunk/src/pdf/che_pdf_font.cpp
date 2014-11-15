@@ -6367,7 +6367,7 @@ static int ft_char_index(FT_Face face, int cid)
 
 CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mType(FONT_TYPE1), mBaseFont(pAllocator), mEncoding(fontDict, pAllocator), mFontDict(fontDict),
-	mFace(NULL), mpToUnicodeMap(NULL), mpFontDescriptor(NULL), mpEmbeddedFontFile(NULL), mFontFileSize(0), mCIDTOGID(NULL), mCIDTOGIDLength(0), mPlatformFontInfo(NULL), mCleanCallBack(NULL)
+	mFace(NULL), mpFontDescriptor(NULL), mpEmbeddedFontFile(NULL), mFontFileSize(0), mCIDTOGID(NULL), mCIDTOGIDLength(0), mPlatformFontInfo(NULL), mCleanCallBack(NULL)
 {
 	CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "Subtype", OBJ_TYPE_NAME );
 	if ( objPtr )
@@ -6426,7 +6426,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 	objPtr = mFontDict->GetElement( "ToUnicode", OBJ_TYPE_STREAM );
 	if ( objPtr )
 	{
-		mpToUnicodeMap = GetToUnicodeMap( objPtr->GetStreamPtr() );
+		GetToUnicodeMap( objPtr->GetStreamPtr() );
 	}
 
 	objPtr = mFontDict->GetElement( "FontDescriptor", OBJ_TYPE_DICTIONARY );
@@ -6781,11 +6781,6 @@ CHE_PDF_Font::~CHE_PDF_Font()
 		mpFontDescriptor->GetAllocator()->Delete<CHE_PDF_FontDescriptor>( mpFontDescriptor );
 		mpFontDescriptor = NULL;
 	}
-	if ( mpToUnicodeMap )
-	{
-		mpToUnicodeMap->GetAllocator()->Delete<CHE_NumToPtrMap>( mpToUnicodeMap );
-		mpToUnicodeMap = NULL;
-	}
 	if ( mFace )
 	{
 		FT_Done_Face( (FT_Face)mFace );
@@ -6952,11 +6947,11 @@ HE_BOOL CHE_PDF_Font::GetGlyphId( HE_WCHAR charCode, HE_ULONG & codeRet ) const
 }
 
 
-CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream )
+void CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream )
 {
 	if ( ! pToUnicodeStream )
 	{
-		return NULL;
+		return;
 	}
 
 	CHE_PDF_StreamAcc stmAcc( GetAllocator() );
@@ -6964,10 +6959,9 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 	if ( stmAcc.GetSize() == 0 )
 	{
 		stmAcc.Detach();
-		return NULL;
+		return;
 	}
 
-	CHE_NumToPtrMap * tmpMap = GetAllocator()->New<CHE_NumToPtrMap>( GetAllocator() );
 	IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize(), GetAllocator() );
 	CHE_PDF_SyntaxParser parser( NULL, GetAllocator() );
 	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
@@ -6978,28 +6972,28 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 	{
 		if ( wordDes.type == PARSE_WORD_INTEGER )
 		{
-			HE_ULONG lCount = parser.GetInteger();//wordDes.str.GetInteger();
+			HE_ULONG lCount = parser.GetInteger();
 			if ( parser.GetWord( wordDes ) == FALSE )
 			{
 				break;
 			}
 			HE_ULONG lIndex = 0;
 
-			if ( parser.IsWord( "beginbfchar" )/*wordDes.str == "beginbfchar"*/ )
+			if ( parser.IsWord( "beginbfchar" ) )
 			{
 				for ( HE_ULONG i = 0; i < lCount; i++ )
 				{
 					parser.GetWord( wordDes );
-					lIndex = HE_HexStrToValue( parser.GetString()/*wordDes.str*/ );
+					lIndex = HE_HexStrToValue( parser.GetString() );
 					if ( lIndex > lMaxIndex )
 					{
 						lMaxIndex = lIndex;
 					}
 					parser.GetWord( wordDes );
-					tmpMap->Append( lIndex, (HE_LPVOID)HE_HexStrToValue( parser.GetString()/*wordDes.str*/ ) );
+					mToUnicodeMap.insert( pair<HE_UINT32,HE_UINT32>( lIndex, HE_HexStrToValue( parser.GetString() ) ) );
 					lCodeCount++;
 				}
-			}else if ( parser.IsWord( "beginbfrange" ) /*wordDes.str == "beginbfrange"*/ )
+			}else if ( parser.IsWord( "beginbfrange" ) )
 			{
 				for ( HE_ULONG j = 0; j < lCount; j++ )
 				{
@@ -7007,9 +7001,9 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 					HE_ULONG tmpValue = 0;
 					HE_ULONG offset = 0;
 					parser.GetWord( wordDes );
-					lIndex = HE_HexStrToValue( parser.GetString()/*wordDes.str*/ );
+					lIndex = HE_HexStrToValue( parser.GetString() );
 					parser.GetWord( wordDes );
-					lIndexEnd = HE_HexStrToValue( parser.GetString()/*wordDes.str*/ );
+					lIndexEnd = HE_HexStrToValue( parser.GetString() );
 					offset = parser.GetPos();
 					parser.GetWord( wordDes );
 					if ( wordDes.type == PARSE_WORD_ARRAY_B )
@@ -7033,20 +7027,18 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 								continue;
 							}
 							CHE_ByteString strTmp = pStrObj->GetString();
-							tmpValue = HE_HexStrToValue( strTmp );
-							tmpMap->Append( i, (HE_LPVOID)tmpValue );
+							mToUnicodeMap.insert( pair<HE_UINT32,HE_UINT32>( i, HE_HexStrToValue( strTmp ) ) );
 							lCodeCount++;
 						}
 					}else if ( wordDes.type == PARSE_WORD_STRING )
 					{
-						tmpValue = HE_HexStrToValue( parser.GetString()/*wordDes.str*/ );
 						if ( lIndexEnd > lMaxIndex )
 						{
 							lMaxIndex = lIndexEnd;
 						}
 						for ( HE_ULONG i = lIndex ; i <= lIndexEnd; i++ )
 						{
-							tmpMap->Append( i, (HE_LPVOID)tmpValue );
+							mToUnicodeMap.insert( pair<HE_UINT32,HE_UINT32>( i, HE_HexStrToValue( parser.GetString() ) ) );
 							lCodeCount++;
 							tmpValue++;
 						}
@@ -7058,7 +7050,6 @@ CHE_NumToPtrMap	* CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUn
 	pFileRead->Release();
 	HE_DestoryIHERead( pFileRead );
 	stmAcc.Detach();
-	return tmpMap;
 }
 
 
@@ -7271,10 +7262,15 @@ HE_BOOL	CHE_PDF_Type0_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 		}
 		return FALSE;
 	}
-	if ( mpToUnicodeMap )
+	if ( mToUnicodeMap.size() )
 	{
-		codeRet = (HE_ULONG)( mpToUnicodeMap->GetItem( charCode ) );
-		return TRUE;
+		std::unordered_map<HE_UINT32,HE_UINT32>::const_iterator it;
+		it = mToUnicodeMap.find( (HE_UINT32)charCode );
+		if ( it != mToUnicodeMap.cend() )
+		{
+			codeRet = it->second;
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -7543,15 +7539,16 @@ HE_BOOL	CHE_PDF_Type1_Font::GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) 
 			return TRUE;
 		}
 	}
-
-	if ( mpToUnicodeMap )
+	if ( mToUnicodeMap.size() )
 	{
-		HE_LPVOID pRet = mpToUnicodeMap->GetItem( charCode );
-		HE_ULONG dwRet = (HE_ULONG)( pRet );
-		codeRet = (HE_WCHAR)( dwRet );
-		return TRUE;
+		std::unordered_map<HE_UINT32,HE_UINT32>::const_iterator it;
+		it = mToUnicodeMap.find( charCode );
+		if ( it != mToUnicodeMap.cend() )
+		{
+			codeRet = it->second;
+			return TRUE;
+		}
 	}
-
 	return FALSE;
 }
 

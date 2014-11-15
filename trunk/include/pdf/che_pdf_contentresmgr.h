@@ -5,6 +5,8 @@
 #include "che_pdf_objects.h"
 #include "che_pdf_component.h"
 
+#include <unordered_map>
+
 enum PDF_CONTENTRES_TYPE
 {
 	CONTENTRES_EXTGSTATE = 0,
@@ -20,10 +22,10 @@ class CHE_PDF_ContentResMgr : public CHE_Object
 {
 public:
 	CHE_PDF_ContentResMgr( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mpResDict(CHE_PDF_Dictionary::Create(pAllocator)), mComponentsMap(pAllocator) {}
+		: CHE_Object(pAllocator), mpResDict(CHE_PDF_Dictionary::Create(pAllocator)) {}
 	
 	CHE_PDF_ContentResMgr( const CHE_PDF_DictionaryPtr & pResDict, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mpResDict(pResDict), mComponentsMap(pAllocator) {}
+		: CHE_Object(pAllocator), mpResDict(pResDict) {}
 
 	HE_VOID SetDict( const CHE_PDF_DictionaryPtr & pDict ) { mpResDict = pDict; }
 
@@ -53,9 +55,8 @@ private:
 
 	CHE_ByteString RequestName( const CHE_PDF_DictionaryPtr & pSubDict, const CHE_ByteString & name );
 
-	CHE_PDF_DictionaryPtr	mpResDict;
-
-	CHE_ByteStringToPtrMap	mComponentsMap;
+	CHE_PDF_DictionaryPtr									mpResDict;
+	std::unordered_map<std::string,CHE_PDF_ComponentPtr>	mCompontentsMap;
 };
 
 #endif

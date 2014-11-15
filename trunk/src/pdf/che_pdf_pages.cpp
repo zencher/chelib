@@ -27,7 +27,7 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & PagesDictPtr, 
 			ObjPtr = KidsArrayPtr->GetElement( i - 1 );
 			if ( IsPdfRefPtr( ObjPtr ) )
 			{
-				mPageNodeStack.Push( ObjPtr->GetRefPtr() );
+				mPageNodeStack.push( ObjPtr->GetRefPtr() );
 			}
 		}
 	}
@@ -35,10 +35,6 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & PagesDictPtr, 
 
 CHE_PDF_PageTree::~CHE_PDF_PageTree()
 {
-	if ( !mPageNodeStack.IsEmpty() )
-	{
-		mPageNodeStack.Clear();
-	}
 }
 
 HE_ULONG CHE_PDF_PageTree::GetPageCount()
@@ -93,8 +89,11 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet )
 		CHE_PDF_ReferencePtr refPtr;
 		CHE_PDF_DictionaryPtr dictPtr;
 
-		while ( mPageNodeStack.Pop( refPtr ) == TRUE )
+		while ( !mPageNodeStack.empty() )
 		{
+			refPtr = mPageNodeStack.top();
+			mPageNodeStack.pop();
+
 			objPtr = refPtr->GetRefObj( OBJ_TYPE_DICTIONARY );
 
 			if ( objPtr )
@@ -141,7 +140,7 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet )
 
 							if ( objPtr )
 							{
-								mPageNodeStack.Push( objPtr->GetRefPtr() );
+								mPageNodeStack.push( objPtr->GetRefPtr() );
 							}
 						}
 					}
@@ -235,7 +234,7 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_ULONG width, HE_ULONG height )
 
 HE_VOID CHE_PDF_PageTree::ParseAllPageRefInfo()
 {
-	if ( mPageNodeStack.IsEmpty() )
+	if ( mPageNodeStack.empty() )
 	{
 		return;
 	}

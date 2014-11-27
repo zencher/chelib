@@ -1,8 +1,6 @@
 #ifndef _CHE_PDF_CONTENTSTRING_H_
 #define _CHE_PDF_CONTENTSTRING_H_
 
-#include "../che_datastructure.h"
-
 #include "che_pdf_contentobjs.h"
 
 class CHE_PDF_ContentString

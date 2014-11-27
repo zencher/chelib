@@ -5,45 +5,63 @@
 #include "che_pdf_objects.h"
 #include "che_pdf_file.h"
 #include "che_pdf_destination.h"
+#include "che_pdf_nametree.h"
 
+class CHE_PDF_Outline;
 
 class CHE_PDF_OutlineItem : public CHE_Object
 {
 public:
-	CHE_PDF_OutlineItem( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_ReferencePtr	mRefPtr;
 
-	HE_UINT32				mCount;
-	HE_UINT32				mFlag;
-	HE_FLOAT				mColor[3];
-	CHE_ByteString			mTitleStrPtr;
-	CHE_PDF_Destination		mDestination;
+	HE_INT32				mCount;
+	HE_ULONG				mFlag;
+	HE_FLOAT				mRGBColor[3];
+	CHE_ByteString			mTitle;
+
+	CHE_PDF_ObjectPtr		mDestObj;
+	CHE_PDF_Destination *	mpDest;
+	CHE_PDF_DictionaryPtr	mAction;
+	CHE_PDF_DictionaryPtr	mSE;
 
 	CHE_PDF_OutlineItem *	mpParent;
-	CHE_PDF_OutlineItem *	mpPrevBrother;
-	CHE_PDF_OutlineItem *	mpNextBrother;
-	CHE_PDF_OutlineItem *	mpFirstChild;
-	CHE_PDF_OutlineItem *	mpLastChild;
+	CHE_PDF_OutlineItem *	mpPrev;
+	CHE_PDF_OutlineItem *	mpNext;
+	CHE_PDF_OutlineItem *	mpFirst;
+	CHE_PDF_OutlineItem *	mpLast;
+
+private:
+	CHE_PDF_OutlineItem( CHE_Allocator * pAllocator = NULL );
+
+	friend class CHE_Allocator;
+	friend class CHE_PDF_Outline;
 };
 
 class CHE_PDF_Outline : public CHE_Object
 {
 public:
-	CHE_PDF_Outline( CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Outline( CHE_Allocator * pAllocator = NULL );
 
 	~CHE_PDF_Outline();
 
-	HE_BOOL Parse( const CHE_PDF_ReferencePtr & refPtr );
+	HE_BOOL Parse( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_NameDict * pNameTree /*= NULL*/ );
+
+	HE_VOID	Clear();
 
 private:
-	HE_BOOL GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_ReferencePtr refPtr );
+	HE_BOOL GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_DictionaryPtr & dictPtr );
 
-	CHE_PDF_OutlineItem * ParseSbling( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr curRefPtr, CHE_PDF_ReferencePtr nextPtr );
+	HE_UINT32 BuildChildTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr & firstRef, CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot = FALSE );
 
-	HE_VOID ParseChild( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr curRefPtr, CHE_PDF_ReferencePtr firstPtr );
+	HE_VOID CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_OutlineItem * pLast );
 
 private:
-	CHE_PDF_File *			mpFile;
-	CHE_PDF_OutlineItem *	mpRootItem;
+	CHE_PDF_ReferencePtr	mRefPtr;
+	HE_ULONG				mCount;
+	CHE_PDF_OutlineItem *	mpFirst;
+	CHE_PDF_OutlineItem *	mpLast;
+	CHE_PDF_NameDict	*	mpNameDict;
+	
 };
 
 

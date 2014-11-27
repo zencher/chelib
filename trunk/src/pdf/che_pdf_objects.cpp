@@ -1089,6 +1089,24 @@ HE_BOOL CHE_PDF_Dictionary::IsModified()
 	return FALSE;
 }
 
+HE_BOOL CHE_PDF_Dictionary::CheckName( const CHE_ByteString & key, const CHE_ByteString & name, HE_BOOL bRequired /*= TRUE*/ )
+{
+	CHE_PDF_ObjectPtr objPtr = GetElement( key, OBJ_TYPE_NAME );
+	if ( objPtr )
+	{
+		CHE_PDF_NamePtr namePtr = objPtr->GetNamePtr();
+		if ( namePtr->GetString() == name )
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}else if ( ! bRequired )
+	{
+		return TRUE;
+	}
+	return FALSE;
+}
+
 CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_StreamPtr ptr;

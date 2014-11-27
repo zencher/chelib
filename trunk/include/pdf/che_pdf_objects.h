@@ -475,6 +475,8 @@ public:
 
 	HE_BOOL							IsModified();
 
+	HE_BOOL							CheckName( const CHE_ByteString & key, const CHE_ByteString & name, HE_BOOL bRequired = TRUE );
+
 private:
 	CHE_PDF_Dictionary( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object( OBJ_TYPE_DICTIONARY, pAllocator ) {}
 

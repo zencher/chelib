@@ -15,9 +15,8 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 			}
 
 			pDocument->ParsePageTree();
-
+			pDocument->ParseNameDict();
 			pDocument->ParseOutline();
-
 			return pDocument;
 		}
 	}
@@ -25,7 +24,7 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 }
 
 CHE_PDF_Document::CHE_PDF_Document( CHE_PDF_File * pFile, CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), mpFile( pFile ), mpPageTree( NULL ), mpComponentMgr( NULL )
+	: CHE_Object( pAllocator ), mpFile( pFile ), mpPageTree( NULL ), mpNameDict( NULL ), mpComponentMgr( NULL )
 {
 	mpComponentMgr = GetAllocator()->New<CHE_PDF_ComponentMgr>( GetAllocator() );
 }
@@ -35,6 +34,14 @@ CHE_PDF_Document::~CHE_PDF_Document()
 	if ( mpPageTree )
 	{
 		mpPageTree->GetAllocator()->Delete( mpPageTree );
+	}
+	if ( mpNameDict )
+	{
+		mpNameDict->GetAllocator()->Delete( mpNameDict );
+	}
+	if ( mpOutline )
+	{
+		mpOutline->GetAllocator()->Delete( mpOutline );
 	}
 	if ( mpComponentMgr )
 	{
@@ -94,6 +101,22 @@ HE_BOOL CHE_PDF_Document::ParsePageTree()
 	return FALSE;
 }
 
+HE_BOOL CHE_PDF_Document::ParseNameDict()
+{
+	if ( mpFile )
+	{
+		CHE_PDF_DictionaryPtr dictPtr = mpFile->GetRootDict();
+		CHE_PDF_ObjectPtr objPtr = dictPtr->GetElement( "Names", OBJ_TYPE_DICTIONARY );
+		if ( objPtr )
+		{
+			mpNameDict = GetAllocator()->New<CHE_PDF_NameDict>( GetAllocator() );
+			mpNameDict->Parse( objPtr->GetDictPtr() );
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 HE_BOOL CHE_PDF_Document::ParseOutline()
 {
 	if ( mpFile )
@@ -104,8 +127,8 @@ HE_BOOL CHE_PDF_Document::ParseOutline()
 
 		if ( objPtr )
 		{
-			mpOutline = GetAllocator()->New<CHE_PDF_Outline>( mpFile, GetAllocator() );
-			mpOutline->Parse( objPtr->GetRefPtr() );
+			mpOutline = GetAllocator()->New<CHE_PDF_Outline>( GetAllocator() );
+			mpOutline->Parse( objPtr->GetRefPtr(), mpNameDict );
 			return TRUE;
 		}
 	}

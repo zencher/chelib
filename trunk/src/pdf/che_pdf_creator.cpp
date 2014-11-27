@@ -1,6 +1,5 @@
 #include "../../include/pdf/che_pdf_creator.h"
 #include "../../include/pdf/che_pdf_xref.h"
-#include "../../include/che_datastructure.h"
 
 #include <cstdio>
 #include <math.h>

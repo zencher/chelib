@@ -587,7 +587,7 @@ HE_VOID CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
 		return;
 	}
 
-	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
+	CHE_PDF_ParseWordDes wordDes;
 	CHE_PDF_ObjectPtr pTmpNode;
 	HE_FLOAT tmpValue = 0;
 	HE_BOOL	bOpd = TRUE;

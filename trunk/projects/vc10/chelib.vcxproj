@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h" />
     <ClInclude Include="..\..\include\che_bitmap.h" />
-    <ClInclude Include="..\..\include\che_datastructure.h" />
     <ClInclude Include="..\..\include\che_define.h" />
     <ClInclude Include="..\..\include\che_drawer_windows.h" />
     <ClInclude Include="..\..\include\che_graphics.h" />
@@ -177,7 +176,6 @@
     <ClCompile Include="..\..\extlib\zlib\zutil.c" />
     <ClCompile Include="..\..\src\che_base.cpp" />
     <ClCompile Include="..\..\src\che_bitmap.cpp" />
-    <ClCompile Include="..\..\src\che_datastructure.cpp" />
     <ClCompile Include="..\..\src\che_drawer_windows.cpp" />
     <ClCompile Include="..\..\src\che_graphics.cpp" />
     <ClCompile Include="..\..\src\che_string.cpp" />
@@ -185,7 +183,6 @@
     <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp" />
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_collector.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_componentmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_component.cpp" />
@@ -193,7 +190,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_contentlistbuilder.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_destination.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
@@ -207,9 +203,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_objectstring.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
@@ -269,13 +263,13 @@
     <OutDir>../../build/debug/win32_vc10</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>../../build/debug/win32_vc10_x64</OutDir>
+    <OutDir>../../build/debug/win32_vc10</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>../../build/release/win32_vc10</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>../../build/release/win32_vc10_x64</OutDir>
+    <OutDir>../../build/release/win32_vc10</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -299,9 +293,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;FT2_BUILD_LIBRARY;OPJ_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -320,7 +313,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -337,9 +330,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;FT2_BUILD_LIBRARY;OPJ_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;USE_FREETYPE2_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

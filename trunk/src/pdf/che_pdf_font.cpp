@@ -6963,7 +6963,7 @@ void CHE_PDF_Font::GetToUnicodeMap( const CHE_PDF_StreamPtr & pToUnicodeStream )
 
 	IHE_Read * pFileRead = HE_CreateMemBufRead( (HE_BYTE*)(stmAcc.GetData()), stmAcc.GetSize(), GetAllocator() );
 	CHE_PDF_SyntaxParser parser( NULL, GetAllocator() );
-	CHE_PDF_ParseWordDes wordDes( GetAllocator() );
+	CHE_PDF_ParseWordDes wordDes;
 	HE_ULONG lMaxIndex = 0;
 	HE_ULONG lCodeCount = 0;
 	parser.InitParser( pFileRead );

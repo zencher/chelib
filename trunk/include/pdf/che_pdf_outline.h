@@ -6,12 +6,15 @@
 #include "che_pdf_file.h"
 #include "che_pdf_destination.h"
 
+
 class CHE_PDF_OutlineItem : public CHE_Object
 {
 public:
 	CHE_PDF_OutlineItem( CHE_Allocator * pAllocator = NULL );
 
-	HE_ULONG				mCount;
+	HE_UINT32				mCount;
+	HE_UINT32				mFlag;
+	HE_FLOAT				mColor[3];
 	CHE_ByteString			mTitleStrPtr;
 	CHE_PDF_Destination		mDestination;
 
@@ -34,9 +37,9 @@ public:
 private:
 	HE_BOOL GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_ReferencePtr refPtr );
 
-	CHE_PDF_OutlineItem * BuildBrotherTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr curRefPtr, CHE_PDF_ReferencePtr nextPtr );
+	CHE_PDF_OutlineItem * ParseSbling( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr curRefPtr, CHE_PDF_ReferencePtr nextPtr );
 
-	HE_VOID BuildChildTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr curRefPtr, CHE_PDF_ReferencePtr firstPtr );
+	HE_VOID ParseChild( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr curRefPtr, CHE_PDF_ReferencePtr firstPtr );
 
 private:
 	CHE_PDF_File *			mpFile;

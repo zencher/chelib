@@ -345,6 +345,8 @@ public:
 		return FALSE;
 	}
 
+	HE_BOOL Execute( PSFUNCITEM_OPERATOR op );
+
 	PSFuncItem		mStack[100];
 	HE_INT32		mStackTopIndex;
 };

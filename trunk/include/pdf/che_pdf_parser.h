@@ -39,14 +39,13 @@ enum PDF_PARSE_WORD
 class CHE_PDF_File;
 class CHE_PDF_Collector;
 
-class CHE_PDF_ParseWordDes : public CHE_Object
+class CHE_PDF_ParseWordDes 
 {
 public:
-	CHE_PDF_ParseWordDes( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator )/*, str( pAllocator )*/ {};
+	CHE_PDF_ParseWordDes() : type(PARSE_WORD_UNKNOWN), offset(0) {};
 
-	PDF_PARSE_WORD	type;
-	HE_ULONG		offset;
-	//CHE_ByteString	str;
+	PDF_PARSE_WORD		type;
+	HE_ULONG			offset;
 };
 
 class CHE_PDF_SyntaxParser : public CHE_Object
@@ -55,15 +54,15 @@ public:
 	CHE_PDF_SyntaxParser( CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_SyntaxParser();
 
-	HE_BOOL				InitParser( IHE_Read* pFileAccess );
-	HE_ULONG			GetFileSize() { return m_lFileSize; };
+	HE_BOOL				InitParser( IHE_Read* pIFileRead );
+	HE_ULONG			GetFileSize() { return mlFileSize; };
 
 	HE_VOID				SetFile( CHE_PDF_File * pFile ) { mpFile = pFile; }
 	CHE_PDF_File *		GetFile()const { return mpFile; }
 
 	/*	当前位置移动和设置的相关操作	*/
-	HE_ULONG			GetPos() { return m_lFilePos; };
-	HE_VOID				SetPos( HE_ULONG pos) { m_lFilePos = pos; };
+	HE_ULONG			GetPos() { return mlFilePos; };
+	HE_VOID				SetPos( HE_ULONG pos) { mlFilePos = pos; };
 	HE_ULONG			Seek( HE_ULONG bytes );
 	HE_VOID				SeekToPrevLine();
 	HE_VOID				SeekToNextLine();
@@ -73,15 +72,15 @@ public:
  	HE_VOID				SeekToEndobj();
 
 	HE_VOID				SeekToMark( CHE_ByteString markStr );
-	HE_VOID				SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { m_pStrEncrypt = pEncrypt; }
-	HE_VOID				SetCurObjNum( HE_ULONG objNum ) { m_dwCurObjNum = objNum; }
-	HE_VOID				SetCurGenNum( HE_ULONG genNum ) { m_dwCurGenNum = genNum; }
-	CHE_PDF_Encrypt *	GetEncrypt() { return m_pStrEncrypt; }
+	HE_VOID				SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { mpStrEncrypt = pEncrypt; }
+	HE_VOID				SetCurObjNum( HE_ULONG objNum ) { mCurObjNum = objNum; }
+	HE_VOID				SetCurGenNum( HE_ULONG genNum ) { mCurGenNum = genNum; }
+	CHE_PDF_Encrypt *	GetEncrypt() { return mpStrEncrypt; }
 	HE_ULONG			ReadBytes( HE_LPBYTE pBuffer, HE_ULONG length );
 	HE_BOOL				GetWord( CHE_PDF_ParseWordDes & des );
 	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
 	CHE_PDF_ArrayPtr	GetArrayPtr();
-	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）	*/
+	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）*/
 	CHE_PDF_DictionaryPtr	GetDictionaryPtr();
 
 	HE_BOOL				IsWord( const char * words );
@@ -90,26 +89,30 @@ public:
 	HE_FLOAT			GetFloat();
 
 	CHE_ByteString		GetString();
+	void				GetString( CHE_ByteString & str );
 
 private:
-	HE_VOID				SubmitBufferStr(/* CHE_ByteString & str*/ );
+	HE_VOID				SubmitBufferStr();
 
-	HE_ULONG			m_lFilePos;
-	HE_ULONG			m_lFileSize;
-	IHE_Read*			m_pFileAccess;
-
-	CHE_PDF_Encrypt	*	m_pStrEncrypt;
-	HE_ULONG			m_dwCurObjNum;
-	HE_ULONG			m_dwCurGenNum;
-
-	HE_BOOL				m_bBegin;
-	HE_BOOL				m_bPoint;
-	HE_BOOL				m_bSign;
-
-	HE_BYTE				m_WordBuffer[32770];
-	HE_ULONG			m_lBufferSize;
-	HE_ULONG			m_lBufferPos;
 	CHE_PDF_File *		mpFile;
+	IHE_Read*			mpIFileRead;
+	CHE_PDF_Encrypt	*	mpStrEncrypt;
+
+	HE_ULONG			mlFilePos;
+	HE_ULONG			mlFileSize;
+
+	HE_ULONG			mlBufferSize;
+	HE_ULONG			mlBufferPos;
+	HE_ULONG			mlSubmitSize;
+
+	HE_ULONG			mCurObjNum;
+	HE_ULONG			mCurGenNum;
+
+	HE_BOOL				mbBegin;
+	HE_BOOL				mbPoint;
+	HE_BOOL				mbSign;
+
+	HE_BYTE				mWordBuffer[32770];
 
 	friend class CHE_PDF_Parser;
 };
@@ -128,8 +131,8 @@ public:
 	//Encryption
 	HE_BOOL						Authenticate( const CHE_ByteString & password );
 
-	HE_ULONG					GetReadPos() { return m_sParser.GetPos(); }
-	HE_VOID						SetReadPos( HE_ULONG pos) { m_sParser.SetPos( pos ); }
+	HE_ULONG					GetReadPos() { return mSyntaxParser.GetPos(); }
+	HE_VOID						SetReadPos( HE_ULONG pos) { mSyntaxParser.SetPos( pos ); }
 
 	CHE_PDF_ObjectPtr			GetObject();
 	CHE_PDF_ObjectPtr			GetObjectInObjStm( CHE_PDF_StreamPtr & pStream, const PDF_RefInfo & ObjrefInfo, HE_ULONG index );
@@ -150,17 +153,14 @@ private:
 	HE_BOOL						ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict, const CHE_PDF_ArrayPtr & pIdArray );
 
 private:
-	CHE_PDF_SyntaxParser		m_sParser;
+	CHE_PDF_SyntaxParser		mSyntaxParser;
 	CHE_PDF_File *				mpFile;
-	IHE_Read *					m_pIHE_FileRead;
-	HE_ULONG					m_lStartxref;
-	
-	CHE_PDF_XRefTable *		mpXRefTable;
-
-	CHE_PDF_Encrypt	*			m_pStrEncrypt;
-	CHE_PDF_Encrypt	*			m_pStmEncrypt;
-	CHE_PDF_Encrypt	*			m_pEefEncrypt;
-
+	IHE_Read *					mpIFileRead;
+	HE_ULONG					mlStartxref;
+	CHE_PDF_XRefTable *			mpXRefTable;
+	CHE_PDF_Encrypt	*			mpStrEncrypt;
+	CHE_PDF_Encrypt	*			mpStmEncrypt;
+	CHE_PDF_Encrypt	*			mpEefEncrypt;
 	CHE_PDF_ReferencePtr		mEncryptRef;
 	CHE_PDF_ArrayPtr			mIDArrayPtr;
 

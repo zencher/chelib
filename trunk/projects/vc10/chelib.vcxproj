@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h" />
     <ClInclude Include="..\..\include\che_bitmap.h" />
+    <ClInclude Include="..\..\include\che_datastructure.h" />
     <ClInclude Include="..\..\include\che_define.h" />
     <ClInclude Include="..\..\include\che_drawer_windows.h" />
     <ClInclude Include="..\..\include\che_graphics.h" />
@@ -33,16 +34,13 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_componentmgr.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_component.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentlist.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentlistbuilder.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentresmgr.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_creator.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_destination.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_document.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_extgstate.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_file.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_filter.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h" />
@@ -50,16 +48,12 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_function.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_image.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_imageraster.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_nametree.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_objectstring.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_outline.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_pages.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_pattern.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer_windows.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_xobject.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h" />
@@ -184,8 +178,8 @@
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_componentmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_component.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_componentmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentlist.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentlistbuilder.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp" />
@@ -203,6 +197,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_nametree.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
@@ -313,7 +308,6 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>../../extlib/freetype/include</AdditionalIncludeDirectories>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -3,6 +3,8 @@
 
 #include <cstdio>
 #include <math.h>
+#include <queue>
+using namespace std;
 
 //string resources for creator
 //file structure relative
@@ -480,14 +482,14 @@ HE_ULONG CHE_PDF_Creator::OutPutInObject( const PDF_RefInfo & refInfo, const CHE
 	return offset;
 }
 
-HE_ULONG CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
+HE_ULONG CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XRefTable & xref )
 {
 	HE_CHAR tempStr[128];
 	HE_ULONG lBeginNum = 0;
 	HE_ULONG lNextObjNum = 0;
 	HE_ULONG lCountNum = 0;
-	CHE_PDF_XREF_Entry entry;
-	CHE_Queue< CHE_PDF_XREF_Entry > entryList;
+	CHE_PDF_XRefEntry entry;
+    queue<CHE_PDF_XRefEntry> entryList;
 
 	HE_ULONG offset = mpWrite->GetCurOffset();
 	mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefMark, glstrXrefMark );
@@ -500,7 +502,7 @@ HE_ULONG CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 	lBeginNum = entry.GetObjNum();
 	lNextObjNum = lBeginNum+1;
 	lCountNum = 1;
-	entryList.Push( entry );
+	entryList.push( entry );
 	
 	xref.MoveNext();
 
@@ -510,14 +512,16 @@ HE_ULONG CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 		{
 			if ( entry.GetObjNum() == lNextObjNum )
 			{
-				entryList.Push( entry );
+				entryList.push( entry );
 				++lCountNum;
 			}else{
-				CHE_PDF_XREF_Entry tmpEntry;
+				CHE_PDF_XRefEntry tmpEntry;
 				sprintf( tempStr, "%ld %ld\n", lBeginNum, lCountNum );
 				mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
-				while( entryList.Pop( tmpEntry ) )
+				while( !entryList.empty() )
 				{
+                    tmpEntry = entryList.front();
+                    entryList.pop();
 					if ( entry.GetObjNum() == 0 )
 					{
 						mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
@@ -526,7 +530,7 @@ HE_ULONG CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 						mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
 					}
 				}
-				entryList.Push( entry );
+				entryList.push( entry );
 				lBeginNum = entry.GetObjNum();
 				lCountNum = 1;
 				lNextObjNum = lBeginNum;
@@ -540,11 +544,13 @@ HE_ULONG CHE_PDF_Creator::OutPutXRefTable( CHE_PDF_XREF_Table & xref )
 
 	if ( lCountNum > 0 )
 	{
-		CHE_PDF_XREF_Entry tmpEntry;
+		CHE_PDF_XRefEntry tmpEntry;
 		sprintf( tempStr, "%ld %ld\n", lBeginNum, lCountNum );
 		mpWrite->WriteBlock( (HE_LPVOID)tempStr, strlen( tempStr ) );
-		while( entryList.Pop( tmpEntry ) )
+		while( !entryList.empty() )
 		{
+            tmpEntry = entryList.front();
+            entryList.pop();
 			if ( tmpEntry.GetObjNum() == 0 )
 			{
 				mpWrite->WriteBlock( (HE_LPVOID)gpStrXrefFirstFreeEntry, glStrXrefEntry );
@@ -719,24 +725,21 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 			pWrite->WriteBlock( (HE_LPVOID)gpStrDictObjLeft, 2 );
 
 			CHE_ByteString keyStr;
-			for ( HE_ULONG i = 0; i < ptr->GetCount(); i++ )
+            ptr->MoveToFirst();
+			while ( ptr->GetKeyAndElement( keyStr, pElement ) )
 			{
-				if ( ptr->GetKeyByIndex( i, keyStr ) == TRUE )
-				{
-					HE_LPVOID pData = (HE_LPVOID)( keyStr.GetData() );
-					HE_ULONG length = keyStr.GetLength();
-					pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
-					pWrite->WriteBlock( pData, length );
-					pElement = ptr->GetElementByIndex( i );
-					if ( pElement->GetType() == OBJ_TYPE_NULL || pElement->GetType() == OBJ_TYPE_NUMBER || pElement->GetType() == OBJ_TYPE_REFERENCE || pElement->GetType() == OBJ_TYPE_BOOLEAN )
-					{
-						pWrite->WriteBlock( (HE_LPVOID)gpStrSingleSpace, 1 );
-					}
-					if ( pElement )
-					{
-						OutPutObject( pWrite, refInfo, pElement, pEncrypt );
-					}
-				}
+                HE_LPVOID pData = (HE_LPVOID)( keyStr.GetData() );
+                HE_ULONG length = keyStr.GetLength();
+                pWrite->WriteBlock( (HE_LPVOID)gpStrNameObjPre, 1 );
+                pWrite->WriteBlock( pData, length );
+                if ( pElement->GetType() == OBJ_TYPE_NULL || pElement->GetType() == OBJ_TYPE_NUMBER || pElement->GetType() == OBJ_TYPE_REFERENCE || pElement->GetType() ==OBJ_TYPE_BOOLEAN )
+                {
+                    pWrite->WriteBlock( (HE_LPVOID)gpStrSingleSpace, 1 );
+                }
+                if ( pElement )
+                {
+                    OutPutObject( pWrite, refInfo, pElement, pEncrypt );
+                }
 			}
 			pWrite->WriteBlock( (HE_LPVOID)gpStrDictObjRight, 2 );
 			break;

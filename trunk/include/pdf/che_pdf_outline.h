@@ -51,7 +51,7 @@ public:
 private:
 	HE_BOOL GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_DictionaryPtr & dictPtr );
 
-	HE_UINT32 BuildChildTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr & firstRef, CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot = FALSE );
+	HE_UINT32 BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const CHE_PDF_ReferencePtr & firstRef, const CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot = FALSE );
 
 	HE_VOID CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_OutlineItem * pLast );
 

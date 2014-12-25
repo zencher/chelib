@@ -4,31 +4,6 @@
 #include <math.h>
 #include <float.h>
 
-#define A(a)		(a)
-#define B(a,b)		(a | b<<8)
-#define C(a,b,c)	(a | b<<8 | c<<16)
-#define D(a,b,c,d)	(a | b<<8 | c<<16 | d<<24)
-
-static HE_ULONG StringToDWORD( CHE_ByteString & str )
-{
-	if ( str.GetLength() == 0 )
-	{
-		return 0;
-	}
-	HE_ULONG length = 4;
-	if ( str.GetLength() < length )
-	{
-		length = str.GetLength();
-	}
-	HE_ULONG valRet = 0;
-	for ( HE_ULONG i = length; i > 0; --i )
-	{
-		valRet = valRet<<8;
-		valRet |= str.GetData()[i-1];
-	}
-	return valRet;
-}
-
 static inline float lerp(float x, float xmin, float xmax, float ymin, float ymax)
 {
 	if (xmin == xmax)

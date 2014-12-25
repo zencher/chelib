@@ -1107,6 +1107,22 @@ HE_BOOL CHE_PDF_Dictionary::CheckName( const CHE_ByteString & key, const CHE_Byt
 	return FALSE;
 }
 
+HE_VOID CHE_PDF_Dictionary::MoveToFirst()
+{
+    mIt = mMap.begin();
+}
+
+HE_BOOL CHE_PDF_Dictionary::GetKeyAndElement( CHE_ByteString & key, CHE_PDF_ObjectPtr & objPtr )
+{
+    if ( mIt != mMap.end() )
+    {
+        key = mIt->first.data();
+        objPtr = mIt->second;
+        return TRUE;
+    }
+    return FALSE;
+}
+
 CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_StreamPtr ptr;

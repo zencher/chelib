@@ -209,25 +209,22 @@ HE_BOOL CHE_PDF_ObjectString::PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & pObj, CH
 			buf.Write( (HE_LPCBYTE)gpStrDictObjLeft, 2 );
 
 			CHE_ByteString keyStr;
-			for ( HE_ULONG i = 0; i < ptr->GetCount(); i++ )
-			{
-				if ( ptr->GetKeyByIndex( i, keyStr ) == TRUE )
-				{
-					HE_LPBYTE pData = (HE_LPBYTE)( keyStr.GetData() );
-					HE_ULONG length = keyStr.GetLength();
-					buf.Write( (HE_LPCBYTE)gpStrNameObjPre, 1 );
-					buf.Write( pData, length );
-					pElement = ptr->GetElementByIndex( i );
-					if ( pElement->GetType() == OBJ_TYPE_NULL || pElement->GetType() == OBJ_TYPE_NUMBER || pElement->GetType() == OBJ_TYPE_REFERENCE || pElement->GetType() == OBJ_TYPE_BOOLEAN )
-					{
-						buf.Write( (HE_LPCBYTE)gpStrSingleSpace, 1 );
-					}
-					if ( pElement )
-					{
-						PdfObjPtrToBuf( pElement, buf );
-					}
-				}
-			}
+            ptr->MoveToFirst();
+            while ( ptr->GetKeyAndElement( keyStr, pElement ) )
+            {
+                HE_LPBYTE pData = (HE_LPBYTE)( keyStr.GetData() );
+                HE_ULONG length = keyStr.GetLength();
+                buf.Write( (HE_LPCBYTE)gpStrNameObjPre, 1 );
+                buf.Write( pData, length );
+                if ( pElement->GetType() == OBJ_TYPE_NULL || pElement->GetType() == OBJ_TYPE_NUMBER || pElement->GetType() == OBJ_TYPE_REFERENCE || pElement->GetType() == OBJ_TYPE_BOOLEAN )
+                {
+                    buf.Write( (HE_LPCBYTE)gpStrSingleSpace, 1 );
+                }
+                if ( pElement )
+                {
+                    PdfObjPtrToBuf( pElement, buf );
+                }
+            }
 			buf.Write( (HE_LPCBYTE)gpStrDictObjRight, 2 );
 			break;
 		}

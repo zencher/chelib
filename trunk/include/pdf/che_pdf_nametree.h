@@ -12,12 +12,12 @@ class CHE_PDF_NameTree : public CHE_Object
 public:
 	CHE_PDF_NameTree( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
 
-	HE_VOID Parse( CHE_PDF_ReferencePtr & refPtr );
+	HE_VOID Parse( const CHE_PDF_ReferencePtr & refPtr );
 
-	CHE_PDF_ObjectPtr GetObject( CHE_ByteString & name );
+	CHE_PDF_ObjectPtr GetObject( const CHE_ByteString & name );
 
 private:
-	HE_BOOL Find( string & name, CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet );
+	HE_BOOL Find( string & name, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet );
 
 	CHE_PDF_ReferencePtr								mRefPtr;
 	std::unordered_map<std::string,CHE_PDF_ObjectPtr>	mMap;
@@ -30,11 +30,11 @@ public:
 
 	~CHE_PDF_NameDict();
 
-	HE_VOID Parse( CHE_PDF_DictionaryPtr & dict );
+	HE_VOID Parse( const CHE_PDF_DictionaryPtr & dict );
 
-	CHE_PDF_ObjectPtr GetDest( CHE_ByteString & name );
+	CHE_PDF_ObjectPtr GetDest( const CHE_ByteString & name );
 
-	CHE_PDF_ObjectPtr GetJavaScript( CHE_ByteString & name );
+	CHE_PDF_ObjectPtr GetJavaScript( const CHE_ByteString & name );
 
 	//todo
 

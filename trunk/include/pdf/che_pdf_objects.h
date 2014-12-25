@@ -446,10 +446,7 @@ public:
 	CHE_PDF_ObjectPtr				GetElement( const CHE_ByteString & key ) const;
 
 	CHE_PDF_ObjectPtr				GetElement( const CHE_ByteString & key, PDF_OBJ_TYPE type );
-
-	//CHE_PDF_ObjectPtr				GetElementByIndex( HE_ULONG index ) const { return mPtrs[index]; }
-
-	//HE_BOOL							GetKeyByIndex( HE_ULONG index, CHE_ByteString & strRet ) const { strRet = mKeys[index]; return TRUE; }
+    
 
 	HE_VOID							SetAtObj( const CHE_ByteString & key, const CHE_PDF_ObjectPtr & ptr );
 
@@ -476,15 +473,17 @@ public:
 	HE_BOOL							IsModified();
 
 	HE_BOOL							CheckName( const CHE_ByteString & key, const CHE_ByteString & name, HE_BOOL bRequired = TRUE );
+    
+    HE_VOID                         MoveToFirst();
+    
+    HE_BOOL                         GetKeyAndElement( CHE_ByteString & key, CHE_PDF_ObjectPtr & objPtr );
 
 private:
 	CHE_PDF_Dictionary( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object( OBJ_TYPE_DICTIONARY, pAllocator ) {}
 
-	//std::vector<CHE_PDF_ObjectPtr>	mPtrs;
-
-	//std::vector<CHE_ByteString>		mKeys;
-
-	unordered_map<string,CHE_PDF_ObjectPtr> mMap;
+    unordered_map<string,CHE_PDF_ObjectPtr>::iterator mIt;
+    unordered_map<string,CHE_PDF_ObjectPtr> mMap;
+    
 
 	friend class CHE_Allocator;
 	friend class CHE_PDF_Object;

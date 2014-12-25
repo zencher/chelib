@@ -182,4 +182,12 @@ CHE_WideString operator+( HE_LPCWSTR lpWstr, CHE_WideString& wstr );
 bool operator!=( HE_WCHAR wch, CHE_WideString& wstr );
 bool operator!=( HE_LPCWSTR lpWstr, CHE_ByteString& wstr );
 
+#define A(a)		(a)
+#define B(a,b)		(a | b<<8)
+#define C(a,b,c)	(a | b<<8 | c<<16)
+#define D(a,b,c,d)	(a | b<<8 | c<<16 | d<<24)
+
+HE_ULONG StringToDWORD( const CHE_ByteString & str );
+
+
 #endif

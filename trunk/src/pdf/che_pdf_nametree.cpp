@@ -2,7 +2,7 @@
 
 using namespace std;
 
-HE_VOID CHE_PDF_NameTree::Parse( CHE_PDF_ReferencePtr & refPtr )
+HE_VOID CHE_PDF_NameTree::Parse( const CHE_PDF_ReferencePtr & refPtr )
 {
 	if ( !refPtr )
 	{
@@ -11,7 +11,7 @@ HE_VOID CHE_PDF_NameTree::Parse( CHE_PDF_ReferencePtr & refPtr )
 	mRefPtr = refPtr;
 }
 
-HE_BOOL CHE_PDF_NameTree::Find( string & name, CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet )
+HE_BOOL CHE_PDF_NameTree::Find( string & name, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet )
 {
 	CHE_PDF_ObjectPtr obj;
 	CHE_PDF_ArrayPtr arr;
@@ -82,7 +82,8 @@ HE_BOOL CHE_PDF_NameTree::Find( string & name, CHE_PDF_DictionaryPtr & dict, CHE
 			obj = arr->GetElement( i, OBJ_TYPE_DICTIONARY );
 			if ( obj )
 			{
-				if ( Find( name, obj->GetDictPtr(), objRet ) )
+                CHE_PDF_DictionaryPtr dict = obj->GetDictPtr();
+				if ( Find( name, dict, objRet ) )
 				{
 					return TRUE;
 				}
@@ -92,7 +93,7 @@ HE_BOOL CHE_PDF_NameTree::Find( string & name, CHE_PDF_DictionaryPtr & dict, CHE
 	return FALSE;
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_NameTree::GetObject( CHE_ByteString & name )
+CHE_PDF_ObjectPtr CHE_PDF_NameTree::GetObject( const CHE_ByteString & name )
 {
 	CHE_PDF_ObjectPtr objRet;
 	if ( !mRefPtr )
@@ -169,7 +170,7 @@ CHE_PDF_NameDict::~CHE_PDF_NameDict()
 	}
 }
 
-HE_VOID CHE_PDF_NameDict::Parse( CHE_PDF_DictionaryPtr & dict )
+HE_VOID CHE_PDF_NameDict::Parse( const CHE_PDF_DictionaryPtr & dict )
 {
 	if ( !dict )
 	{
@@ -247,7 +248,7 @@ HE_VOID CHE_PDF_NameDict::Parse( CHE_PDF_DictionaryPtr & dict )
 	}
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetDest( CHE_ByteString & name )
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetDest( const CHE_ByteString & name )
 {
 	CHE_PDF_ObjectPtr objPtr;
 	if ( mpDestNameTree )
@@ -257,7 +258,7 @@ CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetDest( CHE_ByteString & name )
 	return objPtr;
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetJavaScript( CHE_ByteString & name )
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetJavaScript( const CHE_ByteString & name )
 {
 	CHE_PDF_ObjectPtr objPtr;
 	if ( mpDestNameTree )

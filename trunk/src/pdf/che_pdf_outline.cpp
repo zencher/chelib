@@ -192,7 +192,7 @@ HE_BOOL CHE_PDF_Outline::GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_Di
 	return TRUE;
 }
 
-HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr & firstRef, CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot /*= FALSE*/ )
+HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const CHE_PDF_ReferencePtr & firstRef, const CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot /*= FALSE*/ )
 {
 	if ( pCurItem == NULL )
 	{

@@ -1735,3 +1735,23 @@ bool operator!=( HE_LPCWSTR lpWstr, const CHE_WideString& wstr )
 {
 	return ( wstr != lpWstr );
 }
+
+HE_ULONG StringToDWORD( const CHE_ByteString & str )
+{
+    if ( str.GetLength() == 0 )
+    {
+        return 0;
+    }
+    HE_ULONG length = 4;
+    if ( str.GetLength() < length )
+    {
+        length = str.GetLength();
+    }
+    HE_ULONG valRet = 0;
+    for ( HE_ULONG i = length; i > 0; --i )
+    {
+        valRet = valRet<<8;
+        valRet |= str.GetData()[i-1];
+    }
+    return valRet;
+}

@@ -267,17 +267,6 @@
 		90C6FBA31786CC6200C50AA5 /* jquant2.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C6FB7B1786CC6200C50AA5 /* jquant2.c */; };
 		90C6FBA41786CC6200C50AA5 /* jutils.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C6FB7C1786CC6200C50AA5 /* jutils.c */; };
 		90C6FBA51786CC6200C50AA5 /* jversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 90C6FB7D1786CC6200C50AA5 /* jversion.h */; };
-		90C9F9D21A4EC8040043194A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9D11A4EC8040043194A /* AppDelegate.m */; };
-		90C9F9D41A4EC8040043194A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9D31A4EC8040043194A /* main.m */; };
-		90C9F9D71A4EC8040043194A /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9D61A4EC8040043194A /* Document.mm */; };
-		90C9F9DD1A4EC8040043194A /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9DB1A4EC8040043194A /* Document.xcdatamodeld */; };
-		90C9F9DF1A4EC8040043194A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90C9F9DE1A4EC8040043194A /* Images.xcassets */; };
-		90C9F9E21A4EC8040043194A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 90C9F9E01A4EC8040043194A /* MainMenu.xib */; };
-		90C9F9EE1A4EC8040043194A /* PETests.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9ED1A4EC8040043194A /* PETests.m */; };
-		90C9F9FC1A4ED9370043194A /* PDFFileData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9FB1A4ED9370043194A /* PDFFileData.mm */; };
-		90C9FA011A4EDD660043194A /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
-		90C9FA051A4EFA4E0043194A /* WindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C9FA031A4EFA4E0043194A /* WindowController.m */; };
-		90C9FA061A4EFA4E0043194A /* WindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 90C9FA041A4EFA4E0043194A /* WindowController.xib */; };
 		90CC6B261783C5150007082E /* che_platform_font.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90CC6B251783C5150007082E /* che_platform_font.mm */; };
 		90CC6B291783C5270007082E /* che_pdf_function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CC6B271783C5270007082E /* che_pdf_function.cpp */; };
 		90CC6B2A1783C5270007082E /* che_pdf_gstate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CC6B281783C5270007082E /* che_pdf_gstate.cpp */; };
@@ -297,20 +286,6 @@
 
 /* Begin PBXContainerItemProxy section */
 		90C5376C1758A3860014AC65 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 90C37C8D17534E58005D9C8A;
-			remoteInfo = chelib;
-		};
-		90C9F9E81A4EC8040043194A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 90C9F9CB1A4EC8040043194A;
-			remoteInfo = PE;
-		};
-		90C9F9FE1A4EDB7A0043194A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
 			proxyType = 1;
@@ -613,24 +588,6 @@
 		90C6FB7B1786CC6200C50AA5 /* jquant2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jquant2.c; path = ../../extlib/libjpeg/jquant2.c; sourceTree = "<group>"; };
 		90C6FB7C1786CC6200C50AA5 /* jutils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jutils.c; path = ../../extlib/libjpeg/jutils.c; sourceTree = "<group>"; };
 		90C6FB7D1786CC6200C50AA5 /* jversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jversion.h; path = ../../extlib/libjpeg/jversion.h; sourceTree = "<group>"; };
-		90C9F9CC1A4EC8040043194A /* PE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PE.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		90C9F9CF1A4EC8040043194A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		90C9F9D01A4EC8040043194A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		90C9F9D11A4EC8040043194A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		90C9F9D31A4EC8040043194A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		90C9F9D51A4EC8040043194A /* Document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
-		90C9F9D61A4EC8040043194A /* Document.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Document.mm; sourceTree = "<group>"; };
-		90C9F9DC1A4EC8040043194A /* Document.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document.xcdatamodel; sourceTree = "<group>"; };
-		90C9F9DE1A4EC8040043194A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		90C9F9E11A4EC8040043194A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		90C9F9E71A4EC8040043194A /* PETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		90C9F9EC1A4EC8040043194A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		90C9F9ED1A4EC8040043194A /* PETests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PETests.m; sourceTree = "<group>"; };
-		90C9F9FA1A4ED9370043194A /* PDFFileData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFFileData.h; sourceTree = "<group>"; };
-		90C9F9FB1A4ED9370043194A /* PDFFileData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PDFFileData.mm; sourceTree = "<group>"; };
-		90C9FA021A4EFA4E0043194A /* WindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowController.h; sourceTree = "<group>"; };
-		90C9FA031A4EFA4E0043194A /* WindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WindowController.m; sourceTree = "<group>"; };
-		90C9FA041A4EFA4E0043194A /* WindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WindowController.xib; sourceTree = "<group>"; };
 		90CC6B251783C5150007082E /* che_platform_font.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = che_platform_font.mm; path = ../../src/pdf/platform/osx/che_platform_font.mm; sourceTree = "<group>"; };
 		90CC6B271783C5270007082E /* che_pdf_function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_function.cpp; path = ../../src/pdf/che_pdf_function.cpp; sourceTree = "<group>"; };
 		90CC6B281783C5270007082E /* che_pdf_gstate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_gstate.cpp; path = ../../src/pdf/che_pdf_gstate.cpp; sourceTree = "<group>"; };
@@ -678,21 +635,6 @@
 				90CC6B2F1783CA970007082E /* Foundation.framework in Frameworks */,
 				90C5376B1758A37D0014AC65 /* libchelib.a in Frameworks */,
 				90C53766175887B00014AC65 /* ApplicationServices.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		90C9F9C91A4EC8040043194A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				90C9FA011A4EDD660043194A /* libchelib.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		90C9F9E41A4EC8040043194A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -959,7 +901,7 @@
 		90C37C8517534E58005D9C8A = {
 			isa = PBXGroup;
 			children = (
-				90C9F9F51A4EC8170043194A /* Work */,
+				90C9F9F51A4EC8170043194A /* work */,
 				909E11EF175456A100540539 /* test */,
 				909E117C1754530B00540539 /* extlib */,
 				909E112D17543F9100540539 /* src */,
@@ -976,8 +918,6 @@
 				909E120317545BA700540539 /* pdfFileTest */,
 				90C5373817587FF10014AC65 /* pdfRenderTest.app */,
 				90C53759175881B40014AC65 /* pdfDocumentTest */,
-				90C9F9CC1A4EC8040043194A /* PE.app */,
-				90C9F9E71A4EC8040043194A /* PETests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1183,59 +1123,11 @@
 			name = libjpeg;
 			sourceTree = "<group>";
 		};
-		90C9F9CD1A4EC8040043194A /* PE */ = {
+		90C9F9F51A4EC8170043194A /* work */ = {
 			isa = PBXGroup;
 			children = (
-				90C9F9D01A4EC8040043194A /* AppDelegate.h */,
-				90C9F9D11A4EC8040043194A /* AppDelegate.m */,
-				90C9F9D51A4EC8040043194A /* Document.h */,
-				90C9F9D61A4EC8040043194A /* Document.mm */,
-				90C9F9E01A4EC8040043194A /* MainMenu.xib */,
-				90C9F9FA1A4ED9370043194A /* PDFFileData.h */,
-				90C9F9FB1A4ED9370043194A /* PDFFileData.mm */,
-				90C9FA021A4EFA4E0043194A /* WindowController.h */,
-				90C9FA031A4EFA4E0043194A /* WindowController.m */,
-				90C9FA041A4EFA4E0043194A /* WindowController.xib */,
-				90C9F9DB1A4EC8040043194A /* Document.xcdatamodeld */,
-				90C9F9DE1A4EC8040043194A /* Images.xcassets */,
-				90C9F9CE1A4EC8040043194A /* Supporting Files */,
 			);
-			path = PE;
-			sourceTree = "<group>";
-		};
-		90C9F9CE1A4EC8040043194A /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				90C9F9CF1A4EC8040043194A /* Info.plist */,
-				90C9F9D31A4EC8040043194A /* main.m */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		90C9F9EA1A4EC8040043194A /* PETests */ = {
-			isa = PBXGroup;
-			children = (
-				90C9F9ED1A4EC8040043194A /* PETests.m */,
-				90C9F9EB1A4EC8040043194A /* Supporting Files */,
-			);
-			path = PETests;
-			sourceTree = "<group>";
-		};
-		90C9F9EB1A4EC8040043194A /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				90C9F9EC1A4EC8040043194A /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		90C9F9F51A4EC8170043194A /* Work */ = {
-			isa = PBXGroup;
-			children = (
-				90C9F9CD1A4EC8040043194A /* PE */,
-				90C9F9EA1A4EC8040043194A /* PETests */,
-			);
-			name = Work;
+			name = work;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1427,42 +1319,6 @@
 			productReference = 90C53759175881B40014AC65 /* pdfDocumentTest */;
 			productType = "com.apple.product-type.tool";
 		};
-		90C9F9CB1A4EC8040043194A /* PE */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 90C9F9F31A4EC8040043194A /* Build configuration list for PBXNativeTarget "PE" */;
-			buildPhases = (
-				90C9F9C81A4EC8040043194A /* Sources */,
-				90C9F9C91A4EC8040043194A /* Frameworks */,
-				90C9F9CA1A4EC8040043194A /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = PE;
-			productName = PE;
-			productReference = 90C9F9CC1A4EC8040043194A /* PE.app */;
-			productType = "com.apple.product-type.application";
-		};
-		90C9F9E61A4EC8040043194A /* PETests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 90C9F9F41A4EC8040043194A /* Build configuration list for PBXNativeTarget "PETests" */;
-			buildPhases = (
-				90C9F9E31A4EC8040043194A /* Sources */,
-				90C9F9E41A4EC8040043194A /* Frameworks */,
-				90C9F9E51A4EC8040043194A /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				90C9F9FF1A4EDB7A0043194A /* PBXTargetDependency */,
-				90C9F9E91A4EC8040043194A /* PBXTargetDependency */,
-			);
-			name = PETests;
-			productName = PETests;
-			productReference = 90C9F9E71A4EC8040043194A /* PETests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1471,15 +1327,6 @@
 			attributes = {
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = com.peroit;
-				TargetAttributes = {
-					90C9F9CB1A4EC8040043194A = {
-						CreatedOnToolsVersion = 6.1.1;
-					};
-					90C9F9E61A4EC8040043194A = {
-						CreatedOnToolsVersion = 6.1.1;
-						TestTargetID = 90C9F9CB1A4EC8040043194A;
-					};
-				};
 			};
 			buildConfigurationList = 90C37C8917534E58005D9C8A /* Build configuration list for PBXProject "chelib" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1498,8 +1345,6 @@
 				909E120217545BA700540539 /* pdfFileTest */,
 				90C5373717587FF10014AC65 /* pdfRenderTest */,
 				90C53758175881B40014AC65 /* pdfDocumentTest */,
-				90C9F9CB1A4EC8040043194A /* PE */,
-				90C9F9E61A4EC8040043194A /* PETests */,
 			);
 		};
 /* End PBXProject section */
@@ -1512,23 +1357,6 @@
 				90C5374517587FF20014AC65 /* InfoPlist.strings in Resources */,
 				90C5374B17587FF20014AC65 /* Credits.rtf in Resources */,
 				90C5375117587FF20014AC65 /* MainMenu.xib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		90C9F9CA1A4EC8040043194A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				90C9FA061A4EFA4E0043194A /* WindowController.xib in Resources */,
-				90C9F9DF1A4EC8040043194A /* Images.xcassets in Resources */,
-				90C9F9E21A4EC8040043194A /* MainMenu.xib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		90C9F9E51A4EC8040043194A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1720,27 +1548,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		90C9F9C81A4EC8040043194A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				90C9F9DD1A4EC8040043194A /* Document.xcdatamodeld in Sources */,
-				90C9FA051A4EFA4E0043194A /* WindowController.m in Sources */,
-				90C9F9D71A4EC8040043194A /* Document.mm in Sources */,
-				90C9F9FC1A4ED9370043194A /* PDFFileData.mm in Sources */,
-				90C9F9D41A4EC8040043194A /* main.m in Sources */,
-				90C9F9D21A4EC8040043194A /* AppDelegate.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		90C9F9E31A4EC8040043194A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				90C9F9EE1A4EC8040043194A /* PETests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1748,16 +1555,6 @@
 			isa = PBXTargetDependency;
 			target = 90C37C8D17534E58005D9C8A /* chelib */;
 			targetProxy = 90C5376C1758A3860014AC65 /* PBXContainerItemProxy */;
-		};
-		90C9F9E91A4EC8040043194A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 90C9F9CB1A4EC8040043194A /* PE */;
-			targetProxy = 90C9F9E81A4EC8040043194A /* PBXContainerItemProxy */;
-		};
-		90C9F9FF1A4EDB7A0043194A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 90C37C8D17534E58005D9C8A /* chelib */;
-			targetProxy = 90C9F9FE1A4EDB7A0043194A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1782,14 +1579,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				90C5375017587FF20014AC65 /* en */,
-			);
-			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-		90C9F9E01A4EC8040043194A /* MainMenu.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				90C9F9E11A4EC8040043194A /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -1968,128 +1757,6 @@
 			};
 			name = Release;
 		};
-		90C9F9EF1A4EC8040043194A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = PE/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		90C9F9F01A4EC8040043194A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_IDENTITY = "-";
-				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = PE/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		90C9F9F11A4EC8040043194A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = PETests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PE.app/Contents/MacOS/PE";
-			};
-			name = Debug;
-		};
-		90C9F9F21A4EC8040043194A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COMBINE_HIDPI_IMAGES = YES;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				INFOPLIST_FILE = PETests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PE.app/Contents/MacOS/PE";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2138,38 +1805,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		90C9F9F31A4EC8040043194A /* Build configuration list for PBXNativeTarget "PE" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				90C9F9EF1A4EC8040043194A /* Debug */,
-				90C9F9F01A4EC8040043194A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		90C9F9F41A4EC8040043194A /* Build configuration list for PBXNativeTarget "PETests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				90C9F9F11A4EC8040043194A /* Debug */,
-				90C9F9F21A4EC8040043194A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
-
-/* Begin XCVersionGroup section */
-		90C9F9DB1A4EC8040043194A /* Document.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				90C9F9DC1A4EC8040043194A /* Document.xcdatamodel */,
-			);
-			currentVersion = 90C9F9DC1A4EC8040043194A /* Document.xcdatamodel */;
-			path = Document.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 90C37C8617534E58005D9C8A /* Project object */;
 }

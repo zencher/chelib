@@ -267,6 +267,17 @@
 		90C6FBA31786CC6200C50AA5 /* jquant2.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C6FB7B1786CC6200C50AA5 /* jquant2.c */; };
 		90C6FBA41786CC6200C50AA5 /* jutils.c in Sources */ = {isa = PBXBuildFile; fileRef = 90C6FB7C1786CC6200C50AA5 /* jutils.c */; };
 		90C6FBA51786CC6200C50AA5 /* jversion.h in Headers */ = {isa = PBXBuildFile; fileRef = 90C6FB7D1786CC6200C50AA5 /* jversion.h */; };
+		90C9F9D21A4EC8040043194A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9D11A4EC8040043194A /* AppDelegate.m */; };
+		90C9F9D41A4EC8040043194A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9D31A4EC8040043194A /* main.m */; };
+		90C9F9D71A4EC8040043194A /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9D61A4EC8040043194A /* Document.mm */; };
+		90C9F9DD1A4EC8040043194A /* Document.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9DB1A4EC8040043194A /* Document.xcdatamodeld */; };
+		90C9F9DF1A4EC8040043194A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90C9F9DE1A4EC8040043194A /* Images.xcassets */; };
+		90C9F9E21A4EC8040043194A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 90C9F9E01A4EC8040043194A /* MainMenu.xib */; };
+		90C9F9EE1A4EC8040043194A /* PETests.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9ED1A4EC8040043194A /* PETests.m */; };
+		90C9F9FC1A4ED9370043194A /* PDFFileData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90C9F9FB1A4ED9370043194A /* PDFFileData.mm */; };
+		90C9FA011A4EDD660043194A /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
+		90C9FA051A4EFA4E0043194A /* WindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90C9FA031A4EFA4E0043194A /* WindowController.m */; };
+		90C9FA061A4EFA4E0043194A /* WindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 90C9FA041A4EFA4E0043194A /* WindowController.xib */; };
 		90CC6B261783C5150007082E /* che_platform_font.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90CC6B251783C5150007082E /* che_platform_font.mm */; };
 		90CC6B291783C5270007082E /* che_pdf_function.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CC6B271783C5270007082E /* che_pdf_function.cpp */; };
 		90CC6B2A1783C5270007082E /* che_pdf_gstate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90CC6B281783C5270007082E /* che_pdf_gstate.cpp */; };
@@ -275,42 +286,6 @@
 		90CC6B2F1783CA970007082E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C5373F17587FF20014AC65 /* Foundation.framework */; };
 		90CC6B301783D1260007082E /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
 		90D800F018E71830008455A7 /* che_pdf_extgstate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90D800EF18E71830008455A7 /* che_pdf_extgstate.cpp */; };
-		90D8011D18E7185F008455A7 /* che_pdf_cmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800F218E7185F008455A7 /* che_pdf_cmap.h */; };
-		90D8011E18E7185F008455A7 /* che_pdf_cmap_res.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800F318E7185F008455A7 /* che_pdf_cmap_res.h */; };
-		90D8011F18E7185F008455A7 /* che_pdf_collector.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800F418E7185F008455A7 /* che_pdf_collector.h */; };
-		90D8012018E7185F008455A7 /* che_pdf_colorspace.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800F518E7185F008455A7 /* che_pdf_colorspace.h */; };
-		90D8012118E7185F008455A7 /* che_pdf_component.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800F618E7185F008455A7 /* che_pdf_component.h */; };
-		90D8012218E7185F008455A7 /* che_pdf_componentmgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800F718E7185F008455A7 /* che_pdf_componentmgr.h */; };
-		90D8012318E7185F008455A7 /* che_pdf_contentbuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800F818E7185F008455A7 /* che_pdf_contentbuilder.h */; };
-		90D8012418E7185F008455A7 /* che_pdf_contentlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800F918E7185F008455A7 /* che_pdf_contentlist.h */; };
-		90D8012518E7185F008455A7 /* che_pdf_contentlistbuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800FA18E7185F008455A7 /* che_pdf_contentlistbuilder.h */; };
-		90D8012618E7185F008455A7 /* che_pdf_contentobjs.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800FB18E7185F008455A7 /* che_pdf_contentobjs.h */; };
-		90D8012718E7185F008455A7 /* che_pdf_contentresmgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800FC18E7185F008455A7 /* che_pdf_contentresmgr.h */; };
-		90D8012818E7185F008455A7 /* che_pdf_contentstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800FD18E7185F008455A7 /* che_pdf_contentstring.h */; };
-		90D8012918E7185F008455A7 /* che_pdf_creator.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800FE18E7185F008455A7 /* che_pdf_creator.h */; };
-		90D8012A18E7185F008455A7 /* che_pdf_destination.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D800FF18E7185F008455A7 /* che_pdf_destination.h */; };
-		90D8012B18E7185F008455A7 /* che_pdf_document.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010018E7185F008455A7 /* che_pdf_document.h */; };
-		90D8012C18E7185F008455A7 /* che_pdf_encrypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010118E7185F008455A7 /* che_pdf_encrypt.h */; };
-		90D8012D18E7185F008455A7 /* che_pdf_extgstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010218E7185F008455A7 /* che_pdf_extgstate.h */; };
-		90D8012E18E7185F008455A7 /* che_pdf_file.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010318E7185F008455A7 /* che_pdf_file.h */; };
-		90D8012F18E7185F008455A7 /* che_pdf_filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010418E7185F008455A7 /* che_pdf_filter.h */; };
-		90D8013018E7185F008455A7 /* che_pdf_font.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010518E7185F008455A7 /* che_pdf_font.h */; };
-		90D8013118E7185F008455A7 /* che_pdf_fontmgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010618E7185F008455A7 /* che_pdf_fontmgr.h */; };
-		90D8013218E7185F008455A7 /* che_pdf_function.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010718E7185F008455A7 /* che_pdf_function.h */; };
-		90D8013318E7185F008455A7 /* che_pdf_gstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010818E7185F008455A7 /* che_pdf_gstate.h */; };
-		90D8013418E7185F008455A7 /* che_pdf_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010918E7185F008455A7 /* che_pdf_image.h */; };
-		90D8013518E7185F008455A7 /* che_pdf_imageraster.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010A18E7185F008455A7 /* che_pdf_imageraster.h */; };
-		90D8013618E7185F008455A7 /* che_pdf_objclone.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010B18E7185F008455A7 /* che_pdf_objclone.h */; };
-		90D8013718E7185F008455A7 /* che_pdf_objects.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010C18E7185F008455A7 /* che_pdf_objects.h */; };
-		90D8013818E7185F008455A7 /* che_pdf_objectstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010D18E7185F008455A7 /* che_pdf_objectstring.h */; };
-		90D8013918E7185F008455A7 /* che_pdf_outline.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010E18E7185F008455A7 /* che_pdf_outline.h */; };
-		90D8013A18E7185F008455A7 /* che_pdf_pages.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8010F18E7185F008455A7 /* che_pdf_pages.h */; };
-		90D8013B18E7185F008455A7 /* che_pdf_parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011018E7185F008455A7 /* che_pdf_parser.h */; };
-		90D8013C18E7185F008455A7 /* che_pdf_pattern.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011118E7185F008455A7 /* che_pdf_pattern.h */; };
-		90D8013D18E7185F008455A7 /* che_pdf_renderer_macosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011218E7185F008455A7 /* che_pdf_renderer_macosx.h */; };
-		90D8013E18E7185F008455A7 /* che_pdf_renderer_windows.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011318E7185F008455A7 /* che_pdf_renderer_windows.h */; };
-		90D8013F18E7185F008455A7 /* che_pdf_xobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011418E7185F008455A7 /* che_pdf_xobject.h */; };
-		90D8014018E7185F008455A7 /* che_pdf_xref.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011518E7185F008455A7 /* che_pdf_xref.h */; };
 		90D8014118E7185F008455A7 /* che_pdf_component.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011618E7185F008455A7 /* che_pdf_component.h */; };
 		90D8014218E7185F008455A7 /* che_pdf_componentmgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011718E7185F008455A7 /* che_pdf_componentmgr.h */; };
 		90D8014318E7185F008455A7 /* che_pdf_contentlist.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011818E7185F008455A7 /* che_pdf_contentlist.h */; };
@@ -322,6 +297,20 @@
 
 /* Begin PBXContainerItemProxy section */
 		90C5376C1758A3860014AC65 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90C37C8D17534E58005D9C8A;
+			remoteInfo = chelib;
+		};
+		90C9F9E81A4EC8040043194A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90C9F9CB1A4EC8040043194A;
+			remoteInfo = PE;
+		};
+		90C9F9FE1A4EDB7A0043194A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
 			proxyType = 1;
@@ -624,48 +613,30 @@
 		90C6FB7B1786CC6200C50AA5 /* jquant2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jquant2.c; path = ../../extlib/libjpeg/jquant2.c; sourceTree = "<group>"; };
 		90C6FB7C1786CC6200C50AA5 /* jutils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jutils.c; path = ../../extlib/libjpeg/jutils.c; sourceTree = "<group>"; };
 		90C6FB7D1786CC6200C50AA5 /* jversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jversion.h; path = ../../extlib/libjpeg/jversion.h; sourceTree = "<group>"; };
+		90C9F9CC1A4EC8040043194A /* PE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PE.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		90C9F9CF1A4EC8040043194A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		90C9F9D01A4EC8040043194A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		90C9F9D11A4EC8040043194A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		90C9F9D31A4EC8040043194A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		90C9F9D51A4EC8040043194A /* Document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
+		90C9F9D61A4EC8040043194A /* Document.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Document.mm; sourceTree = "<group>"; };
+		90C9F9DC1A4EC8040043194A /* Document.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Document.xcdatamodel; sourceTree = "<group>"; };
+		90C9F9DE1A4EC8040043194A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		90C9F9E11A4EC8040043194A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		90C9F9E71A4EC8040043194A /* PETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		90C9F9EC1A4EC8040043194A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		90C9F9ED1A4EC8040043194A /* PETests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PETests.m; sourceTree = "<group>"; };
+		90C9F9FA1A4ED9370043194A /* PDFFileData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDFFileData.h; sourceTree = "<group>"; };
+		90C9F9FB1A4ED9370043194A /* PDFFileData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PDFFileData.mm; sourceTree = "<group>"; };
+		90C9FA021A4EFA4E0043194A /* WindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowController.h; sourceTree = "<group>"; };
+		90C9FA031A4EFA4E0043194A /* WindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WindowController.m; sourceTree = "<group>"; };
+		90C9FA041A4EFA4E0043194A /* WindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WindowController.xib; sourceTree = "<group>"; };
 		90CC6B251783C5150007082E /* che_platform_font.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = che_platform_font.mm; path = ../../src/pdf/platform/osx/che_platform_font.mm; sourceTree = "<group>"; };
 		90CC6B271783C5270007082E /* che_pdf_function.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_function.cpp; path = ../../src/pdf/che_pdf_function.cpp; sourceTree = "<group>"; };
 		90CC6B281783C5270007082E /* che_pdf_gstate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_gstate.cpp; path = ../../src/pdf/che_pdf_gstate.cpp; sourceTree = "<group>"; };
 		90CC6B2B1783C5450007082E /* che_pdf_function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_function.h; path = ../../include/pdf/che_pdf_function.h; sourceTree = "<group>"; };
 		90CC6B2C1783C5450007082E /* che_pdf_gstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_gstate.h; path = ../../include/pdf/che_pdf_gstate.h; sourceTree = "<group>"; };
 		90D800EF18E71830008455A7 /* che_pdf_extgstate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_extgstate.cpp; path = ../../src/pdf/che_pdf_extgstate.cpp; sourceTree = "<group>"; };
-		90D800F218E7185F008455A7 /* che_pdf_cmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_cmap.h; sourceTree = "<group>"; };
-		90D800F318E7185F008455A7 /* che_pdf_cmap_res.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_cmap_res.h; sourceTree = "<group>"; };
-		90D800F418E7185F008455A7 /* che_pdf_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_collector.h; sourceTree = "<group>"; };
-		90D800F518E7185F008455A7 /* che_pdf_colorspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_colorspace.h; sourceTree = "<group>"; };
-		90D800F618E7185F008455A7 /* che_pdf_component.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_component.h; sourceTree = "<group>"; };
-		90D800F718E7185F008455A7 /* che_pdf_componentmgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_componentmgr.h; sourceTree = "<group>"; };
-		90D800F818E7185F008455A7 /* che_pdf_contentbuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_contentbuilder.h; sourceTree = "<group>"; };
-		90D800F918E7185F008455A7 /* che_pdf_contentlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_contentlist.h; sourceTree = "<group>"; };
-		90D800FA18E7185F008455A7 /* che_pdf_contentlistbuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_contentlistbuilder.h; sourceTree = "<group>"; };
-		90D800FB18E7185F008455A7 /* che_pdf_contentobjs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_contentobjs.h; sourceTree = "<group>"; };
-		90D800FC18E7185F008455A7 /* che_pdf_contentresmgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_contentresmgr.h; sourceTree = "<group>"; };
-		90D800FD18E7185F008455A7 /* che_pdf_contentstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_contentstring.h; sourceTree = "<group>"; };
-		90D800FE18E7185F008455A7 /* che_pdf_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_creator.h; sourceTree = "<group>"; };
-		90D800FF18E7185F008455A7 /* che_pdf_destination.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_destination.h; sourceTree = "<group>"; };
-		90D8010018E7185F008455A7 /* che_pdf_document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_document.h; sourceTree = "<group>"; };
-		90D8010118E7185F008455A7 /* che_pdf_encrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_encrypt.h; sourceTree = "<group>"; };
-		90D8010218E7185F008455A7 /* che_pdf_extgstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_extgstate.h; sourceTree = "<group>"; };
-		90D8010318E7185F008455A7 /* che_pdf_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_file.h; sourceTree = "<group>"; };
-		90D8010418E7185F008455A7 /* che_pdf_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_filter.h; sourceTree = "<group>"; };
-		90D8010518E7185F008455A7 /* che_pdf_font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_font.h; sourceTree = "<group>"; };
-		90D8010618E7185F008455A7 /* che_pdf_fontmgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_fontmgr.h; sourceTree = "<group>"; };
-		90D8010718E7185F008455A7 /* che_pdf_function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_function.h; sourceTree = "<group>"; };
-		90D8010818E7185F008455A7 /* che_pdf_gstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_gstate.h; sourceTree = "<group>"; };
-		90D8010918E7185F008455A7 /* che_pdf_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_image.h; sourceTree = "<group>"; };
-		90D8010A18E7185F008455A7 /* che_pdf_imageraster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_imageraster.h; sourceTree = "<group>"; };
-		90D8010B18E7185F008455A7 /* che_pdf_objclone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_objclone.h; sourceTree = "<group>"; };
-		90D8010C18E7185F008455A7 /* che_pdf_objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_objects.h; sourceTree = "<group>"; };
-		90D8010D18E7185F008455A7 /* che_pdf_objectstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_objectstring.h; sourceTree = "<group>"; };
-		90D8010E18E7185F008455A7 /* che_pdf_outline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_outline.h; sourceTree = "<group>"; };
-		90D8010F18E7185F008455A7 /* che_pdf_pages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_pages.h; sourceTree = "<group>"; };
-		90D8011018E7185F008455A7 /* che_pdf_parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_parser.h; sourceTree = "<group>"; };
-		90D8011118E7185F008455A7 /* che_pdf_pattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_pattern.h; sourceTree = "<group>"; };
-		90D8011218E7185F008455A7 /* che_pdf_renderer_macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_renderer_macosx.h; sourceTree = "<group>"; };
-		90D8011318E7185F008455A7 /* che_pdf_renderer_windows.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_renderer_windows.h; sourceTree = "<group>"; };
-		90D8011418E7185F008455A7 /* che_pdf_xobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_xobject.h; sourceTree = "<group>"; };
-		90D8011518E7185F008455A7 /* che_pdf_xref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = che_pdf_xref.h; sourceTree = "<group>"; };
 		90D8011618E7185F008455A7 /* che_pdf_component.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_component.h; path = ../../include/pdf/che_pdf_component.h; sourceTree = "<group>"; };
 		90D8011718E7185F008455A7 /* che_pdf_componentmgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_componentmgr.h; path = ../../include/pdf/che_pdf_componentmgr.h; sourceTree = "<group>"; };
 		90D8011818E7185F008455A7 /* che_pdf_contentlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_contentlist.h; path = ../../include/pdf/che_pdf_contentlist.h; sourceTree = "<group>"; };
@@ -707,6 +678,21 @@
 				90CC6B2F1783CA970007082E /* Foundation.framework in Frameworks */,
 				90C5376B1758A37D0014AC65 /* libchelib.a in Frameworks */,
 				90C53766175887B00014AC65 /* ApplicationServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90C9F9C91A4EC8040043194A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				90C9FA011A4EDD660043194A /* libchelib.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90C9F9E41A4EC8040043194A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -820,7 +806,6 @@
 		909E1157175447C600540539 /* pdf */ = {
 			isa = PBXGroup;
 			children = (
-				90D800F118E7185F008455A7 /* pdf */,
 				90D8011618E7185F008455A7 /* che_pdf_component.h */,
 				90D8011718E7185F008455A7 /* che_pdf_componentmgr.h */,
 				90D8011818E7185F008455A7 /* che_pdf_contentlist.h */,
@@ -974,6 +959,7 @@
 		90C37C8517534E58005D9C8A = {
 			isa = PBXGroup;
 			children = (
+				90C9F9F51A4EC8170043194A /* Work */,
 				909E11EF175456A100540539 /* test */,
 				909E117C1754530B00540539 /* extlib */,
 				909E112D17543F9100540539 /* src */,
@@ -990,6 +976,8 @@
 				909E120317545BA700540539 /* pdfFileTest */,
 				90C5373817587FF10014AC65 /* pdfRenderTest.app */,
 				90C53759175881B40014AC65 /* pdfDocumentTest */,
+				90C9F9CC1A4EC8040043194A /* PE.app */,
+				90C9F9E71A4EC8040043194A /* PETests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1195,48 +1183,59 @@
 			name = libjpeg;
 			sourceTree = "<group>";
 		};
-		90D800F118E7185F008455A7 /* pdf */ = {
+		90C9F9CD1A4EC8040043194A /* PE */ = {
 			isa = PBXGroup;
 			children = (
-				90D800F218E7185F008455A7 /* che_pdf_cmap.h */,
-				90D800F318E7185F008455A7 /* che_pdf_cmap_res.h */,
-				90D800F418E7185F008455A7 /* che_pdf_collector.h */,
-				90D800F518E7185F008455A7 /* che_pdf_colorspace.h */,
-				90D800F618E7185F008455A7 /* che_pdf_component.h */,
-				90D800F718E7185F008455A7 /* che_pdf_componentmgr.h */,
-				90D800F818E7185F008455A7 /* che_pdf_contentbuilder.h */,
-				90D800F918E7185F008455A7 /* che_pdf_contentlist.h */,
-				90D800FA18E7185F008455A7 /* che_pdf_contentlistbuilder.h */,
-				90D800FB18E7185F008455A7 /* che_pdf_contentobjs.h */,
-				90D800FC18E7185F008455A7 /* che_pdf_contentresmgr.h */,
-				90D800FD18E7185F008455A7 /* che_pdf_contentstring.h */,
-				90D800FE18E7185F008455A7 /* che_pdf_creator.h */,
-				90D800FF18E7185F008455A7 /* che_pdf_destination.h */,
-				90D8010018E7185F008455A7 /* che_pdf_document.h */,
-				90D8010118E7185F008455A7 /* che_pdf_encrypt.h */,
-				90D8010218E7185F008455A7 /* che_pdf_extgstate.h */,
-				90D8010318E7185F008455A7 /* che_pdf_file.h */,
-				90D8010418E7185F008455A7 /* che_pdf_filter.h */,
-				90D8010518E7185F008455A7 /* che_pdf_font.h */,
-				90D8010618E7185F008455A7 /* che_pdf_fontmgr.h */,
-				90D8010718E7185F008455A7 /* che_pdf_function.h */,
-				90D8010818E7185F008455A7 /* che_pdf_gstate.h */,
-				90D8010918E7185F008455A7 /* che_pdf_image.h */,
-				90D8010A18E7185F008455A7 /* che_pdf_imageraster.h */,
-				90D8010B18E7185F008455A7 /* che_pdf_objclone.h */,
-				90D8010C18E7185F008455A7 /* che_pdf_objects.h */,
-				90D8010D18E7185F008455A7 /* che_pdf_objectstring.h */,
-				90D8010E18E7185F008455A7 /* che_pdf_outline.h */,
-				90D8010F18E7185F008455A7 /* che_pdf_pages.h */,
-				90D8011018E7185F008455A7 /* che_pdf_parser.h */,
-				90D8011118E7185F008455A7 /* che_pdf_pattern.h */,
-				90D8011218E7185F008455A7 /* che_pdf_renderer_macosx.h */,
-				90D8011318E7185F008455A7 /* che_pdf_renderer_windows.h */,
-				90D8011418E7185F008455A7 /* che_pdf_xobject.h */,
-				90D8011518E7185F008455A7 /* che_pdf_xref.h */,
+				90C9F9D01A4EC8040043194A /* AppDelegate.h */,
+				90C9F9D11A4EC8040043194A /* AppDelegate.m */,
+				90C9F9D51A4EC8040043194A /* Document.h */,
+				90C9F9D61A4EC8040043194A /* Document.mm */,
+				90C9F9E01A4EC8040043194A /* MainMenu.xib */,
+				90C9F9FA1A4ED9370043194A /* PDFFileData.h */,
+				90C9F9FB1A4ED9370043194A /* PDFFileData.mm */,
+				90C9FA021A4EFA4E0043194A /* WindowController.h */,
+				90C9FA031A4EFA4E0043194A /* WindowController.m */,
+				90C9FA041A4EFA4E0043194A /* WindowController.xib */,
+				90C9F9DB1A4EC8040043194A /* Document.xcdatamodeld */,
+				90C9F9DE1A4EC8040043194A /* Images.xcassets */,
+				90C9F9CE1A4EC8040043194A /* Supporting Files */,
 			);
-			name = pdf;
-			path = ../../include/pdf;
+			path = PE;
+			sourceTree = "<group>";
+		};
+		90C9F9CE1A4EC8040043194A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				90C9F9CF1A4EC8040043194A /* Info.plist */,
+				90C9F9D31A4EC8040043194A /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		90C9F9EA1A4EC8040043194A /* PETests */ = {
+			isa = PBXGroup;
+			children = (
+				90C9F9ED1A4EC8040043194A /* PETests.m */,
+				90C9F9EB1A4EC8040043194A /* Supporting Files */,
+			);
+			path = PETests;
+			sourceTree = "<group>";
+		};
+		90C9F9EB1A4EC8040043194A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				90C9F9EC1A4EC8040043194A /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		90C9F9F51A4EC8170043194A /* Work */ = {
+			isa = PBXGroup;
+			children = (
+				90C9F9CD1A4EC8040043194A /* PE */,
+				90C9F9EA1A4EC8040043194A /* PETests */,
+			);
+			name = Work;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1246,7 +1245,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90D8012F18E7185F008455A7 /* che_pdf_filter.h in Headers */,
 				909E113E1754454D00540539 /* che_base.h in Headers */,
 				909E113F1754454D00540539 /* che_bitmap.h in Headers */,
 				90D8014118E7185F008455A7 /* che_pdf_component.h in Headers */,
@@ -1255,12 +1253,8 @@
 				909E11431754454D00540539 /* che_string.h in Headers */,
 				909E114C1754468D00540539 /* che_crypt_aes.h in Headers */,
 				909E114D1754468D00540539 /* che_crypt_rc4.h in Headers */,
-				90D8013418E7185F008455A7 /* che_pdf_image.h in Headers */,
-				90D8012C18E7185F008455A7 /* che_pdf_encrypt.h in Headers */,
 				909E114F175446BB00540539 /* che_hash_md5.h in Headers */,
-				90D8013F18E7185F008455A7 /* che_pdf_xobject.h in Headers */,
 				909E1173175447F900540539 /* che_pdf_collector.h in Headers */,
-				90D8014018E7185F008455A7 /* che_pdf_xref.h in Headers */,
 				909E1174175447F900540539 /* che_pdf_creator.h in Headers */,
 				909E1175175447F900540539 /* che_pdf_encrypt.h in Headers */,
 				909E1176175447F900540539 /* che_pdf_file.h in Headers */,
@@ -1268,14 +1262,10 @@
 				909E1178175447F900540539 /* che_pdf_objects.h in Headers */,
 				909E1179175447F900540539 /* che_pdf_pages.h in Headers */,
 				909E117A175447F900540539 /* che_pdf_parser.h in Headers */,
-				90D8013818E7185F008455A7 /* che_pdf_objectstring.h in Headers */,
 				909E117B175447F900540539 /* che_pdf_xref.h in Headers */,
 				909E11961754532800540539 /* crc32.h in Headers */,
-				90D8012B18E7185F008455A7 /* che_pdf_document.h in Headers */,
 				909E11981754532800540539 /* deflate.h in Headers */,
-				90D8012718E7185F008455A7 /* che_pdf_contentresmgr.h in Headers */,
 				909E11991754532800540539 /* gzguts.h in Headers */,
-				90D8011E18E7185F008455A7 /* che_pdf_cmap_res.h in Headers */,
 				909E119B1754532800540539 /* inffast.h in Headers */,
 				909E119C1754532800540539 /* inffixed.h in Headers */,
 				909E119E1754532800540539 /* inflate.h in Headers */,
@@ -1284,11 +1274,7 @@
 				909E11A41754532800540539 /* zconf.h in Headers */,
 				909E11A51754532800540539 /* zlib.h in Headers */,
 				909E11A71754532800540539 /* zutil.h in Headers */,
-				90D8013C18E7185F008455A7 /* che_pdf_pattern.h in Headers */,
 				90A01AE51754EC43009DCBD9 /* che_pdf_cmap_res.h in Headers */,
-				90D8012D18E7185F008455A7 /* che_pdf_extgstate.h in Headers */,
-				90D8013318E7185F008455A7 /* che_pdf_gstate.h in Headers */,
-				90D8013618E7185F008455A7 /* che_pdf_objclone.h in Headers */,
 				90A01AE61754EC43009DCBD9 /* che_pdf_cmap.h in Headers */,
 				90A01AE71754EC43009DCBD9 /* che_pdf_colorspace.h in Headers */,
 				90A01AE81754EC43009DCBD9 /* che_pdf_contentbuilder.h in Headers */,
@@ -1296,66 +1282,47 @@
 				90A01AEA1754EC43009DCBD9 /* che_pdf_contentresmgr.h in Headers */,
 				90A01AEC1754EC43009DCBD9 /* che_pdf_contentstring.h in Headers */,
 				90A01AED1754EC43009DCBD9 /* che_pdf_destination.h in Headers */,
-				90D8013A18E7185F008455A7 /* che_pdf_pages.h in Headers */,
 				90A01AEE1754EC43009DCBD9 /* che_pdf_document.h in Headers */,
 				90A01AEF1754EC43009DCBD9 /* che_pdf_font.h in Headers */,
 				90A01AF01754EC43009DCBD9 /* che_pdf_fontmgr.h in Headers */,
-				90D8012A18E7185F008455A7 /* che_pdf_destination.h in Headers */,
-				90D8012618E7185F008455A7 /* che_pdf_contentobjs.h in Headers */,
 				90A01AF31754EC43009DCBD9 /* che_pdf_image.h in Headers */,
 				90D8014218E7185F008455A7 /* che_pdf_componentmgr.h in Headers */,
 				90A01AF41754EC43009DCBD9 /* che_pdf_objclone.h in Headers */,
 				90A01AF51754EC43009DCBD9 /* che_pdf_objectstring.h in Headers */,
 				90A01AF61754EC43009DCBD9 /* che_pdf_outline.h in Headers */,
 				90D8014418E7185F008455A7 /* che_pdf_contentlistbuilder.h in Headers */,
-				90D8013E18E7185F008455A7 /* che_pdf_renderer_windows.h in Headers */,
 				909D97B7175745F70030BD7E /* che_drawer_macosx.h in Headers */,
 				90C5370617587CEF0014AC65 /* che_pdf_renderer_macosx.h in Headers */,
 				90CC6B2D1783C5450007082E /* che_pdf_function.h in Headers */,
 				90CC6B2E1783C5450007082E /* che_pdf_gstate.h in Headers */,
 				90C6FAE717866CC500C50AA5 /* bio.h in Headers */,
-				90D8013518E7185F008455A7 /* che_pdf_imageraster.h in Headers */,
-				90D8013018E7185F008455A7 /* che_pdf_font.h in Headers */,
 				90D8014618E7185F008455A7 /* che_pdf_pattern.h in Headers */,
 				90C6FAE917866CC500C50AA5 /* cidx_manager.h in Headers */,
 				90C6FAEB17866CC500C50AA5 /* cio.h in Headers */,
-				90D8012818E7185F008455A7 /* che_pdf_contentstring.h in Headers */,
-				90D8012118E7185F008455A7 /* che_pdf_component.h in Headers */,
 				90C6FAED17866CC500C50AA5 /* dwt.h in Headers */,
-				90D8012E18E7185F008455A7 /* che_pdf_file.h in Headers */,
 				90C6FAEF17866CC500C50AA5 /* event.h in Headers */,
 				90C6FAF017866CC500C50AA5 /* fix.h in Headers */,
 				90C6FAF217866CC500C50AA5 /* image.h in Headers */,
-				90D8013718E7185F008455A7 /* che_pdf_objects.h in Headers */,
 				90D8014718E7185F008455A7 /* che_pdf_xobject.h in Headers */,
 				90C6FAF317866CC500C50AA5 /* indexbox_manager.h in Headers */,
 				90C6FAF417866CC500C50AA5 /* int.h in Headers */,
 				90C6FAF617866CC500C50AA5 /* j2k_lib.h in Headers */,
 				90C6FAF817866CC500C50AA5 /* j2k.h in Headers */,
 				90C6FAFA17866CC500C50AA5 /* jp2.h in Headers */,
-				90D8013218E7185F008455A7 /* che_pdf_function.h in Headers */,
 				906CBF52193C5CB200589EAF /* CHEPDFView.h in Headers */,
-				90D8013918E7185F008455A7 /* che_pdf_outline.h in Headers */,
 				90C6FAFC17866CC500C50AA5 /* jpt.h in Headers */,
 				90C6FAFE17866CC500C50AA5 /* mct.h in Headers */,
 				90C6FB0017866CC500C50AA5 /* mqc.h in Headers */,
-				90D8011F18E7185F008455A7 /* che_pdf_collector.h in Headers */,
-				90D8013118E7185F008455A7 /* che_pdf_fontmgr.h in Headers */,
-				90D8012318E7185F008455A7 /* che_pdf_contentbuilder.h in Headers */,
 				90C6FB0117866CC500C50AA5 /* openjpeg.h in Headers */,
-				90D8012518E7185F008455A7 /* che_pdf_contentlistbuilder.h in Headers */,
-				90D8012218E7185F008455A7 /* che_pdf_componentmgr.h in Headers */,
 				90C6FB0217866CC500C50AA5 /* opj_includes.h in Headers */,
 				90C6FB0317866CC500C50AA5 /* opj_malloc.h in Headers */,
 				90C6FB0617866CC500C50AA5 /* pi.h in Headers */,
 				90C6FB0917866CC500C50AA5 /* raw.h in Headers */,
 				90C6FB0A17866CC500C50AA5 /* t1_luts.h in Headers */,
 				90C6FB0C17866CC500C50AA5 /* t1.h in Headers */,
-				90D8012918E7185F008455A7 /* che_pdf_creator.h in Headers */,
 				90C6FB0E17866CC500C50AA5 /* t2.h in Headers */,
 				90C6FB1017866CC500C50AA5 /* tcd.h in Headers */,
 				90D8014518E7185F008455A7 /* che_pdf_extgstate.h in Headers */,
-				90D8013D18E7185F008455A7 /* che_pdf_renderer_macosx.h in Headers */,
 				90C6FB1217866CC500C50AA5 /* tgt.h in Headers */,
 				90C6FB3417866CD200C50AA5 /* config_win32.h in Headers */,
 				90C6FB3617866CD200C50AA5 /* jbig2_arith_iaid.h in Headers */,
@@ -1368,16 +1335,13 @@
 				90C6FB4317866CD200C50AA5 /* jbig2_image.h in Headers */,
 				90C6FB4517866CD200C50AA5 /* jbig2_metadata.h in Headers */,
 				90C6FB4717866CD200C50AA5 /* jbig2_mmr.h in Headers */,
-				90D8012018E7185F008455A7 /* che_pdf_colorspace.h in Headers */,
 				90C6FB4917866CD200C50AA5 /* jbig2_priv.h in Headers */,
 				90C6FB4D17866CD200C50AA5 /* jbig2_symbol_dict.h in Headers */,
 				90C6FB4F17866CD200C50AA5 /* jbig2_text.h in Headers */,
 				90C6FB5117866CD200C50AA5 /* jbig2.h in Headers */,
 				906CBF56193C5D5600589EAF /* CHEPDFMainView.h in Headers */,
 				90C6FB5317866CD200C50AA5 /* memento.h in Headers */,
-				90D8011D18E7185F008455A7 /* che_pdf_cmap.h in Headers */,
 				90C6FB5417866CD200C50AA5 /* os_types.h in Headers */,
-				90D8013B18E7185F008455A7 /* che_pdf_parser.h in Headers */,
 				90C6FB801786CC6200C50AA5 /* jconfig.h in Headers */,
 				90D8014318E7185F008455A7 /* che_pdf_contentlist.h in Headers */,
 				90C6FB881786CC6200C50AA5 /* jdct.h in Headers */,
@@ -1386,7 +1350,6 @@
 				90C6FB9E1786CC6200C50AA5 /* jmemsys.h in Headers */,
 				90C6FB9F1786CC6200C50AA5 /* jmorecfg.h in Headers */,
 				90C6FBA01786CC6200C50AA5 /* jpegint.h in Headers */,
-				90D8012418E7185F008455A7 /* che_pdf_contentlist.h in Headers */,
 				90C6FBA11786CC6200C50AA5 /* jpeglib.h in Headers */,
 				90C6FBA51786CC6200C50AA5 /* jversion.h in Headers */,
 			);
@@ -1464,6 +1427,42 @@
 			productReference = 90C53759175881B40014AC65 /* pdfDocumentTest */;
 			productType = "com.apple.product-type.tool";
 		};
+		90C9F9CB1A4EC8040043194A /* PE */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 90C9F9F31A4EC8040043194A /* Build configuration list for PBXNativeTarget "PE" */;
+			buildPhases = (
+				90C9F9C81A4EC8040043194A /* Sources */,
+				90C9F9C91A4EC8040043194A /* Frameworks */,
+				90C9F9CA1A4EC8040043194A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PE;
+			productName = PE;
+			productReference = 90C9F9CC1A4EC8040043194A /* PE.app */;
+			productType = "com.apple.product-type.application";
+		};
+		90C9F9E61A4EC8040043194A /* PETests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 90C9F9F41A4EC8040043194A /* Build configuration list for PBXNativeTarget "PETests" */;
+			buildPhases = (
+				90C9F9E31A4EC8040043194A /* Sources */,
+				90C9F9E41A4EC8040043194A /* Frameworks */,
+				90C9F9E51A4EC8040043194A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				90C9F9FF1A4EDB7A0043194A /* PBXTargetDependency */,
+				90C9F9E91A4EC8040043194A /* PBXTargetDependency */,
+			);
+			name = PETests;
+			productName = PETests;
+			productReference = 90C9F9E71A4EC8040043194A /* PETests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1472,6 +1471,15 @@
 			attributes = {
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = com.peroit;
+				TargetAttributes = {
+					90C9F9CB1A4EC8040043194A = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					90C9F9E61A4EC8040043194A = {
+						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = 90C9F9CB1A4EC8040043194A;
+					};
+				};
 			};
 			buildConfigurationList = 90C37C8917534E58005D9C8A /* Build configuration list for PBXProject "chelib" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1479,6 +1487,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 90C37C8517534E58005D9C8A;
 			productRefGroup = 90C37C8F17534E58005D9C8A /* Products */;
@@ -1489,6 +1498,8 @@
 				909E120217545BA700540539 /* pdfFileTest */,
 				90C5373717587FF10014AC65 /* pdfRenderTest */,
 				90C53758175881B40014AC65 /* pdfDocumentTest */,
+				90C9F9CB1A4EC8040043194A /* PE */,
+				90C9F9E61A4EC8040043194A /* PETests */,
 			);
 		};
 /* End PBXProject section */
@@ -1501,6 +1512,23 @@
 				90C5374517587FF20014AC65 /* InfoPlist.strings in Resources */,
 				90C5374B17587FF20014AC65 /* Credits.rtf in Resources */,
 				90C5375117587FF20014AC65 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90C9F9CA1A4EC8040043194A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				90C9FA061A4EFA4E0043194A /* WindowController.xib in Resources */,
+				90C9F9DF1A4EC8040043194A /* Images.xcassets in Resources */,
+				90C9F9E21A4EC8040043194A /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90C9F9E51A4EC8040043194A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1692,6 +1720,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		90C9F9C81A4EC8040043194A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				90C9F9DD1A4EC8040043194A /* Document.xcdatamodeld in Sources */,
+				90C9FA051A4EFA4E0043194A /* WindowController.m in Sources */,
+				90C9F9D71A4EC8040043194A /* Document.mm in Sources */,
+				90C9F9FC1A4ED9370043194A /* PDFFileData.mm in Sources */,
+				90C9F9D41A4EC8040043194A /* main.m in Sources */,
+				90C9F9D21A4EC8040043194A /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90C9F9E31A4EC8040043194A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				90C9F9EE1A4EC8040043194A /* PETests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1699,6 +1748,16 @@
 			isa = PBXTargetDependency;
 			target = 90C37C8D17534E58005D9C8A /* chelib */;
 			targetProxy = 90C5376C1758A3860014AC65 /* PBXContainerItemProxy */;
+		};
+		90C9F9E91A4EC8040043194A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90C9F9CB1A4EC8040043194A /* PE */;
+			targetProxy = 90C9F9E81A4EC8040043194A /* PBXContainerItemProxy */;
+		};
+		90C9F9FF1A4EDB7A0043194A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90C37C8D17534E58005D9C8A /* chelib */;
+			targetProxy = 90C9F9FE1A4EDB7A0043194A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1723,6 +1782,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				90C5375017587FF20014AC65 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		90C9F9E01A4EC8040043194A /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				90C9F9E11A4EC8040043194A /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -1901,6 +1968,128 @@
 			};
 			name = Release;
 		};
+		90C9F9EF1A4EC8040043194A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PE/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		90C9F9F01A4EC8040043194A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PE/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		90C9F9F11A4EC8040043194A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PETests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PE.app/Contents/MacOS/PE";
+			};
+			name = Debug;
+		};
+		90C9F9F21A4EC8040043194A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PETests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PE.app/Contents/MacOS/PE";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1949,7 +2138,38 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		90C9F9F31A4EC8040043194A /* Build configuration list for PBXNativeTarget "PE" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90C9F9EF1A4EC8040043194A /* Debug */,
+				90C9F9F01A4EC8040043194A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		90C9F9F41A4EC8040043194A /* Build configuration list for PBXNativeTarget "PETests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90C9F9F11A4EC8040043194A /* Debug */,
+				90C9F9F21A4EC8040043194A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		90C9F9DB1A4EC8040043194A /* Document.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				90C9F9DC1A4EC8040043194A /* Document.xcdatamodel */,
+			);
+			currentVersion = 90C9F9DC1A4EC8040043194A /* Document.xcdatamodel */;
+			path = Document.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 90C37C8617534E58005D9C8A /* Project object */;
 }

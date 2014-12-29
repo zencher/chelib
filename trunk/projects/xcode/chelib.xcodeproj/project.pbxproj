@@ -285,6 +285,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		90332EF91A51B30A00629EB5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90332EF41A51B30900629EB5 /* PE.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 90332EC81A51B30800629EB5;
+			remoteInfo = PE;
+		};
+		90332EFB1A51B30A00629EB5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90332EF41A51B30900629EB5 /* PE.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 90332EE41A51B30900629EB5;
+			remoteInfo = PETests;
+		};
 		90C5376C1758A3860014AC65 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
@@ -318,6 +332,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		90332EF41A51B30900629EB5 /* PE.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PE.xcodeproj; path = PE/PE.xcodeproj; sourceTree = "<group>"; };
 		90500C9218BF8E330025BB8D /* che_pdf_component.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_component.cpp; path = ../../src/pdf/che_pdf_component.cpp; sourceTree = "<group>"; };
 		90500C9318BF8E330025BB8D /* che_pdf_componentmgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_componentmgr.cpp; path = ../../src/pdf/che_pdf_componentmgr.cpp; sourceTree = "<group>"; };
 		90500C9418BF8E330025BB8D /* che_pdf_contentlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_contentlist.cpp; path = ../../src/pdf/che_pdf_contentlist.cpp; sourceTree = "<group>"; };
@@ -641,6 +656,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		90332EBE1A51B2F100629EB5 /* work */ = {
+			isa = PBXGroup;
+			children = (
+				90332EF41A51B30900629EB5 /* PE.xcodeproj */,
+			);
+			name = work;
+			sourceTree = "<group>";
+		};
+		90332EF51A51B30900629EB5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				90332EFA1A51B30A00629EB5 /* PE.app */,
+				90332EFC1A51B30A00629EB5 /* PETests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		909E112C17543F8B00540539 /* include */ = {
 			isa = PBXGroup;
 			children = (
@@ -901,7 +933,7 @@
 		90C37C8517534E58005D9C8A = {
 			isa = PBXGroup;
 			children = (
-				90C9F9F51A4EC8170043194A /* work */,
+				90332EBE1A51B2F100629EB5 /* work */,
 				909E11EF175456A100540539 /* test */,
 				909E117C1754530B00540539 /* extlib */,
 				909E112D17543F9100540539 /* src */,
@@ -1123,13 +1155,6 @@
 			name = libjpeg;
 			sourceTree = "<group>";
 		};
-		90C9F9F51A4EC8170043194A /* work */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = work;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1339,6 +1364,12 @@
 			mainGroup = 90C37C8517534E58005D9C8A;
 			productRefGroup = 90C37C8F17534E58005D9C8A /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 90332EF51A51B30900629EB5 /* Products */;
+					ProjectRef = 90332EF41A51B30900629EB5 /* PE.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				90C37C8D17534E58005D9C8A /* chelib */,
@@ -1348,6 +1379,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		90332EFA1A51B30A00629EB5 /* PE.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = PE.app;
+			remoteRef = 90332EF91A51B30A00629EB5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		90332EFC1A51B30A00629EB5 /* PETests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = PETests.xctest;
+			remoteRef = 90332EFB1A51B30A00629EB5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		90C5373617587FF10014AC65 /* Resources */ = {

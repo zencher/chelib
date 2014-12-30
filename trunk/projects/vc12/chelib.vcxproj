@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h" />
     <ClInclude Include="..\..\include\che_bitmap.h" />
+    <ClInclude Include="..\..\include\che_datastructure.h" />
     <ClInclude Include="..\..\include\che_define.h" />
     <ClInclude Include="..\..\include\che_drawer_windows.h" />
     <ClInclude Include="..\..\include\che_graphics.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_colorspace.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_component.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_componentmgr.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentlist.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentlistbuilder.h" />
@@ -48,12 +50,17 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_function.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_image.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_imageraster.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_namedict.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_nametree.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_numbertree.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_outline.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_pages.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_pattern.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer_windows.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_xobject.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm.h" />
     <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h" />
@@ -176,6 +183,7 @@
     <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp" />
     <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp" />
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_action.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_component.cpp" />
@@ -197,7 +205,9 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_namedict.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_nametree.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_numbertree.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
@@ -220,23 +230,27 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -255,16 +269,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>../../build/debug/win32_vc10</OutDir>
+    <OutDir>../../build/debug/win32_vc12</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>../../build/debug/win32_vc10_x64</OutDir>
+    <OutDir>../../build/debug/win32_vc12_x64</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>../../build/release/win32_vc10</OutDir>
+    <OutDir>../../build/release/win32_vc12</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>../../build/release/win32_vc10_x64</OutDir>
+    <OutDir>../../build/release/win32_vc12_x64</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

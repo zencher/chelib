@@ -5901,7 +5901,7 @@ HE_BOOL HE_GetCodeFromName( CHE_ByteString & name, HE_BYTE encoding, HE_BYTE & r
 	return FALSE;
 }
 
-HE_ULONG HE_HexStrToValue( CHE_ByteString & str )
+HE_ULONG HE_HexStrToValue(const CHE_ByteString & str)
 {
 	HE_ULONG valRet = 0;
 	HE_BYTE tmpByte = 0;

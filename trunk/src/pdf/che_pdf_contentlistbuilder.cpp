@@ -1683,7 +1683,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_cs()
 		CHE_PDF_ColorSpacePtr colorspacePtr = CHE_PDF_ColorSpace::Create( mName, GetAllocator() );
 		if ( ! colorspacePtr )
 		{
-			CHE_PDF_ComponentPtr cmptPtr = mpContentResMgr->GetComponent( mName, CONTENTRES_COLORSPACE );
+			CHE_PDF_ComponentPtr cmptPtr = mpContentResMgr->GetComponent( mName, COMPONENT_TYPE_ColorSpace );
 			if ( cmptPtr )
 			{
 				mpConstructor->State_FillColorSpace( CHE_PDF_ColorSpace::Convert( cmptPtr ) );
@@ -1809,7 +1809,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_gs()
 {
 	if ( mName.GetLength() > 0 )
 	{
-		CHE_PDF_ComponentPtr cmptPtr = mpContentResMgr->GetComponent( mName, CONTENTRES_EXTGSTATE );
+		CHE_PDF_ComponentPtr cmptPtr = mpContentResMgr->GetComponent( mName, COMPONENT_TYPE_ColorSpace );
 		if ( cmptPtr )
 		{
 			mpConstructor->State_ExtGState( mName, CHE_PDF_ExtGState::Convert( cmptPtr ) );

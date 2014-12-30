@@ -13,11 +13,11 @@ public:
 
 	~CHE_PDF_NameDict();
 
-	HE_VOID Parse(CHE_PDF_DictionaryPtr & dict);
+	HE_VOID Parse(const CHE_PDF_DictionaryPtr & dict);
 
-	CHE_PDF_ObjectPtr GetDest(CHE_ByteString & name);
+	CHE_PDF_ObjectPtr GetDest(const CHE_ByteString & name);
 
-	CHE_PDF_ObjectPtr GetJavaScript(CHE_ByteString & name);
+	CHE_PDF_ObjectPtr GetJavaScript(const CHE_ByteString & name);
 
 	//todo
 

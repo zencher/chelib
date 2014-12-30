@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		90332F1A1A52C97F00629EB5 /* che_pdf_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F171A52C97F00629EB5 /* che_pdf_action.cpp */; };
+		90332F1B1A52C97F00629EB5 /* che_pdf_namedict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F181A52C97F00629EB5 /* che_pdf_namedict.cpp */; };
+		90332F1C1A52C97F00629EB5 /* che_pdf_numbertree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F191A52C97F00629EB5 /* che_pdf_numbertree.cpp */; };
+		90332F2F1A52D0B600629EB5 /* che_pdf_action.h in Headers */ = {isa = PBXBuildFile; fileRef = 90332F2A1A52D0B600629EB5 /* che_pdf_action.h */; };
+		90332F311A52D0B600629EB5 /* che_pdf_namedict.h in Headers */ = {isa = PBXBuildFile; fileRef = 90332F2C1A52D0B600629EB5 /* che_pdf_namedict.h */; };
+		90332F321A52D0B600629EB5 /* che_pdf_nametree.h in Headers */ = {isa = PBXBuildFile; fileRef = 90332F2D1A52D0B600629EB5 /* che_pdf_nametree.h */; };
+		90332F331A52D0B600629EB5 /* che_pdf_numbertree.h in Headers */ = {isa = PBXBuildFile; fileRef = 90332F2E1A52D0B600629EB5 /* che_pdf_numbertree.h */; };
+		90332F351A52D52A00629EB5 /* che_pdf_pagelabels.h in Headers */ = {isa = PBXBuildFile; fileRef = 90332F341A52D52A00629EB5 /* che_pdf_pagelabels.h */; };
+		90332F371A52D55C00629EB5 /* che_pdf_pagelabels.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F361A52D55C00629EB5 /* che_pdf_pagelabels.cpp */; };
 		90500C9618BF8E330025BB8D /* che_pdf_component.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90500C9218BF8E330025BB8D /* che_pdf_component.cpp */; };
 		90500C9718BF8E330025BB8D /* che_pdf_componentmgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90500C9318BF8E330025BB8D /* che_pdf_componentmgr.cpp */; };
 		90500C9818BF8E330025BB8D /* che_pdf_contentlist.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90500C9418BF8E330025BB8D /* che_pdf_contentlist.cpp */; };
@@ -39,7 +48,6 @@
 		909E1152175446CD00540539 /* che_crypt_aes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1150175446CD00540539 /* che_crypt_aes.cpp */; };
 		909E1153175446CD00540539 /* che_crypt_rc4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1151175446CD00540539 /* che_crypt_rc4.cpp */; };
 		909E1155175446DE00540539 /* che_hash_md5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1154175446DE00540539 /* che_hash_md5.cpp */; };
-		909E1162175447D700540539 /* che_pdf_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1159175447D700540539 /* che_pdf_creator.cpp */; };
 		909E1163175447D700540539 /* che_pdf_encrypt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115A175447D700540539 /* che_pdf_encrypt.cpp */; };
 		909E1164175447D700540539 /* che_pdf_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115B175447D700540539 /* che_pdf_file.cpp */; };
 		909E1165175447D700540539 /* che_pdf_filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115C175447D700540539 /* che_pdf_filter.cpp */; };
@@ -48,7 +56,6 @@
 		909E1168175447D700540539 /* che_pdf_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E115F175447D700540539 /* che_pdf_parser.cpp */; };
 		909E1169175447D700540539 /* che_pdf_xref.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 909E1160175447D700540539 /* che_pdf_xref.cpp */; };
 		909E1173175447F900540539 /* che_pdf_collector.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116A175447F900540539 /* che_pdf_collector.h */; };
-		909E1174175447F900540539 /* che_pdf_creator.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116B175447F900540539 /* che_pdf_creator.h */; };
 		909E1175175447F900540539 /* che_pdf_encrypt.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116C175447F900540539 /* che_pdf_encrypt.h */; };
 		909E1176175447F900540539 /* che_pdf_file.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116D175447F900540539 /* che_pdf_file.h */; };
 		909E1177175447F900540539 /* che_pdf_filter.h in Headers */ = {isa = PBXBuildFile; fileRef = 909E116E175447F900540539 /* che_pdf_filter.h */; };
@@ -121,9 +128,6 @@
 		90A01AEE1754EC43009DCBD9 /* che_pdf_document.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD81754EC43009DCBD9 /* che_pdf_document.h */; };
 		90A01AEF1754EC43009DCBD9 /* che_pdf_font.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD91754EC43009DCBD9 /* che_pdf_font.h */; };
 		90A01AF01754EC43009DCBD9 /* che_pdf_fontmgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADA1754EC43009DCBD9 /* che_pdf_fontmgr.h */; };
-		90A01AF31754EC43009DCBD9 /* che_pdf_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADD1754EC43009DCBD9 /* che_pdf_image.h */; };
-		90A01AF41754EC43009DCBD9 /* che_pdf_objclone.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADE1754EC43009DCBD9 /* che_pdf_objclone.h */; };
-		90A01AF51754EC43009DCBD9 /* che_pdf_objectstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01ADF1754EC43009DCBD9 /* che_pdf_objectstring.h */; };
 		90A01AF61754EC43009DCBD9 /* che_pdf_outline.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AE01754EC43009DCBD9 /* che_pdf_outline.h */; };
 		90A01B0A1754EC65009DCBD9 /* che_pdf_cmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AF71754EC65009DCBD9 /* che_pdf_cmap.cpp */; };
 		90A01B0B1754EC65009DCBD9 /* che_pdf_colorspace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AF81754EC65009DCBD9 /* che_pdf_colorspace.cpp */; };
@@ -134,8 +138,6 @@
 		90A01B131754EC65009DCBD9 /* che_pdf_font_type1base14.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B001754EC65009DCBD9 /* che_pdf_font_type1base14.cpp */; };
 		90A01B141754EC65009DCBD9 /* che_pdf_font.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B011754EC65009DCBD9 /* che_pdf_font.cpp */; };
 		90A01B151754EC65009DCBD9 /* che_pdf_fontmgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B021754EC65009DCBD9 /* che_pdf_fontmgr.cpp */; };
-		90A01B181754EC65009DCBD9 /* che_pdf_image.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B051754EC65009DCBD9 /* che_pdf_image.cpp */; };
-		90A01B1B1754EC65009DCBD9 /* che_pdf_objectstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B081754EC65009DCBD9 /* che_pdf_objectstring.cpp */; };
 		90A01B1C1754EC65009DCBD9 /* che_pdf_outline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01B091754EC65009DCBD9 /* che_pdf_outline.cpp */; };
 		90C5370617587CEF0014AC65 /* che_pdf_renderer_macosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 90C5370517587CEF0014AC65 /* che_pdf_renderer_macosx.h */; };
 		90C5370817587D450014AC65 /* che_pdf_renderer_macosx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90C5370717587D450014AC65 /* che_pdf_renderer_macosx.cpp */; };
@@ -333,6 +335,15 @@
 
 /* Begin PBXFileReference section */
 		90332EF41A51B30900629EB5 /* PE.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PE.xcodeproj; path = PE/PE.xcodeproj; sourceTree = "<group>"; };
+		90332F171A52C97F00629EB5 /* che_pdf_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_action.cpp; path = ../../src/pdf/che_pdf_action.cpp; sourceTree = "<group>"; };
+		90332F181A52C97F00629EB5 /* che_pdf_namedict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_namedict.cpp; path = ../../src/pdf/che_pdf_namedict.cpp; sourceTree = "<group>"; };
+		90332F191A52C97F00629EB5 /* che_pdf_numbertree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_numbertree.cpp; path = ../../src/pdf/che_pdf_numbertree.cpp; sourceTree = "<group>"; };
+		90332F2A1A52D0B600629EB5 /* che_pdf_action.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_action.h; path = ../../include/pdf/che_pdf_action.h; sourceTree = "<group>"; };
+		90332F2C1A52D0B600629EB5 /* che_pdf_namedict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_namedict.h; path = ../../include/pdf/che_pdf_namedict.h; sourceTree = "<group>"; };
+		90332F2D1A52D0B600629EB5 /* che_pdf_nametree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_nametree.h; path = ../../include/pdf/che_pdf_nametree.h; sourceTree = "<group>"; };
+		90332F2E1A52D0B600629EB5 /* che_pdf_numbertree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_numbertree.h; path = ../../include/pdf/che_pdf_numbertree.h; sourceTree = "<group>"; };
+		90332F341A52D52A00629EB5 /* che_pdf_pagelabels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_pagelabels.h; path = ../../include/pdf/che_pdf_pagelabels.h; sourceTree = "<group>"; };
+		90332F361A52D55C00629EB5 /* che_pdf_pagelabels.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_pagelabels.cpp; path = ../../src/pdf/che_pdf_pagelabels.cpp; sourceTree = "<group>"; };
 		90500C9218BF8E330025BB8D /* che_pdf_component.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_component.cpp; path = ../../src/pdf/che_pdf_component.cpp; sourceTree = "<group>"; };
 		90500C9318BF8E330025BB8D /* che_pdf_componentmgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_componentmgr.cpp; path = ../../src/pdf/che_pdf_componentmgr.cpp; sourceTree = "<group>"; };
 		90500C9418BF8E330025BB8D /* che_pdf_contentlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_contentlist.cpp; path = ../../src/pdf/che_pdf_contentlist.cpp; sourceTree = "<group>"; };
@@ -366,7 +377,6 @@
 		909E1150175446CD00540539 /* che_crypt_aes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_crypt_aes.cpp; path = ../../src/crypt/che_crypt_aes.cpp; sourceTree = "<group>"; };
 		909E1151175446CD00540539 /* che_crypt_rc4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_crypt_rc4.cpp; path = ../../src/crypt/che_crypt_rc4.cpp; sourceTree = "<group>"; };
 		909E1154175446DE00540539 /* che_hash_md5.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_hash_md5.cpp; path = ../../src/hash/che_hash_md5.cpp; sourceTree = "<group>"; };
-		909E1159175447D700540539 /* che_pdf_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_creator.cpp; path = ../../src/pdf/che_pdf_creator.cpp; sourceTree = "<group>"; };
 		909E115A175447D700540539 /* che_pdf_encrypt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_encrypt.cpp; path = ../../src/pdf/che_pdf_encrypt.cpp; sourceTree = "<group>"; };
 		909E115B175447D700540539 /* che_pdf_file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_file.cpp; path = ../../src/pdf/che_pdf_file.cpp; sourceTree = "<group>"; };
 		909E115C175447D700540539 /* che_pdf_filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_filter.cpp; path = ../../src/pdf/che_pdf_filter.cpp; sourceTree = "<group>"; };
@@ -375,7 +385,6 @@
 		909E115F175447D700540539 /* che_pdf_parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_parser.cpp; path = ../../src/pdf/che_pdf_parser.cpp; sourceTree = "<group>"; };
 		909E1160175447D700540539 /* che_pdf_xref.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_xref.cpp; path = ../../src/pdf/che_pdf_xref.cpp; sourceTree = "<group>"; };
 		909E116A175447F900540539 /* che_pdf_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_collector.h; path = ../../include/pdf/che_pdf_collector.h; sourceTree = "<group>"; };
-		909E116B175447F900540539 /* che_pdf_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_creator.h; path = ../../include/pdf/che_pdf_creator.h; sourceTree = "<group>"; };
 		909E116C175447F900540539 /* che_pdf_encrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_encrypt.h; path = ../../include/pdf/che_pdf_encrypt.h; sourceTree = "<group>"; };
 		909E116D175447F900540539 /* che_pdf_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_file.h; path = ../../include/pdf/che_pdf_file.h; sourceTree = "<group>"; };
 		909E116E175447F900540539 /* che_pdf_filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_filter.h; path = ../../include/pdf/che_pdf_filter.h; sourceTree = "<group>"; };
@@ -448,9 +457,6 @@
 		90A01AD81754EC43009DCBD9 /* che_pdf_document.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_document.h; path = ../../include/pdf/che_pdf_document.h; sourceTree = "<group>"; };
 		90A01AD91754EC43009DCBD9 /* che_pdf_font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_font.h; path = ../../include/pdf/che_pdf_font.h; sourceTree = "<group>"; };
 		90A01ADA1754EC43009DCBD9 /* che_pdf_fontmgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_fontmgr.h; path = ../../include/pdf/che_pdf_fontmgr.h; sourceTree = "<group>"; };
-		90A01ADD1754EC43009DCBD9 /* che_pdf_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_image.h; path = ../../include/pdf/che_pdf_image.h; sourceTree = "<group>"; };
-		90A01ADE1754EC43009DCBD9 /* che_pdf_objclone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_objclone.h; path = ../../include/pdf/che_pdf_objclone.h; sourceTree = "<group>"; };
-		90A01ADF1754EC43009DCBD9 /* che_pdf_objectstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_objectstring.h; path = ../../include/pdf/che_pdf_objectstring.h; sourceTree = "<group>"; };
 		90A01AE01754EC43009DCBD9 /* che_pdf_outline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_outline.h; path = ../../include/pdf/che_pdf_outline.h; sourceTree = "<group>"; };
 		90A01AF71754EC65009DCBD9 /* che_pdf_cmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_cmap.cpp; path = ../../src/pdf/che_pdf_cmap.cpp; sourceTree = "<group>"; };
 		90A01AF81754EC65009DCBD9 /* che_pdf_colorspace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_colorspace.cpp; path = ../../src/pdf/che_pdf_colorspace.cpp; sourceTree = "<group>"; };
@@ -461,8 +467,6 @@
 		90A01B001754EC65009DCBD9 /* che_pdf_font_type1base14.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_font_type1base14.cpp; path = ../../src/pdf/che_pdf_font_type1base14.cpp; sourceTree = "<group>"; };
 		90A01B011754EC65009DCBD9 /* che_pdf_font.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_font.cpp; path = ../../src/pdf/che_pdf_font.cpp; sourceTree = "<group>"; };
 		90A01B021754EC65009DCBD9 /* che_pdf_fontmgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_fontmgr.cpp; path = ../../src/pdf/che_pdf_fontmgr.cpp; sourceTree = "<group>"; };
-		90A01B051754EC65009DCBD9 /* che_pdf_image.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_image.cpp; path = ../../src/pdf/che_pdf_image.cpp; sourceTree = "<group>"; };
-		90A01B081754EC65009DCBD9 /* che_pdf_objectstring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_objectstring.cpp; path = ../../src/pdf/che_pdf_objectstring.cpp; sourceTree = "<group>"; };
 		90A01B091754EC65009DCBD9 /* che_pdf_outline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_outline.cpp; path = ../../src/pdf/che_pdf_outline.cpp; sourceTree = "<group>"; };
 		90C37C8E17534E58005D9C8A /* libchelib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libchelib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		90C5370517587CEF0014AC65 /* che_pdf_renderer_macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_renderer_macosx.h; path = ../../include/pdf/che_pdf_renderer_macosx.h; sourceTree = "<group>"; };
@@ -673,6 +677,114 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		90332F1F1A52CEED00629EB5 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				909E115F175447D700540539 /* che_pdf_parser.cpp */,
+				909E115D175447D700540539 /* che_pdf_objects.cpp */,
+				909E115C175447D700540539 /* che_pdf_filter.cpp */,
+				909E115A175447D700540539 /* che_pdf_encrypt.cpp */,
+				907EB4921A4B0BE900867FA8 /* che_pdf_nametree.cpp */,
+				90332F191A52C97F00629EB5 /* che_pdf_numbertree.cpp */,
+			);
+			name = base;
+			sourceTree = "<group>";
+		};
+		90332F201A52CF3200629EB5 /* cmap */ = {
+			isa = PBXGroup;
+			children = (
+				90A01AF71754EC65009DCBD9 /* che_pdf_cmap.cpp */,
+			);
+			name = cmap;
+			sourceTree = "<group>";
+		};
+		90332F211A52CF3B00629EB5 /* content */ = {
+			isa = PBXGroup;
+			children = (
+				90500C9418BF8E330025BB8D /* che_pdf_contentlist.cpp */,
+				90500C9518BF8E330025BB8D /* che_pdf_contentlistbuilder.cpp */,
+				90A01AFA1754EC65009DCBD9 /* che_pdf_contentobjs.cpp */,
+				90A01AFB1754EC65009DCBD9 /* che_pdf_contentresmgr.cpp */,
+			);
+			name = content;
+			sourceTree = "<group>";
+		};
+		90332F221A52CF4100629EB5 /* component */ = {
+			isa = PBXGroup;
+			children = (
+				90332F171A52C97F00629EB5 /* che_pdf_action.cpp */,
+				90A01AF81754EC65009DCBD9 /* che_pdf_colorspace.cpp */,
+				90500C9218BF8E330025BB8D /* che_pdf_component.cpp */,
+				90500C9318BF8E330025BB8D /* che_pdf_componentmgr.cpp */,
+				90A01AFE1754EC65009DCBD9 /* che_pdf_destination.cpp */,
+				90D800EF18E71830008455A7 /* che_pdf_extgstate.cpp */,
+				90A01B001754EC65009DCBD9 /* che_pdf_font_type1base14.cpp */,
+				90A01B011754EC65009DCBD9 /* che_pdf_font.cpp */,
+				90A01B021754EC65009DCBD9 /* che_pdf_fontmgr.cpp */,
+				90CC6B271783C5270007082E /* che_pdf_function.cpp */,
+				90CC6B281783C5270007082E /* che_pdf_gstate.cpp */,
+				90500C9A18BF8E750025BB8D /* che_pdf_pattern.cpp */,
+				90500C9B18BF8E750025BB8D /* che_pdf_xobject.cpp */,
+				90CC6B251783C5150007082E /* che_platform_font.mm */,
+			);
+			name = component;
+			sourceTree = "<group>";
+		};
+		90332F251A52D03500629EB5 /* base */ = {
+			isa = PBXGroup;
+			children = (
+				90332F2D1A52D0B600629EB5 /* che_pdf_nametree.h */,
+				90332F2E1A52D0B600629EB5 /* che_pdf_numbertree.h */,
+				909E116A175447F900540539 /* che_pdf_collector.h */,
+				909E116C175447F900540539 /* che_pdf_encrypt.h */,
+				909E116E175447F900540539 /* che_pdf_filter.h */,
+				909E116F175447F900540539 /* che_pdf_objects.h */,
+				909E1171175447F900540539 /* che_pdf_parser.h */,
+			);
+			name = base;
+			sourceTree = "<group>";
+		};
+		90332F271A52D03E00629EB5 /* componet */ = {
+			isa = PBXGroup;
+			children = (
+				90332F2A1A52D0B600629EB5 /* che_pdf_action.h */,
+				90A01AD11754EC43009DCBD9 /* che_pdf_colorspace.h */,
+				90A01AD71754EC43009DCBD9 /* che_pdf_destination.h */,
+				90A01AD91754EC43009DCBD9 /* che_pdf_font.h */,
+				90A01ADA1754EC43009DCBD9 /* che_pdf_fontmgr.h */,
+				90CC6B2B1783C5450007082E /* che_pdf_function.h */,
+				90CC6B2C1783C5450007082E /* che_pdf_gstate.h */,
+				90D8011A18E7185F008455A7 /* che_pdf_extgstate.h */,
+				90D8011B18E7185F008455A7 /* che_pdf_pattern.h */,
+				90D8011C18E7185F008455A7 /* che_pdf_xobject.h */,
+				90D8011618E7185F008455A7 /* che_pdf_component.h */,
+				90D8011718E7185F008455A7 /* che_pdf_componentmgr.h */,
+			);
+			name = componet;
+			sourceTree = "<group>";
+		};
+		90332F281A52D04800629EB5 /* content */ = {
+			isa = PBXGroup;
+			children = (
+				90A01AD21754EC43009DCBD9 /* che_pdf_contentbuilder.h */,
+				90A01AD31754EC43009DCBD9 /* che_pdf_contentobjs.h */,
+				90A01AD41754EC43009DCBD9 /* che_pdf_contentresmgr.h */,
+				90A01AD61754EC43009DCBD9 /* che_pdf_contentstring.h */,
+				90D8011818E7185F008455A7 /* che_pdf_contentlist.h */,
+				90D8011918E7185F008455A7 /* che_pdf_contentlistbuilder.h */,
+			);
+			name = content;
+			sourceTree = "<group>";
+		};
+		90332F291A52D06700629EB5 /* cmap */ = {
+			isa = PBXGroup;
+			children = (
+				90A01AD01754EC43009DCBD9 /* che_pdf_cmap.h */,
+				90A01ACF1754EC43009DCBD9 /* che_pdf_cmap_res.h */,
+			);
+			name = cmap;
+			sourceTree = "<group>";
+		};
 		909E112C17543F8B00540539 /* include */ = {
 			isa = PBXGroup;
 			children = (
@@ -741,38 +853,18 @@
 		909E1156175447C200540539 /* pdf */ = {
 			isa = PBXGroup;
 			children = (
-				907EB4921A4B0BE900867FA8 /* che_pdf_nametree.cpp */,
-				90A01AF71754EC65009DCBD9 /* che_pdf_cmap.cpp */,
-				90A01AF81754EC65009DCBD9 /* che_pdf_colorspace.cpp */,
-				90500C9218BF8E330025BB8D /* che_pdf_component.cpp */,
-				90500C9318BF8E330025BB8D /* che_pdf_componentmgr.cpp */,
-				90500C9418BF8E330025BB8D /* che_pdf_contentlist.cpp */,
-				90500C9518BF8E330025BB8D /* che_pdf_contentlistbuilder.cpp */,
-				90A01AFA1754EC65009DCBD9 /* che_pdf_contentobjs.cpp */,
-				90A01AFB1754EC65009DCBD9 /* che_pdf_contentresmgr.cpp */,
-				909E1159175447D700540539 /* che_pdf_creator.cpp */,
-				90A01AFE1754EC65009DCBD9 /* che_pdf_destination.cpp */,
+				90332F1F1A52CEED00629EB5 /* base */,
+				90332F201A52CF3200629EB5 /* cmap */,
+				90332F221A52CF4100629EB5 /* component */,
+				90332F211A52CF3B00629EB5 /* content */,
 				90A01AFF1754EC65009DCBD9 /* che_pdf_document.cpp */,
-				909E115A175447D700540539 /* che_pdf_encrypt.cpp */,
-				90D800EF18E71830008455A7 /* che_pdf_extgstate.cpp */,
 				909E115B175447D700540539 /* che_pdf_file.cpp */,
-				909E115C175447D700540539 /* che_pdf_filter.cpp */,
-				90A01B011754EC65009DCBD9 /* che_pdf_font.cpp */,
-				90A01B001754EC65009DCBD9 /* che_pdf_font_type1base14.cpp */,
-				90A01B021754EC65009DCBD9 /* che_pdf_fontmgr.cpp */,
-				90CC6B271783C5270007082E /* che_pdf_function.cpp */,
-				90CC6B281783C5270007082E /* che_pdf_gstate.cpp */,
-				90A01B051754EC65009DCBD9 /* che_pdf_image.cpp */,
-				909E115D175447D700540539 /* che_pdf_objects.cpp */,
-				90A01B081754EC65009DCBD9 /* che_pdf_objectstring.cpp */,
+				90332F181A52C97F00629EB5 /* che_pdf_namedict.cpp */,
 				90A01B091754EC65009DCBD9 /* che_pdf_outline.cpp */,
 				909E115E175447D700540539 /* che_pdf_pages.cpp */,
-				909E115F175447D700540539 /* che_pdf_parser.cpp */,
-				90500C9A18BF8E750025BB8D /* che_pdf_pattern.cpp */,
+				90332F361A52D55C00629EB5 /* che_pdf_pagelabels.cpp */,
 				90C5370717587D450014AC65 /* che_pdf_renderer_macosx.cpp */,
-				90500C9B18BF8E750025BB8D /* che_pdf_xobject.cpp */,
 				909E1160175447D700540539 /* che_pdf_xref.cpp */,
-				90CC6B251783C5150007082E /* che_platform_font.mm */,
 			);
 			name = pdf;
 			sourceTree = "<group>";
@@ -780,38 +872,16 @@
 		909E1157175447C600540539 /* pdf */ = {
 			isa = PBXGroup;
 			children = (
-				90D8011618E7185F008455A7 /* che_pdf_component.h */,
-				90D8011718E7185F008455A7 /* che_pdf_componentmgr.h */,
-				90D8011818E7185F008455A7 /* che_pdf_contentlist.h */,
-				90D8011918E7185F008455A7 /* che_pdf_contentlistbuilder.h */,
-				90D8011A18E7185F008455A7 /* che_pdf_extgstate.h */,
-				90D8011B18E7185F008455A7 /* che_pdf_pattern.h */,
-				90D8011C18E7185F008455A7 /* che_pdf_xobject.h */,
-				90A01AD01754EC43009DCBD9 /* che_pdf_cmap.h */,
-				90A01ACF1754EC43009DCBD9 /* che_pdf_cmap_res.h */,
-				909E116A175447F900540539 /* che_pdf_collector.h */,
-				90A01AD11754EC43009DCBD9 /* che_pdf_colorspace.h */,
-				90A01AD21754EC43009DCBD9 /* che_pdf_contentbuilder.h */,
-				90A01AD31754EC43009DCBD9 /* che_pdf_contentobjs.h */,
-				90A01AD41754EC43009DCBD9 /* che_pdf_contentresmgr.h */,
-				90A01AD61754EC43009DCBD9 /* che_pdf_contentstring.h */,
-				909E116B175447F900540539 /* che_pdf_creator.h */,
-				90A01AD71754EC43009DCBD9 /* che_pdf_destination.h */,
+				90332F251A52D03500629EB5 /* base */,
+				90332F291A52D06700629EB5 /* cmap */,
+				90332F271A52D03E00629EB5 /* componet */,
+				90332F281A52D04800629EB5 /* content */,
 				90A01AD81754EC43009DCBD9 /* che_pdf_document.h */,
-				909E116C175447F900540539 /* che_pdf_encrypt.h */,
 				909E116D175447F900540539 /* che_pdf_file.h */,
-				909E116E175447F900540539 /* che_pdf_filter.h */,
-				90A01AD91754EC43009DCBD9 /* che_pdf_font.h */,
-				90A01ADA1754EC43009DCBD9 /* che_pdf_fontmgr.h */,
-				90CC6B2B1783C5450007082E /* che_pdf_function.h */,
-				90CC6B2C1783C5450007082E /* che_pdf_gstate.h */,
-				90A01ADD1754EC43009DCBD9 /* che_pdf_image.h */,
-				90A01ADE1754EC43009DCBD9 /* che_pdf_objclone.h */,
-				909E116F175447F900540539 /* che_pdf_objects.h */,
-				90A01ADF1754EC43009DCBD9 /* che_pdf_objectstring.h */,
+				90332F2C1A52D0B600629EB5 /* che_pdf_namedict.h */,
 				90A01AE01754EC43009DCBD9 /* che_pdf_outline.h */,
 				909E1170175447F900540539 /* che_pdf_pages.h */,
-				909E1171175447F900540539 /* che_pdf_parser.h */,
+				90332F341A52D52A00629EB5 /* che_pdf_pagelabels.h */,
 				90C5370517587CEF0014AC65 /* che_pdf_renderer_macosx.h */,
 				909E1172175447F900540539 /* che_pdf_xref.h */,
 			);
@@ -1172,7 +1242,7 @@
 				909E114D1754468D00540539 /* che_crypt_rc4.h in Headers */,
 				909E114F175446BB00540539 /* che_hash_md5.h in Headers */,
 				909E1173175447F900540539 /* che_pdf_collector.h in Headers */,
-				909E1174175447F900540539 /* che_pdf_creator.h in Headers */,
+				90332F331A52D0B600629EB5 /* che_pdf_numbertree.h in Headers */,
 				909E1175175447F900540539 /* che_pdf_encrypt.h in Headers */,
 				909E1176175447F900540539 /* che_pdf_file.h in Headers */,
 				909E1177175447F900540539 /* che_pdf_filter.h in Headers */,
@@ -1183,6 +1253,7 @@
 				909E11961754532800540539 /* crc32.h in Headers */,
 				909E11981754532800540539 /* deflate.h in Headers */,
 				909E11991754532800540539 /* gzguts.h in Headers */,
+				90332F311A52D0B600629EB5 /* che_pdf_namedict.h in Headers */,
 				909E119B1754532800540539 /* inffast.h in Headers */,
 				909E119C1754532800540539 /* inffixed.h in Headers */,
 				909E119E1754532800540539 /* inflate.h in Headers */,
@@ -1202,10 +1273,7 @@
 				90A01AEE1754EC43009DCBD9 /* che_pdf_document.h in Headers */,
 				90A01AEF1754EC43009DCBD9 /* che_pdf_font.h in Headers */,
 				90A01AF01754EC43009DCBD9 /* che_pdf_fontmgr.h in Headers */,
-				90A01AF31754EC43009DCBD9 /* che_pdf_image.h in Headers */,
 				90D8014218E7185F008455A7 /* che_pdf_componentmgr.h in Headers */,
-				90A01AF41754EC43009DCBD9 /* che_pdf_objclone.h in Headers */,
-				90A01AF51754EC43009DCBD9 /* che_pdf_objectstring.h in Headers */,
 				90A01AF61754EC43009DCBD9 /* che_pdf_outline.h in Headers */,
 				90D8014418E7185F008455A7 /* che_pdf_contentlistbuilder.h in Headers */,
 				909D97B7175745F70030BD7E /* che_drawer_macosx.h in Headers */,
@@ -1227,6 +1295,7 @@
 				90C6FAF817866CC500C50AA5 /* j2k.h in Headers */,
 				90C6FAFA17866CC500C50AA5 /* jp2.h in Headers */,
 				906CBF52193C5CB200589EAF /* CHEPDFView.h in Headers */,
+				90332F321A52D0B600629EB5 /* che_pdf_nametree.h in Headers */,
 				90C6FAFC17866CC500C50AA5 /* jpt.h in Headers */,
 				90C6FAFE17866CC500C50AA5 /* mct.h in Headers */,
 				90C6FB0017866CC500C50AA5 /* mqc.h in Headers */,
@@ -1246,6 +1315,7 @@
 				90C6FB3817866CD200C50AA5 /* jbig2_arith_int.h in Headers */,
 				90C6FB3A17866CD200C50AA5 /* jbig2_arith.h in Headers */,
 				90C6FB3C17866CD200C50AA5 /* jbig2_generic.h in Headers */,
+				90332F2F1A52D0B600629EB5 /* che_pdf_action.h in Headers */,
 				90C6FB3E17866CD200C50AA5 /* jbig2_halftone.h in Headers */,
 				90C6FB4017866CD200C50AA5 /* jbig2_huffman.h in Headers */,
 				90C6FB4117866CD200C50AA5 /* jbig2_hufftab.h in Headers */,
@@ -1264,6 +1334,7 @@
 				90C6FB881786CC6200C50AA5 /* jdct.h in Headers */,
 				90C6FB941786CC6200C50AA5 /* jerror.h in Headers */,
 				90C6FB9B1786CC6200C50AA5 /* jinclude.h in Headers */,
+				90332F351A52D52A00629EB5 /* che_pdf_pagelabels.h in Headers */,
 				90C6FB9E1786CC6200C50AA5 /* jmemsys.h in Headers */,
 				90C6FB9F1786CC6200C50AA5 /* jmorecfg.h in Headers */,
 				90C6FBA01786CC6200C50AA5 /* jpegint.h in Headers */,
@@ -1426,11 +1497,11 @@
 				909E11331754453600540539 /* che_base.cpp in Sources */,
 				909E11341754453600540539 /* che_bitmap.cpp in Sources */,
 				909E11361754453600540539 /* che_graphics.cpp in Sources */,
+				90332F371A52D55C00629EB5 /* che_pdf_pagelabels.cpp in Sources */,
 				909E11371754453600540539 /* che_string.cpp in Sources */,
 				909E1152175446CD00540539 /* che_crypt_aes.cpp in Sources */,
 				909E1153175446CD00540539 /* che_crypt_rc4.cpp in Sources */,
 				909E1155175446DE00540539 /* che_hash_md5.cpp in Sources */,
-				909E1162175447D700540539 /* che_pdf_creator.cpp in Sources */,
 				909E1163175447D700540539 /* che_pdf_encrypt.cpp in Sources */,
 				909E1164175447D700540539 /* che_pdf_file.cpp in Sources */,
 				909E1165175447D700540539 /* che_pdf_filter.cpp in Sources */,
@@ -1491,8 +1562,7 @@
 				90A01B131754EC65009DCBD9 /* che_pdf_font_type1base14.cpp in Sources */,
 				90A01B141754EC65009DCBD9 /* che_pdf_font.cpp in Sources */,
 				90A01B151754EC65009DCBD9 /* che_pdf_fontmgr.cpp in Sources */,
-				90A01B181754EC65009DCBD9 /* che_pdf_image.cpp in Sources */,
-				90A01B1B1754EC65009DCBD9 /* che_pdf_objectstring.cpp in Sources */,
+				90332F1A1A52C97F00629EB5 /* che_pdf_action.cpp in Sources */,
 				90A01B1C1754EC65009DCBD9 /* che_pdf_outline.cpp in Sources */,
 				909D97BA175746250030BD7E /* che_drawer_macosx.cpp in Sources */,
 				90C5370817587D450014AC65 /* che_pdf_renderer_macosx.cpp in Sources */,
@@ -1533,6 +1603,7 @@
 				90C6FB4617866CD200C50AA5 /* jbig2_mmr.c in Sources */,
 				90C6FB4817866CD200C50AA5 /* jbig2_page.c in Sources */,
 				90C6FB4A17866CD200C50AA5 /* jbig2_refinement.c in Sources */,
+				90332F1C1A52C97F00629EB5 /* che_pdf_numbertree.cpp in Sources */,
 				90C6FB4B17866CD200C50AA5 /* jbig2_segment.c in Sources */,
 				90C6FB4C17866CD200C50AA5 /* jbig2_symbol_dict.c in Sources */,
 				90C6FB4E17866CD200C50AA5 /* jbig2_text.c in Sources */,
@@ -1546,6 +1617,7 @@
 				90C6FB841786CC6200C50AA5 /* jdatadst.c in Sources */,
 				90C6FB851786CC6200C50AA5 /* jdatasrc.c in Sources */,
 				90C6FB861786CC6200C50AA5 /* jdcoefct.c in Sources */,
+				90332F1B1A52C97F00629EB5 /* che_pdf_namedict.cpp in Sources */,
 				90500C9D18BF8E750025BB8D /* che_pdf_xobject.cpp in Sources */,
 				90C6FB871786CC6200C50AA5 /* jdcolor.c in Sources */,
 				90C6FB891786CC6200C50AA5 /* jddctmgr.c in Sources */,

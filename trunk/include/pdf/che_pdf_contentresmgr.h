@@ -43,7 +43,7 @@ public:
 	//for direct reference component
 	CHE_PDF_ComponentPtr GetComponent( const CHE_ByteString & name );
 
-	CHE_PDF_ComponentPtr GetComponent( const CHE_ByteString & name, PDF_CONTENTRES_TYPE type );
+	CHE_PDF_ComponentPtr GetComponent( const CHE_ByteString & name, PDF_COMPONENT_TYPE type );
 
 	HE_BOOL	PushComponent( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & component );
 

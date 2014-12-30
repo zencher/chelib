@@ -6,15 +6,19 @@
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
 	<string>05F66B1A-961C-449C-887D-6BB8234557D1</string>
+	<key>IDESourceControlProjectName</key>
+	<string>chelib</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>5bab769a-80ee-f445-9178-c608493bda25</key>
 		<string>https://10.211.55.3/svn/chelib</string>
 	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>trunk/projects/xcode/chelib.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>5bab769a-80ee-f445-9178-c608493bda25</key>
-		<string>chelib/</string>
+		<string>../../../../..</string>
 	</dict>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>

@@ -247,7 +247,7 @@ CHE_PDF_ComponentPtr CHE_PDF_ContentResMgr::GetComponent( const CHE_ByteString &
 	return ptr;
 }
 
-CHE_PDF_ComponentPtr CHE_PDF_ContentResMgr::GetComponent( const CHE_ByteString & name, PDF_CONTENTRES_TYPE type )
+CHE_PDF_ComponentPtr CHE_PDF_ContentResMgr::GetComponent( const CHE_ByteString & name, PDF_COMPONENT_TYPE type )
 {
 	CHE_PDF_ComponentPtr ptr = GetComponent( name );
 	if ( ptr && ptr->GetType() != type )

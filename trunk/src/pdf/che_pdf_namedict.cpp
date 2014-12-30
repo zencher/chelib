@@ -50,7 +50,7 @@ CHE_PDF_NameDict::~CHE_PDF_NameDict()
 	}
 }
 
-HE_VOID CHE_PDF_NameDict::Parse(CHE_PDF_DictionaryPtr & dict)
+HE_VOID CHE_PDF_NameDict::Parse(const CHE_PDF_DictionaryPtr & dict)
 {
 	if (!dict)
 	{
@@ -128,7 +128,7 @@ HE_VOID CHE_PDF_NameDict::Parse(CHE_PDF_DictionaryPtr & dict)
 	}
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetDest(CHE_ByteString & name)
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetDest(const CHE_ByteString & name)
 {
 	CHE_PDF_ObjectPtr objPtr;
 	if (mpDestNameTree)
@@ -138,7 +138,7 @@ CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetDest(CHE_ByteString & name)
 	return objPtr;
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetJavaScript(CHE_ByteString & name)
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetJavaScript(const CHE_ByteString & name)
 {
 	CHE_PDF_ObjectPtr objPtr;
 	if (mpDestNameTree)

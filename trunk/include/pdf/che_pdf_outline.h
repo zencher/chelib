@@ -6,6 +6,8 @@
 #include "che_pdf_file.h"
 #include "che_pdf_destination.h"
 #include "che_pdf_nametree.h"
+#include "che_pdf_namedict.h"
+#include "che_pdf_action.h"
 
 class CHE_PDF_Outline;
 
@@ -20,8 +22,9 @@ public:
 	CHE_ByteString			mTitle;
 
 	CHE_PDF_ObjectPtr		mDestObj;
-	CHE_PDF_Destination *	mpDest;
-	CHE_PDF_DictionaryPtr	mAction;
+	CHE_PDF_ObjectPtr		mActionObj;
+	CHE_PDF_ActionPtr		mAction;
+	CHE_PDF_DestinationPtr	mDest;
 	CHE_PDF_DictionaryPtr	mSE;
 
 	CHE_PDF_OutlineItem *	mpParent;
@@ -48,10 +51,14 @@ public:
 
 	HE_VOID	Clear();
 
+	CHE_PDF_OutlineItem * First() const { return mpFirst; }
+
+	CHE_PDF_OutlineItem * Last() const { return mpLast; }
+
 private:
 	HE_BOOL GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_DictionaryPtr & dictPtr );
 
-	HE_UINT32 BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const CHE_PDF_ReferencePtr & firstRef, const CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot = FALSE );
+	HE_UINT32 BuildChildTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr & firstRef, CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot = FALSE );
 
 	HE_VOID CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_OutlineItem * pLast );
 

@@ -1,16 +1,15 @@
 #include "../../include/pdf/che_pdf_outline.h"
 
-CHE_PDF_OutlineItem::CHE_PDF_OutlineItem( CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_Object( pAllocator ), mCount( 0 ), mFlag( 0 ), mpDest( NULL ),
-	mpParent( NULL ), mpPrev( NULL ),	mpNext( NULL ), mpFirst( NULL ), mpLast( NULL )
+CHE_PDF_OutlineItem::CHE_PDF_OutlineItem(CHE_Allocator * pAllocator /*= NULL*/)
+: CHE_Object(pAllocator), mCount(0), mFlag(0), mpParent(NULL), mpPrev(NULL), mpNext(NULL), mpFirst(NULL), mpLast(NULL)
 {
 	mRGBColor[0] = 0;
 	mRGBColor[1] = 0;
 	mRGBColor[2] = 0;
 }
 
-CHE_PDF_Outline::CHE_PDF_Outline( CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_Object( pAllocator ), mCount( 0 ), mpFirst( NULL ), mpLast( NULL ), mpNameDict( NULL ) {}
+CHE_PDF_Outline::CHE_PDF_Outline(CHE_Allocator * pAllocator /*= NULL*/)
+: CHE_Object(pAllocator), mCount(0), mpFirst(NULL), mpLast(NULL), mpNameDict(NULL) {}
 
 CHE_PDF_Outline::~CHE_PDF_Outline()
 {
@@ -145,7 +144,7 @@ HE_BOOL CHE_PDF_Outline::GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_Di
 			if ( objPtr->GetType() == OBJ_TYPE_ARRAY )
 			{
 				pItem->mDestObj = objPtr;
-				pItem->mpDest = GetAllocator()->New<CHE_PDF_Destination>( objPtr->GetArrayPtr(), GetAllocator() );
+				pItem->mDest = CHE_PDF_Destination::Create(objPtr->GetArrayPtr(), GetAllocator());
 			}else{
 				if ( objPtr->GetType() == OBJ_TYPE_NAME  )
 				{
@@ -170,7 +169,7 @@ HE_BOOL CHE_PDF_Outline::GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_Di
 					if ( objPtr )
 					{
 						pItem->mDestObj = objPtr;
-						pItem->mpDest = GetAllocator()->New<CHE_PDF_Destination>( objPtr->GetArrayPtr(), GetAllocator() );
+						pItem->mDest = CHE_PDF_Destination::Create(objPtr->GetArrayPtr(), GetAllocator());
 					}
 				}
 			}
@@ -178,7 +177,8 @@ HE_BOOL CHE_PDF_Outline::GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_Di
 			objPtr = dictPtr->GetElement( "A", OBJ_TYPE_DICTIONARY );
 			if ( objPtr )
 			{
-				pItem->mAction = objPtr->GetDictPtr();
+				pItem->mActionObj = objPtr;
+				pItem->mAction = CHE_PDF_Action::Create(objPtr->GetDictPtr(), mpNameDict, GetAllocator());
 			}
 		}
 
@@ -192,7 +192,7 @@ HE_BOOL CHE_PDF_Outline::GetOutlineItem( CHE_PDF_OutlineItem * pItem, CHE_PDF_Di
 	return TRUE;
 }
 
-HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const CHE_PDF_ReferencePtr & firstRef, const CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot /*= FALSE*/ )
+HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, CHE_PDF_ReferencePtr & firstRef, CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot /*= FALSE*/ )
 {
 	if ( pCurItem == NULL )
 	{

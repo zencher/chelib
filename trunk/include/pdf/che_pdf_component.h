@@ -16,8 +16,10 @@ enum PDF_COMPONENT_TYPE
 	COMPONENT_TYPE_Font			= 0x06,
 	COMPONENT_TYPE_ProcSet		= 0x07,
 	COMPONENT_TYPE_Properties	= 0x08,
-	COMPONENT_TYPE_Function		= 0x1001,
-	COMPONENT_TYPE_Outlines		= 0x1002
+	COMPONENT_TYPE_Function		= 0x09,
+	COMPONENT_TYPE_Action		= 0x10,
+	COMPONENT_TYPE_Appearance	= 0x11,
+	COMPONENT_TYPE_Destination	= 0x12
 };
 
 
@@ -34,26 +36,22 @@ class CHE_PDF_Component : public CHE_Object
 public:
 	PDF_COMPONENT_TYPE		GetType() const { return mType; }
 
-	CHE_PDF_ObjectPtr		GetRootObjPtr() const;
+	CHE_PDF_ObjectPtr		GetRootObject() const;
 
 	HE_VOID					Release();
 
-	HE_BOOL					IsDirectComponent() const;
-
-	HE_BOOL					IsIndirectComponent() const;
-
-	HE_BOOL					IsError() const { return (mError==COMPONENT_ERROR_NOERROR)?FALSE:TRUE; }
+	HE_BOOL					IsError() const { return (mError == COMPONENT_ERROR_NOERROR) ? FALSE : TRUE; }
 	
 protected:
-	CHE_PDF_Component( PDF_COMPONENT_TYPE type, const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator ), mType( type ), mError( COMPONENT_ERROR_NOERROR ), mRootObjPtr(rootObjPtr) {}
+	CHE_PDF_Component( PDF_COMPONENT_TYPE type, const CHE_PDF_ObjectPtr & rootObject, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object(pAllocator), mType(type), mRootObject(rootObject) {}
 
-	HE_VOID					SetError( PDF_COMPONENT_ERROR error ) { mError = error; }
+	HE_VOID					SetError(PDF_COMPONENT_ERROR error) { mError = error; }
 
 	PDF_COMPONENT_TYPE		mType;
 	PDF_COMPONENT_ERROR		mError;
 	CHE_RefCount			mRefs;
-	CHE_PDF_ObjectPtr		mRootObjPtr;
+	CHE_PDF_ObjectPtr		mRootObject;
 
 	friend class CHE_Allocator;
 	friend class CHE_PDF_ComponentPtr;
@@ -81,9 +79,9 @@ public:
 
 	HE_VOID	Reset( CHE_PDF_Component * pCom = NULL );
 
-	HE_BOOL IsExtStateComponent() const;
-
-	HE_BOOL IsColorSpaceComponent() const;
+// 	HE_BOOL IsExtStateComponent() const;
+// 
+// 	HE_BOOL IsColorSpaceComponent() const;
 
 protected:
 	CHE_PDF_Component * mpCom;

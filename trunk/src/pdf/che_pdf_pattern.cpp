@@ -38,7 +38,7 @@ CHE_PDF_TilingPtr CHE_PDF_Tiling::Convert( const CHE_PDF_ComponentPtr & componen
 CHE_PDF_Tiling::CHE_PDF_Tiling( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/ )
 	: CHE_PDF_Component(COMPONENT_TYPE_Tiling, rootObjPtr, pAllocator), mbColored(FALSE), mTilingType(1), mXSetp(100), mYSetp(100)
 {
-	CHE_PDF_ObjectPtr objPtr = mRootObjPtr;
+	CHE_PDF_ObjectPtr objPtr = mRootObject;
 	objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
 	if ( objPtr )
 	{

@@ -145,14 +145,14 @@ CHE_PDF_Function::CHE_PDF_Function( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Al
 {
 	CHE_PDF_ObjectPtr objPtr;
 	CHE_PDF_DictionaryPtr dictPtr;
-	if ( mRootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
+	if ( mRootObject->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+		objPtr = mRootObject->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
 		if ( objPtr )
 		{
 			dictPtr = objPtr->GetDictPtr();
 		}else{
-			objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
+			objPtr = mRootObject->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
 			if ( objPtr )
 			{
 				dictPtr = objPtr->GetStreamPtr()->GetDictPtr();
@@ -161,9 +161,9 @@ CHE_PDF_Function::CHE_PDF_Function( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Al
 				return;
 			}
 		}
-	}else if ( mRootObjPtr->GetType() == OBJ_TYPE_DICTIONARY )
+	}else if ( mRootObject->GetType() == OBJ_TYPE_DICTIONARY )
 	{
-		dictPtr = mRootObjPtr->GetDictPtr();
+		dictPtr = mRootObject->GetDictPtr();
 	}else{
 		SetError( COMPONENT_ERROR_CONSTRUCTION );
 		return;
@@ -238,13 +238,13 @@ CHE_PDF_Function::CHE_PDF_Function( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Al
 CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
 	: CHE_PDF_Function( rootObjPtr, pAllocator ), mBps(1), mOrder(1), mpSize(NULL), mpEncode(NULL), mpDecode(NULL), mpSample(NULL)
 {
-	if ( mRootObjPtr->GetType() != OBJ_TYPE_REFERENCE )
+	if ( mRootObject->GetType() != OBJ_TYPE_REFERENCE )
 	{
 		SetError( COMPONENT_ERROR_CONSTRUCTION );
 		return;
 	}
 
-	CHE_PDF_ObjectPtr objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
+	CHE_PDF_ObjectPtr objPtr = mRootObject->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
 	if ( !objPtr )
 	{
 		SetError( COMPONENT_ERROR_CONSTRUCTION );
@@ -492,9 +492,9 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
 	CHE_PDF_ObjectPtr objPtr;
 	CHE_PDF_DictionaryPtr dictPtr;
 
-	if ( mRootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
+	if ( mRootObject->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+		objPtr = mRootObject->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
 		if ( objPtr )
 		{
 			dictPtr = objPtr->GetDictPtr();
@@ -502,9 +502,9 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
 			SetError( COMPONENT_ERROR_CONSTRUCTION );
 			return;
 		}
-	}else if ( mRootObjPtr->GetType() == OBJ_TYPE_DICTIONARY )
+	}else if ( mRootObject->GetType() == OBJ_TYPE_DICTIONARY )
 	{
-		dictPtr = mRootObjPtr->GetDictPtr();
+		dictPtr = mRootObject->GetDictPtr();
 	}else{
 		SetError( COMPONENT_ERROR_CONSTRUCTION );
 		return;
@@ -605,9 +605,9 @@ CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( const CHE_PDF_ObjectPtr 
 	CHE_PDF_ObjectPtr objPtr;
 	CHE_PDF_DictionaryPtr dictPtr;
 
-	if ( mRootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
+	if ( mRootObject->GetType() == OBJ_TYPE_REFERENCE )
 	{
-		objPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+		objPtr = mRootObject->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
 		if ( objPtr )
 		{
 			dictPtr = objPtr->GetDictPtr();
@@ -753,7 +753,7 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate( std::vector<HE_FLOAT> & input, st
 CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
 	: CHE_PDF_Function( rootObjPtr, pAllocator ), mbParsed( FALSE )
 {
-	mStmPtr = mRootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM )->GetStreamPtr();
+	mStmPtr = mRootObject->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM )->GetStreamPtr();
 }
 
 CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()

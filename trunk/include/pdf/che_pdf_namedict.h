@@ -1,0 +1,37 @@
+#ifndef _CHE_PDF_NAMEDICT_H_
+#define _CHE_PDF_NAMEDICT_H_
+
+#include "../che_base.h"
+#include "../che_string.h"
+#include "che_pdf_objects.h"
+#include "che_pdf_nametree.h"
+
+class CHE_PDF_NameDict : public CHE_Object
+{
+public:
+	CHE_PDF_NameDict(CHE_Allocator * pAllocator = NULL);
+
+	~CHE_PDF_NameDict();
+
+	HE_VOID Parse(CHE_PDF_DictionaryPtr & dict);
+
+	CHE_PDF_ObjectPtr GetDest(CHE_ByteString & name);
+
+	CHE_PDF_ObjectPtr GetJavaScript(CHE_ByteString & name);
+
+	//todo
+
+private:
+	CHE_PDF_NameTree *	mpDestNameTree;
+	CHE_PDF_NameTree *	mpAPNameTree;
+	CHE_PDF_NameTree *	mpJSNameTree;
+	CHE_PDF_NameTree *	mpPagesNameTree;
+	CHE_PDF_NameTree *	mpTemplatesNameTree;
+	CHE_PDF_NameTree *	mpIDSNameTree;
+	CHE_PDF_NameTree *	mpURLSNameTree;
+	CHE_PDF_NameTree *	mpEFNameTree;
+	CHE_PDF_NameTree *	mpAlPrNameTree;
+	CHE_PDF_NameTree *	mpRendNameTree;
+};
+
+#endif

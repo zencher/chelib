@@ -42,7 +42,7 @@ CHE_PDF_ExtGState::CHE_PDF_ExtGState( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_
 	:CHE_PDF_Component( COMPONENT_TYPE_ExtGState, rootObjPtr, pAllocator )
 {
 	CHE_PDF_ObjectPtr objPtr;
-	CHE_PDF_DictionaryPtr dictPtr = mRootObjPtr->GetDictPtr();
+	CHE_PDF_DictionaryPtr dictPtr = mRootObject->GetDictPtr();
 
 	CHE_PDF_ExtGStateItem item;
 

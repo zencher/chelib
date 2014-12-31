@@ -63,14 +63,15 @@ void RenderPage( HWND hwnd )
 	}else{
 		gpDrawer->Resize( gPageWidth, gPageHeight );
 	}
-	CHE_PDF_ContentObjectList contentObjList;
+	//CHE_PDF_ContentObjectList contentObjList;
 	QueryPerformanceCounter( &gBegin );
-	CHE_PDF_ContentListBuilder::ParsePageContent( gpPage->GetPageDict(), contentObjList, gpDocument->GetComponentMgr() );
+	//CHE_PDF_ContentListBuilder::ParsePageContent( gpPage->GetPageDict(), contentObjList, gpDocument->GetComponentMgr() );
+	gpPage->ParsePageContent(gpDocument->GetComponentMgr());
 	QueryPerformanceCounter( &gEnd );
 	parseTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 
 	QueryPerformanceCounter( &gBegin );
-	CHE_PDF_Renderer::Render( contentObjList, *gpDrawer, rect, rotate, gScale /*, 96, 96, &clipRect*/ );
+	CHE_PDF_Renderer::Render( gpPage->GetPageContentList()/*contentObjList*/, *gpDrawer, rect, rotate, gScale /*, 96, 96, &clipRect*/ );
 	QueryPerformanceCounter( &gEnd );
 	renderTime = ( (double)( gEnd.QuadPart - gBegin.QuadPart ) ) * 1000 / ( (double)gFeq.QuadPart );
 }
@@ -294,7 +295,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 						gAppState = 0;
 					}
 
-					gpFileRead = HE_CreateFileRead( fileName );
+					gpFileRead = HE_CreateFileRead(fileName, FILEREAD_MODE_MEMCOPY);
 					gpFile = GetDefaultAllocator()->New<CHE_PDF_File>( GetDefaultAllocator() );
 					gpFile->Open( gpFileRead );
 					gpDocument = CHE_PDF_Document::CreateDocument( gpFile );

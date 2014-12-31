@@ -3,6 +3,7 @@
 
 #include "che_pdf_objects.h"
 #include "che_pdf_destination.h"
+#include "che_pdf_filespec.h"
 #include "che_pdf_namedict.h"
 
 enum PDF_ACTION_TYPE
@@ -29,6 +30,23 @@ enum PDF_ACTION_TYPE
 
 class CHE_PDF_Action;
 class CHE_PDF_GoToAction;
+class CHE_PDF_GoToRAction;
+class CHE_PDF_GotoEAction;
+class CHE_PDF_LaunchAction;
+class CHE_PDF_ThreadAction;
+class CHE_PDF_URIAction;
+class CHE_PDF_SoundAction;
+class CHE_PDF_MovieAction;
+class CHE_PDF_HideAction;
+class CHE_PDF_NamedAction;
+class CHE_PDF_SubmitAction;
+class CHE_PDF_ResetAction;
+class CHE_PDF_ImportAction;
+class CHE_PDF_JavaScriptAction;
+class CHE_PDF_OCGAction;
+class CHE_PDF_RenditionAction;
+class CHE_PDF_TransAction;
+class CHE_PDF_GoTo3DAction;
 
 class CHE_PDF_ActionPtr : public CHE_PDF_ComponentPtr
 {
@@ -63,23 +81,37 @@ public:
 class CHE_PDF_GoToAction : public CHE_PDF_Action
 {
 public:
-	CHE_PDF_DestinationPtr GetDest() const { return mpDest; }
+	CHE_PDF_DestinationPtr GetDest() const { return mDestPtr; }
 
 private:
 	CHE_PDF_GoToAction(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict = NULL, CHE_Allocator * pAllocator = NULL);
 
-	CHE_PDF_DestinationPtr	mpDest;
+	CHE_PDF_DestinationPtr	mDestPtr;
 
 	friend class CHE_Allocator;
 };
 
 
+class CHE_PDF_GoToRActionPtr : public CHE_PDF_ActionPtr
+{
+public:
+	CHE_PDF_GoToRAction * operator->() const { return (CHE_PDF_GoToRAction *)mpCom; }
+};
 
-// class CHE_PDF_Action_GoToR : public CHE_PDF_Action
-// {
-// 
-// };
-// 
+class CHE_PDF_GoToRAction : public  CHE_PDF_Action
+{
+public:
+
+private:
+	CHE_PDF_GoToRAction(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict = NULL, CHE_Allocator * pAllocator = NULL);
+
+	HE_BOOL					mbNewWindow;
+	CHE_PDF_FileSpec		mFileSpec;
+	CHE_PDF_DestinationPtr	mDestPtr;
+
+};
+
+
 // class CHE_PDF_Action_GoToE : public CHE_PDF_Action
 // {
 // 

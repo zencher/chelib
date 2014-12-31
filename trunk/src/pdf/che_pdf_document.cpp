@@ -13,10 +13,10 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 			{
 				pDocument->CreateCatalogDict();
 			}
-
 			pDocument->ParsePageTree();
 			pDocument->ParseNameDict();
 			pDocument->ParseOutline();
+			pDocument->ParsePageLabels();
 			return pDocument;
 		}
 	}
@@ -129,6 +129,21 @@ HE_BOOL CHE_PDF_Document::ParseOutline()
 		{
 			mpOutline = GetAllocator()->New<CHE_PDF_Outline>( GetAllocator() );
 			mpOutline->Parse( objPtr->GetRefPtr(), mpNameDict );
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+HE_BOOL CHE_PDF_Document::ParsePageLabels()
+{
+	if ( mpFile )
+	{
+		CHE_PDF_DictionaryPtr dictPtr = mpFile->GetRootDict();
+		CHE_PDF_ObjectPtr objPtr = dictPtr->GetElement("PageLabels", OBJ_TYPE_DICTIONARY);
+		if (objPtr)
+		{
+			mpPageLabels = GetAllocator()->New<CHE_PDF_PageLabels>(objPtr->GetDictPtr(), GetAllocator());
 			return TRUE;
 		}
 	}

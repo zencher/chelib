@@ -2,15 +2,6 @@
 
 using namespace std;
 
-HE_VOID CHE_PDF_NameTree::Parse( const CHE_PDF_ReferencePtr & refPtr )
-{
-	if ( !refPtr )
-	{
-		return;
-	}
-	mRefPtr = refPtr;
-}
-
 HE_BOOL CHE_PDF_NameTree::Find( const string & name, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet )
 {
 	CHE_PDF_ObjectPtr obj;
@@ -95,7 +86,7 @@ HE_BOOL CHE_PDF_NameTree::Find( const string & name, const CHE_PDF_DictionaryPtr
 CHE_PDF_ObjectPtr CHE_PDF_NameTree::GetObject( const CHE_ByteString & name )
 {
 	CHE_PDF_ObjectPtr objRet;
-	if ( !mRefPtr )
+	if ( !mDictPtr )
 	{
 		return objRet;
 	}
@@ -106,15 +97,8 @@ CHE_PDF_ObjectPtr CHE_PDF_NameTree::GetObject( const CHE_ByteString & name )
 	if ( it != mMap.end() )
 	{
 		objRet = it->second;
-	}
-	else
-	{
-		CHE_PDF_ObjectPtr obj;
-		obj = mRefPtr->GetRefObj( OBJ_TYPE_DICTIONARY );
-		if ( obj )
-		{
-			Find( str, obj->GetDictPtr(), objRet );
-		}
+	}else{
+		Find( str, mDictPtr, objRet );
 	}
 	return objRet;
 }

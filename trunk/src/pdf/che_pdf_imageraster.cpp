@@ -339,7 +339,7 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapAsMask( const CHE_PDF_ImageXObjectPtr
 	return pBitmapRet;
 }
 
-CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask( const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr, BOOL bExplicit/*= FALSE*/ )
+CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr, HE_BOOL bExplicit/*= false*/)
 {
 	CHE_Bitmap * pBitmapRet = NULL;
 	if ( imgPtr && maskPtr )

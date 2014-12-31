@@ -44,7 +44,7 @@ public:
 	
 protected:
 	CHE_PDF_Component( PDF_COMPONENT_TYPE type, const CHE_PDF_ObjectPtr & rootObject, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mType(type), mRootObject(rootObject) {}
+		: CHE_Object(pAllocator), mType(type), mError(COMPONENT_ERROR_NOERROR), mRootObject(rootObject) {}
 
 	HE_VOID					SetError(PDF_COMPONENT_ERROR error) { mError = error; }
 

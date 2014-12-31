@@ -7,19 +7,35 @@
 #include <unordered_map>
 using namespace std;
 
-class CHE_PDF_PageLabel : public CHE_Object
+enum PDF_LABEL_STYLE
+{
+	LABEL_NONE,
+	LABEL_DEC_NUM,
+	LABEL_UPPER_ROMAN_NUM,
+	LABEL_LOWER_ROMAN_NUM,
+	LABEL_UPPER_LETTER,
+	LABEL_LOWER_LETTER
+};
+
+class CHE_PDF_PageLabel
 {
 public:
+	PDF_LABEL_STYLE	stype;
+	HE_INT32		start;
+	CHE_ByteString	prefix;
 };
 
 class CHE_PDF_PageLabels : public CHE_Object
 {
 public:
-    CHE_PDF_PageLabels( CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_PageLabels(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL);
+	~CHE_PDF_PageLabels();
     
 private:
-    che_pdf_numbertree * mpNumberTree;
+	HE_BOOL GetLabel(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_PageLabel & label);
 
+	CHE_PDF_NumberTree * mpNumberTree;
+	std::unordered_map<HE_INT32, CHE_PDF_PageLabel> mLabelsInfo;
 };
 
 #endif

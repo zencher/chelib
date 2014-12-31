@@ -5,17 +5,17 @@ CHE_PDF_ContentObjectList::~CHE_PDF_ContentObjectList()
 	Clear();
 }
 
-CHE_PDF_ContentObjectList * CHE_PDF_ContentObjectList::Clone()
-{
-	CHE_PDF_ContentObjectList * pObjList = GetAllocator()->New<CHE_PDF_ContentObjectList>();
-
-	ContentObjectList::iterator it = Begin();
-	for ( ; it != End(); ++it )
-	{
-		pObjList->Append( *it );
-	}
-	return pObjList;
-}
+// CHE_PDF_ContentObjectList * CHE_PDF_ContentObjectList::Clone()
+// {
+// 	CHE_PDF_ContentObjectList * pObjList = GetAllocator()->New<CHE_PDF_ContentObjectList>();
+// 
+// 	ContentObjectList::iterator it = Begin();
+// 	for ( ; it != End(); ++it )
+// 	{
+// 		pObjList->Append( *it );
+// 	}
+// 	return pObjList;
+// }
 
 HE_VOID CHE_PDF_ContentObjectList::Clear()
 {

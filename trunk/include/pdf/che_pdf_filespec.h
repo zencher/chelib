@@ -5,10 +5,12 @@
 #include "../che_string.h"
 #include "che_pdf_objects.h"
 
-class CHE_PDF_FileSpec : public CHE_Object
+class CHE_PDF_FileSpec
 {
 public:
-    CHE_PDF_FileSpec( const CHE_PDF_ObjectPtr & obj );
+	CHE_PDF_FileSpec(const CHE_ByteString & path) : mFileString(path) {}
+	CHE_PDF_FileSpec(const CHE_PDF_NamePtr & obj) : mFileString(obj->GetString()) {}
+	CHE_PDF_FileSpec(const CHE_PDF_DictionaryPtr & obj) : mDict(obj) {}
     
 private:
     CHE_ByteString          mFileString;

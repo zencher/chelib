@@ -5,6 +5,8 @@
 #include "../che_graphics.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_file.h"
+#include "che_pdf_contentlist.h"
+#include "che_pdf_componentmgr.h"
 
 #include <stack>
 
@@ -49,7 +51,7 @@ class CHE_PDF_Page : public CHE_Object
 {
 public:
 	
-	CHE_PDF_DictionaryPtr	GetPageDict() const { return mpPageDict; }
+	CHE_PDF_DictionaryPtr	GetPageDict() const { return mPageDict; }
 
 	CHE_Rect				GetMediaBox() const;
 
@@ -71,13 +73,19 @@ public:
 
 	static HE_BOOL			ReleasePage( CHE_PDF_Page * pPage );
 
+	HE_BOOL					ParsePageContent( CHE_PDF_ComponentMgr * pComMgr );
+
+	CHE_PDF_ContentObjectList & GetPageContentList() { return mContentList; }
+
 private:
-	CHE_PDF_Page( const CHE_PDF_DictionaryPtr pPageDict, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator ), mpPageDict( pPageDict ) {}
+	CHE_PDF_Page( const CHE_PDF_DictionaryPtr pageDict, CHE_Allocator * pAllocator = NULL )
+		: CHE_Object(pAllocator), mbParsed(false), mPageDict(pageDict) {}
 
 	~CHE_PDF_Page() {}
 
-	CHE_PDF_DictionaryPtr	mpPageDict;
+	HE_BOOL						mbParsed;
+	CHE_PDF_DictionaryPtr		mPageDict;
+	CHE_PDF_ContentObjectList	mContentList;
 
 	friend class CHE_Allocator;
 	friend class CHE_PDF_PageTree;

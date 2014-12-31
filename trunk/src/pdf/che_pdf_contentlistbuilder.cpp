@@ -2180,6 +2180,10 @@ HE_BOOL CHE_PDF_ContentListBuilder::ParsePageContent( const CHE_PDF_DictionaryPt
 	{
 		return FALSE;
 	}
+	if ( pComponentMgr == nullptr )
+	{
+		return FALSE;
+	}
 	if ( pAllocator == NULL )
 	{
 		pAllocator = GetDefaultAllocator();

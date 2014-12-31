@@ -20,11 +20,7 @@ enum PDF_CONTENTRES_TYPE
 class CHE_PDF_ContentResMgr : public CHE_Object
 {
 public:
-	CHE_PDF_ContentResMgr( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mpResDict(CHE_PDF_Dictionary::Create(pAllocator)) {}
-	
-	CHE_PDF_ContentResMgr( const CHE_PDF_DictionaryPtr & pResDict, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mpResDict(pResDict) {}
+	CHE_PDF_ContentResMgr( CHE_Allocator * pAllocator = NULL ) : CHE_Object(pAllocator) {}
 
 	HE_VOID SetDict( const CHE_PDF_DictionaryPtr & pDict ) { mpResDict = pDict; }
 

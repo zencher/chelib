@@ -19,7 +19,21 @@ public:
 
 	CHE_PDF_ObjectPtr GetJavaScript(const CHE_ByteString & name);
 
-	//todo
+	CHE_PDF_ObjectPtr GetAnnotAppear(const CHE_ByteString & name);
+
+	CHE_PDF_ObjectPtr GetPage(const CHE_ByteString & name);
+
+	CHE_PDF_ObjectPtr GetTemplate(const CHE_ByteString & name);
+
+	CHE_PDF_ObjectPtr GetIDS(const CHE_ByteString & name);
+
+	CHE_PDF_ObjectPtr GetURL(const CHE_ByteString & name);
+
+	CHE_PDF_ObjectPtr GetEmbeddedFile(const CHE_ByteString & name);
+
+	CHE_PDF_ObjectPtr GetAlternatePresentation(const CHE_ByteString & name);
+
+	CHE_PDF_ObjectPtr GetRendition(const CHE_ByteString & name);
 
 private:
 	CHE_PDF_NameTree *	mpDestNameTree;

@@ -1,4 +1,5 @@
 #include "../../include/pdf/che_pdf_pages.h"
+#include "../../include/pdf/che_pdf_contentlistbuilder.h"
 
 #include <cassert>
 
@@ -247,7 +248,7 @@ HE_VOID CHE_PDF_PageTree::ParseAllPageRefInfo()
 CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict() const
 {
 	CHE_PDF_DictionaryPtr resDict;
-	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
+	CHE_PDF_ObjectPtr objPtr = mPageDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
 	if ( objPtr )
 	{
 		resDict = objPtr->GetDictPtr();
@@ -256,7 +257,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_Page::GetResourcesDict() const
 
 	//Search Parent Dict
 	CHE_PDF_ObjectPtr tmpObjPtr;
-	objPtr = mpPageDict->GetElement( "Parent", OBJ_TYPE_DICTIONARY );
+	objPtr = mPageDict->GetElement( "Parent", OBJ_TYPE_DICTIONARY );
 	while ( objPtr )
 	{
 		tmpObjPtr = objPtr->GetDictPtr()->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
@@ -290,7 +291,7 @@ CHE_Rect CHE_PDF_Page::GetPageRect() const
 CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray() const
 {
 	CHE_PDF_ArrayPtr mediaBox;
-	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "MediaBox", OBJ_TYPE_ARRAY );
+	CHE_PDF_ObjectPtr objPtr = mPageDict->GetElement( "MediaBox", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		mediaBox = objPtr->GetArrayPtr();
@@ -299,7 +300,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray() const
 
 	//Search Parent Dict
 	CHE_PDF_ObjectPtr tmpObjPtr;
-	objPtr = mpPageDict->GetElement( "Parent", OBJ_TYPE_DICTIONARY );
+	objPtr = mPageDict->GetElement( "Parent", OBJ_TYPE_DICTIONARY );
 	while ( objPtr )
 	{
 		tmpObjPtr = objPtr->GetDictPtr()->GetElement( "MediaBox", OBJ_TYPE_ARRAY );
@@ -317,7 +318,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetMediaBoxArray() const
 CHE_PDF_ArrayPtr CHE_PDF_Page::GetCropBoxArray() const
 {
 	CHE_PDF_ArrayPtr arrayBox;
-	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "CropBox", OBJ_TYPE_ARRAY );
+	CHE_PDF_ObjectPtr objPtr = mPageDict->GetElement( "CropBox", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		arrayBox = objPtr->GetArrayPtr();
@@ -329,7 +330,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetCropBoxArray() const
 CHE_PDF_ArrayPtr CHE_PDF_Page::GetBleedBoxArray() const
 {
 	CHE_PDF_ArrayPtr arrayBox;
-	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "CropBox", OBJ_TYPE_ARRAY );
+	CHE_PDF_ObjectPtr objPtr = mPageDict->GetElement( "CropBox", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		arrayBox = objPtr->GetArrayPtr();
@@ -341,7 +342,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetBleedBoxArray() const
 CHE_PDF_ArrayPtr CHE_PDF_Page::GetTrimBoxArray() const
 {
 	CHE_PDF_ArrayPtr arrayBox;
-	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "TrimBox", OBJ_TYPE_ARRAY );
+	CHE_PDF_ObjectPtr objPtr = mPageDict->GetElement( "TrimBox", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		arrayBox = objPtr->GetArrayPtr();
@@ -353,7 +354,7 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetTrimBoxArray() const
 CHE_PDF_ArrayPtr CHE_PDF_Page::GetArtBoxArray() const
 {
 	CHE_PDF_ArrayPtr arrayBox;
-	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "ArtBox", OBJ_TYPE_ARRAY );
+	CHE_PDF_ObjectPtr objPtr = mPageDict->GetElement( "ArtBox", OBJ_TYPE_ARRAY );
 	if ( objPtr )
 	{
 		arrayBox = objPtr->GetArrayPtr();
@@ -366,7 +367,7 @@ HE_INT32 CHE_PDF_Page::GetRotate() const
 {
 	HE_INT32 ret = 0;
 
-	CHE_PDF_ObjectPtr objPtr = mpPageDict->GetElement( "Rotate", OBJ_TYPE_NUMBER );
+	CHE_PDF_ObjectPtr objPtr = mPageDict->GetElement( "Rotate", OBJ_TYPE_NUMBER );
 	if ( objPtr )
 	{
 		ret = objPtr->GetNumberPtr()->GetInteger();
@@ -375,7 +376,7 @@ HE_INT32 CHE_PDF_Page::GetRotate() const
 
 	//Search Parent Dict
 	CHE_PDF_ObjectPtr tmpObjPtr;
-	objPtr = mpPageDict->GetElement( "Parent", OBJ_TYPE_DICTIONARY );
+	objPtr = mPageDict->GetElement( "Parent", OBJ_TYPE_DICTIONARY );
 	while ( objPtr )
 	{
 		tmpObjPtr = objPtr->GetDictPtr()->GetElement( "Rotate", OBJ_TYPE_ARRAY );
@@ -398,4 +399,14 @@ HE_BOOL	CHE_PDF_Page::ReleasePage( CHE_PDF_Page * pPage )
 		return TRUE;
 	}
 	return FALSE;
+}
+
+HE_BOOL CHE_PDF_Page::ParsePageContent(CHE_PDF_ComponentMgr * pComMgr)
+{
+	if (mbParsed == false)
+	{
+		mbParsed = true;
+		return CHE_PDF_ContentListBuilder::ParsePageContent(mPageDict, mContentList, pComMgr, GetAllocator());
+	}
+	return true;
 }

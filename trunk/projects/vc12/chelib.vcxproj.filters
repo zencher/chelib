@@ -86,9 +86,6 @@
     <ClInclude Include="..\..\include\che_bitmap.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\che_datastructure.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\che_define.h">
       <Filter>include</Filter>
     </ClInclude>
@@ -158,9 +155,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_function.h">
       <Filter>include\pdf\component</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h">
-      <Filter>include\pdf\component</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h">
       <Filter>include\pdf\content</Filter>
     </ClInclude>
@@ -180,9 +174,6 @@
       <Filter>include\pdf\component</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_action.h">
-      <Filter>include\pdf\component</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_imageraster.h">
       <Filter>include\pdf\component</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_pattern.h">
@@ -214,6 +205,21 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_namedict.h">
       <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_filespec.h">
+      <Filter>include\pdf\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_pagelabels.h">
+      <Filter>include\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_imageraster.h">
+      <Filter>include\pdf\component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h">
+      <Filter>include\pdf\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_annotation.h">
+      <Filter>include\pdf\component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -637,13 +643,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_function.cpp">
       <Filter>src\pdf\component</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp">
-      <Filter>src\pdf\component</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp">
-      <Filter>src\pdf\component</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp">
       <Filter>src\pdf\component</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_pattern.cpp">
@@ -675,6 +675,21 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_namedict.cpp">
       <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_filespec.cpp">
+      <Filter>src\pdf\base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_pagelabels.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp">
+      <Filter>src\pdf\component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp">
+      <Filter>src\pdf\context</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_annotation.cpp">
+      <Filter>src\pdf\component</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

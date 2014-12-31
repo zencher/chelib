@@ -66,8 +66,8 @@ typedef std::list<CHE_PDF_ContentObject*> ContentObjectList;
 class CHE_PDF_ContentObjectList : public CHE_Object
 {
 public:
-	CHE_PDF_ContentObjectList( const CHE_PDF_DictionaryPtr & pResDict = CHE_PDF_DictionaryPtr(), CHE_Allocator * pAllocator = NULL )
-		: CHE_Object( pAllocator ), mResMgr(pResDict, pAllocator) {}
+	CHE_PDF_ContentObjectList( CHE_Allocator * pAllocator = NULL )
+		: CHE_Object( pAllocator ), mResMgr(pAllocator) {}
 
 	~CHE_PDF_ContentObjectList();
 
@@ -77,7 +77,7 @@ public:
 
 	ContentObjectList::iterator End();
 
-	CHE_PDF_ContentObjectList * Clone();
+	//CHE_PDF_ContentObjectList * Clone();
 
 	HE_VOID Clear();
 

@@ -2,13 +2,24 @@
 
 using namespace std;
 
-HE_VOID CHE_PDF_NumberTree::Parse(const CHE_PDF_ReferencePtr & refPtr)
+CHE_PDF_ObjectPtr CHE_PDF_NumberTree::GetObject(HE_INT32 num)
 {
-	if ( !refPtr )
+	CHE_PDF_ObjectPtr objRet;
+	if (!mDictPtr)
 	{
-		return;
+		return objRet;
 	}
-	mRefPtr = refPtr;
+
+	map<HE_INT32, CHE_PDF_ObjectPtr>::iterator it;
+	it = mMap.find(num);
+	if (it != mMap.end())
+	{
+		objRet = it->second;
+	}
+	else{
+		Find(num, mDictPtr, objRet);
+	}
+	return objRet;
 }
 
 HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet)
@@ -43,7 +54,7 @@ HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dic
 				}
 			}
 
-			obj = dict->GetElement( "Names", OBJ_TYPE_ARRAY );
+			obj = dict->GetElement( "Nums", OBJ_TYPE_ARRAY );
 			if ( obj )
 			{
 				arr = obj->GetArrayPtr();
@@ -61,7 +72,7 @@ HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dic
 					}
 				}
 			}
-			unordered_map<HE_INT32,CHE_PDF_ObjectPtr>::iterator it;
+			map<HE_INT32,CHE_PDF_ObjectPtr>::iterator it;
 			it = mMap.find( num );
 			if ( it != mMap.end() )
 			{
@@ -91,28 +102,66 @@ HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dic
 	return FALSE;
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_NumberTree::GetObject( HE_INT32 num )
+HE_BOOL CHE_PDF_NumberTree::Parse(const CHE_PDF_DictionaryPtr & dict)
 {
-	CHE_PDF_ObjectPtr objRet;
-	if ( !mRefPtr )
+	HE_INT32 num;
+	CHE_PDF_ObjectPtr obj;
+	CHE_PDF_ArrayPtr arr;
+	
+	obj = dict->GetElement("Nums", OBJ_TYPE_ARRAY);
+	if (obj)
 	{
-		return objRet;
-	}
-
-	unordered_map<HE_INT32,CHE_PDF_ObjectPtr>::iterator it;
-	it = mMap.find( num );
-	if ( it != mMap.end() )
-	{
-		objRet = it->second;
-	}
-	else
-	{
-		CHE_PDF_ObjectPtr obj;
-		obj = mRefPtr->GetRefObj( OBJ_TYPE_DICTIONARY );
-		if ( obj )
+		arr = obj->GetArrayPtr();
+		for (HE_UINT32 i = 0; i < arr->GetCount(); i += 2)
 		{
-			Find( num, obj->GetDictPtr(), objRet );
+			obj = arr->GetElement(i, OBJ_TYPE_NUMBER);
+			if (obj)
+			{
+				num = obj->GetNumberPtr()->GetInteger();
+			}
+			obj = arr->GetElement(i + 1);
+			if (obj)
+			{
+				mMap.insert(make_pair(num, obj));
+			}
 		}
 	}
-	return objRet;
+	obj = dict->GetElement("Kids", OBJ_TYPE_ARRAY);
+	if (obj)
+	{
+		arr = obj->GetArrayPtr();
+		for (HE_UINT32 i = 0; i < arr->GetCount(); ++i)
+		{
+			obj = arr->GetElement(i, OBJ_TYPE_DICTIONARY);
+			if (obj)
+			{
+				Parse(obj->GetDictPtr());
+			}
+		}
+	}
+	return true;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NumberTree::First(HE_INT32 & ret)
+{
+	CHE_PDF_ObjectPtr obj;
+	mIt = mMap.begin();
+	if ( mIt != mMap.end() )
+	{
+		obj = mIt->second;
+		ret = mIt->first;
+	}
+	return obj;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NumberTree::Next(HE_INT32 & ret)
+{
+	CHE_PDF_ObjectPtr obj;
+	++mIt;
+	if (mIt != mMap.end())
+	{
+		obj = mIt->second;
+		ret = mIt->first;
+	}
+	return obj;
 }

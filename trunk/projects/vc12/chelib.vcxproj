@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h" />
     <ClInclude Include="..\..\include\che_bitmap.h" />
-    <ClInclude Include="..\..\include\che_datastructure.h" />
     <ClInclude Include="..\..\include\che_define.h" />
     <ClInclude Include="..\..\include\che_drawer_windows.h" />
     <ClInclude Include="..\..\include\che_graphics.h" />
@@ -30,6 +29,7 @@
     <ClInclude Include="..\..\include\crypt\che_crypt_rc4.h" />
     <ClInclude Include="..\..\include\hash\che_hash_md5.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_action.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_annotation.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_cmap_res.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_collector.h" />
@@ -44,6 +44,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_document.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_file.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_filespec.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_filter.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_fontmgr.h" />
@@ -56,6 +57,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_numbertree.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_outline.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_pagelabels.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_pages.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_pattern.h" />
@@ -184,6 +186,7 @@
     <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp" />
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_action.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_annotation.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_component.cpp" />
@@ -197,6 +200,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_extgstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_filespec.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp" />
@@ -210,6 +214,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_numbertree.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_pagelabels.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pattern.cpp" />

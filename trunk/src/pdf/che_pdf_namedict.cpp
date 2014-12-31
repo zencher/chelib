@@ -57,74 +57,64 @@ HE_VOID CHE_PDF_NameDict::Parse(const CHE_PDF_DictionaryPtr & dict)
 		return;
 	}
 
-	CHE_PDF_ObjectPtr objPtr = dict->GetElement("Dests", OBJ_TYPE_REFERENCE);
+	CHE_PDF_ObjectPtr objPtr = dict->GetElement("Dests", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpDestNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpDestNameTree->Parse(objPtr->GetRefPtr());
+		mpDestNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("AP", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("AP", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpAPNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpAPNameTree->Parse(objPtr->GetRefPtr());
+		mpAPNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("JavaScript", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("JavaScript", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpJSNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpJSNameTree->Parse(objPtr->GetRefPtr());
+		mpJSNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("Pages", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("Pages", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpPagesNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpPagesNameTree->Parse(objPtr->GetRefPtr());
+		mpPagesNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("Templates", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("Templates", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpTemplatesNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpTemplatesNameTree->Parse(objPtr->GetRefPtr());
+		mpTemplatesNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("IDS", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("IDS", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpIDSNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpIDSNameTree->Parse(objPtr->GetRefPtr());
+		mpIDSNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("URLS", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("URLS", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpURLSNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpURLSNameTree->Parse(objPtr->GetRefPtr());
+		mpURLSNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("EmbeddedFile", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("EmbeddedFile", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpEFNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpEFNameTree->Parse(objPtr->GetRefPtr());
+		mpEFNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("AlternatePresentations", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("AlternatePresentations", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpAlPrNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpAlPrNameTree->Parse(objPtr->GetRefPtr());
+		mpAlPrNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 
-	objPtr = dict->GetElement("Renditions", OBJ_TYPE_REFERENCE);
+	objPtr = dict->GetElement("Renditions", OBJ_TYPE_DICTIONARY);
 	if (objPtr)
 	{
-		mpRendNameTree = GetAllocator()->New<CHE_PDF_NameTree>(GetAllocator());
-		mpRendNameTree->Parse(objPtr->GetRefPtr());
+		mpRendNameTree = GetAllocator()->New<CHE_PDF_NameTree>(objPtr->GetDictPtr(), GetAllocator());
 	}
 }
 
@@ -141,9 +131,89 @@ CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetDest(const CHE_ByteString & name)
 CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetJavaScript(const CHE_ByteString & name)
 {
 	CHE_PDF_ObjectPtr objPtr;
-	if (mpDestNameTree)
+	if (mpJSNameTree)
 	{
 		objPtr = mpJSNameTree->GetObject(name);
+	}
+	return objPtr;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetAnnotAppear(const CHE_ByteString & name)
+{
+	CHE_PDF_ObjectPtr objPtr;
+	if (mpAPNameTree)
+	{
+		objPtr = mpAPNameTree->GetObject(name);
+	}
+	return objPtr;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetPage(const CHE_ByteString & name)
+{
+	CHE_PDF_ObjectPtr objPtr;
+	if (mpPagesNameTree)
+	{
+		objPtr = mpPagesNameTree->GetObject(name);
+	}
+	return objPtr;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetTemplate(const CHE_ByteString & name)
+{
+	CHE_PDF_ObjectPtr objPtr;
+	if (mpTemplatesNameTree)
+	{
+		objPtr = mpTemplatesNameTree->GetObject(name);
+	}
+	return objPtr;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetIDS(const CHE_ByteString & name)
+{
+	CHE_PDF_ObjectPtr objPtr;
+	if (mpIDSNameTree)
+	{
+		objPtr = mpIDSNameTree->GetObject(name);
+	}
+	return objPtr;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetURL(const CHE_ByteString & name)
+{
+	CHE_PDF_ObjectPtr objPtr;
+	if (mpURLSNameTree)
+	{
+		objPtr = mpURLSNameTree->GetObject(name);
+	}
+	return objPtr;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetEmbeddedFile(const CHE_ByteString & name)
+{
+	CHE_PDF_ObjectPtr objPtr;
+	if (mpEFNameTree)
+	{
+		objPtr = mpEFNameTree->GetObject(name);
+	}
+	return objPtr;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetAlternatePresentation(const CHE_ByteString & name)
+{
+	CHE_PDF_ObjectPtr objPtr;
+	if (mpAlPrNameTree)
+	{
+		objPtr = mpAlPrNameTree->GetObject(name);
+	}
+	return objPtr;
+}
+
+CHE_PDF_ObjectPtr CHE_PDF_NameDict::GetRendition(const CHE_ByteString & name)
+{
+	CHE_PDF_ObjectPtr objPtr;
+	if (mpRendNameTree)
+	{
+		objPtr = mpRendNameTree->GetObject(name);
 	}
 	return objPtr;
 }

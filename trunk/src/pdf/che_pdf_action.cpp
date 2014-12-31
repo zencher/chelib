@@ -38,7 +38,7 @@ CHE_PDF_GoToAction::CHE_PDF_GoToAction(const CHE_PDF_DictionaryPtr & dict, CHE_P
 		}
 		if ( objPtr->GetType() == OBJ_TYPE_ARRAY )
 		{
-			mpDest = CHE_PDF_Destination::Create(objPtr->GetArrayPtr(), GetAllocator());
+			mDestPtr = CHE_PDF_Destination::Create(objPtr->GetArrayPtr(), GetAllocator());
 		}
 	}
 }

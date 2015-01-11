@@ -49,6 +49,7 @@ public:
     HE_VOID     SetImageColorSpace( const CHE_PDF_ColorSpacePtr & cs );
     CGColorSpaceRef CreateColorSpace( const CHE_PDF_ColorSpacePtr & cs );
     CGImageRef      CreateImage( const CHE_PDF_ImageXObjectPtr & imagePtr );
+    CGImageRef      CreateImage( CHE_PDF_InlineImage * image );
     
     //path & clip operations
     HE_VOID		MoveTo( HE_FLOAT x, HE_FLOAT y );

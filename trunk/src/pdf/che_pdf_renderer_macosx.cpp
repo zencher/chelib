@@ -315,37 +315,43 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
     
     if ( cs->GetColorSpaceType() == COLORSPACE_SPECIAL_PATTERN )
     {
-        CHE_PDF_TilingPtr tilingPtr = cs->GetTiling();
-        
-        CHE_Rect rect = tilingPtr->GetBBox();
-        CGRect bounds = CGRectMake( rect.left, rect.bottom, rect.width, rect.height );
-        
-        CHE_Matrix tmpMatrix = tilingPtr->GetMatrix();
-        tmpMatrix.Concat( mExtMatrix );
-        
-        CGAffineTransform matrix = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f );
-        
-        bool bColored = tilingPtr->IsColored();
-        
-        TilingCallBackInfo * pInfo = GetDefaultAllocator()->New<TilingCallBackInfo>();
-        pInfo->tiling = tilingPtr.GetPointer();
-        pInfo->render = this;
-        
-        CGPatternCallbacks callbacks;
-        callbacks.drawPattern = TilingDrawCallBack;
-        callbacks.releaseInfo = NULL;
-        
-        
-        CGPatternRef patternRef = CGPatternCreate(  (void*)(pInfo), bounds, matrix,
-                                                    tilingPtr->GetXStep(), tilingPtr->GetYStep(),
-                                                    kCGPatternTilingNoDistortion, bColored,
-                                                    &callbacks );
-        
-        
-        CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( NULL );
-        CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
-        CGFloat alpha;
-        CGContextSetFillPattern( mContextRef, patternRef, &alpha );
+        CHE_PDF_CS_PatternPtr pattern = cs->GetPatternPtr();
+        if ( pattern )
+        {
+            CHE_PDF_TilingPtr tilingPtr = pattern->mTiling;
+            if ( tilingPtr )
+            {
+                CHE_Rect rect = tilingPtr->GetBBox();
+                CGRect bounds = CGRectMake( rect.left, rect.bottom, rect.width, rect.height );
+                
+                CHE_Matrix tmpMatrix = tilingPtr->GetMatrix();
+                tmpMatrix.Concat( mExtMatrix );
+                
+                CGAffineTransform matrix = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f );
+                
+                bool bColored = tilingPtr->IsColored();
+                
+                TilingCallBackInfo * pInfo = GetDefaultAllocator()->New<TilingCallBackInfo>();
+                pInfo->tiling = tilingPtr.GetPointer();
+                pInfo->render = this;
+                
+                CGPatternCallbacks callbacks;
+                callbacks.drawPattern = TilingDrawCallBack;
+                callbacks.releaseInfo = NULL;
+                
+                
+                CGPatternRef patternRef = CGPatternCreate(  (void*)(pInfo), bounds, matrix,
+                                                          tilingPtr->GetXStep(), tilingPtr->GetYStep(),
+                                                          kCGPatternTilingNoDistortion, bColored,
+                                                          &callbacks );
+                
+                
+                CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( NULL );
+                CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
+                CGFloat alpha;
+                CGContextSetFillPattern( mContextRef, patternRef, &alpha );
+            }
+        }
     }else{
         mFillColorSpace = CreateColorSpace( cs );
         CGContextSetFillColorSpace( mContextRef , mFillColorSpace );
@@ -381,39 +387,70 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
             csRef = CGColorSpaceCreateDeviceCMYK();
             break;
         case COLORSPACE_CIEBASE_CALGRAY:
-            csRef = CGColorSpaceCreateCalibratedGray( cs->mWhitePoint, cs->mBlackPoint, cs->mGamma[0]);
-            break;
+            {
+                CHE_PDF_CS_CalGrayPtr calgraycs = cs->GetCalGrayPtr();
+                if ( calgraycs )
+                {
+                    csRef = CGColorSpaceCreateCalibratedGray( calgraycs->mWhitePoint, calgraycs->mBlackPoint, calgraycs->mGamma );
+                }
+                break;
+            }
         case COLORSPACE_CIEBASE_CALRGB:
-            csRef = CGColorSpaceCreateCalibratedRGB( cs->mWhitePoint , cs->mBlackPoint, cs->mGamma, cs->mMatrix );
-            break;
+            {
+                CHE_PDF_CS_CalRGBPtr calrgbcs = cs->GetCalRGBPtr();
+                if ( calrgbcs )
+                {
+                    csRef = CGColorSpaceCreateCalibratedRGB( calrgbcs->mWhitePoint , calrgbcs->mBlackPoint, calrgbcs->mGamma, calrgbcs->mMatrix );
+                }
+                break;
+            }
         case COLORSPACE_CIEBASE_CALLAB:
-            csRef = CGColorSpaceCreateLab( cs->mWhitePoint, cs->mBlackPoint, cs->mRange );
-            break;
+            {
+                CHE_PDF_CS_CalLabPtr labcs = cs->GetCalLabPtr();
+                if ( labcs )
+                {
+                    csRef = CGColorSpaceCreateLab( labcs->mWhitePoint, labcs->mBlackPoint, labcs->mRange );
+                }
+                break;
+            }
         case COLORSPACE_CIEBASE_ICCBASED:
             {
-                CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( cs->mBaseColorspace );
-                if ( baseColorSpaceRef )
+                CHE_PDF_CS_ICCBasedPtr icccs = cs->GetICCBasedPtr();
+                if ( icccs )
                 {
-                    CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, cs->mStmAcc.GetData(), cs->mStmAcc.GetSize(), NULL );
-                    csRef = CGColorSpaceCreateICCBased( cs->GetComponentCount(), cs->mRange, dataRef, baseColorSpaceRef );
-                    CGDataProviderRelease( dataRef );
-                    CGColorSpaceRelease( baseColorSpaceRef );
+                    CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( icccs->mAlternate );
+                    if ( baseColorSpaceRef )
+                    {
+                        CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, icccs->mStmAcc.GetData(), icccs->mStmAcc.GetSize(), NULL );
+                        csRef = CGColorSpaceCreateICCBased( cs->GetComponentCount(), icccs->mRange, dataRef, baseColorSpaceRef );
+                        CGDataProviderRelease( dataRef );
+                        CGColorSpaceRelease( baseColorSpaceRef );
+                    }
                 }
                 break;
             }
         case COLORSPACE_SPECIAL_INDEXED:
             {
-                CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( cs->mBaseColorspace );
-                if ( baseColorSpaceRef )
+                CHE_PDF_CS_IndexedPtr indexcs = cs->GetIndexedPtr();
+                if ( indexcs )
                 {
-                    csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, cs->mIndexCount, cs->mpIndexTable );
-                    CGColorSpaceRelease( baseColorSpaceRef );
+                    CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( indexcs->mBaseColorSpace );
+                    if ( baseColorSpaceRef )
+                    {
+                        csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpIndexTable );
+                        //CGColorSpaceRelease( baseColorSpaceRef );
+                    }
                 }
                 break;
             }
         case COLORSPACE_SPECIAL_SEPARATION:
             {
-                csRef = CreateColorSpace( cs->mBaseColorspace );
+                CHE_PDF_CS_SeparationPtr separation = cs->GetSeparationPtr();
+                if ( separation )
+                {
+                    csRef = CreateColorSpace( separation->mBaseColorSpace );
+                }
+                break;
             }
         default:
             break;
@@ -492,6 +529,84 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         imgRef = CGImageCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), bpc, bpc*csPtr->GetComponentCount(),
                                (imagePtr->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
                                kCGBitmapByteOrderDefault, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
+        CGDataProviderRelease( dataRef );
+        CGColorSpaceRelease( csRef );
+    }
+    return imgRef;
+}
+
+CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
+{
+    CGImageRef imgRef = NULL;
+    if ( image )
+    {
+        CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, image->GetData(), image->GetDataSize(), NULL );
+        if ( dataRef == NULL )
+        {
+            return imgRef;
+        }
+        
+        double * pDecode = NULL;
+        double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
+        
+        CHE_PDF_ArrayPtr arrayPtr;
+        CHE_PDF_ObjectPtr objPtr = image->GetDecode();
+        if ( objPtr ) {
+            arrayPtr = objPtr->GetArrayPtr();
+        }
+        if ( arrayPtr )
+        {
+            for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 4; ++i )
+            {
+                objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
+                if ( objPtr )
+                {
+                    decode[i] = objPtr->GetNumberPtr()->GetFloat();
+                }
+            }
+            pDecode = decode;
+        }
+        
+        CHE_PDF_ColorSpacePtr csPtr = image->GetColorspace();
+        if ( !csPtr )
+        {
+            if ( image->IsMask() )
+            {
+                imgRef = CGImageMaskCreate( image->GetWidth(), image->GetHeight(), image->GetBpc(), image->GetBpc(), (image->GetWidth() * image->GetBpc() + 7)/8, dataRef, pDecode, false );
+                CGDataProviderRelease( dataRef );
+            }
+            return imgRef;
+        }
+        
+        CGColorRenderingIntent ri = kCGRenderingIntentAbsoluteColorimetric;
+        /*switch ( imagePtr->GetRI() )
+        {
+            case RI_AbsoluteColorimetric:
+                ri = kCGRenderingIntentAbsoluteColorimetric;
+                break;
+            case RI_RelativeColorimetric:
+                ri = kCGRenderingIntentRelativeColorimetric;
+                break;
+            case RI_Saturation:
+                ri = kCGRenderingIntentSaturation;
+                break;
+            case RI_Perceptual:
+                ri = kCGRenderingIntentPerceptual;
+                break;
+            default:
+                break;
+        }*/
+        
+        
+        HE_ULONG bpc = image->GetBpc();
+        if ( bpc == 0 )
+        {
+            bpc = image->GetDataSize() * 8 / ( image->GetWidth() * image->GetHeight() * csPtr->GetComponentCount() );
+        }
+        CGColorSpaceRef csRef = CreateColorSpace( csPtr );
+        imgRef = CGImageCreate( image->GetWidth(), image->GetHeight(), bpc, bpc * csPtr->GetComponentCount(),
+                               (image->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
+                               kCGBitmapByteOrderDefault, dataRef, pDecode, false, ri );
         CGDataProviderRelease( dataRef );
         CGColorSpaceRelease( csRef );
     }
@@ -737,35 +852,49 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
     
     if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
     {
-        CHE_PDF_FunctionPtr funcPtr = fillColorSpace->GetFunction();
-        std::vector<HE_FLOAT> input;
-        std::vector<HE_FLOAT> output;
-        for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
+        CHE_PDF_CS_SeparationPtr cs = fillColorSpace->GetSeparationPtr();
+        if ( cs )
         {
-            input.push_back( fillColor.GetComponent( i ) );
-        }
-        funcPtr->Calculate( input, output );
-        fillColor.Clear();
-        for ( size_t j = 0; j < output.size(); ++j )
-        {
-            fillColor.Push( output[j] );
+            CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
+            if ( funcPtr )
+            {
+                std::vector<HE_FLOAT> input;
+                std::vector<HE_FLOAT> output;
+                for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
+                {
+                    input.push_back( fillColor.GetComponent( i ) );
+                }
+                funcPtr->Calculate( input, output );
+                fillColor.Clear();
+                for ( size_t j = 0; j < output.size(); ++j )
+                {
+                    fillColor.Push( output[j] );
+                }
+            }
         }
     }
     
     if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
     {
-        CHE_PDF_FunctionPtr funcPtr = strokeColorSpace->GetFunction();
-        std::vector<HE_FLOAT> input;
-        std::vector<HE_FLOAT> output;
-        for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
+        CHE_PDF_CS_SeparationPtr cs = strokeColorSpace->GetSeparationPtr();
+        if ( cs )
         {
-            input.push_back( strokeColor.GetComponent( i ) );
-        }
-        funcPtr->Calculate( input, output );
-        strokeColor.Clear();
-        for ( size_t j = 0; j < output.size(); ++j )
-        {
-            strokeColor.Push( output[j] );
+            CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
+            if ( funcPtr )
+            {
+                std::vector<HE_FLOAT> input;
+                std::vector<HE_FLOAT> output;
+                for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
+                {
+                    input.push_back( strokeColor.GetComponent( i ) );
+                }
+                funcPtr->Calculate( input, output );
+                strokeColor.Clear();
+                for ( size_t j = 0; j < output.size(); ++j )
+                {
+                    strokeColor.Push( output[j] );
+                }
+            }
         }
     }
     
@@ -1398,7 +1527,18 @@ HE_VOID CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
 
 HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
 {
-    CHE_Bitmap * pBitmap = pImage->GetBitmap();
+    CGImageRef imgRef = CreateImage( pImage );
+    if ( imgRef )
+    {
+        CHE_Matrix tmpMatrix;
+        tmpMatrix = mMatrix;
+        tmpMatrix.Concat( mExtMatrix );
+        CGContextConcatCTM( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
+        CGContextDrawImage( mContextRef, CGRectMake(0, 0, 1, 1), imgRef );
+        CGImageRelease( imgRef );
+    }
+    
+    /*CHE_Bitmap * pBitmap = pImage->GetBitmap();
     if ( pBitmap )
     {
         CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, pBitmap->GetBuffer(), pBitmap->GetMemBitmapDataSize(), NULL );
@@ -1420,7 +1560,7 @@ HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
         CGImageRelease( imageRef );
         CGColorSpaceRelease( colorSpace );
         CGDataProviderRelease( dataRef );
-    }
+    }*/
 }
 
 

@@ -1,11 +1,12 @@
 #ifndef _CHE_PDF_FUNCTION_H_
 #define _CHE_PDF_FUNCTION_H_
 
-#include <vector>
-using namespace std;
-
 #include "che_pdf_component.h"
 #include "che_pdf_parser.h"
+
+#include <vector>
+#include <stack>
+
 
 enum PDF_FUNCTION_TYPE
 {
@@ -14,7 +15,6 @@ enum PDF_FUNCTION_TYPE
 	FUNCTION_TYPE_STITCHING		= 3,
 	FUNCTION_TYPE_POSTSCRIPT	= 4
 };
-
 
 class CHE_PDF_Function;
 
@@ -27,11 +27,11 @@ public:
 class CHE_PDF_Function : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_FunctionPtr	Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_FunctionPtr	Create(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator = NULL);
 
 	virtual ~CHE_PDF_Function() {};
 
-	PDF_FUNCTION_TYPE			GetType() const { return mType; }
+	PDF_FUNCTION_TYPE			GetFunctionType() const { return mFunctionType; }
 	HE_UINT32					GetInputCount() const { return mInputCount; } 
 	HE_UINT32					GetOutputCount() const { return mOutputCount; }
 	HE_FLOAT					GetDomianMin( HE_UINT32 index ) const;
@@ -41,12 +41,12 @@ public:
 	HE_BOOL						HasDomian() const { return mpDomain != NULL; }
 	HE_BOOL						HasRange() const { return mpRange != NULL; }
 
-	virtual HE_BOOL				Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output ) = 0;
+	virtual HE_BOOL				Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output) = 0;
 
 protected:
-	CHE_PDF_Function( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function(const CHE_PDF_ObjectPtr & root, CHE_Allocator * pAllocator = NULL);
 
-	PDF_FUNCTION_TYPE			mType;
+	PDF_FUNCTION_TYPE			mFunctionType;
 	HE_UINT32					mInputCount;
 	HE_UINT32					mOutputCount;
 	HE_FLOAT*					mpDomain;
@@ -62,10 +62,10 @@ class CHE_PDF_Function_Sampled : public CHE_PDF_Function
 public:
 	~CHE_PDF_Function_Sampled();
 
-	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+	HE_BOOL Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output);
 
 private:
-	CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_Sampled(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator);
 
 	HE_INT32 GetSize( HE_UINT32 index ) const;
 	HE_FLOAT GetEncodeMin( HE_UINT32 index ) const;
@@ -91,10 +91,10 @@ class CHE_PDF_Function_Exponential : public CHE_PDF_Function
 public:
 	~CHE_PDF_Function_Exponential();
 
-	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+	HE_BOOL Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output);
 
 private:
-	CHE_PDF_Function_Exponential( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_Exponential(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator);
 
 	HE_INT32	mN;
 	HE_FLOAT*	mpC0;
@@ -108,18 +108,18 @@ class CHE_PDF_Function_Stitching : public CHE_PDF_Function
 public:
 	~CHE_PDF_Function_Stitching();
 
-	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+	HE_BOOL Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output);
 
 private:
-	CHE_PDF_Function_Stitching( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_Stitching(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator);
 
-	HE_FLOAT GetEncodeMin( HE_UINT32 index ) const;
-	HE_FLOAT GetEncodeMax( HE_UINT32 index ) const;
+	HE_FLOAT GetEncodeMin(HE_UINT32 index) const;
+	HE_FLOAT GetEncodeMax(HE_UINT32 index) const;
 
-	HE_UINT32					mK;
-	vector<HE_FLOAT>			mBounds;
-	vector<HE_FLOAT>			mEncode;
-	vector<CHE_PDF_FunctionPtr>	mFunctions;
+	HE_UINT32							mK;
+	std::vector<HE_FLOAT>				mBounds;
+	std::vector<HE_FLOAT>				mEncode;
+	std::vector<CHE_PDF_FunctionPtr>	mFunctions;
 
 	friend class CHE_Allocator;
 };
@@ -161,194 +161,104 @@ public:
 class PSFuncStack
 {
 public:
-	PSFuncStack() : mStackTopIndex(0) {}
+	PSFuncStack() {}
 
 	HE_VOID	Init()
 	{
-		mStackTopIndex = 0;
-	}
-
-	HE_BOOL IsOverflow( HE_INT32 n = 1 )
-	{
-		if ( mStackTopIndex + n > 100 )
+		while ( !mStack.empty() )
 		{
-			return TRUE;
+			mStack.pop();
 		}
-		return FALSE;
 	}
 
-	HE_BOOL IsUnderflow( HE_INT32 n = 1 )
+	HE_VOID Push(const PSFuncItem & item )
 	{
-		if ( mStackTopIndex - n < 0 )
-		{
-			return TRUE;
-		}
-		return FALSE;
+		mStack.push(item);
 	}
 
-	HE_BOOL IsType( PSFUNCITEM_TYPE type )
-	{
-		if ( ! IsUnderflow() )
-		{
-			if ( mStack[mStackTopIndex-1].mType == type )
-			{
-				return TRUE;
-			}
-		}
-		return FALSE;
-	}
-
-	HE_BOOL IsType2( PSFUNCITEM_TYPE type )
-	{
-		if ( ! IsUnderflow( 2 ) )
-		{
-			if (	mStack[mStackTopIndex-1].mType == type &&
-					mStack[mStackTopIndex-2].mType == type )
-			{
-				return TRUE;
-			}
-		}
-		return FALSE;
-	}
-
-	HE_BOOL Push( PSFuncItem & item )
-	{
-		if ( ! IsOverflow() )
-		{
-			mStack[mStackTopIndex++] = item;
-			return TRUE; 
-		}
-		return FALSE;
-	}
-
-	HE_BOOL PushBool( HE_BOOL val )
+	HE_VOID PushBool(HE_BOOL val)
 	{
 		PSFuncItem item;
 		item.mType = PSITEM_BOOL;
 		item.mBoolValue = val;
-		return Push( item );
+		Push(item);
 	}
 
-	HE_BOOL PushInteger( HE_INT32 val )
+	HE_VOID PushInteger(HE_INT32 val)
 	{
 		PSFuncItem item;
 		item.mType = PSITEM_INT;
 		item.mIntegerValue = val;
-		return Push( item );
+		Push(item);
 	}
 
-	HE_BOOL PushFloat( HE_FLOAT val )
+	HE_VOID PushFloat( HE_FLOAT val )
 	{
 		PSFuncItem item;
 		item.mType = PSITEM_FLOAT;
 		item.mFloatValue = val;
-		return Push( item );
+		Push( item );
+	}
+
+	HE_BOOL PopItem(PSFuncItem & item)
+	{
+		if (!mStack.empty())
+		{
+			item = mStack.top();
+			mStack.pop();
+			return true;
+		}
+		return false;
 	}
 
 	HE_BOOL PopBool( HE_BOOL & valRet )
 	{
-		if ( !IsUnderflow() )
+		if ( !mStack.empty() )
 		{
-			if ( IsType(PSITEM_BOOL) )
+			PSFuncItem item = mStack.top();
+			mStack.pop();
+			if (item.mType == PSITEM_BOOL)
 			{
-				valRet = mStack[--mStackTopIndex].mBoolValue;
-				return TRUE;
+				valRet = item.mBoolValue;
+				return true;
 			}
 		}
-		return FALSE;
+		return false;
 	}
 
 	HE_BOOL PopInteger( HE_INT32 & valRet )
 	{
-		if ( ! IsUnderflow() )
+		if (!mStack.empty())
 		{
-			if ( IsType( PSITEM_INT ) )
+			PSFuncItem item = mStack.top();
+			mStack.pop();
+			if (item.mType == PSITEM_INT)
 			{
-				valRet = mStack[--mStackTopIndex].mIntegerValue;
-				return TRUE;
-			}else if ( IsType( PSITEM_FLOAT ) )
-			{
-				valRet = mStack[--mStackTopIndex].mFloatValue;
-				return TRUE;
+				valRet = item.mIntegerValue;
+				return true;
 			}
 		}
-		return FALSE;
+		return false;
 	}
 
 	HE_BOOL PopFloat( HE_FLOAT & valRet )
 	{
-		if ( ! IsUnderflow() )
+		if (!mStack.empty())
 		{
-			if ( IsType( PSITEM_INT ) )
+			PSFuncItem item = mStack.top();
+			mStack.pop();
+			if (item.mType == PSITEM_FLOAT)
 			{
-				valRet = mStack[--mStackTopIndex].mIntegerValue;
-				return TRUE;
-			}else if ( IsType( PSITEM_FLOAT ) )
-			{
-				valRet = mStack[--mStackTopIndex].mFloatValue;
-				return TRUE;
+				valRet = item.mFloatValue;
+				return true;
 			}
 		}
-		return FALSE;
+		return false;
 	}
-
-	HE_BOOL Copy( HE_INT32 n )
-	{
-		if ( !IsUnderflow( n ) && !IsOverflow( n ) )
-		{
-			memcpy( mStack + mStackTopIndex, mStack + mStackTopIndex - n, n * sizeof(PSFuncItem) );
-			mStackTopIndex += n;
-			return TRUE;
-		}
-		return FALSE;
-	}
-
-	HE_BOOL Roll( HE_INT32 n, HE_INT32 j )
- 	{
-		PSFuncItem item;
-		HE_INT32 i;
-
-		if ( IsOverflow( n ) || j == 0 || n == 0 )
-		{
-			return FALSE;
-		}
-
-		if ( j > 0 )
-		{
-			j %= n;
-		}else{
-			j = -j % n;
-			if ( j != 0 )
-			{
-				j = n - j;
-			}
-		}
-
-		for ( i = 0; i < j; i++ )
-		{
-			item = mStack[mStackTopIndex-1];
-			memmove( mStack + mStackTopIndex - n + 1, mStack + mStackTopIndex - n, n * sizeof(PSFuncItem) );
-			mStack[mStackTopIndex-n] = item;
-		}
-
-		return TRUE;
-	}
-
-	HE_BOOL Index( HE_INT32 n )
-	{
-		if (!IsOverflow() && !IsUnderflow(n) )
-		{
-			mStack[mStackTopIndex] = mStack[mStackTopIndex - n - 1];
-			mStackTopIndex++;
-			return TRUE;
-		}
-		return FALSE;
-	}
-
+    
 	HE_BOOL Execute( PSFUNCITEM_OPERATOR op );
-
-	PSFuncItem		mStack[100];
-	HE_INT32		mStackTopIndex;
+	
+	stack<PSFuncItem>	mStack;
 };
 
 class CHE_PDF_Function_PostScript : public CHE_PDF_Function
@@ -356,20 +266,20 @@ class CHE_PDF_Function_PostScript : public CHE_PDF_Function
 public:
 	~CHE_PDF_Function_PostScript();
 
-	HE_BOOL Calculate( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+	HE_BOOL Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output);
 
 private:
-	CHE_PDF_Function_PostScript( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator );
+	CHE_PDF_Function_PostScript(const CHE_PDF_StreamPtr & stm, CHE_Allocator * pAllocator);
 
 	HE_BOOL IsParsed() const;
 	
 	HE_VOID Parse();
 
-	HE_VOID ParseImp( CHE_PDF_SyntaxParser & syntaxParser );
+	HE_VOID ParseImp(CHE_PDF_SyntaxParser & syntaxParser);
 
-	HE_BOOL RunCode( std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output );
+	HE_BOOL RunCode(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output);
 
-	HE_BOOL RunCodeImp( PSFuncStack & stack, HE_ULONG codeIndex );
+	HE_BOOL RunCodeImp(PSFuncStack & stack, HE_ULONG codeIndex);
 
 	HE_BOOL						mbParsed;
 	CHE_PDF_StreamPtr			mStmPtr;

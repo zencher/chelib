@@ -337,7 +337,7 @@ public:
 
 	static CHE_PDF_NamePtr			Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
 
-	CHE_ByteString					GetString() { return mName; }
+	CHE_ByteString					GetString() const { return mName; }
 
 	HE_VOID							SetString( CHE_ByteString & name ) { mName = name; SetModified( TRUE ); };
 
@@ -510,7 +510,7 @@ public:
 
 	HE_ULONG						GetGenNum() const { return m_dwGenNum; }
 
-	HE_VOID							SetDict( const CHE_PDF_DictionaryPtr & ptr );
+	HE_VOID							SetDictPtr( const CHE_PDF_DictionaryPtr & ptr );
 
 	CHE_PDF_DictionaryPtr			GetDictPtr() const { return mDictPtr; }
 

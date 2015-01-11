@@ -13,14 +13,14 @@ enum PDF_COLORSPACE_TYPE
 	COLORSPACE_DEVICE_CMYK			= 0x03,
 	COLORSPACE_CIEBASE_CALGRAY		= 0x04,
 	COLORSPACE_CIEBASE_CALRGB		= 0x05,
-	COLORSPACE_CIEBASE_CALCMYK		= 0x06,
-	COLORSPACE_CIEBASE_CALLAB		= 0x07,
-	COLORSPACE_CIEBASE_ICCBASED		= 0x08,
-	COLORSPACE_SPECIAL_PATTERN		= 0x09,
-	COLORSPACE_SPECIAL_INDEXED		= 0x0A,
-	COLORSPACE_SPECIAL_SEPARATION	= 0x0B,
-	COLORSPACE_SPECIAL_DEVICEN		= 0x0C
+	COLORSPACE_CIEBASE_CALLAB		= 0x06,
+	COLORSPACE_CIEBASE_ICCBASED		= 0x07,
+	COLORSPACE_SPECIAL_PATTERN		= 0x08,
+	COLORSPACE_SPECIAL_INDEXED		= 0x09,
+	COLORSPACE_SPECIAL_SEPARATION	= 0x0A,
+	COLORSPACE_SPECIAL_DEVICEN		= 0x0B
 };
+
 
 class CHE_PDF_Color : public CHE_Object
 {
@@ -80,12 +80,70 @@ private:
 
 
 class CHE_PDF_ColorSpace;
+class CHE_PDF_CS_CalGray;
+class CHE_PDF_CS_CalRGB;
+class CHE_PDF_CS_CalLab;
+class CHE_PDF_CS_ICCBased;
+class CHE_PDF_CS_Pattern;
+class CHE_PDF_CS_Indexed;
+class CHE_PDF_CS_Separation;
+class CHE_PDF_CS_DeviceN;
+
 
 class CHE_PDF_ColorSpacePtr : public CHE_PDF_ComponentPtr
 {
 public:
-	CHE_PDF_ColorSpace * operator->() const { return (CHE_PDF_ColorSpace*)mpCom; }
+    CHE_PDF_ColorSpace * operator->() const;
 };
+
+class CHE_PDF_CS_CalGrayPtr : public CHE_PDF_ColorSpacePtr
+{
+public:
+    CHE_PDF_CS_CalGray * operator->() const;
+};
+
+class CHE_PDF_CS_CalRGBPtr : public CHE_PDF_ColorSpacePtr
+{
+public:
+    CHE_PDF_CS_CalRGB * operator->() const;
+};
+
+class CHE_PDF_CS_CalLabPtr : public CHE_PDF_ColorSpacePtr
+{
+public:
+    CHE_PDF_CS_CalLab * operator->() const;
+};
+
+class CHE_PDF_CS_ICCBasedPtr : public CHE_PDF_ColorSpacePtr
+{
+public:
+    CHE_PDF_CS_ICCBased * operator->() const;
+};
+
+class CHE_PDF_CS_PatternPtr : public CHE_PDF_ColorSpacePtr
+{
+public:
+    CHE_PDF_CS_Pattern * operator->() const;
+};
+
+class CHE_PDF_CS_IndexedPtr : public CHE_PDF_ColorSpacePtr
+{
+public:
+    CHE_PDF_CS_Indexed * operator->() const;
+};
+
+class CHE_PDF_CS_SeparationPtr : public CHE_PDF_ColorSpacePtr
+{
+public:
+    CHE_PDF_CS_Separation * operator->() const;
+};
+
+class CHE_PDF_CS_DeviceNPtr : public CHE_PDF_ColorSpacePtr
+{
+public:
+    CHE_PDF_CS_DeviceN * operator->() const;
+};
+
 
 class CHE_PDF_ColorSpace : public CHE_PDF_Component
 {
@@ -97,61 +155,161 @@ public:
 	static CHE_PDF_ColorSpacePtr CreateDeviceCMYK();
 
 	static CHE_PDF_ColorSpacePtr CreatePattern();
-
-	static CHE_PDF_ColorSpacePtr Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
-
-	static CHE_PDF_ColorSpacePtr Create( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator = NULL );
-
-	static CHE_PDF_ColorSpacePtr Convert( const CHE_PDF_ComponentPtr & componetPtr );
-
-	~CHE_PDF_ColorSpace();
-
-	PDF_COLORSPACE_TYPE		GetColorSpaceType() const { return mColorSpaceType; }
-
-	HE_BYTE					GetComponentCount() const;
-
-	HE_ARGB					GetARGBValue( const CHE_PDF_Color & color ) const;
     
-    CHE_PDF_FunctionPtr     GetFunction() const { return mFunction; }
+    static CHE_PDF_ColorSpacePtr CreateCalGray();
     
-    HE_DOUBLE				mWhitePoint[3];
-	HE_DOUBLE				mBlackPoint[3];
-	HE_DOUBLE				mGamma[3];
-	HE_DOUBLE				mMatrix[9];
-	HE_DOUBLE				mRange[8];
+    static CHE_PDF_ColorSpacePtr CreateCalRGB();
     
-    CHE_PDF_StreamAcc       mStmAcc;
-    
-	//for indexed colorspace
-	HE_ULONG				mIndexCount;
-	HE_LPBYTE				mpIndexTable;
-	HE_ULONG				mIndexTableSize;
-    CHE_PDF_ColorSpacePtr	mBaseColorspace;
-    
-    CHE_PDF_TilingPtr GetTiling() const { return mpTiling; }
-    
-	HE_VOID	SetTiling( const CHE_PDF_TilingPtr & pTiling ) { mpTiling = pTiling; }
+    static CHE_PDF_ColorSpacePtr CreateCalLab();
 
-private:
-	CHE_PDF_ColorSpace( PDF_COLORSPACE_TYPE type );
-	CHE_PDF_ColorSpace( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ColorSpacePtr Create(const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL);
 
-	HE_ARGB					lab_to_rgb( const CHE_PDF_Color & color ) const;
+	static CHE_PDF_ColorSpacePtr Create(const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator = NULL);
+    
+    static CHE_PDF_ColorSpacePtr Convert( const CHE_PDF_ComponentPtr & componetPtr );
+
+	virtual ~CHE_PDF_ColorSpace();
+
+	PDF_COLORSPACE_TYPE         GetColorSpaceType() const { return mColorSpaceType; }
+
+	HE_UINT32                   GetComponentCount() const;
+    
+    CHE_PDF_CS_CalGrayPtr       GetCalGrayPtr() const;
+
+    CHE_PDF_CS_CalRGBPtr        GetCalRGBPtr() const;
+    
+    CHE_PDF_CS_CalLabPtr        GetCalLabPtr() const;
+    
+    CHE_PDF_CS_ICCBasedPtr      GetICCBasedPtr() const;
+    
+    CHE_PDF_CS_IndexedPtr       GetIndexedPtr() const;
+    
+    CHE_PDF_CS_PatternPtr       GetPatternPtr() const;
+    
+    CHE_PDF_CS_SeparationPtr    GetSeparationPtr() const;
+    
+    CHE_PDF_CS_DeviceNPtr       GetDeviceNPtr() const;
+
+protected:
+	CHE_PDF_ColorSpace(PDF_COLORSPACE_TYPE type, HE_UINT32 componentCount, CHE_Allocator * pAllocator = NULL);
 
 	PDF_COLORSPACE_TYPE		mColorSpaceType;
-	CHE_PDF_ObjectPtr		mObjPtr;
-
-	HE_ULONG				mComponentCount;
-
-
-	//for separation colorspace
-	CHE_PDF_FunctionPtr		mFunction;
-    
-    CHE_PDF_TilingPtr		mpTiling;
-	
+	HE_UINT32				mComponentCount;
 
 	friend class CHE_Allocator;
 };
 
+
+class CHE_PDF_CS_CalGray : public CHE_PDF_ColorSpace
+{
+public:
+    HE_DOUBLE   mWhitePoint[3];
+    HE_DOUBLE   mBlackPoint[3];
+    HE_DOUBLE   mGamma;
+    
+private:
+    CHE_PDF_CS_CalGray(CHE_Allocator * pAllocator = NULL);
+    
+    CHE_PDF_CS_CalGray(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL);
+    
+    friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_CS_CalRGB : public CHE_PDF_ColorSpace
+{
+public:
+    HE_DOUBLE   mWhitePoint[3];
+    HE_DOUBLE   mBlackPoint[3];
+    HE_DOUBLE	mGamma[3];
+    HE_DOUBLE	mMatrix[9];
+    
+private:
+    CHE_PDF_CS_CalRGB(CHE_Allocator * pAllocator = NULL);
+    
+    CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL);
+    
+    friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_CS_CalLab : public CHE_PDF_ColorSpace
+{
+public:
+    HE_DOUBLE				mWhitePoint[3];
+    HE_DOUBLE				mBlackPoint[3];
+    HE_DOUBLE				mRange[4];
+    
+private:
+    CHE_PDF_CS_CalLab(CHE_Allocator * pAllocator = NULL);
+    
+    CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL);
+    
+    friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_CS_ICCBased : public CHE_PDF_ColorSpace
+{
+public:
+    HE_DOUBLE				mRange[8];
+    CHE_PDF_ColorSpacePtr   mAlternate;
+    CHE_PDF_StreamAcc       mStmAcc;
+
+    
+private:
+    CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_Allocator * pAllocator = NULL);
+    
+    friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_CS_Indexed : public CHE_PDF_ColorSpace
+{
+public:
+    HE_ULONG				mIndexCount;
+    HE_ULONG				mIndexTableSize;
+    HE_LPBYTE				mpIndexTable;
+    CHE_PDF_ColorSpacePtr	mBaseColorSpace;
+    
+private:
+    CHE_PDF_CS_Indexed(const CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = NULL);
+    
+    friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_CS_Pattern : public CHE_PDF_ColorSpace
+{
+public:
+    CHE_PDF_TilingPtr       mTiling;
+    
+private:
+    CHE_PDF_CS_Pattern(CHE_Allocator * pAllocator = NULL);
+    
+    friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_CS_Separation : public CHE_PDF_ColorSpace
+{
+public:
+    CHE_PDF_ColorSpacePtr   mBaseColorSpace;
+    CHE_PDF_FunctionPtr		mFunction;
+    
+private:
+    CHE_PDF_CS_Separation(CHE_Allocator * pAllocator = NULL);
+    
+    friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_CS_DeviceN : public CHE_PDF_ColorSpace
+{
+private:
+    CHE_PDF_CS_DeviceN(CHE_Allocator * pAllocator = NULL);
+    
+    friend class CHE_Allocator;
+};
 
 #endif

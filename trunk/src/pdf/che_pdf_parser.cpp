@@ -460,6 +460,34 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( CHE_PDF_ParseWordDes & des )
 					}
 					break;
 				}
+			case '{':
+				{
+					if ( mlBufferPos > 0 )
+					{
+						SubmitBufferStr();
+						return TRUE;
+					}else{
+						des.offset = mlFilePos;
+						des.type = PARSE_WORD_BLOCK_B;
+						mlFilePos++;
+						return TRUE;
+					}
+					break;
+				}
+			case '}':
+				{
+					if (mlBufferPos > 0)
+					{
+						SubmitBufferStr();
+						return TRUE;
+					}else{
+						des.offset = mlFilePos;
+						des.type = PARSE_WORD_BLOCK_E;
+						mlFilePos++;
+						return TRUE;
+					}
+					break;
+				}
 			case '/':
 				{
 					if ( mlBufferPos > 0 )

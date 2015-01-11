@@ -339,7 +339,6 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_DEVICE_CMYK:
-		case COLORSPACE_CIEBASE_CALCMYK:
 			colorRet.Push( 0 );
 			colorRet.Push( 0 );
 			colorRet.Push( 0 );
@@ -392,7 +391,6 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_DEVICE_CMYK:
-		case COLORSPACE_CIEBASE_CALCMYK:
 			colorRet.Push( 0 );
 			colorRet.Push( 0 );
 			colorRet.Push( 0 );
@@ -404,6 +402,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_CIEBASE_ICCBASED:
+//todo
 // 			colorRet.mConponents.Push( 0 );
 // 			colorRet.mConponents.Push( 0 );
 // 			colorRet.mConponents.Push( 0 );

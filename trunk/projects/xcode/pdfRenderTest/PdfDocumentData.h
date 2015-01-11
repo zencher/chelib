@@ -25,7 +25,6 @@
     CHE_PDF_ComponentMgr *                  pdfComponentMgr;
     
     HE_ULONG                                pageCount;
-    std::vector<CHE_PDF_ContentObjectList*> pageContents;
 }
 
 -(id)initWithFilePath:(NSString*)path;

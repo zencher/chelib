@@ -62,6 +62,10 @@ mbInterpolate(FALSE), mStmAcc(pAllocator), mbMask(FALSE), mpBitmapCache(NULL), m
 				objPtr = dictPtr->GetElement( "ColorSpace" );
 				if ( objPtr )
 				{
+                    if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
+                    {
+                        objPtr = objPtr->GetRefPtr()->GetRefObj();
+                    }
 					mColorspace = CHE_PDF_ColorSpace::Create( objPtr, GetAllocator() );
 				}
 				objPtr = dictPtr->GetElement( "Interpolate", OBJ_TYPE_BOOLEAN );
@@ -355,7 +359,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 							colorIndex = 0;
 							for ( HE_ULONG x = 0; x < mWidth; ++x )
 							{
-								pTmpByte = pData + ( ( y * mWidth + x ) /** componentCount*/ );
+								pTmpByte = pData + ( ( y * mWidth + x )  );
 								colorARGB1 = 0xFF000000 + *pTmpByte + (*pTmpByte << 8) + (*pTmpByte << 16); 
 								*(pColors+colorIndex++) = colorARGB1;
 							}
@@ -440,7 +444,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 						colorIndex = 0;
 						for ( HE_ULONG x = 0; x < mWidth; ++x )
 						{
-							pTmpByte = pData + ( ( y * mWidth + x ) * 3/*componentCount*/ );
+							pTmpByte = pData + ( ( y * mWidth + x ) * 3 );
 							colorARGB1 = 0xFF000000 + *(pTmpByte+2) + (*(pTmpByte+1) << 8) + (*pTmpByte << 16);
 							*(pColors+colorIndex++) = colorARGB1;
 						}
@@ -459,7 +463,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 							colorIndex = 0;
 							for ( HE_ULONG x = 0; x < mWidth; ++x )
 							{
-								pTmpByte = pData + ( ( y * mWidth + x ) /** componentCount*/ );
+								pTmpByte = pData + ( ( y * mWidth + x ) );
 								colorARGB1 = *pTmpByte + *pTmpByte << 8 + *pTmpByte << 16; 
 								*(pColors+colorIndex++) = colorARGB1;
 							}
@@ -474,7 +478,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 							colorIndex = 0;
 							for ( HE_ULONG x = 0; x < mWidth; ++x )
 							{
-								pTmpByte = pData + ( ( y * mWidth + x ) * 3/*componentCount*/ );
+								pTmpByte = pData + ( ( y * mWidth + x ) * 3 );
 								colorARGB1 = 0xFF000000 + *(pTmpByte+2) + (*(pTmpByte+1) << 8) + (*pTmpByte << 16);
 								*(pColors+colorIndex++) = colorARGB1;
 							}
@@ -490,7 +494,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 							for ( HE_ULONG x = 0; x < mWidth; ++x )
 							{
 								color.Clear();
-								pTmpByte = pData + ( ( y * mWidth + x ) * 4/*componentCount*/ );
+								pTmpByte = pData + ( ( y * mWidth + x ) * 4 );
 								for ( HE_ULONG k = 0; k < componentCount; ++k )
 								{
 									color.Push( ( *pTmpByte ) / 255.0f );
@@ -515,7 +519,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 						for ( HE_ULONG x = 0; x < mWidth; ++x )
 						{
 							color.Clear();
-							pTmpByte = pData + ( ( y * mWidth + x ) * 4/*componentCount*/ );
+							pTmpByte = pData + ( ( y * mWidth + x ) * 4 );
 							for ( HE_ULONG k = 0; k < componentCount; ++k )
 							{
 								color.Push( ( *pTmpByte ) / 255.0f );
@@ -842,12 +846,12 @@ static void error_exit(j_common_ptr cinfo)
 
 static void init_source(j_decompress_ptr cinfo)
 {
-	/* nothing to do */
+	
 }
 
 static void term_source(j_decompress_ptr cinfo)
 {
-	/* nothing to do */
+ 
 }
 
 static boolean fill_input_buffer(j_decompress_ptr cinfo)

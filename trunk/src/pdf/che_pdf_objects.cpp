@@ -573,7 +573,7 @@ CHE_PDF_ObjectPtr CHE_PDF_Reference::GetRefObj( PDF_OBJ_TYPE Type )
 CHE_PDF_ArrayPtr CHE_PDF_Array::Create( CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_ArrayPtr ptr;
-	if ( pAllocator )
+	if ( pAllocator == NULL )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -1264,7 +1264,7 @@ HE_BOOL	CHE_PDF_Stream::IsModified()
 	return FALSE;
 }
 
-HE_VOID	CHE_PDF_Stream::SetDict( const CHE_PDF_DictionaryPtr & pDict )
+HE_VOID	CHE_PDF_Stream::SetDictPtr( const CHE_PDF_DictionaryPtr & pDict )
 {
 	mDictPtr = pDict;
 

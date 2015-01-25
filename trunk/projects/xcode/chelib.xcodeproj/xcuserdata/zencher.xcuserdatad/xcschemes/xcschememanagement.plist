@@ -11,6 +11,11 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>chelibTests.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
 		<key>pdfDocumentTest.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -41,6 +46,11 @@
 			<true/>
 		</dict>
 		<key>90332EAE1A51B20A00629EB5</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>906EECD41A680F7100509D74</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -28,6 +28,8 @@
 		906CBF53193C5CB200589EAF /* CHEPDFView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 906CBF51193C5CB200589EAF /* CHEPDFView.mm */; };
 		906CBF56193C5D5600589EAF /* CHEPDFMainView.h in Headers */ = {isa = PBXBuildFile; fileRef = 906CBF54193C5D5600589EAF /* CHEPDFMainView.h */; };
 		906CBF57193C5D5600589EAF /* CHEPDFMainView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 906CBF55193C5D5600589EAF /* CHEPDFMainView.mm */; };
+		906EECDA1A680F7100509D74 /* colorspace.mm in Sources */ = {isa = PBXBuildFile; fileRef = 906EECD91A680F7100509D74 /* colorspace.mm */; };
+		906EECDB1A680F7100509D74 /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
 		907EB4931A4B0BE900867FA8 /* che_pdf_nametree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 907EB4921A4B0BE900867FA8 /* che_pdf_nametree.cpp */; };
 		909AE1B817A0BCD200B8A633 /* PdfDocumentData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 909AE1B717A0BCD200B8A633 /* PdfDocumentData.mm */; };
 		909BCD65179F7ABA00D5CDAF /* openjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 909BCD64179F7ABA00D5CDAF /* openjpeg.c */; };
@@ -303,6 +305,13 @@
 			remoteGlobalIDString = 90332EE41A51B30900629EB5;
 			remoteInfo = PETests;
 		};
+		906EECDC1A680F7100509D74 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90C37C8D17534E58005D9C8A;
+			remoteInfo = chelib;
+		};
 		90C5376C1758A3860014AC65 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
@@ -358,6 +367,9 @@
 		906CBF51193C5CB200589EAF /* CHEPDFView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFView.mm; sourceTree = "<group>"; };
 		906CBF54193C5D5600589EAF /* CHEPDFMainView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFMainView.h; sourceTree = "<group>"; };
 		906CBF55193C5D5600589EAF /* CHEPDFMainView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFMainView.mm; sourceTree = "<group>"; };
+		906EECD51A680F7100509D74 /* chelibTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = chelibTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		906EECD81A680F7100509D74 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		906EECD91A680F7100509D74 /* colorspace.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = colorspace.mm; sourceTree = "<group>"; };
 		907EB4921A4B0BE900867FA8 /* che_pdf_nametree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_nametree.cpp; path = ../../src/pdf/che_pdf_nametree.cpp; sourceTree = "<group>"; };
 		909AE1B617A0BCD200B8A633 /* PdfDocumentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PdfDocumentData.h; sourceTree = "<group>"; };
 		909AE1B717A0BCD200B8A633 /* PdfDocumentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PdfDocumentData.mm; sourceTree = "<group>"; };
@@ -627,6 +639,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		906EECD21A680F7100509D74 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				906EECDB1A680F7100509D74 /* libchelib.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		909E120017545BA700540539 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -791,6 +811,23 @@
 			name = cmap;
 			sourceTree = "<group>";
 		};
+		906EECD61A680F7100509D74 /* chelibTests */ = {
+			isa = PBXGroup;
+			children = (
+				906EECD91A680F7100509D74 /* colorspace.mm */,
+				906EECD71A680F7100509D74 /* Supporting Files */,
+			);
+			path = chelibTests;
+			sourceTree = "<group>";
+		};
+		906EECD71A680F7100509D74 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				906EECD81A680F7100509D74 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		909E112C17543F8B00540539 /* include */ = {
 			isa = PBXGroup;
 			children = (
@@ -937,6 +974,7 @@
 		909E11EF175456A100540539 /* test */ = {
 			isa = PBXGroup;
 			children = (
+				906EECD61A680F7100509D74 /* chelibTests */,
 				90C5375A175881B40014AC65 /* pdfDocumentTest */,
 				90C5374017587FF20014AC65 /* pdfRenderTest */,
 				909E120417545BA700540539 /* pdfFileTest */,
@@ -1026,6 +1064,7 @@
 				909E120317545BA700540539 /* pdfFileTest */,
 				90C5373817587FF10014AC65 /* pdfRenderTest.app */,
 				90C53759175881B40014AC65 /* pdfDocumentTest */,
+				906EECD51A680F7100509D74 /* chelibTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1353,6 +1392,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		906EECD41A680F7100509D74 /* chelibTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 906EECE21A680F7100509D74 /* Build configuration list for PBXNativeTarget "chelibTests" */;
+			buildPhases = (
+				906EECD11A680F7100509D74 /* Sources */,
+				906EECD21A680F7100509D74 /* Frameworks */,
+				906EECD31A680F7100509D74 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				906EECDD1A680F7100509D74 /* PBXTargetDependency */,
+			);
+			name = chelibTests;
+			productName = chelibTests;
+			productReference = 906EECD51A680F7100509D74 /* chelibTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		909E120217545BA700540539 /* pdfFileTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 909E120917545BA700540539 /* Build configuration list for PBXNativeTarget "pdfFileTest" */;
@@ -1430,6 +1487,11 @@
 			attributes = {
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = com.peroit;
+				TargetAttributes = {
+					906EECD41A680F7100509D74 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
 			};
 			buildConfigurationList = 90C37C8917534E58005D9C8A /* Build configuration list for PBXProject "chelib" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1454,6 +1516,7 @@
 				909E120217545BA700540539 /* pdfFileTest */,
 				90C5373717587FF10014AC65 /* pdfRenderTest */,
 				90C53758175881B40014AC65 /* pdfDocumentTest */,
+				906EECD41A680F7100509D74 /* chelibTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1476,6 +1539,13 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		906EECD31A680F7100509D74 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		90C5373617587FF10014AC65 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1489,6 +1559,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		906EECD11A680F7100509D74 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				906EECDA1A680F7100509D74 /* colorspace.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		909E11FF17545BA700540539 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1679,6 +1757,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		906EECDD1A680F7100509D74 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90C37C8D17534E58005D9C8A /* chelib */;
+			targetProxy = 906EECDC1A680F7100509D74 /* PBXContainerItemProxy */;
+		};
 		90C5376D1758A3860014AC65 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 90C37C8D17534E58005D9C8A /* chelib */;
@@ -1714,6 +1797,67 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		906EECDE1A680F7100509D74 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = chelibTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		906EECDF1A680F7100509D74 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = chelibTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		909E120A17545BA700540539 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1882,6 +2026,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		906EECE21A680F7100509D74 /* Build configuration list for PBXNativeTarget "chelibTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				906EECDE1A680F7100509D74 /* Debug */,
+				906EECDF1A680F7100509D74 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		909E120917545BA700540539 /* Build configuration list for PBXNativeTarget "pdfFileTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

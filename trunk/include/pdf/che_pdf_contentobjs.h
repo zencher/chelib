@@ -180,8 +180,8 @@ private:
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bpc, HE_LPBYTE pBytes, HE_ULONG size,
-							CHE_PDF_ObjectPtr objPtr, CHE_PDF_ColorSpacePtr colorspace, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bpc, HE_LPBYTE pBytes, HE_ULONG size, CHE_PDF_ObjectPtr objPtr,
+                            CHE_PDF_ColorSpacePtr colorspace, GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator = NULL );
 
 	~CHE_PDF_InlineImage();
 
@@ -193,11 +193,14 @@ public:
 	HE_ULONG GetBpc() const { return mBpc; }
 	CHE_PDF_ColorSpacePtr GetColorspace() const { return mColorspace; }
 	CHE_PDF_ObjectPtr GetDecode() const { return mDecodeObjPtr; }
+    GRAPHICS_STATE_RENDERINTENTS GetRenderIntent() const { return mRI; }
 
 	HE_LPBYTE GetData() const { return mpData; }
 	HE_ULONG GetDataSize() const { return mDataSize; }
 
+#ifdef _WIN_32_
 	CHE_Bitmap * GetBitmap();
+#endif
 
 private:
 	HE_BOOL					mbMask;
@@ -208,6 +211,7 @@ private:
 	HE_ULONG				mDataSize;
 	CHE_PDF_ColorSpacePtr	mColorspace;
 	CHE_PDF_ObjectPtr		mDecodeObjPtr;
+    GRAPHICS_STATE_RENDERINTENTS    mRI;
 };
 
 class CHE_PDF_ComponentRef : public CHE_PDF_ContentObject

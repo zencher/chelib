@@ -85,21 +85,6 @@ mbInterpolate(FALSE), mStmAcc(pAllocator), mbMask(FALSE), mpBitmapCache(NULL), m
 				if ( objPtr )
 				{
                     mDecodeArray = objPtr->GetArrayPtr();
-					/*CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-					if ( arrayPtr->GetCount() == 2 )
-					{
-						objPtr = arrayPtr->GetElement( 0, OBJ_TYPE_NUMBER );
-						if ( objPtr )
-						{
-							if ( objPtr->GetNumberPtr()->GetInteger() == 1 )
-							{
-								mMaskDecode = 1;
-							}else{
-								mMaskDecode = 0;
-							}
-							mbMask = TRUE;
-						}
-					}*/
 				}
                 objPtr = dictPtr->GetElement( "Intent", OBJ_TYPE_NAME );
                 if ( objPtr )
@@ -123,13 +108,15 @@ mbInterpolate(FALSE), mStmAcc(pAllocator), mbMask(FALSE), mpBitmapCache(NULL), m
 					objPtr = dictPtr->GetElement( "Mask" );
 					if ( objPtr )
 					{
-						mMaskPtr = objPtr;
-                        if ( mMaskPtr->GetType() == OBJ_TYPE_REFERENCE )
+                        if ( objPtr->GetType() == OBJ_TYPE_REFERENCE )
                         {
-                            if ( mMaskPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM ) )
+                            if ( objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM ) )
                             {
-                                mMaskImagePtr = CHE_PDF_ImageXObject::Create( mMaskPtr->GetRefPtr() );
+                                mMaskImagePtr = CHE_PDF_ImageXObject::Create( objPtr->GetRefPtr() );
                             }
+                        }else if ( objPtr->GetType() == OBJ_TYPE_ARRAY )
+                        {
+                            mColorKeyMaskPtr = objPtr->GetArrayPtr();
                         }
 					}
                     else
@@ -176,7 +163,7 @@ HE_ULONG CHE_PDF_ImageXObject::GetSize()
     }
     return mStmAcc.GetSize();
 }
-
+#ifdef _WIN_32_
 CHE_Bitmap * CHE_PDF_ImageXObject::GetBitmap()
 {
 	if ( mpBitmapCache )
@@ -500,7 +487,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 									color.Push( ( *pTmpByte ) / 255.0f );
 									pTmpByte++;
 								}
-								//colorARGB1 = mColorspace->GetARGBValue( color );
+								colorARGB1 = mColorspace->GetARGBValue( color );
 								*(pColors+colorIndex++) = colorARGB1;
 							}
 							pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
@@ -509,7 +496,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 					break;
 				}
 			case COLORSPACE_DEVICE_CMYK:
-			//case COLORSPACE_CIEBASE_CALCMYK:
+			case COLORSPACE_CIEBASE_CALCMYK:
 				{
 					pBitmapRet = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
 					pBitmapRet->Create( mWidth, mHeight, targetDepth, BITMAP_DIRECTION_DOWN );
@@ -525,7 +512,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 								color.Push( ( *pTmpByte ) / 255.0f );
 								pTmpByte++;
 							}
-							//colorARGB1 = mColorspace->GetARGBValue( color );
+							colorARGB1 = mColorspace->GetARGBValue( color );
 							*(pColors+colorIndex++) = colorARGB1;
 						}
 						pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
@@ -557,7 +544,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 									}
 									pTmpByte++;
 								}
-								//colorARGB1 = mColorspace->GetARGBValue( color );
+								colorARGB1 = mColorspace->GetARGBValue( color );
 								color.Clear();
 								*(pColors+colorIndex++) = colorARGB1;
 							}
@@ -583,7 +570,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 									}
 									if ( color.GetComponentCount() == componentCount )
 									{
-										//colorARGB1 = mColorspace->GetARGBValue( color );
+										colorARGB1 = mColorspace->GetARGBValue( color );
 										color.Clear();
 										*(pColors+colorIndex++) = colorARGB1;
 										if ( colorIndex == mWidth )
@@ -615,7 +602,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 									}
 									if ( color.GetComponentCount() == componentCount )
 									{
-										//colorARGB1 = mColorspace->GetARGBValue( color );
+										colorARGB1 = mColorspace->GetARGBValue( color );
 										color.Clear();
 										*(pColors+colorIndex++) = colorARGB1;
 										if ( colorIndex == mWidth )
@@ -642,7 +629,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::StreamToBitmap()
 									color.Push( ( tmpByte1 >> (7-j) ) & 0x01  );
 									if ( color.GetComponentCount() == componentCount )
 									{
-										//colorARGB1 = mColorspace->GetARGBValue( color );
+										colorARGB1 = mColorspace->GetARGBValue( color );
 										color.Clear();
 										*(pColors+colorIndex++) = colorARGB1;
 										if ( colorIndex == mWidth )
@@ -1176,7 +1163,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG 
 							color.Push( ( *sp ) / 255.0f );
 							sp++;
 						}
-						//colorARGB = mColorspace->GetARGBValue( color );
+						colorARGB = mColorspace->GetARGBValue( color );
 						*(pColors+colorsIndex++) = colorARGB;
 					}
 					pBitmapRet->SetPixelColor( 0, y, pColors, cinfo.output_width );
@@ -1187,7 +1174,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG 
 			break;
 		}
 	case COLORSPACE_DEVICE_CMYK:
-	//case COLORSPACE_CIEBASE_CALCMYK:
+	case COLORSPACE_CIEBASE_CALCMYK:
 	case COLORSPACE_SPECIAL_INDEXED:
 	case COLORSPACE_SPECIAL_SEPARATION:
 	case COLORSPACE_SPECIAL_DEVICEN:
@@ -1212,7 +1199,7 @@ CHE_Bitmap * CHE_PDF_ImageXObject::JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG 
 						color.Push( ( *sp ) / 255.0f );
 						sp++;
 					}
-					//colorARGB = mColorspace->GetARGBValue( color );
+					colorARGB = mColorspace->GetARGBValue( color );
 					*(pColors+colorsIndex++) = colorARGB;
 				}
 				pBitmapRet->SetPixelColor( 0, y, pColors, cinfo.output_width );
@@ -1561,6 +1548,8 @@ CHE_Bitmap * CHE_PDF_ImageXObject::GetExplicitMaskingBitmap( CHE_Bitmap * pBitma
 
 	return pBitmapRet;
 }
+
+#endif
 
 CHE_PDF_FormXObjectPtr CHE_PDF_FormXObject::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*=  NULL*/ )
 {

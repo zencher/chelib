@@ -732,11 +732,11 @@ CHE_PDF_Path::~CHE_PDF_Path()
 	mItems.clear();
 }
 
-CHE_PDF_InlineImage::CHE_PDF_InlineImage( HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bpc, HE_LPBYTE pBytes,
-	HE_ULONG size, CHE_PDF_ObjectPtr objPtr, CHE_PDF_ColorSpacePtr colorspace, CHE_Allocator * pAllocator/*= NULL*/ )
+CHE_PDF_InlineImage::CHE_PDF_InlineImage( HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bpc,
+    HE_LPBYTE pBytes, HE_ULONG size, CHE_PDF_ObjectPtr objPtr, CHE_PDF_ColorSpacePtr colorspace,
+    GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator/*= NULL*/ )
 	: CHE_PDF_ContentObject( ContentType_InlineImage, pAllocator ), mbMask( bMask ), mWidth( width ), mHeight( hight ), 
-	mBpc( bpc ), mpData( NULL), mDataSize( 0 ),
-	mDecodeObjPtr( objPtr )
+	mBpc( bpc ), mpData( NULL), mDataSize( 0 ), mDecodeObjPtr( objPtr ), mRI(ri)
 {
 	if ( pBytes )
 	{
@@ -766,13 +766,15 @@ CHE_PDF_ContentObject * CHE_PDF_InlineImage::Clone() const
 	{
 		objPtr = mDecodeObjPtr->Clone();
 	}
-	return GetAllocator()->New<CHE_PDF_InlineImage>( mbMask, mWidth, mHeight, mBpc, mpData, mDataSize, objPtr, mColorspace, GetAllocator() );
+	return GetAllocator()->New<CHE_PDF_InlineImage>( mbMask, mWidth, mHeight, mBpc, mpData, mDataSize, objPtr, mColorspace, mRI, GetAllocator() );
 }
+
+#ifdef _WIN_32_
 
 CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 {
 	CHE_Bitmap * pBitmapRet = NULL;
-	/*if ( !mColorspace )
+	if ( !mColorspace )
 	{
 		return pBitmapRet;
 	}
@@ -916,9 +918,11 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 			}
 			pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 		}
-	}*/
+	}
 	return pBitmapRet;
 }
+
+#endif
 
 
 CHE_PDF_ContentObject * CHE_PDF_ComponentRef::Clone() const

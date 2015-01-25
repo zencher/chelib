@@ -1230,7 +1230,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
 		{
 			CHE_PDF_InlineImage * pImage = GetAllocator()->New<CHE_PDF_InlineImage>(	mbMask, mWidth, mHeight, mBpc,
 																						stmAcc.GetData(), stmAcc.GetSize(), mpDecode,
-																						colorspace, GetAllocator() );
+																						colorspace, RI_AbsoluteColorimetric, GetAllocator() );
 			mpConstructor->Operator_Append( pImage );
 		}
 		stmAcc.Detach();

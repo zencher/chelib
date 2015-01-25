@@ -93,7 +93,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						item.gid = 0;
 						item.cid = 0;
 						item.ucs = 0;
-                        pFont->HandleEncoding( item.charCode, item.ucs, item.gid, item.cid );
+                        pFont->Decode( item.charCode, item.ucs, item.gid, item.cid );
 						item.kerning = kerning;
 						item.width = pFont->GetWidth( item );
 						item.height = 1; //font height??
@@ -138,7 +138,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 						item.gid = 0;
 						item.cid = 0;
 						item.ucs = 0;
-                        pFont->HandleEncoding( item.charCode, item.ucs, item.gid, item.cid );
+                        pFont->Decode( item.charCode, item.ucs, item.gid, item.cid );
 						item.kerning = kerning;
 						item.width = pFont->GetWidth( item );
 						item.height = 1; //font height??
@@ -772,7 +772,7 @@ CHE_PDF_ContentObject * CHE_PDF_InlineImage::Clone() const
 CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 {
 	CHE_Bitmap * pBitmapRet = NULL;
-	if ( !mColorspace )
+	/*if ( !mColorspace )
 	{
 		return pBitmapRet;
 	}
@@ -916,7 +916,7 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 			}
 			pBitmapRet->SetPixelColor( 0, y, pColors, mWidth );
 		}
-	}
+	}*/
 	return pBitmapRet;
 }
 

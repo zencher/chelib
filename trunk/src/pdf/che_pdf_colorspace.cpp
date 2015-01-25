@@ -77,7 +77,7 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateCalLab()
 CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_ByteString & name, CHE_Allocator * pAllocator/*= NULL*/)
 {
 	CHE_PDF_ColorSpacePtr ptr;
-	if ( name == "DeviceGray" || name == "G" )
+	if ( name == "DeviceGray" || name == "G" || name == "Gray" )
 	{
 		return CreateDeviceGray();
 	}else if ( name == "DeviceRGB" || name == "RGB" || name == "CalRGB" )

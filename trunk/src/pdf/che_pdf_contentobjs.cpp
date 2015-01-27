@@ -80,7 +80,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		CHE_ByteString tmpStr;
 		HE_INT32 kerning = 0;
 		CHE_PDF_TextItem item;
-		if ( pFont->GetType() != FONT_TYPE0 )
+		if ( pFont->GetFontType() != FONT_TYPE0 )
 		{
 			for ( HE_ULONG i = 0; i < tmpArray.size(); ++i )
 			{

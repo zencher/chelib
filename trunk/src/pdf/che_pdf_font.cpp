@@ -6570,7 +6570,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
                     
 #ifdef _MAC_OS_X_
                     
-                    if ( mType == FONT_TYPE0 )
+                    if ( mFontType == FONT_TYPE0 )
                     {
                         filePath = "/Library/Fonts/Songti.ttc";
                         
@@ -7103,7 +7103,7 @@ HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG &
 	}
 	if ( !bUCSGet && mToUnicode.size() )
 	{
-		std::unordered_map<HE_UINT32, HE_UINT32>::const_iterator it;
+		std::unordered_map<HE_WCHAR, HE_WCHAR>::const_iterator it;
 		it = mToUnicode.find(charCode);
 		if (it != mToUnicode.cend() && it->second != 0)
 		{

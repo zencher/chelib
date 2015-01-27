@@ -1224,7 +1224,7 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
             CGFontRef fontRef = NULL;
             
             CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
-            if ( pFont->GetPlatformFontInfo() )
+            if ( pFont->GetPlatformFontInfo() != nullptr )
             {
                 fontRef = (CGFontRef)pFont->GetPlatformFontInfo();
                 SetTextFont( fontRef );

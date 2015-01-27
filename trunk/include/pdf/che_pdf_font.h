@@ -5,6 +5,7 @@
 #include "che_pdf_cmap.h"
 #include "che_pdf_objects.h"
 #include "che_pdf_component.h"
+#include "che_pdf_contentlist.h"
 
 
 #include <unordered_map>
@@ -85,12 +86,12 @@ public:
 
 	PDF_FONT_ENCODING			GetType() const;
     PDF_FONT_ENCODING           GetBaseType() const;
-
-	HE_BOOL						Decode(HE_BYTE charCode, HE_WCHAR & gid) const;
+	HE_BOOL						GetUnicode(HE_BYTE charCode, HE_WCHAR & codeRet) const;
 
 private:
 	PDF_FONT_ENCODING			mType;
     PDF_FONT_ENCODING           mBaseType;
+	HE_WCHAR*					mpCodeTable;
 };
 
 
@@ -211,9 +212,9 @@ class CHE_PDF_Type0_Font : public CHE_PDF_Font
 {
 public:
     HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
-	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
-	HE_BOOL GetGlyphId(HE_WCHAR charCode, HE_ULONG & codeRet) const;
-	HE_BOOL GetCID( HE_WCHAR charCode, HE_ULONG & codeRet ) const;
+// 	HE_BOOL	GetUnicode( HE_WCHAR charCode, HE_WCHAR & codeRet ) const;
+// 	HE_BOOL GetGlyphId(HE_WCHAR charCode, HE_ULONG & codeRet) const;
+// 	HE_BOOL GetCID( HE_WCHAR charCode, HE_ULONG & codeRet ) const;
 	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() );
 	HE_BOOL IsCode( HE_ULONG cpt, HE_BYTE byteCount );
 
@@ -252,6 +253,7 @@ public:
 
 protected:
 	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Type1_Font( int noType1Handle, const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_Type1_Font();
 
 	friend class CHE_Allocator;
@@ -268,13 +270,8 @@ private:
 };
 
 
-class CHE_PDF_TrueType_Font : public CHE_PDF_SimpleFont
+class CHE_PDF_TrueType_Font : public CHE_PDF_Type1_Font
 {
-public:
-	virtual HE_BOOL Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid) const;
-
-	virtual HE_FLOAT GetWidth(const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix());
-
 private:
 	CHE_PDF_TrueType_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_TrueType_Font();

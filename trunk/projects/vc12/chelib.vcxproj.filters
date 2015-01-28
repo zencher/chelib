@@ -78,6 +78,12 @@
     <Filter Include="src\pdf\base">
       <UniqueIdentifier>{842c5d6f-ab2d-4a5d-935b-16efda833dbf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\pdf\modify">
+      <UniqueIdentifier>{09cfb4ab-47ed-44ae-9658-3a3023f16a6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\pdf\modify">
+      <UniqueIdentifier>{7bd1136d-c83e-4750-b9be-0d876830e1af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\che_base.h">
@@ -220,6 +226,12 @@
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_annotation.h">
       <Filter>include\pdf\component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_creator.h">
+      <Filter>include\pdf\modify</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h">
+      <Filter>include\pdf\modify</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -690,6 +702,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_annotation.cpp">
       <Filter>src\pdf\component</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp">
+      <Filter>src\pdf\modify</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp">
+      <Filter>src\pdf\modify</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

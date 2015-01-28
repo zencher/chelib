@@ -40,6 +40,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_contentlistbuilder.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentobjs.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_contentresmgr.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_creator.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_destination.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_document.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_encrypt.h" />
@@ -55,6 +56,7 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_namedict.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_nametree.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_numbertree.h" />
+    <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_objects.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_outline.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_pagelabels.h" />
@@ -195,6 +197,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_contentlistbuilder.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_destination.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
@@ -212,6 +215,7 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_namedict.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_nametree.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_numbertree.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pagelabels.cpp" />

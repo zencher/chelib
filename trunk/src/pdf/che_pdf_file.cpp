@@ -1,5 +1,5 @@
 #include "../../include/pdf/che_pdf_file.h"
-//#include "../../include/pdf/che_pdf_creator.h"
+#include "../../include/pdf/che_pdf_creator.h"
 
 CHE_PDF_File::CHE_PDF_File( CHE_Allocator * pAllocator )
 	: CHE_Object(pAllocator), mpParser(NULL), mVersion(PDF_VERSION_1_7), mObjCollector(pAllocator), mXRefTable(pAllocator) {}
@@ -63,132 +63,134 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 		return FALSE;
 	}
 
-// 	//CHE_PDF_Creator * pCreator = CHE_PDF_Creator::Create( pWrite, GetAllocator() );
-// 	if ( pCreator == NULL )
-// 	{
-// 		return FALSE;
-// 	}
-// 
-// 	if ( mpParser && mpParser->m_pStrEncrypt )
-// 	{
-// 		pCreator->SetEncrypt( mpParser->m_pStrEncrypt );
-// 	}
-// 
-// 	HE_ULONG				objCount = 0;
-// 	HE_ULONG				offset = 0;
-// 	PDF_RefInfo				refInfo;
-// 	HE_BOOL					bEncrypt = TRUE;
-// 
-// 	CHE_PDF_ObjectPtr		ObjPtr;
-// 	CHE_PDF_NamePtr			NamePtr;
-// 	CHE_PDF_DictionaryPtr	DictPtr;
-// 
-// 	CHE_PDF_XRefEntry		entry;
-// 	CHE_PDF_XRefTable		xref( GetAllocator() );
-// 
-// 	//PDF File Head
-// 	pCreator->OutPutFileHead( GetPDFVersion() );
-// 
-// 	//XRef Beginning
-// 	entry.ObjNum = 0;
-// 	entry.Field1 = 0;
-// 	entry.Field2 = 65535;
-// 	entry.Type = XREF_ENTRY_TYPE_FREE;
-// 	++objCount;
-// 	xref.Add( entry );
-// 
-// 	mLock.Lock();
-// 
-// 	//Out put all objects
-// 	mXRefTable.MoveFirst();
-// 	while( !mXRefTable.IsEOF() )
-// 	{
-// 		if ( mXRefTable.GetCurNode( entry ) && entry.GetObjNum() != 0 )
-// 		{
-// 			refInfo.objNum = entry.GetObjNum();
-// 			refInfo.genNum = 0;
-// 
-// 			if (	mpParser && mpParser->mEncryptRef &&
-// 					mpParser->mEncryptRef->GetRefInfo().objNum == refInfo.objNum &&
-// 					mpParser->mEncryptRef->GetRefInfo().genNum == refInfo.genNum )
-// 			{
-// 				bEncrypt = FALSE;
-// 			}else{
-// 				bEncrypt = TRUE;
-// 			}
-// 
-// 			ObjPtr = GetObject( refInfo );
-// 			if ( ObjPtr )
-// 			{
-// 				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
-// 				{
-// 					DictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
-// 					CHE_PDF_ObjectPtr tmpObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
-// 					if ( tmpObjPtr )
-// 					{
-// 						NamePtr = tmpObjPtr->GetNamePtr();
-// 					}
-// 					if ( NamePtr )
-// 					{
-// 						if ( ( NamePtr->GetString() == "ObjStm" ) || ( NamePtr->GetString() == "XRef" ) )
-// 						{
-// 							mXRefTable.MoveNext();
-// 							NamePtr.Reset();
-// 							continue;
-// 						}
-// 					}
-// 				}
-// 
-// 				offset = pCreator->OutPutInObject( refInfo, ObjPtr, bEncrypt );
-// 
-// 				entry.Type = XREF_ENTRY_TYPE_COMMON;
-// 				entry.ObjNum = refInfo.objNum;
-// 				entry.Field1 = offset;
-// 				entry.Field2 = 0;
-// 				++objCount;
-// 
-// 				xref.Add( entry );
-// 			}
-// 		}
-// 		mXRefTable.MoveNext();
-// 	}
-// 
-// 	mLock.UnLock();
-// 
-// 	offset = pCreator->OutPutXRefTable( xref );
-// 
-// 	DictPtr = GetTrailerDict();
-// 
-// 	CHE_PDF_DictionaryPtr newTriailerDict = CHE_PDF_Dictionary::Create( GetAllocator() );
-// 
-// 	ObjPtr = DictPtr->GetElement( "Root", OBJ_TYPE_REFERENCE );
-// 	if ( ObjPtr )
-// 	{
-// 		newTriailerDict->SetAtObj( "Root", ObjPtr );
-// 	}
-// 	ObjPtr = DictPtr->GetElement( "Info", OBJ_TYPE_REFERENCE );
-// 	if ( ObjPtr )
-// 	{
-// 		newTriailerDict->SetAtObj( "Info", ObjPtr->GetRefPtr() );
-// 	}
-// 
-// 	if ( mpParser && mpParser->mEncryptRef )
-// 	{
-// 		newTriailerDict->SetAtReference( "Encrypt", mpParser->mEncryptRef->GetRefInfo().objNum, mpParser->mEncryptRef->GetRefInfo().genNum, this );
-// 	}
-// 
-// 	if ( mpParser && mpParser->mIDArrayPtr )
-// 	{
-// 		newTriailerDict->SetAtArray( "ID", mpParser->mIDArrayPtr->Clone() );
-// 	}
-// 
-// 	newTriailerDict->SetAtInteger( "Size", (HE_INT32)objCount );
+	CHE_PDF_Creator * pCreator = CHE_PDF_Creator::Create(pWrite, GetAllocator());
+	if ( pCreator == NULL )
+	{
+		return FALSE;
+	}
 
-// 	pCreator->OutPutTailerDict( newTriailerDict );
-// 
-// 	pCreator->OutPutFileTailer( offset );
-// 
-// 	pCreator->GetAllocator()->Delete( pCreator );
+	if ( mpParser && mpParser->mpStrEncrypt )
+	{
+		pCreator->SetEncrypt(mpParser->mpStrEncrypt);
+	}
+
+	HE_ULONG				objCount = 0;
+	HE_ULONG				offset = 0;
+	PDF_RefInfo				refInfo;
+	HE_BOOL					bEncrypt = TRUE;
+
+	CHE_PDF_ObjectPtr		ObjPtr;
+	CHE_PDF_NamePtr			NamePtr;
+	CHE_PDF_DictionaryPtr	DictPtr;
+
+	CHE_PDF_XRefEntry		entry;
+	CHE_PDF_XRefTable		xref( GetAllocator() );
+
+	//PDF File Head
+	pCreator->OutPutFileHead( GetPDFVersion() );
+
+	//XRef Beginning
+	entry.ObjNum = 0;
+	entry.Field1 = 0;
+	entry.Field2 = 65535;
+	entry.Type = XREF_ENTRY_TYPE_FREE;
+	++objCount;
+	xref.Add( entry );
+
+	mLock.Lock();
+
+	//Out put all objects
+	mXRefTable.MoveFirst();
+	while( !mXRefTable.IsEOF() )
+	{
+		if ( mXRefTable.GetCurNode( entry ) && entry.GetObjNum() != 0 )
+		{
+			refInfo.objNum = entry.GetObjNum();
+			refInfo.genNum = 0;
+
+			if (	mpParser && mpParser->mEncryptRef &&
+					mpParser->mEncryptRef->GetRefInfo().objNum == refInfo.objNum &&
+					mpParser->mEncryptRef->GetRefInfo().genNum == refInfo.genNum )
+			{
+				bEncrypt = FALSE;
+			}else{
+				bEncrypt = TRUE;
+			}
+
+			ObjPtr = GetObject( refInfo );
+			if ( ObjPtr )
+			{
+				if ( ObjPtr->GetType() == OBJ_TYPE_STREAM )
+				{
+					DictPtr = ObjPtr->GetStreamPtr()->GetDictPtr();
+					CHE_PDF_ObjectPtr tmpObjPtr = DictPtr->GetElement( "Type", OBJ_TYPE_NAME );
+					if ( tmpObjPtr )
+					{
+						NamePtr = tmpObjPtr->GetNamePtr();
+					}
+					if ( NamePtr )
+					{
+						if ( ( NamePtr->GetString() == "ObjStm" ) || ( NamePtr->GetString() == "XRef" ) )
+						{
+							mXRefTable.MoveNext();
+							NamePtr.Reset();
+							continue;
+						}
+					}
+				}
+
+				offset = pCreator->OutPutInObject( refInfo, ObjPtr, bEncrypt );
+
+				entry.Type = XREF_ENTRY_TYPE_COMMON;
+				entry.ObjNum = refInfo.objNum;
+				entry.Field1 = offset;
+				entry.Field2 = 0;
+				++objCount;
+
+				xref.Add( entry );
+			}
+		}
+		mXRefTable.MoveNext();
+	}
+
+	mLock.UnLock();
+
+	offset = pCreator->OutPutXRefTable( xref );
+
+	DictPtr = GetTrailerDict();
+	if ( DictPtr )
+	{
+		CHE_PDF_DictionaryPtr newTriailerDict = CHE_PDF_Dictionary::Create(GetAllocator());
+
+		ObjPtr = DictPtr->GetElement("Root", OBJ_TYPE_REFERENCE);
+		if (ObjPtr)
+		{
+			newTriailerDict->SetAtObj("Root", ObjPtr);
+		}
+		ObjPtr = DictPtr->GetElement("Info", OBJ_TYPE_REFERENCE);
+		if (ObjPtr)
+		{
+			newTriailerDict->SetAtObj("Info", ObjPtr->GetRefPtr());
+		}
+
+		if (mpParser && mpParser->mEncryptRef)
+		{
+			newTriailerDict->SetAtReference("Encrypt", mpParser->mEncryptRef->GetRefInfo().objNum, mpParser->mEncryptRef->GetRefInfo().genNum, this);
+		}
+
+		if (mpParser && mpParser->mIDArrayPtr)
+		{
+			newTriailerDict->SetAtArray("ID", mpParser->mIDArrayPtr->Clone());
+		}
+
+		newTriailerDict->SetAtInteger("Size", (HE_INT32)objCount);
+
+		pCreator->OutPutTailerDict(newTriailerDict);
+
+		pCreator->OutPutFileTailer(offset);
+	}
+
+	pCreator->GetAllocator()->Delete( pCreator );
 
 	return TRUE;
 }

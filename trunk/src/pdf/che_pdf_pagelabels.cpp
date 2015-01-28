@@ -39,7 +39,8 @@ HE_BOOL CHE_PDF_PageLabels::GetLabel(const CHE_PDF_DictionaryPtr & dict, CHE_PDF
 	CHE_PDF_ObjectPtr objPtr = dict->GetElement("S", OBJ_TYPE_NAME);
 	if ( objPtr )
 	{
-		switch (StringToDWORD(objPtr->GetNamePtr()->GetString()))
+		CHE_ByteString & str = objPtr->GetNamePtr()->GetString();
+		switch (StringToDWORD(str))
 		{
 		case A('D'): label.stype = LABEL_DEC_NUM; break;
 		case A('R'): label.stype = LABEL_UPPER_ROMAN_NUM; break;

@@ -1265,7 +1265,7 @@ HE_BOOL	CHE_PDF_Stream::IsModified()
 	return FALSE;
 }
 
-HE_VOID	CHE_PDF_Stream::SetDict( const CHE_PDF_DictionaryPtr & pDict )
+HE_VOID	CHE_PDF_Stream::SetDictPtr( const CHE_PDF_DictionaryPtr & pDict )
 {
 	mDictPtr = pDict;
 

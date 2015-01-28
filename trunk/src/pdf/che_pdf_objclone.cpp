@@ -326,7 +326,7 @@ PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File 
 				pMgr->SetMap( refInfo, newRefInfo );
 			}
 			CHE_PDF_DictionaryPtr NewDictPtr = CloneDirectDictObj( ObjPtr->GetStreamPtr()->GetDictPtr(), pFile, pMgr );
-			NewStmPtr->SetDict( NewDictPtr );
+			NewStmPtr->SetDictPtr( NewDictPtr );
 
 			HE_LPBYTE pbuffer = GetDefaultAllocator()->NewArray<HE_BYTE>( ObjPtr->GetStreamPtr()->GetRawSize() );
 			ObjPtr->GetStreamPtr()->GetRawData( 0, pbuffer, ObjPtr->GetStreamPtr()->GetRawSize() );

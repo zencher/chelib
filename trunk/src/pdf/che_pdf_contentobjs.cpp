@@ -769,7 +769,7 @@ CHE_PDF_ContentObject * CHE_PDF_InlineImage::Clone() const
 	return GetAllocator()->New<CHE_PDF_InlineImage>( mbMask, mWidth, mHeight, mBpc, mpData, mDataSize, objPtr, mColorspace, mRI, GetAllocator() );
 }
 
-#ifdef _WIN_32_
+#ifdef WIN32
 
 CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 {

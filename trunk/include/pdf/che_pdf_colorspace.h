@@ -190,6 +190,10 @@ public:
     
     CHE_PDF_CS_DeviceNPtr       GetDeviceNPtr() const;
 
+#ifdef WIN32
+	virtual HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+#endif
+
 protected:
 	CHE_PDF_ColorSpace(PDF_COLORSPACE_TYPE type, HE_UINT32 componentCount, CHE_Allocator * pAllocator = NULL);
 
@@ -206,7 +210,11 @@ public:
     HE_DOUBLE   mWhitePoint[3];
     HE_DOUBLE   mBlackPoint[3];
     HE_DOUBLE   mGamma;
-    
+
+#ifdef WIN32
+	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+#endif
+
 private:
     CHE_PDF_CS_CalGray(CHE_Allocator * pAllocator = NULL);
     
@@ -223,6 +231,10 @@ public:
     HE_DOUBLE   mBlackPoint[3];
     HE_DOUBLE	mGamma[3];
     HE_DOUBLE	mMatrix[9];
+
+#ifdef WIN32
+	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+#endif
     
 private:
     CHE_PDF_CS_CalRGB(CHE_Allocator * pAllocator = NULL);
@@ -239,6 +251,10 @@ public:
     HE_DOUBLE				mWhitePoint[3];
     HE_DOUBLE				mBlackPoint[3];
     HE_DOUBLE				mRange[4];
+
+#ifdef WIN32
+	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+#endif
     
 private:
     CHE_PDF_CS_CalLab(CHE_Allocator * pAllocator = NULL);
@@ -256,6 +272,9 @@ public:
     CHE_PDF_ColorSpacePtr   mAlternate;
     CHE_PDF_StreamAcc       mStmAcc;
 
+#ifdef WIN32
+	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+#endif
     
 private:
     CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_Allocator * pAllocator = NULL);
@@ -271,6 +290,10 @@ public:
     HE_ULONG				mIndexTableSize;
     HE_LPBYTE				mpIndexTable;
     CHE_PDF_ColorSpacePtr	mBaseColorSpace;
+
+#ifdef WIN32
+	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+#endif
     
 private:
     CHE_PDF_CS_Indexed(const CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = NULL);
@@ -296,6 +319,10 @@ class CHE_PDF_CS_Separation : public CHE_PDF_ColorSpace
 public:
     CHE_PDF_ColorSpacePtr   mBaseColorSpace;
     CHE_PDF_FunctionPtr		mFunction;
+
+#ifdef WIN32
+	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+#endif
     
 private:
     CHE_PDF_CS_Separation(CHE_Allocator * pAllocator = NULL);
@@ -306,6 +333,12 @@ private:
 
 class CHE_PDF_CS_DeviceN : public CHE_PDF_ColorSpace
 {
+public:
+
+#ifdef WIN32
+	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+#endif
+
 private:
     CHE_PDF_CS_DeviceN(CHE_Allocator * pAllocator = NULL);
     

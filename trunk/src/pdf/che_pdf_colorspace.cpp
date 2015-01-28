@@ -731,3 +731,49 @@ CHE_PDF_CS_DeviceN * CHE_PDF_CS_DeviceNPtr::operator->() const
 {
     return (CHE_PDF_CS_DeviceN*)mpCom;
 }
+
+
+
+
+#ifdef WIN32
+HE_ARGB	CHE_PDF_ColorSpace::GetARGBValue(const CHE_PDF_Color & color) const
+{
+	return 0xFF000000;
+}
+
+HE_ARGB	CHE_PDF_CS_CalGray::GetARGBValue(const CHE_PDF_Color & color) const
+{
+	return 0xFF000000;
+}
+
+HE_ARGB	CHE_PDF_CS_CalRGB::GetARGBValue(const CHE_PDF_Color & color) const
+{
+	return 0xFF000000;
+}
+
+HE_ARGB	CHE_PDF_CS_CalLab::GetARGBValue(const CHE_PDF_Color & color) const
+{
+	return 0xFF000000;
+}
+
+HE_ARGB	CHE_PDF_CS_ICCBased::GetARGBValue(const CHE_PDF_Color & color) const
+{
+	return 0xFF000000;
+}
+
+HE_ARGB	CHE_PDF_CS_Indexed::GetARGBValue(const CHE_PDF_Color & color) const
+{
+	return 0xFF000000;
+}
+
+HE_ARGB	CHE_PDF_CS_Separation::GetARGBValue(const CHE_PDF_Color & color) const
+{
+	return 0xFF000000;
+}
+
+HE_ARGB	CHE_PDF_CS_DeviceN::GetARGBValue(const CHE_PDF_Color & color) const
+{
+	return 0xFF000000;
+}
+
+#endif

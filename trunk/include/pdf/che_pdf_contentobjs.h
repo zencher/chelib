@@ -198,7 +198,7 @@ public:
 	HE_LPBYTE GetData() const { return mpData; }
 	HE_ULONG GetDataSize() const { return mDataSize; }
 
-#ifdef _WIN_32_
+#ifdef WIN32
 	CHE_Bitmap * GetBitmap();
 #endif
 

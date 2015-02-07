@@ -211,10 +211,6 @@ public:
     HE_DOUBLE   mBlackPoint[3];
     HE_DOUBLE   mGamma;
 
-#ifdef WIN32
-	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
-#endif
-
 private:
     CHE_PDF_CS_CalGray(CHE_Allocator * pAllocator = NULL);
     
@@ -231,10 +227,6 @@ public:
     HE_DOUBLE   mBlackPoint[3];
     HE_DOUBLE	mGamma[3];
     HE_DOUBLE	mMatrix[9];
-
-#ifdef WIN32
-	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
-#endif
     
 private:
     CHE_PDF_CS_CalRGB(CHE_Allocator * pAllocator = NULL);

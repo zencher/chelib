@@ -173,9 +173,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_contentlistbuilder.h">
       <Filter>include\pdf\content</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_image.h">
-      <Filter>include\pdf\component</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_destination.h">
       <Filter>include\pdf\component</Filter>
     </ClInclude>
@@ -218,9 +215,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_pagelabels.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_imageraster.h">
-      <Filter>include\pdf\component</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h">
       <Filter>include\pdf\content</Filter>
     </ClInclude>
@@ -231,6 +225,12 @@
       <Filter>include\pdf\modify</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_objclone.h">
+      <Filter>include\pdf\modify</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_imageraster.h">
+      <Filter>include\pdf\content</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\pdf\che_pdf_image.h">
       <Filter>include\pdf\modify</Filter>
     </ClInclude>
   </ItemGroup>
@@ -655,9 +655,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_function.cpp">
       <Filter>src\pdf\component</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp">
-      <Filter>src\pdf\component</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_pattern.cpp">
       <Filter>src\pdf\component</Filter>
     </ClCompile>
@@ -694,9 +691,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_pagelabels.cpp">
       <Filter>src\pdf</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp">
-      <Filter>src\pdf\component</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp">
       <Filter>src\pdf\context</Filter>
     </ClCompile>
@@ -707,6 +701,12 @@
       <Filter>src\pdf\modify</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp">
+      <Filter>src\pdf\modify</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp">
+      <Filter>src\pdf\context</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp">
       <Filter>src\pdf\modify</Filter>
     </ClCompile>
   </ItemGroup>

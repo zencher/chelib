@@ -405,6 +405,7 @@ inline HE_VOID OutputInlineImage( CHE_PDF_InlineImage * pImage, CHE_GraphicsDraw
 	if ( pBitmap )
 	{
 		drawer.DrawBitmap( pBitmap );
+		pBitmap->GetAllocator()->Delete(pBitmap);
 	}
 }
 

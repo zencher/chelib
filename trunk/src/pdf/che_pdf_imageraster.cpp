@@ -1,8 +1,5 @@
 #include "../../include/pdf/che_pdf_imageraster.h"
 
-#include "../../extlib/libjpeg/jpeglib.h"
-#include "../../extlib/openjpeg/openjpeg.h"
-#include "../../extlib/jbig2dec/jbig2.h"
 
 CHE_PDF_ImageRaster::CHE_PDF_ImageRaster( CHE_Allocator * pAllocator/*= NULL*/ )
 	: CHE_Object( pAllocator ) {}

@@ -42,24 +42,9 @@ public:
     CHE_PDF_ImageXObjectPtr GetSoftMaskImagePtr() const { return mSoftMaskImagePtr; }
     
     GRAPHICS_STATE_RENDERINTENTS GetRI() const { return mRI; }
-    
-#ifdef _WIN_32_
-	CHE_Bitmap *			GetBitmap();
-#endif
 
 private:
-	CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
-
-#ifdef _WIN_32_
-	CHE_Bitmap *			StreamToBitmap();
-	CHE_Bitmap *			JPXStreamToBitmap( HE_LPBYTE pData, HE_ULONG size );
-	CHE_Bitmap *			JpegStreamToBitmap( HE_LPBYTE data, HE_ULONG size );
-	CHE_Bitmap *			JBig2StreamToBitmap( HE_LPBYTE data, HE_ULONG size, HE_LPBYTE globals = NULL, HE_ULONG globalsSize = 0 );
-	CHE_Bitmap *			GetStencilMaskingBitmap( HE_LPBYTE pData, HE_ULONG size );
-	CHE_Bitmap *			GetExplicitMaskingBitmap( CHE_Bitmap * pBitmapOrig, CHE_PDF_StreamPtr & stmPtr );
-#endif
-
-	//CHE_PDF_ReferencePtr    mRefPtr;
+ 	CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
 	
 	HE_ULONG                mWidth;
 	HE_ULONG                mHeight;
@@ -69,9 +54,6 @@ private:
     CHE_PDF_StreamAcc       mStmAcc;
 	CHE_PDF_ColorSpacePtr	mColorspace;
 	
-	
-	
-    
     HE_BOOL					mbMask;
 	CHE_PDF_ArrayPtr        mColorKeyMaskPtr;
     CHE_PDF_ImageXObjectPtr mMaskImagePtr;
@@ -81,9 +63,6 @@ private:
     
     GRAPHICS_STATE_RENDERINTENTS mRI;
     
-    CHE_Bitmap *			mpBitmapCache;
-    
-
 	friend class CHE_Allocator;
 };
 

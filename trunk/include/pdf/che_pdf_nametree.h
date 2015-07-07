@@ -20,8 +20,6 @@ private:
 	CHE_PDF_DictionaryPtr								mDictPtr;
 	std::unordered_map<std::string,CHE_PDF_ObjectPtr>	mMap;
 
-
-	//hello world!!!
 };
 
 #endif

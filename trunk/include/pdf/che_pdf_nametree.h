@@ -10,7 +10,7 @@
 class CHE_PDF_NameTree : public CHE_Object
 {
 public:
-	CHE_PDF_NameTree( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
+	CHE_PDF_NameTree( CHE_PDF_DictionaryPtr dictPtr, CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ), mDictPtr( dictPtr ) {};
 
 	CHE_PDF_ObjectPtr GetObject( const CHE_ByteString & name );
 

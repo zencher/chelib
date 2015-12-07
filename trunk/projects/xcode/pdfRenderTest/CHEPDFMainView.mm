@@ -17,11 +17,14 @@
 @synthesize zoomMode    = _zoomMode;
 @synthesize rotateMode  = _rotateMode;
 
-- (id)initWithFrame:(NSRect)frame
+-(id)initWithFrameAndParentView:(NSRect)frame
+                         parentView:(id)view;
 {
     self = [super initWithFrame:frame];
     if (self)
     {
+        parentScrollView = view;
+        
         _pageSpaceY = 20;
         _pageSpaceX = 20;
         _scale = 2;
@@ -37,7 +40,7 @@
         smallestPageHeight  = 0;
         
         [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(parentScrollViewFrameChanged)
+                                                selector:@selector(parentScrollViewFrameChanged)
                                                      name:NSViewFrameDidChangeNotification
                                                    object:parentScrollView];
     }
@@ -47,6 +50,7 @@
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [super dealloc];
 }
 
 -(BOOL)isFlipped
@@ -57,14 +61,11 @@
 - (void)drawRect:(NSRect)dirtyRect
 {
     [[NSColor lightGrayColor] set];
-    NSRectFill( [self bounds] );
-    
+    NSRectFill( dirtyRect );
     NSLog(@"draw...");
-    
     if ( pdfDocument )
     {
-        NSRect viewRect = [[parentScrollView contentView] bounds];
-        [self drawPages:viewRect];
+        [self drawPages:dirtyRect];
     }
 }
 
@@ -81,12 +82,6 @@
     //[self setNeedsDisplay:YES];
 }
 
--(void)setParentScrollView:(id)scrollView
-{
-    parentScrollView = scrollView;
-}
-
-
 -(void)parentScrollViewFrameChanged
 {
     NSRect frame;
@@ -94,7 +89,6 @@
     frame.origin.y = 0;
     frame.size = [self getViewContentSize];
     [self setFrame:frame];
-    [self setNeedsDisplay:YES];
 }
 
 
@@ -185,6 +179,8 @@
                 render.Render( *[pdfDocument getPageContent:i], pageRect, 0, _scale, 72, 72 );
                 
                 CGContextRestoreGState( context );
+                
+                NSLog( @"draw page %d", i+1);
             }
         }
     }

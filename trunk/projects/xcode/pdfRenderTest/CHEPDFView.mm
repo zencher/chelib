@@ -14,22 +14,16 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        displayView = [[CHEPDFMainView alloc] initWithFrame:frame];
-        [displayView setParentScrollView:self];
+        displayView = [[CHEPDFMainView alloc] initWithFrameAndParentView:frame parentView:self];
+        [self setDocumentView:displayView];
         [self setAutohidesScrollers:YES];
         [self setHasVerticalScroller:YES];
         [self setHasHorizontalScroller:YES];
         [self setBorderType:NSNoBorder];
-        [self setDocumentView:displayView];
-        [self setPostsFrameChangedNotifications:YES];
     }
     return self;
 }
 
-- (void)drawRect:(NSRect)dirtyRect
-{
-    [super drawRect:dirtyRect];
-}
 
 -(BOOL) loadFile:(NSString*)filePath
 {

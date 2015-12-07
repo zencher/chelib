@@ -53,7 +53,9 @@ enum PDFVIEW_ROTATE_MODE
 @property PDFVIEW_ZOOM_MODE     zoomMode;
 @property PDFVIEW_ROTATE_MODE   rotateMode;
 
--(void)setParentScrollView:(id)scrollView;
+-(id)initWithFrameAndParentView:(NSRect)frame
+                         parentView:(id)view;
+
 
 -(void)parentScrollViewFrameChanged;
 

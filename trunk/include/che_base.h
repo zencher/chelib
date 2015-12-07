@@ -66,7 +66,16 @@ public:
 		}
 		Free( p ); 
 	}
-
+    
+#define CPP_VARIADIC_TEMPLATE
+#ifdef  CPP_VARIADIC_TEMPLATE
+    template <class Type, typename... Args>
+    inline Type * New(Args... args )
+    {
+        void* obj =Alloc( sizeof(Type) );
+        return new(obj) Type(args...);
+    }
+#else
 	template <class Type, class Arg1>
 	inline Type* New( Arg1 arg1 )
 	{
@@ -136,6 +145,7 @@ public:
 		void* obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 	}
+#endif
 };
 
 class CHE_DefCrtAllocator : public CHE_Allocator

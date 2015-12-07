@@ -1169,10 +1169,6 @@ HE_VOID CGFontCleanCallBack( HE_LPVOID info )
 
 HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
 {
-    static size_t gcount = 0;
-    static size_t gindex = 0;
-    static CGFontRef gfont = NULL;
-    
     GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
     CHE_PDF_GState * pGState = pText->GetGState();
     if ( pGState )
@@ -1216,43 +1212,37 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
         case TextRenderMode_StrokeClip:
         case TextRenderMode_FillStrokeClip:
         {
-            //return DrawTextAsPath( pText );
-            
+            HE_ULONG cgGlyphCount;
+            HE_ULONG ftGlyphCount;
+            CGFontRef cgfontRef = NULL;
             SetMatrix( CHE_Matrix() );
             //对于Fill类型的文本输出，可以使用系统原生文本输出接口，以获得次像素支持
 
-            CGFontRef fontRef = NULL;
-            
             CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
             if ( pFont->GetPlatformFontInfo() != nullptr )
             {
-                fontRef = (CGFontRef)pFont->GetPlatformFontInfo();
-                SetTextFont( fontRef );
+                cgfontRef = (CGFontRef)pFont->GetPlatformFontInfo();
+                SetTextFont( cgfontRef );
+                cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
+                ftGlyphCount = pFont->GetFTFaceGlyphCount();
             }else{
                 if ( pFont->GetEmbededFontSize() )
                 {
                     CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, pFont->GetEmbededFont(), pFont->GetEmbededFontSize(), kCFAllocatorNull );
                     if ( dataRef )
                     {
-                        //FILE * pFile = fopen( "/Users/zencher/Desktop/d.ttf" , "wb+");
-                        //fwrite( pFont->GetEmbededFont(), 1, pFont->GetEmbededFontSize(), pFile );
-                        //fclose(pFile);
-                        
                         CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
-                        fontRef = CGFontCreateWithDataProvider( dataProviderRef );
-                        if ( fontRef )
+                        cgfontRef = CGFontCreateWithDataProvider( dataProviderRef );
+                        if ( cgfontRef )
                         {
-                            //if ( CGFontGetNumberOfGlyphs(fontRef) == pFont->GetFTFaceGlyphCount() )
-                            //{
-                                pFont->SetPlatformFontInfo( fontRef );
-                                pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
-                                SetTextFont( fontRef );
-                            //}else{
-                            //    return DrawTextAsPath( pText );
-                            //}
-                        }
-                        else{
-                            return DrawTextAsPath( pText );
+                            cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
+                            ftGlyphCount = pFont->GetFTFaceGlyphCount();
+                            pFont->SetPlatformFontInfo( cgfontRef );
+                            pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
+                            SetTextFont( cgfontRef );
+                        }else{
+                            assert(false);
+                            return ;//DrawTextAsPath( pText );
                         }
                     }
                 }else{
@@ -1268,21 +1258,21 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                             fseek( pFile, 0, SEEK_SET);
                             fread( data, 1, posi, pFile);
                             
-                            
-                            
                             CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, data, posi, kCFAllocatorNull );
                             if ( dataRef )
                             {
                                 CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
-                                fontRef = CGFontCreateWithDataProvider( dataProviderRef );
-                                if ( fontRef )
+                                cgfontRef = CGFontCreateWithDataProvider( dataProviderRef );
+                                if ( cgfontRef )
                                 {
-                                    pFont->SetPlatformFontInfo( fontRef );
+                                    cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
+                                    ftGlyphCount = pFont->GetFTFaceGlyphCount();
+                                    pFont->SetPlatformFontInfo( cgfontRef );
                                     pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
-                                    SetTextFont( fontRef );
-                                }
-                                else{
-                                    return DrawTextAsPath( pText );
+                                    SetTextFont( cgfontRef );
+                                }else{
+                                    assert(false);
+                                    return ;//DrawTextAsPath( pText );
                                 }
                             }
                         }
@@ -1290,39 +1280,22 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                 }
             }
             
+            char glyphName[128];
             CHE_Matrix textMatirx;
             for ( HE_ULONG i = 0; i < pText->mItems.size(); ++i )
             {
                 textMatirx = pText->GetCharMatrix( i );
                 SetTextMatrix( textMatirx );
-                DrawTextGlyph( pText->mItems[i].gid );
                 
-                /*if ( fontRef && CGFontGetNumberOfGlyphs(fontRef) != pFont->GetFTFaceGlyphCount() )
+                if ( cgGlyphCount == ftGlyphCount )
                 {
-                    CHE_ByteString name = pFont->GetGlyphNameForStandard( pText->mItems[i].gid );
-                    if ( name.GetLength() != 0 )
-                    {
-                        CGGlyph gid = CGFontGetGlyphWithGlyphName( fontRef, CFStringCreateWithCString( kCFAllocatorDefault, name.GetData(), kCFStringEncodingASCII ));
-                        DrawTextGlyph( gid );
-
-                    }else{
-                        DrawTextGlyph( pText->mItems[i].gid );
-                    }
                     DrawTextGlyph( pText->mItems[i].gid );
                 }else{
-                     DrawTextGlyph( pText->mItems[i].gid );
-                }*/
-                
-                //if ( pFont->GetPlatformFontInfo() == gfont )
-                //{
-                //    DrawTextGlyph( 76 );
-                //    //if ( gindex > gcount )
-                //    //{
-                //    //    gindex = 0;
-                //    //}
-                //}else{
-                //    DrawTextGlyph( pText->mItems[i].gid );
-                //}
+                    sprintf( glyphName, "cid%ld", pText->mItems[i].gid );
+                    CFStringRef glyphNameStrRef = CFStringCreateWithCString( kCFAllocatorDefault, glyphName, kCFStringEncodingASCII );
+                    GlyphID gid = CGFontGetGlyphWithGlyphName( cgfontRef, glyphNameStrRef );
+                    DrawTextGlyph( gid );
+                }
             }
             break;
         }

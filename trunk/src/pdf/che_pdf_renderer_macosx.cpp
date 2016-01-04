@@ -1643,30 +1643,17 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 {
     mbNoColor = FALSE;
     
-    
     //计算extMatrix
     CHE_Matrix rectMatrix;
     CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
     CHE_Matrix transformMatrix1 = CHE_Matrix::TranslateMatrix( -pageRect.width/2, -pageRect.height/2 );
     CHE_Matrix transformMatrix2 = CHE_Matrix::TranslateMatrix( pageRect.width/2, pageRect.height/2 );
+    
     rectMatrix.Concat( transformMatrix1 );
     rectMatrix.Concat( rotateMatrix );
     rectMatrix.Concat( transformMatrix2 );
     
     CHE_Rect newPageRect = rectMatrix.Transform( pageRect );
-    
-    /*CHE_Matrix extMatrix;
-    extMatrix.a = dpix * scale / 72;
-	extMatrix.b = 0;
-	extMatrix.c = 0;
-	extMatrix.d = -dpiy * scale / 72;
-	extMatrix.e = mPosiX;
-	extMatrix.f = mPosiY;
-    
-    CHE_Matrix tmpMatrix = CHE_Matrix::TranslateMatrix( 0, -pageRect.height-pageRect.bottom );
-    tmpMatrix.Concat( extMatrix );
-    rectMatrix.Concat( tmpMatrix );
-    extMatrix = rectMatrix;*/
     
 	CHE_Matrix extMatrix;
 	extMatrix.a = dpix * scale / 72;
@@ -1679,19 +1666,15 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
     tmpMatrix.e = mPosiX - newPageRect.left * scale * dpix / 72;
     tmpMatrix.f = mPosiY + newPageRect.bottom * scale * dpix / 72 + newPageRect.height * scale * dpiy / 72;
     extMatrix.Concat( tmpMatrix );
-	rectMatrix.Concat( extMatrix );
+    rectMatrix.Concat( extMatrix );
     extMatrix = rectMatrix;
     SetExtMatrix( extMatrix );
-    
-    
     
     //clip当前页面绘制的区域
     CGContextSaveGState( mContextRef );
     newPageRect = extMatrix.Transform( pageRect );
     CGContextAddRect( mContextRef, CGRectMake( newPageRect.left, newPageRect.bottom, newPageRect.width, newPageRect.height ) );
     CGContextClip( mContextRef );
-
-    
     
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;

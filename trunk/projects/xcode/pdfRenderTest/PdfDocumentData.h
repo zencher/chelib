@@ -14,6 +14,30 @@
 #import "../../../include/pdf/che_pdf_componentmgr.h"
 #import "../../../include/pdf/che_pdf_contentobjs.h"
 #import "../../../include/pdf/che_pdf_renderer_macosx.h"
+#import "../../../include/pdf/che_pdf_page_layout.h"
+
+
+enum PDFVIEW_PAGE_MODE
+{
+    PAGE_MODE_SINGLE,
+    PAGE_MODE_DOUBLE,
+    PAGE_MODE_SINGLE_SCROLL,
+    PAGE_MODE_DOUBLE_SCROLL
+};
+
+enum PDFVIEW_ZOOM_MODE
+{
+    ZOOM_MODE_FIX,
+    ZOOM_MODE_FIT
+};
+
+enum PDFVIEW_ROTATE_MODE
+{
+    ROTATE_MODE_0,
+    ROTATE_MODE_90,
+    ROTATE_MODE_180,
+    ROTATE_MODE_270
+};
 
 @interface PdfDocumentData : NSObject
 {
@@ -23,16 +47,49 @@
     CHE_PDF_Document *                      pdfDocument;
     CHE_PDF_PageTree *                      pdfPageTree;
     CHE_PDF_ComponentMgr *                  pdfComponentMgr;
-    
+    CHE_PDF_PageLayout *                    pdfPageLayout;
     HE_ULONG                                pageCount;
 }
 
 -(id)initWithFilePath:(NSString*)path;
 
--(CHE_PDF_ContentObjectList*)getPageContent:(unsigned int)pageIndex;
+
+
 
 -(HE_ULONG)getPageCount;
 
--(CHE_Rect)getPageRect:(unsigned int)pageIndex;
+-(CHE_Rect)getPageRect:(HE_ULONG)pageIndex;
+
+-(CHE_PDF_ContentObjectList*)getPageContent:(HE_ULONG)pageIndex;
+
+
+
+
+-(void)setPageMode:(PDFVIEW_PAGE_MODE)mode;
+-(PDFVIEW_PAGE_MODE)getPageMode;
+
+-(void)setZoomMode:(PDFVIEW_ZOOM_MODE)mode;
+-(PDFVIEW_ZOOM_MODE)getZoomMode;
+
+
+-(void)setRotateMode:(PDFVIEW_ROTATE_MODE)mode;
+-(PDFVIEW_ROTATE_MODE)getRotateMode;
+
+-(void)setScale:(CGFloat)scale;
+-(CGFloat)getScale;
+
+-(void)setViewFrame:(unsigned int)w height:(unsigned int)h;
+
+-(void)updateLayout;
+
+
+
+-(CGSize)getContentSize;
+
+-(NSRect)getPageRectInView:(HE_ULONG)pageIndex;
+
+-(CGFloat)getPageScaleInViwe:(HE_ULONG)pageInde;
+
+-(HE_PDF_PAGE_RANGE)getCurPageRange;
 
 @end

@@ -11,7 +11,7 @@
 
 @interface CHEPDFView : NSScrollView
 {
-    CHEPDFMainView *        displayView;
+    CHEPDFMainView * displayView;
 }
 
 -(BOOL) loadFile:(NSString*)filePath;

@@ -70,7 +70,7 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePage()
 {
     CHE_Page_Rect bbox;
     CHE_Page_Rect page;
-    CHE_Page_Rect spaceRect;
+    HE_FLOAT offsetX = 0, offsetY = 0;
     HE_FLOAT tmpScale = mScale;
     
     if ( mRotate == ROTATE_0 || mRotate == ROTATE_180 )
@@ -78,88 +78,69 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePage()
         if ( mZoom == ZOOM_FIT )
         {
             page.left = 0;
+            page.right = (mViewWidth - 2 * mSpaceX);
+            tmpScale = (mViewWidth - 2 * mSpaceX) / mPageSizes[mCurPageStart].width;
+            page.top = page.bottom = 0;
+            page.bottom += mPageSizes[mCurPageStart].height * tmpScale;
+            mPageRectInView.push_back( page );
+            mPageScaleInView.push_back( tmpScale );
+            bbox.Union( page );
         }else if( mZoom == ZOOM_FIX )
         {
-            spaceRect.left = 0;
-            spaceRect.right = 100;
-            spaceRect.top = 0;
-            spaceRect.bottom = mSpaceY;
-            bbox.Union(  spaceRect );
-            
             page.left = 0;
             page.right = mPageSizes[mCurPageStart].width * mScale;
-            page.top = page.bottom = mSpaceY;
+            page.top = page.bottom = 0;
             page.bottom += mPageSizes[mCurPageStart].height * mScale;
             mPageRectInView.push_back( page );
             mPageScaleInView.push_back( mScale );
-            
-            spaceRect.left = 0;
-            spaceRect.right = page.right;
-            spaceRect.top = page.bottom;
-            spaceRect.bottom = page.bottom + mSpaceY;
-            
             bbox.Union( page );
-            bbox.Union(  spaceRect );
         }
     }else{
         if ( mZoom == ZOOM_FIT )
         {
             page.left = 0;
+            page.right = (mViewWidth - 2 * mSpaceX);
+            tmpScale = (mViewWidth - 2 * mSpaceX) / mPageSizes[mCurPageStart].height;
+            page.top = page.bottom = 0;
+            page.bottom += mPageSizes[mCurPageStart].width * tmpScale;
+            mPageRectInView.push_back( page );
+            mPageScaleInView.push_back( tmpScale );
+            bbox.Union( page );
         }else if( mZoom == ZOOM_FIX )
         {
             page.left = 0;
             page.right = mPageSizes[mCurPageStart].height * mScale;
-            page.top = page.bottom = mSpaceY;
+            page.top = page.bottom = 0;
             page.bottom += mPageSizes[mCurPageStart].width * mScale;
             mPageRectInView.push_back( page );
             mPageScaleInView.push_back( mScale );
-            
-            spaceRect.left = 0;
-            spaceRect.right = page.right;
-            spaceRect.top = 0;
-            spaceRect.bottom = mSpaceY;
-            bbox.Union(  spaceRect );
-            
-            spaceRect.left = 0;
-            spaceRect.right = page.right;
-            spaceRect.top = page.bottom;
-            spaceRect.bottom = page.bottom + mSpaceY;
-            
-            //bbox.Union( page );
-            
-            bbox.Union(  spaceRect );
+            bbox.Union( page );
         }
     }
     
-    HE_FLOAT bboxWidth = bbox.Width();
-    HE_FLOAT bboxHeight = bbox.Height();
-    HE_FLOAT left = 0, top = 0;
-    if ( bboxWidth < mViewWidth )
+    mContentWidth = bbox.Width() + 2 * mSpaceX;
+    if ( mContentWidth <= mViewWidth )
     {
-        bboxWidth = mViewWidth;
+        mContentWidth = mViewWidth;
     }
-    if ( bboxHeight < mViewHeight )
+    mContentHeight = bbox.Height() + 2 * mSpaceY;
+    if ( mContentHeight <= mViewHeight )
     {
-        bboxHeight = mViewHeight;
+        mContentHeight = mViewHeight;
     }
     
-    left = (bboxWidth - mPageRectInView[0].Width() ) / 2;
-    top = (bboxHeight - mPageRectInView[0].Height() - 2 * mSpaceY ) / 2;
-    mPageRectInView[0].right += left;
-    mPageRectInView[0].left += left;
-    mPageRectInView[0].top += top;
-    mPageRectInView[0].bottom += top;
-    
-    mContentWidth = bboxWidth;
-    mContentHeight = bboxHeight;
-
+    offsetX = (mContentWidth - mPageRectInView[mCurPageStart].Width() ) / 2;
+    offsetY = (mContentHeight - mPageRectInView[mCurPageStart].Height() ) / 2;
+    mPageRectInView[mCurPageStart].right += offsetX;
+    mPageRectInView[mCurPageStart].left += offsetX;
+    mPageRectInView[mCurPageStart].top += offsetY;
+    mPageRectInView[mCurPageStart].bottom += offsetY;
 }
 
 void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
 {
     CHE_Page_Rect bbox;
     CHE_Page_Rect page;
-    CHE_Page_Rect spaceRect;
     HE_FLOAT offset = mSpaceY;
     HE_FLOAT tmpScale = mScale;
     
@@ -169,7 +150,6 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
     if ( mRotate == ROTATE_0 || mRotate == ROTATE_180 )
     {
         //with is width, height is height
-        
         if ( mZoom == ZOOM_FIT )
         {
             for ( size_t index = 0; index < mPageSizes.size(); ++index )
@@ -185,11 +165,6 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
                 mPageScaleInView.push_back( tmpScale );
                 bbox.Union( page );
             }
-            spaceRect.left = page.left;
-            spaceRect.right = page.right;
-            spaceRect.top = offset;
-            spaceRect.bottom = spaceRect.top + mSpaceY;
-            bbox.Union( spaceRect );
         }else if ( mZoom == ZOOM_FIX )
         {
             for ( size_t index = 0; index < mPageSizes.size(); ++index )
@@ -204,23 +179,16 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
                 mPageScaleInView.push_back( mScale );
                 bbox.Union( page );
             }
-            spaceRect.left = page.left;
-            spaceRect.right = page.right;
-            spaceRect.top = offset;
-            spaceRect.bottom = spaceRect.top + mSpaceY;
-            bbox.Union( spaceRect );
         }
-        
     }else{ // ROTATE_MODE_90 || ROTATE_MODE_270
         //widht is height, height is width
-        
         if ( mZoom == ZOOM_FIT )
         {
             for ( size_t index = 0; index < mPageSizes.size(); ++index )
             {
                 page.left = 0;
-                page.right = (mViewHeight - 2 * mSpaceX);
-                tmpScale = (mViewHeight - 2 * mSpaceX) / mPageSizes[index].height;
+                page.right = (mViewWidth - 2 * mSpaceX);
+                tmpScale = (mViewWidth - 2 * mSpaceX) / mPageSizes[index].height;
                 page.top = page.bottom = offset;
                 page.bottom += mPageSizes[index].width * tmpScale;
                 offset = page.bottom;
@@ -229,12 +197,6 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
                 mPageScaleInView.push_back( tmpScale );
                 bbox.Union( page );
             }
-            spaceRect.left = page.left;
-            spaceRect.right = page.right;
-            spaceRect.top = offset;
-            spaceRect.bottom = spaceRect.top + mSpaceY;
-            bbox.Union( spaceRect );
-
         }else if ( mZoom == ZOOM_FIX )
         {
             for ( size_t index = 0; index < mPageSizes.size(); ++index )
@@ -249,35 +211,25 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
                 mPageScaleInView.push_back( mScale );
                 bbox.Union( page );
             }
-            spaceRect.left = page.left;
-            spaceRect.right = page.right;
-            spaceRect.top = offset;
-            spaceRect.bottom = spaceRect.top + mSpaceY;
-            bbox.Union( spaceRect );
         }
     }
     
-    HE_FLOAT bboxWidth = bbox.Width();
-    HE_FLOAT bboxHeight = bbox.Height();
-    HE_FLOAT left = 0;
-    if ( bboxWidth < mViewWidth )
+    mContentWidth = bbox.Width() + 2 * mSpaceX;
+    mContentHeight = bbox.Height() + 2 * mSpaceY;
+    if ( mContentWidth < mViewWidth )
     {
-        bboxWidth = mViewWidth;
+        mContentWidth = mViewWidth;
     }
-    if ( bboxHeight < mViewHeight )
+    if ( mContentHeight < mViewHeight )
     {
-        bboxHeight = mViewHeight;
+        mContentHeight = mViewHeight;
     }
-    
     for ( size_t index = 0; index < mPageSizes.size(); ++index )
     {
-        left = (bboxWidth - mPageRectInView[index].Width() ) / 2;
-        mPageRectInView[index].right += left;
-        mPageRectInView[index].left += left;
+        offset = (mContentWidth - mPageRectInView[index].Width() ) / 2;
+        mPageRectInView[index].right += offset;
+        mPageRectInView[index].left += offset;
     }
-    
-    mContentWidth = bboxWidth;
-    mContentHeight = bboxHeight;
 }
 
 void CHE_PDF_PageLayout::UpdatePageInViewRectInfo()

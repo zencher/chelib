@@ -232,6 +232,147 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
     }
 }
 
+void CHE_PDF_PageLayout::UpdatePageInfoDoublePage()
+{
+    
+}
+
+void CHE_PDF_PageLayout::UpdatePageInfoDoublePageScroll()
+{
+    CHE_Page_Rect bbox;
+    CHE_Page_Rect pageLeft;
+    CHE_Page_Rect pageRight;
+    
+    HE_FLOAT offsetY = mSpaceY;
+    HE_FLOAT offsetX = mSpaceX;
+    HE_FLOAT preOffsetX = offsetX;
+    //HE_FLOAT tmpScale = mScale;
+    
+    mCurPageStart = 0;
+    mCurPageCountInView = mPageSizes.size();
+    if ( mRotate == ROTATE_0 || mRotate == ROTATE_180 )
+    {
+        //with is width, height is height
+        if ( mZoom == ZOOM_FIT )
+        {
+            for ( size_t index = 0; index < mPageSizes.size(); ++index )
+            {
+                /*page.left = 0;
+                page.right = (mViewWidth - 2 * mSpaceX);
+                tmpScale = (mViewWidth - 2 * mSpaceX) / mPageSizes[index].width;
+                page.top = page.bottom = offset;
+                page.bottom += mPageSizes[index].height * tmpScale;
+                offset = page.bottom;
+                offset += mSpaceY;
+                mPageRectInView.push_back( page );
+                mPageScaleInView.push_back( tmpScale );
+                bbox.Union( page );*/
+            }
+        }else if ( mZoom == ZOOM_FIX )
+        {
+            for ( size_t index = 0; index < mPageSizes.size(); ++index )
+            {
+                if ( index % 2 == 0 )
+                {
+                    //page left
+                    pageLeft.left = pageLeft.right = offsetX;
+                    pageLeft.right += mPageSizes[index].width * mScale;
+                    pageLeft.top = pageLeft.bottom = offsetY;
+                    pageLeft.bottom += mPageSizes[index].height * mScale;
+                    mPageRectInView.push_back( pageLeft );
+                    mPageScaleInView.push_back( mScale );
+                    bbox.Union( pageLeft );
+                    offsetX = pageLeft.right + mSpaceX;
+                }else{
+                    //page right
+                    pageRight.left = pageRight.right = offsetX;
+                    pageRight.right += mPageSizes[index].width * mScale;
+                    pageRight.top = pageRight.bottom = offsetY;
+                    pageRight.bottom += mPageSizes[index].height * mScale;
+                    mPageRectInView.push_back( pageRight );
+                    mPageScaleInView.push_back( mScale );
+                    bbox.Union( pageRight );
+                    offsetX = mSpaceX;
+                    offsetY = ( pageRight.bottom > pageLeft.bottom ) ? pageRight.bottom : pageLeft.bottom + mSpaceY;
+                }
+            }
+        }
+    }else{ // ROTATE_MODE_90 || ROTATE_MODE_270
+        //widht is height, height is width
+        if ( mZoom == ZOOM_FIT )
+        {
+            for ( size_t index = 0; index < mPageSizes.size(); ++index )
+            {
+                /*page.left = 0;
+                page.right = (mViewWidth - 2 * mSpaceX);
+                tmpScale = (mViewWidth - 2 * mSpaceX) / mPageSizes[index].height;
+                page.top = page.bottom = offset;
+                page.bottom += mPageSizes[index].width * tmpScale;
+                offset = page.bottom;
+                offset += mSpaceY;
+                mPageRectInView.push_back( page );
+                mPageScaleInView.push_back( tmpScale );
+                bbox.Union( page );*/
+            }
+        }else if ( mZoom == ZOOM_FIX )
+        {
+            for ( size_t index = 0; index < mPageSizes.size(); ++index )
+            {
+                if ( index % 2 == 0 )
+                {
+                    //page left
+                    pageLeft.left = pageLeft.right = offsetX;
+                    pageLeft.right += mPageSizes[index].height * mScale;
+                    pageLeft.top = pageLeft.bottom = offsetY;
+                    pageLeft.bottom += mPageSizes[index].width * mScale;
+                    mPageRectInView.push_back( pageLeft );
+                    mPageScaleInView.push_back( mScale );
+                    bbox.Union( pageLeft );
+                    offsetX = pageLeft.right + mSpaceX;
+                }else{
+                    //page right
+                    pageRight.left = pageRight.right = offsetX;
+                    pageRight.right += mPageSizes[index].height * mScale;
+                    pageRight.top = pageRight.bottom = offsetY;
+                    pageRight.bottom += mPageSizes[index].width * mScale;
+                    mPageRectInView.push_back( pageRight );
+                    mPageScaleInView.push_back( mScale );
+                    bbox.Union( pageRight );
+                    offsetX = mSpaceX;
+                    offsetY = ( pageRight.bottom > pageLeft.bottom ) ? pageRight.bottom : pageLeft.bottom + mSpaceY;
+                }
+            }
+        }
+    }
+    
+    mContentWidth = bbox.Width() + 2 * mSpaceX;
+    mContentHeight = bbox.Height() + 2 * mSpaceY;
+    if ( mContentWidth < mViewWidth )
+    {
+        mContentWidth = mViewWidth;
+    }
+    if ( mContentHeight < mViewHeight )
+    {
+        mContentHeight = mViewHeight;
+    }
+    for ( size_t index = 0; index < mPageSizes.size(); ++index )
+    {
+        if ( index % 2 == 0 )
+        {
+            if ( index + 1 < mPageSizes.size() )
+            {
+                preOffsetX = offsetX = ( mContentWidth - mPageRectInView[index].Width() - mPageRectInView[index + 1].Width() - mSpaceX * 3 ) / 2;
+            }else{
+                offsetX = preOffsetX;
+            }
+        }else{
+            offsetX = ( mContentWidth - mPageRectInView[index].Width() - mPageRectInView[index - 1].Width() - mSpaceX * 3 ) / 2;
+        }
+        mPageRectInView[index].right += offsetX;
+        mPageRectInView[index].left += offsetX;
+    }
+}
+
 void CHE_PDF_PageLayout::UpdatePageInViewRectInfo()
 {
     mPageRectInView.clear();
@@ -246,6 +387,7 @@ void CHE_PDF_PageLayout::UpdatePageInViewRectInfo()
         }
         case PAGE_DOUBLE:
         {
+            UpdatePageInfoDoublePage();
             break;
         }
         case PAGE_SINGLE_SCROLL:
@@ -255,7 +397,7 @@ void CHE_PDF_PageLayout::UpdatePageInViewRectInfo()
         }
         case PAGE_DOUBLE_SCROLL:
         {
-            
+            UpdatePageInfoDoublePageScroll();
             break;
         }
         default:

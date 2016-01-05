@@ -164,6 +164,8 @@ public:
 private:
     void UpdatePageInfoSinglePage();
     void UpdatePageInfoSinglePageScroll();
+    void UpdatePageInfoDoublePage();
+    void UpdatePageInfoDoublePageScroll();
     
     HE_FLOAT                mScale;
     HE_UINT32               mSpaceX;

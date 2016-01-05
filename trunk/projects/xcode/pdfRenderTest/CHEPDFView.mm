@@ -20,6 +20,7 @@
         [self setHasVerticalScroller:YES];
         [self setHasHorizontalScroller:YES];
         [self setBorderType:NSNoBorder];
+        [self setBackgroundColor:[NSColor lightGrayColor]];
     }
     return self;
 }

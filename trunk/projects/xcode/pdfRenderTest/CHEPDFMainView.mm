@@ -8,15 +8,7 @@
 
 #import "CHEPDFMainView.h"
 
-
 @implementation CHEPDFMainView
-
-//@synthesize pageSpaceX  = _pageSpaceX;
-//@synthesize pageSpaceY  = _pageSpaceY;
-//@synthesize scale       = _scale;
-//@synthesize pageMode    = _pageMode;
-//@synthesize zoomMode    = _zoomMode;
-//@synthesize rotateMode  = _rotateMode;
 
 -(id)initWithFrameAndParentView:(NSRect)frame
                          parentView:(id)view;
@@ -89,9 +81,9 @@
         NSSize contentSize;
         
         pframe = [parentScrollView frame];
-        contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
+        //contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
         
-        //contentSize = [parentScrollView contentSize];
+        contentSize = [parentScrollView contentSize];
         [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
         [pdfDocument updateLayout];
         
@@ -161,101 +153,6 @@
                 CGContextRestoreGState( context );
             }
         }
-        
-        /*CGRect pageRectInView = CGRectMake(0, 0, 0, 0);
-        NSRect scrollFrame = [parentScrollView frame];
-        
-        CHE_Rect pageRect;
-        HE_FLOAT tmpY = 0;
-        
-        HE_FLOAT scale = _scale;
-
-        switch ( _rotateMode )
-        {
-            case ROTATE_MODE_0:
-                rotate = 0;
-                break;
-            case ROTATE_MODE_90:
-                rotate = 270;
-                break;
-            case ROTATE_MODE_180:
-                rotate = 180;
-                break;
-            case ROTATE_MODE_270:
-                rotate = 90;
-            default:
-                break;
-        }
-        
-        HE_ULONG count = [pdfDocument getPageCount];
-        for ( HE_UINT32 i = 0; i < count; ++i )
-        {
-            if ( _zoomMode == ZOOM_MODE_FIT_HEIGHT )
-            {
-                scale = scrollFrame.size.width / pageRect.width;
-            }else if ( _zoomMode == ZOOM_MODE_FIT_WIDTH )
-            {
-                scale = scrollFrame.size.height / pageRect.height;
-            }
-            
-            pageRect = [pdfDocument getPageRect:i];
-            pageRect.width *= scale;
-            pageRect.height *= scale;
-            
-            if ( _rotateMode == ROTATE_MODE_90 || _rotateMode == ROTATE_MODE_270 )
-            {
-                HE_FLOAT tmp = pageRect.width;
-                pageRect.width = pageRect.height;
-                pageRect.height = tmp;
-            }
-            
-            switch ( _pageMode )
-            {
-                case PAGE_MODE_SINGLE:
-                    break;
-                case PAGE_MODE_DOUBLE:
-                    break;
-                case PAGE_MODE_SINGLE_SCROLL:
-                {
-                    tmpY += _pageSpaceY;
-                    pageRectInView.origin.y = tmpY;
-                    pageRectInView.size.width = pageRect.width;
-                    pageRectInView.size.height = pageRect.height;
-                    tmpY += pageRectInView.size.height;
-                    break;
-                }
-                case PAGE_MODE_DOUBLE_SCROLL:
-                {
-                    break;
-                }
-                default:
-                    break;
-            }
-            
-            if ( scrollFrame.size.width/*-15 >= pageRectInView.size.width )
-            {
-                pageRectInView.origin.x = /*15 + ( scrollFrame.size.width/*-15 - pageRectInView.size.width /*- _pageSpaceX * 2 ) / 2;
-            }
-            
-            if ( CGRectIntersectsRect( rect, pageRectInView ) )
-            {
-                CGContextSaveGState( context );
-                
-                CGContextAddRect( context, rect );
-                CGContextClip( context );
-                
-                [self drawPageBorderAndShadow:context bound:pageRectInView];
-
-                CHE_Rect pageRect = [pdfDocument getPageRect:i];
-                CHE_PDF_Renderer render( context );
-                render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );
-                render.Render( *[pdfDocument getPageContent:i], pageRect, rotate, _scale, 72, 72 );
-                
-                CGContextRestoreGState( context );
-                
-                NSLog( @"draw page %d", i+1);
-            }
-        }*/
     }
 }
 
@@ -272,11 +169,11 @@
     [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
     
     [pdfDocument setScale:1.0f];
-    [pdfDocument setRotateMode:ROTATE_MODE_0];
+    [pdfDocument setRotateMode:ROTATE_MODE_90];
     //[pdfDocument setZoomMode:ZOOM_MODE_FIT];
     [pdfDocument setZoomMode:ZOOM_MODE_FIX];
-    //[pdfDocument setPageMode:PAGE_MODE_SINGLE];
-    [pdfDocument setPageMode:PAGE_MODE_SINGLE_SCROLL];
+    [pdfDocument setPageMode:PAGE_MODE_SINGLE];
+    //[pdfDocument setPageMode:PAGE_MODE_SINGLE_SCROLL];
     [pdfDocument updateLayout];
     
     frame.origin.x = 0;

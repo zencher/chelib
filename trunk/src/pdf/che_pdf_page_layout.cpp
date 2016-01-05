@@ -46,7 +46,7 @@ void CHE_PDF_PageLayout::SetRotateMode( HE_PDF_VIEW_ROTATE_MODE mode )
     mNeedUpdate = TRUE;
 }
 
-void CHE_PDF_PageLayout::SetViewSize( HE_UINT32 width, HE_UINT32 height )
+void CHE_PDF_PageLayout::SetViewSize( HE_FLOAT width, HE_FLOAT height )
 {
     mViewWidth = width;
     mViewHeight = height;
@@ -119,12 +119,12 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePage()
     }
     
     mContentWidth = bbox.Width() + 2 * mSpaceX;
-    if ( mContentWidth <= mViewWidth )
+    if ( mContentWidth < mViewWidth )
     {
         mContentWidth = mViewWidth;
     }
     mContentHeight = bbox.Height() + 2 * mSpaceY;
-    if ( mContentHeight <= mViewHeight )
+    if ( mContentHeight < mViewHeight )
     {
         mContentHeight = mViewHeight;
     }

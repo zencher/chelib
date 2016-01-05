@@ -78,7 +78,7 @@ enum PDFVIEW_ROTATE_MODE
 -(void)setScale:(CGFloat)scale;
 -(CGFloat)getScale;
 
--(void)setViewFrame:(unsigned int)w height:(unsigned int)h;
+-(void)setViewFrame:(CGFloat)w height:(CGFloat)h;
 
 -(void)updateLayout;
 

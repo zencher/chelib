@@ -211,7 +211,7 @@
     return pdfPageLayout->GetScale();
 }
 
--(void)setViewFrame:(unsigned int)w height:(unsigned int)h
+-(void)setViewFrame:(CGFloat)w height:(CGFloat)h
 {
     pdfPageLayout->SetViewSize( w, h );
 }

@@ -139,7 +139,7 @@ public:
     void SetPageMode( HE_PDF_VIEW_PAGE_MODE mode );
     void SetZoomMode( HE_PDF_VIEW_ZOOM_MODE mode );
     void SetRotateMode( HE_PDF_VIEW_ROTATE_MODE mode );
-    void SetViewSize( HE_UINT32 width, HE_UINT32 height );
+    void SetViewSize( HE_FLOAT width, HE_FLOAT height );
     
     HE_FLOAT GetScale() const { return mScale; }
     HE_PDF_VIEW_PAGE_MODE GetPageMode() const { return mMode; }
@@ -171,10 +171,10 @@ private:
     HE_PDF_VIEW_PAGE_MODE   mMode;
     HE_PDF_VIEW_ZOOM_MODE   mZoom;
     HE_PDF_VIEW_ROTATE_MODE mRotate;
-    HE_UINT32               mViewWidth;
-    HE_UINT32               mViewHeight;
-    HE_UINT32               mContentWidth;
-    HE_UINT32               mContentHeight;
+    HE_FLOAT                mViewWidth;
+    HE_FLOAT                mViewHeight;
+    HE_FLOAT                mContentWidth;
+    HE_FLOAT                mContentHeight;
     std::vector<HE_PDF_PAGE_SIZE>       mPageSizes;
     HE_BOOL                             mNeedUpdate;
     std::vector<CHE_Page_Rect>          mPageRectInView;

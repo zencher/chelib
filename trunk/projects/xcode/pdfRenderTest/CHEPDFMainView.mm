@@ -20,7 +20,8 @@
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(parentScrollViewFrameChanged)
                                                      name:NSViewFrameDidChangeNotification
-                                                   object:parentScrollView];
+                                                   object:nil];
+        //change object from parentScrollView to nil, can fix the contentSize not stable in a view size changing process. But Why?
     }
     return self;
 }
@@ -40,7 +41,6 @@
 {
     [[NSColor lightGrayColor] set];
     NSRectFill( dirtyRect );
-    //NSLog(@"draw...");
     if ( pdfDocument )
     {
         [self drawPages:dirtyRect];
@@ -84,6 +84,7 @@
         //contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
         
         contentSize = [parentScrollView contentSize];
+        //NSLog( @"%f, %f - contentSize", contentSize.width, contentSize.height );
         [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
         [pdfDocument updateLayout];
         
@@ -91,7 +92,6 @@
         frame.origin.y = 0;
         frame.size = [pdfDocument getContentSize];
         [self setFrame:frame];
-
     }
 }
 
@@ -169,11 +169,11 @@
     [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
     
     [pdfDocument setScale:1.0f];
-    [pdfDocument setRotateMode:ROTATE_MODE_90];
-    //[pdfDocument setZoomMode:ZOOM_MODE_FIT];
-    [pdfDocument setZoomMode:ZOOM_MODE_FIX];
-    [pdfDocument setPageMode:PAGE_MODE_SINGLE];
-    //[pdfDocument setPageMode:PAGE_MODE_SINGLE_SCROLL];
+    [pdfDocument setRotateMode:ROTATE_MODE_0];
+    [pdfDocument setZoomMode:ZOOM_MODE_FIT];
+    //[pdfDocument setZoomMode:ZOOM_MODE_FIX];
+    //[pdfDocument setPageMode:PAGE_MODE_SINGLE];
+    [pdfDocument setPageMode:PAGE_MODE_SINGLE_SCROLL];
     [pdfDocument updateLayout];
     
     frame.origin.x = 0;

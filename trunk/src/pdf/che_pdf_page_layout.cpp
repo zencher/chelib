@@ -246,6 +246,7 @@ void CHE_PDF_PageLayout::UpdatePageInfoDoublePage()
     if ( mCurPageStart + mCurPageCountInView > mPageSizes.size() )
     {
         mCurPageCountInView = 1;
+        return UpdatePageInfoSinglePage();
     }
     
     if ( mRotate == ROTATE_0 || mRotate == ROTATE_180 )
@@ -364,23 +365,37 @@ void CHE_PDF_PageLayout::UpdatePageInfoDoublePage()
     mContentHeight = bbox.Height() + 2 * mSpaceY;
     if ( mContentWidth < mViewWidth )
     {
-        offsetX = (mViewWidth - mContentWidth ) / 2;
-        for ( size_t index = mCurPageStart; index < mCurPageStart + mCurPageCountInView; ++index )
-        {
-            mPageRectInView[index].left += offsetX;
-            mPageRectInView[index].right += offsetX;
-        }
         mContentWidth = mViewWidth;
     }
     if ( mContentHeight < mViewHeight )
     {
-        offsetY = (mViewHeight - mContentHeight ) / 2;
+        mContentHeight = mViewHeight;
+    }
+    
+    if ( mZoom == ZOOM_FIX )
+    {
+        if ( mCurPageCountInView == 1 )
+        {
+            offsetX = ( mContentWidth - mPageRectInView[0].Width() - mSpaceX * 2 ) / 2;
+        }else{
+            offsetX = ( mContentWidth - mPageRectInView[0].Width() - mPageRectInView[1].Width() - mSpaceX * 3 ) / 2;
+        }
         for ( size_t index = mCurPageStart; index < mCurPageStart + mCurPageCountInView; ++index )
         {
-            mPageRectInView[index].left += offsetX;
-            mPageRectInView[index].right += offsetX;
+            mPageRectInView[index-mCurPageStart].left += offsetX;
+            mPageRectInView[index-mCurPageStart].right += offsetX;
+            
+            offsetY = ( mContentHeight - mPageRectInView[index-mCurPageStart].Height() - mSpaceY * 2 ) / 2;
+            mPageRectInView[index-mCurPageStart].top += offsetY;
+            mPageRectInView[index-mCurPageStart].bottom += offsetY;
         }
-        mContentHeight = mViewHeight;
+    }else{
+        for ( size_t index = mCurPageStart; index < mCurPageStart + mCurPageCountInView; ++index )
+        {
+            offsetY = ( mContentHeight - mPageRectInView[index-mCurPageStart].Height() - mSpaceY * 2 ) / 2;
+            mPageRectInView[index-mCurPageStart].top += offsetY;
+            mPageRectInView[index-mCurPageStart].bottom += offsetY;
+        }
     }
 }
 

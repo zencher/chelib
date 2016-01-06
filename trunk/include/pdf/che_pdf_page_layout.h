@@ -157,8 +157,7 @@ public:
     
     HE_FLOAT GetPageScaleInView(HE_ULONG pageIndex);
     
-    void GetCurPageRange( HE_ULONG pageIndex, HE_ULONG pageCount );
-    
+    void SetCurPageRange( HE_ULONG pageIndex, HE_ULONG pageCount );
     HE_PDF_PAGE_RANGE GetCurPageRange();
     
 private:

@@ -129,12 +129,12 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePage()
         mContentHeight = mViewHeight;
     }
     
-    offsetX = (mContentWidth - mPageRectInView[mCurPageStart].Width() ) / 2;
-    offsetY = (mContentHeight - mPageRectInView[mCurPageStart].Height() ) / 2;
-    mPageRectInView[mCurPageStart].right += offsetX;
-    mPageRectInView[mCurPageStart].left += offsetX;
-    mPageRectInView[mCurPageStart].top += offsetY;
-    mPageRectInView[mCurPageStart].bottom += offsetY;
+    offsetX = (mContentWidth - mPageRectInView[0].Width() ) / 2;
+    offsetY = (mContentHeight - mPageRectInView[0].Height() ) / 2;
+    mPageRectInView[0].right += offsetX;
+    mPageRectInView[0].left += offsetX;
+    mPageRectInView[0].top += offsetY;
+    mPageRectInView[0].bottom += offsetY;
 }
 
 void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
@@ -443,15 +443,15 @@ HE_PDF_PAGE_SIZE CHE_PDF_PageLayout::GetContentSize()
 
 CHE_Page_Rect CHE_PDF_PageLayout::GetPageRectInView(HE_ULONG pageIndex)
 {
-    return mPageRectInView[pageIndex];
+    return mPageRectInView[pageIndex-mCurPageStart];
 }
 
 HE_FLOAT CHE_PDF_PageLayout::GetPageScaleInView(HE_ULONG pageIndex)
 {
-    return mPageScaleInView[pageIndex];
+    return mPageScaleInView[pageIndex-mCurPageStart];
 }
 
-void CHE_PDF_PageLayout::GetCurPageRange( HE_ULONG pageIndex, HE_ULONG pageCount )
+void CHE_PDF_PageLayout::SetCurPageRange( HE_ULONG pageIndex, HE_ULONG pageCount )
 {
     mCurPageStart = pageIndex;
     mCurPageCountInView = pageCount;

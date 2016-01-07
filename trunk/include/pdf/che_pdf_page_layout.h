@@ -161,6 +161,11 @@ public:
     HE_PDF_PAGE_RANGE GetCurPageRange();
     
 private:
+    HE_FLOAT GetPageWidthForRotateMode(HE_ULONG pageIndex);
+    HE_FLOAT GetPageHeightForRotateMode(HE_ULONG pageIndex);
+    
+    void FinalAdjuest(const CHE_Page_Rect & bbox);
+    
     void UpdatePageInfoSinglePage();
     void UpdatePageInfoSinglePageScroll();
     void UpdatePageInfoDoublePage();

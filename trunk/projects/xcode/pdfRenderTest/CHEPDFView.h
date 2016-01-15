@@ -18,4 +18,8 @@
 
 -(void) closeFile;
 
+-(void)nextPage;
+
+-(void)prevPage;
+
 @end

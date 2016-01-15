@@ -221,6 +221,55 @@
     pdfPageLayout->UpdatePageInViewRectInfo();
 }
 
+-(void)nextPage
+{
+    HE_PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
+    if ( pdfPageLayout->GetPageMode() == PAGE_SINGLE )
+    {
+        if ( range.pageStart + 1 < pdfPageTree->GetPageCount() )
+        {
+            pdfPageLayout->SetCurPageRange( range.pageStart + 1, 1 );
+            //[self updateLayout];
+        }
+    }else if ( pdfPageLayout->GetPageMode() == PAGE_DOUBLE )
+    {
+        if ( range.pageStart + 2 < pdfPageTree->GetPageCount() )
+        {
+            pdfPageLayout->SetCurPageRange( range.pageStart + 2, 2 );
+            //[self updateLayout];
+        }else if ( range.pageStart + 1 < pdfPageTree->GetPageCount() )
+        {
+            pdfPageLayout->SetCurPageRange( range.pageStart + 1, 1 );
+            //[self updateLayout];
+        }
+    }
+}
+
+-(void)prePage
+{
+    HE_PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
+    if ( pdfPageLayout->GetPageMode() == PAGE_SINGLE )
+    {
+        if ( range.pageStart != 0 )
+        {
+            pdfPageLayout->SetCurPageRange( range.pageStart - 1, 1 );
+            //[self updateLayout];
+        }
+    }else if ( pdfPageLayout->GetPageMode() == PAGE_DOUBLE )
+    {
+        if ( range.pageStart >= 2 )
+        {
+            pdfPageLayout->SetCurPageRange( range.pageStart - 2, 2 );
+            //[self updateLayout];
+        }
+        /*else if ( range.pageStart > 1 )
+        {
+            pdfPageLayout->SetCurPageRange( range.pageStart - 1, 1 );
+            //[self updateLayout];
+        }*/
+    }
+}
+
 -(CGSize)getContentSize
 {
     HE_PDF_PAGE_SIZE size = pdfPageLayout->GetContentSize();

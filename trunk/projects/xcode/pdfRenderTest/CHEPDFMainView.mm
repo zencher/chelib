@@ -64,6 +64,29 @@
     }*/
 }
 
+- (void)scrollWheel:(NSEvent *)theEvent
+{
+    [super scrollWheel:theEvent];
+    
+    if ( pdfDocument )
+    {
+        CGFloat deltaY = [theEvent deltaY];
+        if ( deltaY > 0 )
+        {
+            [self prevPage];
+            //[pdfDocument prePage];
+            //[pdfDocument updateLayout];
+            //[self setNeedsDisplay:YES];
+        }else{
+            [self nextPage];
+            //[pdfDocument nextPage];
+            //[pdfDocument updateLayout];
+            //[self setNeedsDisplay:YES];
+        }
+    }
+    //NSLog( @"deltaX %f, deltaY %f, deltaZ %f", [theEvent deltaX], [theEvent deltaY], [theEvent deltaZ] );
+}
+
 - (void)mouseDragged:(NSEvent *)theEvent
 {
     //NSPoint currentLocation = [theEvent locationInWindow];
@@ -77,21 +100,28 @@
     if ( pdfDocument )
     {
         NSRect frame;
-        NSRect pframe;
         NSSize contentSize;
-        
-        pframe = [parentScrollView frame];
+        NSRect visible = [parentScrollView documentVisibleRect];
+        CGFloat rate;
+        CGFloat positionY;
+
+        //NSRect pframe;
+        //pframe = [parentScrollView frame];
         //contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
         
         contentSize = [parentScrollView contentSize];
-        //NSLog( @"%f, %f - contentSize", contentSize.width, contentSize.height );
         [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
         [pdfDocument updateLayout];
         
         frame.origin.x = 0;
         frame.origin.y = 0;
         frame.size = [pdfDocument getContentSize];
+        rate = visible.origin.y / oldContentSize.height;
+        positionY = rate * frame.size.height;
+        oldContentSize = frame.size;
+
         [self setFrame:frame];
+        [self scrollPoint:NSMakePoint(0, positionY)];
     }
 }
 
@@ -154,6 +184,8 @@
             }
         }
     }
+    
+    //NSLog(@"%f, %f", [parentScrollView horizontalLineScroll], [parentScrollView verticalLineScroll]);
 }
 
 -(void)newDocument:(PdfDocumentData*)doc
@@ -173,12 +205,15 @@
     [pdfDocument setZoomMode:ZOOM_MODE_FIT];
     //[pdfDocument setZoomMode:ZOOM_MODE_FIX];
     //[pdfDocument setPageMode:PAGE_MODE_SINGLE];
+    //[pdfDocument setPageMode:PAGE_MODE_DOUBLE];
     [pdfDocument setPageMode:PAGE_MODE_SINGLE_SCROLL];
+    //[pdfDocument setPageMode:PAGE_MODE_DOUBLE_SCROLL];
     [pdfDocument updateLayout];
+    
     
     frame.origin.x = 0;
     frame.origin.y = 0;
-    frame.size = [pdfDocument getContentSize];
+    oldContentSize = frame.size = [pdfDocument getContentSize];
     [self setFrame:frame];
 }
 
@@ -187,6 +222,20 @@
     pdfDocument = nil;
     NSRect rect;
     [self setFrame:rect];
+    [self setNeedsDisplay:YES];
+}
+
+-(void)nextPage
+{
+    [pdfDocument nextPage];
+    [pdfDocument updateLayout];
+    [self setNeedsDisplay:YES];
+}
+
+-(void)prevPage
+{
+    [pdfDocument prePage];
+    [pdfDocument updateLayout];
     [self setNeedsDisplay:YES];
 }
 

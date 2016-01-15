@@ -46,4 +46,14 @@
     [displayView closeDocument];
 }
 
+-(void)nextPage
+{
+    [displayView nextPage];
+}
+
+-(void)prevPage
+{
+    [displayView prevPage];
+}
+
 @end

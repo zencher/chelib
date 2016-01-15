@@ -82,6 +82,10 @@ enum PDFVIEW_ROTATE_MODE
 
 -(void)updateLayout;
 
+-(void)nextPage;
+
+-(void)prePage;
+
 
 
 -(CGSize)getContentSize;

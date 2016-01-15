@@ -18,12 +18,12 @@
 
 - (IBAction)onNextPage:(id)sender
 {
-    //[mContentView onNextPage];
+    [displayScrollView nextPage];
 }
 
 - (IBAction)onPreviousPage:(id)sender
 {
-    //[mContentView onPrePage];
+    [displayScrollView prevPage];
 }
 
 - (IBAction)onScaleChanged:(id)sender

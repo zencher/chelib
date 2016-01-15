@@ -14,6 +14,7 @@
 {
     id                  parentScrollView;
     PdfDocumentData *   pdfDocument;
+    NSSize              oldContentSize;
 }
 
 -(id)initWithFrameAndParentView:(NSRect)frame
@@ -28,5 +29,10 @@
 -(void)drawPageBorderAndShadow:(CGContextRef)context bound:(NSRect)rect;
 
 -(void)closeDocument;
+
+
+-(void)nextPage;
+
+-(void)prevPage;
 
 @end

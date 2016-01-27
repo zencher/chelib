@@ -2253,11 +2253,11 @@ HE_BOOL CHE_PDF_ContentListBuilder::ParseContentStream( const CHE_PDF_StreamPtr 
 		return FALSE;
 	}
 	objPtr = dictPtr->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
-	if ( ! objPtr )
+	if ( objPtr )
 	{
-		return FALSE;
+        contentList.GetResMgr().SetDict( objPtr->GetDictPtr() );
 	}
-	contentList.GetResMgr().SetDict( objPtr->GetDictPtr() );
+	
 
 	CHE_Matrix matrix;
 	objPtr = dictPtr->GetElement( "Matrix", OBJ_TYPE_ARRAY );

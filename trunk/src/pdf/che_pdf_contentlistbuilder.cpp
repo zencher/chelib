@@ -2097,7 +2097,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_scn()
 				//color.SetTiling( tilingPtr );
                 
                 CHE_PDF_ColorSpacePtr csptr = CHE_PDF_ColorSpace::CreatePattern();
-				csptr->GetPatternPtr()->mTiling = CHE_PDF_Tiling::Convert(cmptPtr);
+                csptr->GetPatternPtr()->mTiling = tilingPtr;//CHE_PDF_Tiling::Convert(cmptPtr);
                 mpConstructor->State_FillColorSpace( csptr );
 			}
 			mpConstructor->State_FillColor( color );

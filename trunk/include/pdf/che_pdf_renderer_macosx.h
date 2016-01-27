@@ -82,6 +82,8 @@ public:
     HE_VOID     DrawForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix );
     HE_VOID     DrawShading( const CHE_PDF_ShadingPtr & shading );
     
+    HE_VOID     SetPatternOffset( HE_FLOAT x, HE_FLOAT y ) {  mPatternOffsetX = x; mPatternOffsetY = y; }
+    
 public:
     HE_VOID     DrawContentObjectList( CHE_PDF_ContentObjectList & list, const CHE_Matrix & extMatrix );
     
@@ -101,6 +103,9 @@ private:
     CGColorSpaceRef             mFillColorSpace;
     CGColorSpaceRef             mStrokeColorSpace;
     CGColorSpaceRef             mImageColorSpace;
+    
+    HE_FLOAT                    mPatternOffsetX;
+    HE_FLOAT                    mPatternOffsetY;
 };
 
 #endif

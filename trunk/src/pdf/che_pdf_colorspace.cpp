@@ -180,6 +180,11 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, 
                 }else if ( name == "DeviceN" )
                 {
                     pColorSpace = pAllocator->New<CHE_PDF_CS_DeviceN>(pAllocator);
+                }else if ( name == "Pattern" )
+                {
+                    //pattern underlying colorspace
+                    obj = arrayPtr->GetElement(1);
+                    return CHE_PDF_ColorSpace::Create(obj, pAllocator);
                 }
             }
         }

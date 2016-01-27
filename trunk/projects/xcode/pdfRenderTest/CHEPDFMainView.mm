@@ -140,8 +140,10 @@
 -(void)drawPages:(NSRect)rect
 {
     //NSLog( @"view:x=%f,y=%f,w=%f,h=%f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height );
-    
+    NSRect visableRect;
     NSRect pageRectInView;
+    //NSRect frame = [self frame];
+    visableRect = [parentScrollView documentVisibleRect];
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
     if ( context )
     {
@@ -178,6 +180,8 @@
                 CHE_Rect pageRect = [pdfDocument getPageRect:i];
                 CHE_PDF_Renderer render( context );
                 render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );
+                render.SetPatternOffset( pageRectInView.origin.x, visableRect.size.height - pageRectInView.origin.y - pageRectInView.size.height );
+                NSLog(@"%f, %f, %f, %f", visableRect.origin.x, visableRect.origin.y, visableRect.size.width, visableRect.size.height);
                 render.Render( *[pdfDocument getPageContent:i], pageRect, rotate, [pdfDocument getPageScaleInViwe:i], 72, 72 );
                 
                 CGContextRestoreGState( context );
@@ -199,7 +203,7 @@
     contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
     
     [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
-    
+
     [pdfDocument setScale:1.0f];
     [pdfDocument setRotateMode:ROTATE_MODE_0];
     [pdfDocument setZoomMode:ZOOM_MODE_FIT];

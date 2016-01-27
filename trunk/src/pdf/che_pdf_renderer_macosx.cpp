@@ -2,14 +2,12 @@
 #import <CoreGraphics/CGPattern.h>
 #include "../../include/che_bitmap.h"
 
+CGFloat gScale = 1.0f;
+HE_UINT32 gRotate = 0;
 
-
-struct TilingCallBackInfo
-{
-    CHE_PDF_Renderer *  render;
-    CHE_PDF_Component * tiling;
-};
-
+CHE_Rect gPageRect;
+HE_FLOAT gDpix;
+HE_FLOAT gDpiy;
 
 void TilingDrawCallBack( void *info, CGContextRef c )
 {
@@ -18,9 +16,7 @@ void TilingDrawCallBack( void *info, CGContextRef c )
         return;
     }
     
-    TilingCallBackInfo * pInfo = (TilingCallBackInfo *)info;
-    
-    CHE_PDF_Tiling * pTiling = (CHE_PDF_Tiling*)( pInfo->tiling );
+    CHE_PDF_Tiling * pTiling = (CHE_PDF_Tiling*)( info );
     if ( pTiling )
     {
         CHE_Rect rect;
@@ -29,23 +25,17 @@ void TilingDrawCallBack( void *info, CGContextRef c )
         rect.width = pTiling->GetXStep();
         rect.height = pTiling->GetYStep();
         
+        
+        
         CHE_PDF_Renderer render( c );
-        //render.SetPosition( pInfo->x, pInfo->y );
-        
-//        CHE_Matrix tmpMatrix = pTiling->GetMatrix();
-//        tmpMatrix.Concat( pInfo->render->GetExtMatrix() );
-        
-        //CGAffineTransform matrix = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f );
-        
-//        render.SetExtMatrix( tmpMatrix );
         
         //if ( ! pTiling->IsColored() )
         //{
         //    render.SetNoColor(true);
-        //    CGContextSetRGBFillColor( c, 1, 0, 0, 1 );
+            CGContextSetRGBFillColor( c, 1, 0, 0, 1 );
         //}
         
-        render.RenderTiling( pTiling->GetList(), rect, 0, 1, 72, 72 );
+        render.RenderTiling( pTiling->GetList(), rect, gRotate, gScale, 72, 72 );
     }
     
     /*CGFloat subunit = 50; // the pattern cell itself is 16 by 18
@@ -324,32 +314,73 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
                 CHE_Rect rect = tilingPtr->GetBBox();
                 CGRect bounds = CGRectMake( rect.left, rect.bottom, rect.width, rect.height );
                 
-                CHE_Matrix tmpMatrix = tilingPtr->GetMatrix();
-                tmpMatrix.Concat( mExtMatrix );
+                CHE_Matrix tMatrix = tilingPtr->GetMatrix();
                 
-                CGAffineTransform matrix = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f );
+                //计算extMatrix
+                CHE_Matrix rectMatrix;
+                CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( gRotate );
+                CHE_Matrix transformMatrix1 = CHE_Matrix::TranslateMatrix( -gPageRect.width/2, -gPageRect.height/2 );
+                CHE_Matrix transformMatrix2 = CHE_Matrix::TranslateMatrix( gPageRect.width/2, gPageRect.height/2 );
+                
+                rectMatrix.Concat( transformMatrix1 );
+                rectMatrix.Concat( rotateMatrix );
+                rectMatrix.Concat( transformMatrix2 );
+                
+                CHE_Rect newPageRect = rectMatrix.Transform( gPageRect );
+                
+                CHE_Matrix extMatrix;
+                extMatrix.a = gDpix * gScale / 72;
+                extMatrix.b = 0;
+                extMatrix.c = 0;
+                extMatrix.d = gDpiy * gScale / 72;
+                extMatrix.e = 0;
+                extMatrix.f = 0;
+                
+                CHE_Matrix tmpMatrix;
+                tmpMatrix.a = 1;
+                tmpMatrix.b = 0;
+                tmpMatrix.c = 0;
+                tmpMatrix.d = 1;
+                tmpMatrix.e = mPatternOffsetX;
+                tmpMatrix.f = mPatternOffsetY;
+                
+                tMatrix.Concat( rectMatrix );
+                tMatrix.Concat( extMatrix );
+                tMatrix.Concat( tmpMatrix );
+                
+                CGAffineTransform matrix = CGAffineTransformMake( tMatrix.a, tMatrix.b, tMatrix.c, tMatrix.d, tMatrix.e, tMatrix.f );
                 
                 bool bColored = tilingPtr->IsColored();
-                
-                TilingCallBackInfo * pInfo = GetDefaultAllocator()->New<TilingCallBackInfo>();
-                pInfo->tiling = tilingPtr.GetPointer();
-                pInfo->render = this;
-                
-                CGPatternCallbacks callbacks;
-                callbacks.drawPattern = TilingDrawCallBack;
-                callbacks.releaseInfo = NULL;
-                
-                
-                CGPatternRef patternRef = CGPatternCreate(  (void*)(pInfo), bounds, matrix,
-                                                          tilingPtr->GetXStep(), tilingPtr->GetYStep(),
-                                                          kCGPatternTilingNoDistortion, bColored,
-                                                          &callbacks );
-                
-                
-                CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( NULL );
-                CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
-                CGFloat alpha;
-                CGContextSetFillPattern( mContextRef, patternRef, &alpha );
+                //if ( bColored )
+                {
+                    CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( NULL );
+                    CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
+                    CGColorSpaceRelease( patternColorSpaceRef );
+                    
+                    CGPatternCallbacks callbacks;
+                    callbacks.version = 0;
+                    callbacks.drawPattern = TilingDrawCallBack;
+                    callbacks.releaseInfo = NULL;
+                    
+                    CGPatternTiling type = kCGPatternTilingNoDistortion;
+                    if ( tilingPtr->GetTilingType() == 1 ) {
+                        type = kCGPatternTilingConstantSpacing;
+                    }else if ( tilingPtr->GetTilingType() == 2 )
+                    {
+                        type = kCGPatternTilingNoDistortion;
+                    }else if ( tilingPtr->GetTilingType() == 3 )
+                    {
+                        type = kCGPatternTilingConstantSpacingMinimalDistortion;
+                    }
+                    
+                    CGPatternRef patternRef = CGPatternCreate( tilingPtr.GetPointer(), bounds, matrix,
+                                                              tilingPtr->GetXStep(), tilingPtr->GetYStep(),
+                                                              type, bColored,
+                                                              &callbacks );
+                    CGFloat alpha = 1;
+                    CGContextSetFillPattern( mContextRef, patternRef, &alpha );
+                    CGPatternRelease(patternRef);
+                }
             }
         }
     }else{
@@ -817,8 +848,6 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
 	static CHE_PDF_Color strokeColor;
 	static CHE_PDF_ColorSpacePtr fillColorSpace;
 	static CHE_PDF_ColorSpacePtr strokeColorSpace;
-	static HE_UINT32 fillColorVal = 0xFF000000;
-	static HE_UINT32 strokeColorVal = 0xFF000000;
     
 	pGState->GetLineWidth( val );
 	SetLineWidth( val );
@@ -1241,8 +1270,8 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                             pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
                             SetTextFont( cgfontRef );
                         }else{
-                            assert(false);
-                            return ;//DrawTextAsPath( pText );
+                            //assert(false);
+                            return DrawTextAsPath( pText );
                         }
                     }
                 }else{
@@ -1643,6 +1672,12 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 {
     mbNoColor = FALSE;
     
+    gScale = scale;
+    gRotate = rotate;
+    gPageRect = pageRect;
+    gDpix = dpix;
+    gDpiy = dpiy;
+    
     //计算extMatrix
     CHE_Matrix rectMatrix;
     CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
@@ -1663,6 +1698,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 	extMatrix.e = 0;
 	extMatrix.f = 0;
 	CHE_Matrix tmpMatrix;
+    
     tmpMatrix.e = mPosiX - newPageRect.left * scale * dpix / 72;
     tmpMatrix.f = mPosiY + newPageRect.bottom * scale * dpix / 72 + newPageRect.height * scale * dpiy / 72;
     extMatrix.Concat( tmpMatrix );
@@ -1734,7 +1770,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 
 HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy )
 {
-    CGContextSaveGState( mContextRef );
+    //CGContextSaveGState( mContextRef );s
     
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
@@ -1789,5 +1825,5 @@ HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, CHE
         RestoreGState();
 	}
     
-    CGContextRestoreGState( mContextRef );
+    //CGContextRestoreGState( mContextRef );
 }

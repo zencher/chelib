@@ -243,4 +243,12 @@
     [self setNeedsDisplay:YES];
 }
 
+-(void)rotate
+{
+    [pdfDocument rotate];
+    [pdfDocument updateLayout];
+    [self setNeedsDisplay:YES];
+
+}
+
 @end

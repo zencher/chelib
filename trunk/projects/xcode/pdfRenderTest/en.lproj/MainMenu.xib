@@ -162,15 +162,22 @@
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="08750F9A-9965-4DD8-B0C1-6C16E2C999ED" label="scale" paletteLabel="scale" id="ZKj-CJ-kLS">
                         <nil key="toolTip"/>
-                        <size key="minSize" width="96" height="21"/>
-                        <size key="maxSize" width="96" height="21"/>
+                        <size key="minSize" width="74" height="21"/>
+                        <size key="maxSize" width="97" height="21"/>
                         <slider key="view" verticalHuggingPriority="750" id="5m3-Ac-lYP">
-                            <rect key="frame" x="0.0" y="14" width="96" height="21"/>
+                            <rect key="frame" x="0.0" y="14" width="86" height="21"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <sliderCell key="cell" state="on" alignment="left" maxValue="100" doubleValue="50" tickMarkPosition="above" sliderType="linear" id="f3A-uC-4h7"/>
                         </slider>
                         <connections>
                             <action selector="onScaleChanged:" target="494" id="bbK-SE-UTA"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="524C33AA-DB63-4B19-9A1D-0A29AFA71535" label="rotate" paletteLabel="rotate" tag="-1" image="NSRefreshTemplate" autovalidates="NO" id="ZRP-rg-fov">
+                        <size key="minSize" width="10" height="10"/>
+                        <size key="maxSize" width="10" height="10"/>
+                        <connections>
+                            <action selector="onRotate:" target="494" id="ryT-2H-oTH"/>
                         </connections>
                     </toolbarItem>
                 </allowedToolbarItems>
@@ -179,6 +186,7 @@
                     <toolbarItem reference="553"/>
                     <toolbarItem reference="554"/>
                     <toolbarItem reference="ZKj-CJ-kLS"/>
+                    <toolbarItem reference="ZRP-rg-fov"/>
                 </defaultToolbarItems>
             </toolbar>
         </window>
@@ -193,5 +201,6 @@
         <image name="NSFolder" width="32" height="32"/>
         <image name="NSGoLeftTemplate" width="9" height="12"/>
         <image name="NSGoRightTemplate" width="9" height="12"/>
+        <image name="NSRefreshTemplate" width="11" height="15"/>
     </resources>
 </document>

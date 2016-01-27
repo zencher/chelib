@@ -270,6 +270,23 @@
     }
 }
 
+-(void)rotate
+{
+    HE_PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
+    if ( mode == ROTATE_0 )
+    {
+        pdfPageLayout->SetRotateMode( ROTATE_90 );
+    }else if ( mode == ROTATE_90 )
+    {
+        pdfPageLayout->SetRotateMode( ROTATE_180 );
+    }else if ( mode == ROTATE_180 )
+    {
+        pdfPageLayout->SetRotateMode( ROTATE_270 );
+    }else{
+        pdfPageLayout->SetRotateMode( ROTATE_0 );
+    }
+}
+
 -(CGSize)getContentSize
 {
     HE_PDF_PAGE_SIZE size = pdfPageLayout->GetContentSize();

@@ -24,6 +24,8 @@
 
 - (IBAction)onPreviousPage:(id)sender;
 
+- (IBAction)onRotate:(id)sender;
+
 - (IBAction)onScaleChanged:(id)sender;
 
 - (void) openPanelDidEnd:(NSOpenPanel *)sheet

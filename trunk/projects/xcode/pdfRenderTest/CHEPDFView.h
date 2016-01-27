@@ -22,4 +22,6 @@
 
 -(void)prevPage;
 
+-(void)rotate;
+
 @end

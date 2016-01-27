@@ -56,4 +56,9 @@
     [displayView prevPage];
 }
 
+-(void)rotate
+{
+    [displayView rotate];
+}
+
 @end

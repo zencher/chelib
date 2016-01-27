@@ -42,6 +42,9 @@
     }
     
 }
+- (IBAction)onRotate:(id)sender {
+    [displayScrollView rotate];
+}
 
 - (IBAction)onFileOpen:(id)sender
 {

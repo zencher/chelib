@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		901421EB1C4E1ABE00BDD6D3 /* function.mm in Sources */ = {isa = PBXBuildFile; fileRef = 901421EA1C4E1ABE00BDD6D3 /* function.mm */; };
 		90332F1A1A52C97F00629EB5 /* che_pdf_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F171A52C97F00629EB5 /* che_pdf_action.cpp */; };
 		90332F1B1A52C97F00629EB5 /* che_pdf_namedict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F181A52C97F00629EB5 /* che_pdf_namedict.cpp */; };
 		90332F1C1A52C97F00629EB5 /* che_pdf_numbertree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F191A52C97F00629EB5 /* che_pdf_numbertree.cpp */; };
@@ -351,6 +352,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		901421EA1C4E1ABE00BDD6D3 /* function.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = function.mm; sourceTree = "<group>"; };
 		90332EF41A51B30900629EB5 /* PE.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PE.xcodeproj; path = PE/PE.xcodeproj; sourceTree = "<group>"; };
 		90332F171A52C97F00629EB5 /* che_pdf_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_action.cpp; path = ../../src/pdf/che_pdf_action.cpp; sourceTree = "<group>"; };
 		90332F181A52C97F00629EB5 /* che_pdf_namedict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_namedict.cpp; path = ../../src/pdf/che_pdf_namedict.cpp; sourceTree = "<group>"; };
@@ -826,6 +828,7 @@
 		906EECD61A680F7100509D74 /* chelibTests */ = {
 			isa = PBXGroup;
 			children = (
+				901421EA1C4E1ABE00BDD6D3 /* function.mm */,
 				906EECD91A680F7100509D74 /* colorspace.mm */,
 				906EECD71A680F7100509D74 /* Supporting Files */,
 			);
@@ -1617,6 +1620,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				906EECDA1A680F7100509D74 /* colorspace.mm in Sources */,
+				901421EB1C4E1ABE00BDD6D3 /* function.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

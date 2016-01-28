@@ -30,9 +30,10 @@
 
 -(void)closeDocument;
 
-
 -(void)nextPage;
 
 -(void)prevPage;
+
+-(void)rotate;
 
 @end

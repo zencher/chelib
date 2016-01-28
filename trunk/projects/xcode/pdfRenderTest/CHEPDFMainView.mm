@@ -66,24 +66,28 @@
 
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-    [super scrollWheel:theEvent];
-    
     if ( pdfDocument )
     {
-        CGFloat deltaY = [theEvent deltaY];
-        if ( deltaY > 0 )
+        PDFVIEW_PAGE_MODE pageMode = [pdfDocument getPageMode];
+        if ( pageMode == PAGE_MODE_SINGLE || pageMode == PAGE_MODE_DOUBLE )
         {
-            [self prevPage];
-            //[pdfDocument prePage];
-            //[pdfDocument updateLayout];
-            //[self setNeedsDisplay:YES];
-        }else{
-            [self nextPage];
-            //[pdfDocument nextPage];
-            //[pdfDocument updateLayout];
-            //[self setNeedsDisplay:YES];
+            CGFloat deltaY = [theEvent deltaY];
+            if ( deltaY > 0 )
+            {
+                [self prevPage];
+                //[pdfDocument prePage];
+                //[pdfDocument updateLayout];
+                //[self setNeedsDisplay:YES];
+            }else{
+                [self nextPage];
+                //[pdfDocument nextPage];
+                //[pdfDocument updateLayout];
+                //[self setNeedsDisplay:YES];
+            }
+            return;
         }
     }
+    [super scrollWheel:theEvent];
     //NSLog( @"deltaX %f, deltaY %f, deltaZ %f", [theEvent deltaX], [theEvent deltaY], [theEvent deltaZ] );
 }
 
@@ -255,10 +259,27 @@
 
 -(void)rotate
 {
+    NSRect frame;
+    NSSize contentSize;
+    NSRect visible = [parentScrollView documentVisibleRect];
+    CGFloat rate;
+    CGFloat positionY;
     [pdfDocument rotate];
+    contentSize = [parentScrollView contentSize];
+    [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
     [pdfDocument updateLayout];
+    
+    frame.origin.x = 0;
+    frame.origin.y = 0;
+    frame.size = [pdfDocument getContentSize];
+    [self setFrame:frame];
+    rate = visible.origin.y / oldContentSize.height;
+    positionY = rate * frame.size.height;
+    oldContentSize = frame.size;
+    
+    [self setFrame:frame];
+    [self scrollPoint:NSMakePoint(0, positionY)];
     [self setNeedsDisplay:YES];
-
 }
 
 @end

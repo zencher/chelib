@@ -181,20 +181,16 @@
                 
                 CHE_PDF_Renderer render( context );
                 render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );
-                render.SetPatternOffset( 0, 0 );
-                //render.SetPatternOffset( pageRectInView.origin.x,  pageRectInView.origin.y + pageRectInView.size.height);
-                //render.SetPatternOffset( pageRectInView.origin.x, visableRect.size.height + visableRect.origin.y - pageRectInView.origin.y - pageRectInView.size.height );
-                NSLog(@"visable(%f, %f, %f, %f)", visableRect.origin.x, visableRect.origin.y,
+                render.SetPatternOffset( 0,  visableRect.size.height - frame.size.height );
+                
+                /*NSLog(@"visable(%f, %f, %f, %f)", visableRect.origin.x, visableRect.origin.y,
                       visableRect.origin.x + visableRect.size.width,
                       visableRect.origin.y + visableRect.size.height);
-                
                 NSLog(@"page(%f, %f, %f, %f)", pageRectInView.origin.x, pageRectInView.origin.y,
                       pageRectInView.origin.x + pageRectInView.size.width,
                       pageRectInView.origin.y + pageRectInView.size.height);
-                
                 NSLog(@"frame(%f, %f, %f, %f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
-                
-                NSLog(@"offsetX %f, offsetY %f", pageRectInView.origin.x, visableRect.size.height - pageRectInView.origin.y - pageRectInView.size.height);
+                NSLog(@"offsetX %f, offsetY %f", 0.0f, visableRect.size.height - frame.size.height);*/
                 
                 render.Render( *[pdfDocument getPageContent:i], pageRect, rotate, [pdfDocument getPageScaleInViwe:i], 72, 72 );
                 

@@ -2,13 +2,6 @@
 #import <CoreGraphics/CGPattern.h>
 #include "../../include/che_bitmap.h"
 
-CGFloat gScale = 1.0f;
-HE_UINT32 gRotate = 0;
-
-CHE_Rect gPageRect;
-HE_FLOAT gDpix;
-HE_FLOAT gDpiy;
-
 void TilingDrawCallBack( void *info, CGContextRef c )
 {
     if ( c == NULL )
@@ -19,23 +12,14 @@ void TilingDrawCallBack( void *info, CGContextRef c )
     CHE_PDF_Tiling * pTiling = (CHE_PDF_Tiling*)( info );
     if ( pTiling )
     {
-        CHE_Rect rect;
-        rect.left = 0;
-        rect.bottom = 0;
-        rect.width = pTiling->GetXStep();
-        rect.height = pTiling->GetYStep();
-        
-        
-        
         CHE_PDF_Renderer render( c );
-        
         //if ( ! pTiling->IsColored() )
         //{
         //    render.SetNoColor(true);
-            CGContextSetRGBFillColor( c, 1, 0, 0, 1 );
+        //    CGContextSetRGBFillColor( c, 1, 0, 0, 1 );
         //}
         
-        render.RenderTiling( pTiling->GetList(), rect, gRotate, gScale, 72, 72 );
+        render.RenderTiling( pTiling->GetList() );
     }
     
     /*CGFloat subunit = 50; // the pattern cell itself is 16 by 18
@@ -314,41 +298,68 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
                 CHE_Rect rect = tilingPtr->GetBBox();
                 CGRect bounds = CGRectMake( rect.left, rect.bottom, rect.width, rect.height );
                 
-                CHE_Matrix tMatrix = tilingPtr->GetMatrix();
+                CHE_Matrix tilingMatrix = tilingPtr->GetMatrix();
+                CHE_Matrix matrix;
+                if ( mRotate == 90 )
+                {
+                    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
+                    CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( mPageRect.height, 0 );
+                    rotateMatrix.Concat( transformMatrix );
+                    matrix.Concat( rotateMatrix );
+                }else if ( mRotate == 180 )
+                {
+                    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
+                    CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( mPageRect.width, mPageRect.height );
+                    rotateMatrix.Concat( transformMatrix );
+                    matrix.Concat( rotateMatrix );
+                }else if ( mRotate == 270 )
+                {
+                    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
+                    CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( 0, mPageRect.width );
+                    rotateMatrix.Concat( transformMatrix );
+                    matrix.Concat( rotateMatrix );
+                }
                 
-                //计算extMatrix
-                CHE_Matrix rectMatrix;
-                CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( gRotate );
-                CHE_Matrix transformMatrix1 = CHE_Matrix::TranslateMatrix( -gPageRect.width/2, -gPageRect.height/2 );
-                CHE_Matrix transformMatrix2 = CHE_Matrix::TranslateMatrix( gPageRect.width/2, gPageRect.height/2 );
+                CHE_Rect newPageRect = matrix.Transform( mPageRect );
                 
-                rectMatrix.Concat( transformMatrix1 );
-                rectMatrix.Concat( rotateMatrix );
-                rectMatrix.Concat( transformMatrix2 );
+                CHE_Matrix bboxClipMatrix;
+                bboxClipMatrix.a = 1;
+                bboxClipMatrix.b = 0;
+                bboxClipMatrix.c = 0;
+                bboxClipMatrix.d = 1;
+                bboxClipMatrix.e = -newPageRect.left;
+                bboxClipMatrix.f = -newPageRect.bottom;
+                matrix.Concat( bboxClipMatrix );
                 
-                CHE_Rect newPageRect = rectMatrix.Transform( gPageRect );
+                /*CHE_Matrix flipMatrix;
+                flipMatrix.a = 1;
+                flipMatrix.b = 0;
+                flipMatrix.c = 0;
+                flipMatrix.d = -1;
+                flipMatrix.e = 0;
+                flipMatrix.f = newPageRect.height;
+                matrix.Concat( flipMatrix );*/
                 
-                CHE_Matrix extMatrix;
-                extMatrix.a = gDpix * gScale / 72;
-                extMatrix.b = 0;
-                extMatrix.c = 0;
-                extMatrix.d = gDpiy * gScale / 72;
-                extMatrix.e = 0;
-                extMatrix.f = 0;
+                CHE_Matrix scaletMatrix;
+                scaletMatrix.a = mDpix * mScale / 72;
+                scaletMatrix.b = 0;
+                scaletMatrix.c = 0;
+                scaletMatrix.d = mDpiy * mScale / 72;
+                scaletMatrix.e = 0;
+                scaletMatrix.f = 0;
+                matrix.Concat( scaletMatrix );
                 
-                CHE_Matrix tmpMatrix;
-                tmpMatrix.a = 1;
-                tmpMatrix.b = 0;
-                tmpMatrix.c = 0;
-                tmpMatrix.d = 1;
-                tmpMatrix.e = mPatternOffsetX;
-                tmpMatrix.f = mPatternOffsetY;
+                CHE_Matrix offsetMatrix;
+                offsetMatrix.a = 1;
+                offsetMatrix.b = 0;
+                offsetMatrix.c = 0;
+                offsetMatrix.d = 1;
+                offsetMatrix.e = mPosiX + mPatternOffsetX;
+                offsetMatrix.f = mPosiY + mPatternOffsetY;
+                matrix.Concat( offsetMatrix );
                 
-                tMatrix.Concat( rectMatrix );
-                tMatrix.Concat( extMatrix );
-                tMatrix.Concat( tmpMatrix );
-                
-                CGAffineTransform matrix = CGAffineTransformMake( tMatrix.a, tMatrix.b, tMatrix.c, tMatrix.d, tMatrix.e, tMatrix.f );
+                tilingMatrix.Concat( matrix );
+                CGAffineTransform m = CGAffineTransformMake( tilingMatrix.a, tilingMatrix.b, tilingMatrix.c, tilingMatrix.d, tilingMatrix.e, tilingMatrix.f );
                 
                 bool bColored = tilingPtr->IsColored();
                 //if ( bColored )
@@ -373,7 +384,7 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
                         type = kCGPatternTilingConstantSpacingMinimalDistortion;
                     }
                     
-                    CGPatternRef patternRef = CGPatternCreate( tilingPtr.GetPointer(), bounds, matrix,
+                    CGPatternRef patternRef = CGPatternCreate( tilingPtr.GetPointer(), bounds, m,
                                                               tilingPtr->GetXStep(), tilingPtr->GetYStep(),
                                                               type, bColored,
                                                               &callbacks );
@@ -1672,43 +1683,73 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 {
     mbNoColor = FALSE;
     
-    gScale = scale;
-    gRotate = rotate;
-    gPageRect = pageRect;
-    gDpix = dpix;
-    gDpiy = dpiy;
+    mDpix = dpix;
+    mDpiy = dpiy;
+    mScale = scale;
+    mRotate = rotate;
+    mPageRect = pageRect;
     
     //计算extMatrix
-    CHE_Matrix rectMatrix;
-    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
-    CHE_Matrix transformMatrix1 = CHE_Matrix::TranslateMatrix( -pageRect.width/2, -pageRect.height/2 );
-    CHE_Matrix transformMatrix2 = CHE_Matrix::TranslateMatrix( pageRect.width/2, pageRect.height/2 );
+    CHE_Matrix matrix;
+    if ( rotate == 90 )
+    {
+        CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
+        CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( pageRect.height, 0 );
+        rotateMatrix.Concat( transformMatrix );
+        matrix.Concat( rotateMatrix );
+    }else if ( rotate == 180 )
+    {
+        CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
+        CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( pageRect.width, pageRect.height );
+        rotateMatrix.Concat( transformMatrix );
+        matrix.Concat( rotateMatrix );
+    }else if ( rotate == 270 )
+    {
+        CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( rotate );
+        CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( 0, pageRect.width );
+        rotateMatrix.Concat( transformMatrix );
+        matrix.Concat( rotateMatrix );
+    }
     
-    rectMatrix.Concat( transformMatrix1 );
-    rectMatrix.Concat( rotateMatrix );
-    rectMatrix.Concat( transformMatrix2 );
+    CHE_Rect newPageRect = matrix.Transform( pageRect );
     
-    CHE_Rect newPageRect = rectMatrix.Transform( pageRect );
+    CHE_Matrix bboxClipMatrix;
+    bboxClipMatrix.a = 1;
+    bboxClipMatrix.b = 0;
+    bboxClipMatrix.c = 0;
+    bboxClipMatrix.d = 1;
+    bboxClipMatrix.e = -newPageRect.left;
+    bboxClipMatrix.f = -newPageRect.bottom;
+    matrix.Concat( bboxClipMatrix );
     
-	CHE_Matrix extMatrix;
-	extMatrix.a = dpix * scale / 72;
-	extMatrix.b = 0;
-	extMatrix.c = 0;
-	extMatrix.d = -dpiy * scale / 72;
-	extMatrix.e = 0;
-	extMatrix.f = 0;
-	CHE_Matrix tmpMatrix;
+    CHE_Matrix flipMatrix;
+    flipMatrix.a = 1;
+    flipMatrix.b = 0;
+    flipMatrix.c = 0;
+    flipMatrix.d = -1;
+    flipMatrix.e = 0;
+    flipMatrix.f = newPageRect.height;
+    matrix.Concat( flipMatrix );
     
-    tmpMatrix.e = mPosiX - newPageRect.left * scale * dpix / 72;
-    tmpMatrix.f = mPosiY + newPageRect.bottom * scale * dpix / 72 + newPageRect.height * scale * dpiy / 72;
-    extMatrix.Concat( tmpMatrix );
-    rectMatrix.Concat( extMatrix );
-    extMatrix = rectMatrix;
-    SetExtMatrix( extMatrix );
+	CHE_Matrix scaletMatrix;
+	scaletMatrix.a = dpix * scale / 72;
+	scaletMatrix.b = 0;
+	scaletMatrix.c = 0;
+	scaletMatrix.d = dpiy * scale / 72;
+	scaletMatrix.e = 0;
+    scaletMatrix.f = 0;
+    matrix.Concat( scaletMatrix );
+    
+	CHE_Matrix offsetMatrix;
+    offsetMatrix.e = mPosiX;
+    offsetMatrix.f = mPosiY;
+    
+    matrix.Concat( offsetMatrix );
+    SetExtMatrix( matrix );
     
     //clip当前页面绘制的区域
     CGContextSaveGState( mContextRef );
-    newPageRect = extMatrix.Transform( pageRect );
+    newPageRect = matrix.Transform( pageRect );
     CGContextAddRect( mContextRef, CGRectMake( newPageRect.left, newPageRect.bottom, newPageRect.width, newPageRect.height ) );
     CGContextClip( mContextRef );
     
@@ -1768,10 +1809,8 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
     CGContextRestoreGState( mContextRef );
 }
 
-HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy )
+HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content )
 {
-    //CGContextSaveGState( mContextRef );s
-    
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
     CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
@@ -1824,6 +1863,4 @@ HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, CHE
         
         RestoreGState();
 	}
-    
-    //CGContextRestoreGState( mContextRef );
 }

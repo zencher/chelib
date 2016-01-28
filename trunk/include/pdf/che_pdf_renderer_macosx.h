@@ -19,7 +19,7 @@ public:
     
     HE_VOID     Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy );
     
-    HE_VOID     RenderTiling( CHE_PDF_ContentObjectList & context, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy );
+    HE_VOID     RenderTiling( CHE_PDF_ContentObjectList & context );
     
 public:
     
@@ -106,6 +106,12 @@ private:
     
     HE_FLOAT                    mPatternOffsetX;
     HE_FLOAT                    mPatternOffsetY;
+    
+    HE_FLOAT                    mDpix;
+    HE_FLOAT                    mDpiy;
+    HE_FLOAT                    mScale;
+    HE_UINT32                   mRotate;
+    CHE_Rect                    mPageRect;
 };
 
 #endif

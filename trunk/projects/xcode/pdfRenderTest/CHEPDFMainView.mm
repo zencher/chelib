@@ -142,7 +142,7 @@
     //NSLog( @"view:x=%f,y=%f,w=%f,h=%f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height );
     NSRect visableRect;
     NSRect pageRectInView;
-    //NSRect frame = [self frame];
+    NSRect frame = [self frame];
     visableRect = [parentScrollView documentVisibleRect];
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
     if ( context )
@@ -178,10 +178,24 @@
                 [self drawPageBorderAndShadow:context bound:pageRectInView];
                 
                 CHE_Rect pageRect = [pdfDocument getPageRect:i];
+                
                 CHE_PDF_Renderer render( context );
                 render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );
-                render.SetPatternOffset( pageRectInView.origin.x, visableRect.size.height - pageRectInView.origin.y - pageRectInView.size.height );
-                NSLog(@"%f, %f, %f, %f", visableRect.origin.x, visableRect.origin.y, visableRect.size.width, visableRect.size.height);
+                render.SetPatternOffset( 0, 0 );
+                //render.SetPatternOffset( pageRectInView.origin.x,  pageRectInView.origin.y + pageRectInView.size.height);
+                //render.SetPatternOffset( pageRectInView.origin.x, visableRect.size.height + visableRect.origin.y - pageRectInView.origin.y - pageRectInView.size.height );
+                NSLog(@"visable(%f, %f, %f, %f)", visableRect.origin.x, visableRect.origin.y,
+                      visableRect.origin.x + visableRect.size.width,
+                      visableRect.origin.y + visableRect.size.height);
+                
+                NSLog(@"page(%f, %f, %f, %f)", pageRectInView.origin.x, pageRectInView.origin.y,
+                      pageRectInView.origin.x + pageRectInView.size.width,
+                      pageRectInView.origin.y + pageRectInView.size.height);
+                
+                NSLog(@"frame(%f, %f, %f, %f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+                
+                NSLog(@"offsetX %f, offsetY %f", pageRectInView.origin.x, visableRect.size.height - pageRectInView.origin.y - pageRectInView.size.height);
+                
                 render.Render( *[pdfDocument getPageContent:i], pageRect, rotate, [pdfDocument getPageScaleInViwe:i], 72, 72 );
                 
                 CGContextRestoreGState( context );

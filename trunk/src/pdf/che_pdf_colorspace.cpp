@@ -1,105 +1,70 @@
         #include "../../include/pdf/che_pdf_colorspace.h"
 #include "../../include/pdf/che_pdf_contentobjs.h"
 
-CHE_PDF_ColorSpacePtr gDeviceGrayCSPtr;
-CHE_PDF_ColorSpacePtr gDeviceRGBCSPtr;
-CHE_PDF_ColorSpacePtr gDeviceCMYKCSPtr;
-CHE_PDF_ColorSpacePtr gPatternCSPtr;
-CHE_PDF_ColorSpacePtr gDefCalGrayCSPtr;
-CHE_PDF_ColorSpacePtr gDefCalRGBCSPtr;
-CHE_PDF_ColorSpacePtr gDefCalLabCSPtr;
-
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceGray()
+CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceGray(CHE_Allocator * pAllocator)
 {
-	if ( !gDeviceGrayCSPtr )
-	{
-		gDeviceGrayCSPtr.Reset( GetDefaultAllocator()->New<CHE_PDF_ColorSpace>(COLORSPACE_DEVICE_GRAY, 1) );
-	}
-	return gDeviceGrayCSPtr;
-}
-
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceRGB()
-{
-	if ( !gDeviceRGBCSPtr )
-	{
-		gDeviceRGBCSPtr.Reset( GetDefaultAllocator()->New<CHE_PDF_ColorSpace>(COLORSPACE_DEVICE_RGB, 3) );
-	}
-	return gDeviceRGBCSPtr;
-}
-
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceCMYK()
-{
-	if ( !gDeviceCMYKCSPtr )
-	{
-		gDeviceCMYKCSPtr.Reset( GetDefaultAllocator()->New<CHE_PDF_ColorSpace>(COLORSPACE_DEVICE_CMYK, 4) );
-	}
-	return gDeviceCMYKCSPtr;
-}
-
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreatePattern()
-{
-	if ( !gPatternCSPtr )
-	{
-		gPatternCSPtr.Reset( GetDefaultAllocator()->New<CHE_PDF_CS_Pattern>() );
-	}
-	return gPatternCSPtr;
-}
-
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateCalGray()
-{
-    if ( !gDefCalGrayCSPtr )
+    CHE_PDF_ColorSpacePtr ptr;
+    if ( pAllocator == NULL )
     {
-        gDefCalGrayCSPtr.Reset( GetDefaultAllocator()->New<CHE_PDF_CS_CalGray>() );
+        pAllocator = GetDefaultAllocator();
     }
-    return gDefCalGrayCSPtr;
+    ptr.Reset( pAllocator->New<CHE_PDF_ColorSpace>(COLORSPACE_DEVICE_GRAY, 1, pAllocator) );
+    return  ptr;
 }
 
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateCalRGB()
+CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceRGB(CHE_Allocator * pAllocator)
 {
-    if ( !gDefCalRGBCSPtr )
+    CHE_PDF_ColorSpacePtr ptr;
+    if ( pAllocator == NULL )
     {
-        gDefCalRGBCSPtr.Reset( GetDefaultAllocator()->New<CHE_PDF_CS_CalRGB>() );
+        pAllocator = GetDefaultAllocator();
     }
-    return gDefCalRGBCSPtr;
-
+    ptr.Reset( pAllocator->New<CHE_PDF_ColorSpace>(COLORSPACE_DEVICE_RGB, 3, pAllocator) );
+    return  ptr;
 }
 
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateCalLab()
+CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceCMYK(CHE_Allocator * pAllocator)
 {
-    if ( !gDefCalLabCSPtr )
+    CHE_PDF_ColorSpacePtr ptr;
+    if ( pAllocator == NULL )
     {
-        gDefCalLabCSPtr.Reset( GetDefaultAllocator()->New<CHE_PDF_CS_CalLab>() );
+        pAllocator = GetDefaultAllocator();
     }
-    return gDefCalLabCSPtr;
+    ptr.Reset( pAllocator->New<CHE_PDF_ColorSpace>(COLORSPACE_DEVICE_CMYK, 4, pAllocator) );
+    return  ptr;
+}
 
+CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreatePattern(CHE_Allocator * pAllocator)
+{
+    CHE_PDF_ColorSpacePtr ptr;
+    if ( pAllocator == NULL )
+    {
+        pAllocator = GetDefaultAllocator();
+    }
+    ptr.Reset( pAllocator->New<CHE_PDF_CS_Pattern>(pAllocator) );
+    return ptr;
 }
 
 CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_ByteString & name, CHE_Allocator * pAllocator/*= NULL*/)
 {
 	CHE_PDF_ColorSpacePtr ptr;
+    if ( pAllocator == NULL )
+    {
+        pAllocator = GetDefaultAllocator();
+    }
 	if ( name == "DeviceGray" || name == "G" || name == "Gray" )
 	{
-		return CreateDeviceGray();
+		return CreateDeviceGray(pAllocator);
 	}else if ( name == "DeviceRGB" || name == "RGB" || name == "CalRGB" )
 	{
-		return CreateDeviceRGB();
+		return CreateDeviceRGB(pAllocator);
 	}else if ( name == "DeviceCMYK" || name == "CMYK" || name == "CalCMYK" ) // CalCMYK define in pdf 1.1, not support now, using DeviceCMYK for Compatibility
 	{
-		return CreateDeviceCMYK();
+		return CreateDeviceCMYK(pAllocator);
 	}else if ( name == "Pattern" )
 	{
-		return CreatePattern();
+        return CreatePattern(pAllocator);
 	}
-    /*else if ( name == "CalGray" )
-    {
-        return CreateCalGray();
-    }else if ( name == "CalRGB" )
-    {
-        return CreateCalRGB();
-    }else if ( name == "CalLab" )
-    {
-        return CreateCalLab();
-    }*/
 	return ptr;
 }
 
@@ -132,7 +97,6 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, 
     }
     
     CHE_PDF_ColorSpace *  pColorSpace = NULL;
-    
     if ( objPtr->GetType() == OBJ_TYPE_ARRAY )
     {
         CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
@@ -182,9 +146,14 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, 
                     pColorSpace = pAllocator->New<CHE_PDF_CS_DeviceN>(pAllocator);
                 }else if ( name == "Pattern" )
                 {
-                    //pattern underlying colorspace
+                    CHE_PDF_ColorSpacePtr csptr = CreatePattern(pAllocator);
                     obj = arrayPtr->GetElement(1);
-                    return CHE_PDF_ColorSpace::Create(obj, pAllocator);
+                    csptr->GetPatternPtr()->mUnderLyingColorspace = CHE_PDF_ColorSpace::Create(obj, pAllocator);
+                    return  csptr;
+                    
+                    //this is wrong, and wrong strange! But why?
+                    //pColorSpace = pAllocator->New<CHE_PDF_CS_Pattern>(pAllocator);
+                    //pColorSpace->GetPatternPtr()->mUnderLyingColorspace = CHE_PDF_ColorSpace::Create(obj, pAllocator);
                 }
             }
         }

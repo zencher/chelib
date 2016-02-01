@@ -148,19 +148,13 @@ public:
 class CHE_PDF_ColorSpace : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_ColorSpacePtr CreateDeviceGray();
+	static CHE_PDF_ColorSpacePtr CreateDeviceGray(CHE_Allocator * pAllocator = NULL);
 
-	static CHE_PDF_ColorSpacePtr CreateDeviceRGB();
+	static CHE_PDF_ColorSpacePtr CreateDeviceRGB(CHE_Allocator * pAllocator = NULL);
 
-	static CHE_PDF_ColorSpacePtr CreateDeviceCMYK();
+	static CHE_PDF_ColorSpacePtr CreateDeviceCMYK(CHE_Allocator * pAllocator = NULL);
 
-	static CHE_PDF_ColorSpacePtr CreatePattern();
-    
-    static CHE_PDF_ColorSpacePtr CreateCalGray();
-    
-    static CHE_PDF_ColorSpacePtr CreateCalRGB();
-    
-    static CHE_PDF_ColorSpacePtr CreateCalLab();
+	static CHE_PDF_ColorSpacePtr CreatePattern(CHE_Allocator * pAllocator = NULL);
 
 	static CHE_PDF_ColorSpacePtr Create(const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL);
 
@@ -298,6 +292,7 @@ class CHE_PDF_CS_Pattern : public CHE_PDF_ColorSpace
 {
 public:
     CHE_PDF_TilingPtr       mTiling;
+    CHE_PDF_ColorSpacePtr   mUnderLyingColorspace;
     
 private:
     CHE_PDF_CS_Pattern(CHE_Allocator * pAllocator = NULL);

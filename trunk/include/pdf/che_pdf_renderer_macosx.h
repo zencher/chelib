@@ -19,7 +19,7 @@ public:
     
     HE_VOID     Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy );
     
-    HE_VOID     RenderTiling( CHE_PDF_ContentObjectList & context );
+    HE_VOID     RenderTiling( CHE_PDF_ContentObjectList & context, HE_BOOL bColored );
     
 public:
     
@@ -68,7 +68,7 @@ public:
     HE_VOID     StoreGState();
     HE_VOID     RestoreGState();
     
-    HE_VOID     SetCommonGState( CHE_PDF_GState * pGState );
+    HE_VOID     SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bColored = TRUE );
     HE_VOID     SetExtGState( CHE_PDF_ExtGStateStack * pExtGState );
     HE_VOID     SetClipState( CHE_PDF_ClipState * pClipState );
     
@@ -103,6 +103,11 @@ private:
     CGColorSpaceRef             mFillColorSpace;
     CGColorSpaceRef             mStrokeColorSpace;
     CGColorSpaceRef             mImageColorSpace;
+    //CGPatternRef                mStrokePattern;
+    CGPatternRef                mFillPattern;
+    //HE_BOOL                     mStrokePatternColored;
+    HE_BOOL                     mFillPatternColored;
+    
     
     HE_FLOAT                    mPatternOffsetX;
     HE_FLOAT                    mPatternOffsetY;

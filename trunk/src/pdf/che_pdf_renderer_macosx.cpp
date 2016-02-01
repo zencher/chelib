@@ -13,33 +13,9 @@ void TilingDrawCallBack( void *info, CGContextRef c )
     if ( pTiling )
     {
         CHE_PDF_Renderer render( c );
-        //if ( ! pTiling->IsColored() )
-        //{
-        //    render.SetNoColor(true);
-        //    CGContextSetRGBFillColor( c, 1, 0, 0, 1 );
-        //}
-        
-        render.RenderTiling( pTiling->GetList() );
+        render.RenderTiling( pTiling->GetList(), pTiling->IsColored() );
     }
-    
-    /*CGFloat subunit = 50; // the pattern cell itself is 16 by 18
-    
-    CGRect  myRect1 = {{0,0}, {subunit, subunit}},
-    myRect2 = {{subunit, subunit}, {subunit, subunit}},
-    myRect3 = {{0,subunit}, {subunit, subunit}},
-    myRect4 = {{subunit,0}, {subunit, subunit}};
-    
-    CGContextSetRGBFillColor (c, 0, 0, 1, 0.5);
-    CGContextFillRect (c, myRect1);
-    CGContextSetRGBFillColor (c, 1, 0, 0, 0.5);
-    CGContextFillRect (c, myRect2);
-    CGContextSetRGBFillColor (c, 0, 1, 0, 0.5);
-    CGContextFillRect (c, myRect3);
-    CGContextSetRGBFillColor (c, .5, 0, .5, 0.5);
-    CGContextFillRect (c, myRect4);*/
 }
-
-
 
 
 CHE_PDF_Renderer::CHE_PDF_Renderer( CGContextRef cgContext )
@@ -264,7 +240,17 @@ HE_VOID CHE_PDF_Renderer::SetFillColor( const CHE_PDF_Color & color )
         val[i] = color.GetComponent( i );
     }
     val[i] = 1.0f;
-    CGContextSetFillColor( mContextRef, val );
+    
+    if ( mFillPattern ) {
+        if ( mFillPatternColored )
+        {
+            val[0] = 1.0f;
+        }
+        CGContextSetFillPattern( mContextRef, mFillPattern, val );
+        CGPatternRelease(mFillPattern);
+    }else{
+        CGContextSetFillColor( mContextRef, val );
+    }
 }
 
 HE_VOID CHE_PDF_Renderer::SetStrokeColor( const CHE_PDF_Color & color )
@@ -281,6 +267,7 @@ HE_VOID CHE_PDF_Renderer::SetStrokeColor( const CHE_PDF_Color & color )
 
 HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
 {
+    mFillPattern = NULL;
     if ( mFillColorSpace )
     {
         CGColorSpaceRelease( mFillColorSpace );
@@ -362,36 +349,32 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
                 CGAffineTransform m = CGAffineTransformMake( tilingMatrix.a, tilingMatrix.b, tilingMatrix.c, tilingMatrix.d, tilingMatrix.e, tilingMatrix.f );
                 
                 bool bColored = tilingPtr->IsColored();
-                //if ( bColored )
-                {
-                    CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( NULL );
-                    CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
-                    CGColorSpaceRelease( patternColorSpaceRef );
-                    
-                    CGPatternCallbacks callbacks;
-                    callbacks.version = 0;
-                    callbacks.drawPattern = TilingDrawCallBack;
-                    callbacks.releaseInfo = NULL;
-                    
-                    CGPatternTiling type = kCGPatternTilingNoDistortion;
-                    if ( tilingPtr->GetTilingType() == 1 ) {
-                        type = kCGPatternTilingConstantSpacing;
-                    }else if ( tilingPtr->GetTilingType() == 2 )
-                    {
-                        type = kCGPatternTilingNoDistortion;
-                    }else if ( tilingPtr->GetTilingType() == 3 )
-                    {
-                        type = kCGPatternTilingConstantSpacingMinimalDistortion;
-                    }
-                    
-                    CGPatternRef patternRef = CGPatternCreate( tilingPtr.GetPointer(), bounds, m,
-                                                              tilingPtr->GetXStep(), tilingPtr->GetYStep(),
-                                                              type, bColored,
-                                                              &callbacks );
-                    CGFloat alpha = 1;
-                    CGContextSetFillPattern( mContextRef, patternRef, &alpha );
-                    CGPatternRelease(patternRef);
+                CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( pattern->mUnderLyingColorspace );
+                CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( baseColorSpaceRef );
+                CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
+                CGColorSpaceRelease( patternColorSpaceRef );
+                if ( baseColorSpaceRef ) {
+                    CGColorSpaceRelease( baseColorSpaceRef );
                 }
+                CGPatternCallbacks callbacks;
+                callbacks.version = 0;
+                callbacks.drawPattern = TilingDrawCallBack;
+                callbacks.releaseInfo = NULL;
+                    
+                CGPatternTiling type = kCGPatternTilingNoDistortion;
+                if ( tilingPtr->GetTilingType() == 1 ) {
+                    type = kCGPatternTilingConstantSpacing;
+                }else if ( tilingPtr->GetTilingType() == 2 )
+                {
+                    type = kCGPatternTilingNoDistortion;
+                }else if ( tilingPtr->GetTilingType() == 3 )
+                {
+                    type = kCGPatternTilingConstantSpacingMinimalDistortion;
+                }
+                    
+                mFillPattern = CGPatternCreate( tilingPtr.GetPointer(), bounds, m, tilingPtr->GetXStep(),
+                                                tilingPtr->GetYStep(), type, bColored, &callbacks );
+                mFillPatternColored = bColored;
             }
         }
     }else{
@@ -843,7 +826,7 @@ HE_VOID CHE_PDF_Renderer::RestoreGState()
     CGContextRestoreGState( mContextRef );
 }
 
-HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
+HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bColored )
 {
     if ( pGState == NULL )
     {
@@ -861,7 +844,7 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
 	static CHE_PDF_ColorSpacePtr strokeColorSpace;
     
 	pGState->GetLineWidth( val );
-	SetLineWidth( val );
+    SetLineWidth( val );
     
 	pGState->GetLineCap( linCap );
 	SetLineCap( linCap );
@@ -876,12 +859,10 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState )
 	SetMatrix( matrix );
     
     SetFillMode( FillMode_Nonzero );
-    
-    //if ( mbNoColor )
-    //{
-    //    return;
-    //}
-    
+
+    if ( !bColored ) {
+        return;
+    }
 	pGState->GetFillColor( fillColor );
 	pGState->GetStrokeColor( strokeColor );
 	pGState->GetFillColorSpace( fillColorSpace );
@@ -1809,7 +1790,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
     CGContextRestoreGState( mContextRef );
 }
 
-HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content )
+HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, HE_BOOL bColored )
 {
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;
@@ -1827,7 +1808,7 @@ HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content )
 			{
 				SetClipState( pClipState );
 			}
-            SetCommonGState( pGState );
+            SetCommonGState( pGState, bColored );
             pExtGStateStack = pGState->GetExtGState();
             if ( pExtGStateStack )
             {

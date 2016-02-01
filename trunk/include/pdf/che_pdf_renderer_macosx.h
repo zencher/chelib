@@ -56,6 +56,10 @@ public:
     HE_VOID		LineTo( HE_FLOAT x, HE_FLOAT y );
     HE_VOID		CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 );
     HE_VOID     Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height );
+    HE_VOID		MoveTo1( HE_FLOAT x, HE_FLOAT y );
+    HE_VOID		LineTo1( HE_FLOAT x, HE_FLOAT y );
+    HE_VOID		CurveTo1( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 );
+    HE_VOID     Rectangle1( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height );
     HE_VOID		ClosePath();
     HE_VOID		FillPath();
     HE_VOID		StrokePath();

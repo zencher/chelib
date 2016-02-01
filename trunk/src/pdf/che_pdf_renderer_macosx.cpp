@@ -701,6 +701,47 @@ HE_VOID CHE_PDF_Renderer::Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_
     }
 }
 
+HE_VOID	CHE_PDF_Renderer::MoveTo1( HE_FLOAT x, HE_FLOAT y )
+{
+    if ( mPathRef == NULL )
+    {
+        mPathRef = CGPathCreateMutable();
+    }
+    CGAffineTransform affine = CGAffineTransformIdentity;
+    CGPathMoveToPoint( mPathRef, &affine, x, y );
+}
+
+HE_VOID	CHE_PDF_Renderer::LineTo1( HE_FLOAT x, HE_FLOAT y )
+{
+    if ( mPathRef )
+    {
+        CGAffineTransform affine = CGAffineTransformIdentity;
+        CGPathAddLineToPoint( mPathRef, &affine, x, y );
+    }
+}
+
+HE_VOID	CHE_PDF_Renderer::CurveTo1( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 )
+{
+    if ( mPathRef )
+    {
+        CGAffineTransform affine = CGAffineTransformIdentity;
+        CGPathAddCurveToPoint( mPathRef, &affine, x1, y1, x2, y2, x3, y3 );
+    }
+}
+
+HE_VOID CHE_PDF_Renderer::Rectangle1( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height )
+{
+    if ( mPathRef == NULL )
+    {
+        mPathRef = CGPathCreateMutable();
+    }
+    if ( mPathRef )
+    {
+        CGAffineTransform affine = CGAffineTransformIdentity;
+        CGPathAddRect( mPathRef, &affine, CGRectMake( x, y, width, height ) );
+    }
+}
+
 HE_VOID	CHE_PDF_Renderer::ClosePath()
 {
     if ( mPathRef && !CGPathIsEmpty( mPathRef ) )
@@ -1092,6 +1133,12 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
     else{
         SetFillMode( FillMode_EvenOdd );
     }
+    
+    CHE_Matrix tmpMatrix = mMatrix;
+    tmpMatrix.Concat( mExtMatrix );
+    CGAffineTransform affine = CGAffineTransformMake(tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f);
+    CGContextConcatCTM(mContextRef, affine);
+    
     CHE_Point p1, p2, p3;
     for ( size_t i = 0; i < pPath->mItems.size(); ++i )
     {
@@ -1101,7 +1148,7 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
             {
                 p1.x = pPath->mItems[i+1].value;
                 p1.y = pPath->mItems[i+2].value;
-                MoveTo( p1.x, p1.y );
+                MoveTo1( p1.x, p1.y );
                 i+=2;
 				break;
             }
@@ -1109,7 +1156,7 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
             {
                 p1.x = pPath->mItems[i+1].value;
                 p1.y = pPath->mItems[i+2].value;
-                LineTo( p1.x, p1.y );
+                LineTo1( p1.x, p1.y );
                 i+=2;
                 break;
             }
@@ -1121,7 +1168,7 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
                 p2.y = pPath->mItems[i+4].value;
                 p3.x = pPath->mItems[i+5].value;
                 p3.y = pPath->mItems[i+6].value;
-                CurveTo( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
+                CurveTo1( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
 				i+=6;
                 break;
             }
@@ -1129,10 +1176,10 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
             {
                 p1.x = pPath->mItems[i+1].value;
                 p1.y = pPath->mItems[i+2].value;
-                MoveTo( p1.x, p1.y );
-                LineTo( p1.x + pPath->mItems[i+3].value, p1.y );
-                LineTo( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
-                LineTo( p1.x, p1.y + pPath->mItems[i+4].value );
+                MoveTo1( p1.x, p1.y );
+                LineTo1( p1.x + pPath->mItems[i+3].value, p1.y );
+                LineTo1( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
+                LineTo1( p1.x, p1.y + pPath->mItems[i+4].value );
                 ClosePath();
                 i+=4;
                 break;

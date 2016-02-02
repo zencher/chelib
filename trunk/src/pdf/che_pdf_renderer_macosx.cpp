@@ -1059,7 +1059,7 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
 			}
             case ContentType_Text:
 			{
-				SetMatrix( CHE_Matrix() );
+				//SetMatrix( CHE_Matrix() );
 				CHE_PDF_Text * pText = (CHE_PDF_Text*)(pObj);
 				for ( size_t i = 0; i < pText->mItems.size(); ++i )
 				{
@@ -1134,10 +1134,10 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
         SetFillMode( FillMode_EvenOdd );
     }
     
-    CHE_Matrix tmpMatrix = mMatrix;
-    tmpMatrix.Concat( mExtMatrix );
-    CGAffineTransform affine = CGAffineTransformMake(tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f);
-    CGContextConcatCTM(mContextRef, affine);
+    //CHE_Matrix tmpMatrix = mMatrix;
+    //tmpMatrix.Concat( mExtMatrix );
+    //CGAffineTransform affine = CGAffineTransformMake(tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f);
+    //CGContextConcatCTM(mContextRef, affine);
     
     CHE_Point p1, p2, p3;
     for ( size_t i = 0; i < pPath->mItems.size(); ++i )
@@ -1212,18 +1212,14 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
 
 HE_VOID CHE_PDF_Renderer::DrawTextGlyph( CGGlyph gid )
 {
+    StoreGState();
     CGPoint position;
     position.x = 0;
     position.y = 0;
     CGContextSetFontSize( mContextRef , 1 );
-    
-    CHE_Matrix tmpMatrix;
-    tmpMatrix = mTextMatrix;
-    tmpMatrix.Concat( mExtMatrix );
-    CGContextSetTextMatrix( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f) );
+    CGContextSetTextMatrix( mContextRef, CGAffineTransformMake( mTextMatrix.a, mTextMatrix.b, mTextMatrix.c, mTextMatrix.d, mTextMatrix.e, mTextMatrix.f) );
     CGContextShowGlyphsAtPositions( mContextRef, &gid, &position, 1 );
-    
-    //CGContextShowGlyphs( mContextRef, &gid, 1 );
+    RestoreGState();
 }
 
 HE_VOID CGFontCleanCallBack( HE_LPVOID info )
@@ -1283,9 +1279,8 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
             HE_ULONG cgGlyphCount;
             HE_ULONG ftGlyphCount;
             CGFontRef cgfontRef = NULL;
-            SetMatrix( CHE_Matrix() );
-            //对于Fill类型的文本输出，可以使用系统原生文本输出接口，以获得次像素支持
-
+            
+            //对于Fill类型的文本输出，可以使用系统原生文本输出接口，以获得次像素支
             CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
             if ( pFont->GetPlatformFontInfo() != nullptr )
             {
@@ -1493,7 +1488,6 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, cons
 		}
         case COMPONENT_TYPE_FormXObject:
 		{
-//<<<<<<< .mine
             StoreGState();
             
 			CHE_Matrix tmpExtMatrix = extMatrix;
@@ -1509,19 +1503,6 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, cons
 			SetExtMatrix( extMatrix );
             
             RestoreGState();
-//=======
-//			CHE_Matrix tmpExtMatrix = extMatrix;
-//			CHE_Matrix newExtMatrix;
-//			CHE_PDF_GState * pGState = cmptRef->GetGState();
-//			if ( pGState )
-//			{
-//                newExtMatrix = pGState->GetMatrix();
-//			}
-//			newExtMatrix.Concat( tmpExtMatrix );
-//			SetExtMatrix( newExtMatrix );
-//            DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ), mExtMatrix );
-//			SetExtMatrix( extMatrix );
-//>>>>>>> .r801
 			break;
 		}
         case COMPONENT_TYPE_Shading:
@@ -1556,10 +1537,10 @@ HE_VOID CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
         
         if ( imgRef )
         {
-            CHE_Matrix tmpMatrix;
-            tmpMatrix = mMatrix;
-            tmpMatrix.Concat( mExtMatrix );
-            CGContextConcatCTM( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
+            //CHE_Matrix tmpMatrix;
+            //tmpMatrix = mMatrix;
+            //tmpMatrix.Concat( mExtMatrix );
+            //CGContextConcatCTM( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
             CGContextDrawImage( mContextRef, CGRectMake(0, 0, 1, 1), imgRef );
             CGImageRelease( imgRef );
         }
@@ -1571,10 +1552,10 @@ HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
     CGImageRef imgRef = CreateImage( pImage );
     if ( imgRef )
     {
-        CHE_Matrix tmpMatrix;
-        tmpMatrix = mMatrix;
-        tmpMatrix.Concat( mExtMatrix );
-        CGContextConcatCTM( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
+        //CHE_Matrix tmpMatrix;
+        //tmpMatrix = mMatrix;
+        //tmpMatrix.Concat( mExtMatrix );
+        //CGContextConcatCTM( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
         CGContextDrawImage( mContextRef, CGRectMake(0, 0, 1, 1), imgRef );
         CGImageRelease( imgRef );
     }
@@ -1805,25 +1786,39 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
             }
 		}
         
+
+        
 		switch ( (*it)->GetType() )
 		{
             case ContentType_Path:
 			{
+                CHE_Matrix matrix = mMatrix;
+                matrix.Concat( mExtMatrix );
+                CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
 				DrawPath( (CHE_PDF_Path*)(*it) );
 				break;
 			}
             case ContentType_Text:
 			{
+                CHE_Matrix matrix = mMatrix;
+                matrix.Concat( mExtMatrix );
+                CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
                 DrawText( (CHE_PDF_Text*)(*it) );
                 break;
 			}
             case ContentType_InlineImage:
 			{
+                CHE_Matrix matrix = mMatrix;
+                matrix.Concat( mExtMatrix );
+                CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
 				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
 				break;
 			}
             case ContentType_Component:
 			{
+                CHE_Matrix matrix = mMatrix;
+                matrix.Concat( mExtMatrix );
+                CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
 				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
 				break;
 			}
@@ -1862,6 +1857,10 @@ HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, HE_
                 SetExtGState( pExtGStateStack );
             }
 		}
+        
+        CHE_Matrix matrix = mMatrix;
+        matrix.Concat( mExtMatrix );
+        CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
         
 		switch ( (*it)->GetType() )
 		{

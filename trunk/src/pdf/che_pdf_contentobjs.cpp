@@ -241,7 +241,7 @@ CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_ULONG index ) const
 			kerning -= mItems[i].kerning * fontSize / 1000;
 		}
 
-		CHE_Matrix ctm = pGState->GetMatrix();
+		//CHE_Matrix ctm = pGState->GetMatrix();
 		CHE_Matrix tm;
 		pGState->GetTextMatrix( tm );
 
@@ -262,7 +262,7 @@ CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_ULONG index ) const
 		}
 		textMatrix.Concat( OffsetMatrix );
 		textMatrix.Concat( tm );
-		textMatrix.Concat( ctm );
+		//textMatrix.Concat( ctm );
 		return textMatrix;
 	}
 	return CHE_Matrix();

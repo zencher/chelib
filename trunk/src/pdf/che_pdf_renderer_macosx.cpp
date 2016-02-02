@@ -1059,7 +1059,6 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
 			}
             case ContentType_Text:
 			{
-				//SetMatrix( CHE_Matrix() );
 				CHE_PDF_Text * pText = (CHE_PDF_Text*)(pObj);
 				for ( size_t i = 0; i < pText->mItems.size(); ++i )
 				{
@@ -1120,7 +1119,6 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
                 break;
 		}
 	}
-    
 	ClipPath();
 }
 
@@ -1133,11 +1131,6 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
     else{
         SetFillMode( FillMode_EvenOdd );
     }
-    
-    //CHE_Matrix tmpMatrix = mMatrix;
-    //tmpMatrix.Concat( mExtMatrix );
-    //CGAffineTransform affine = CGAffineTransformMake(tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f);
-    //CGContextConcatCTM(mContextRef, affine);
     
     CHE_Point p1, p2, p3;
     for ( size_t i = 0; i < pPath->mItems.size(); ++i )
@@ -1537,10 +1530,6 @@ HE_VOID CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
         
         if ( imgRef )
         {
-            //CHE_Matrix tmpMatrix;
-            //tmpMatrix = mMatrix;
-            //tmpMatrix.Concat( mExtMatrix );
-            //CGContextConcatCTM( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
             CGContextDrawImage( mContextRef, CGRectMake(0, 0, 1, 1), imgRef );
             CGImageRelease( imgRef );
         }
@@ -1552,10 +1541,6 @@ HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
     CGImageRef imgRef = CreateImage( pImage );
     if ( imgRef )
     {
-        //CHE_Matrix tmpMatrix;
-        //tmpMatrix = mMatrix;
-        //tmpMatrix.Concat( mExtMatrix );
-        //CGContextConcatCTM( mContextRef, CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f));
         CGContextDrawImage( mContextRef, CGRectMake(0, 0, 1, 1), imgRef );
         CGImageRelease( imgRef );
     }
@@ -1756,8 +1741,9 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
     matrix.Concat( offsetMatrix );
     SetExtMatrix( matrix );
     
+    StoreGState();
+    
     //clip当前页面绘制的区域
-    CGContextSaveGState( mContextRef );
     newPageRect = matrix.Transform( pageRect );
     CGContextAddRect( mContextRef, CGRectMake( newPageRect.left, newPageRect.bottom, newPageRect.width, newPageRect.height ) );
     CGContextClip( mContextRef );
@@ -1786,39 +1772,29 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
             }
 		}
         
-
+        CHE_Matrix matrix = mMatrix;
+        matrix.Concat( mExtMatrix );
+        CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
         
 		switch ( (*it)->GetType() )
 		{
             case ContentType_Path:
 			{
-                CHE_Matrix matrix = mMatrix;
-                matrix.Concat( mExtMatrix );
-                CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
 				DrawPath( (CHE_PDF_Path*)(*it) );
 				break;
 			}
             case ContentType_Text:
 			{
-                CHE_Matrix matrix = mMatrix;
-                matrix.Concat( mExtMatrix );
-                CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
                 DrawText( (CHE_PDF_Text*)(*it) );
                 break;
 			}
             case ContentType_InlineImage:
 			{
-                CHE_Matrix matrix = mMatrix;
-                matrix.Concat( mExtMatrix );
-                CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
 				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
 				break;
 			}
             case ContentType_Component:
 			{
-                CHE_Matrix matrix = mMatrix;
-                matrix.Concat( mExtMatrix );
-                CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
 				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
 				break;
 			}
@@ -1828,8 +1804,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
         
         RestoreGState();
 	}
-    
-    CGContextRestoreGState( mContextRef );
+    RestoreGState();
 }
 
 HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, HE_BOOL bColored )

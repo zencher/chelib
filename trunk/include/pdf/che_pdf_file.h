@@ -43,7 +43,7 @@ public:
 	HE_VOID					SetPDFVersion( PDF_VERSION version );
 	HE_BOOL					SetInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str );
 
-	HE_BOOL					Save( IHE_Write * pWrite );
+	HE_BOOL					Save( IHE_Write * pWrite, HE_BOOL bCompress = TRUE );
 	HE_BOOL					SaveCompact( IHE_Write * pWrite );
 	HE_BOOL					SaveUpdate( IHE_Write * pWrite );
 

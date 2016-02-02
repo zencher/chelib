@@ -11,7 +11,7 @@ class CHE_PDF_Creator : public CHE_Object
 public:
 	static CHE_PDF_Creator *	Create( IHE_Write * pWrite, CHE_Allocator * pAllocator = NULL );
 
-	static HE_VOID				OutPutObject( IHE_Write * pWrite, const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj, CHE_PDF_Encrypt * pEncrypt = NULL );
+    HE_VOID				OutPutObject( IHE_Write * pWrite, const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj, CHE_PDF_Encrypt * pEncrypt = NULL );
 
 	~CHE_PDF_Creator();
 
@@ -19,6 +19,8 @@ public:
 
 	HE_BOOL						SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,
 											HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_ULONG pValue );
+    
+    HE_VOID                     SetCompress( HE_BOOL bEnable ) { mbCompress = bEnable; }
 
 	HE_VOID						OutPutFileHead( PDF_VERSION version );
 
@@ -38,6 +40,8 @@ private:
 	IHE_Write *					mpWrite;
 
 	CHE_PDF_Encrypt *			mpEncrypt;
+    
+    HE_BOOL                     mbCompress;
 
 	friend class CHE_Allocator;
 };

@@ -56,7 +56,7 @@ HE_VOID CHE_PDF_File::Close()
 	mLock.UnLock();
 }
 
-HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
+HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite, HE_BOOL bCompress )
 {
 	if ( pWrite == NULL )
 	{
@@ -68,6 +68,8 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite )
 	{
 		return FALSE;
 	}
+    
+    pCreator->SetCompress( bCompress );
 
 	if ( mpParser && mpParser->mpStrEncrypt )
 	{

@@ -476,6 +476,8 @@ public:
 	HE_VOID							MoveToFirst();
 	
 	HE_BOOL							GetKeyAndElement( CHE_ByteString & key, CHE_PDF_ObjectPtr & objPtr );
+    
+    HE_BOOL                         RemoveKey( const CHE_ByteString & key );
 
 private:
 	CHE_PDF_Dictionary( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object( OBJ_TYPE_DICTIONARY, pAllocator ) {}

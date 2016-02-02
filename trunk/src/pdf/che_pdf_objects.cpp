@@ -1124,6 +1124,20 @@ HE_BOOL CHE_PDF_Dictionary::GetKeyAndElement( CHE_ByteString & key, CHE_PDF_Obje
     return FALSE;
 }
 
+HE_BOOL CHE_PDF_Dictionary::RemoveKey( const CHE_ByteString & key )
+{
+    unordered_map<string,CHE_PDF_ObjectPtr>::iterator it = mMap.find( key.GetData() );
+    if ( it != mMap.end() )
+    {
+        if ( mIt == it ) {
+            ++mIt;
+        }
+        mMap.erase(it);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 CHE_PDF_StreamPtr CHE_PDF_Stream::Create( HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	CHE_PDF_StreamPtr ptr;

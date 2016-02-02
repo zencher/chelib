@@ -53,7 +53,7 @@ CHE_PDF_Creator * CHE_PDF_Creator::Create( IHE_Write * pWrite, CHE_Allocator * p
 }
 
 CHE_PDF_Creator::CHE_PDF_Creator( IHE_Write * pWrite, CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), mpWrite( pWrite ), mpEncrypt( NULL ) {}
+	: CHE_Object( pAllocator ), mpWrite( pWrite ), mpEncrypt( NULL ), mbCompress(TRUE) {}
 	
 CHE_PDF_Creator::~CHE_PDF_Creator()
 {
@@ -754,14 +754,15 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 			}
 
 			CHE_PDF_ObjectPtr tmpPtr = dictPtr->GetElement( "Filter" );
-			if ( ! tmpPtr )
+			if ( tmpPtr )
 			{
 				CHE_PDF_StreamAcc stmAcc;
 				CHE_DynBuffer buf;
 				stmAcc.Attach( stmPtr );
 				buf.Write( stmAcc.GetData(), stmAcc.GetSize() );
 				stmAcc.Detach();
-				stmPtr->SetRawData( buf.GetData(), buf.GetSize(), STREAM_FILTER_FLATE );
+                stmPtr->SetRawData( buf.GetData(), buf.GetSize(), mbCompress? STREAM_FILTER_FLATE : STREAM_FILTER_NULL );
+                dictPtr->RemoveKey( "Filter" );
 			}
 
 			OutPutObject( pWrite, refInfo, stmPtr->GetDictPtr(), pEncrypt );

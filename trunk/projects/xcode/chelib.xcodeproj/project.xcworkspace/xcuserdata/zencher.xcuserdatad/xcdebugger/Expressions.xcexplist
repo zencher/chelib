@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "CHE_PDF_ColorSpace::GetColorSpaceType() const:che_pdf_colorspace.h">
+      </ContextState>
+      <ContextState
+         contextName = "CHE_PDF_Renderer::DrawText(CHE_PDF_Text*):che_pdf_renderer_macosx.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "(FT_Face)pFont-&gt;mFace">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "CHE_PDF_ContentListBuilder::ParseContentStream(CHE_PDF_StreamPtr const&amp;, CHE_PDF_ContentObjectList&amp;, CHE_PDF_ComponentMgr*, CHE_Allocator*):che_pdf_contentlistbuilder.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "CHE_PDF_ContentsParser::Handle_cs():che_pdf_contentlistbuilder.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "(CHE_PDF_CS_ICCBased*)(cmptPtr.GetPointer())">
+            </PersistentString>
+            <PersistentString
+               value = "">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "CHE_PDF_Font::GetFTFaceGlyphCount() const:che_pdf_font.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "(FT_Face)this-&gt;mFace">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "CHE_PDF_Renderer::CreateColorSpace(CHE_PDF_ColorSpacePtr const&amp;):che_pdf_renderer_macosx.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

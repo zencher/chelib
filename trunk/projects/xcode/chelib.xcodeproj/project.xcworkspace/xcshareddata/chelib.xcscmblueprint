@@ -1,0 +1,23 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "8332E88C7663F096B4975DC00E62705E6FDDCF12",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "8332E88C7663F096B4975DC00E62705E6FDDCF12" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "05F66B1A-961C-449C-887D-6BB8234557D1",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "8332E88C7663F096B4975DC00E62705E6FDDCF12" : "chelib"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "chelib",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "trunk\/projects\/xcode\/chelib.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/10.211.55.3\/svn\/chelib",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "8332E88C7663F096B4975DC00E62705E6FDDCF12"
+    }
+  ]
+}

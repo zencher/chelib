@@ -25,22 +25,6 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "../../src/pdf/che_pdf_renderer_macosx.cpp"
-            timestampString = "475587455.094621"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1637"
-            endingLineNumber = "1637"
-            landmarkName = "CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList &amp; list, const CHE_Matrix &amp; extMatrix )"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "../../src/che_drawer_macosx.cpp"
             timestampString = "470846744.121451"
             startingColumnNumber = "9223372036854775807"
@@ -57,14 +41,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "chelibTests/function.mm"
-            timestampString = "475080314.309918"
+            filePath = "pdfuncompress/main.cpp"
+            timestampString = "476075556.93354"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "68"
-            endingLineNumber = "68"
-            landmarkName = "-testFunctionCalculate"
-            landmarkType = "5">
+            startingLineNumber = "15"
+            endingLineNumber = "15"
+            landmarkName = "main(int argc, const char * argv[])"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -73,14 +57,14 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "chelibTests/function.mm"
-            timestampString = "474884131.538952"
+            filePath = "pdfuncompress/main.cpp"
+            timestampString = "476075803.74701"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "65"
-            endingLineNumber = "65"
-            landmarkName = "-testFunctionCalculate"
-            landmarkType = "5">
+            startingLineNumber = "31"
+            endingLineNumber = "31"
+            landmarkName = "main(int argc, const char * argv[])"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

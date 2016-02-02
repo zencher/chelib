@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90C53758175881B40014AC65"
-               BuildableName = "pdfDocumentTest"
-               BlueprintName = "pdfDocumentTest"
+               BlueprintIdentifier = "9048D4741C60518000C814D8"
+               BuildableName = "pdfuncompress"
+               BlueprintName = "pdfuncompress"
                ReferencedContainer = "container:chelib.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90C53758175881B40014AC65"
-            BuildableName = "pdfDocumentTest"
-            BlueprintName = "pdfDocumentTest"
+            BlueprintIdentifier = "9048D4741C60518000C814D8"
+            BuildableName = "pdfuncompress"
+            BlueprintName = "pdfuncompress"
             ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -55,12 +55,18 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90C53758175881B40014AC65"
-            BuildableName = "pdfDocumentTest"
-            BlueprintName = "pdfDocumentTest"
+            BlueprintIdentifier = "9048D4741C60518000C814D8"
+            BuildableName = "pdfuncompress"
+            BlueprintName = "pdfuncompress"
             ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "/Users/zencher/Desktop/test/pattern01.pdf"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -74,9 +80,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90C53758175881B40014AC65"
-            BuildableName = "pdfDocumentTest"
-            BlueprintName = "pdfDocumentTest"
+            BlueprintIdentifier = "9048D4741C60518000C814D8"
+            BuildableName = "pdfuncompress"
+            BlueprintName = "pdfuncompress"
             ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

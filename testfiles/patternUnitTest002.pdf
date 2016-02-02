@@ -1,0 +1,49 @@
+%PDF-1.7
+
+1 0 obj
+<</Type/Pages/Kids [2 0 R]/Count 1>>
+endobj
+
+2 0 obj
+<</Type /Page /Parent 1 0 R /MediaBox [0 0 612 792] /Resources <</ColorSpace <</CS0 6 0 R>> /Pattern <</P0 5 0 R>>>>/Contents 4 0 R>>
+endobj
+
+3 0 obj
+<</Type /Catalog /Pages 1 0 R>>
+endobj
+
+4 0 obj
+<</Length 0>>
+stream
+/CS0 cs 0 0 1 /P0 scn
+0 0 m
+0 400 l
+400 400 l
+400 0 l
+h
+f
+endstream
+endobj
+
+5 0 obj
+<</Length 0/PaintType 2/Matrix[1.5 0 0 1.5 0 0]/PatternType 1/XStep 100/Type/Pattern/TilingType 2/YStep 100/BBox[0 0 100 100]>>
+stream
+25 25 m
+25 75 l
+75 75 l
+75 25 l
+f
+endstream
+endobj
+
+6 0 obj
+[/Pattern /DeviceRGB]
+endobj
+
+xref
+trailer
+<</Size 0 /Root 3 0 R>>
+
+startxref
+0
+%%EOF

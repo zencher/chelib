@@ -33,7 +33,7 @@
 }
 
 - (void)testFunctionCalculate {
-    IHE_Read * pRead = HE_CreateFileRead( "/Users/zencher/testfiles/functionUnitTest.pdf" );
+    IHE_Read * pRead = HE_CreateFileRead( "/Users/zencher/testfiles/functionUnitTest000.pdf" );
     CHE_PDF_File file;
     file.Open( pRead );
     

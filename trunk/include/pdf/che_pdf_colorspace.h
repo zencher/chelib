@@ -2,7 +2,6 @@
 #define _CHE_PDF_COLORSPACE_H_
 
 #include "che_pdf_component.h"
-#include "che_pdf_pattern.h"
 #include "che_pdf_function.h"
 
 
@@ -291,7 +290,7 @@ private:
 class CHE_PDF_CS_Pattern : public CHE_PDF_ColorSpace
 {
 public:
-    CHE_PDF_TilingPtr       mTiling;
+    CHE_PDF_ComponentPtr    mTiling;
     CHE_PDF_ColorSpacePtr   mUnderLyingColorspace;
     
 private:

@@ -1,5 +1,80 @@
 #include "../../include/pdf/che_pdf_pattern.h"
 
+
+CHE_PDF_ShadingPtr CHE_PDF_Shading::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator /*= NULL*/ )
+{
+    CHE_PDF_ShadingPtr ptr;
+    if ( rootObjPtr && rootObjPtr->GetType() == OBJ_TYPE_REFERENCE && pComponentMgr != NULL )
+    {
+        CHE_PDF_ObjectPtr objPtr = rootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
+        if ( objPtr )
+        {
+            if ( pAllocator == NULL )
+            {
+                pAllocator = GetDefaultAllocator();
+            }
+            CHE_PDF_Shading * pShading = pAllocator->New<CHE_PDF_Shading>( rootObjPtr, pComponentMgr, pAllocator );
+            if ( pShading->IsError() )
+            {
+                pAllocator->Delete( pShading );
+                pShading = NULL;
+            }else{
+                ptr.Reset( pShading );
+            }
+        }
+    }
+    return ptr;
+}
+
+CHE_PDF_ShadingPtr CHE_PDF_Shading::Convert( const CHE_PDF_ComponentPtr & componentPtr )
+{
+    CHE_PDF_ShadingPtr ptr;
+    if ( componentPtr && componentPtr->GetType() == COMPONENT_TYPE_Shading )
+    {
+        ptr.Reset( componentPtr.GetPointer() );
+    }
+    return ptr;
+}
+
+CHE_PDF_Shading::CHE_PDF_Shading(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/)
+    : CHE_PDF_Component(COMPONENT_TYPE_Shading, rootObjPtr, pAllocator), mShadingType(SHADING_TYPE_FunctionBase)
+{
+    CHE_PDF_ObjectPtr objPtr = mRootObject;
+    objPtr = objPtr->GetRefPtr()->GetRefObj(OBJ_TYPE_DICTIONARY);
+    if (objPtr)
+    {
+        CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
+        objPtr = dictPtr->GetElement("ShadingType", OBJ_TYPE_NUMBER);
+        if (objPtr)
+        {
+            mShadingType = (PDF_SHADING_TYPE)objPtr->GetNumberPtr()->GetInteger();
+        }
+        objPtr = dictPtr->GetElement("ColorSpace");
+        if (objPtr)
+        {
+            mColorSpace = CHE_PDF_ColorSpace::Create(objPtr, pAllocator);
+        }
+        objPtr = dictPtr->GetElement("Background", OBJ_TYPE_ARRAY);
+        if (objPtr)
+        {
+            CHE_PDF_ArrayPtr arrPtr = objPtr->GetArrayPtr();
+            for(HE_ULONG i = 0; i < arrPtr->GetCount(); ++i)
+            {
+                objPtr = arrPtr->GetElement(i, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mBackgroundColor.Push(objPtr->GetNumberPtr()->GetFloat());
+                }
+            }
+        }
+        objPtr = dictPtr->GetElement("Function");
+        if (objPtr)
+        {
+            mFunction = CHE_PDF_Function::Create(objPtr, pAllocator);
+        }
+    }
+}
+
 CHE_PDF_TilingPtr CHE_PDF_Tiling::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/ )
 {
 	CHE_PDF_TilingPtr ptr;

@@ -279,7 +279,7 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
         CHE_PDF_CS_PatternPtr pattern = cs->GetPatternPtr();
         if ( pattern )
         {
-            CHE_PDF_TilingPtr tilingPtr = pattern->mTiling;
+            CHE_PDF_TilingPtr tilingPtr = CHE_PDF_Tiling::Convert( pattern->mTiling );
             if ( tilingPtr )
             {
                 CHE_Rect rect = tilingPtr->GetBBox();
@@ -1414,7 +1414,7 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, cons
 		}
         case COMPONENT_TYPE_Shading:
 		{
-            //DrawShading( )
+            DrawShading( CHE_PDF_Shading::Convert(componentPtr) );
 			break;
 		}
         default:

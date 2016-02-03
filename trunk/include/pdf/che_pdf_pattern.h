@@ -1,11 +1,26 @@
 #ifndef _CHE_PDF_PATTERN_H_
 #define _CHE_PDF_PATTERN_H_
 
+
 #include "che_pdf_contentlist.h"
 #include "che_pdf_contentlistbuilder.h"
 #include "che_pdf_component.h"
 #include "che_pdf_componentmgr.h"
+#include "che_pdf_colorspace.h"
+#include "che_pdf_function.h"
 
+
+
+enum PDF_SHADING_TYPE
+{
+    SHADING_TYPE_FunctionBase = 1,
+    SHADING_TYPE_Axial = 2,
+    SHADING_TYPE_Radial = 3,
+    SHADING_TYPE_FreeFormGouraudShadedTriangleMesh = 4,
+    SHADING_TYPE_LatticeFormGouraudShadedTriangleMesh = 5,
+    SHADING_TYPE_CoonsPatchMesh = 6,
+    SHADING_TYPE_TensorProductPatchMesh = 7
+};
 
 class CHE_PDF_Shading;
 
@@ -18,12 +33,26 @@ public:
 class CHE_PDF_Shading : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_ShadingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ShadingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
 
 	static CHE_PDF_ShadingPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
 
+    PDF_SHADING_TYPE GetShadingType() const { return mShadingType; }
+    
+    CHE_PDF_ColorSpacePtr GetColorSpace() const { return mColorSpace; }
+    
+    CHE_PDF_Color GetBackgroundColor() const { return mBackgroundColor; }
+    
 private:
-	CHE_PDF_Shading( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Shading( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+    
+    PDF_SHADING_TYPE mShadingType;
+    
+    CHE_PDF_ColorSpacePtr mColorSpace;
+    
+    CHE_PDF_Color mBackgroundColor;
+    
+    CHE_PDF_FunctionPtr mFunction;
 
 	friend class CHE_Allocator;
 };

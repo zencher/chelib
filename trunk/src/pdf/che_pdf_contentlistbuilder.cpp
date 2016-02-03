@@ -2083,10 +2083,24 @@ HE_VOID CHE_PDF_ContentsParser::Handle_sh()
 {
     if ( mName.GetLength() > 0 )
     {
-        //todo zc
-        
-        //CHE_PDF_Shading * pShading = GetAllocator()->New<CHE_PDF_Shading>( mName, GetAllocator() );
-        //mpConstructor->Operator_Append( pShading );
+        CHE_PDF_ObjectPtr objPtr;
+        CHE_PDF_ComponentPtr cmptPtr;
+        CHE_PDF_ShadingPtr shadingPtr;
+        objPtr = mpContentResMgr->GetResObj( CONTENTRES_SHADING, mName );
+        if ( IsPdfRefPtr( objPtr ) )
+        {
+            cmptPtr = mpCmptMgr->GetComponent( objPtr->GetRefPtr(), COMPONENT_TYPE_Shading );
+            if ( cmptPtr && cmptPtr->GetType() == COMPONENT_TYPE_Shading )
+            {
+                CHE_PDF_ComponentRef * cmtRef = GetAllocator()->New<CHE_PDF_ComponentRef>( mName, cmptPtr, GetAllocator() );
+                mpConstructor->Operator_Append(cmtRef);
+            }else{
+                shadingPtr = CHE_PDF_Shading::Create( objPtr, mpCmptMgr, GetAllocator() );
+                mpCmptMgr->PushComponent( objPtr->GetRefPtr(), shadingPtr );
+                CHE_PDF_ComponentRef * cmtRef = GetAllocator()->New<CHE_PDF_ComponentRef>( mName, shadingPtr, GetAllocator() );
+                mpConstructor->Operator_Append(cmtRef);
+            }
+        }
     }
 }
 

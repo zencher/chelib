@@ -2169,11 +2169,10 @@ HE_BOOL CHE_PDF_ContentListBuilder::ParsePageContent( const CHE_PDF_DictionaryPt
     CHE_PDF_ArrayPtr		contentArrayPtr;
     
     objPtr = pageDict->GetElement( "Resources", OBJ_TYPE_DICTIONARY );
-    if ( ! objPtr )
+    if ( objPtr )
     {
-        return FALSE;
+        resDictPtr = objPtr->GetDictPtr();
     }
-    resDictPtr = objPtr->GetDictPtr();
     
     objPtr = pageDict->GetElement( "Contents" , OBJ_TYPE_ARRAY );
     if ( objPtr )

@@ -514,16 +514,15 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
             pDecode = decode;
         }
         
-        CHE_PDF_ColorSpacePtr csPtr = imagePtr->GetColorspace();
-        if ( !csPtr )
+        if ( imagePtr->IsMask() )
         {
-            if ( imagePtr->IsMask() )
-            {
-                imgRef = CGImageMaskCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), imagePtr->GetBPC(), imagePtr->GetBPC(), (imagePtr->GetWidth() * imagePtr->GetBPC() + 7)/8, dataRef, pDecode, imagePtr->IsInterpolate() );
-                CGDataProviderRelease( dataRef );
-            }
-            return imgRef;
+            imgRef = CGImageMaskCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), imagePtr->GetBPC(), imagePtr->GetBPC(),
+                                       (imagePtr->GetWidth() * imagePtr->GetBPC() + 7)/8,dataRef, pDecode, imagePtr->IsInterpolate() );
+            CGDataProviderRelease( dataRef );
+                return imgRef;
         }
+        
+        CHE_PDF_ColorSpacePtr csPtr = imagePtr->GetColorspace();
         
         CGColorRenderingIntent ri = kCGRenderingIntentAbsoluteColorimetric;
         switch ( imagePtr->GetRI() )
@@ -556,6 +555,20 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
                                kCGBitmapByteOrderDefault, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
         CGDataProviderRelease( dataRef );
         CGColorSpaceRelease( csRef );
+        
+        CHE_PDF_ArrayPtr arrPtr = imagePtr->GetColorKeyMask();
+        if ( arrPtr ) {
+            CGFloat val[8];
+            for (HE_ULONG i = 0; i < arrPtr->GetCount(); ++i) {
+                val[i] = arrPtr->GetElement(i)->GetNumberPtr()->GetInteger();
+            }
+            CGImageRef newImgRef = CGImageCreateWithMaskingColors(imgRef, val);
+            if ( newImgRef )
+            {
+                CGImageRelease(imgRef);
+                imgRef = newImgRef;
+            }
+        }
     }
     return imgRef;
 }
@@ -1445,30 +1458,6 @@ HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
         CGContextDrawImage( mContextRef, CGRectMake(0, 0, 1, 1), imgRef );
         CGImageRelease( imgRef );
     }
-    
-    /*CHE_Bitmap * pBitmap = pImage->GetBitmap();
-    if ( pBitmap )
-    {
-        CGDataProviderRef dataRef = CGDataProviderCreateWithData( NULL, pBitmap->GetBuffer(), pBitmap->GetMemBitmapDataSize(), NULL );
-        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        CGImageRef imageRef = CGImageCreate(    pBitmap->Width(), pBitmap->Height(), 8, pBitmap->Depth(),
-                                                pBitmap->Pitch(), colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst,
-                                                dataRef, NULL, false, kCGRenderingIntentDefault );
-        
-        CHE_Matrix tmpMatrix;
-        tmpMatrix = mMatrix;
-        tmpMatrix.Concat( mExtMatrix );
-        CHE_Rect rect;
-        rect.left = 0;
-        rect.bottom = 0;
-        rect.width = 1;
-        rect.height = 1;
-        rect = tmpMatrix.Transform( rect );
-        CGContextDrawImage( mContextRef, CGRectMake( rect.left, rect.bottom, rect.width, rect.height), imageRef );
-        CGImageRelease( imageRef );
-        CGColorSpaceRelease( colorSpace );
-        CGDataProviderRelease( dataRef );
-    }*/
 }
 
 

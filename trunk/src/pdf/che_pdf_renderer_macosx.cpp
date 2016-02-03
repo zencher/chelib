@@ -654,10 +654,7 @@ HE_VOID	CHE_PDF_Renderer::MoveTo( HE_FLOAT x, HE_FLOAT y )
     {
         mPathRef = CGPathCreateMutable();
     }
-    CHE_Matrix tmpMatrix;
-    tmpMatrix = mMatrix;
-    tmpMatrix.Concat( mExtMatrix );
-    CGAffineTransform affine = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f);
+    CGAffineTransform affine = CGAffineTransformIdentity;
     CGPathMoveToPoint( mPathRef, &affine, x, y );
 }
 
@@ -665,10 +662,7 @@ HE_VOID	CHE_PDF_Renderer::LineTo( HE_FLOAT x, HE_FLOAT y )
 {
     if ( mPathRef )
     {
-        CHE_Matrix tmpMatrix;
-        tmpMatrix = mMatrix;
-        tmpMatrix.Concat( mExtMatrix );
-        CGAffineTransform affine = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f);
+        CGAffineTransform affine = CGAffineTransformIdentity;
         CGPathAddLineToPoint( mPathRef, &affine, x, y );
     }
 }
@@ -677,59 +671,12 @@ HE_VOID	CHE_PDF_Renderer::CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLO
 {
     if ( mPathRef )
     {
-        CHE_Matrix tmpMatrix;
-        tmpMatrix = mMatrix;
-        tmpMatrix.Concat( mExtMatrix );
-        CGAffineTransform affine = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f);
+        CGAffineTransform affine = CGAffineTransformIdentity;
         CGPathAddCurveToPoint( mPathRef, &affine, x1, y1, x2, y2, x3, y3 );
     }
 }
 
 HE_VOID CHE_PDF_Renderer::Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height )
-{
-    if ( mPathRef == NULL )
-    {
-        mPathRef = CGPathCreateMutable();
-    }
-    if ( mPathRef )
-    {
-        CHE_Matrix tmpMatrix;
-        tmpMatrix = mMatrix;
-        tmpMatrix.Concat( mExtMatrix );
-        CGAffineTransform affine = CGAffineTransformMake( tmpMatrix.a, tmpMatrix.b, tmpMatrix.c, tmpMatrix.d, tmpMatrix.e, tmpMatrix.f);
-        CGPathAddRect( mPathRef, &affine, CGRectMake( x, y, width, height ) );
-    }
-}
-
-HE_VOID	CHE_PDF_Renderer::MoveTo1( HE_FLOAT x, HE_FLOAT y )
-{
-    if ( mPathRef == NULL )
-    {
-        mPathRef = CGPathCreateMutable();
-    }
-    CGAffineTransform affine = CGAffineTransformIdentity;
-    CGPathMoveToPoint( mPathRef, &affine, x, y );
-}
-
-HE_VOID	CHE_PDF_Renderer::LineTo1( HE_FLOAT x, HE_FLOAT y )
-{
-    if ( mPathRef )
-    {
-        CGAffineTransform affine = CGAffineTransformIdentity;
-        CGPathAddLineToPoint( mPathRef, &affine, x, y );
-    }
-}
-
-HE_VOID	CHE_PDF_Renderer::CurveTo1( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 )
-{
-    if ( mPathRef )
-    {
-        CGAffineTransform affine = CGAffineTransformIdentity;
-        CGPathAddCurveToPoint( mPathRef, &affine, x1, y1, x2, y2, x3, y3 );
-    }
-}
-
-HE_VOID CHE_PDF_Renderer::Rectangle1( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height )
 {
     if ( mPathRef == NULL )
     {
@@ -896,12 +843,17 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
 	pGState->GetLineDash( lineDash );
 	SetLineDash( lineDash );
     
+    SetFillMode( FillMode_Nonzero );
+    
 	matrix = pGState->GetMatrix();
 	SetMatrix( matrix );
     
-    SetFillMode( FillMode_Nonzero );
+    mTmpMatrix = mMatrix;
+    mTmpMatrix.Concat( mExtMatrix );
+    CGContextConcatCTM( mContextRef, CGAffineTransformMake( mTmpMatrix.a, mTmpMatrix.b, mTmpMatrix.c, mTmpMatrix.d, mTmpMatrix.e, mTmpMatrix.f) );
 
-    if ( !bColored ) {
+    if ( !bColored )
+    {
         return;
     }
 	pGState->GetFillColor( fillColor );
@@ -979,7 +931,6 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
     {
         return;
     }
-    
     CHE_PDF_ContentObject * pObj = NULL;
 	std::list<CHE_PDF_ClipStateItem*>::iterator it = pClipState->mClipElementList.begin();
 	for ( ; it != pClipState->mClipElementList.end(); it++ )
@@ -989,137 +940,112 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
 		{
 			continue;
 		}
-        
         CHE_PDF_GState * pGState = pObj->GetGState();
         if ( pGState )
         {
             SetCommonGState( pGState );
         }
-        
-		switch ( pObj->GetType() )
+		if ( pObj->GetType() == ContentType_Path )
 		{
-            case ContentType_Path:
-			{
-				CHE_PDF_Path * pPath = (CHE_PDF_Path*)(pObj);
-				CHE_Point p1, p2, p3;
-				for ( size_t i = 0; i < pPath->mItems.size(); ++i )
-				{
-					switch ( pPath->mItems[i].type )
-					{
+            CHE_PDF_Path * pPath = (CHE_PDF_Path*)(pObj);
+            CHE_Point p1, p2, p3;
+            for ( size_t i = 0; i < pPath->mItems.size(); ++i )
+            {
+                switch ( pPath->mItems[i].type )
+                {
+                case PathItem_MoveTo:
+                    p1.x = pPath->mItems[i+1].value;
+                    p1.y = pPath->mItems[i+2].value;
+                    MoveTo( p1.x, p1.y );
+                    i+=2;
+                    break;
+                case PathItem_LineTo:
+                    p1.x = pPath->mItems[i+1].value;
+                    p1.y = pPath->mItems[i+2].value;
+                    LineTo( p1.x, p1.y );
+                    i+=2;
+                    break;
+                case PathItem_CurveTo:
+                    p1.x = pPath->mItems[i+1].value;
+                    p1.y = pPath->mItems[i+2].value;
+                    p2.x = pPath->mItems[i+3].value;
+                    p2.y = pPath->mItems[i+4].value;
+                    p3.x = pPath->mItems[i+5].value;
+                    p3.y = pPath->mItems[i+6].value;
+                    CurveTo( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
+                    i+=6;
+                    break;
+                case PathItem_Rectangle:
+                    p1.x = pPath->mItems[i+1].value;
+                    p1.y = pPath->mItems[i+2].value;
+                    MoveTo( p1.x, p1.y );
+                    LineTo( p1.x + pPath->mItems[i+3].value, p1.y );
+                    LineTo( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
+                    LineTo( p1.x, p1.y + pPath->mItems[i+4].value );
+                    ClosePath();
+                    i+=4;
+                    break;
+                case PathItem_Close:
+                    ClosePath();
+                    break;
+                default:
+                    break;
+				}
+			}
+        }
+        else if ( pObj->GetType() == ContentType_Text )
+        {
+            CHE_PDF_Text * pText = (CHE_PDF_Text*)(pObj);
+            for ( size_t i = 0; i < pText->mItems.size(); ++i )
+            {
+                CHE_PDF_Path * pPath = pText->GetGraphPath( i );
+                if ( pPath )
+                {
+                    for ( HE_INT32 i = 0; i < pPath->mItems.size(); ++i )
+                    {
+                        switch ( pPath->mItems[i].type )
+                        {
                         case PathItem_MoveTo:
-						{
-							p1.x = pPath->mItems[i+1].value;
-							p1.y = pPath->mItems[i+2].value;
-							MoveTo( p1.x, p1.y );
-							i+=2;
-							break;
-						}
+                            MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+                            i+=2;
+                            break;
                         case PathItem_LineTo:
-						{
-							p1.x = pPath->mItems[i+1].value;
-							p1.y = pPath->mItems[i+2].value;
-							LineTo( p1.x, p1.y );
-							i+=2;
-							break;
-						}
+                            LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+                            i+=2;
+                            break;
                         case PathItem_CurveTo:
-						{
-							p1.x = pPath->mItems[i+1].value;
-							p1.y = pPath->mItems[i+2].value;
-							p2.x = pPath->mItems[i+3].value;
-							p2.y = pPath->mItems[i+4].value;
-							p3.x = pPath->mItems[i+5].value;
-							p3.y = pPath->mItems[i+6].value;
-							CurveTo( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
-							i+=6;
-							break;
-						}
+                            CurveTo(   pPath->mItems[i+1].value, pPath->mItems[i+2].value,
+                                        pPath->mItems[i+3].value, pPath->mItems[i+4].value,
+                                        pPath->mItems[i+5].value, pPath->mItems[i+6].value );
+                            i+=6;
+                            break;
                         case PathItem_Rectangle:
-						{
-							p1.x = pPath->mItems[i+1].value;
-							p1.y = pPath->mItems[i+2].value;
-							MoveTo( p1.x, p1.y );
-							LineTo( p1.x + pPath->mItems[i+3].value, p1.y );
-							LineTo( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
-							LineTo( p1.x, p1.y + pPath->mItems[i+4].value );
-							ClosePath();
-							i+=4;
-							break;
-						}
+                            MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+                            LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
+                            LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
+                            LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
+                            ClosePath();
+                            i+=4;
+                            break;
                         case PathItem_Close:
-						{
-							ClosePath();
-							break;
-						}
+                            ClosePath();
+                            i+=1;
+                            break;
                         default:
                             break;
-					}
-				}
-				break;
-			}
-            case ContentType_Text:
-			{
-				CHE_PDF_Text * pText = (CHE_PDF_Text*)(pObj);
-				for ( size_t i = 0; i < pText->mItems.size(); ++i )
-				{
-					CHE_PDF_Path * pPath = pText->GetGraphPath( i );
-					if ( pPath )
-					{
-						for ( HE_INT32 i = 0; i < pPath->mItems.size(); ++i )
-						{
-							switch ( pPath->mItems[i].type )
-							{
-                                case PathItem_MoveTo:
-								{
-									MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-									i+=2;
-									break;
-								}
-                                case PathItem_LineTo:
-								{
-									LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-									i+=2;
-									break;
-								}
-                                case PathItem_CurveTo:
-								{
-									CurveTo(    pPath->mItems[i+1].value, pPath->mItems[i+2].value,
-                                                pPath->mItems[i+3].value, pPath->mItems[i+4].value,
-                                                pPath->mItems[i+5].value, pPath->mItems[i+6].value );
-									i+=6;
-									break;
-								}
-                                case PathItem_Rectangle:
-								{
-									MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-									LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
-									LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-									LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-									ClosePath();
-									i+=4;
-									break;
-								}
-                                case PathItem_Close:
-								{
-									ClosePath();
-									i+=1;
-									break;
-								}
-                                default:
-                                    break;
-							}
-						}
-						ClosePath();
-						pPath->GetAllocator()->Delete( pPath );
-					}
-				}
-				break;
-			}
-            default:
-                break;
-		}
+                        }
+                    }
+                    ClosePath();
+                    pPath->GetAllocator()->Delete( pPath );
+                }
+            }
+        }
+        ClipPath();
+				        
+        CHE_Matrix invertMatrix;
+        invertMatrix.Invert( mTmpMatrix );
+        CGContextConcatCTM( mContextRef, CGAffineTransformMake( invertMatrix.a, invertMatrix.b, invertMatrix.c, invertMatrix.d, invertMatrix.e, invertMatrix.f) );
 	}
-	ClipPath();
 }
 
 HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
@@ -1127,8 +1053,7 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
     if ( pPath->GetFillMode() == Mode_Nonzero )
     {
         SetFillMode( FillMode_Nonzero );
-    }
-    else{
+    }else{
         SetFillMode( FillMode_EvenOdd );
     }
     
@@ -1137,69 +1062,58 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
     {
         switch ( pPath->mItems[i].type )
         {
-            case PathItem_MoveTo:
-            {
-                p1.x = pPath->mItems[i+1].value;
-                p1.y = pPath->mItems[i+2].value;
-                MoveTo1( p1.x, p1.y );
-                i+=2;
-				break;
-            }
-            case PathItem_LineTo:
-            {
-                p1.x = pPath->mItems[i+1].value;
-                p1.y = pPath->mItems[i+2].value;
-                LineTo1( p1.x, p1.y );
-                i+=2;
-                break;
-            }
-            case PathItem_CurveTo:
-            {
-                p1.x = pPath->mItems[i+1].value;
-                p1.y = pPath->mItems[i+2].value;
-                p2.x = pPath->mItems[i+3].value;
-                p2.y = pPath->mItems[i+4].value;
-                p3.x = pPath->mItems[i+5].value;
-                p3.y = pPath->mItems[i+6].value;
-                CurveTo1( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
-				i+=6;
-                break;
-            }
-            case PathItem_Rectangle:
-            {
-                p1.x = pPath->mItems[i+1].value;
-                p1.y = pPath->mItems[i+2].value;
-                MoveTo1( p1.x, p1.y );
-                LineTo1( p1.x + pPath->mItems[i+3].value, p1.y );
-                LineTo1( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
-                LineTo1( p1.x, p1.y + pPath->mItems[i+4].value );
-                ClosePath();
-                i+=4;
-                break;
-            }
-            case PathItem_Close:
-            {
-                ClosePath();
-                break;
-            }
-            default:
-                break;
+        case PathItem_MoveTo:
+            p1.x = pPath->mItems[i+1].value;
+            p1.y = pPath->mItems[i+2].value;
+            MoveTo( p1.x, p1.y );
+            i+=2;
+            break;
+        case PathItem_LineTo:
+            p1.x = pPath->mItems[i+1].value;
+            p1.y = pPath->mItems[i+2].value;
+            LineTo( p1.x, p1.y );
+            i+=2;
+            break;
+        case PathItem_CurveTo:
+            p1.x = pPath->mItems[i+1].value;
+            p1.y = pPath->mItems[i+2].value;
+            p2.x = pPath->mItems[i+3].value;
+            p2.y = pPath->mItems[i+4].value;
+            p3.x = pPath->mItems[i+5].value;
+            p3.y = pPath->mItems[i+6].value;
+            CurveTo( p1.x, p1.y, p2.x, p2.y, p3.x, p3.y );
+            i+=6;
+            break;
+        case PathItem_Rectangle:
+            p1.x = pPath->mItems[i+1].value;
+            p1.y = pPath->mItems[i+2].value;
+            MoveTo( p1.x, p1.y );
+            LineTo( p1.x + pPath->mItems[i+3].value, p1.y );
+            LineTo( p1.x + pPath->mItems[i+3].value, p1.y + pPath->mItems[i+4].value );
+            LineTo( p1.x, p1.y + pPath->mItems[i+4].value );
+            ClosePath();
+            i+=4;
+            break;
+        case PathItem_Close:
+            ClosePath();
+            break;
+        default: break;
         }
     }
     switch ( pPath->GetPaintType() )
     {
-        case Paint_Fill:
-            FillPath();
-            break;
-        case Paint_Stroke:
-            StrokePath();
-            break;
-        case Paint_FillStroke:
-            FillStrokePath();
-            break;
-        case Paint_None:
-        default:
-            break;
+    case Paint_Fill:
+        FillPath();
+        break;
+    case Paint_Stroke:
+        StrokePath();
+        break;
+    case Paint_FillStroke:
+        FillStrokePath();
+        break;
+    case Paint_None:
+    default:
+        break;
     }
 }
 
@@ -1370,96 +1284,83 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
     }
     switch( rm )
     {
-        case TextRenderMode_Fill:
-        case TextRenderMode_FillClip:
-        case TextRenderMode_FillStroke:
-        case TextRenderMode_Stroke:
-        case TextRenderMode_StrokeClip:
-        case TextRenderMode_FillStrokeClip:
+    case TextRenderMode_Fill:
+    case TextRenderMode_FillClip:
+    case TextRenderMode_FillStroke:
+    case TextRenderMode_Stroke:
+    case TextRenderMode_StrokeClip:
+    case TextRenderMode_FillStrokeClip:
+        for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
         {
-            SetMatrix( CHE_Matrix() );
-            for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
+            CHE_PDF_Path * pPath = pText->GetGraphPath( j );
+            if ( pPath )
             {
-                CHE_PDF_Path * pPath = pText->GetGraphPath( j );
-                if ( pPath )
+                for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
                 {
-                    for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
+                    switch ( pPath->mItems[i].type )
                     {
-                        switch ( pPath->mItems[i].type )
-                        {
-                            case PathItem_MoveTo:
-                            {
-                                MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                                i+=2;
-                                break;
-                            }
-                            case PathItem_LineTo:
-                            {
-                                LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                                i+=2;
-                                break;
-                            }
-                            case PathItem_CurveTo:
-                            {
-                                CurveTo(    pPath->mItems[i+1].value, pPath->mItems[i+2].value,
-                                            pPath->mItems[i+3].value, pPath->mItems[i+4].value,
-                                            pPath->mItems[i+5].value, pPath->mItems[i+6].value );
-                                i+=6;
-                                break;
-                            }
-                            case PathItem_Rectangle:
-                            {
-                                MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                                LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
-                                LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-                                LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-                                ClosePath();
-                                i+=4;
-                                break;
-                            }
-                            case PathItem_Close:
-                            {
-                                ClosePath();
-                                i+=1;
-                                break;
-                            }
-                            default:
-                                break;
-                        }
+                    case PathItem_MoveTo:
+                        MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+                        i+=2;
+                        break;
+                    case PathItem_LineTo:
+                        LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+                        i+=2;
+                        break;
+                    case PathItem_CurveTo:
+                        CurveTo(   pPath->mItems[i+1].value, pPath->mItems[i+2].value,
+                                    pPath->mItems[i+3].value, pPath->mItems[i+4].value,
+                                    pPath->mItems[i+5].value, pPath->mItems[i+6].value );
+                        i+=6;
+                        break;
+                    case PathItem_Rectangle:
+                        MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
+                        LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
+                        LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
+                        LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
+                        ClosePath();
+                        i+=4;
+                        break;
+                    case PathItem_Close:
+                        ClosePath();
+                        i+=1;
+                        break;
+                    default:
+                        break;
                     }
                     pPath->GetAllocator()->Delete( pPath );
                 }
             }
-            break;
         }
-        default:
-            break;
+    default:
+        break;
     }
     switch( rm )
     {
-        case TextRenderMode_Fill:
-            FillPath();
-            break;
-        case TextRenderMode_Stroke:
-            StrokePath();
-            break;
-        case TextRenderMode_FillStroke:
-            FillStrokePath();
-            break;
-        case TextRenderMode_Invisible:
-            break;
-        case TextRenderMode_FillClip:
-            FillPath();
-            break;
-        case TextRenderMode_StrokeClip:
-            StrokePath();
-            break;
-        case TextRenderMode_FillStrokeClip:
-            StrokePath();
-            break;
-        case TextRenderMode_Clip:
-            break;
-        default:break;
+    case TextRenderMode_Fill:
+        FillPath();
+        break;
+    case TextRenderMode_Stroke:
+        StrokePath();
+        break;
+    case TextRenderMode_FillStroke:
+        FillStrokePath();
+        break;
+    case TextRenderMode_Invisible:
+        break;
+    case TextRenderMode_FillClip:
+        FillPath();
+        break;
+    case TextRenderMode_StrokeClip:
+        StrokePath();
+        break;
+    case TextRenderMode_FillStrokeClip:
+        StrokePath();
+        break;
+    case TextRenderMode_Clip:
+        break;
+    default:
+        break;
     }
 }
 
@@ -1676,7 +1577,6 @@ HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & lis
 HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy )
 {
     mbNoColor = FALSE;
-    
     mDpix = dpix;
     mDpiy = dpiy;
     mScale = scale;
@@ -1755,7 +1655,6 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 	for ( ; it != content.End(); ++it )
 	{
         StoreGState();
-        
 		pGState = (*it)->GetGState();
 		if ( pGState )
 		{
@@ -1771,37 +1670,22 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
                 SetExtGState( pExtGStateStack );
             }
 		}
-        
-        CHE_Matrix matrix = mMatrix;
-        matrix.Concat( mExtMatrix );
-        CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
-        
 		switch ( (*it)->GetType() )
 		{
             case ContentType_Path:
-			{
 				DrawPath( (CHE_PDF_Path*)(*it) );
 				break;
-			}
             case ContentType_Text:
-			{
                 DrawText( (CHE_PDF_Text*)(*it) );
                 break;
-			}
             case ContentType_InlineImage:
-			{
 				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
 				break;
-			}
             case ContentType_Component:
-			{
 				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
-				break;
-			}
-            default:
                 break;
+            default: break;
 		}
-        
         RestoreGState();
 	}
     RestoreGState();
@@ -1816,7 +1700,6 @@ HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, HE_
 	for ( ; it != content.End(); ++it )
 	{
         StoreGState();
-        
 		pGState = (*it)->GetGState();
 		if ( pGState )
 		{
@@ -1832,37 +1715,22 @@ HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, HE_
                 SetExtGState( pExtGStateStack );
             }
 		}
-        
-        CHE_Matrix matrix = mMatrix;
-        matrix.Concat( mExtMatrix );
-        CGContextConcatCTM( mContextRef, CGAffineTransformMake( matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f) );
-        
 		switch ( (*it)->GetType() )
 		{
             case ContentType_Path:
-			{
 				DrawPath( (CHE_PDF_Path*)(*it) );
 				break;
-			}
             case ContentType_Text:
-			{
                 DrawText( (CHE_PDF_Text*)(*it) );
                 break;
-			}
             case ContentType_InlineImage:
-			{
 				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
 				break;
-			}
             case ContentType_Component:
-			{
 				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
 				break;
-			}
-            default:
-                break;
+            default: break;
 		}
-        
         RestoreGState();
 	}
 }

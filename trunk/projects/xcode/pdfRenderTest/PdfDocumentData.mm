@@ -50,7 +50,6 @@
                                 if ( pdfPage )
                                 {
                                     CHE_Rect rect = pdfPage->GetPageRect();
-                                    pdfPageTree->ReleasePage( pdfPage );
                                     pdfPageLayout->AddPageSize( rect.width, rect.height );
                                     
                                 }
@@ -90,7 +89,6 @@
         if ( pdfPage )
         {
             rect = pdfPage->GetPageRect();
-            pdfPageTree->ReleasePage( pdfPage );
         }
     }
     return rect;

@@ -28,7 +28,7 @@
 
 -(BOOL) loadFile:(NSString*)filePath
 {
-    [displayView closeDocument];
+    [self closeFile];
 
     PdfDocumentData * docData = [[PdfDocumentData alloc] initWithFilePath:filePath];
     [displayView newDocument:docData];

@@ -46,15 +46,13 @@ enum PDFVIEW_ROTATE_MODE
     CHE_PDF_File *                          pdfFile;
     CHE_PDF_Document *                      pdfDocument;
     CHE_PDF_PageTree *                      pdfPageTree;
-    CHE_PDF_ComponentMgr *                  pdfComponentMgr;
     CHE_PDF_PageLayout *                    pdfPageLayout;
     HE_ULONG                                pageCount;
 }
 
 -(id)initWithFilePath:(NSString*)path;
 
-
-
+-(void)dealloc;
 
 -(HE_ULONG)getPageCount;
 

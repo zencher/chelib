@@ -237,7 +237,11 @@
 
 -(void)closeDocument
 {
-    pdfDocument = nil;
+    if ( pdfDocument )
+    {
+        [pdfDocument dealloc];
+        pdfDocument = nil;
+    }
     NSRect rect;
     [self setFrame:rect];
     [self setNeedsDisplay:YES];

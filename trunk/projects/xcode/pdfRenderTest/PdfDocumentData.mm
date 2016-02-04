@@ -20,10 +20,8 @@
         pdfFile         = NULL;
         pdfDocument     = NULL;
         pdfPageTree     = NULL;
-        pdfComponentMgr      = NULL;
         
         allocator = GetDefaultAllocator();
-        pdfComponentMgr = allocator->New<CHE_PDF_ComponentMgr>( allocator );
         
         fileReadInf = HE_CreateFileRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
         if ( fileReadInf )
@@ -40,7 +38,6 @@
                         pageCount = pdfPageTree->GetPageCount();
                         
                         pdfPageLayout = new CHE_PDF_PageLayout;
-                        
                         
                         if ( pdfPageLayout )
                         {
@@ -61,6 +58,26 @@
         }
     }
     return self;
+}
+
+-(void)dealloc
+{
+    if (pdfPageLayout) {
+        delete pdfPageLayout;
+        pdfPageLayout = NULL;
+    }
+    if (pdfDocument) {
+        pdfDocument->GetAllocator()->Delete(pdfDocument);
+        pdfDocument = NULL;
+    }
+    if (pdfFile) {
+        pdfFile->GetAllocator()->Delete(pdfFile);
+        pdfFile = NULL;
+    }
+    if (fileReadInf) {
+        HE_DestoryIHERead(fileReadInf);
+        fileReadInf = NULL;
+    }
 }
 
 -(CHE_PDF_ContentObjectList*)getPageContent:(HE_ULONG)index

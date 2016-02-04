@@ -68,7 +68,7 @@ public:
     HE_VOID     StoreGState();
     HE_VOID     RestoreGState();
     
-    HE_VOID     SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bColored = TRUE );
+    HE_VOID     SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bColore = TRUE, HE_BOOL bMatrix = TRUE );
     HE_VOID     SetExtGState( CHE_PDF_ExtGStateStack * pExtGState );
     HE_VOID     SetClipState( CHE_PDF_ClipState * pClipState );
     
@@ -85,7 +85,7 @@ public:
     HE_VOID     SetPatternOffset( HE_FLOAT x, HE_FLOAT y ) {  mPatternOffsetX = x; mPatternOffsetY = y; }
     
 public:
-    HE_VOID     DrawContentObjectList( CHE_PDF_ContentObjectList & list, const CHE_Matrix & extMatrix );
+    HE_VOID     DrawContentObjectList( CHE_PDF_ContentObjectList & list );
     
 private:
     CHE_Matrix                  mMatrix;

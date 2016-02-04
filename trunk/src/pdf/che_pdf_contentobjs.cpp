@@ -243,7 +243,7 @@ CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_ULONG index ) const
 
 		//CHE_Matrix ctm = pGState->GetMatrix();
 		CHE_Matrix tm;
-		pGState->GetTextMatrix( tm );
+        pGState->GetTextMatrix( tm );
 
 		CHE_Matrix textMatrix;
 		textMatrix.a = fontSize * fontScaling;
@@ -263,6 +263,12 @@ CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_ULONG index ) const
 		textMatrix.Concat( OffsetMatrix );
 		textMatrix.Concat( tm );
 		//textMatrix.Concat( ctm );
+        
+        if (pFont->GetFontType() == FONT_TYPE3) {
+            CHE_Matrix fontMatrix = ((CHE_PDF_Type3_Font*)pFont)->GetFontMatrix();
+            fontMatrix.Concat( textMatrix );
+            textMatrix = fontMatrix;
+        }
 		return textMatrix;
 	}
 	return CHE_Matrix();

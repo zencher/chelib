@@ -286,7 +286,7 @@ public:
 	CHE_PDF_ArrayPtr				GetFontBBox() const;
 	CHE_Matrix						GetFontMatrix() const;
 	CHE_PDF_DictionaryPtr			GetResDict() const;
-	CHE_PDF_ContentObjectList*		GetGlyph(HE_BYTE charCode) const;
+	CHE_PDF_ContentObjectList*		GetGlyph(HE_BYTE charCode);
 	HE_BOOL							Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid) const;
 	HE_FLOAT						GetWidth(const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix());
 
@@ -301,8 +301,8 @@ private:
 	
 	HE_BYTE														mFirstChar;
 	HE_BYTE														mLastChar;
-	std::vector<HE_UINT32>										mCharCodeToObjNum;
-	std::unordered_map<HE_UINT32, CHE_PDF_ContentObjectList*>	mGlyphMap;
+	std::vector<CHE_PDF_ReferencePtr>                           mCharCodeToRef;
+	std::unordered_map<HE_ULONG, CHE_PDF_ContentObjectList*>	mGlyphMap;
 
 	friend class CHE_Allocator;
 };

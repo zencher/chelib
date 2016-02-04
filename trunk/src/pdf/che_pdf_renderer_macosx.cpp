@@ -827,7 +827,7 @@ HE_VOID CHE_PDF_Renderer::RestoreGState()
     CGContextRestoreGState( mContextRef );
 }
 
-HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bColored )
+HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bColor, HE_BOOL bMatrix )
 {
     if ( pGState == NULL )
     {
@@ -858,75 +858,77 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
     
     SetFillMode( FillMode_Nonzero );
     
-	matrix = pGState->GetMatrix();
-	SetMatrix( matrix );
-    
-    mTmpMatrix = mMatrix;
-    mTmpMatrix.Concat( mExtMatrix );
-    CGContextConcatCTM( mContextRef, CGAffineTransformMake( mTmpMatrix.a, mTmpMatrix.b, mTmpMatrix.c, mTmpMatrix.d, mTmpMatrix.e, mTmpMatrix.f) );
+    if ( bMatrix )
+    {
+        matrix = pGState->GetMatrix();
+        SetMatrix( matrix );
+        
+        mTmpMatrix = mMatrix;
+        mTmpMatrix.Concat( mExtMatrix );
+        CGContextConcatCTM( mContextRef, CGAffineTransformMake( mTmpMatrix.a, mTmpMatrix.b, mTmpMatrix.c, mTmpMatrix.d, mTmpMatrix.e, mTmpMatrix.f) );
+    }
 
-    if ( !bColored )
+    if ( bColor )
     {
-        return;
-    }
-	pGState->GetFillColor( fillColor );
-	pGState->GetStrokeColor( strokeColor );
-	pGState->GetFillColorSpace( fillColorSpace );
-	pGState->GetStrokeColorSpace( strokeColorSpace );
-    
-    SetFillColorSpace( fillColorSpace );
-    SetStrokeColorSpace( strokeColorSpace );
-    
-    if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
-    {
-        CHE_PDF_CS_SeparationPtr cs = fillColorSpace->GetSeparationPtr();
-        if ( cs )
+        pGState->GetFillColor( fillColor );
+        pGState->GetStrokeColor( strokeColor );
+        pGState->GetFillColorSpace( fillColorSpace );
+        pGState->GetStrokeColorSpace( strokeColorSpace );
+        
+        SetFillColorSpace( fillColorSpace );
+        SetStrokeColorSpace( strokeColorSpace );
+        
+        if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
         {
-            CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
-            if ( funcPtr )
+            CHE_PDF_CS_SeparationPtr cs = fillColorSpace->GetSeparationPtr();
+            if ( cs )
             {
-                std::vector<HE_FLOAT> input;
-                std::vector<HE_FLOAT> output;
-                for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
+                CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
+                if ( funcPtr )
                 {
-                    input.push_back( fillColor.GetComponent( i ) );
-                }
-                funcPtr->Calculate( input, output );
-                fillColor.Clear();
-                for ( size_t j = 0; j < output.size(); ++j )
-                {
-                    fillColor.Push( output[j] );
+                    std::vector<HE_FLOAT> input;
+                    std::vector<HE_FLOAT> output;
+                    for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
+                    {
+                        input.push_back( fillColor.GetComponent( i ) );
+                    }
+                    funcPtr->Calculate( input, output );
+                    fillColor.Clear();
+                    for ( size_t j = 0; j < output.size(); ++j )
+                    {
+                        fillColor.Push( output[j] );
+                    }
                 }
             }
         }
-    }
-    
-    if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
-    {
-        CHE_PDF_CS_SeparationPtr cs = strokeColorSpace->GetSeparationPtr();
-        if ( cs )
+        
+        if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
         {
-            CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
-            if ( funcPtr )
+            CHE_PDF_CS_SeparationPtr cs = strokeColorSpace->GetSeparationPtr();
+            if ( cs )
             {
-                std::vector<HE_FLOAT> input;
-                std::vector<HE_FLOAT> output;
-                for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
+                CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
+                if ( funcPtr )
                 {
-                    input.push_back( strokeColor.GetComponent( i ) );
-                }
-                funcPtr->Calculate( input, output );
-                strokeColor.Clear();
-                for ( size_t j = 0; j < output.size(); ++j )
-                {
-                    strokeColor.Push( output[j] );
+                    std::vector<HE_FLOAT> input;
+                    std::vector<HE_FLOAT> output;
+                    for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
+                    {
+                        input.push_back( strokeColor.GetComponent( i ) );
+                    }
+                    funcPtr->Calculate( input, output );
+                    strokeColor.Clear();
+                    for ( size_t j = 0; j < output.size(); ++j )
+                    {
+                        strokeColor.Push( output[j] );
+                    }
                 }
             }
         }
+        
+        SetFillColor( fillColor );
+        SetStrokeColor( strokeColor );
     }
-    
-    SetFillColor( fillColor );
-    SetStrokeColor( strokeColor );
 }
 
 HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
@@ -1202,7 +1204,38 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
             
             //对于Fill类型的文本输出，可以使用系统原生文本输出接口，以获得次像素支
             CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
-            if ( pFont->GetPlatformFontInfo() != nullptr )
+            
+            
+            if ( pFont->GetFontType() == FONT_TYPE3 )
+            {
+                StoreGState();
+                
+                CHE_Matrix inverstMatrix;
+                inverstMatrix.Invert( mTmpMatrix );
+                CGContextConcatCTM( mContextRef, CGAffineTransformMake( inverstMatrix.a, inverstMatrix.b, inverstMatrix.c, inverstMatrix.d, inverstMatrix.e, inverstMatrix.f) );
+                
+                CHE_PDF_Type3_Font * pFontType3 = (CHE_PDF_Type3_Font*)pFont;
+                for ( HE_ULONG i = 0; i < pText->mItems.size(); ++i )
+                {
+                    StoreGState();
+                    
+                    CHE_Matrix textMatirx = pText->GetCharMatrix( i );
+                    textMatirx.Concat( mMatrix );
+                    textMatirx.Concat( mExtMatrix );
+                    CGContextConcatCTM( mContextRef, CGAffineTransformMake( textMatirx.a, textMatirx.b, textMatirx.c, textMatirx.d, textMatirx.e, textMatirx.f) );
+                    CHE_PDF_ContentObjectList * pList = pFontType3->GetGlyph( pText->mItems[i].charCode );
+                    if ( pList ) {
+                        DrawContentObjectList( *pList );
+                    }
+                    
+                    RestoreGState();
+                }
+                
+                RestoreGState();
+                return;
+            }
+            
+            if (  pFont->GetPlatformFontInfo() != nullptr )
             {
                 cgfontRef = (CGFontRef)pFont->GetPlatformFontInfo();
                 SetTextFont( cgfontRef );
@@ -1321,7 +1354,7 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
                         i+=2;
                         break;
                     case PathItem_CurveTo:
-                        CurveTo(   pPath->mItems[i+1].value, pPath->mItems[i+2].value,
+                        CurveTo(    pPath->mItems[i+1].value, pPath->mItems[i+2].value,
                                     pPath->mItems[i+3].value, pPath->mItems[i+4].value,
                                     pPath->mItems[i+5].value, pPath->mItems[i+6].value );
                         i+=6;
@@ -1341,8 +1374,9 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
                     default:
                         break;
                     }
-                    pPath->GetAllocator()->Delete( pPath );
                 }
+                ClosePath();
+                pPath->GetAllocator()->Delete( pPath );
             }
         }
     default:
@@ -1375,6 +1409,8 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
     default:
         break;
     }
+    
+    //RestoreGState();
 }
 
 HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, const CHE_Matrix & extMatrix )
@@ -1515,24 +1551,24 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form, const C
 	}
 }
 
-HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list, const CHE_Matrix & extMatrix )
+HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list )
 {
     ContentObjectList::iterator it = list.Begin();
-    //CHE_PDF_GState * pGState = NULL;
-    //CHE_PDF_ClipState * pClipState = NULL;
+    CHE_PDF_GState * pGState = NULL;
+    CHE_PDF_ClipState * pClipState = NULL;
 	for ( ; it != list.End(); ++it )
 	{
-        //StoreGState();
-		//pGState = (*it)->GetGState();
-		//if ( pGState )
-		//{
-		//	pClipState = pGState->GetClipState();
-		//	if ( pClipState )
-		//	{
-		//		SetClipState( pClipState );
-		//	}
-		//	SetCommonGState( pGState );
-		//}
+        StoreGState();
+		pGState = (*it)->GetGState();
+		if ( pGState )
+		{
+			pClipState = pGState->GetClipState();
+			if ( pClipState )
+			{
+				SetClipState( pClipState );
+			}
+			SetCommonGState( pGState, TRUE, FALSE );
+		}
         
 		switch ( (*it)->GetType() )
 		{
@@ -1559,7 +1595,7 @@ HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & lis
             default:
                 break;
 		}
-        //RestoreGState();
+        RestoreGState();
 	}
 }
 

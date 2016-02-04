@@ -1,6 +1,7 @@
 #include "../../include/pdf/che_pdf_font.h"
 #include "../../include/pdf/che_pdf_parser.h"
 #include "../../include/pdf/che_pdf_contentobjs.h"
+#include "../../include/pdf/che_pdf_contentlistbuilder.h"
 
 #include "../../extlib/freetype/include/ft2build.h"
 #include "../../extlib/freetype/include/freetype/freetype.h"
@@ -7445,6 +7446,17 @@ CHE_PDF_Type3_Font::CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict,
 		{
 			mResDict = objPtr->GetDictPtr();
 		}
+        
+        objPtr = pFontDict->GetElement("FirstChar", OBJ_TYPE_NUMBER);
+        if ( objPtr )
+        {
+            mFirstChar = objPtr->GetNumberPtr()->GetInteger();
+        }
+        objPtr = pFontDict->GetElement("Lastchar", OBJ_TYPE_NUMBER);
+        if ( objPtr )
+        {
+            mLastChar = objPtr->GetNumberPtr()->GetInteger();
+        }
 
 		objPtr = pFontDict->GetElement( "CharProcs", OBJ_TYPE_DICTIONARY );
 		if ( objPtr )
@@ -7483,7 +7495,7 @@ CHE_PDF_Type3_Font::CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict,
 						objPtr = mCharProcsDict->GetElement( objPtr->GetNamePtr()->GetString(), OBJ_TYPE_REFERENCE );
 						if ( objPtr && code >= 0 && code <= 255 )
 						{
-							mCharCodeToObjNum.push_back( objPtr->GetRefPtr()->GetRefNum() );
+							mCharCodeToRef.push_back( objPtr->GetRefPtr() );
 						}
 					}
 					++code;
@@ -7496,6 +7508,12 @@ CHE_PDF_Type3_Font::CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict,
 
 CHE_PDF_Type3_Font::~CHE_PDF_Type3_Font()
 {
+    std::unordered_map<HE_ULONG, CHE_PDF_ContentObjectList*>::iterator it = mGlyphMap.begin();
+    for ( ; it != mGlyphMap.end(); ++it) {
+        if (it->second) {
+            it->second->GetAllocator()->Delete(it->second);
+        }
+    }
 }
 
 
@@ -7517,9 +7535,27 @@ CHE_PDF_DictionaryPtr CHE_PDF_Type3_Font::GetResDict() const
 }
 
 
-CHE_PDF_ContentObjectList* CHE_PDF_Type3_Font::GetGlyph(HE_BYTE charCode) const
+CHE_PDF_ContentObjectList* CHE_PDF_Type3_Font::GetGlyph(HE_BYTE charCode)
 {
-	return NULL;
+    if (charCode>= mFirstChar && charCode <= mLastChar)
+    {
+        std::unordered_map<HE_ULONG, CHE_PDF_ContentObjectList*>::iterator it = mGlyphMap.end();
+        it = mGlyphMap.find(charCode);
+        if ( it != mGlyphMap.end() )
+        {
+            return it->second;
+        }else{
+            CHE_PDF_ReferencePtr refPtr = mCharCodeToRef[charCode-mFirstChar];
+            if (refPtr) {
+                CHE_PDF_ContentObjectList * pContentList = GetAllocator()->New<CHE_PDF_ContentObjectList>(GetAllocator());
+                if ( CHE_PDF_ContentListBuilder::ParseContentStream(refPtr, *pContentList, NULL)) {
+                    mGlyphMap[charCode] = pContentList;
+                    return pContentList;
+                }
+            }
+        }
+    }
+    return NULL;
 }
 
 HE_BOOL CHE_PDF_Type3_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid) const

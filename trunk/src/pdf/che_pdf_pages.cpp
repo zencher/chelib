@@ -45,6 +45,10 @@ HE_ULONG CHE_PDF_PageTree::GetPageCount()
 
 CHE_PDF_Page * CHE_PDF_PageTree::GetPage( HE_ULONG index )
 {
+    std::unordered_map<HE_ULONG, CHE_PDF_Page*>::iterator it = mPageMap.find(index);
+    if (it != mPageMap.end()) {
+        return it->second;
+    }
 	if ( mpFile )
 	{
 		PDF_RefInfo refInfo;
@@ -55,7 +59,9 @@ CHE_PDF_Page * CHE_PDF_PageTree::GetPage( HE_ULONG index )
 		}
 		if ( objPtr && objPtr->GetType() == OBJ_TYPE_DICTIONARY )
 		{
-			return GetAllocator()->New<CHE_PDF_Page>( objPtr->GetDictPtr(), GetAllocator() );
+            CHE_PDF_Page * page = GetAllocator()->New<CHE_PDF_Page>( objPtr->GetDictPtr(), GetAllocator() );
+            mPageMap[index] = page;
+            return page;
 		}
 	}
 	return NULL;
@@ -65,6 +71,13 @@ HE_VOID CHE_PDF_PageTree::ReleasePage( CHE_PDF_Page * pPage )
 {
 	if ( pPage )
 	{
+        std::unordered_map<HE_ULONG, CHE_PDF_Page*>::iterator it = mPageMap.begin();
+        for (; it != mPageMap.end(); ++it) {
+            if (it->second == pPage) {
+                mPageMap.erase(it);
+                break;
+            }
+        }
 		pPage->GetAllocator()->Delete( pPage );
 	}
 }

@@ -9,6 +9,7 @@
 #include "che_pdf_componentmgr.h"
 
 #include <stack>
+#include <unordered_map>
 
 class CHE_PDF_Page;
 class CHE_PDF_Document;
@@ -41,6 +42,8 @@ private:
 
 	std::stack<CHE_PDF_ReferencePtr>mPageNodeStack;
 
+    std::unordered_map<HE_ULONG, CHE_PDF_Page*> mPageMap;
+    
 	CHE_PDF_File *					mpFile;
 
 	friend class CHE_Allocator;

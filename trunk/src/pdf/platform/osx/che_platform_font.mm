@@ -1,4 +1,5 @@
-#include "../../../../include/pdf/che_pdf_fontmgr.h"
+//#include "../../../../include/pdf/che_pdf_fontmgr.h"
+#include_next "../../../include/pdf/che_pdf_font.h"
 #include "../../../../extlib/freetype/include/ft2build.h"
 #include "../../../../extlib/freetype/include/freetype/freetype.h"
 #include <list>

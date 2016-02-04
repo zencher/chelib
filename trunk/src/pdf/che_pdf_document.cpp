@@ -24,7 +24,7 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 }
 
 CHE_PDF_Document::CHE_PDF_Document( CHE_PDF_File * pFile, CHE_Allocator * pAllocator )
-	: CHE_Object( pAllocator ), mpFile( pFile ), mpPageTree( NULL ), mpNameDict( NULL ), mpComponentMgr( NULL )
+	: CHE_Object(pAllocator), mpFile(pFile), mpPageTree(NULL), mpNameDict(NULL), mpOutline(NULL), mpPageLabels(NULL), mpComponentMgr(NULL)
 {
 	mpComponentMgr = GetAllocator()->New<CHE_PDF_ComponentMgr>( GetAllocator() );
 }

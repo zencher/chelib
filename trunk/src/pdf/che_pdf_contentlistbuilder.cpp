@@ -1470,10 +1470,13 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tf()
         {
             if ( pTmpObj->GetType() == OBJ_TYPE_REFERENCE )
             {
-                CHE_PDF_Font * pFont = mpCmptMgr->LoadFont( pTmpObj->GetRefPtr() );
-                if ( pFont )
-                {
-                    mpConstructor->State_TextFont( mName, pFont );
+                CHE_PDF_ComponentPtr cmptPtr = mpCmptMgr->LoadFont( pTmpObj->GetRefPtr() );
+                if ( cmptPtr->GetType() == COMPONENT_TYPE_Font ) {
+                    CHE_PDF_Font * pFont = (CHE_PDF_Font *)cmptPtr.GetPointer();
+                    if ( pFont )
+                    {
+                        mpConstructor->State_TextFont( mName, pFont );
+                    }
                 }
             }else if ( pTmpObj->GetType() == OBJ_TYPE_DICTIONARY )
             {

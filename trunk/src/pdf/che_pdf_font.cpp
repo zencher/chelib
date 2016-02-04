@@ -6342,15 +6342,14 @@ HE_BOOL	CHE_PDF_FontDescriptor::IsForceBold() const
 }
 
 
-CHE_PDF_Font * CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_FontPtr CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 {
-	CHE_PDF_Font * pFont = NULL;
-	
+    CHE_PDF_FontPtr fontPtr;
+    CHE_PDF_Font * pFont = NULL;
 	if ( pAllocator == NULL )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
-
 	if ( fontDict )
 	{
 		CHE_PDF_ObjectPtr objPtr = fontDict->GetElement( "Subtype", OBJ_TYPE_NAME );
@@ -6380,8 +6379,11 @@ CHE_PDF_Font * CHE_PDF_Font::Create( const CHE_PDF_DictionaryPtr & fontDict, CHE
 			}
 		}
 	}
-
-	return pFont;
+    if (pFont)
+    {
+        fontPtr.Reset(pFont);
+    }
+	return fontPtr;
 }
 
 static int ft_char_index(FT_Face face, int cid)
@@ -6401,7 +6403,7 @@ static int ft_char_index(FT_Face face, int cid)
 CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 : CHE_PDF_Component(COMPONENT_TYPE_Font, CHE_PDF_ObjectPtr(), pAllocator), mFontType(FONT_TYPE1), mBaseFont(pAllocator), 
 	mEncoding(fontDict, pAllocator), mpFontDescriptor(NULL), mFontDict(fontDict), mFace(NULL), mpEmbeddedFontFile(NULL), 
-	mFontFileSize(0), mPlatformFontInfo(NULL), mCleanCallBack(NULL), mFontPath(pAllocator)
+	mFontFileSize(0), mPlatformFontInfo(NULL), mCleanCallBack(NULL), mFontPath(pAllocator), mbBase14Font(FALSE)
 {
 	CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement( "Subtype", OBJ_TYPE_NAME );
 	if ( objPtr )
@@ -6530,6 +6532,7 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
 				FT_New_Memory_Face( ftlib, pBuf, bufSize, 0, (FT_Face*)&mFace );
                 mFontFileSize = bufSize;
                 mpEmbeddedFontFile = pBuf;
+                mbBase14Font = TRUE;
 			}else if ( mpFontDescriptor )
 			{
 				//对于无法通过baseFont获得对于的文件的，应该通过某种其他的规则获得替代字体
@@ -6608,7 +6611,7 @@ CHE_PDF_Font::~CHE_PDF_Font()
 		FT_Done_Face( (FT_Face)mFace );
 		mFace = NULL;
 	}
-	if ( mpEmbeddedFontFile )
+	if ( !mbBase14Font && mpEmbeddedFontFile )
 	{
 		GetAllocator()->DeleteArray<HE_BYTE>( mpEmbeddedFontFile );
 		mpEmbeddedFontFile = NULL;

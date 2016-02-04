@@ -276,7 +276,7 @@ HE_VOID CHE_PDF_Outline::CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_O
 		pTmp = pTmp->mpNext;
 		if ( pTarget->mpFirst && pTarget->mpLast )
 		{
-			CleanChildTree( pTarget->mpFirst, pTmp->mpLast );
+			CleanChildTree( pTarget->mpFirst, pTarget->mpLast );
 		}
 		pTarget->GetAllocator()->Delete( pTarget );
 	}

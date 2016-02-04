@@ -134,12 +134,20 @@ private:
 
 };
 
+class CHE_PDF_Font;
+
+class CHE_PDF_FontPtr : public CHE_PDF_ComponentPtr
+{
+public:
+    CHE_PDF_Font * operator->() const;
+};
+
 typedef HE_VOID (*PlatformFontInfoCleanCallBack)(HE_LPVOID);
 
 class CHE_PDF_Font : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_Font * 	Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_FontPtr 	Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
 
 	PDF_FONT_TYPE			GetFontType() const;
 	CHE_ByteString			GetBaseFont() const;
@@ -201,6 +209,8 @@ protected:
 	CHE_Lock                        mLock;
     
 	CHE_ByteString                  mFontPath;
+    
+    HE_BOOL                         mbBase14Font;
 
 	std::unordered_map<HE_UINT32, HE_UINT32> mToUnicode;
 

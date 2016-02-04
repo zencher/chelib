@@ -1,14 +1,30 @@
 #include "../../include/pdf/che_pdf_componentmgr.h"
+#include "../../include/pdf/che_pdf_font.h"
 
 
 CHE_PDF_ComponentMgr::CHE_PDF_ComponentMgr( CHE_Allocator * pAllocator/*= NULL*/ )
-	: CHE_Object(pAllocator), mFontMgr(pAllocator) {}
+	: CHE_Object(pAllocator) {}
 
 CHE_PDF_ComponentMgr::~CHE_PDF_ComponentMgr() {}
 
-CHE_PDF_Font * CHE_PDF_ComponentMgr::LoadFont( const CHE_PDF_ReferencePtr & refPtr )
+CHE_PDF_ComponentPtr CHE_PDF_ComponentMgr::LoadFont( const CHE_PDF_ReferencePtr & refPtr )
 {
-	return mFontMgr.LoadFont( refPtr );
+    CHE_PDF_ComponentPtr cmptPtr = GetComponent(refPtr);
+    if (cmptPtr)
+    {
+        return cmptPtr;
+    }
+    if (refPtr)
+    {
+        CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj(OBJ_TYPE_DICTIONARY);
+        if (objPtr) {
+            cmptPtr = CHE_PDF_Font::Create(objPtr->GetDictPtr(), GetAllocator());
+            if (cmptPtr) {
+                PushComponent(refPtr, cmptPtr);
+            }
+        }
+    }
+    return cmptPtr;
 }
 
 CHE_PDF_ComponentPtr CHE_PDF_ComponentMgr::GetComponent( const CHE_PDF_ReferencePtr & refPtr )

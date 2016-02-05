@@ -463,7 +463,7 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                     if ( baseColorSpaceRef )
                     {
                         csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpIndexTable );
-                        //CGColorSpaceRelease( baseColorSpaceRef );
+                        CGColorSpaceRelease( baseColorSpaceRef );
                     }
                 }
                 break;
@@ -605,16 +605,14 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
             pDecode = decode;
         }
         
-        CHE_PDF_ColorSpacePtr csPtr = image->GetColorspace();
-        if ( !csPtr )
+        if ( image->IsMask() )
         {
-            if ( image->IsMask() )
-            {
-                imgRef = CGImageMaskCreate( image->GetWidth(), image->GetHeight(), image->GetBpc(), image->GetBpc(), (image->GetWidth() * image->GetBpc() + 7)/8, dataRef, pDecode, false );
-                CGDataProviderRelease( dataRef );
-            }
+            imgRef = CGImageMaskCreate( image->GetWidth(), image->GetHeight(), image->GetBpc(), image->GetBpc(), (image->GetWidth() * image->GetBpc() + 7)/8, dataRef, pDecode, false );
+            CGDataProviderRelease( dataRef );
             return imgRef;
         }
+            
+        CHE_PDF_ColorSpacePtr csPtr = image->GetColorspace();
         
         CGColorRenderingIntent ri = kCGRenderingIntentAbsoluteColorimetric;
         /*switch ( imagePtr->GetRI() )
@@ -1257,9 +1255,13 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                             pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
                             SetTextFont( cgfontRef );
                         }else{
+                            CFRelease(dataProviderRef);
+                            CFRelease(dataRef);
                             //assert(false);
                             return DrawTextAsPath( pText );
                         }
+                        CFRelease(dataProviderRef);
+                        CFRelease(dataRef);
                     }
                 }else{
                     CHE_ByteString fontPath = pFont->GetFontPath();
@@ -1286,11 +1288,15 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                                     pFont->SetPlatformFontInfo( cgfontRef );
                                     pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
                                     SetTextFont( cgfontRef );
+                                    
                                 }else{
                                     assert(false);
                                     return ;//DrawTextAsPath( pText );
                                 }
+                                CFRelease(dataProviderRef);
+                                CFRelease(dataRef);
                             }
+                            fclose(pFile);
                         }
                     }
                 }
@@ -1310,6 +1316,7 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                     sprintf( glyphName, "cid%ld", pText->mItems[i].gid );
                     CFStringRef glyphNameStrRef = CFStringCreateWithCString( kCFAllocatorDefault, glyphName, kCFStringEncodingASCII );
                     GlyphID gid = CGFontGetGlyphWithGlyphName( cgfontRef, glyphNameStrRef );
+                    CFRelease(glyphNameStrRef);
                     DrawTextGlyph( gid );
                 }
             }

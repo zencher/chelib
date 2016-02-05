@@ -20,7 +20,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(parentScrollViewFrameChanged)
                                                      name:NSViewFrameDidChangeNotification
-                                                   object:nil];
+                                                   object:parentScrollView/*nil*/];
         //change object from parentScrollView to nil, can fix the contentSize not stable in a view size changing process. But Why?
     }
     return self;
@@ -242,8 +242,8 @@
         [pdfDocument dealloc];
         pdfDocument = nil;
     }
-    NSRect rect;
-    [self setFrame:rect];
+    //NSRect rect;
+    //[self setFrame:rect];
     [self setNeedsDisplay:YES];
 }
 
@@ -284,6 +284,112 @@
     [self setFrame:frame];
     [self scrollPoint:NSMakePoint(0, positionY)];
     [self setNeedsDisplay:YES];
+}
+
+-(CHE_PDF_Outline*)outline
+{
+    if (pdfDocument)
+    {
+        return [pdfDocument getOutline];
+    }
+    return nil;
+}
+
+- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
+{
+    if (item == nil)
+    {
+        return 1;
+    }
+    return [item numberOfChildren];
+}
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
+{
+    if (item == nil)
+    {
+        return YES;
+    }
+    return [item numberOfChildren] > 0 ? YES : NO;
+}
+
+- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
+{
+    if (item == nil)
+    {
+        BookmarkItem * root = [[BookmarkItem alloc] initWithItemPointer:[pdfDocument getOutlineRoot]];
+        return root;
+    }
+    return [item childAtIndex:index];
+}
+
+- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
+{
+    if (item == nil) {
+        return @"outline";
+    }
+    return [item title];
+}
+
+@end
+
+
+@implementation BookmarkItem
+
+- (id)initWithItemPointer:(CHE_PDF_OutlineItem*)item
+{
+    self = [super init];
+    if (self) {
+        outlineItem = item;
+    }
+    return self;
+}
+
+- (NSInteger)numberOfChildren
+{
+    if (outlineItem)
+    {
+        NSInteger count = 0;
+        CHE_PDF_OutlineItem * item = outlineItem->mpFirst;
+        while (item) {
+            ++count;
+            item = item->mpNext;
+        }
+        return count;
+    }
+    return 0;
+}
+
+- (BookmarkItem *)childAtIndex:(NSInteger)n
+{
+    if (outlineItem)
+    {
+        NSInteger count = 0;
+        CHE_PDF_OutlineItem * item = outlineItem->mpFirst;
+        while (item) {
+            if (count++ == n)
+            {
+                break;
+            }
+            item = item->mpNext;
+        }
+        if (item)
+        {
+            BookmarkItem * bookmark = [[BookmarkItem alloc] initWithItemPointer:item];
+            return bookmark;
+        }
+    }
+    return nil;
+}
+
+- (NSString *)title
+{
+    if (outlineItem)
+    {
+        NSString * str = [[NSString alloc] initWithBytes:outlineItem->mTitle.GetData() length:outlineItem->mTitle.GetLength() encoding:NSASCIIStringEncoding];
+        return str;
+    }
+    return @"outline";
 }
 
 @end

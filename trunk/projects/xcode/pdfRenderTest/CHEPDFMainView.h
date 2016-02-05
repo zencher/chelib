@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 #import "PdfDocumentData.h"
 
+
 @interface CHEPDFMainView : NSView
 {
     id                  parentScrollView;
@@ -35,5 +36,29 @@
 -(void)prevPage;
 
 -(void)rotate;
+
+-(CHE_PDF_Outline*)outline;
+
+
+/* for outline data sources */
+- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
+
+- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item;
+
+- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;
+
+@end
+
+
+@interface BookmarkItem : NSObject {
+    CHE_PDF_OutlineItem * outlineItem;
+}
+
+- (id)initWithItemPointer:(CHE_PDF_OutlineItem*)item;
+- (NSInteger)numberOfChildren;
+- (BookmarkItem *)childAtIndex:(NSInteger)n;
+- (NSString *)title;
 
 @end

@@ -33,10 +33,10 @@
     PdfDocumentData * docData = [[PdfDocumentData alloc] initWithFilePath:filePath];
     [displayView newDocument:docData];
     
-    [self setAutohidesScrollers:YES];
-    [self setHasVerticalScroller:YES];
-    [self setHasHorizontalScroller:YES];
-    [self setBorderType:NSNoBorder];
+    //[self setAutohidesScrollers:YES];
+    //[self setHasVerticalScroller:YES];
+    //[self setHasHorizontalScroller:YES];
+    //[self setBorderType:NSNoBorder];
     
     return TRUE;
 }
@@ -59,6 +59,11 @@
 -(void)rotate
 {
     [displayView rotate];
+}
+
+-(id)mainView
+{
+    return displayView;
 }
 
 @end

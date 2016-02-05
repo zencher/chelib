@@ -72,6 +72,11 @@ CHE_PDF_ComponentMgr * CHE_PDF_Document::GetComponentMgr() const
 	return mpComponentMgr;
 }
 
+CHE_PDF_Outline * CHE_PDF_Document::GetOutline()
+{
+    return mpOutline;
+}
+
 HE_BOOL CHE_PDF_Document::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str )
 {
 	if ( mpFile )

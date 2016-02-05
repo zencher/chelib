@@ -14,14 +14,16 @@
     CHEPDFMainView * displayView;
 }
 
--(BOOL) loadFile:(NSString*)filePath;
+-(BOOL)loadFile:(NSString*)filePath;
 
--(void) closeFile;
+-(void)closeFile;
 
 -(void)nextPage;
 
 -(void)prevPage;
 
 -(void)rotate;
+
+-(id)mainView;
 
 @end

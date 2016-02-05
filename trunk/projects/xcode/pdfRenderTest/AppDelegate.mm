@@ -13,7 +13,17 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     displayScrollView = [[CHEPDFView alloc] initWithFrame:[[_window contentView] frame]];
-    [_window setContentView:displayScrollView];
+    mainView = [[NSSplitView alloc] initWithFrame:[[_window contentView] frame]];
+    [mainView setVertical:YES];
+    [mainView setDividerStyle:NSSplitViewDividerStyleThin];
+    [mainView addArrangedSubview:displayScrollView];
+    [_window setContentView:mainView];
+    
+    NSRect rect = [[_window contentView] frame];
+    rect.size.width /= 4;
+    
+    outlineView = [[CHEPDFOutlineView alloc] initWithFrame:rect];
+    [mainView insertArrangedSubview:outlineView atIndex:0];
 }
 
 - (IBAction)onNextPage:(id)sender
@@ -28,7 +38,6 @@
 
 - (IBAction)onScaleChanged:(id)sender
 {
-    int x = 0;
 }
 
 - (void) openPanelDidEnd:(NSOpenPanel *)sheet
@@ -39,6 +48,7 @@
     {
         NSArray *fileNames = [sheet filenames];
         [displayScrollView loadFile:[fileNames objectAtIndex: 0]];
+        [outlineView setDataSource:[displayScrollView mainView]];
     }
     
 }

@@ -15,6 +15,7 @@
 #import "../../../include/pdf/che_pdf_contentobjs.h"
 #import "../../../include/pdf/che_pdf_renderer_macosx.h"
 #import "../../../include/pdf/che_pdf_page_layout.h"
+#import "../../../include/pdf/che_pdf_outline.h"
 
 
 enum PDFVIEW_PAGE_MODE
@@ -48,6 +49,7 @@ enum PDFVIEW_ROTATE_MODE
     CHE_PDF_PageTree *                      pdfPageTree;
     CHE_PDF_PageLayout *                    pdfPageLayout;
     HE_ULONG                                pageCount;
+    CHE_PDF_OutlineItem *                   pdfoutlineRoot;
 }
 
 -(id)initWithFilePath:(NSString*)path;
@@ -93,5 +95,9 @@ enum PDFVIEW_ROTATE_MODE
 -(CGFloat)getPageScaleInViwe:(HE_ULONG)pageInde;
 
 -(HE_PDF_PAGE_RANGE)getCurPageRange;
+
+-(CHE_PDF_Outline*)getOutline;
+
+-(CHE_PDF_OutlineItem*)getOutlineRoot;
 
 @end

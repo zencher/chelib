@@ -56,6 +56,10 @@
                 }
             }
         }
+        
+        pdfoutlineRoot = allocator->New<CHE_PDF_OutlineItem>(allocator);
+        pdfoutlineRoot->mpFirst = NULL;
+        pdfoutlineRoot->mpLast = NULL;
     }
     return self;
 }
@@ -332,6 +336,25 @@
 -(HE_PDF_PAGE_RANGE)getCurPageRange
 {
     return pdfPageLayout->GetCurPageRange();
+}
+
+-(CHE_PDF_Outline*)getOutline
+{
+    return pdfDocument->GetOutline();
+}
+
+-(CHE_PDF_OutlineItem*)getOutlineRoot
+{
+    CHE_PDF_Outline * outline = pdfDocument->GetOutline();
+    if (outline) {
+        pdfoutlineRoot->mpFirst = outline->First();
+        pdfoutlineRoot->mpLast = outline->Last();
+        pdfoutlineRoot->mTitle = "outline";
+    }else{
+        pdfoutlineRoot->mpFirst = NULL;
+        pdfoutlineRoot->mpLast = NULL;
+    }
+    return pdfoutlineRoot;
 }
 
 @end

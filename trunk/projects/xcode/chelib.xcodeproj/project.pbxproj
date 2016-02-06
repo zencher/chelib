@@ -293,6 +293,8 @@
 		90D8014618E7185F008455A7 /* che_pdf_pattern.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011B18E7185F008455A7 /* che_pdf_pattern.h */; };
 		90D8014718E7185F008455A7 /* che_pdf_xobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011C18E7185F008455A7 /* che_pdf_xobject.h */; };
 		90E063A01C64889A00F41E4C /* CHEPDFOutlineView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90E0639F1C64889A00F41E4C /* CHEPDFOutlineView.mm */; };
+		90E063A81C65903800F41E4C /* CHEPDFSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90E063A71C65903800F41E4C /* CHEPDFSplitView.m */; };
+		90E063AB1C6592C600F41E4C /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C5373D17587FF20014AC65 /* AppKit.framework */; };
 		90FDE0261A79093B001DCF0D /* che_pdf_creator.h in Headers */ = {isa = PBXBuildFile; fileRef = 90FDE0241A79093B001DCF0D /* che_pdf_creator.h */; };
 		90FDE0271A79093B001DCF0D /* che_pdf_objclone.h in Headers */ = {isa = PBXBuildFile; fileRef = 90FDE0251A79093B001DCF0D /* che_pdf_objclone.h */; };
 		90FDE02A1A790953001DCF0D /* che_pdf_creator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90FDE0281A790953001DCF0D /* che_pdf_creator.cpp */; };
@@ -667,6 +669,8 @@
 		90D8011C18E7185F008455A7 /* che_pdf_xobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_xobject.h; path = ../../include/pdf/che_pdf_xobject.h; sourceTree = "<group>"; };
 		90E0639E1C64889A00F41E4C /* CHEPDFOutlineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFOutlineView.h; sourceTree = "<group>"; };
 		90E0639F1C64889A00F41E4C /* CHEPDFOutlineView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFOutlineView.mm; sourceTree = "<group>"; };
+		90E063A61C65903800F41E4C /* CHEPDFSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFSplitView.h; sourceTree = "<group>"; };
+		90E063A71C65903800F41E4C /* CHEPDFSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CHEPDFSplitView.m; sourceTree = "<group>"; };
 		90FDE0241A79093B001DCF0D /* che_pdf_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_creator.h; path = ../../include/pdf/che_pdf_creator.h; sourceTree = "<group>"; };
 		90FDE0251A79093B001DCF0D /* che_pdf_objclone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_objclone.h; path = ../../include/pdf/che_pdf_objclone.h; sourceTree = "<group>"; };
 		90FDE0281A790953001DCF0D /* che_pdf_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_creator.cpp; path = ../../src/pdf/che_pdf_creator.cpp; sourceTree = "<group>"; };
@@ -709,6 +713,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90E063AB1C6592C600F41E4C /* AppKit.framework in Frameworks */,
 				90CC6B301783D1260007082E /* libchelib.a in Frameworks */,
 				90C5373B17587FF20014AC65 /* Cocoa.framework in Frameworks */,
 			);
@@ -1154,6 +1159,8 @@
 				90C5374D17587FF20014AC65 /* AppDelegate.mm */,
 				906CBF54193C5D5600589EAF /* CHEPDFMainView.h */,
 				906CBF55193C5D5600589EAF /* CHEPDFMainView.mm */,
+				90E063A61C65903800F41E4C /* CHEPDFSplitView.h */,
+				90E063A71C65903800F41E4C /* CHEPDFSplitView.m */,
 				90E0639E1C64889A00F41E4C /* CHEPDFOutlineView.h */,
 				90E0639F1C64889A00F41E4C /* CHEPDFOutlineView.mm */,
 				906CBF50193C5CB200589EAF /* CHEPDFView.h */,
@@ -1869,6 +1876,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90E063A81C65903800F41E4C /* CHEPDFSplitView.m in Sources */,
 				90C5374717587FF20014AC65 /* main.m in Sources */,
 				90C5374E17587FF20014AC65 /* AppDelegate.mm in Sources */,
 				909AE1B817A0BCD200B8A633 /* PdfDocumentData.mm in Sources */,
@@ -2171,6 +2179,7 @@
 					OPJ_STATIC,
 				);
 				INFOPLIST_FILE = "pdfRenderTest/pdfRenderTest-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.peroit.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2190,6 +2199,7 @@
 					OPJ_STATIC,
 				);
 				INFOPLIST_FILE = "pdfRenderTest/pdfRenderTest-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.peroit.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";

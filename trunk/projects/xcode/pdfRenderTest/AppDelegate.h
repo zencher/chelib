@@ -9,13 +9,14 @@
 #import <Cocoa/Cocoa.h>
 #import "CHEPDFView.h"
 #import "CHEPDFOutlineView.h"
+#import "CHEPDFSplitView.h"
 #import "PdfDocumentData.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
     CHEPDFView * displayScrollView;
     CHEPDFOutlineView * outlineView;
-    NSSplitView * mainView;
+    CHEPDFSplitView * mainView;
 }
 
 @property (assign) IBOutlet NSWindow *window;

@@ -8,8 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface CHEPDFOutlineMainView : NSOutlineView
+
+@interface CHEPDFOutlineScrollView : NSScrollView
 {
+    NSOutlineView * outlineView;
     id parentScrollView;
 }
 
@@ -18,16 +20,17 @@
 
 -(void)parentScrollViewFrameChanged;
 
+-(void) setDataSource:(id)sources;
+
 @end
 
 
-@interface CHEPDFOutlineView : NSScrollView
+
+@interface CHEPDFOutlineView : NSVisualEffectView
 {
-    CHEPDFOutlineMainView * outlineView;
+    CHEPDFOutlineScrollView * scrollView;
 }
 
--(id) initWithFrame:(NSRect)frameRect;
-
--(void) setDataSource:(id)sources;
+-(void)setDataSource:(id)sources;
 
 @end

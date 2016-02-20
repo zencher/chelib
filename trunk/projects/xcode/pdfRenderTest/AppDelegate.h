@@ -7,16 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "CHEPDFView.h"
-#import "CHEPDFOutlineView.h"
-#import "CHEPDFSplitView.h"
-#import "PdfDocumentData.h"
+#import "CHEPDFEditView.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
-    CHEPDFView * displayScrollView;
-    CHEPDFOutlineView * outlineView;
-    CHEPDFSplitView * mainView;
+    CHEPDFEditView * pdfEditView;
 }
 
 @property (assign) IBOutlet NSWindow *window;

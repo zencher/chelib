@@ -248,18 +248,15 @@
         if ( range.pageStart + 1 < pdfPageTree->GetPageCount() )
         {
             pdfPageLayout->SetCurPageRange( range.pageStart + 1, 1 );
-            //[self updateLayout];
         }
     }else if ( pdfPageLayout->GetPageMode() == PAGE_DOUBLE )
     {
         if ( range.pageStart + 2 < pdfPageTree->GetPageCount() )
         {
             pdfPageLayout->SetCurPageRange( range.pageStart + 2, 2 );
-            //[self updateLayout];
         }else if ( range.pageStart + 1 < pdfPageTree->GetPageCount() )
         {
             pdfPageLayout->SetCurPageRange( range.pageStart + 1, 1 );
-            //[self updateLayout];
         }
     }
 }
@@ -272,20 +269,13 @@
         if ( range.pageStart != 0 )
         {
             pdfPageLayout->SetCurPageRange( range.pageStart - 1, 1 );
-            //[self updateLayout];
         }
     }else if ( pdfPageLayout->GetPageMode() == PAGE_DOUBLE )
     {
         if ( range.pageStart >= 2 )
         {
             pdfPageLayout->SetCurPageRange( range.pageStart - 2, 2 );
-            //[self updateLayout];
         }
-        /*else if ( range.pageStart > 1 )
-        {
-            pdfPageLayout->SetCurPageRange( range.pageStart - 1, 1 );
-            //[self updateLayout];
-        }*/
     }
 }
 
@@ -349,7 +339,7 @@
     if (outline) {
         pdfoutlineRoot->mpFirst = outline->First();
         pdfoutlineRoot->mpLast = outline->Last();
-        pdfoutlineRoot->mTitle = "outline";
+        pdfoutlineRoot->mTitle = "Outline";
     }else{
         pdfoutlineRoot->mpFirst = NULL;
         pdfoutlineRoot->mpLast = NULL;

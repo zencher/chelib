@@ -14,26 +14,18 @@
 {
     NSRect rect = [[_window contentView] frame];
     
-    displayScrollView = [[CHEPDFView alloc] initWithFrame:[[_window contentView] frame]];
-    rect.size.width = rect.size.width / 4;
-    outlineView = [[CHEPDFOutlineView alloc] initWithFrame:rect];
-    
-    mainView = [[CHEPDFSplitView alloc] initWithFrame:[[_window contentView] frame]];
-    [mainView setVertical:YES];
-    [mainView setDividerStyle:NSSplitViewDividerStyleThin];
-    [mainView addArrangedSubview:outlineView];
-    [mainView addArrangedSubview:displayScrollView];
-    [_window setContentView:mainView];
+    pdfEditView = [[CHEPDFEditView alloc] initWithFrame:rect];
+    [_window setContentView:pdfEditView];
 }
 
 - (IBAction)onNextPage:(id)sender
 {
-    [displayScrollView nextPage];
+    [pdfEditView nextPage];
 }
 
 - (IBAction)onPreviousPage:(id)sender
 {
-    [displayScrollView prevPage];
+    [pdfEditView prevPage];
 }
 
 - (IBAction)onScaleChanged:(id)sender
@@ -47,13 +39,12 @@
     if (returnCode == NSModalResponseOK)
     {
         NSArray *fileNames = [sheet filenames];
-        [displayScrollView loadFile:[fileNames objectAtIndex: 0]];
-        [outlineView setDataSource:[displayScrollView mainView]];
+        [pdfEditView loadFile:[fileNames objectAtIndex: 0]];
     }
     
 }
 - (IBAction)onRotate:(id)sender {
-    [displayScrollView rotate];
+    [pdfEditView rotate];
 }
 
 - (IBAction)onFileOpen:(id)sender

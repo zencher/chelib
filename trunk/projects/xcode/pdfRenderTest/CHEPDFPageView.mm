@@ -1,22 +1,25 @@
 //
-//  CHEPDFImpView.m
+//  CHEPDFPageView.m
 //  chelib
 //
-//  Created by Frank Zeng on 14-4-3.
-//  Copyright (c) 2014年 com.peroit. All rights reserved.
+//  Created by zencher on 16/2/19.
+//  Copyright © 2016年 com.peroit. All rights reserved.
 //
 
-#import "CHEPDFMainView.h"
+#import "CHEPDFPageView.h"
 
-@implementation CHEPDFMainView
 
--(id)initWithFrameAndParentView:(NSRect)frame
-                         parentView:(id)view;
+
+@implementation CHEPDFPageMainView
+
+-(id)initWithFrame:(NSRect)frame
+        ParentView:(id)parent
+          RootView:(id)root;
 {
     self = [super initWithFrame:frame];
     if (self)
     {
-        parentScrollView = view;
+        parentScrollView = parent;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(parentScrollViewFrameChanged)
                                                      name:NSViewFrameDidChangeNotification
@@ -26,11 +29,11 @@
     return self;
 }
 
--(void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [super dealloc];
-}
+/*-(void)dealloc
+ {
+ [[NSNotificationCenter defaultCenter] removeObserver:self];
+ [super dealloc];
+ }*/
 
 -(BOOL)isFlipped
 {
@@ -41,7 +44,7 @@
 {
     [[NSColor lightGrayColor] set];
     NSRectFill( dirtyRect );
-    if ( pdfDocument )
+    if ( pdfDocData )
     {
         [self drawPages:dirtyRect];
     }
@@ -54,35 +57,29 @@
     //[self setScale:[self scale] + 0.2];
     
     /*if ( _zoomMode == ZOOM_MODE_FIT_WIDTH || _zoomMode == ZOOM_MODE_FIT_HEIGHT )
-    {
-        NSRect frame;
-        frame.origin.x = 0;
-        frame.origin.y = 0;
-        frame.size = [self getViewContentSize];
-        [self setFrame:frame];
-        
-    }*/
+     {
+     NSRect frame;
+     frame.origin.x = 0;
+     frame.origin.y = 0;
+     frame.size = [self getViewContentSize];
+     [self setFrame:frame];
+     
+     }*/
 }
 
 - (void)scrollWheel:(NSEvent *)theEvent
 {
-    if ( pdfDocument )
+    if ( pdfDocData )
     {
-        PDFVIEW_PAGE_MODE pageMode = [pdfDocument getPageMode];
+        PDFVIEW_PAGE_MODE pageMode = [pdfDocData getPageMode];
         if ( pageMode == PAGE_MODE_SINGLE || pageMode == PAGE_MODE_DOUBLE )
         {
             CGFloat deltaY = [theEvent deltaY];
             if ( deltaY > 0 )
             {
                 [self prevPage];
-                //[pdfDocument prePage];
-                //[pdfDocument updateLayout];
-                //[self setNeedsDisplay:YES];
             }else{
                 [self nextPage];
-                //[pdfDocument nextPage];
-                //[pdfDocument updateLayout];
-                //[self setNeedsDisplay:YES];
             }
             return;
         }
@@ -101,35 +98,33 @@
 
 -(void)parentScrollViewFrameChanged
 {
-    if ( pdfDocument )
+    if ( pdfDocData )
     {
         NSRect frame;
         NSSize contentSize;
         NSRect visible = [parentScrollView documentVisibleRect];
         CGFloat rate;
         CGFloat positionY;
-
+        
         //NSRect pframe;
         //pframe = [parentScrollView frame];
         //contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
         
         contentSize = [parentScrollView contentSize];
-        [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
-        [pdfDocument updateLayout];
+        [pdfDocData setViewFrame:contentSize.width height:contentSize.height];
+        [pdfDocData updateLayout];
         
         frame.origin.x = 0;
         frame.origin.y = 0;
-        frame.size = [pdfDocument getContentSize];
+        frame.size = [pdfDocData getContentSize];
         rate = visible.origin.y / oldContentSize.height;
         positionY = rate * frame.size.height;
         oldContentSize = frame.size;
-
+        
         [self setFrame:frame];
         [self scrollPoint:NSMakePoint(0, positionY)];
     }
 }
-
-
 
 //绘制页面的边框和阴影效果
 -(void)drawPageBorderAndShadow:(CGContextRef)context bound:(NSRect)rect
@@ -147,12 +142,15 @@
     NSRect visableRect;
     NSRect pageRectInView;
     NSRect frame = [self frame];
+    
+    //NSRect leftFrame = [leftView frame];
+    
     visableRect = [parentScrollView documentVisibleRect];
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
     if ( context )
     {
         HE_UINT32 rotate = 0;
-        switch ( [pdfDocument getRotateMode] )
+        switch ( [pdfDocData getRotateMode] )
         {
             case ROTATE_MODE_0:
                 rotate = 0;
@@ -169,10 +167,10 @@
                 break;
         }
         
-        HE_PDF_PAGE_RANGE range = [pdfDocument getCurPageRange];
+        HE_PDF_PAGE_RANGE range = [pdfDocData getCurPageRange];
         for ( HE_ULONG i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
         {
-            pageRectInView = [pdfDocument getPageRectInView:i];
+            pageRectInView = [pdfDocData getPageRectInView:i];
             if ( CGRectIntersectsRect( rect, pageRectInView ) )
             {
                 CGContextSaveGState( context );
@@ -181,22 +179,22 @@
                 
                 [self drawPageBorderAndShadow:context bound:pageRectInView];
                 
-                CHE_Rect pageRect = [pdfDocument getPageRect:i];
+                CHE_Rect pageRect = [pdfDocData getPageRect:i];
                 
                 CHE_PDF_Renderer render( context );
                 render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );
-                render.SetPatternOffset( 0,  visableRect.size.height - frame.size.height );
+                render.SetPatternOffset( 0/*leftFrame.size.width + 1*/,  visableRect.size.height - frame.size.height );
                 
                 /*NSLog(@"visable(%f, %f, %f, %f)", visableRect.origin.x, visableRect.origin.y,
-                      visableRect.origin.x + visableRect.size.width,
-                      visableRect.origin.y + visableRect.size.height);
-                NSLog(@"page(%f, %f, %f, %f)", pageRectInView.origin.x, pageRectInView.origin.y,
-                      pageRectInView.origin.x + pageRectInView.size.width,
-                      pageRectInView.origin.y + pageRectInView.size.height);
-                NSLog(@"frame(%f, %f, %f, %f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
-                NSLog(@"offsetX %f, offsetY %f", 0.0f, visableRect.size.height - frame.size.height);*/
+                 visableRect.origin.x + visableRect.size.width,
+                 visableRect.origin.y + visableRect.size.height);
+                 NSLog(@"page(%f, %f, %f, %f)", pageRectInView.origin.x, pageRectInView.origin.y,
+                 pageRectInView.origin.x + pageRectInView.size.width,
+                 pageRectInView.origin.y + pageRectInView.size.height);
+                 NSLog(@"frame(%f, %f, %f, %f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+                 NSLog(@"offsetX %f, offsetY %f", 0.0f, visableRect.size.height - frame.size.height);*/
                 
-                render.Render( *[pdfDocument getPageContent:i], pageRect, rotate, [pdfDocument getPageScaleInViwe:i], 72, 72 );
+                render.Render( *[pdfDocData getPageContent:i], pageRect, rotate, [pdfDocData getPageScaleInViwe:i], 72, 72 );
                 
                 CGContextRestoreGState( context );
             }
@@ -206,42 +204,39 @@
     //NSLog(@"%f, %f", [parentScrollView horizontalLineScroll], [parentScrollView verticalLineScroll]);
 }
 
--(void)newDocument:(PdfDocumentData*)doc
+-(void)showDocument:(PdfDocumentData *)docData
 {
     NSRect frame;
     NSRect pframe;
     NSSize contentSize;
     
-    pdfDocument = doc;
+    pdfDocData = docData;
     pframe = [parentScrollView frame];
     contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
     
-    [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
-
-    [pdfDocument setScale:1.0f];
-    [pdfDocument setRotateMode:ROTATE_MODE_0];
-    [pdfDocument setZoomMode:ZOOM_MODE_FIT];
+    [pdfDocData setViewFrame:contentSize.width height:contentSize.height];
+    
+    [pdfDocData setScale:1.0f];
+    [pdfDocData setRotateMode:ROTATE_MODE_0];
+    [pdfDocData setZoomMode:ZOOM_MODE_FIT];
     //[pdfDocument setZoomMode:ZOOM_MODE_FIX];
     //[pdfDocument setPageMode:PAGE_MODE_SINGLE];
     //[pdfDocument setPageMode:PAGE_MODE_DOUBLE];
-    [pdfDocument setPageMode:PAGE_MODE_SINGLE_SCROLL];
+    [pdfDocData setPageMode:PAGE_MODE_SINGLE_SCROLL];
     //[pdfDocument setPageMode:PAGE_MODE_DOUBLE_SCROLL];
-    [pdfDocument updateLayout];
+    [pdfDocData updateLayout];
     
     
     frame.origin.x = 0;
     frame.origin.y = 0;
-    oldContentSize = frame.size = [pdfDocument getContentSize];
+    oldContentSize = frame.size = [pdfDocData getContentSize];
     [self setFrame:frame];
 }
 
 -(void)closeDocument
 {
-    if ( pdfDocument )
-    {
-        [pdfDocument dealloc];
-        pdfDocument = nil;
-    }
+    pdfDocData = nil;
+    
     //NSRect rect;
     //[self setFrame:rect];
     [self setNeedsDisplay:YES];
@@ -249,15 +244,15 @@
 
 -(void)nextPage
 {
-    [pdfDocument nextPage];
-    [pdfDocument updateLayout];
+    [pdfDocData nextPage];
+    [pdfDocData updateLayout];
     [self setNeedsDisplay:YES];
 }
 
 -(void)prevPage
 {
-    [pdfDocument prePage];
-    [pdfDocument updateLayout];
+    [pdfDocData prePage];
+    [pdfDocData updateLayout];
     [self setNeedsDisplay:YES];
 }
 
@@ -268,14 +263,14 @@
     NSRect visible = [parentScrollView documentVisibleRect];
     CGFloat rate;
     CGFloat positionY;
-    [pdfDocument rotate];
+    [pdfDocData rotate];
     contentSize = [parentScrollView contentSize];
-    [pdfDocument setViewFrame:contentSize.width height:contentSize.height];
-    [pdfDocument updateLayout];
+    [pdfDocData setViewFrame:contentSize.width height:contentSize.height];
+    [pdfDocData updateLayout];
     
     frame.origin.x = 0;
     frame.origin.y = 0;
-    frame.size = [pdfDocument getContentSize];
+    frame.size = [pdfDocData getContentSize];
     [self setFrame:frame];
     rate = visible.origin.y / oldContentSize.height;
     positionY = rate * frame.size.height;
@@ -286,110 +281,51 @@
     [self setNeedsDisplay:YES];
 }
 
--(CHE_PDF_Outline*)outline
-{
-    if (pdfDocument)
-    {
-        return [pdfDocument getOutline];
-    }
-    return nil;
-}
-
-- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
-{
-    if (item == nil)
-    {
-        return 1;
-    }
-    return [item numberOfChildren];
-}
-
-- (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
-{
-    if (item == nil)
-    {
-        return YES;
-    }
-    return [item numberOfChildren] > 0 ? YES : NO;
-}
-
-- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
-{
-    if (item == nil)
-    {
-        BookmarkItem * root = [[BookmarkItem alloc] initWithItemPointer:[pdfDocument getOutlineRoot]];
-        return root;
-    }
-    return [item childAtIndex:index];
-}
-
-- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
-{
-    if (item == nil) {
-        return @"outline";
-    }
-    return [item title];
-}
-
 @end
 
 
-@implementation BookmarkItem
 
-- (id)initWithItemPointer:(CHE_PDF_OutlineItem*)item
+@implementation CHEPDFPageView
+
+-(id)initWithFrame:(NSRect)frameRect
+          RootView:(id)root
 {
-    self = [super init];
+    self = [super initWithFrame:frameRect];
     if (self) {
-        outlineItem = item;
+        mainView = [[CHEPDFPageMainView alloc] initWithFrame:frameRect ParentView:self RootView:root];
+        [self setDocumentView:mainView];
+        [self setAutohidesScrollers:YES];
+        [self setHasVerticalScroller:YES];
+        [self setHasHorizontalScroller:YES];
+        [self setBorderType:NSNoBorder];
+        [self setBackgroundColor:[NSColor lightGrayColor]];
     }
     return self;
 }
 
-- (NSInteger)numberOfChildren
+-(void)showDocument:(PdfDocumentData*)docData
 {
-    if (outlineItem)
-    {
-        NSInteger count = 0;
-        CHE_PDF_OutlineItem * item = outlineItem->mpFirst;
-        while (item) {
-            ++count;
-            item = item->mpNext;
-        }
-        return count;
-    }
-    return 0;
+    [mainView showDocument:docData];
 }
 
-- (BookmarkItem *)childAtIndex:(NSInteger)n
+-(void)closeDocument
 {
-    if (outlineItem)
-    {
-        NSInteger count = 0;
-        CHE_PDF_OutlineItem * item = outlineItem->mpFirst;
-        while (item) {
-            if (count++ == n)
-            {
-                break;
-            }
-            item = item->mpNext;
-        }
-        if (item)
-        {
-            BookmarkItem * bookmark = [[BookmarkItem alloc] initWithItemPointer:item];
-            return bookmark;
-        }
-    }
-    return nil;
+    [mainView closeDocument];
 }
 
-- (NSString *)title
+-(void)nextPage
 {
-    if (outlineItem)
-    {
-        NSString * str = [[NSString alloc] initWithBytes:outlineItem->mTitle.GetData() length:outlineItem->mTitle.GetLength() encoding:NSASCIIStringEncoding];
-        return str;
-    }
-    return @"outline";
+    [mainView nextPage];
+}
+
+-(void)prevPage
+{
+    [mainView prevPage];
+}
+
+-(void)rotate
+{
+    [mainView rotate];
 }
 
 @end

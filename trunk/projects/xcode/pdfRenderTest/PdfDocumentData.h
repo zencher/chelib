@@ -54,8 +54,6 @@ enum PDFVIEW_ROTATE_MODE
 
 -(id)initWithFilePath:(NSString*)path;
 
--(void)dealloc;
-
 -(HE_ULONG)getPageCount;
 
 -(CHE_Rect)getPageRect:(HE_ULONG)pageIndex;

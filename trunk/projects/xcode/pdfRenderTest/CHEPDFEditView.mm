@@ -32,6 +32,10 @@
     return self;
 }
 
+-(void)dealloc
+{
+}
+
 - (BOOL) loadFile:(NSString*)filePath
 {
     [self closeFile];
@@ -47,6 +51,8 @@
 
 - (void) closeFile
 {
+    bookmarkRoot = nil;
+    [outlineView setDataSource:nil];
     [pageView closeDocument];
 }
 
@@ -64,6 +70,8 @@
 {
     [pageView rotate];
 }
+
+
 
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMinCoordinate:(CGFloat)proposedMinimumPosition ofSubviewAt:(NSInteger)dividerIndex
 {
@@ -142,7 +150,7 @@
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
     if (item == nil) {
-        return @"outline";
+        return @"Outline";
     }
     return [item title];
 }
@@ -213,7 +221,7 @@
         NSString * str = [[NSString alloc] initWithBytes:outlineItem->mTitle.GetData() length:outlineItem->mTitle.GetLength() encoding:NSASCIIStringEncoding];
         return str;
     }
-    return @"outline";
+    return @"Outline";
 }
 
 @end

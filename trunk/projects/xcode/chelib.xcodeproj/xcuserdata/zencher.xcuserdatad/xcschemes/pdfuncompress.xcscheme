@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/zencher/Desktop/test/pattern01.pdf"
+            argument = "/Users/zencher/testfiles/5.5simplefont.pdf"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

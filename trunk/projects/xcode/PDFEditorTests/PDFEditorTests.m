@@ -1,19 +1,18 @@
 //
-//  PETests.m
-//  PETests
+//  PDFEditorTests.m
+//  PDFEditorTests
 //
-//  Created by zencher on 14/12/30.
-//  Copyright (c) 2014年 zencher. All rights reserved.
+//  Created by zencher on 16/2/22.
+//  Copyright © 2016年 com.peroit. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 
-@interface PETests : XCTestCase
+@interface PDFEditorTests : XCTestCase
 
 @end
 
-@implementation PETests
+@implementation PDFEditorTests
 
 - (void)setUp {
     [super setUp];
@@ -27,7 +26,7 @@
 
 - (void)testExample {
     // This is an example of a functional test case.
-    XCTAssert(YES, @"Pass");
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
 }
 
 - (void)testPerformanceExample {

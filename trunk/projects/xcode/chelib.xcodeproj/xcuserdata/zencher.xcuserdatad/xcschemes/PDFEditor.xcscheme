@@ -14,24 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90332EC71A51B30800629EB5"
-               BuildableName = "PE.app"
-               BlueprintName = "PE"
-               ReferencedContainer = "container:PE.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90332EE31A51B30900629EB5"
-               BuildableName = "PETests.xctest"
-               BlueprintName = "PETests"
-               ReferencedContainer = "container:PE.xcodeproj">
+               BlueprintIdentifier = "9028A0671C7B2EDA005F8310"
+               BuildableName = "PDFEditor.app"
+               BlueprintName = "PDFEditor"
+               ReferencedContainer = "container:chelib.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,20 +32,30 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90332EE31A51B30900629EB5"
-               BuildableName = "PETests.xctest"
-               BlueprintName = "PETests"
-               ReferencedContainer = "container:PE.xcodeproj">
+               BlueprintIdentifier = "9028A07F1C7B2EDA005F8310"
+               BuildableName = "PDFEditorTests.xctest"
+               BlueprintName = "PDFEditorTests"
+               ReferencedContainer = "container:chelib.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "9028A08A1C7B2EDB005F8310"
+               BuildableName = "PDFEditorUITests.xctest"
+               BlueprintName = "PDFEditorUITests"
+               ReferencedContainer = "container:chelib.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90332EC71A51B30800629EB5"
-            BuildableName = "PE.app"
-            BlueprintName = "PE"
-            ReferencedContainer = "container:PE.xcodeproj">
+            BlueprintIdentifier = "9028A0671C7B2EDA005F8310"
+            BuildableName = "PDFEditor.app"
+            BlueprintName = "PDFEditor"
+            ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -79,10 +75,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90332EC71A51B30800629EB5"
-            BuildableName = "PE.app"
-            BlueprintName = "PE"
-            ReferencedContainer = "container:PE.xcodeproj">
+            BlueprintIdentifier = "9028A0671C7B2EDA005F8310"
+            BuildableName = "PDFEditor.app"
+            BlueprintName = "PDFEditor"
+            ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -98,10 +94,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90332EC71A51B30800629EB5"
-            BuildableName = "PE.app"
-            BlueprintName = "PE"
-            ReferencedContainer = "container:PE.xcodeproj">
+            BlueprintIdentifier = "9028A0671C7B2EDA005F8310"
+            BuildableName = "PDFEditor.app"
+            BlueprintName = "PDFEditor"
+            ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

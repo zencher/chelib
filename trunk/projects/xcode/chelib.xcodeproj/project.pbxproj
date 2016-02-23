@@ -8,8 +8,29 @@
 
 /* Begin PBXBuildFile section */
 		901421EB1C4E1ABE00BDD6D3 /* function.mm in Sources */ = {isa = PBXBuildFile; fileRef = 901421EA1C4E1ABE00BDD6D3 /* function.mm */; };
-		90289F501C76F40A005F8310 /* CHEPDFEditView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90289F4F1C76F40A005F8310 /* CHEPDFEditView.mm */; };
-		90289F531C770692005F8310 /* CHEPDFPageView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90289F521C770692005F8310 /* CHEPDFPageView.mm */; };
+		90289F981C7966DA005F8310 /* CHEPDFEditView.h in Headers */ = {isa = PBXBuildFile; fileRef = 90289F901C7966DA005F8310 /* CHEPDFEditView.h */; };
+		90289F991C7966DA005F8310 /* CHEPDFEditView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90289F911C7966DA005F8310 /* CHEPDFEditView.mm */; };
+		90289F9A1C7966DA005F8310 /* CHEPDFOutlineView.h in Headers */ = {isa = PBXBuildFile; fileRef = 90289F921C7966DA005F8310 /* CHEPDFOutlineView.h */; };
+		90289F9B1C7966DA005F8310 /* CHEPDFOutlineView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90289F931C7966DA005F8310 /* CHEPDFOutlineView.mm */; };
+		90289F9C1C7966DA005F8310 /* CHEPDFPageView.h in Headers */ = {isa = PBXBuildFile; fileRef = 90289F941C7966DA005F8310 /* CHEPDFPageView.h */; };
+		90289F9D1C7966DA005F8310 /* CHEPDFPageView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90289F951C7966DA005F8310 /* CHEPDFPageView.mm */; };
+		90289F9E1C7966DA005F8310 /* PdfDocumentData.h in Headers */ = {isa = PBXBuildFile; fileRef = 90289F961C7966DA005F8310 /* PdfDocumentData.h */; };
+		90289F9F1C7966DA005F8310 /* PdfDocumentData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90289F971C7966DA005F8310 /* PdfDocumentData.mm */; };
+		90289FA01C796703005F8310 /* libchepdfview.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90289F871C796661005F8310 /* libchepdfview.a */; };
+		9028A06C1C7B2EDA005F8310 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9028A06B1C7B2EDA005F8310 /* AppDelegate.m */; };
+		9028A06F1C7B2EDA005F8310 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9028A06E1C7B2EDA005F8310 /* main.m */; };
+		9028A0721C7B2EDA005F8310 /* Document.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9028A0711C7B2EDA005F8310 /* Document.mm */; };
+		9028A0751C7B2EDA005F8310 /* Window.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9028A0731C7B2EDA005F8310 /* Window.xib */; };
+		9028A0771C7B2EDA005F8310 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9028A0761C7B2EDA005F8310 /* Assets.xcassets */; };
+		9028A07A1C7B2EDA005F8310 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9028A0781C7B2EDA005F8310 /* MainMenu.xib */; };
+		9028A0851C7B2EDB005F8310 /* PDFEditorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9028A0841C7B2EDB005F8310 /* PDFEditorTests.m */; };
+		9028A0901C7B2EDB005F8310 /* PDFEditorUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9028A08F1C7B2EDB005F8310 /* PDFEditorUITests.m */; };
+		9028A09F1C7B2F56005F8310 /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
+		9028A0A01C7B2F56005F8310 /* libchepdfview.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90289F871C796661005F8310 /* libchepdfview.a */; };
+		9028A0A11C7B2F56005F8310 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C5373D17587FF20014AC65 /* AppKit.framework */; };
+		9028A0A21C7B2F56005F8310 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C5373A17587FF20014AC65 /* Cocoa.framework */; };
+		9028A0A61C7B30E9005F8310 /* MyWinController.h in Headers */ = {isa = PBXBuildFile; fileRef = 9028A0A31C7B30E9005F8310 /* MyWinController.h */; };
+		9028A0A71C7B30E9005F8310 /* MyWinController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9028A0A41C7B30E9005F8310 /* MyWinController.mm */; };
 		90332F1A1A52C97F00629EB5 /* che_pdf_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F171A52C97F00629EB5 /* che_pdf_action.cpp */; };
 		90332F1B1A52C97F00629EB5 /* che_pdf_namedict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F181A52C97F00629EB5 /* che_pdf_namedict.cpp */; };
 		90332F1C1A52C97F00629EB5 /* che_pdf_numbertree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90332F191A52C97F00629EB5 /* che_pdf_numbertree.cpp */; };
@@ -32,7 +53,6 @@
 		906EECDA1A680F7100509D74 /* colorspace.mm in Sources */ = {isa = PBXBuildFile; fileRef = 906EECD91A680F7100509D74 /* colorspace.mm */; };
 		906EECDB1A680F7100509D74 /* libchelib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C37C8E17534E58005D9C8A /* libchelib.a */; };
 		907EB4931A4B0BE900867FA8 /* che_pdf_nametree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 907EB4921A4B0BE900867FA8 /* che_pdf_nametree.cpp */; };
-		909AE1B817A0BCD200B8A633 /* PdfDocumentData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 909AE1B717A0BCD200B8A633 /* PdfDocumentData.mm */; };
 		909BCD65179F7ABA00D5CDAF /* openjpeg.c in Sources */ = {isa = PBXBuildFile; fileRef = 909BCD64179F7ABA00D5CDAF /* openjpeg.c */; };
 		909BCD68179F7AE500D5CDAF /* thix_manager.c in Sources */ = {isa = PBXBuildFile; fileRef = 909BCD66179F7AE500D5CDAF /* thix_manager.c */; };
 		909BCD69179F7AE500D5CDAF /* tpix_manager.c in Sources */ = {isa = PBXBuildFile; fileRef = 909BCD67179F7AE500D5CDAF /* tpix_manager.c */; };
@@ -290,7 +310,6 @@
 		90D8014518E7185F008455A7 /* che_pdf_extgstate.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011A18E7185F008455A7 /* che_pdf_extgstate.h */; };
 		90D8014618E7185F008455A7 /* che_pdf_pattern.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011B18E7185F008455A7 /* che_pdf_pattern.h */; };
 		90D8014718E7185F008455A7 /* che_pdf_xobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 90D8011C18E7185F008455A7 /* che_pdf_xobject.h */; };
-		90E063A01C64889A00F41E4C /* CHEPDFOutlineView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90E0639F1C64889A00F41E4C /* CHEPDFOutlineView.mm */; };
 		90E063AB1C6592C600F41E4C /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C5373D17587FF20014AC65 /* AppKit.framework */; };
 		90FDE0261A79093B001DCF0D /* che_pdf_creator.h in Headers */ = {isa = PBXBuildFile; fileRef = 90FDE0241A79093B001DCF0D /* che_pdf_creator.h */; };
 		90FDE0271A79093B001DCF0D /* che_pdf_objclone.h in Headers */ = {isa = PBXBuildFile; fileRef = 90FDE0251A79093B001DCF0D /* che_pdf_objclone.h */; };
@@ -299,19 +318,54 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		90332EF91A51B30A00629EB5 /* PBXContainerItemProxy */ = {
+		90289FA11C796718005F8310 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 90332EF41A51B30900629EB5 /* PE.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 90332EC81A51B30800629EB5;
-			remoteInfo = PE;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90C37C8D17534E58005D9C8A;
+			remoteInfo = chelib;
 		};
-		90332EFB1A51B30A00629EB5 /* PBXContainerItemProxy */ = {
+		90289FA31C796718005F8310 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 90332EF41A51B30900629EB5 /* PE.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 90332EE41A51B30900629EB5;
-			remoteInfo = PETests;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90289F861C796661005F8310;
+			remoteInfo = chepdfview;
+		};
+		90289FA51C796725005F8310 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90C37C8D17534E58005D9C8A;
+			remoteInfo = chelib;
+		};
+		9028A0811C7B2EDA005F8310 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9028A0671C7B2EDA005F8310;
+			remoteInfo = PDFEditor;
+		};
+		9028A08C1C7B2EDB005F8310 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9028A0671C7B2EDA005F8310;
+			remoteInfo = PDFEditor;
+		};
+		9028A09B1C7B2F49005F8310 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90C37C8D17534E58005D9C8A;
+			remoteInfo = chelib;
+		};
+		9028A09D1C7B2F49005F8310 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 90C37C8617534E58005D9C8A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90289F861C796661005F8310;
+			remoteInfo = chepdfview;
 		};
 		9048D47E1C60554B00C814D8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -337,6 +391,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		90289F7F1C7964EE005F8310 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9048D4731C60518000C814D8 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -370,11 +434,33 @@
 
 /* Begin PBXFileReference section */
 		901421EA1C4E1ABE00BDD6D3 /* function.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = function.mm; sourceTree = "<group>"; };
-		90289F4E1C76F40A005F8310 /* CHEPDFEditView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFEditView.h; sourceTree = "<group>"; };
-		90289F4F1C76F40A005F8310 /* CHEPDFEditView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFEditView.mm; sourceTree = "<group>"; };
-		90289F511C770692005F8310 /* CHEPDFPageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFPageView.h; sourceTree = "<group>"; };
-		90289F521C770692005F8310 /* CHEPDFPageView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFPageView.mm; sourceTree = "<group>"; };
-		90332EF41A51B30900629EB5 /* PE.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = PE.xcodeproj; path = PE/PE.xcodeproj; sourceTree = "<group>"; };
+		90289F871C796661005F8310 /* libchepdfview.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libchepdfview.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		90289F901C7966DA005F8310 /* CHEPDFEditView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFEditView.h; sourceTree = "<group>"; };
+		90289F911C7966DA005F8310 /* CHEPDFEditView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFEditView.mm; sourceTree = "<group>"; };
+		90289F921C7966DA005F8310 /* CHEPDFOutlineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFOutlineView.h; sourceTree = "<group>"; };
+		90289F931C7966DA005F8310 /* CHEPDFOutlineView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFOutlineView.mm; sourceTree = "<group>"; };
+		90289F941C7966DA005F8310 /* CHEPDFPageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFPageView.h; sourceTree = "<group>"; };
+		90289F951C7966DA005F8310 /* CHEPDFPageView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFPageView.mm; sourceTree = "<group>"; };
+		90289F961C7966DA005F8310 /* PdfDocumentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PdfDocumentData.h; sourceTree = "<group>"; };
+		90289F971C7966DA005F8310 /* PdfDocumentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PdfDocumentData.mm; sourceTree = "<group>"; };
+		9028A0681C7B2EDA005F8310 /* PDFEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PDFEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9028A06A1C7B2EDA005F8310 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		9028A06B1C7B2EDA005F8310 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		9028A06E1C7B2EDA005F8310 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		9028A0701C7B2EDA005F8310 /* Document.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Document.h; sourceTree = "<group>"; };
+		9028A0711C7B2EDA005F8310 /* Document.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Document.mm; sourceTree = "<group>"; };
+		9028A0741C7B2EDA005F8310 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/Window.xib; sourceTree = "<group>"; };
+		9028A0761C7B2EDA005F8310 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9028A0791C7B2EDA005F8310 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		9028A07B1C7B2EDA005F8310 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9028A0801C7B2EDA005F8310 /* PDFEditorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDFEditorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9028A0841C7B2EDB005F8310 /* PDFEditorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PDFEditorTests.m; sourceTree = "<group>"; };
+		9028A0861C7B2EDB005F8310 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9028A08B1C7B2EDB005F8310 /* PDFEditorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PDFEditorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9028A08F1C7B2EDB005F8310 /* PDFEditorUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PDFEditorUITests.m; sourceTree = "<group>"; };
+		9028A0911C7B2EDB005F8310 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9028A0A31C7B30E9005F8310 /* MyWinController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyWinController.h; sourceTree = "<group>"; };
+		9028A0A41C7B30E9005F8310 /* MyWinController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyWinController.mm; sourceTree = "<group>"; };
 		90332F171A52C97F00629EB5 /* che_pdf_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_action.cpp; path = ../../src/pdf/che_pdf_action.cpp; sourceTree = "<group>"; };
 		90332F181A52C97F00629EB5 /* che_pdf_namedict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_namedict.cpp; path = ../../src/pdf/che_pdf_namedict.cpp; sourceTree = "<group>"; };
 		90332F191A52C97F00629EB5 /* che_pdf_numbertree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_numbertree.cpp; path = ../../src/pdf/che_pdf_numbertree.cpp; sourceTree = "<group>"; };
@@ -398,8 +484,6 @@
 		906EECD81A680F7100509D74 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		906EECD91A680F7100509D74 /* colorspace.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = colorspace.mm; sourceTree = "<group>"; };
 		907EB4921A4B0BE900867FA8 /* che_pdf_nametree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_nametree.cpp; path = ../../src/pdf/che_pdf_nametree.cpp; sourceTree = "<group>"; };
-		909AE1B617A0BCD200B8A633 /* PdfDocumentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PdfDocumentData.h; sourceTree = "<group>"; };
-		909AE1B717A0BCD200B8A633 /* PdfDocumentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PdfDocumentData.mm; sourceTree = "<group>"; };
 		909BCD64179F7ABA00D5CDAF /* openjpeg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openjpeg.c; path = ../../extlib/openjpeg/openjpeg.c; sourceTree = "<group>"; };
 		909BCD66179F7AE500D5CDAF /* thix_manager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thix_manager.c; path = ../../extlib/openjpeg/thix_manager.c; sourceTree = "<group>"; };
 		909BCD67179F7AE500D5CDAF /* tpix_manager.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tpix_manager.c; path = ../../extlib/openjpeg/tpix_manager.c; sourceTree = "<group>"; };
@@ -664,8 +748,6 @@
 		90D8011A18E7185F008455A7 /* che_pdf_extgstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_extgstate.h; path = ../../include/pdf/che_pdf_extgstate.h; sourceTree = "<group>"; };
 		90D8011B18E7185F008455A7 /* che_pdf_pattern.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_pattern.h; path = ../../include/pdf/che_pdf_pattern.h; sourceTree = "<group>"; };
 		90D8011C18E7185F008455A7 /* che_pdf_xobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_xobject.h; path = ../../include/pdf/che_pdf_xobject.h; sourceTree = "<group>"; };
-		90E0639E1C64889A00F41E4C /* CHEPDFOutlineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFOutlineView.h; sourceTree = "<group>"; };
-		90E0639F1C64889A00F41E4C /* CHEPDFOutlineView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFOutlineView.mm; sourceTree = "<group>"; };
 		90FDE0241A79093B001DCF0D /* che_pdf_creator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_creator.h; path = ../../include/pdf/che_pdf_creator.h; sourceTree = "<group>"; };
 		90FDE0251A79093B001DCF0D /* che_pdf_objclone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_objclone.h; path = ../../include/pdf/che_pdf_objclone.h; sourceTree = "<group>"; };
 		90FDE0281A790953001DCF0D /* che_pdf_creator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_creator.cpp; path = ../../src/pdf/che_pdf_creator.cpp; sourceTree = "<group>"; };
@@ -673,6 +755,38 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		90289F841C796661005F8310 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9028A0651C7B2EDA005F8310 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9028A09F1C7B2F56005F8310 /* libchelib.a in Frameworks */,
+				9028A0A01C7B2F56005F8310 /* libchepdfview.a in Frameworks */,
+				9028A0A11C7B2F56005F8310 /* AppKit.framework in Frameworks */,
+				9028A0A21C7B2F56005F8310 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9028A07D1C7B2EDA005F8310 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9028A0881C7B2EDB005F8310 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9048D4721C60518000C814D8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -708,8 +822,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90E063AB1C6592C600F41E4C /* AppKit.framework in Frameworks */,
 				90CC6B301783D1260007082E /* libchelib.a in Frameworks */,
+				90289FA01C796703005F8310 /* libchepdfview.a in Frameworks */,
+				90E063AB1C6592C600F41E4C /* AppKit.framework in Frameworks */,
 				90C5373B17587FF20014AC65 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -727,36 +842,82 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		90289F541C77069A005F8310 /* PDFEditView */ = {
+		90289F881C796661005F8310 /* chepdfview */ = {
 			isa = PBXGroup;
 			children = (
-				909AE1B617A0BCD200B8A633 /* PdfDocumentData.h */,
-				909AE1B717A0BCD200B8A633 /* PdfDocumentData.mm */,
-				90E0639E1C64889A00F41E4C /* CHEPDFOutlineView.h */,
-				90E0639F1C64889A00F41E4C /* CHEPDFOutlineView.mm */,
-				90289F511C770692005F8310 /* CHEPDFPageView.h */,
-				90289F521C770692005F8310 /* CHEPDFPageView.mm */,
-				90289F4E1C76F40A005F8310 /* CHEPDFEditView.h */,
-				90289F4F1C76F40A005F8310 /* CHEPDFEditView.mm */,
+				90289F901C7966DA005F8310 /* CHEPDFEditView.h */,
+				90289F911C7966DA005F8310 /* CHEPDFEditView.mm */,
+				90289F921C7966DA005F8310 /* CHEPDFOutlineView.h */,
+				90289F931C7966DA005F8310 /* CHEPDFOutlineView.mm */,
+				90289F941C7966DA005F8310 /* CHEPDFPageView.h */,
+				90289F951C7966DA005F8310 /* CHEPDFPageView.mm */,
+				90289F961C7966DA005F8310 /* PdfDocumentData.h */,
+				90289F971C7966DA005F8310 /* PdfDocumentData.mm */,
 			);
-			name = PDFEditView;
+			path = chepdfview;
 			sourceTree = "<group>";
 		};
-		90332EBE1A51B2F100629EB5 /* work */ = {
+		90289FDE1C7B0C62005F8310 /* pdfeditor */ = {
 			isa = PBXGroup;
 			children = (
-				90332EF41A51B30900629EB5 /* PE.xcodeproj */,
+				9028A0691C7B2EDA005F8310 /* PDFEditor */,
+				9028A0831C7B2EDB005F8310 /* PDFEditorTests */,
+				9028A08E1C7B2EDB005F8310 /* PDFEditorUITests */,
+			);
+			name = pdfeditor;
+			sourceTree = "<group>";
+		};
+		9028A0691C7B2EDA005F8310 /* PDFEditor */ = {
+			isa = PBXGroup;
+			children = (
+				9028A06A1C7B2EDA005F8310 /* AppDelegate.h */,
+				9028A06B1C7B2EDA005F8310 /* AppDelegate.m */,
+				9028A0761C7B2EDA005F8310 /* Assets.xcassets */,
+				9028A0701C7B2EDA005F8310 /* Document.h */,
+				9028A0711C7B2EDA005F8310 /* Document.mm */,
+				9028A07B1C7B2EDA005F8310 /* Info.plist */,
+				9028A0781C7B2EDA005F8310 /* MainMenu.xib */,
+				9028A0A31C7B30E9005F8310 /* MyWinController.h */,
+				9028A0A41C7B30E9005F8310 /* MyWinController.mm */,
+				9028A06D1C7B2EDA005F8310 /* Supporting Files */,
+				9028A0731C7B2EDA005F8310 /* Window.xib */,
+			);
+			path = PDFEditor;
+			sourceTree = "<group>";
+		};
+		9028A06D1C7B2EDA005F8310 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				9028A06E1C7B2EDA005F8310 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9028A0831C7B2EDB005F8310 /* PDFEditorTests */ = {
+			isa = PBXGroup;
+			children = (
+				9028A0841C7B2EDB005F8310 /* PDFEditorTests.m */,
+				9028A0861C7B2EDB005F8310 /* Info.plist */,
+			);
+			path = PDFEditorTests;
+			sourceTree = "<group>";
+		};
+		9028A08E1C7B2EDB005F8310 /* PDFEditorUITests */ = {
+			isa = PBXGroup;
+			children = (
+				9028A08F1C7B2EDB005F8310 /* PDFEditorUITests.m */,
+				9028A0911C7B2EDB005F8310 /* Info.plist */,
+			);
+			path = PDFEditorUITests;
+			sourceTree = "<group>";
+		};
+		9028A0AB1C7B3A22005F8310 /* work */ = {
+			isa = PBXGroup;
+			children = (
+				90289FDE1C7B0C62005F8310 /* pdfeditor */,
+				90289F881C796661005F8310 /* chepdfview */,
 			);
 			name = work;
-			sourceTree = "<group>";
-		};
-		90332EF51A51B30900629EB5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				90332EFA1A51B30A00629EB5 /* PE.app */,
-				90332EFC1A51B30A00629EB5 /* PETests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		90332F1F1A52CEED00629EB5 /* base */ = {
@@ -1118,7 +1279,7 @@
 		90C37C8517534E58005D9C8A = {
 			isa = PBXGroup;
 			children = (
-				90332EBE1A51B2F100629EB5 /* work */,
+				9028A0AB1C7B3A22005F8310 /* work */,
 				909E11EF175456A100540539 /* test */,
 				909E117C1754530B00540539 /* extlib */,
 				909E112D17543F9100540539 /* src */,
@@ -1137,6 +1298,10 @@
 				90C53759175881B40014AC65 /* pdfDocumentTest */,
 				906EECD51A680F7100509D74 /* chelibTests.xctest */,
 				9048D4751C60518000C814D8 /* pdfuncompress */,
+				90289F871C796661005F8310 /* libchepdfview.a */,
+				9028A0681C7B2EDA005F8310 /* PDFEditor.app */,
+				9028A0801C7B2EDA005F8310 /* PDFEditorTests.xctest */,
+				9028A08B1C7B2EDB005F8310 /* PDFEditorUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1144,28 +1309,19 @@
 		90C5373917587FF20014AC65 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				90C53765175887B00014AC65 /* ApplicationServices.framework */,
-				90C53763175887670014AC65 /* Quartz.framework */,
-				90C5373A17587FF20014AC65 /* Cocoa.framework */,
-				90C5373C17587FF20014AC65 /* Other Frameworks */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		90C5373C17587FF20014AC65 /* Other Frameworks */ = {
-			isa = PBXGroup;
-			children = (
 				90C5373D17587FF20014AC65 /* AppKit.framework */,
+				90C53765175887B00014AC65 /* ApplicationServices.framework */,
+				90C5373A17587FF20014AC65 /* Cocoa.framework */,
 				90C5373E17587FF20014AC65 /* CoreData.framework */,
 				90C5373F17587FF20014AC65 /* Foundation.framework */,
+				90C53763175887670014AC65 /* Quartz.framework */,
 			);
-			name = "Other Frameworks";
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		90C5374017587FF20014AC65 /* pdfRenderTest */ = {
 			isa = PBXGroup;
 			children = (
-				90289F541C77069A005F8310 /* PDFEditView */,
 				90C5374C17587FF20014AC65 /* AppDelegate.h */,
 				90C5374D17587FF20014AC65 /* AppDelegate.mm */,
 				90C5374F17587FF20014AC65 /* MainMenu.xib */,
@@ -1374,6 +1530,18 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		90289F851C796661005F8310 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9028A0A61C7B30E9005F8310 /* MyWinController.h in Headers */,
+				90289F9A1C7966DA005F8310 /* CHEPDFOutlineView.h in Headers */,
+				90289F981C7966DA005F8310 /* CHEPDFEditView.h in Headers */,
+				90289F9E1C7966DA005F8310 /* PdfDocumentData.h in Headers */,
+				90289F9C1C7966DA005F8310 /* CHEPDFPageView.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		90C37C8C17534E58005D9C8A /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1493,6 +1661,79 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		90289F861C796661005F8310 /* chepdfview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 90289F8D1C796661005F8310 /* Build configuration list for PBXNativeTarget "chepdfview" */;
+			buildPhases = (
+				90289F831C796661005F8310 /* Sources */,
+				90289F841C796661005F8310 /* Frameworks */,
+				90289F851C796661005F8310 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				90289FA61C796725005F8310 /* PBXTargetDependency */,
+			);
+			name = chepdfview;
+			productName = chepdfview;
+			productReference = 90289F871C796661005F8310 /* libchepdfview.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		9028A0671C7B2EDA005F8310 /* PDFEditor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9028A0921C7B2EDB005F8310 /* Build configuration list for PBXNativeTarget "PDFEditor" */;
+			buildPhases = (
+				9028A0641C7B2EDA005F8310 /* Sources */,
+				9028A0651C7B2EDA005F8310 /* Frameworks */,
+				9028A0661C7B2EDA005F8310 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9028A09C1C7B2F49005F8310 /* PBXTargetDependency */,
+				9028A09E1C7B2F49005F8310 /* PBXTargetDependency */,
+			);
+			name = PDFEditor;
+			productName = PDFEditor;
+			productReference = 9028A0681C7B2EDA005F8310 /* PDFEditor.app */;
+			productType = "com.apple.product-type.application";
+		};
+		9028A07F1C7B2EDA005F8310 /* PDFEditorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9028A0951C7B2EDB005F8310 /* Build configuration list for PBXNativeTarget "PDFEditorTests" */;
+			buildPhases = (
+				9028A07C1C7B2EDA005F8310 /* Sources */,
+				9028A07D1C7B2EDA005F8310 /* Frameworks */,
+				9028A07E1C7B2EDA005F8310 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9028A0821C7B2EDA005F8310 /* PBXTargetDependency */,
+			);
+			name = PDFEditorTests;
+			productName = PDFEditorTests;
+			productReference = 9028A0801C7B2EDA005F8310 /* PDFEditorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9028A08A1C7B2EDB005F8310 /* PDFEditorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9028A0981C7B2EDB005F8310 /* Build configuration list for PBXNativeTarget "PDFEditorUITests" */;
+			buildPhases = (
+				9028A0871C7B2EDB005F8310 /* Sources */,
+				9028A0881C7B2EDB005F8310 /* Frameworks */,
+				9028A0891C7B2EDB005F8310 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9028A08D1C7B2EDB005F8310 /* PBXTargetDependency */,
+			);
+			name = PDFEditorUITests;
+			productName = PDFEditorUITests;
+			productReference = 9028A08B1C7B2EDB005F8310 /* PDFEditorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		9048D4741C60518000C814D8 /* pdfuncompress */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9048D47D1C60518100C814D8 /* Build configuration list for PBXNativeTarget "pdfuncompress" */;
@@ -1570,10 +1811,13 @@
 				90C5373417587FF10014AC65 /* Sources */,
 				90C5373517587FF10014AC65 /* Frameworks */,
 				90C5373617587FF10014AC65 /* Resources */,
+				90289F7F1C7964EE005F8310 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				90289FA21C796718005F8310 /* PBXTargetDependency */,
+				90289FA41C796718005F8310 /* PBXTargetDependency */,
 			);
 			name = pdfRenderTest;
 			productName = pdfRenderTest;
@@ -1607,6 +1851,20 @@
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = com.peroit;
 				TargetAttributes = {
+					90289F861C796661005F8310 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+					9028A0671C7B2EDA005F8310 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+					9028A07F1C7B2EDA005F8310 = {
+						CreatedOnToolsVersion = 7.2.1;
+						TestTargetID = 9028A0671C7B2EDA005F8310;
+					};
+					9028A08A1C7B2EDB005F8310 = {
+						CreatedOnToolsVersion = 7.2.1;
+						TestTargetID = 9028A0671C7B2EDA005F8310;
+					};
 					9048D4741C60518000C814D8 = {
 						CreatedOnToolsVersion = 7.2;
 					};
@@ -1626,42 +1884,47 @@
 			mainGroup = 90C37C8517534E58005D9C8A;
 			productRefGroup = 90C37C8F17534E58005D9C8A /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 90332EF51A51B30900629EB5 /* Products */;
-					ProjectRef = 90332EF41A51B30900629EB5 /* PE.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				90C37C8D17534E58005D9C8A /* chelib */,
-				909E120217545BA700540539 /* pdfFileTest */,
-				90C5373717587FF10014AC65 /* pdfRenderTest */,
-				90C53758175881B40014AC65 /* pdfDocumentTest */,
 				906EECD41A680F7100509D74 /* chelibTests */,
+				90289F861C796661005F8310 /* chepdfview */,
+				90C5373717587FF10014AC65 /* pdfRenderTest */,
+				909E120217545BA700540539 /* pdfFileTest */,
 				9048D4741C60518000C814D8 /* pdfuncompress */,
+				90C53758175881B40014AC65 /* pdfDocumentTest */,
+				9028A0671C7B2EDA005F8310 /* PDFEditor */,
+				9028A07F1C7B2EDA005F8310 /* PDFEditorTests */,
+				9028A08A1C7B2EDB005F8310 /* PDFEditorUITests */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		90332EFA1A51B30A00629EB5 /* PE.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = PE.app;
-			remoteRef = 90332EF91A51B30A00629EB5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		90332EFC1A51B30A00629EB5 /* PETests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = PETests.xctest;
-			remoteRef = 90332EFB1A51B30A00629EB5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
-
 /* Begin PBXResourcesBuildPhase section */
+		9028A0661C7B2EDA005F8310 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9028A0771C7B2EDA005F8310 /* Assets.xcassets in Resources */,
+				9028A0751C7B2EDA005F8310 /* Window.xib in Resources */,
+				9028A07A1C7B2EDA005F8310 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9028A07E1C7B2EDA005F8310 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9028A0891C7B2EDB005F8310 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		906EECD31A680F7100509D74 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1682,6 +1945,44 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		90289F831C796661005F8310 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9028A0A71C7B30E9005F8310 /* MyWinController.mm in Sources */,
+				90289F991C7966DA005F8310 /* CHEPDFEditView.mm in Sources */,
+				90289F9F1C7966DA005F8310 /* PdfDocumentData.mm in Sources */,
+				90289F9B1C7966DA005F8310 /* CHEPDFOutlineView.mm in Sources */,
+				90289F9D1C7966DA005F8310 /* CHEPDFPageView.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9028A0641C7B2EDA005F8310 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9028A0721C7B2EDA005F8310 /* Document.mm in Sources */,
+				9028A06F1C7B2EDA005F8310 /* main.m in Sources */,
+				9028A06C1C7B2EDA005F8310 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9028A07C1C7B2EDA005F8310 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9028A0851C7B2EDB005F8310 /* PDFEditorTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9028A0871C7B2EDB005F8310 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9028A0901C7B2EDB005F8310 /* PDFEditorUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9048D4711C60518000C814D8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1875,10 +2176,6 @@
 			files = (
 				90C5374717587FF20014AC65 /* main.m in Sources */,
 				90C5374E17587FF20014AC65 /* AppDelegate.mm in Sources */,
-				909AE1B817A0BCD200B8A633 /* PdfDocumentData.mm in Sources */,
-				90289F501C76F40A005F8310 /* CHEPDFEditView.mm in Sources */,
-				90E063A01C64889A00F41E4C /* CHEPDFOutlineView.mm in Sources */,
-				90289F531C770692005F8310 /* CHEPDFPageView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1893,6 +2190,41 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		90289FA21C796718005F8310 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90C37C8D17534E58005D9C8A /* chelib */;
+			targetProxy = 90289FA11C796718005F8310 /* PBXContainerItemProxy */;
+		};
+		90289FA41C796718005F8310 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90289F861C796661005F8310 /* chepdfview */;
+			targetProxy = 90289FA31C796718005F8310 /* PBXContainerItemProxy */;
+		};
+		90289FA61C796725005F8310 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90C37C8D17534E58005D9C8A /* chelib */;
+			targetProxy = 90289FA51C796725005F8310 /* PBXContainerItemProxy */;
+		};
+		9028A0821C7B2EDA005F8310 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9028A0671C7B2EDA005F8310 /* PDFEditor */;
+			targetProxy = 9028A0811C7B2EDA005F8310 /* PBXContainerItemProxy */;
+		};
+		9028A08D1C7B2EDB005F8310 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9028A0671C7B2EDA005F8310 /* PDFEditor */;
+			targetProxy = 9028A08C1C7B2EDB005F8310 /* PBXContainerItemProxy */;
+		};
+		9028A09C1C7B2F49005F8310 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90C37C8D17534E58005D9C8A /* chelib */;
+			targetProxy = 9028A09B1C7B2F49005F8310 /* PBXContainerItemProxy */;
+		};
+		9028A09E1C7B2F49005F8310 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90289F861C796661005F8310 /* chepdfview */;
+			targetProxy = 9028A09D1C7B2F49005F8310 /* PBXContainerItemProxy */;
+		};
 		9048D47F1C60554B00C814D8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 90C37C8D17534E58005D9C8A /* chelib */;
@@ -1911,6 +2243,22 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		9028A0731C7B2EDA005F8310 /* Window.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9028A0741C7B2EDA005F8310 /* Base */,
+			);
+			name = Window.xib;
+			sourceTree = "<group>";
+		};
+		9028A0781C7B2EDA005F8310 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9028A0791C7B2EDA005F8310 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
 		90C5374317587FF20014AC65 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1938,6 +2286,246 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		90289F8E1C796661005F8310 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		90289F8F1C796661005F8310 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		9028A0931C7B2EDB005F8310 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PDFEditor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = frankzeng.com.PDFEditor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		9028A0941C7B2EDB005F8310 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PDFEditor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = frankzeng.com.PDFEditor;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		9028A0961C7B2EDB005F8310 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PDFEditorTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = frankzeng.com.PDFEditorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDFEditor.app/Contents/MacOS/PDFEditor";
+			};
+			name = Debug;
+		};
+		9028A0971C7B2EDB005F8310 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PDFEditorTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = frankzeng.com.PDFEditorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PDFEditor.app/Contents/MacOS/PDFEditor";
+			};
+			name = Release;
+		};
+		9028A0991C7B2EDB005F8310 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PDFEditorUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = frankzeng.com.PDFEditorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = PDFEditor;
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		9028A09A1C7B2EDB005F8310 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = PDFEditorUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = frankzeng.com.PDFEditorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = PDFEditor;
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
 		9048D4791C60518100C814D8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2171,6 +2759,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "pdfRenderTest/pdfRenderTest-Prefix.pch";
@@ -2179,6 +2768,7 @@
 					OPJ_STATIC,
 				);
 				INFOPLIST_FILE = "pdfRenderTest/pdfRenderTest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.peroit.${PRODUCT_NAME:rfc1034identifier}";
@@ -2191,6 +2781,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "pdfRenderTest/pdfRenderTest-Prefix.pch";
@@ -2199,6 +2790,7 @@
 					OPJ_STATIC,
 				);
 				INFOPLIST_FILE = "pdfRenderTest/pdfRenderTest-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.peroit.${PRODUCT_NAME:rfc1034identifier}";
@@ -2230,6 +2822,42 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		90289F8D1C796661005F8310 /* Build configuration list for PBXNativeTarget "chepdfview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90289F8E1C796661005F8310 /* Debug */,
+				90289F8F1C796661005F8310 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9028A0921C7B2EDB005F8310 /* Build configuration list for PBXNativeTarget "PDFEditor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9028A0931C7B2EDB005F8310 /* Debug */,
+				9028A0941C7B2EDB005F8310 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9028A0951C7B2EDB005F8310 /* Build configuration list for PBXNativeTarget "PDFEditorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9028A0961C7B2EDB005F8310 /* Debug */,
+				9028A0971C7B2EDB005F8310 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9028A0981C7B2EDB005F8310 /* Build configuration list for PBXNativeTarget "PDFEditorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9028A0991C7B2EDB005F8310 /* Debug */,
+				9028A09A1C7B2EDB005F8310 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9048D47D1C60518100C814D8 /* Build configuration list for PBXNativeTarget "pdfuncompress" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

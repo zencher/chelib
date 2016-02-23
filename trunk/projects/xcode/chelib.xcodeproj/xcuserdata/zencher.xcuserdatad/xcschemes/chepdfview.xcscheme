@@ -9,15 +9,15 @@
          <BuildActionEntry
             buildForTesting = "YES"
             buildForRunning = "YES"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90332EE31A51B30900629EB5"
-               BuildableName = "PETests.xctest"
-               BlueprintName = "PETests"
-               ReferencedContainer = "container:PE.xcodeproj">
+               BlueprintIdentifier = "90289F861C796661005F8310"
+               BuildableName = "libchepdfview.a"
+               BlueprintName = "chepdfview"
+               ReferencedContainer = "container:chelib.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -28,26 +28,7 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90332EE31A51B30900629EB5"
-               BuildableName = "PETests.xctest"
-               BlueprintName = "PETests"
-               ReferencedContainer = "container:PE.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90332EE31A51B30900629EB5"
-            BuildableName = "PETests.xctest"
-            BlueprintName = "PETests"
-            ReferencedContainer = "container:PE.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -64,10 +45,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90332EE31A51B30900629EB5"
-            BuildableName = "PETests.xctest"
-            BlueprintName = "PETests"
-            ReferencedContainer = "container:PE.xcodeproj">
+            BlueprintIdentifier = "90289F861C796661005F8310"
+            BuildableName = "libchepdfview.a"
+            BlueprintName = "chepdfview"
+            ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -79,6 +60,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "90289F861C796661005F8310"
+            BuildableName = "libchepdfview.a"
+            BlueprintName = "chepdfview"
+            ReferencedContainer = "container:chelib.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

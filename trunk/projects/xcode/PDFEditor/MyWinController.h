@@ -7,9 +7,15 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "CHEPDFEditView.h"
 
-@interface WindowController : NSWindowController
+@interface MyWinController : NSWindowController
+{
+    CHEPDFEditView * pdfView;
+}
 
 - (id)init;
+
+- (CHEPDFEditView*)getPdfView;
 
 @end

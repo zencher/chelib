@@ -16,6 +16,8 @@
 
 - (id)init;
 
+- (IBAction)OnConfig:(id)sender;
+
 - (CHEPDFEditView*)getPdfView;
 
 @end

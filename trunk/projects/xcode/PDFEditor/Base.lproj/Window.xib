@@ -22,9 +22,37 @@
                 <rect key="frame" x="0.0" y="0.0" width="507" height="413"/>
                 <autoresizingMask key="autoresizingMask"/>
             </view>
+            <toolbar key="toolbar" implicitIdentifier="865406B1-F04D-4183-83E4-6D90B1E87D47" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="fZk-m9-cJh">
+                <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="8Zb-tP-UKD"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="M2a-cu-DzZ"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="yow-Vd-rYI"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="ICA-Ay-dLk"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="92A-w5-3uB"/>
+                    <toolbarItem implicitItemIdentifier="629FE625-27E8-4449-B6E0-1B0D271AEFFF" label="config" paletteLabel="config" tag="-1" image="NSAdvanced" id="afb-cY-TgK">
+                        <connections>
+                            <action selector="OnConfig:" target="S5j-1b-B2L" id="rkK-tn-PHY"/>
+                        </connections>
+                    </toolbarItem>
+                </allowedToolbarItems>
+                <defaultToolbarItems>
+                    <toolbarItem reference="M2a-cu-DzZ"/>
+                    <toolbarItem reference="8Zb-tP-UKD"/>
+                    <toolbarItem reference="92A-w5-3uB"/>
+                    <toolbarItem reference="yow-Vd-rYI"/>
+                    <toolbarItem reference="afb-cY-TgK"/>
+                </defaultToolbarItems>
+                <connections>
+                    <outlet property="delegate" destination="-3" id="npy-mt-NEh"/>
+                </connections>
+            </toolbar>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-x8E"/>
             </connections>
         </window>
+        <customObject id="S5j-1b-B2L" customClass="MyWinController"/>
     </objects>
+    <resources>
+        <image name="NSAdvanced" width="32" height="32"/>
+    </resources>
 </document>

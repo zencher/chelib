@@ -188,6 +188,7 @@
                     <toolbarItem reference="ZRP-rg-fov"/>
                 </defaultToolbarItems>
             </toolbar>
+            <point key="canvasLocation" x="201" y="318"/>
         </window>
         <customObject id="494" customClass="AppDelegate">
             <connections>

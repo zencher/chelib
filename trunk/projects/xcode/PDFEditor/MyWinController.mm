@@ -19,6 +19,10 @@
     return self;
 }
 
+- (IBAction)OnConfig:(id)sender {
+    [pdfView rotate];
+}
+
 - (CHEPDFEditView*)getPdfView
 {
     return pdfView;

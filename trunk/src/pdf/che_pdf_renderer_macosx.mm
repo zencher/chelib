@@ -1,5 +1,8 @@
 #import "../../include/pdf/che_pdf_renderer_macosx.h"
 #import <CoreGraphics/CGPattern.h>
+
+
+
 #include "../../include/che_bitmap.h"
 
 void TilingDrawCallBack( void *info, CGContextRef c )
@@ -1136,9 +1139,10 @@ HE_VOID CHE_PDF_Renderer::DrawTextGlyph( CGGlyph gid )
     CGPoint position;
     position.x = 0;
     position.y = 0;
+    CGGlyph ggid = gid;
     CGContextSetFontSize( mContextRef , 1 );
     CGContextSetTextMatrix( mContextRef, CGAffineTransformMake( mTextMatrix.a, mTextMatrix.b, mTextMatrix.c, mTextMatrix.d, mTextMatrix.e, mTextMatrix.f) );
-    CGContextShowGlyphsAtPositions( mContextRef, &gid, &position, 1 );
+    CGContextShowGlyphsAtPositions( mContextRef, &ggid, &position, 1 );
     RestoreGState();
 }
 
@@ -1290,14 +1294,28 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                                     SetTextFont( cgfontRef );
                                     
                                 }else{
-                                    assert(false);
+                                    //assert(false);
                                     return ;//DrawTextAsPath( pText );
                                 }
                                 CFRelease(dataProviderRef);
                                 CFRelease(dataRef);
                             }
                             fclose(pFile);
+                            
+                            delete [] data;
                         }
+                    }else{
+                        /*NSDictionary *fontAttributes =
+                            [NSDictionary dictionaryWithObjectsAndKeys:
+                                [NSNumber numberWithFloat:16.0],
+                                (NSString *)kCTFontSizeAttribute, nil];
+                        // Create a descriptor.
+                        CTFontDescriptorRef descriptor =
+                        CTFontDescriptorCreateWithAttributes((CFDictionaryRef)fontAttributes);
+                        
+                        // Create a font using the descriptor.
+                        CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);
+                        CFRelease(descriptor);*/
                     }
                 }
             }

@@ -225,8 +225,23 @@
 
 - (NSString *)title
 {
+    unsigned char * pStr = NULL;
     if (outlineItem)
     {
+        pStr = (unsigned char * )(outlineItem->mTitle.GetData());
+        if ( outlineItem->mTitle.GetLength() > 2 )
+        {
+            if ( pStr[0] == 0xFE && pStr[1] == 0xFF )
+            {
+                NSString * str = [[NSString alloc] initWithBytes:outlineItem->mTitle.GetData() length:outlineItem->mTitle.GetLength() encoding:NSUTF16BigEndianStringEncoding];
+                return str;
+            }else if ( pStr[0] == 0xFF && pStr[1] == 0xFE )
+            {
+                NSString * str = [[NSString alloc] initWithBytes:outlineItem->mTitle.GetData() length:outlineItem->mTitle.GetLength() encoding:NSUTF16LittleEndianStringEncoding];
+                return str;
+            }
+            
+        }
         NSString * str = [[NSString alloc] initWithBytes:outlineItem->mTitle.GetData() length:outlineItem->mTitle.GetLength() encoding:NSASCIIStringEncoding];
         return str;
     }

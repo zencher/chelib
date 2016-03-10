@@ -8,33 +8,23 @@
 
 #import "MyWinController.h"
 #import "Document.h"
+#import "MyWindow.h"
 
 @implementation MyWinController
 
 - (id)init {
     self = [super initWithWindowNibName:@"Window"];
-    if (self) {
-        pdfView = nil;
+    if (self)
+    {
     }
     return self;
-}
-
-- (IBAction)OnConfig:(id)sender {
-    [pdfView rotate];
-}
-
-- (CHEPDFEditView*)getPdfView
-{
-    return pdfView;
 }
 
 - (void)windowDidLoad {
     [super windowDidLoad];
     
-    // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
-    pdfView = [[CHEPDFEditView alloc] init];
-    [[self window] setContentView:pdfView];
-    [pdfView load:[[self document] getPdfDocumentData]];
+    MyWindow * mywin = [self window];
+    [mywin load:[[self document] getPdfDocumentData]];
 }
 
 @end

@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import "CHEPDFPageView.h"
 #import "CHEPDFOutlineView.h"
+#import "CHEPDFThumbnailView.h"
 #import "PdfDocumentData.h"
 
 
@@ -30,7 +31,13 @@
 {
     PdfDocumentData * pdfDocData;
     CHEPDFOutlineView * outlineView;
+    CHEPDFThumbnailView * thumbnailView;
     CHEPDFPageView * pageView;
+    
+    
+    NSSplitView * middleView;
+    NSSplitView * leftBarView;
+    NSSplitView * rightBarView;
     
     
     BookmarkItem * bookmarkRoot;
@@ -47,6 +54,20 @@
 -(void)prevPage;
 
 -(void)rotate;
+
+
+
+
+// view controller
+-(void)showBookmarkView;
+
+-(void)showThumbnailView;
+
+
+
+-(void)showLeftBar:(bool)bShow;
+
+-(void)showRightBar:(bool)bShow;
 
 
 

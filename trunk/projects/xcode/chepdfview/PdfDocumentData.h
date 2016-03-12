@@ -48,6 +48,7 @@ enum PDFVIEW_ROTATE_MODE
     CHE_PDF_Document *                      pdfDocument;
     CHE_PDF_PageTree *                      pdfPageTree;
     CHE_PDF_PageLayout *                    pdfPageLayout;
+    CHE_PDF_ThumbnailPageLayout *           pdfThumbnailLayout;
     HE_ULONG                                pageCount;
     CHE_PDF_OutlineItem *                   pdfoutlineRoot;
 }
@@ -99,5 +100,18 @@ enum PDFVIEW_ROTATE_MODE
 -(CHE_PDF_Outline*)getOutline;
 
 -(CHE_PDF_OutlineItem*)getOutlineRoot;
+
+
+//pdf page layout for thumbnail view
+-(void)setThumbnailViewFrame:(CGFloat)w height:(CGFloat)h;
+
+-(void)updateThumbnailLayout;
+
+-(CGSize)getThumbnailContentSize;
+
+-(NSRect)getPageRectInThumbnailView:(HE_ULONG)pageIndex;
+
+-(CGFloat)getPageScaleInThumbnailView:(HE_ULONG)pageInde;
+
 
 @end

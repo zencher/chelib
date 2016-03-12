@@ -17,8 +17,7 @@
 }
 
 -(id)initWithFrame:(NSRect)frame
-        ParentView:(id)parent
-          RootView:(id)root;
+        ParentView:(id)parent;
 
 -(void)parentScrollViewFrameChanged;
 
@@ -45,8 +44,7 @@
     CHEPDFPageMainView * mainView;
 }
 
--(id)initWithFrame:(NSRect)frameRect
-          RootView:(id)root;
+-(id)initWithFrame:(NSRect)frameRect;
 
 -(void)showDocument:(PdfDocumentData*)docData;
 

@@ -93,6 +93,8 @@ HE_VOID	IHE_NSDataRead::Release()
                         
                         pdfPageLayout = new CHE_PDF_PageLayout;
                         
+                        pdfThumbnailLayout = new CHE_PDF_ThumbnailPageLayout;
+                        
                         if ( pdfPageLayout )
                         {
                             for ( int i = 0; i < pdfPageTree->GetPageCount(); ++i)
@@ -101,8 +103,8 @@ HE_VOID	IHE_NSDataRead::Release()
                                 if ( pdfPage )
                                 {
                                     CHE_Rect rect = pdfPage->GetPageRect();
-                                    pdfPageLayout->AddPageSize( rect.width, rect.height );
-                                    
+                                    pdfPageLayout->AddPageSize(rect.width, rect.height);
+                                    pdfThumbnailLayout->AddPageSize(rect.width, rect.height);
                                 }
                             }
                         }
@@ -155,8 +157,8 @@ HE_VOID	IHE_NSDataRead::Release()
                                 if ( pdfPage )
                                 {
                                     CHE_Rect rect = pdfPage->GetPageRect();
-                                    pdfPageLayout->AddPageSize( rect.width, rect.height );
-                                    
+                                    pdfPageLayout->AddPageSize(rect.width, rect.height);
+                                    pdfThumbnailLayout->AddPageSize(rect.width, rect.height);
                                 }
                             }
                         }
@@ -177,6 +179,10 @@ HE_VOID	IHE_NSDataRead::Release()
     if (pdfPageLayout) {
         delete pdfPageLayout;
         pdfPageLayout = NULL;
+    }
+    if (pdfThumbnailLayout) {
+        delete pdfThumbnailLayout;
+        pdfThumbnailLayout = NULL;
     }
     if (pdfDocument) {
         pdfDocument->GetAllocator()->Delete(pdfDocument);
@@ -343,9 +349,19 @@ HE_VOID	IHE_NSDataRead::Release()
     pdfPageLayout->SetViewSize( w, h );
 }
 
+-(void)setThumbnailViewFrame:(CGFloat)w height:(CGFloat)h
+{
+    pdfThumbnailLayout->SetViewSize(w, h);
+}
+
 -(void)updateLayout
 {
     pdfPageLayout->UpdatePageInViewRectInfo();
+}
+
+-(void)updateThumbnailLayout
+{
+    pdfThumbnailLayout->UpdatePageInViewRectInfo();
 }
 
 -(void)nextPage
@@ -424,6 +440,33 @@ HE_VOID	IHE_NSDataRead::Release()
     rect.size.height = pageRect.Height();
     
     return rect;
+}
+
+-(CGSize)getThumbnailContentSize
+{
+    HE_PDF_PAGE_SIZE size = pdfThumbnailLayout->GetContentSize();
+    CGSize sizeRet;
+    sizeRet.width = size.width;
+    sizeRet.height = size.height;
+    return sizeRet;
+}
+
+-(NSRect)getPageRectInThumbnailView:(HE_ULONG)pageIndex
+{
+    NSRect rect;
+    CHE_Page_Rect pageRect = pdfThumbnailLayout->GetPageRectInView(pageIndex);
+    
+    rect.origin.x = pageRect.left;
+    rect.origin.y = pageRect.top;
+    rect.size.width = pageRect.Width();
+    rect.size.height = pageRect.Height();
+    
+    return rect;
+}
+
+-(CGFloat)getPageScaleInThumbnailView:(HE_ULONG)pageIndex
+{
+    return pdfThumbnailLayout->GetPageScaleInView(pageIndex);
 }
 
 -(CGFloat)getPageScaleInViwe:(HE_ULONG)pageIndex

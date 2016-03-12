@@ -36,7 +36,7 @@
         [self addArrangedSubview:middleView];
         [self addArrangedSubview:rightBarView];
         
-        pageView = [[CHEPDFPageView alloc] initWithFrame:[middleView frame] RootView:self];
+        pageView = [[CHEPDFPageView alloc] initWithFrame:[middleView frame]];
         outlineView = [[CHEPDFOutlineView alloc] initWithFrame:[leftBarView frame]];
         thumbnailView = [[CHEPDFThumbnailView alloc] initWithFrame:[rightBarView frame]];
         
@@ -57,6 +57,7 @@
     pdfDocData = data;
     [pageView showDocument:pdfDocData];
     [outlineView setDataSource:self];
+    [thumbnailView setDocumentData:pdfDocData];
     return TRUE;
 }
 

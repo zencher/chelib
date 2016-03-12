@@ -9,6 +9,92 @@
 #include "../../include/pdf/che_pdf_page_layout.h"
 
 
+
+CHE_PDF_ThumbnailPageLayout::CHE_PDF_ThumbnailPageLayout()
+ : mSpaceX(20), mSpaceY(50), mViewWidth(100), mViewHeight(100), mContentWidth(100), mContentHeight(100) {}
+
+CHE_PDF_ThumbnailPageLayout::~CHE_PDF_ThumbnailPageLayout()
+{
+    
+}
+
+void CHE_PDF_ThumbnailPageLayout::SetViewSize(HE_FLOAT width, HE_FLOAT height)
+{
+    mViewWidth = width;
+    mViewHeight = height;
+}
+
+void CHE_PDF_ThumbnailPageLayout::CleanPageSizeInfo()
+{
+    mPageSizes.clear();
+}
+
+void CHE_PDF_ThumbnailPageLayout::AddPageSize(HE_FLOAT width, HE_FLOAT height)
+{
+    HE_PDF_PAGE_SIZE size;
+    size.width = width;
+    size.height = height;
+    mPageSizes.push_back(size);
+}
+
+HE_PDF_PAGE_SIZE CHE_PDF_ThumbnailPageLayout::GetContentSize()
+{
+    HE_PDF_PAGE_SIZE size;
+    size.width = mContentWidth;
+    size.height = mContentHeight;
+    return size;
+}
+
+void CHE_PDF_ThumbnailPageLayout::UpdatePageInViewRectInfo()
+{
+    mPageRectInView.clear();
+    mPageScaleInView.clear();
+    
+    CHE_Page_Rect bbox, page;
+    HE_FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = 1.0f;
+    for ( size_t index = 0; index < mPageSizes.size(); ++index )
+    {
+        page.left = page.right = offsetX;
+        page.right += (mViewWidth - 2 * mSpaceX);
+        tmpScale = (mViewWidth - 2 * mSpaceX) / mPageSizes[index].width;
+        page.top = page.bottom = offsetY;
+        page.bottom += mPageSizes[index].height * tmpScale;
+        offsetY = page.bottom + mSpaceY;
+        mPageRectInView.push_back( page );
+        mPageScaleInView.push_back( tmpScale );
+        bbox.Union( page );
+    }
+    FinalAdjuest(bbox);
+}
+
+CHE_Page_Rect CHE_PDF_ThumbnailPageLayout::GetPageRectInView(HE_ULONG pageIndex)
+{
+    return mPageRectInView[pageIndex];
+}
+
+HE_FLOAT CHE_PDF_ThumbnailPageLayout::GetPageScaleInView(HE_ULONG pageIndex)
+{
+    return mPageScaleInView[pageIndex];
+}
+
+void CHE_PDF_ThumbnailPageLayout::FinalAdjuest(const CHE_Page_Rect & bbox)
+{
+    HE_FLOAT offsetX = 0;
+    mContentWidth = bbox.Width() + 2 * mSpaceX;
+    mContentHeight = bbox.Height() + 2 * mSpaceY;
+    if ( mContentWidth < mViewWidth )
+    {
+        offsetX = (mViewWidth - mContentWidth) / 2;
+        for ( size_t index = 0; index < mPageSizes.size(); ++index )
+        {
+            mPageRectInView[index].left += offsetX;
+            mPageRectInView[index].right += offsetX;
+        }
+        mContentWidth = mViewWidth;
+    }
+}
+
+
 CHE_PDF_PageLayout::CHE_PDF_PageLayout()
  :  mScale(1.0f), mSpaceX(10), mSpaceY(10), mMode(PAGE_SINGLE_SCROLL), mZoom(ZOOM_FIX),
 mRotate(ROTATE_0), mViewWidth(100), mViewHeight(100), mNeedUpdate(FALSE), mCurPageStart(0), mCurPageCountInView(1) { }
@@ -270,6 +356,12 @@ void CHE_PDF_PageLayout::UpdatePageInViewRectInfo()
 {
     mPageRectInView.clear();
     mPageScaleInView.clear();
+    
+    if ( mViewWidth <= 3 * mSpaceX || mViewHeight <= 3 * mSpaceY )
+    {
+        return;
+    }
+    
     switch ( mMode )
     {
         case PAGE_SINGLE:

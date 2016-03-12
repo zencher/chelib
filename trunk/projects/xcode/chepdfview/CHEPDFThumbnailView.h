@@ -7,21 +7,33 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "PdfDocumentData.h"
 
 @interface CHEPDFThumbnailMainView : NSView
+{
+    id                  parentScrollView;
+    PdfDocumentData *   pdfDocData;
+    NSSize              oldContentSize;
+}
+
+-(id)initWithFrame:(NSRect)frame
+        parentView:(id)parent;
+
+-(void)viewFrameChanged;
+
+-(void)setDocumentData:(PdfDocumentData*)doc;
+
+-(void)drawPages:(NSRect)rect;
+
+-(void)drawPageBorderAndShadow:(CGContextRef)context bound:(NSRect)rect;
 
 @end
 
-@interface CHEPDFThumbnailScrollView : NSScrollView
+@interface CHEPDFThumbnailView : NSScrollView
 {
     CHEPDFThumbnailMainView * mainView;
 }
 
-@end
-
-@interface CHEPDFThumbnailView : NSVisualEffectView
-{
-    CHEPDFThumbnailScrollView * scrollView;
-}
+-(void)setDocumentData:(PdfDocumentData*)doc;
 
 @end

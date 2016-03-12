@@ -128,6 +128,40 @@ public:
     HE_FLOAT	bottom;
 };
 
+class CHE_PDF_ThumbnailPageLayout
+{
+public:
+    CHE_PDF_ThumbnailPageLayout();
+    ~CHE_PDF_ThumbnailPageLayout();
+    
+    void SetViewSize( HE_FLOAT width, HE_FLOAT height );
+    
+    void CleanPageSizeInfo();
+    void AddPageSize( HE_FLOAT width, HE_FLOAT height );
+    
+    HE_PDF_PAGE_SIZE GetContentSize();
+    
+    void UpdatePageInViewRectInfo();
+    
+    CHE_Page_Rect GetPageRectInView(HE_ULONG pageIndex);
+    
+    HE_FLOAT GetPageScaleInView(HE_ULONG pageIndex);
+    
+private:
+    void FinalAdjuest(const CHE_Page_Rect & bbox);
+    
+    HE_UINT32                           mSpaceX;
+    HE_UINT32                           mSpaceY;
+    HE_FLOAT                            mViewWidth;
+    HE_FLOAT                            mViewHeight;
+    HE_FLOAT                            mContentWidth;
+    HE_FLOAT                            mContentHeight;
+    
+    std::vector<HE_PDF_PAGE_SIZE>       mPageSizes;
+    std::vector<CHE_Page_Rect>          mPageRectInView;
+    std::vector<HE_FLOAT>               mPageScaleInView;
+};
+
 class CHE_PDF_PageLayout
 {
 public:

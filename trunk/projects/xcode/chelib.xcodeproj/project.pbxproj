@@ -165,7 +165,7 @@
 		90AFBDAC1C5B148F00D9C95E /* pattern.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90AFBDAB1C5B148F00D9C95E /* pattern.mm */; };
 		90B0BD831C8B456E00229EE9 /* MyWindow.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90B0BD821C8B456E00229EE9 /* MyWindow.mm */; };
 		90B0BD861C8BD27000229EE9 /* CHEPDFThumbnailView.h in Headers */ = {isa = PBXBuildFile; fileRef = 90B0BD841C8BD27000229EE9 /* CHEPDFThumbnailView.h */; };
-		90B0BD871C8BD27000229EE9 /* CHEPDFThumbnailView.m in Sources */ = {isa = PBXBuildFile; fileRef = 90B0BD851C8BD27000229EE9 /* CHEPDFThumbnailView.m */; };
+		90B0BD871C8BD27000229EE9 /* CHEPDFThumbnailView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90B0BD851C8BD27000229EE9 /* CHEPDFThumbnailView.mm */; };
 		90C5370617587CEF0014AC65 /* che_pdf_renderer_macosx.h in Headers */ = {isa = PBXBuildFile; fileRef = 90C5370517587CEF0014AC65 /* che_pdf_renderer_macosx.h */; };
 		90C5370817587D450014AC65 /* che_pdf_renderer_macosx.mm in Sources */ = {isa = PBXBuildFile; fileRef = 90C5370717587D450014AC65 /* che_pdf_renderer_macosx.mm */; };
 		90C5373B17587FF20014AC65 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C5373A17587FF20014AC65 /* Cocoa.framework */; };
@@ -600,7 +600,7 @@
 		90B0BD811C8B456D00229EE9 /* MyWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyWindow.h; sourceTree = "<group>"; };
 		90B0BD821C8B456E00229EE9 /* MyWindow.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MyWindow.mm; sourceTree = "<group>"; };
 		90B0BD841C8BD27000229EE9 /* CHEPDFThumbnailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CHEPDFThumbnailView.h; sourceTree = "<group>"; };
-		90B0BD851C8BD27000229EE9 /* CHEPDFThumbnailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CHEPDFThumbnailView.m; sourceTree = "<group>"; };
+		90B0BD851C8BD27000229EE9 /* CHEPDFThumbnailView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CHEPDFThumbnailView.mm; sourceTree = "<group>"; };
 		90C37C8E17534E58005D9C8A /* libchelib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libchelib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		90C5370517587CEF0014AC65 /* che_pdf_renderer_macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_renderer_macosx.h; path = ../../include/pdf/che_pdf_renderer_macosx.h; sourceTree = "<group>"; };
 		90C5370717587D450014AC65 /* che_pdf_renderer_macosx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = che_pdf_renderer_macosx.mm; path = ../../src/pdf/che_pdf_renderer_macosx.mm; sourceTree = "<group>"; };
@@ -855,7 +855,7 @@
 				90289F901C7966DA005F8310 /* CHEPDFEditView.h */,
 				90289F911C7966DA005F8310 /* CHEPDFEditView.mm */,
 				90B0BD841C8BD27000229EE9 /* CHEPDFThumbnailView.h */,
-				90B0BD851C8BD27000229EE9 /* CHEPDFThumbnailView.m */,
+				90B0BD851C8BD27000229EE9 /* CHEPDFThumbnailView.mm */,
 				90289F921C7966DA005F8310 /* CHEPDFOutlineView.h */,
 				90289F931C7966DA005F8310 /* CHEPDFOutlineView.mm */,
 				90289F941C7966DA005F8310 /* CHEPDFPageView.h */,
@@ -1967,7 +1967,7 @@
 				90289F9F1C7966DA005F8310 /* PdfDocumentData.mm in Sources */,
 				90289F9B1C7966DA005F8310 /* CHEPDFOutlineView.mm in Sources */,
 				90289F9D1C7966DA005F8310 /* CHEPDFPageView.mm in Sources */,
-				90B0BD871C8BD27000229EE9 /* CHEPDFThumbnailView.m in Sources */,
+				90B0BD871C8BD27000229EE9 /* CHEPDFThumbnailView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

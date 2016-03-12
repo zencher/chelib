@@ -14,7 +14,6 @@
 
 -(id)initWithFrame:(NSRect)frame
         ParentView:(id)parent
-          RootView:(id)root;
 {
     self = [super initWithFrame:frame];
     if (self)
@@ -287,11 +286,10 @@
 @implementation CHEPDFPageView
 
 -(id)initWithFrame:(NSRect)frameRect
-          RootView:(id)root
 {
     self = [super initWithFrame:frameRect];
     if (self) {
-        mainView = [[CHEPDFPageMainView alloc] initWithFrame:frameRect ParentView:self RootView:root];
+        mainView = [[CHEPDFPageMainView alloc] initWithFrame:frameRect ParentView:self];
         [self setDocumentView:mainView];
         [self setAutohidesScrollers:YES];
         [self setHasVerticalScroller:YES];

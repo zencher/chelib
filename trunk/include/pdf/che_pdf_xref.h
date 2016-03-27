@@ -5,7 +5,7 @@
 #include "che_pdf_objects.h"
 
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 using namespace std;
 
@@ -65,8 +65,8 @@ public:
 private:
 	HE_ULONG											mMaxObjNum;
 	std::vector<CHE_PDF_DictionaryPtr>					mTrailerDict;
-	unordered_map<HE_ULONG,CHE_PDF_XRefEntry>			mMap;
-	unordered_map<HE_ULONG,CHE_PDF_XRefEntry>::iterator	mIt;
+	map<HE_ULONG,CHE_PDF_XRefEntry>                     mMap;
+	map<HE_ULONG,CHE_PDF_XRefEntry>::iterator           mIt;
 };
 
 #endif

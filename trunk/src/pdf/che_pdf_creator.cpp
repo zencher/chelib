@@ -1,6 +1,7 @@
 #include "../../include/pdf/che_pdf_creator.h"
 #include "../../include/pdf/che_pdf_xref.h"
 
+
 #include <cstdio>
 #include <math.h>
 #include <queue>
@@ -447,7 +448,12 @@ HE_VOID CHE_PDF_Creator::OutPutFileHead( PDF_VERSION version )
 		mpWrite->WriteBlock( (HE_LPVOID)gpStrPDFVersion17, glStrPDFVersion );
 		break;
 	}
-	mpWrite->WriteBlock( (HE_LPVOID)"%\255\255\255\255\255\255\n", 8 );
+    if (mbCompress)
+    {
+        mpWrite->WriteBlock( (HE_LPVOID)"%\255\255\255\255\255\255\n", 8 );
+    }else{
+        mpWrite->WriteByte('\n');
+    }
 }
 
 HE_ULONG CHE_PDF_Creator::OutPutObject( const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj )
@@ -752,24 +758,31 @@ HE_VOID CHE_PDF_Creator::OutPutObject(	IHE_Write * pWrite, const PDF_RefInfo ref
 			{
 				break;
 			}
-
-			CHE_PDF_ObjectPtr tmpPtr = dictPtr->GetElement( "Filter" );
-			if ( tmpPtr )
-			{
-				CHE_PDF_StreamAcc stmAcc;
-				CHE_DynBuffer buf;
-				stmAcc.Attach( stmPtr );
-				buf.Write( stmAcc.GetData(), stmAcc.GetSize() );
-				stmAcc.Detach();
-                stmPtr->SetRawData( buf.GetData(), buf.GetSize(), mbCompress? STREAM_FILTER_FLATE : STREAM_FILTER_NULL );
-                dictPtr->RemoveKey( "Filter" );
-			}
+            
+            CHE_PDF_ObjectPtr tmpPtr = dictPtr->GetElement( "Filter" );
+            if (!tmpPtr && mbCompress)
+            {
+                CHE_PDF_StreamAcc stmAcc;
+                CHE_DynBuffer buf;
+                stmAcc.Attach( stmPtr );
+                buf.Write( stmAcc.GetData(), stmAcc.GetSize() );
+                stmAcc.Detach();
+                stmPtr->SetRawData( buf.GetData(), buf.GetSize(), STREAM_FILTER_FLATE );
+            }else if (tmpPtr && !mbCompress)
+            {
+                CHE_PDF_StreamAcc stmAcc;
+                CHE_DynBuffer buf;
+                stmAcc.Attach( stmPtr );
+                buf.Write( stmAcc.GetData(), stmAcc.GetSize() );
+                stmAcc.Detach();
+                stmPtr->SetRawData( buf.GetData(), buf.GetSize(), STREAM_FILTER_NULL );
+            }
 
 			OutPutObject( pWrite, refInfo, stmPtr->GetDictPtr(), pEncrypt );
 			pWrite->WriteBlock( (HE_LPVOID)gpStrNewLine, 1 );
 
 			pWrite->WriteBlock( (HE_LPVOID)gpStrStreamObjBegin, glStrStreamObjBegin );
-			HE_LPBYTE pBytes = GetDefaultAllocator()->NewArray<HE_BYTE>( stmPtr->GetRawSize() /*+ 16*/ );
+			HE_LPBYTE pBytes = GetDefaultAllocator()->NewArray<HE_BYTE>( stmPtr->GetRawSize() );
 			stmPtr->GetRawData( 0, pBytes, stmPtr->GetRawSize() );
 			if ( pEncrypt )
 			{

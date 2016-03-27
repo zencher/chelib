@@ -72,7 +72,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_XRefTable::GetTrailer( HE_ULONG index /*= 0*/ ) co
 
 HE_BOOL CHE_PDF_XRefTable::Get( HE_ULONG objNum, CHE_PDF_XRefEntry & entryRet )
 {
-	unordered_map<HE_ULONG,CHE_PDF_XRefEntry>::iterator it;
+	map<HE_ULONG,CHE_PDF_XRefEntry>::iterator it;
 	it = mMap.find( objNum );
 	if ( it != mMap.end() )
 	{
@@ -94,7 +94,7 @@ HE_BOOL CHE_PDF_XRefTable::GetCurNode( CHE_PDF_XRefEntry & entryRet )
 
 HE_BOOL CHE_PDF_XRefTable::Update( HE_ULONG objNum, const CHE_PDF_XRefEntry & entry )
 {
-	unordered_map<HE_ULONG,CHE_PDF_XRefEntry>::iterator it;
+	map<HE_ULONG,CHE_PDF_XRefEntry>::iterator it;
 	it = mMap.find( objNum );
 	if ( it != mMap.end() )
 	{

@@ -1315,6 +1315,7 @@ HE_BOOL CHE_PDF_Stream::SetRawData( HE_LPBYTE pData, HE_ULONG dwDataSize, HE_BYT
 			m_pDataBuf = GetAllocator()->NewArray<HE_BYTE>( dwDataSize );
 			memcpy( m_pDataBuf, pData, dwDataSize );
 			m_dwSize = dwDataSize;
+            mDictPtr->RemoveKey( "Filter" );
 			break;
 		}
 	case STREAM_FILTER_HEX:

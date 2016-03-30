@@ -70,35 +70,35 @@ CHE_PDF_DictionaryPtr CloneDirectDictObj( const CHE_PDF_DictionaryPtr & dictPtr,
 		switch ( objPtr->GetType() )
 		{
 		case OBJ_TYPE_NULL:
-			newDictPtr->SetAtNull(key);
+			newDictPtr->SetNull(key);
 			break;
 		case OBJ_TYPE_BOOLEAN:
-			newDictPtr->SetAtBoolean(key, objPtr->GetBooleanPtr()->GetValue());
+			newDictPtr->SetBoolean(key, objPtr->GetBooleanPtr()->GetValue());
 			break;
 		case OBJ_TYPE_NUMBER:
 			if ( objPtr->GetNumberPtr()->IsInteger() )
 			{
-				newDictPtr->SetAtInteger(key, objPtr->GetNumberPtr()->GetInteger());
+				newDictPtr->SetInteger(key, objPtr->GetNumberPtr()->GetInteger());
 			}else{
-				newDictPtr->SetAtFloatNumber(key, objPtr->GetNumberPtr()->GetFloat());
+				newDictPtr->SetFloatNumber(key, objPtr->GetNumberPtr()->GetFloat());
 			}
 			break;
 		case OBJ_TYPE_STRING:
-			newDictPtr->SetAtString(key, objPtr->GetStringPtr()->GetString());
+			newDictPtr->SetString(key, objPtr->GetStringPtr()->GetString());
 			break;
 		case OBJ_TYPE_NAME:
-			newDictPtr->SetAtName(key, objPtr->GetNamePtr()->GetString());
+			newDictPtr->SetName(key, objPtr->GetNamePtr()->GetString());
 			break;
 		case OBJ_TYPE_ARRAY:
-			newDictPtr->SetAtArray(key, CloneDirectArrayObj(objPtr->GetArrayPtr(), pFile, pMgr));
+			newDictPtr->SetArray(key, CloneDirectArrayObj(objPtr->GetArrayPtr(), pFile, pMgr));
 			break;
 		case OBJ_TYPE_DICTIONARY:
-			newDictPtr->SetAtDictionary(key, CloneDirectDictObj(objPtr->GetDictPtr(), pFile, pMgr));
+			newDictPtr->SetDictionary(key, CloneDirectDictObj(objPtr->GetDictPtr(), pFile, pMgr));
 			break;
 		case OBJ_TYPE_REFERENCE:
 			{
 				PDF_RefInfo refInfo = CloneIndirectObj(objPtr->GetRefPtr(), pFile, pMgr);
-				newDictPtr->SetAtReference(key, refInfo.objNum, refInfo.genNum, objPtr->GetRefPtr()->GetFile());
+				newDictPtr->SetReference(key, refInfo.objNum, refInfo.genNum, objPtr->GetRefPtr()->GetFile());
 				break;
 			}
 		default: break;
@@ -280,35 +280,35 @@ PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File 
 				switch (tmpObjPtr->GetType())
 				{
 				case OBJ_TYPE_NULL:
-					newDictPtr->SetAtNull(key);
+					newDictPtr->SetNull(key);
 					break;
 				case OBJ_TYPE_BOOLEAN:
-					newDictPtr->SetAtBoolean(key, tmpObjPtr->GetBooleanPtr()->GetValue());
+					newDictPtr->SetBoolean(key, tmpObjPtr->GetBooleanPtr()->GetValue());
 					break;
 				case OBJ_TYPE_NUMBER:
 					if (tmpObjPtr->GetNumberPtr()->IsInteger())
 					{
-						newDictPtr->SetAtInteger(key, tmpObjPtr->GetNumberPtr()->GetInteger());
+						newDictPtr->SetInteger(key, tmpObjPtr->GetNumberPtr()->GetInteger());
 					}else{
-						newDictPtr->SetAtFloatNumber(key, tmpObjPtr->GetNumberPtr()->GetFloat());
+						newDictPtr->SetFloatNumber(key, tmpObjPtr->GetNumberPtr()->GetFloat());
 					}
 					break;
 				case OBJ_TYPE_STRING:
-					newDictPtr->SetAtString(key, tmpObjPtr->GetStringPtr()->GetString());
+					newDictPtr->SetString(key, tmpObjPtr->GetStringPtr()->GetString());
 					break;
 				case OBJ_TYPE_NAME:
-					newDictPtr->SetAtName(key, tmpObjPtr->GetNamePtr()->GetString());
+					newDictPtr->SetName(key, tmpObjPtr->GetNamePtr()->GetString());
 					break;
 				case OBJ_TYPE_ARRAY:
-					newDictPtr->SetAtArray(key, CloneDirectArrayObj(tmpObjPtr->GetArrayPtr(), pFile, pMgr));
+					newDictPtr->SetArray(key, CloneDirectArrayObj(tmpObjPtr->GetArrayPtr(), pFile, pMgr));
 					break;
 				case OBJ_TYPE_DICTIONARY:
-					newDictPtr->SetAtDictionary(key, CloneDirectDictObj(tmpObjPtr->GetDictPtr(), pFile, pMgr));
+					newDictPtr->SetDictionary(key, CloneDirectDictObj(tmpObjPtr->GetDictPtr(), pFile, pMgr));
 					break;
 				case OBJ_TYPE_REFERENCE:
 					{
 						PDF_RefInfo refInfo = CloneIndirectObj(tmpObjPtr->GetRefPtr(), pFile, pMgr);
-						newDictPtr->SetAtReference(key, refInfo.objNum, refInfo.genNum, tmpObjPtr->GetRefPtr()->GetFile());
+						newDictPtr->SetReference(key, refInfo.objNum, refInfo.genNum, tmpObjPtr->GetRefPtr()->GetFile());
 						break;
 					}
 				default: break;

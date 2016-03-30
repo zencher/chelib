@@ -167,25 +167,25 @@ HE_BOOL CHE_PDF_File::Save( IHE_Write * pWrite, HE_BOOL bCompress )
 		ObjPtr = DictPtr->GetElement("Root", OBJ_TYPE_REFERENCE);
 		if (ObjPtr)
 		{
-			newTriailerDict->SetAtObj("Root", ObjPtr);
+			newTriailerDict->SetObject("Root", ObjPtr);
 		}
 		ObjPtr = DictPtr->GetElement("Info", OBJ_TYPE_REFERENCE);
 		if (ObjPtr)
 		{
-			newTriailerDict->SetAtObj("Info", ObjPtr->GetRefPtr());
+			newTriailerDict->SetObject("Info", ObjPtr->GetRefPtr());
 		}
 
 		if (mpParser && mpParser->mEncryptRef)
 		{
-			newTriailerDict->SetAtReference("Encrypt", mpParser->mEncryptRef->GetRefInfo().objNum, mpParser->mEncryptRef->GetRefInfo().genNum, this);
+			newTriailerDict->SetReference("Encrypt", mpParser->mEncryptRef->GetRefInfo().objNum, mpParser->mEncryptRef->GetRefInfo().genNum, this);
 		}
 
 		if (mpParser && mpParser->mIDArrayPtr)
 		{
-			newTriailerDict->SetAtArray("ID", mpParser->mIDArrayPtr->Clone());
+			newTriailerDict->SetArray("ID", mpParser->mIDArrayPtr->Clone());
 		}
 
-		newTriailerDict->SetAtInteger("Size", (HE_INT32)objCount);
+		newTriailerDict->SetInteger("Size", (HE_INT32)objCount);
 
 		pCreator->OutPutTailerDict(newTriailerDict);
 
@@ -710,7 +710,7 @@ HE_BOOL CHE_PDF_File::SetInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString 
 		PDF_RefInfo refInfo = CreateDictObject( InfoDictPtr );
 		if ( InfoDictPtr )
 		{
-			GetTrailerDict()->SetAtReference( "Info", refInfo.objNum, refInfo.genNum, this );
+			GetTrailerDict()->SetReference( "Info", refInfo.objNum, refInfo.genNum, this );
 		}
 	}
 
@@ -722,31 +722,31 @@ HE_BOOL CHE_PDF_File::SetInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString 
 	switch( infoType )
 	{
 	case DOCUMENT_INFO_TITLE:
-		InfoDictPtr->SetAtString( "Title", str );
+		InfoDictPtr->SetString( "Title", str );
 		break;
 	case DOCUMENT_INFO_AUTHOR:
-		InfoDictPtr->SetAtString( "Author", str );
+		InfoDictPtr->SetString( "Author", str );
 		break;
 	case DOCUMENT_INFO_SUBJECT:
-		InfoDictPtr->SetAtString( "Subject", str );
+		InfoDictPtr->SetString( "Subject", str );
 		break;
 	case DOCUMENT_INFO_KEYWORDS:
-		InfoDictPtr->SetAtString( "Keywords", str );
+		InfoDictPtr->SetString( "Keywords", str );
 		break;
 	case DOCUMENT_INFO_CREATOR:
-		InfoDictPtr->SetAtString( "Creator", str );
+		InfoDictPtr->SetString( "Creator", str );
 		break;
 	case DOCUMENT_INFO_PRODUCER:
-		InfoDictPtr->SetAtString( "Producer", str );
+		InfoDictPtr->SetString( "Producer", str );
 		break;
 	case DOCUMENT_INFO_CREATIONDATE:
-		InfoDictPtr->SetAtString( "CreationDate", str );
+		InfoDictPtr->SetString( "CreationDate", str );
 		break;
 	case DOCUMENT_INFO_MODDATE:
-		InfoDictPtr->SetAtString( "ModDate", str );
+		InfoDictPtr->SetString( "ModDate", str );
 		break;
 	case DOCUMENT_INFO_TRAPPED:
-		InfoDictPtr->SetAtString( "Trapped", str );
+		InfoDictPtr->SetString( "Trapped", str );
 		break;
 	default:
 		return FALSE;
@@ -812,18 +812,18 @@ HE_VOID CHE_PDF_File::CreateCatalogDict()
 		PDF_RefInfo pagesDictRef = CreateDictObject( pagesDictPtr );
 		if ( pagesDictPtr )
 		{
-			pagesDictPtr->SetAtName( "Type", "Pages" );
+			pagesDictPtr->SetName( "Type", "Pages" );
 			CHE_PDF_ArrayPtr pArray = CHE_PDF_Array::Create( GetAllocator() );
-			pagesDictPtr->SetAtArray( "Kids", pArray );
-			pagesDictPtr->SetAtInteger( "Count", 0 );
+			pagesDictPtr->SetArray( "Kids", pArray );
+			pagesDictPtr->SetInteger( "Count", 0 );
 
 			CHE_PDF_DictionaryPtr catalogDictPtr;
 			PDF_RefInfo catalogDictRef = CreateDictObject( catalogDictPtr );
 			if ( catalogDictPtr )
 			{
-				catalogDictPtr->SetAtName( "Type", "Catalog" );
-				catalogDictPtr->SetAtReference( "Pages", pagesDictRef.objNum, pagesDictRef.genNum, this );
-				trailerDict->SetAtReference( "Root", catalogDictRef.objNum, catalogDictRef.genNum, this );
+				catalogDictPtr->SetName( "Type", "Catalog" );
+				catalogDictPtr->SetReference( "Pages", pagesDictRef.objNum, pagesDictRef.genNum, this );
+				trailerDict->SetReference( "Root", catalogDictRef.objNum, catalogDictRef.genNum, this );
 			}
 		}
 	}	 

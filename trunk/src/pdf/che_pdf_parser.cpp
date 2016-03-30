@@ -1071,7 +1071,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_SyntaxParser::GetDictionaryPtr()
 
 					if ( GetWord( wordDes ) && IsWord( "R" ) )
 					{
-						dictRet->SetAtReference( key, objNum, genNum, GetFile() );
+						dictRet->SetReference( key, objNum, genNum, GetFile() );
 
 						break;
 					}
@@ -1079,25 +1079,25 @@ CHE_PDF_DictionaryPtr CHE_PDF_SyntaxParser::GetDictionaryPtr()
 
 				SetPos( tmpOffset );
 
-				dictRet->SetAtInteger( key, integer );
+				dictRet->SetInteger( key, integer );
 
 				break;
 			}
 		case PARSE_WORD_FLOAT:
 			{
-				dictRet->SetAtFloatNumber( key, GetString().GetFloat() );
+				dictRet->SetFloatNumber( key, GetString().GetFloat() );
 
 				break;
 			}
 		case PARSE_WORD_STRING:
 			{
-				dictRet->SetAtString( key, GetString() );
+				dictRet->SetString( key, GetString() );
 
 				break;
 			}
 		case PARSE_WORD_NAME:
 			{
-				dictRet->SetAtName( key, GetString() );
+				dictRet->SetName( key, GetString() );
 
 				break;
 			}
@@ -1107,7 +1107,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_SyntaxParser::GetDictionaryPtr()
 
 				CHE_PDF_ArrayPtr tmpPtr = GetArrayPtr();
 
-				dictRet->SetAtArray( key, tmpPtr );
+				dictRet->SetArray( key, tmpPtr );
 
 				break;
 			}
@@ -1117,7 +1117,7 @@ CHE_PDF_DictionaryPtr CHE_PDF_SyntaxParser::GetDictionaryPtr()
 
 				CHE_PDF_DictionaryPtr tmpPtr = GetDictionaryPtr();
 
-				dictRet->SetAtDictionary( key, tmpPtr );
+				dictRet->SetDictionary( key, tmpPtr );
 
 				break;
 			}
@@ -1132,15 +1132,15 @@ CHE_PDF_DictionaryPtr CHE_PDF_SyntaxParser::GetDictionaryPtr()
 			{
 				if ( IsWord( "false" ) )
 				{
-					dictRet->SetAtBoolean( key, FALSE );
+					dictRet->SetBoolean( key, FALSE );
 				}
 				else if ( IsWord( "true" ) )
 				{
-					dictRet->SetAtBoolean( key, TRUE );
+					dictRet->SetBoolean( key, TRUE );
 				}
 				else if ( IsWord( "null" ) )
 				{
-					dictRet->SetAtNull( key ); 
+					dictRet->SetNull( key );
 				}
 				break;
 			}

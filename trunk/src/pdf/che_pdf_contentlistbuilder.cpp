@@ -1212,7 +1212,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
     CHE_PDF_DictionaryPtr pDict = CHE_PDF_Dictionary::Create( GetAllocator() );
     if ( mpFilter )
     {
-        pDict->SetAtObj( "Filter", mpFilter );
+        pDict->SetObject( "Filter", mpFilter );
     }
     // 	if ( mpDecode )
     // 	{
@@ -1220,9 +1220,9 @@ HE_VOID CHE_PDF_ContentsParser::Handle_ID( CHE_PDF_SyntaxParser * pParser )
     // 	}
     if ( mpDecodeParam )
     {
-        pDict->SetAtObj( "DecodeParam", mpDecodeParam );
+        pDict->SetObject( "DecodeParam", mpDecodeParam );
     }
-    pDict->SetAtInteger( "Length", (HE_INT32)buffer.size() );
+    pDict->SetInteger( "Length", (HE_INT32)buffer.size() );
     
     CHE_PDF_ColorSpacePtr colorspace;
     if ( mpColorSpace )

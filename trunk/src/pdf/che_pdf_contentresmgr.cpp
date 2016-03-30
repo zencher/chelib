@@ -51,7 +51,7 @@ CHE_ByteString CHE_PDF_ContentResMgr::CreateName( PDF_CONTENTRES_TYPE type, cons
 	}
 	if ( nameRet.GetLength() > 0 )
 	{
-		pSubDict->SetAtObj( nameRet, pObj );
+		pSubDict->SetObject( nameRet, pObj );
 	}
 	return nameRet;
 }
@@ -165,37 +165,37 @@ CHE_PDF_DictionaryPtr CHE_PDF_ContentResMgr::CreateSubDict( PDF_CONTENTRES_TYPE 
 	{
 	case CONTENTRES_EXTGSTATE:
 		{
-			mpResDict->SetAtDictionary( "ExtGState", pTmpDict );
+			mpResDict->SetDictionary( "ExtGState", pTmpDict );
 			break;
 		}
 	case CONTENTRES_COLORSPACE:
 		{
-			mpResDict->SetAtDictionary( "ColorSpace", pTmpDict );
+			mpResDict->SetDictionary( "ColorSpace", pTmpDict );
 			break;
 		}
 	case CONTENTRES_PATTERN:
 		{
-			mpResDict->SetAtDictionary( "Pattern", pTmpDict );
+			mpResDict->SetDictionary( "Pattern", pTmpDict );
 			break;
 		}
 	case CONTENTRES_SHADING:
 		{
-			mpResDict->SetAtDictionary( "Shading", pTmpDict );
+			mpResDict->SetDictionary( "Shading", pTmpDict );
 			break;
 		}
 	case CONTENTRES_XOBJECT:
 		{
-			mpResDict->SetAtDictionary( "XObject", pTmpDict );
+			mpResDict->SetDictionary( "XObject", pTmpDict );
 			break;
 		}
 	case CONTENTRES_FONT:
 		{
-			mpResDict->SetAtDictionary( "Font", pTmpDict );
+			mpResDict->SetDictionary( "Font", pTmpDict );
 			break;
 		}
 	case CONTENTRES_PROPERTIES:
 		{
-			mpResDict->SetAtDictionary( "Properties", pTmpDict );
+			mpResDict->SetDictionary( "Properties", pTmpDict );
 			break;
 		}
 	default:

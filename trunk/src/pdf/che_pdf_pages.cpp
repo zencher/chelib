@@ -118,7 +118,7 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet )
 				objPtr = dictPtr->GetElement( "Parent", OBJ_TYPE_REFERENCE );
 				if ( ! objPtr )
 				{
-					dictPtr->SetAtReference( "Parent", refPtr->GetRefInfo().objNum, refPtr->GetRefInfo().genNum, mpFile );
+					dictPtr->SetReference( "Parent", refPtr->GetRefInfo().objNum, refPtr->GetRefInfo().genNum, mpFile );
 				}
 
 				objPtr = dictPtr->GetElement( "Type", OBJ_TYPE_NAME );
@@ -221,11 +221,11 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_ULONG width, HE_ULONG height )
 					countNumberPtr->SetValue( countNumberPtr->GetInteger() + 1 );
 				}
 
-				pageDictPtr->SetAtName( "Type", "Page" );
+				pageDictPtr->SetName( "Type", "Page" );
 
 				if ( ParentRefPtr )
 				{
-					pageDictPtr->SetAtReference( "Parent", ParentRefPtr->GetRefNum(), ParentRefPtr->GetGenNum(), mpFile );
+					pageDictPtr->SetReference( "Parent", ParentRefPtr->GetRefNum(), ParentRefPtr->GetGenNum(), mpFile );
 				}
 
 				CHE_PDF_ArrayPtr tmpArrayPtr = CHE_PDF_Array::Create( GetAllocator() );
@@ -237,7 +237,7 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_ULONG width, HE_ULONG height )
 				tmpArrayPtr->Append( tmpNumberPtr );
 				tmpNumberPtr = CHE_PDF_Number::Create( (HE_INT32)(height), GetAllocator() );
 				tmpArrayPtr->Append( tmpNumberPtr );
-				pageDictPtr->SetAtArray( "MediaBox", tmpArrayPtr );
+				pageDictPtr->SetArray( "MediaBox", tmpArrayPtr );
 
 				++mPageCount;
 				mPageObjList.push_back( refInfo );

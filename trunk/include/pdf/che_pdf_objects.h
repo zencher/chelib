@@ -407,13 +407,27 @@ public:
     static CHE_PDF_ArrayPtr			Create( CHE_Allocator * pAllocator = NULL );
     
     HE_BOOL							Append( const CHE_PDF_ObjectPtr & pObj );
+    
     CHE_PDF_NullPtr                 AppendNull();
-    CHE_PDF_BooleanPtr              AppendBoolean();
+    
+    CHE_PDF_BooleanPtr              AppendBoolean(HE_BOOL val = FALSE);
+    
     CHE_PDF_NumberPtr               AppendNumber();
+    CHE_PDF_NumberPtr               AppendNumber(HE_INT32 val);
+    CHE_PDF_NumberPtr               AppendNumber(HE_FLOAT val);
+    
     CHE_PDF_NamePtr                 AppendName();
+    CHE_PDF_NamePtr                 AppendName(CHE_ByteString & str);
+    
     CHE_PDF_StringPtr               AppendString();
+    CHE_PDF_StringPtr               AppendString(CHE_ByteString & str);
+    
     CHE_PDF_ArrayPtr                AppendArray();
     CHE_PDF_DictionaryPtr           AppendDictionary();
+    
+    CHE_PDF_ReferencePtr            AppendReference(PDF_RefInfo info, CHE_PDF_File * pFile);
+    CHE_PDF_ReferencePtr            AppendReference(HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_File * pFile);
+    CHE_PDF_ReferencePtr            AppendReference(CHE_PDF_ReferencePtr & ref);
     CHE_PDF_ReferencePtr            AppendReference(CHE_PDF_File * pFile);
     
     HE_BOOL                         Replace( HE_ULONG index, const CHE_PDF_ObjectPtr & pObj );

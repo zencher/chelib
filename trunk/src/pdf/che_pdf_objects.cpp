@@ -646,9 +646,9 @@ CHE_PDF_NullPtr CHE_PDF_Array::AppendNull()
     return ptr;
 }
 
-CHE_PDF_BooleanPtr CHE_PDF_Array::AppendBoolean()
+CHE_PDF_BooleanPtr CHE_PDF_Array::AppendBoolean(HE_BOOL val/*= FALSE*/)
 {
-    CHE_PDF_BooleanPtr ptr = CHE_PDF_Boolean::Create(FALSE, GetAllocator());
+    CHE_PDF_BooleanPtr ptr = CHE_PDF_Boolean::Create(val, GetAllocator());
     mArray.push_back(ptr);
     SetModified(TRUE);
     return ptr;
@@ -662,6 +662,22 @@ CHE_PDF_NumberPtr CHE_PDF_Array::AppendNumber()
     return ptr;
 }
 
+CHE_PDF_NumberPtr CHE_PDF_Array::AppendNumber(HE_INT32 val)
+{
+    CHE_PDF_NumberPtr ptr = CHE_PDF_Number::Create(val, GetAllocator());
+    mArray.push_back(ptr);
+    SetModified(TRUE);
+    return ptr;
+}
+
+CHE_PDF_NumberPtr CHE_PDF_Array::AppendNumber(HE_FLOAT val)
+{
+    CHE_PDF_NumberPtr ptr = CHE_PDF_Number::Create(val, GetAllocator());
+    mArray.push_back(ptr);
+    SetModified(TRUE);
+    return ptr;
+}
+
 CHE_PDF_NamePtr CHE_PDF_Array::AppendName()
 {
     CHE_PDF_NamePtr ptr = CHE_PDF_Name::Create(CHE_ByteString(GetAllocator()), GetAllocator());
@@ -670,9 +686,25 @@ CHE_PDF_NamePtr CHE_PDF_Array::AppendName()
     return ptr;
 }
 
+CHE_PDF_NamePtr CHE_PDF_Array::AppendName(CHE_ByteString & str)
+{
+    CHE_PDF_NamePtr ptr = CHE_PDF_Name::Create(str, GetAllocator());
+    mArray.push_back(ptr);
+    SetModified(TRUE);
+    return ptr;
+}
+
 CHE_PDF_StringPtr CHE_PDF_Array::AppendString()
 {
     CHE_PDF_StringPtr ptr = CHE_PDF_String::Create(CHE_ByteString(GetAllocator()), GetAllocator());
+    mArray.push_back(ptr);
+    SetModified(TRUE);
+    return ptr;
+}
+
+CHE_PDF_StringPtr CHE_PDF_Array::AppendString(CHE_ByteString & str)
+{
+    CHE_PDF_StringPtr ptr = CHE_PDF_String::Create(str, GetAllocator());
     mArray.push_back(ptr);
     SetModified(TRUE);
     return ptr;
@@ -691,6 +723,40 @@ CHE_PDF_DictionaryPtr CHE_PDF_Array::AppendDictionary()
     CHE_PDF_DictionaryPtr ptr = CHE_PDF_Dictionary::Create(GetAllocator());
     mArray.push_back(ptr);
     SetModified(TRUE);
+    return ptr;
+}
+
+CHE_PDF_ReferencePtr CHE_PDF_Array::AppendReference(PDF_RefInfo info, CHE_PDF_File * pFile)
+{
+    CHE_PDF_ReferencePtr ptr;
+    if (pFile)
+    {
+        ptr = CHE_PDF_Reference::Create(info.objNum, info.genNum, pFile);
+        mArray.push_back(ptr);
+        SetModified(TRUE);
+    }
+    return ptr;
+}
+
+CHE_PDF_ReferencePtr CHE_PDF_Array::AppendReference(HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_File * pFile)
+{
+    CHE_PDF_ReferencePtr ptr;
+    if (pFile)
+    {
+        ptr = CHE_PDF_Reference::Create(objNum, genNum, pFile);
+        mArray.push_back(ptr);
+        SetModified(TRUE);
+    }
+    return ptr;
+}
+
+CHE_PDF_ReferencePtr CHE_PDF_Array::AppendReference(CHE_PDF_ReferencePtr & ptr)
+{
+    if (ptr)
+    {
+        mArray.push_back(ptr);
+        SetModified(TRUE);
+    }
     return ptr;
 }
 

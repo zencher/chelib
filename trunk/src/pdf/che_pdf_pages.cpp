@@ -296,7 +296,7 @@ CHE_Rect CHE_PDF_Page::GetMediaBox() const
 CHE_Rect CHE_PDF_Page::GetPageRect() const
 {
 	CHE_Rect rect;
-    CHE_PDF_ArrayPtr arrayPtr = GetMediaBoxArray();//GetArtBoxArray();
+    CHE_PDF_ArrayPtr arrayPtr = GetCropBoxArray();
 	arrayPtr->GetRect( rect );
 	return rect;
 }

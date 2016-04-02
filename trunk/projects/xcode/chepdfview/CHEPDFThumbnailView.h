@@ -19,7 +19,7 @@
 -(id)initWithFrame:(NSRect)frame
         parentView:(id)parent;
 
--(void)viewFrameChanged;
+-(void)parentScrollViewFrameChanged;
 
 -(void)setDocumentData:(PdfDocumentData*)doc;
 

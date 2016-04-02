@@ -11,7 +11,7 @@
 
 
 CHE_PDF_ThumbnailPageLayout::CHE_PDF_ThumbnailPageLayout()
- : mSpaceX(20), mSpaceY(50), mViewWidth(100), mViewHeight(100), mContentWidth(100), mContentHeight(100) {}
+ : mSpaceX(20), mSpaceY(30), mViewWidth(100), mViewHeight(100), mContentWidth(100), mContentHeight(100) {}
 
 CHE_PDF_ThumbnailPageLayout::~CHE_PDF_ThumbnailPageLayout()
 {
@@ -52,11 +52,22 @@ void CHE_PDF_ThumbnailPageLayout::UpdatePageInViewRectInfo()
     
     CHE_Page_Rect bbox, page;
     HE_FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = 1.0f;
+    /*HE_FLOAT width = mViewWidth, height = mViewHeight;
+    if (mViewWidth >= 150) {
+        width = 150;
+        height =
+    }*/
     for ( size_t index = 0; index < mPageSizes.size(); ++index )
     {
         page.left = page.right = offsetX;
-        page.right += (mViewWidth - 2 * mSpaceX);
-        tmpScale = (mViewWidth - 2 * mSpaceX) / mPageSizes[index].width;
+        if (mViewWidth >= 150)
+        {
+            tmpScale = (150 - 2 * mSpaceX) / mPageSizes[index].width;
+            page.right += (150 - 2 * mSpaceX);
+        }else{
+            page.right += (mViewWidth - 2 * mSpaceX);
+            tmpScale = (mViewWidth - 2 * mSpaceX) / mPageSizes[index].width;
+        }
         page.top = page.bottom = offsetY;
         page.bottom += mPageSizes[index].height * tmpScale;
         offsetY = page.bottom + mSpaceY;

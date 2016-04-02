@@ -1,9 +1,11 @@
-#import "../../include/pdf/che_pdf_renderer_macosx.h"
-#import <CoreGraphics/CGPattern.h>
+#include "../../include/pdf/che_pdf_renderer_macosx.h"
+#include <CoreGraphics/CGPattern.h>
 
+#include <CoreText/CoreText.h>
+#include <AppKit/AppKit.h>
+#include <Foundation/Foundation.h>
+#include <CoreText/CoreText.h>
 
-
-#include "../../include/che_bitmap.h"
 
 void TilingDrawCallBack( void *info, CGContextRef c )
 {
@@ -1200,9 +1202,10 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
         case TextRenderMode_StrokeClip:
         case TextRenderMode_FillStrokeClip:
         {
-            HE_ULONG cgGlyphCount;
-            HE_ULONG ftGlyphCount;
+            //HE_ULONG cgGlyphCount;
+            //HE_ULONG ftGlyphCount;
             CGFontRef cgfontRef = NULL;
+            //CTFontRef ctfontRef = NULL;
             
             //对于Fill类型的文本输出，可以使用系统原生文本输出接口，以获得次像素支
             CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
@@ -1240,9 +1243,25 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
             if (  pFont->GetPlatformFontInfo() != nullptr )
             {
                 cgfontRef = (CGFontRef)pFont->GetPlatformFontInfo();
+                //ctfontRef = CTFontCreateWithGraphicsFont(cgfontRef, 1, nil, nil);
                 SetTextFont( cgfontRef );
+                
+                /*CFCharacterSetRef ref =  CTFontCopyCharacterSet( ctfontRef );
+                
+                CFStringRef strRef;
+                for ( int i = 0; i < 256; ++i) {
+                    strRef = CGFontCopyGlyphNameForGlyph( cgfontRef, i );
+                }
+                
                 cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
-                ftGlyphCount = pFont->GetFTFaceGlyphCount();
+                ftGlyphCount = CTFontGetGlyphCount(ctfontRef);*/
+                
+
+                
+                
+                //if (ftGlyphCount == 0) {
+                //    cgGlyphCount = 0;
+                //}
             }else{
                 if ( pFont->GetEmbededFontSize() )
                 {
@@ -1253,8 +1272,8 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                         cgfontRef = CGFontCreateWithDataProvider( dataProviderRef );
                         if ( cgfontRef )
                         {
-                            cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
-                            ftGlyphCount = pFont->GetFTFaceGlyphCount();
+                            //cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
+                            //ftGlyphCount = pFont->GetFTFaceGlyphCount();
                             pFont->SetPlatformFontInfo( cgfontRef );
                             pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
                             SetTextFont( cgfontRef );
@@ -1268,7 +1287,7 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                         CFRelease(dataRef);
                     }
                 }else{
-                    CHE_ByteString fontPath = pFont->GetFontPath();
+                    /*CHE_ByteString fontPath = pFont->GetFontPath();
                     if ( fontPath.GetLength() > 0 )
                     {
                         FILE * pFile = fopen( fontPath.GetData(), "rb" );
@@ -1304,9 +1323,13 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                             
                             delete [] data;
                         }
-                    }else{
+                    }
+                    /*else{
+                    
+                    {
                         /*NSDictionary *fontAttributes =
                             [NSDictionary dictionaryWithObjectsAndKeys:
+                                @"zh-Hans", (NSString *)kCTFontLanguagesAttribute,
                                 [NSNumber numberWithFloat:16.0],
                                 (NSString *)kCTFontSizeAttribute, nil];
                         // Create a descriptor.
@@ -1314,9 +1337,52 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                         CTFontDescriptorCreateWithAttributes((CFDictionaryRef)fontAttributes);
                         
                         // Create a font using the descriptor.
-                        CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);
-                        CFRelease(descriptor);*/
-                    }
+                        CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);*/
+                        
+                        //CTFontRef font = CTFontCreateUIFontForLanguage(kCTFontUIFontViews, 10, CFSTR("zh"));
+                        
+                        //CTFontRef font = CTFontCreateWithName(CFSTR("PingFangSC-Regular"), 0, nil);
+                        //cgfontRef = CTFontCopyGraphicsFont( font, nil );
+                        
+                        //SetTextFont( cgfontRef );
+                        
+                        /*FILE * pFile = fopen( "/Library/Fonts/Songti.ttc", "rb" );
+                        if ( pFile )
+                        {
+                            fseek( pFile, 0, SEEK_END );
+                            long posi = ftell( pFile );
+                            unsigned char * data = new unsigned char[posi];
+                            fseek( pFile, 0, SEEK_SET);
+                            fread( data, 1, posi, pFile);
+                            
+                            CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, data, posi, kCFAllocatorNull );
+                            if ( dataRef )
+                            {
+                                CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
+                                CGFontRef cgfontRef = CGFontCreateWithDataProvider( dataProviderRef );
+                                if ( cgfontRef )
+                                {
+                                    
+                                    SetTextFont( cgfontRef );
+                                }
+                                CFRelease(dataProviderRef);
+                                CFRelease(dataRef);
+                            }
+                            fclose(pFile);
+                            
+                            delete [] data;
+                        }
+
+                        
+                        
+                        cgGlyphCount = 0;
+                        ftGlyphCount = 0;*/
+                        
+                       
+                        //CFRelease(descriptor);
+                        
+                        
+                    //}
                 }
             }
             
@@ -1327,16 +1393,24 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                 textMatirx = pText->GetCharMatrix( i );
                 SetTextMatrix( textMatirx );
                 
-                if ( cgGlyphCount == ftGlyphCount )
-                {
-                    DrawTextGlyph( pText->mItems[i].gid );
-                }else{
+                //if ( cgGlyphCount == ftGlyphCount )
+                //{
+                //    DrawTextGlyph( pText->mItems[i].gid );
+                //}else{
+                   
                     sprintf( glyphName, "cid%ld", pText->mItems[i].gid );
                     CFStringRef glyphNameStrRef = CFStringCreateWithCString( kCFAllocatorDefault, glyphName, kCFStringEncodingASCII );
                     GlyphID gid = CGFontGetGlyphWithGlyphName( cgfontRef, glyphNameStrRef );
                     CFRelease(glyphNameStrRef);
+                if ( gid )
+                {
                     DrawTextGlyph( gid );
+                }else{
+                    DrawTextGlyph( pText->mItems[i].gid );
                 }
+                
+                
+               //}
             }
             break;
         }

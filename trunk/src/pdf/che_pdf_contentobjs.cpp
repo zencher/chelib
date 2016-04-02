@@ -295,17 +295,22 @@ CHE_Rect CHE_PDF_Text::GetCharRect( HE_ULONG index ) const
 	{
 		FT_Face face = NULL;
 		CHE_PDF_GState * pGState = GetGState();
-		if ( pGState )
+		/*if ( pGState )
 		{
 			face = (FT_Face)( pGState->GetTextFont()->GetFTFace() );
-		}
+		}*/
+        
+        CHE_PDF_Font * pfont = pGState->GetTextFont();
+        
+        
+        
 		CHE_Matrix matrix = GetCharMatrix( index );
 		rect.width = mItems[index].width;
 		rect.height = mItems[index].height;
 		if ( face )
 		{
-			rect.bottom = face->descender * 1.0f / face->units_per_EM;
-			rect.height = ( face->ascender - face->descender ) * 1.0f / face->units_per_EM;
+            rect.bottom = pfont->GetFontDesender();//face->descender * 1.0f / face->units_per_EM;
+            rect.height = pfont->GetFOntAscender() - pfont->GetFontDesender();//( face->ascender - face->descender ) * 1.0f / face->units_per_EM;
 		}
 		rect = matrix.Transform( rect );
 	}
@@ -464,259 +469,7 @@ inline int cubic_to(const FT_Vector *c1, const FT_Vector *c2, const FT_Vector *p
 
 CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 {
-	if ( index >= mItems.size() )
-	{
-		return NULL;
-	}
-
-	CHE_PDF_Path * pPathRet = GetAllocator()->New<CHE_PDF_Path>( GetAllocator() );
-	if ( pPathRet )
-	{
-		CHE_PDF_Font * pFont = GetGState()->GetTextFont();
-		FT_Face face = (FT_Face)( pFont->GetFTFace() );
-		if ( face )
-		{
-			pFont->Lock();
-			FT_Error err = FT_Set_Char_Size( face, 65536, 65536, /*PIXELPERINCH*/72, /*PIXELPERINCH*/72 );
-			CHE_Matrix mtx = GetCharMatrix( index );
-			FT_Matrix matrix;
-			FT_Vector vector;
-			matrix.xx = mtx.a * 64;
-			matrix.yx = mtx.b * 64;
-			matrix.xy = mtx.c * 64;
-			matrix.yy = mtx.d * 64;
-			vector.x = mtx.e * 64;
-			vector.y = mtx.f * 64;
-			FT_Set_Transform( face, &matrix, &vector );
-			
-			FT_UInt gid = mItems[index].gid;
-			err = FT_Load_Glyph( face, gid, FT_LOAD_NO_BITMAP | FT_LOAD_TARGET_MONO | FT_LOAD_NO_HINTING /*| FT_LOAD_NO_HINTING*//*FT_LOAD_TARGET_MONO*/ );
-			
-			FT_Outline_Funcs outline_funcs;
-			outline_funcs.move_to = move_to;
-			outline_funcs.line_to = line_to;
-			outline_funcs.conic_to = conic_to;
-			outline_funcs.cubic_to = cubic_to;
-			outline_funcs.delta = NULL;
-			outline_funcs.shift = NULL;
-
-			_TEXTPATHOUTPUT_PARAM_ * pParam = GetAllocator()->New<_TEXTPATHOUTPUT_PARAM_>();
-			pParam->pPath = pPathRet;
-			pParam->curX = 0.0f;
-			pParam->curY = 0.0f;
-
-			FT_Outline_Decompose( &face->glyph->outline, &outline_funcs, pParam );
-
-			GetAllocator()->Delete( pParam );
-
-			pFont->UnLock();
-
-// 			FT_Outline * outline = &face->glyph->outline;
-// 			void*                    user = (void*)pPathRet;
-// 
-// #undef SCALED
-// #define SCALED( x )  ( ( (x) << shift ) - delta )
-// 
-// 			FT_Vector   v_last;
-// 			FT_Vector   v_control;
-// 			FT_Vector   v_start;
-// 
-// 			FT_Vector*  point;
-// 			FT_Vector*  limit;
-// 			char*       tags;
-// 
-// 			FT_Error    error;
-// 
-// 			FT_Int   n;         /* index of contour in outline     */
-// 			FT_UInt  first;     /* index of first point in contour */
-// 			FT_Int   tag;       /* current point's state           */
-// 
-// 			FT_Int   shift;
-// 			FT_Pos   delta;
-// 
-// 
-// 			
-// 			shift = 0;//outline_funcs->shift;
-// 			delta = 0;//outline_funcs->delta;
-// 			first = 0;
-// 
-// 			for ( n = 0; n < outline->n_contours; n++ )
-// 			{
-// 				FT_Int  last;  /* index of last point in contour */
-// 
-// 				last = outline->contours[n];
-// // 				if ( last < 0 )
-// // 					goto Invalid_Outline;
-// 				limit = outline->points + last;
-// 
-// 				v_start   = outline->points[first];
-// 				v_start.x = SCALED( v_start.x );
-// 				v_start.y = SCALED( v_start.y );
-// 
-// 				v_last   = outline->points[last];
-// 				v_last.x = SCALED( v_last.x );
-// 				v_last.y = SCALED( v_last.y );
-// 
-// 				v_control = v_start;
-// 
-// 				point = outline->points + first;
-// 				tags  = outline->tags   + first;
-// 				tag   = FT_CURVE_TAG( tags[0] );
-// 
-// 				/* A contour cannot start with a cubic control point! */
-// 				//if ( tag == FT_CURVE_TAG_CUBIC )
-// 				//	
-// 
-// 				/* check first point to determine origin */
-// 				if ( tag == FT_CURVE_TAG_CONIC )
-// 				{
-// 					/* first point is conic control.  Yes, this happens. */
-// 					if ( FT_CURVE_TAG( outline->tags[last] ) == FT_CURVE_TAG_ON )
-// 					{
-// 						/* start at last point if it is on the curve */
-// 						v_start = v_last;
-// 						limit--;
-// 					}
-// 					else
-// 					{
-// 						/* if both first and last points are conic,         */
-// 						/* start at their middle and record its position    */
-// 						/* for closure                                      */
-// 						v_start.x = ( v_start.x + v_last.x ) / 2;
-// 						v_start.y = ( v_start.y + v_last.y ) / 2;
-// 
-// 						v_last = v_start;
-// 					}
-// 					point--;
-// 					tags--;
-// 				}
-// 
-// 				//FT_TRACE5(( "  move to (%.2f, %.2f)\n",
-// 				//	v_start.x / 64.0, v_start.y / 64.0 ));
-// 				move_to( &v_start, user );
-// 				//if ( error )
-// 				//	goto Exit;
-// 
-// 				while ( point < limit )
-// 				{
-// 					point++;
-// 					tags++;
-// 
-// 					tag = FT_CURVE_TAG( tags[0] );
-// 					switch ( tag )
-// 					{
-// 					case FT_CURVE_TAG_ON:  /* emit a single line_to */
-// 						{
-// 							FT_Vector  vec;
-// 
-// 
-// 							vec.x = SCALED( point->x );
-// 							vec.y = SCALED( point->y );
-// 
-// 							//FT_TRACE5(( "  line to (%.2f, %.2f)\n",
-// 							//	vec.x / 64.0, vec.y / 64.0 ));
-// 							error = line_to( &vec, user );
-// 							//if ( error )
-// 							//	goto Exit;
-// 							continue;
-// 						}
-// 
-// 					case FT_CURVE_TAG_CONIC:  /* consume conic arcs */
-// 						v_control.x = SCALED( point->x );
-// 						v_control.y = SCALED( point->y );
-// 
-// Do_Conic:
-// 						if ( point < limit )
-// 						{
-// 							FT_Vector  vec;
-// 							FT_Vector  v_middle;
-// 
-// 
-// 							point++;
-// 							tags++;
-// 							tag = FT_CURVE_TAG( tags[0] );
-// 
-// 							vec.x = SCALED( point->x );
-// 							vec.y = SCALED( point->y );
-// 
-// 							if ( tag == FT_CURVE_TAG_ON )
-// 							{
-// // 								FT_TRACE5(( "  conic to (%.2f, %.2f)"
-// // 									" with control (%.2f, %.2f)\n",
-// // 									vec.x / 64.0, vec.y / 64.0,
-// // 									v_control.x / 64.0, v_control.y / 64.0 ));
-// 								conic_to( &v_control, &vec, user );
-// 								//if ( error )
-// 								//	goto Exit;
-// 								continue;
-// 							}
-// 
-// // 							if ( tag != FT_CURVE_TAG_CONIC )
-// // 								goto Invalid_Outline;
-// 
-// 							v_middle.x = ( v_control.x + vec.x ) / 2;
-// 							v_middle.y = ( v_control.y + vec.y ) / 2;
-// 
-// 							
-// 							conic_to( &v_control, &v_middle, user );
-// 							
-// 							v_control = vec;
-// 							goto Do_Conic;
-// 						}
-// 
-// 						conic_to( &v_control, &v_start, user );
-// 						goto Close;
-// 
-// 					default:  /* FT_CURVE_TAG_CUBIC */
-// 						{
-// 							FT_Vector  vec1, vec2;
-// 
-// 
-// // 							if ( point + 1 > limit                             ||
-// // 								FT_CURVE_TAG( tags[1] ) != FT_CURVE_TAG_CUBIC )
-// // 								goto Invalid_Outline;
-// 
-// 							point += 2;
-// 							tags  += 2;
-// 
-// 							vec1.x = SCALED( point[-2].x );
-// 							vec1.y = SCALED( point[-2].y );
-// 
-// 							vec2.x = SCALED( point[-1].x );
-// 							vec2.y = SCALED( point[-1].y );
-// 
-// 							if ( point <= limit )
-// 							{
-// 								FT_Vector  vec;
-// 
-// 
-// 								vec.x = SCALED( point->x );
-// 								vec.y = SCALED( point->y );
-// 
-// 								cubic_to( &vec1, &vec2, &vec, user );
-// 								continue;
-// 							}
-// 
-// 							cubic_to( &vec1, &vec2, &v_start, user );
-// 							goto Close;
-// 						}
-// 					}
-// 				}
-// 
-// 				/* close the contour with a line segment */
-// 				line_to( &v_start, user );
-// 
-// Close:
-// 				first = last + 1;
-// 
-// // 				CHE_PDF_PathItem pathItem;
-// // 				pathItem.type = PathItem_Close;
-// // 				pPathRet->mItems.push_back( pathItem );
-// 			}
-		}
-	}
-//Exit:
-	return pPathRet;
+    return NULL;
 }
 
 CHE_PDF_ContentObject * CHE_PDF_Path::Clone() const

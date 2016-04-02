@@ -14,15 +14,20 @@ public:
 	CHE_ByteString	mStyle;
 	CHE_ByteString	mPostScriptName;
 	CHE_ByteString	mFilePath;
-	CHE_Rect        mFontBBox;
+	//CHE_Rect        mFontBBox;
+    HE_FLOAT        mItalicAngle;
 	HE_FLOAT		mAscent;
 	HE_FLOAT		mDescent;
-	HE_FLOAT		mHeight;
+    HE_FLOAT        mLeading;
+	HE_FLOAT		mCapHeight;
+    HE_FLOAT        mXHeight;
+    HE_FLOAT        mStemV;
+    HE_FLOAT        mStemH;
 };
 
 CHE_WindowsFontInfo::CHE_WindowsFontInfo( CHE_Allocator * pAllocator /*= NULL*/ )
 : CHE_Object( pAllocator ), mFamilyName( pAllocator ), mPostScriptName( pAllocator ), mFilePath( pAllocator ),
-mAscent( 0 ), mDescent( 0 ), mHeight( 0 ) {}
+ mItalicAngle( 0 ), mAscent( 0 ), mDescent( 0 ), mLeading( 0 ), mCapHeight( 0 ), mXHeight( 0 ), mStemV( 0 ), mStemH( 0 )  {}
 
 
 class CHE_MacOSXFontMgr : public IHE_SystemFontMgr
@@ -34,6 +39,8 @@ public:
 	CHE_ByteString GetFontFilePath( const CHE_ByteString & fontName );
 
 	CHE_ByteString GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent );
+    
+    CHE_ByteString GetFontFilePath( CHE_PDF_FontDescriptor * pFontDes );
     
 private:
 	std::list<CHE_WindowsFontInfo>	mFontList;
@@ -95,16 +102,60 @@ CHE_MacOSXFontMgr::CHE_MacOSXFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
             {
                 fontInfo.mPostScriptName = pPostScriptName;
             }
-            fontInfo.mAscent = face->ascender * 1000.0f / face->units_per_EM;
+            
+            /*fontInfo.mAscent = face->ascender * 1000.0f / face->units_per_EM;
             fontInfo.mDescent = face->descender * 1000.0f / face->units_per_EM;
             fontInfo.mHeight = face->height * 1000.0f / face->units_per_EM;
             fontInfo.mFontBBox.left = face->bbox.xMin * 1000.0f / face->units_per_EM;
             fontInfo.mFontBBox.bottom = face->bbox.yMin * 1000.0f / face->units_per_EM;
             fontInfo.mFontBBox.width = face->bbox.xMax * 1000.0f / face->units_per_EM;
-            fontInfo.mFontBBox.height = face->bbox.yMax * 1000.0f / face->units_per_EM;
-            fontInfo.mFilePath = pathCStr;
-            mFontList.push_back( fontInfo );
+            fontInfo.mFontBBox.height = face->bbox.yMax * 1000.0f / face->units_per_EM;*/
             
+            fontInfo.mFilePath = pathCStr;
+            
+            
+            {
+                FILE * pFile = fopen( pathCStr, "rb" );
+                if ( pFile )
+                {
+                    fseek( pFile, 0, SEEK_END );
+                    long posi = ftell( pFile );
+                    unsigned char * data = new unsigned char[posi];
+                    fseek( pFile, 0, SEEK_SET);
+                    fread( data, 1, posi, pFile);
+                    
+                    CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, data, posi, kCFAllocatorNull );
+                    if ( dataRef )
+                    {
+                        CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
+                        CGFontRef cgfontRef = CGFontCreateWithDataProvider( dataProviderRef );
+                        if ( cgfontRef )
+                        {
+                            
+                            fontInfo.mItalicAngle = CGFontGetItalicAngle( cgfontRef );
+                            fontInfo.mAscent = CGFontGetAscent( cgfontRef );
+                            fontInfo.mDescent = CGFontGetDescent( cgfontRef );
+                            fontInfo.mLeading = CGFontGetLeading( cgfontRef );
+                            fontInfo.mCapHeight = CGFontGetCapHeight( cgfontRef);
+                            fontInfo.mXHeight = CGFontGetXHeight( cgfontRef );
+                            fontInfo.mStemV = CGFontGetStemV( cgfontRef );
+                            //fontInfo.mStemH = CGFontGetStemH( cgfontRef );
+                            
+
+                            
+                            
+                        }
+                        CFRelease(dataProviderRef);
+                        CFRelease(dataRef);
+                    }
+                    fclose(pFile);
+                    
+                    delete [] data;
+                }
+            }
+            
+            
+            mFontList.push_back( fontInfo );
             FT_Done_Face( face );
         }
     }
@@ -242,4 +293,58 @@ CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( HE_FLOAT ascent, HE_FLOAT des
 		}
 	}
 	return fontPath;
+}
+
+CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( CHE_PDF_FontDescriptor * pFontDes )
+{
+    
+    HE_FLOAT italicAngle = 0.0f;
+    HE_FLOAT ascent = 0.0f;
+    HE_FLOAT descent = 0.0f;
+    HE_FLOAT leading = 0.0f;
+    HE_FLOAT capHeight = 0.0f;
+    HE_FLOAT xHeight = 0.0f;
+    HE_FLOAT stemV = 0.0f;
+    HE_FLOAT stemH = 0.0f;
+    
+    
+    HE_FLOAT v = 99999999.0f;
+    HE_FLOAT t = 0.0f;
+    HE_LONG index = -1;
+    std::list<CHE_WindowsFontInfo>::iterator target;
+    
+    std::list<HE_LONG> optional;
+    
+    
+    italicAngle = pFontDes->GetItalicAngle();
+    ascent = pFontDes->GetAscent();
+    descent = pFontDes->GetDescent();
+    leading = pFontDes->GetLeading();
+    capHeight = pFontDes->GetCapHeight();
+    xHeight = pFontDes->GetXHeight();
+    stemV = pFontDes->GetStemV();
+    stemH = pFontDes->GetStemH();
+    
+    CHE_ByteString fontPath;
+    std::list<CHE_WindowsFontInfo>::iterator it;
+    for ( it = mFontList.begin(); it != mFontList.end(); ++it )
+    {
+        index++;
+        t = 0.0f;
+        t += fabs(it->mAscent - ascent);
+        t += fabs(it->mDescent - descent);
+        t += fabs(it->mLeading - leading);
+        t += fabs(it->mCapHeight - capHeight);
+        t += fabs(it->mXHeight - xHeight);
+        t += fabs(it->mStemV - stemV);
+        
+        if (t < v) {
+            v = t;
+            target = it;
+            optional.push_back( index );
+        }
+    }
+    fontPath = target->mFilePath;
+    NSLog( @"return : %s", fontPath.GetData() );
+    return fontPath;
 }

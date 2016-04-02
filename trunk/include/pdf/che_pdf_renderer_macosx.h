@@ -5,9 +5,9 @@
 #include "che_pdf_xobject.h"
 #include "che_pdf_pattern.h"
 #include "che_pdf_gstate.h"
-#import <ApplicationServices/ApplicationServices.h>
-#import <CoreGraphics/CGPattern.h>
-#import <CoreGraphics/CoreGraphics.h>
+#include <ApplicationServices/ApplicationServices.h>
+#include <CoreGraphics/CGPattern.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 class CHE_PDF_Renderer
 {

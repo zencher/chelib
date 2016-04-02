@@ -24,9 +24,6 @@
             </view>
             <toolbar key="toolbar" implicitIdentifier="865406B1-F04D-4183-83E4-6D90B1E87D47" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="fZk-m9-cJh">
                 <allowedToolbarItems>
-                    <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="8Zb-tP-UKD"/>
-                    <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="M2a-cu-DzZ"/>
-                    <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="yow-Vd-rYI"/>
                     <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="ICA-Ay-dLk"/>
                     <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="92A-w5-3uB"/>
                     <toolbarItem implicitItemIdentifier="629FE625-27E8-4449-B6E0-1B0D271AEFFF" label="config" paletteLabel="config" tag="-1" image="NSAdvanced" id="afb-cY-TgK">
@@ -44,15 +41,57 @@
                             <action selector="showBookmark:" target="xOd-HO-29H" id="EKj-C1-j5y"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="99940118-B9CB-445D-AF80-E2496C07BDDE" label="Custom View" paletteLabel="Custom View" id="pbc-TS-QzM">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="40" height="20"/>
+                        <size key="maxSize" width="162" height="26"/>
+                        <segmentedControl key="view" verticalHuggingPriority="750" id="0Wf-pP-5LN">
+                            <rect key="frame" x="16" y="14" width="44" height="20"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <segmentedCell key="cell" borderStyle="border" alignment="left" style="roundRect" trackingMode="selectOne" id="PAi-lg-HBq">
+                                <font key="font" metaFont="cellTitle"/>
+                                <segments>
+                                    <segment>
+                                        <nil key="label"/>
+                                    </segment>
+                                    <segment>
+                                        <nil key="label"/>
+                                    </segment>
+                                    <segment>
+                                        <nil key="label"/>
+                                    </segment>
+                                </segments>
+                            </segmentedCell>
+                        </segmentedControl>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="FCE48A6B-3BBE-4942-9130-D503337392CC" label="Custom View" paletteLabel="Custom View" id="3Tz-iP-fge">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="100" height="26"/>
+                        <size key="maxSize" width="100" height="26"/>
+                        <popUpButton key="view" verticalHuggingPriority="750" id="8aV-VH-4zu">
+                            <rect key="frame" x="0.0" y="14" width="100" height="26"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <popUpButtonCell key="cell" type="roundTextured" title="Item 1" bezelStyle="texturedRounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" pullsDown="YES" arrowPosition="arrowAtCenter" selectedItem="67E-qs-dQr" id="q4i-Pv-LSd">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES" changeBackground="YES" changeGray="YES"/>
+                                <font key="font" metaFont="menu"/>
+                                <menu key="menu" id="sKh-ep-I1V">
+                                    <items>
+                                        <menuItem title="Item 1" state="on" hidden="YES" id="67E-qs-dQr"/>
+                                        <menuItem title="Item 2" id="5qK-ne-HHt"/>
+                                        <menuItem title="Item 3" id="9yt-s4-2tF"/>
+                                    </items>
+                                </menu>
+                            </popUpButtonCell>
+                        </popUpButton>
+                    </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
-                    <toolbarItem reference="M2a-cu-DzZ"/>
-                    <toolbarItem reference="8Zb-tP-UKD"/>
+                    <toolbarItem reference="3Tz-iP-fge"/>
                     <toolbarItem reference="92A-w5-3uB"/>
-                    <toolbarItem reference="yow-Vd-rYI"/>
                     <toolbarItem reference="afb-cY-TgK"/>
                     <toolbarItem reference="stx-pM-c0U"/>
                     <toolbarItem reference="3Bt-i7-MPk"/>
+                    <toolbarItem reference="pbc-TS-QzM"/>
                 </defaultToolbarItems>
                 <connections>
                     <outlet property="delegate" destination="-3" id="npy-mt-NEh"/>

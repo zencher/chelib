@@ -37,7 +37,7 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
-    [[NSColor lightGrayColor] set];
+    [[NSColor clearColor] set];
     NSRectFill( dirtyRect );
     if ( pdfDocData )
     {
@@ -49,24 +49,21 @@
 {
     if ( pdfDocData )
     {
-        NSRect frame;
-        NSSize contentSize;
         NSRect visible = [parentScrollView documentVisibleRect];
-        CGFloat rate;
-        CGFloat positionY;
-        
-        NSRect pframe;
-        pframe = [parentScrollView frame];
-        contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
+        NSRect pframe = [parentScrollView frame];
+        NSSize contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
+        //NSSize contentSize = pframe.size;
         
         [pdfDocData setThumbnailViewFrame:contentSize.width height:contentSize.height];
         [pdfDocData updateThumbnailLayout];
         
+        NSRect frame;
         frame.origin.x = 0;
         frame.origin.y = 0;
         frame.size = [pdfDocData getThumbnailContentSize];
-        rate = visible.origin.y / oldContentSize.height;
-        positionY = rate * frame.size.height;
+
+        CGFloat rate = visible.origin.y / oldContentSize.height;
+        CGFloat positionY = rate * frame.size.height;
         oldContentSize = frame.size;
         
         [self setFrame:frame];
@@ -143,9 +140,11 @@
 @end
 
 
-@implementation CHEPDFThumbnailView
+
+@implementation CHEPDFThumbnailScrollView
 
 -(id)initWithFrame:(NSRect)frameRect
+        parentView:(id)parent
 {
     self = [super initWithFrame:frameRect];
     if (self) {
@@ -153,16 +152,59 @@
         [self setDocumentView:mainView];
         [self setAutohidesScrollers:YES];
         [self setHasVerticalScroller:YES];
-        [self setHasHorizontalScroller:YES];
+        [self setHasHorizontalScroller:NO];
         [self setBorderType:NSNoBorder];
-        [self setBackgroundColor:[NSColor lightGrayColor]];
+        
+        parentView = parent;
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(parentViewFrameChanged)
+                                                     name:NSViewFrameDidChangeNotification
+                                                   object:parentView];
+    }
+    return self;
+}
+
+-(void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)drawRect:(NSRect)dirtyRect
+{
+    [[NSColor clearColor] set];
+    NSRectFill( dirtyRect );
+}
+
+-(void)parentViewFrameChanged
+{
+    [self setFrame:[parentView frame]];
+}
+
+-(void)setDocumentData:(PdfDocumentData*)docData
+{
+    [mainView setDocumentData:docData];
+}
+
+@end
+
+
+
+@implementation CHEPDFThumbnailView
+
+-(id)initWithFrame:(NSRect)frameRect
+{
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        scrollView = [[CHEPDFThumbnailScrollView alloc] initWithFrame:frameRect parentView:self];
+        [scrollView setBackgroundColor:[NSColor clearColor]];
+        [self addSubview:scrollView];
     }
     return self;
 }
 
 -(void)setDocumentData:(PdfDocumentData*)docData
 {
-    [mainView setDocumentData:docData];
+    [scrollView setDocumentData:docData];
 }
 
 @end

@@ -29,9 +29,28 @@
 
 @end
 
-@interface CHEPDFThumbnailView : NSScrollView
+
+
+@interface CHEPDFThumbnailScrollView : NSScrollView
 {
     CHEPDFThumbnailMainView * mainView;
+    id parentView;
+}
+
+-(id)initWithFrame:(NSRect)frame
+        parentView:(id)view;
+
+-(void)parentViewFrameChanged;
+
+-(void)setDocumentData:(PdfDocumentData*)doc;
+
+@end
+
+
+
+@interface CHEPDFThumbnailView : NSVisualEffectView
+{
+    CHEPDFThumbnailScrollView * scrollView;
 }
 
 -(void)setDocumentData:(PdfDocumentData*)doc;

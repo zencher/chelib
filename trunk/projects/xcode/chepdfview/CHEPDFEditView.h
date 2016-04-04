@@ -34,7 +34,6 @@
     CHEPDFThumbnailView * thumbnailView;
     CHEPDFPageView * pageView;
     
-    
     NSSplitView * middleView;
     NSSplitView * leftBarView;
     NSSplitView * rightBarView;

@@ -15,8 +15,8 @@
     id parentScrollView;
 }
 
--(id)initWithFrameAndParentView:(NSRect)frame
-                     parentView:(id)view;
+-(id)initWithFrame:(NSRect)frame
+        parentView:(id)view;
 
 -(void)parentScrollViewFrameChanged;
 

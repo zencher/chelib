@@ -104,11 +104,11 @@
         CGFloat rate;
         CGFloat positionY;
         
-        //NSRect pframe;
-        //pframe = [parentScrollView frame];
-        //contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
+        NSRect pframe;
+        pframe = [parentScrollView frame];
+        contentSize = [NSScrollView contentSizeForFrameSize:pframe.size horizontalScrollerClass:[[parentScrollView horizontalScroller] class] verticalScrollerClass:[[parentScrollView verticalScroller] class] borderType:[parentScrollView borderType] controlSize:NSRegularControlSize scrollerStyle:[parentScrollView scrollerStyle]];
         
-        contentSize = [parentScrollView contentSize];
+        //contentSize = [parentScrollView contentSize];
         [pdfDocData setViewFrame:contentSize.width height:contentSize.height];
         [pdfDocData updateLayout];
         

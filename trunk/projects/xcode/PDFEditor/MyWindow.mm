@@ -14,7 +14,7 @@
 {
     self = [super initWithContentRect:contentRect styleMask:aStyle backing:bufferingType defer:false];
     if (self) {
-        pdfView = [[CHEPDFEditView alloc] init];
+        pdfView = [[CHEPDFEditView alloc] initWithFrame:contentRect];
         [self setContentView:pdfView];
     }
     return self;

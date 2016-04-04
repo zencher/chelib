@@ -31,18 +31,18 @@
         }
         leftBarView = [[NSSplitView alloc] initWithFrame:rect];
         rightBarView = [[NSSplitView alloc] initWithFrame:rect];
-        middleView = [[NSSplitView alloc] initWithFrame:rect];
+        middleView = [[NSSplitView alloc] initWithFrame:frameRect];
         [self addArrangedSubview:leftBarView];
         [self addArrangedSubview:middleView];
         [self addArrangedSubview:rightBarView];
         
+        thumbnailView = [[CHEPDFThumbnailView alloc] initWithFrame:[leftBarView frame]];
+        outlineView = [[CHEPDFOutlineView alloc] initWithFrame:[rightBarView frame]];
         pageView = [[CHEPDFPageView alloc] initWithFrame:[middleView frame]];
-        outlineView = [[CHEPDFOutlineView alloc] initWithFrame:[leftBarView frame]];
-        thumbnailView = [[CHEPDFThumbnailView alloc] initWithFrame:[rightBarView frame]];
         
-        [leftBarView addSubview:outlineView];
+        [leftBarView addSubview:thumbnailView];
         [middleView addSubview:pageView];
-        //[rightBarView addSubview:thumbnailView];
+        //[rightBarView addSubview:outlineView];
     }
     return self;
 }

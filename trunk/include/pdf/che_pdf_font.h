@@ -244,6 +244,8 @@ protected:
 	CHE_PDF_CMap *			mpUnicodeMap;
 	HE_WCHAR *				mCIDTOGID;
 	HE_ULONG				mCIDTOGIDLength;
+    unordered_map<HE_ULONG, HE_ULONG> mWidths;
+    HE_UINT32               mDefaultWidth;
 
 	friend class CHE_Allocator;
 };

@@ -83,10 +83,14 @@ public:
 	static CHE_PDF_FormXObjectPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
 
 	CHE_PDF_ContentObjectList & GetList() { return mList; }
+    
+    CHE_Matrix GetMatrix() const { return mMatrix; }
 
 private:
 	CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
 
+    CHE_Matrix mMatrix;
+    
 	CHE_PDF_ContentObjectList mList;
 
 	friend class CHE_Allocator;

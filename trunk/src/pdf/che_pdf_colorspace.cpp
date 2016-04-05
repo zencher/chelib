@@ -128,7 +128,7 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, 
                     {
                         pColorSpace = pAllocator->New<CHE_PDF_CS_CalLab>(obj->GetDictPtr(), pAllocator);
                     }
-                }else if ( name == "ICCBased" )
+                }else if (  name == "ICCBased" )
                 {
                     obj = arrayPtr->GetElement(1, OBJ_TYPE_STREAM);
                     if ( obj )
@@ -602,8 +602,20 @@ CHE_PDF_CS_ICCBased::CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_A
     }
     
     obj = dict->GetElement("Alternate");
-    mAlternate = CHE_PDF_ColorSpace::Create(obj);
-    
+    if (obj)
+    {
+        mAlternate = CHE_PDF_ColorSpace::Create(obj);
+    }else{
+        if (mComponentCount == 4) {
+            mAlternate = CHE_PDF_ColorSpace::CreateDeviceCMYK();
+        }else if (mComponentCount == 3)
+        {
+            mAlternate = CHE_PDF_ColorSpace::CreateDeviceRGB();
+        }else if (mComponentCount == 1)
+        {
+            mAlternate = CHE_PDF_ColorSpace::CreateDeviceGray();
+        }
+    }
     mStmAcc.Attach(stream);
 }
 

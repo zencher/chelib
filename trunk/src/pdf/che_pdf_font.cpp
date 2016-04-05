@@ -5974,8 +5974,6 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 	}
 	if ( !objPtr )
 	{
-        mType = FONT_ENCODING_STANDARD;
-		mBaseType = FONT_ENCODING_STANDARD;
 		return;
 	}
 
@@ -7073,22 +7071,34 @@ HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG &
     if ( mPlatformFontInfo )
 	{
         CTFontRef ctFontRef  = CTFontCreateWithGraphicsFont((CGFontRef)mPlatformFontInfo, 1, nil, nil);
-        UniChar character = ucs;
+        UniChar character = charCode;
         CGGlyph glyph = 0;
+        if ( bUCSGet )
+        {
+            character = ucs;
+        }
+        
+        
         if ( CTFontGetGlyphsForCharacters(ctFontRef, &character, &glyph, 1) )
         {
-        
             gid = glyph;
-        }else{
-            char glyphName[128];
-            sprintf( glyphName, "cid%d", gid );
-            CFStringRef glyphNameStrRef = CFStringCreateWithCString( kCFAllocatorDefault, glyphName, kCFStringEncodingASCII );
-            glyph = CTFontGetGlyphWithName(ctFontRef, glyphNameStrRef);
-            if (glyph)
+        }else if ( bUCSGet )
+        {
+            character = charCode;
+            if ( CTFontGetGlyphsForCharacters(ctFontRef, &character, &glyph, 1) )
             {
                 gid = glyph;
+            }else{
+                char glyphName[128];
+                sprintf( glyphName, "cid%d", charCode );
+                CFStringRef glyphNameStrRef = CFStringCreateWithCString( kCFAllocatorDefault, glyphName, kCFStringEncodingASCII );
+                glyph = CTFontGetGlyphWithName(ctFontRef, glyphNameStrRef);
+                if (glyph)
+                {
+                    gid = glyph;
+                }
+                CFRelease(glyphNameStrRef);
             }
-            CFRelease(glyphNameStrRef);
         }
         CFRelease(ctFontRef);
 	}

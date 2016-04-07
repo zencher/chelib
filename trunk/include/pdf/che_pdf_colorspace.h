@@ -311,7 +311,7 @@ public:
 #endif
     
 private:
-    CHE_PDF_CS_Separation(CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_Separation(CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = NULL);
     
     friend class CHE_Allocator;
 };

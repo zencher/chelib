@@ -310,7 +310,7 @@ CHE_Rect CHE_PDF_Text::GetCharRect( HE_ULONG index ) const
 		if ( face )
 		{
             rect.bottom = pfont->GetFontDesender();//face->descender * 1.0f / face->units_per_EM;
-            rect.height = pfont->GetFOntAscender() - pfont->GetFontDesender();//( face->ascender - face->descender ) * 1.0f / face->units_per_EM;
+            rect.height = pfont->GetFontAscender() - pfont->GetFontDesender();//( face->ascender - face->descender ) * 1.0f / face->units_per_EM;
 		}
 		rect = matrix.Transform( rect );
 	}

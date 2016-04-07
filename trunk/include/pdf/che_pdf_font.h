@@ -184,7 +184,7 @@ public:
 	HE_VOID					UnLock();
     
     HE_ULONG                GetFontDesender();
-    HE_ULONG                GetFOntAscender();
+    HE_ULONG                GetFontAscender();
     
     
 

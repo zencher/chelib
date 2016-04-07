@@ -878,8 +878,7 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
         pGState->GetFillColorSpace( fillColorSpace );
         pGState->GetStrokeColorSpace( strokeColorSpace );
         
-        SetFillColorSpace( fillColorSpace );
-        SetStrokeColorSpace( strokeColorSpace );
+        
         
         if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
         {
@@ -902,7 +901,11 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                         fillColor.Push( output[j] );
                     }
                 }
+                
+                SetFillColorSpace( cs->mBaseColorSpace );
             }
+        }else{
+            SetFillColorSpace( fillColorSpace );
         }
         
         if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
@@ -926,7 +929,10 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                         strokeColor.Push( output[j] );
                     }
                 }
+                SetStrokeColorSpace( cs->mBaseColorSpace );
             }
+        }else{
+            SetStrokeColorSpace( strokeColorSpace );
         }
         
         SetFillColor( fillColor );

@@ -52,6 +52,7 @@ protected:
 	HE_FLOAT*					mpDomain;
 	HE_FLOAT*					mpRange;
 	HE_BOOL						mbRange;
+    HE_UINT32                   mBitsPerSample;
 
 	friend class CHE_Allocator;
 };

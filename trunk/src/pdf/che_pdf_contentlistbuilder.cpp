@@ -847,25 +847,27 @@ HE_VOID CHE_PDF_ContentsParser::Handle_dquote()
         mpConstructor->State_TextCharSpace( mOpdFloatStack[1] );
     }
     mpConstructor->Operator_Tstar();
+    mpConstructor->State_ResetTextOffset();
     if ( mpObj )
     {
         CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
         mpConstructor->State_TextObject( mpObj );
         mpConstructor->Operator_Append( pText );
+        mpConstructor->State_TextOffset( pText->GetOffSet(), 0 );
     }
-    mpConstructor->State_ResetTextOffset();
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_squote()
 {
     mpConstructor->Operator_Tstar();
+    mpConstructor->State_ResetTextOffset();
     if ( mpObj )
     {
         CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
         mpConstructor->State_TextObject( mpObj );
         mpConstructor->Operator_Append( pText );
+        mpConstructor->State_TextOffset( pText->GetOffSet(), 0 );
     }
-    mpConstructor->State_ResetTextOffset();
 }
 
 HE_VOID CHE_PDF_ContentsParser::Handle_B()
@@ -1494,7 +1496,7 @@ HE_VOID CHE_PDF_ContentsParser::Handle_Tj()
         CHE_PDF_Text * pText = GetAllocator()->New<CHE_PDF_Text>( GetAllocator() );
         mpConstructor->State_TextObject( mpObj );
         mpConstructor->Operator_Append( pText );
-        mpConstructor->State_TextOffset( pText->GetOffSet(), 0  );
+        mpConstructor->State_TextOffset( pText->GetOffSet(), 0 );
     }
 }
 

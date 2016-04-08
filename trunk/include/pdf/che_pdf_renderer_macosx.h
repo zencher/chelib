@@ -52,6 +52,7 @@ public:
     CGImageRef      CreateImage( CHE_PDF_InlineImage * image );
     
     //path & clip operations
+    HE_VOID     ResetPath();
     HE_VOID		MoveTo( HE_FLOAT x, HE_FLOAT y );
     HE_VOID		LineTo( HE_FLOAT x, HE_FLOAT y );
     HE_VOID		CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 );

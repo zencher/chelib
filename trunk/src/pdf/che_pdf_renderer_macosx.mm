@@ -664,6 +664,15 @@ HE_VOID CHE_PDF_Renderer::SetImageColorSpace( const CHE_PDF_ColorSpacePtr & cs )
     mImageColorSpace = CreateColorSpace( cs );
 }
 
+HE_VOID CHE_PDF_Renderer::ResetPath()
+{
+    if ( mPathRef )
+    {
+        CGPathRelease( mPathRef );
+    }
+    mPathRef = CGPathCreateMutable();
+}
+
 HE_VOID	CHE_PDF_Renderer::MoveTo( HE_FLOAT x, HE_FLOAT y )
 {
     if ( mPathRef == NULL )
@@ -973,6 +982,8 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
 		{
             CHE_PDF_Path * pPath = (CHE_PDF_Path*)(pObj);
             CHE_Point p1, p2, p3;
+            
+            ResetPath();
             for ( size_t i = 0; i < pPath->mItems.size(); ++i )
             {
                 switch ( pPath->mItems[i].type )
@@ -1019,57 +1030,39 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
         }
         else if ( pObj->GetType() == ContentType_Text )
         {
+            CHE_Matrix matrix;
             CHE_PDF_Text * pText = (CHE_PDF_Text*)(pObj);
-            for ( size_t i = 0; i < pText->mItems.size(); ++i )
+            CHE_PDF_Font * pFont = pGState->GetTextFont();
+            
+            CGGlyph glyph = 0;
+            CTFontRef ctFontRef  = CTFontCreateWithGraphicsFont((CGFontRef)pFont->GetPlatformFontInfo(), 1, nil, nil);
+            
+            ResetPath();
+            for (size_t i = 0; i < pText->mItems.size(); ++i)
             {
-                CHE_PDF_Path * pPath = pText->GetGraphPath( i );
-                if ( pPath )
-                {
-                    for ( HE_INT32 i = 0; i < pPath->mItems.size(); ++i )
-                    {
-                        switch ( pPath->mItems[i].type )
-                        {
-                        case PathItem_MoveTo:
-                            MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                            i+=2;
-                            break;
-                        case PathItem_LineTo:
-                            LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                            i+=2;
-                            break;
-                        case PathItem_CurveTo:
-                            CurveTo(   pPath->mItems[i+1].value, pPath->mItems[i+2].value,
-                                        pPath->mItems[i+3].value, pPath->mItems[i+4].value,
-                                        pPath->mItems[i+5].value, pPath->mItems[i+6].value );
-                            i+=6;
-                            break;
-                        case PathItem_Rectangle:
-                            MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                            LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
-                            LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-                            LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-                            ClosePath();
-                            i+=4;
-                            break;
-                        case PathItem_Close:
-                            ClosePath();
-                            i+=1;
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-                    ClosePath();
-                    pPath->GetAllocator()->Delete( pPath );
-                }
+                glyph = pText->mItems[i].gid;
+                matrix = pText->GetCharMatrix(i);
+                CGAffineTransform tm = CGAffineTransformMake(matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f);
+                CGPathRef path =  CTFontCreatePathForGlyph(ctFontRef, glyph, &tm);
+                CGPathAddPath(mPathRef, NULL, path);
             }
+            CFRelease(ctFontRef);
         }
         ClipPath();
-				        
+		
         CHE_Matrix invertMatrix;
         invertMatrix.Invert( mTmpMatrix );
         CGContextConcatCTM( mContextRef, CGAffineTransformMake( invertMatrix.a, invertMatrix.b, invertMatrix.c, invertMatrix.d, invertMatrix.e, invertMatrix.f) );
 	}
+}
+
+HE_VOID CGFontCleanCallBack( HE_LPVOID info )
+{
+    if ( info )
+    {
+        CGFontRef fontRef = (CGFontRef)info;
+        CGFontRelease( fontRef );
+    }
 }
 
 HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
@@ -1154,14 +1147,7 @@ HE_VOID CHE_PDF_Renderer::DrawTextGlyph( CGGlyph gid )
     RestoreGState();
 }
 
-HE_VOID CGFontCleanCallBack( HE_LPVOID info )
-{
-    if ( info )
-    {
-        CGFontRef fontRef = (CGFontRef)info;
-        CGFontRelease( fontRef );
-    }
-}
+
 
 HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
 {

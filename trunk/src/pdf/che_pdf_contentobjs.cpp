@@ -1,10 +1,6 @@
 #include "../../include/pdf/che_pdf_contentobjs.h"
 #include "../../include/pdf/che_pdf_gstate.h"
 
-#include "../../extlib/freetype/include/ft2build.h"
-#include "../../extlib/freetype/include/freetype/freetype.h"
-#include "../../extlib/freetype/include/freetype/ftoutln.h"
-
 CHE_PDF_ContentObject::~CHE_PDF_ContentObject()
 {
 	if ( mpGState )
@@ -291,23 +287,18 @@ CHE_Rect CHE_PDF_Text::GetTextRect() const
 CHE_Rect CHE_PDF_Text::GetCharRect( HE_ULONG index ) const
 {
 	CHE_Rect rect;
-	if ( index < mItems.size() )
+	if (index < mItems.size())
 	{
-		FT_Face face = NULL;
+        CHE_PDF_Font * pfont = NULL;
 		CHE_PDF_GState * pGState = GetGState();
-		/*if ( pGState )
+		if (pGState)
 		{
-			face = (FT_Face)( pGState->GetTextFont()->GetFTFace() );
-		}*/
-        
-        CHE_PDF_Font * pfont = pGState->GetTextFont();
-        
-        
-        
+            pfont = pGState->GetTextFont();
+		}
 		CHE_Matrix matrix = GetCharMatrix( index );
 		rect.width = mItems[index].width;
 		rect.height = mItems[index].height;
-		if ( face )
+		if ( pfont )
 		{
             rect.bottom = pfont->GetFontDesender();//face->descender * 1.0f / face->units_per_EM;
             rect.height = pfont->GetFontAscender() - pfont->GetFontDesender();//( face->ascender - face->descender ) * 1.0f / face->units_per_EM;
@@ -355,117 +346,6 @@ HE_FLOAT CHE_PDF_Text::GetOffSet() const
 	}
 	return 0;
 }
-
-
-
-struct _TEXTPATHOUTPUT_PARAM_
-{
-	CHE_PDF_Path *	pPath;
-	HE_FLOAT		curX;
-	HE_FLOAT		curY;
-};
-
-
-inline int move_to(const FT_Vector *p, void *cc)
-{
-	_TEXTPATHOUTPUT_PARAM_ * param = (_TEXTPATHOUTPUT_PARAM_*)(cc);
-	if ( param == NULL )
-	{
-		return 0;
-	}
-	CHE_PDF_Path * pPath = param->pPath;
-	if ( pPath )
-	{
-		CHE_PDF_PathItem pathItem;
-		pathItem.type = PathItem_MoveTo;
-		pPath->mItems.push_back( pathItem );
-		param->curX = pathItem.value = p->x / 64.0f;
-		pPath->mItems.push_back( pathItem );
-		param->curY = pathItem.value = p->y / 64.0f;
-		pPath->mItems.push_back( pathItem );
-	}
-	return 0;
-}
-
-inline int line_to(const FT_Vector *p, void *cc)
-{
-	_TEXTPATHOUTPUT_PARAM_ * param = (_TEXTPATHOUTPUT_PARAM_*)(cc);
-	if ( param == NULL )
-	{
-		return 0;
-	}
-	CHE_PDF_Path * pPath = param->pPath;
-	if ( pPath )
-	{
-		CHE_PDF_PathItem pathItem;
-		pathItem.type = PathItem_LineTo;
-		pPath->mItems.push_back( pathItem );
-		param->curX = pathItem.value = p->x / 64.0f;
-		pPath->mItems.push_back( pathItem );
-		param->curY = pathItem.value = p->y / 64.0f;
-		pPath->mItems.push_back( pathItem );
-	}
-	return 0;
-}
-
-inline int conic_to(const FT_Vector *c, const FT_Vector *p, void *cc)
-{
-	_TEXTPATHOUTPUT_PARAM_ * param = (_TEXTPATHOUTPUT_PARAM_*)(cc);
-	if ( param == NULL )
-	{
-		return 0;
-	}
-	CHE_PDF_Path * pPath = param->pPath;
-	if ( pPath )
-	{
-		CHE_PDF_PathItem pathItem;
-		pathItem.type = PathItem_CurveTo;
-		pPath->mItems.push_back( pathItem );
-		pathItem.value = (param->curX + c->x / 64.0f * 2) / 3;
-		pPath->mItems.push_back( pathItem );
-		pathItem.value = (param->curY + c->y / 64.0f * 2) / 3;
-		pPath->mItems.push_back( pathItem );
-		pathItem.value = (p->x / 64.0f + c->x / 64.0f * 2) / 3;
-		pPath->mItems.push_back( pathItem );
-		pathItem.value = (p->y / 64.0f + c->y / 64.0f * 2) / 3;
-		pPath->mItems.push_back( pathItem );
-		param->curX = pathItem.value = p->x / 64.0f;
-		pPath->mItems.push_back( pathItem );
-		param->curY = pathItem.value = p->y / 64.0f;
-		pPath->mItems.push_back( pathItem );
-	}
-	return 0;
-}
-
-inline int cubic_to(const FT_Vector *c1, const FT_Vector *c2, const FT_Vector *p, void *cc)
-{
-	_TEXTPATHOUTPUT_PARAM_ * param = (_TEXTPATHOUTPUT_PARAM_*)(cc);
-	if ( param == NULL )
-	{
-		return 0;
-	}
-	CHE_PDF_Path * pPath = param->pPath;
-	if ( pPath )
-	{
-		CHE_PDF_PathItem pathItem;
-		pathItem.type = PathItem_CurveTo;
-		pPath->mItems.push_back( pathItem );
-		pathItem.value = c1->x / 64.0f;
-		pPath->mItems.push_back( pathItem );
-		pathItem.value = c1->y / 64.0f;
-		pPath->mItems.push_back( pathItem );
-		pathItem.value = c2->x / 64.0f;
-		pPath->mItems.push_back( pathItem );
-		pathItem.value = c2->y / 64.0f;
-		pPath->mItems.push_back( pathItem );
-		param->curX = pathItem.value = p->x / 64.0f;
-		pPath->mItems.push_back( pathItem );
-		param->curY = pathItem.value = p->y / 64.0f;
-		pPath->mItems.push_back( pathItem );
-	}
-	return 0;
-}
-
 
 CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
 {

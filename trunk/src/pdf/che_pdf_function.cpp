@@ -45,6 +45,7 @@ CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjP
 
 	CHE_PDF_ObjectPtr objPtr;
 	CHE_PDF_DictionaryPtr dictPtr;
+    CHE_PDF_StreamPtr streamPtr;
 	CHE_PDF_Function * pTmp = NULL;
 
 	if ( rootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
@@ -57,7 +58,8 @@ CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjP
 			objPtr = rootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
 			if ( objPtr )
 			{
-				dictPtr = objPtr->GetStreamPtr()->GetDictPtr();
+                streamPtr = objPtr->GetStreamPtr();
+				dictPtr = streamPtr->GetDictPtr();
 			}else{
 				return ptr;
 			}
@@ -67,7 +69,8 @@ CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjP
 		dictPtr = rootObjPtr->GetDictPtr();
 	}else if ( rootObjPtr->GetType() == OBJ_TYPE_STREAM )
 	{
-		dictPtr = rootObjPtr->GetStreamPtr()->GetDictPtr();
+        streamPtr = rootObjPtr->GetStreamPtr();
+		dictPtr = streamPtr->GetDictPtr();
 	}else{
 		return ptr;
 	}
@@ -87,7 +90,7 @@ CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjP
 			pTmp = pAllocator->New<CHE_PDF_Function_Stitching>( rootObjPtr, pAllocator );
 			break;
 		case 4:
-			pTmp = pAllocator->New<CHE_PDF_Function_PostScript>( rootObjPtr->GetStreamPtr(), pAllocator );
+			pTmp = pAllocator->New<CHE_PDF_Function_PostScript>( streamPtr, pAllocator );
 			break;
 		default:;
 		}
@@ -1471,8 +1474,9 @@ HE_BOOL PSFuncStack::Execute( PSFUNCITEM_OPERATOR op )
 		{
 			if ( PopItem(item0) && PopItem(item1) )
 			{
+                Push(item0);
 				Push(item1);
-				Push(item0);
+				
 				return true;
 			}
 			return false;
@@ -1579,7 +1583,7 @@ HE_BOOL PSFuncStack::Execute( PSFUNCITEM_OPERATOR op )
 					{
 						Push(vec[i]);
 					}
-					Push(vec[0]);
+					Push(vec[index]);
 					return true;
 				}
 			}

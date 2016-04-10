@@ -375,7 +375,7 @@ CHE_PDF_InlineImage::CHE_PDF_InlineImage( HE_BOOL bMask, HE_ULONG width, HE_ULON
     HE_LPBYTE pBytes, HE_ULONG size, CHE_PDF_ObjectPtr objPtr, CHE_PDF_ColorSpacePtr colorspace,
     GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator/*= NULL*/ )
 	: CHE_PDF_ContentObject( ContentType_InlineImage, pAllocator ), mbMask( bMask ), mWidth( width ), mHeight( hight ), 
-	mBpc( bpc ), mpData( NULL), mDataSize( 0 ), mDecodeObjPtr( objPtr ), mRI(ri)
+	mBpc( bpc ), mpData( NULL), mDataSize( 0 ), mDecodeObjPtr( objPtr ), mColorspace(colorspace), mRI(ri)
 {
 	if ( pBytes )
 	{

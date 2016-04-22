@@ -51,12 +51,6 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)drawRect:(NSRect)dirtyRect
-{
-    [[NSColor clearColor] set];
-    NSRectFill( dirtyRect );
-}
-
 -(void) setDataSource:(id)source
 {
     if (outlineView) {
@@ -82,7 +76,7 @@
     self = [super initWithFrame:frameRect];
     if (self) {
         scrollView = [[CHEPDFOutlineScrollView alloc] initWithFrame:frameRect parentView:self];
-        [scrollView setBackgroundColor:[NSColor clearColor]];
+        [scrollView setDrawsBackground:NO];
         [self addSubview:scrollView];
     }
     return self;

@@ -16,6 +16,7 @@
     self = [super initWithFrame:frame];
     if (self)
     {
+        [self setCanDrawConcurrently:YES];
         parentScrollView = parent;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(parentScrollViewFrameChanged)
@@ -153,6 +154,7 @@
         [self setAutohidesScrollers:YES];
         [self setHasVerticalScroller:YES];
         [self setHasHorizontalScroller:NO];
+        [self setDrawsBackground:NO];
         [self setBorderType:NSNoBorder];
         
         parentView = parent;
@@ -167,12 +169,6 @@
 -(void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void)drawRect:(NSRect)dirtyRect
-{
-    [[NSColor clearColor] set];
-    NSRectFill( dirtyRect );
 }
 
 -(void)parentViewFrameChanged
@@ -196,7 +192,6 @@
     self = [super initWithFrame:frameRect];
     if (self) {
         scrollView = [[CHEPDFThumbnailScrollView alloc] initWithFrame:frameRect parentView:self];
-        [scrollView setBackgroundColor:[NSColor clearColor]];
         [self addSubview:scrollView];
     }
     return self;

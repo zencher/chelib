@@ -295,7 +295,7 @@
         [self setHasVerticalScroller:YES];
         [self setHasHorizontalScroller:YES];
         [self setBorderType:NSNoBorder];
-        [self setBackgroundColor:[NSColor lightGrayColor]];
+        [self setDrawsBackground:NO];
     }
     return self;
 }

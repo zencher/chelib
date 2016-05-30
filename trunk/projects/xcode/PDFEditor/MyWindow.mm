@@ -16,6 +16,7 @@
     if (self) {
         pdfView = [[CHEPDFEditView alloc] initWithFrame:contentRect];
         [self setContentView:pdfView];
+        [self setAllowsConcurrentViewDrawing:YES];
     }
     return self;
 }
@@ -26,7 +27,7 @@
     if (self) {
         pdfView = [[CHEPDFEditView alloc] init];
         [self setContentView:pdfView];
-
+        [self setAllowsConcurrentViewDrawing:YES];
     }
     return self;
 }

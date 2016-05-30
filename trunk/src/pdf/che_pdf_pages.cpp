@@ -298,13 +298,29 @@ CHE_Rect CHE_PDF_Page::GetPageRect() const
 	CHE_Rect rect;
     CHE_Rect mediaRect;
     CHE_PDF_ArrayPtr arrayPtr = GetCropBoxArray();
+    HE_UINT32 rotate = GetRotate();
+    rotate = rotate % 360;
+
 	arrayPtr->GetRect( rect );
     arrayPtr = GetMediaBoxArray();
     arrayPtr->GetRect( mediaRect );
     if (mediaRect.width < rect.height || mediaRect.height < rect.height)
     {
+        CHE_Matrix transferMatrix = CHE_Matrix::TranslateMatrix(-(mediaRect.width + mediaRect.left)/2, -(mediaRect.height + mediaRect.bottom)/2);
+        CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix(rotate);
+        CHE_Matrix backMatrix = CHE_Matrix::TranslateMatrix((mediaRect.width + mediaRect.left)/2, (mediaRect.height + mediaRect.bottom)/2);
+        transferMatrix.Concat(rotateMatrix);
+        transferMatrix.Concat(backMatrix);
+        mediaRect = transferMatrix.Transform(mediaRect);
         return mediaRect;
     }
+    
+    CHE_Matrix transferMatrix = CHE_Matrix::TranslateMatrix(-(mediaRect.width + mediaRect.left)/2, -(mediaRect.height + mediaRect.bottom)/2);
+    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix(rotate);
+    CHE_Matrix backMatrix = CHE_Matrix::TranslateMatrix((mediaRect.width + mediaRect.left)/2, (mediaRect.height + mediaRect.bottom)/2);
+    transferMatrix.Concat(rotateMatrix);
+    transferMatrix.Concat(backMatrix);
+    rect = transferMatrix.Transform(rect);
 	return rect;
 }
 

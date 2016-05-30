@@ -221,6 +221,8 @@ protected:
 	CHE_Lock                        mLock;
     
     HE_BOOL                         mbBase14Font;
+    
+    HE_LPVOID                       mFTFace;
 
 	std::unordered_map<HE_UINT32, HE_UINT32> mToUnicode;
 
@@ -281,6 +283,9 @@ protected:
 
 class CHE_PDF_MMType1_Font : public CHE_PDF_Type1_Font
 {
+//public:
+//    virtual HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
+    
 private:
 	CHE_PDF_MMType1_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_MMType1_Font();
@@ -291,6 +296,9 @@ private:
 
 class CHE_PDF_TrueType_Font : public CHE_PDF_Type1_Font
 {
+public:
+    virtual HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
+    
 private:
 	CHE_PDF_TrueType_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_TrueType_Font();

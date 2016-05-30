@@ -464,21 +464,103 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                 CHE_PDF_CS_IndexedPtr indexcs = cs->GetIndexedPtr();
                 if ( indexcs )
                 {
-                    CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( indexcs->mBaseColorSpace );
-                    if ( baseColorSpaceRef )
+                    CHE_PDF_ColorSpacePtr baseCS = indexcs->mBaseColorSpace;
+                    if ( !baseCS )
                     {
-                        csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpIndexTable );
-                        CGColorSpaceRelease( baseColorSpaceRef );
+                        //error!!!
+                        assert(false);
                     }
-                }
-                break;
-            }
-        case COLORSPACE_SPECIAL_SEPARATION:
-            {
-                CHE_PDF_CS_SeparationPtr separation = cs->GetSeparationPtr();
-                if ( separation )
-                {
-                    csRef = CreateColorSpace( separation->mBaseColorSpace );
+                    
+                    PDF_COLORSPACE_TYPE type = baseCS->GetColorSpaceType();
+                    if ( type == COLORSPACE_SPECIAL_INDEXED || type == COLORSPACE_SPECIAL_PATTERN )
+                    {
+                        //error!!!
+                    }
+                    
+                    if ( type == COLORSPACE_SPECIAL_SEPARATION )
+                    {
+                        CHE_PDF_FunctionPtr func = baseCS->GetSeparationPtr()->mFunction;
+                        indexcs->mNewTableSize = baseCS->GetComponentCount() * (indexcs->mIndexCount + 1);
+                        HE_UINT32 components = indexcs->mIndexTableSize / (indexcs->mIndexCount + 1);
+                        std::vector<HE_FLOAT> input;
+                        std::vector<HE_FLOAT> output;
+                        HE_LPBYTE tmpByte= indexcs->mpIndexTable;
+                        HE_LPBYTE tmpOutByte = indexcs->mpNewTable;
+                        for (HE_UINT32 i = 0; i <= indexcs->mIndexCount; ++i)
+                        {
+                            input.clear();
+                            output.clear();
+                            for (HE_UINT32 c = 0; c < components; ++c)
+                            {
+                                input.push_back( *tmpByte / 255.0 );
+                                tmpByte++;
+                            }
+                            
+                            func->Calculate(input, output);
+                            for (HE_UINT32 j = 0; j < components; ++j)
+                            {
+                                *tmpOutByte = input[j] * 255;
+                                tmpOutByte++;
+                            }
+                            *tmpOutByte = output[3] * 255;
+                            tmpOutByte++;
+
+                            
+                            /*for (HE_UINT32 j = 0; j < output.size(); ++j)
+                            {
+                                *tmpOutByte = output[j] * 255;
+                                tmpOutByte++;
+                            }*/
+                        }
+                        CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( baseCS->GetSeparationPtr()->mBaseColorSpace );
+                        if ( baseColorSpaceRef )
+                        {
+                            csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpNewTable );
+                            CGColorSpaceRelease( baseColorSpaceRef );
+                        }
+                    }else if ( type == COLORSPACE_SPECIAL_DEVICEN )
+                    {
+                        CHE_PDF_FunctionPtr func = baseCS->GetDeviceNPtr()->mFunction;
+                        indexcs->mNewTableSize = 4 * (indexcs->mIndexCount + 1);
+                        indexcs->mpNewTable = new unsigned char [indexcs->mNewTableSize];
+                        HE_UINT32 components = indexcs->mIndexTableSize / (indexcs->mIndexCount + 1);
+                        std::vector<HE_FLOAT> input;
+                        std::vector<HE_FLOAT> output;
+                        HE_LPBYTE tmpByte= indexcs->mpIndexTable;
+                        HE_LPBYTE tmpOutByte = indexcs->mpNewTable;
+                        for (HE_UINT32 i = 0; i <= indexcs->mIndexCount; ++i)
+                        {
+                            input.clear();
+                            output.clear();
+                            for (HE_UINT32 c = 0; c < components; ++c)
+                            {
+                                input.push_back( *tmpByte / 255.0f );
+                                tmpByte++;
+                            }
+                            
+                            func->Calculate(input, output);
+                            
+                            for (HE_INT32 j = output.size()-1; j >= 0 /*output.size()*/; --j)
+                            {
+                                *tmpOutByte = output[j] * 255;
+                                tmpOutByte++;
+                            }
+                        }
+                        
+                        CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( baseCS->GetDeviceNPtr()->mBaseColorSpace );
+                        if ( baseColorSpaceRef )
+                        {
+                            csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpNewTable );
+                            CGColorSpaceRelease( baseColorSpaceRef );
+                        }
+                    }else{
+                        CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( indexcs->mBaseColorSpace );
+                        if ( baseColorSpaceRef )
+                        {
+                            csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpIndexTable );
+                            CGColorSpaceRelease( baseColorSpaceRef );
+                        }
+                    }
                 }
                 break;
             }
@@ -522,7 +604,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         if ( imagePtr->IsMask() )
         {
             imgRef = CGImageMaskCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), imagePtr->GetBPC(), imagePtr->GetBPC(),
-                                       (imagePtr->GetWidth() * imagePtr->GetBPC() + 7)/8,dataRef, pDecode, imagePtr->IsInterpolate() );
+                                       (imagePtr->GetWidth() * imagePtr->GetBPC() + 7)/8, dataRef, pDecode, imagePtr->IsInterpolate() );
             CGDataProviderRelease( dataRef );
                 return imgRef;
         }
@@ -555,6 +637,15 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
             bpc = imagePtr->GetSize() * 8 / ( imagePtr->GetWidth() * imagePtr->GetHeight() * csPtr->GetComponentCount() );
         }
         CGColorSpaceRef csRef = CreateColorSpace( csPtr );
+        
+        PDF_COLORSPACE_TYPE t = csPtr->GetColorSpaceType();
+        
+        if (csRef == NULL)
+        {
+            int x = 0;
+            int y = 0;
+        }
+        
         imgRef = CGImageCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), bpc, bpc*csPtr->GetComponentCount(),
                                (imagePtr->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
                                kCGBitmapByteOrderDefault, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
@@ -645,6 +736,11 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
             bpc = image->GetDataSize() * 8 / ( image->GetWidth() * image->GetHeight() * csPtr->GetComponentCount() );
         }
         CGColorSpaceRef csRef = CreateColorSpace( csPtr );
+        if (csRef==NULL)
+        {
+            abort();
+            
+        }
         imgRef = CGImageCreate( image->GetWidth(), image->GetHeight(), bpc, bpc * csPtr->GetComponentCount(),
                                (image->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
                                kCGBitmapByteOrderDefault, dataRef, pDecode, false, ri );
@@ -887,8 +983,6 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
         pGState->GetFillColorSpace( fillColorSpace );
         pGState->GetStrokeColorSpace( strokeColorSpace );
         
-        
-        
         if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
         {
             CHE_PDF_CS_SeparationPtr cs = fillColorSpace->GetSeparationPtr();
@@ -910,9 +1004,11 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                         fillColor.Push( output[j] );
                     }
                 }
-                
                 SetFillColorSpace( cs->mBaseColorSpace );
             }
+        }else if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
+        {
+            
         }else{
             SetFillColorSpace( fillColorSpace );
         }
@@ -940,6 +1036,9 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                 }
                 SetStrokeColorSpace( cs->mBaseColorSpace );
             }
+        }else if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
+        {
+            
         }else{
             SetStrokeColorSpace( strokeColorSpace );
         }

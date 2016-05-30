@@ -16,7 +16,7 @@
     self = [super initWithFrame:frame];
     if (self)
     {
-        [self setCanDrawConcurrently:YES];
+        //[self setCanDrawConcurrently:YES];
         parentScrollView = parent;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(parentScrollViewFrameChanged)
@@ -38,8 +38,6 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
-    [[NSColor clearColor] set];
-    NSRectFill( dirtyRect );
     if ( pdfDocData )
     {
         [self drawPages:dirtyRect];
@@ -86,6 +84,7 @@
 {
     NSRect visableRect;
     NSRect pageRectInView;
+    NSRect pageRectWithShadowInView;
     NSRect frame = [self frame];
     visableRect = [parentScrollView documentVisibleRect];
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
@@ -96,10 +95,17 @@
         for ( HE_ULONG i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
         {
             pageRectInView = [pdfDocData getPageRectInThumbnailView:i];
-            if ( CGRectIntersectsRect( rect, pageRectInView ) )
+            pageRectWithShadowInView = pageRectInView;
+            pageRectWithShadowInView.origin.x -= 10;
+            pageRectWithShadowInView.origin.y -= 10;
+            pageRectWithShadowInView.size.width += 10;
+            pageRectWithShadowInView.size.height += 30;
+            
+            if ( CGRectIntersectsRect( rect, pageRectWithShadowInView ) )
             {
-                CGContextSaveGState( context );
                 [self drawPageBorderAndShadow:context bound:pageRectInView];
+                
+                CGContextSaveGState( context );
                 CHE_Rect pageRect = [pdfDocData getPageRect:i];
                 CHE_PDF_Renderer render( context );
                 render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );

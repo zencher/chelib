@@ -274,6 +274,8 @@ public:
     HE_ULONG				mIndexCount;
     HE_ULONG				mIndexTableSize;
     HE_LPBYTE				mpIndexTable;
+    HE_LPBYTE               mpNewTable;
+    HE_ULONG                mNewTableSize;
     CHE_PDF_ColorSpacePtr	mBaseColorSpace;
 
 #ifdef WIN32
@@ -320,13 +322,15 @@ private:
 class CHE_PDF_CS_DeviceN : public CHE_PDF_ColorSpace
 {
 public:
+    CHE_PDF_ColorSpacePtr   mBaseColorSpace;
+    CHE_PDF_FunctionPtr		mFunction;
 
 #ifdef WIN32
 	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
 #endif
 
 private:
-    CHE_PDF_CS_DeviceN(CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_DeviceN(CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = NULL);
     
     friend class CHE_Allocator;
 };

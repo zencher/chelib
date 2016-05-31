@@ -283,7 +283,7 @@ protected:
 
 class CHE_PDF_MMType1_Font : public CHE_PDF_Type1_Font
 {
-//public:
+public:
 //    virtual HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
     
 private:
@@ -297,7 +297,7 @@ private:
 class CHE_PDF_TrueType_Font : public CHE_PDF_Type1_Font
 {
 public:
-    //virtual HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
+    virtual HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
     
 private:
 	CHE_PDF_TrueType_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );

@@ -5,9 +5,9 @@
 #include "che_pdf_xobject.h"
 #include "che_pdf_pattern.h"
 #include "che_pdf_gstate.h"
-#import <ApplicationServices/ApplicationServices.h>
-#import <CoreGraphics/CGPattern.h>
-#import <CoreGraphics/CoreGraphics.h>
+#include <ApplicationServices/ApplicationServices.h>
+#include <CoreGraphics/CGPattern.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 class CHE_PDF_Renderer
 {
@@ -52,6 +52,7 @@ public:
     CGImageRef      CreateImage( CHE_PDF_InlineImage * image );
     
     //path & clip operations
+    HE_VOID     ResetPath();
     HE_VOID		MoveTo( HE_FLOAT x, HE_FLOAT y );
     HE_VOID		LineTo( HE_FLOAT x, HE_FLOAT y );
     HE_VOID		CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 );
@@ -77,9 +78,9 @@ public:
     HE_VOID     DrawTextAsPath( CHE_PDF_Text * pText );
     HE_VOID     DrawTextGlyph( CGGlyph gid );
     HE_VOID     DrawInlineImage( CHE_PDF_InlineImage * pImage );
-    HE_VOID     DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, const CHE_Matrix & extMatrix );
+    HE_VOID     DrawComponentRef( CHE_PDF_ComponentRef * cmptRef );
     HE_VOID     DrawRefImage( const CHE_PDF_ImageXObjectPtr & image );
-    HE_VOID     DrawForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix );
+    HE_VOID     DrawForm( const CHE_PDF_FormXObjectPtr & form );
     HE_VOID     DrawShading( const CHE_PDF_ShadingPtr & shading );
     
     HE_VOID     SetPatternOffset( HE_FLOAT x, HE_FLOAT y ) {  mPatternOffsetX = x; mPatternOffsetY = y; }

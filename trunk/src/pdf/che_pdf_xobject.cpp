@@ -187,4 +187,18 @@ CHE_PDF_FormXObjectPtr CHE_PDF_FormXObject::Convert( const CHE_PDF_ComponentPtr 
 }
 
 CHE_PDF_FormXObject::CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
-	: CHE_PDF_Component( COMPONENT_TYPE_FormXObject, refPtr, pAllocator ) {}
+	: CHE_PDF_Component( COMPONENT_TYPE_FormXObject, refPtr, pAllocator )
+{
+    CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj(OBJ_TYPE_STREAM);
+    if (objPtr)
+    {
+        CHE_PDF_StreamPtr stmPtr = objPtr->GetStreamPtr();
+        CHE_PDF_DictionaryPtr dictPtr = stmPtr->GetDictPtr();
+        CHE_PDF_ObjectPtr objPtr = dictPtr->GetElement("Matrix", OBJ_TYPE_ARRAY);
+        if (objPtr)
+        {
+            CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
+            arrayPtr->GetMatrix(mMatrix);
+        }
+    }
+}

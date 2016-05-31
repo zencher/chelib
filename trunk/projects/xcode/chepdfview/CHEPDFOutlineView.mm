@@ -82,7 +82,7 @@
     self = [super initWithFrame:frameRect];
     if (self) {
         scrollView = [[CHEPDFOutlineScrollView alloc] initWithFrame:frameRect parentView:self];
-        [scrollView setBackgroundColor:[NSColor clearColor]];
+        [scrollView setDrawsBackground:NO];
         [self addSubview:scrollView];
     }
     return self;

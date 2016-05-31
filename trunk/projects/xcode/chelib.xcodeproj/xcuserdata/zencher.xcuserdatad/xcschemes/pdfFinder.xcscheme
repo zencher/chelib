@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0720"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90C37C8D17534E58005D9C8A"
-               BuildableName = "libchelib.a"
-               BlueprintName = "chelib"
+               BlueprintIdentifier = "904699D61CBABC7700622761"
+               BuildableName = "pdffinder"
+               BlueprintName = "pdffinder"
                ReferencedContainer = "container:chelib.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -28,23 +28,13 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90289F6D1C7964EE005F8310"
-               BuildableName = "CPDFEditViewTests.xctest"
-               BlueprintName = "CPDFEditViewTests"
-               ReferencedContainer = "container:chelib.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90C5373717587FF10014AC65"
-            BuildableName = "pdfRenderTest.app"
-            BlueprintName = "pdfRenderTest"
+            BlueprintIdentifier = "904699D61CBABC7700622761"
+            BuildableName = "pdffinder"
+            BlueprintName = "pdffinder"
             ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -52,22 +42,22 @@
       </AdditionalOptions>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
-      debugDocumentVersioning = "NO"
+      debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90C5373717587FF10014AC65"
-            BuildableName = "pdfRenderTest.app"
-            BlueprintName = "pdfRenderTest"
+            BlueprintIdentifier = "904699D61CBABC7700622761"
+            BuildableName = "pdffinder"
+            BlueprintName = "pdffinder"
             ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -80,15 +70,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90C37C8D17534E58005D9C8A"
-            BuildableName = "libchelib.a"
-            BlueprintName = "chelib"
+            BlueprintIdentifier = "904699D61CBABC7700622761"
+            BuildableName = "pdffinder"
+            BlueprintName = "pdffinder"
             ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

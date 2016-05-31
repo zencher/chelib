@@ -18,6 +18,7 @@
     self = [super initWithFrame:frame];
     if (self)
     {
+        //[self setCanDrawConcurrently:YES];
         parentScrollView = parent;
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(parentScrollViewFrameChanged)
@@ -139,6 +140,7 @@
     //NSLog( @"view:x=%f,y=%f,w=%f,h=%f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height );
     NSRect visableRect;
     NSRect pageRectInView;
+    NSRect pageRectWithShadowInView;
     NSRect frame = [self frame];
     
     //NSRect leftFrame = [leftView frame];
@@ -169,13 +171,20 @@
         for ( HE_ULONG i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
         {
             pageRectInView = [pdfDocData getPageRectInView:i];
-            if ( CGRectIntersectsRect( rect, pageRectInView ) )
+            pageRectWithShadowInView = pageRectInView;
+            pageRectWithShadowInView.origin.x -= 10;
+            pageRectWithShadowInView.origin.y -= 10;
+            pageRectWithShadowInView.size.width += 10;
+            pageRectWithShadowInView.size.height += 10;
+            if ( CGRectIntersectsRect( rect, pageRectWithShadowInView ) )
             {
-                CGContextSaveGState( context );
-                CGContextAddRect( context, rect );
-                CGContextClip( context );
-                
                 [self drawPageBorderAndShadow:context bound:pageRectInView];
+                
+                CGContextSaveGState( context );
+                //CGContextAddRect( context, rect );
+                //CGContextClip( context );
+                
+                
                 
                 CHE_Rect pageRect = [pdfDocData getPageRect:i];
                 
@@ -295,7 +304,7 @@
         [self setHasVerticalScroller:YES];
         [self setHasHorizontalScroller:YES];
         [self setBorderType:NSNoBorder];
-        [self setBackgroundColor:[NSColor lightGrayColor]];
+        [self setDrawsBackground:NO];
     }
     return self;
 }

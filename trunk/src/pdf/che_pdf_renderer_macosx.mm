@@ -1,9 +1,11 @@
-#import "../../include/pdf/che_pdf_renderer_macosx.h"
-#import <CoreGraphics/CGPattern.h>
+#include "../../include/pdf/che_pdf_renderer_macosx.h"
+#include <CoreGraphics/CGPattern.h>
 
+#include <CoreText/CoreText.h>
+#include <AppKit/AppKit.h>
+#include <Foundation/Foundation.h>
+#include <CoreText/CoreText.h>
 
-
-#include "../../include/che_bitmap.h"
 
 void TilingDrawCallBack( void *info, CGContextRef c )
 {
@@ -462,21 +464,103 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                 CHE_PDF_CS_IndexedPtr indexcs = cs->GetIndexedPtr();
                 if ( indexcs )
                 {
-                    CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( indexcs->mBaseColorSpace );
-                    if ( baseColorSpaceRef )
+                    CHE_PDF_ColorSpacePtr baseCS = indexcs->mBaseColorSpace;
+                    if ( !baseCS )
                     {
-                        csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpIndexTable );
-                        CGColorSpaceRelease( baseColorSpaceRef );
+                        //error!!!
+                        assert(false);
                     }
-                }
-                break;
-            }
-        case COLORSPACE_SPECIAL_SEPARATION:
-            {
-                CHE_PDF_CS_SeparationPtr separation = cs->GetSeparationPtr();
-                if ( separation )
-                {
-                    csRef = CreateColorSpace( separation->mBaseColorSpace );
+                    
+                    PDF_COLORSPACE_TYPE type = baseCS->GetColorSpaceType();
+                    if ( type == COLORSPACE_SPECIAL_INDEXED || type == COLORSPACE_SPECIAL_PATTERN )
+                    {
+                        //error!!!
+                    }
+                    
+                    if ( type == COLORSPACE_SPECIAL_SEPARATION )
+                    {
+                        CHE_PDF_FunctionPtr func = baseCS->GetSeparationPtr()->mFunction;
+                        indexcs->mNewTableSize = baseCS->GetComponentCount() * (indexcs->mIndexCount + 1);
+                        HE_UINT32 components = indexcs->mIndexTableSize / (indexcs->mIndexCount + 1);
+                        std::vector<HE_FLOAT> input;
+                        std::vector<HE_FLOAT> output;
+                        HE_LPBYTE tmpByte= indexcs->mpIndexTable;
+                        HE_LPBYTE tmpOutByte = indexcs->mpNewTable;
+                        for (HE_UINT32 i = 0; i <= indexcs->mIndexCount; ++i)
+                        {
+                            input.clear();
+                            output.clear();
+                            for (HE_UINT32 c = 0; c < components; ++c)
+                            {
+                                input.push_back( *tmpByte / 255.0 );
+                                tmpByte++;
+                            }
+                            
+                            func->Calculate(input, output);
+                            for (HE_UINT32 j = 0; j < components; ++j)
+                            {
+                                *tmpOutByte = input[j] * 255;
+                                tmpOutByte++;
+                            }
+                            *tmpOutByte = output[3] * 255;
+                            tmpOutByte++;
+
+                            
+                            /*for (HE_UINT32 j = 0; j < output.size(); ++j)
+                            {
+                                *tmpOutByte = output[j] * 255;
+                                tmpOutByte++;
+                            }*/
+                        }
+                        CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( baseCS->GetSeparationPtr()->mBaseColorSpace );
+                        if ( baseColorSpaceRef )
+                        {
+                            csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpNewTable );
+                            CGColorSpaceRelease( baseColorSpaceRef );
+                        }
+                    }else if ( type == COLORSPACE_SPECIAL_DEVICEN )
+                    {
+                        CHE_PDF_FunctionPtr func = baseCS->GetDeviceNPtr()->mFunction;
+                        indexcs->mNewTableSize = 4 * (indexcs->mIndexCount + 1);
+                        indexcs->mpNewTable = new unsigned char [indexcs->mNewTableSize];
+                        HE_UINT32 components = indexcs->mIndexTableSize / (indexcs->mIndexCount + 1);
+                        std::vector<HE_FLOAT> input;
+                        std::vector<HE_FLOAT> output;
+                        HE_LPBYTE tmpByte= indexcs->mpIndexTable;
+                        HE_LPBYTE tmpOutByte = indexcs->mpNewTable;
+                        for (HE_UINT32 i = 0; i <= indexcs->mIndexCount; ++i)
+                        {
+                            input.clear();
+                            output.clear();
+                            for (HE_UINT32 c = 0; c < components; ++c)
+                            {
+                                input.push_back( *tmpByte / 255.0f );
+                                tmpByte++;
+                            }
+                            
+                            func->Calculate(input, output);
+                            
+                            for (HE_INT32 j = output.size()-1; j >= 0 /*output.size()*/; --j)
+                            {
+                                *tmpOutByte = output[j] * 255;
+                                tmpOutByte++;
+                            }
+                        }
+                        
+                        CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( baseCS->GetDeviceNPtr()->mBaseColorSpace );
+                        if ( baseColorSpaceRef )
+                        {
+                            csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpNewTable );
+                            CGColorSpaceRelease( baseColorSpaceRef );
+                        }
+                    }else{
+                        CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( indexcs->mBaseColorSpace );
+                        if ( baseColorSpaceRef )
+                        {
+                            csRef = CGColorSpaceCreateIndexed( baseColorSpaceRef, indexcs->mIndexCount, indexcs->mpIndexTable );
+                            CGColorSpaceRelease( baseColorSpaceRef );
+                        }
+                    }
                 }
                 break;
             }
@@ -520,7 +604,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         if ( imagePtr->IsMask() )
         {
             imgRef = CGImageMaskCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), imagePtr->GetBPC(), imagePtr->GetBPC(),
-                                       (imagePtr->GetWidth() * imagePtr->GetBPC() + 7)/8,dataRef, pDecode, imagePtr->IsInterpolate() );
+                                       (imagePtr->GetWidth() * imagePtr->GetBPC() + 7)/8, dataRef, pDecode, imagePtr->IsInterpolate() );
             CGDataProviderRelease( dataRef );
                 return imgRef;
         }
@@ -553,6 +637,15 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
             bpc = imagePtr->GetSize() * 8 / ( imagePtr->GetWidth() * imagePtr->GetHeight() * csPtr->GetComponentCount() );
         }
         CGColorSpaceRef csRef = CreateColorSpace( csPtr );
+        
+        PDF_COLORSPACE_TYPE t = csPtr->GetColorSpaceType();
+        
+        if (csRef == NULL)
+        {
+            int x = 0;
+            int y = 0;
+        }
+        
         imgRef = CGImageCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), bpc, bpc*csPtr->GetComponentCount(),
                                (imagePtr->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
                                kCGBitmapByteOrderDefault, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
@@ -643,6 +736,11 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
             bpc = image->GetDataSize() * 8 / ( image->GetWidth() * image->GetHeight() * csPtr->GetComponentCount() );
         }
         CGColorSpaceRef csRef = CreateColorSpace( csPtr );
+        if (csRef==NULL)
+        {
+            abort();
+            
+        }
         imgRef = CGImageCreate( image->GetWidth(), image->GetHeight(), bpc, bpc * csPtr->GetComponentCount(),
                                (image->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
                                kCGBitmapByteOrderDefault, dataRef, pDecode, false, ri );
@@ -660,6 +758,15 @@ HE_VOID CHE_PDF_Renderer::SetImageColorSpace( const CHE_PDF_ColorSpacePtr & cs )
         mImageColorSpace = NULL;
     }
     mImageColorSpace = CreateColorSpace( cs );
+}
+
+HE_VOID CHE_PDF_Renderer::ResetPath()
+{
+    if ( mPathRef )
+    {
+        CGPathRelease( mPathRef );
+    }
+    mPathRef = CGPathCreateMutable();
 }
 
 HE_VOID	CHE_PDF_Renderer::MoveTo( HE_FLOAT x, HE_FLOAT y )
@@ -876,9 +983,6 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
         pGState->GetFillColorSpace( fillColorSpace );
         pGState->GetStrokeColorSpace( strokeColorSpace );
         
-        SetFillColorSpace( fillColorSpace );
-        SetStrokeColorSpace( strokeColorSpace );
-        
         if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
         {
             CHE_PDF_CS_SeparationPtr cs = fillColorSpace->GetSeparationPtr();
@@ -900,7 +1004,13 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                         fillColor.Push( output[j] );
                     }
                 }
+                SetFillColorSpace( cs->mBaseColorSpace );
             }
+        }else if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
+        {
+            
+        }else{
+            SetFillColorSpace( fillColorSpace );
         }
         
         if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
@@ -924,7 +1034,13 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                         strokeColor.Push( output[j] );
                     }
                 }
+                SetStrokeColorSpace( cs->mBaseColorSpace );
             }
+        }else if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
+        {
+            
+        }else{
+            SetStrokeColorSpace( strokeColorSpace );
         }
         
         SetFillColor( fillColor );
@@ -965,6 +1081,8 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
 		{
             CHE_PDF_Path * pPath = (CHE_PDF_Path*)(pObj);
             CHE_Point p1, p2, p3;
+            
+            ResetPath();
             for ( size_t i = 0; i < pPath->mItems.size(); ++i )
             {
                 switch ( pPath->mItems[i].type )
@@ -1011,57 +1129,39 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
         }
         else if ( pObj->GetType() == ContentType_Text )
         {
+            CHE_Matrix matrix;
             CHE_PDF_Text * pText = (CHE_PDF_Text*)(pObj);
-            for ( size_t i = 0; i < pText->mItems.size(); ++i )
+            CHE_PDF_Font * pFont = pGState->GetTextFont();
+            
+            CGGlyph glyph = 0;
+            CTFontRef ctFontRef  = CTFontCreateWithGraphicsFont((CGFontRef)pFont->GetPlatformFontInfo(), 1, nil, nil);
+            
+            ResetPath();
+            for (size_t i = 0; i < pText->mItems.size(); ++i)
             {
-                CHE_PDF_Path * pPath = pText->GetGraphPath( i );
-                if ( pPath )
-                {
-                    for ( HE_INT32 i = 0; i < pPath->mItems.size(); ++i )
-                    {
-                        switch ( pPath->mItems[i].type )
-                        {
-                        case PathItem_MoveTo:
-                            MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                            i+=2;
-                            break;
-                        case PathItem_LineTo:
-                            LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                            i+=2;
-                            break;
-                        case PathItem_CurveTo:
-                            CurveTo(   pPath->mItems[i+1].value, pPath->mItems[i+2].value,
-                                        pPath->mItems[i+3].value, pPath->mItems[i+4].value,
-                                        pPath->mItems[i+5].value, pPath->mItems[i+6].value );
-                            i+=6;
-                            break;
-                        case PathItem_Rectangle:
-                            MoveTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value );
-                            LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value );
-                            LineTo( pPath->mItems[i+1].value + pPath->mItems[i+3].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-                            LineTo( pPath->mItems[i+1].value, pPath->mItems[i+2].value + pPath->mItems[i+4].value );
-                            ClosePath();
-                            i+=4;
-                            break;
-                        case PathItem_Close:
-                            ClosePath();
-                            i+=1;
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-                    ClosePath();
-                    pPath->GetAllocator()->Delete( pPath );
-                }
+                glyph = pText->mItems[i].gid;
+                matrix = pText->GetCharMatrix(i);
+                CGAffineTransform tm = CGAffineTransformMake(matrix.a, matrix.b, matrix.c, matrix.d, matrix.e, matrix.f);
+                CGPathRef path =  CTFontCreatePathForGlyph(ctFontRef, glyph, &tm);
+                CGPathAddPath(mPathRef, NULL, path);
             }
+            CFRelease(ctFontRef);
         }
         ClipPath();
-				        
+		
         CHE_Matrix invertMatrix;
         invertMatrix.Invert( mTmpMatrix );
         CGContextConcatCTM( mContextRef, CGAffineTransformMake( invertMatrix.a, invertMatrix.b, invertMatrix.c, invertMatrix.d, invertMatrix.e, invertMatrix.f) );
 	}
+}
+
+HE_VOID CGFontCleanCallBack( HE_LPVOID info )
+{
+    if ( info )
+    {
+        CGFontRef fontRef = (CGFontRef)info;
+        CGFontRelease( fontRef );
+    }
 }
 
 HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
@@ -1146,14 +1246,7 @@ HE_VOID CHE_PDF_Renderer::DrawTextGlyph( CGGlyph gid )
     RestoreGState();
 }
 
-HE_VOID CGFontCleanCallBack( HE_LPVOID info )
-{
-    if ( info )
-    {
-        CGFontRef fontRef = (CGFontRef)info;
-        CGFontRelease( fontRef );
-    }
-}
+
 
 HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
 {
@@ -1200,14 +1293,10 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
         case TextRenderMode_StrokeClip:
         case TextRenderMode_FillStrokeClip:
         {
-            HE_ULONG cgGlyphCount;
-            HE_ULONG ftGlyphCount;
             CGFontRef cgfontRef = NULL;
             
             //对于Fill类型的文本输出，可以使用系统原生文本输出接口，以获得次像素支
             CHE_PDF_Font * pFont = pText->GetGState()->GetTextFont();
-            
-            
             if ( pFont->GetFontType() == FONT_TYPE3 )
             {
                 StoreGState();
@@ -1241,8 +1330,6 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
             {
                 cgfontRef = (CGFontRef)pFont->GetPlatformFontInfo();
                 SetTextFont( cgfontRef );
-                cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
-                ftGlyphCount = pFont->GetFTFaceGlyphCount();
             }else{
                 if ( pFont->GetEmbededFontSize() )
                 {
@@ -1253,69 +1340,16 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                         cgfontRef = CGFontCreateWithDataProvider( dataProviderRef );
                         if ( cgfontRef )
                         {
-                            cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
-                            ftGlyphCount = pFont->GetFTFaceGlyphCount();
                             pFont->SetPlatformFontInfo( cgfontRef );
                             pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
                             SetTextFont( cgfontRef );
                         }else{
                             CFRelease(dataProviderRef);
                             CFRelease(dataRef);
-                            //assert(false);
                             return DrawTextAsPath( pText );
                         }
                         CFRelease(dataProviderRef);
                         CFRelease(dataRef);
-                    }
-                }else{
-                    CHE_ByteString fontPath = pFont->GetFontPath();
-                    if ( fontPath.GetLength() > 0 )
-                    {
-                        FILE * pFile = fopen( fontPath.GetData(), "rb" );
-                        if ( pFile )
-                        {
-                            fseek( pFile, 0, SEEK_END );
-                            long posi = ftell( pFile );
-                            unsigned char * data = new unsigned char[posi];
-                            fseek( pFile, 0, SEEK_SET);
-                            fread( data, 1, posi, pFile);
-                            
-                            CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, data, posi, kCFAllocatorNull );
-                            if ( dataRef )
-                            {
-                                CGDataProviderRef dataProviderRef = CGDataProviderCreateWithCFData( dataRef );
-                                cgfontRef = CGFontCreateWithDataProvider( dataProviderRef );
-                                if ( cgfontRef )
-                                {
-                                    cgGlyphCount = CGFontGetNumberOfGlyphs(cgfontRef);
-                                    ftGlyphCount = pFont->GetFTFaceGlyphCount();
-                                    pFont->SetPlatformFontInfo( cgfontRef );
-                                    pFont->SetPlatformFontInfoCleanCallBack( CGFontCleanCallBack );
-                                    SetTextFont( cgfontRef );
-                                    
-                                }else{
-                                    //assert(false);
-                                    return ;//DrawTextAsPath( pText );
-                                }
-                                CFRelease(dataProviderRef);
-                                CFRelease(dataRef);
-                            }
-                            fclose(pFile);
-                            
-                            delete [] data;
-                        }
-                    }else{
-                        /*NSDictionary *fontAttributes =
-                            [NSDictionary dictionaryWithObjectsAndKeys:
-                                [NSNumber numberWithFloat:16.0],
-                                (NSString *)kCTFontSizeAttribute, nil];
-                        // Create a descriptor.
-                        CTFontDescriptorRef descriptor =
-                        CTFontDescriptorCreateWithAttributes((CFDictionaryRef)fontAttributes);
-                        
-                        // Create a font using the descriptor.
-                        CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);
-                        CFRelease(descriptor);*/
                     }
                 }
             }
@@ -1327,15 +1361,15 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                 textMatirx = pText->GetCharMatrix( i );
                 SetTextMatrix( textMatirx );
                 
-                if ( cgGlyphCount == ftGlyphCount )
+                sprintf( glyphName, "cid%ld", pText->mItems[i].gid );
+                CFStringRef glyphNameStrRef = CFStringCreateWithCString( kCFAllocatorDefault, glyphName, kCFStringEncodingASCII );
+                GlyphID gid = CGFontGetGlyphWithGlyphName( cgfontRef, glyphNameStrRef );
+                CFRelease(glyphNameStrRef);
+                if ( gid )
                 {
-                    DrawTextGlyph( pText->mItems[i].gid );
-                }else{
-                    sprintf( glyphName, "cid%ld", pText->mItems[i].gid );
-                    CFStringRef glyphNameStrRef = CFStringCreateWithCString( kCFAllocatorDefault, glyphName, kCFStringEncodingASCII );
-                    GlyphID gid = CGFontGetGlyphWithGlyphName( cgfontRef, glyphNameStrRef );
-                    CFRelease(glyphNameStrRef);
                     DrawTextGlyph( gid );
+                }else{
+                    DrawTextGlyph( pText->mItems[i].gid );
                 }
             }
             break;
@@ -1438,7 +1472,7 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
     //RestoreGState();
 }
 
-HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, const CHE_Matrix & extMatrix )
+HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 {
     if ( cmptRef == NULL )
 	{
@@ -1458,17 +1492,28 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef, cons
 		{
             StoreGState();
             
-			CHE_Matrix tmpExtMatrix = extMatrix;
-			CHE_Matrix newExtMatrix;
+            CHE_Matrix t1 = mMatrix;
+            t1.Concat(mExtMatrix);
+            
+            CHE_Matrix revertMatrix;
+            revertMatrix.Invert(t1);
+            CGContextConcatCTM( mContextRef, CGAffineTransformMake( revertMatrix.a, revertMatrix.b, revertMatrix.c, revertMatrix.d, revertMatrix.e, revertMatrix.f) );
+            
+            CHE_PDF_FormXObjectPtr formPtr = CHE_PDF_FormXObject::Convert( componentPtr );
+            
+            CHE_Matrix tmpMatrix = mMatrix;
+			CHE_Matrix tmpExtMatrix = mExtMatrix;
+            CHE_Matrix newExtMatrix = formPtr->GetMatrix();
 			CHE_PDF_GState * pGState = cmptRef->GetGState();
 			if ( pGState )
 			{
-                newExtMatrix = pGState->GetMatrix();
+                newExtMatrix.Concat(pGState->GetMatrix());
 			}
 			newExtMatrix.Concat( tmpExtMatrix );
 			SetExtMatrix( newExtMatrix );
-            DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ), mExtMatrix );
-			SetExtMatrix( extMatrix );
+            DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ) );
+			SetExtMatrix( tmpExtMatrix );
+            SetMatrix( tmpMatrix );
             
             RestoreGState();
 			break;
@@ -1527,7 +1572,7 @@ HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
     
 }
 
-HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix )
+HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 {
     CHE_PDF_ContentObjectList & list = form->GetList();
     ContentObjectList::iterator it = list.Begin();
@@ -1566,7 +1611,7 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form, const C
 			}
             case ContentType_Component:
 			{
-				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
 				break;
 			}
             default:
@@ -1614,7 +1659,7 @@ HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & lis
 			}
             case ContentType_Component:
 			{
-				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
 				break;
 			}
             default:
@@ -1732,7 +1777,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
 				break;
             case ContentType_Component:
-				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
                 break;
             default: break;
 		}
@@ -1777,7 +1822,7 @@ HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, HE_
 				DrawInlineImage( (CHE_PDF_InlineImage*)(*it) );
 				break;
             case ContentType_Component:
-				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it), mExtMatrix );
+				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
 				break;
             default: break;
 		}

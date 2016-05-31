@@ -5974,9 +5974,33 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 	}
 	if ( !objPtr )
 	{
-        //mBaseType = mType = FONT_ENCODING_STANDARD;
-        mBaseType = mType = FONT_ENCODING_NONE;
-		return;
+        CHE_ByteString typeStr( GetAllocator() );
+        CHE_ByteString baseFontStr( GetAllocator() );
+        
+        CHE_PDF_ObjectPtr objPtr = fontDict->GetElement( "Subtype", OBJ_TYPE_NAME );
+        if ( objPtr )
+        {
+            typeStr = objPtr->GetNamePtr()->GetString();
+        }
+        objPtr = fontDict->GetElement( "BaseFont", OBJ_TYPE_NAME );
+        if ( objPtr )
+        {
+            baseFontStr = objPtr->GetNamePtr()->GetString();
+        }
+        
+        if ( typeStr == "Type1" && (baseFontStr == "Symbol" || baseFontStr == "ZapfDingbats") )
+        {
+            if ( baseFontStr == "Symbol" )
+            {
+                mBaseType = mType = FONT_ENCODING_SYMBOL;
+            }else{
+                mBaseType = mType = FONT_ENCODING_ZAPFDINGBAT;
+            }
+            return;
+        }else{
+            mBaseType = mType = FONT_ENCODING_NONE;
+            return;
+        }
 	}
 
 	CHE_ByteString	str;
@@ -6546,7 +6570,8 @@ CHE_PDF_Font::CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocato
                 mFontFileSize = bufSize;
                 mpEmbeddedFontFile = pBuf;
                 mbBase14Font = TRUE;
-                
+                FT_Library ftlib = HE_GetFTLibrary();
+                FT_New_Memory_Face( ftlib, mpEmbeddedFontFile, mFontFileSize, 0, (FT_Face*)&mFTFace );
                 CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, mpEmbeddedFontFile, mFontFileSize, kCFAllocatorNull );
                 if ( dataRef )
                 {
@@ -6903,18 +6928,23 @@ CHE_PDF_Type1_Font::CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit,
 				mGlyphNames[i] = pdf_mac_expert[i];
 			}
 			break;
-        /*case FONT_ENCODING_NONE:
+        case FONT_ENCODING_NONE:
+            for (HE_ULONG i = 0; i < 256; ++i)
             {
-                char glyphName[256];
-                FT_Get_Glyph_Name
-            }*/
-            //for (HE_ULONG i = 0; i < 256; ++i)
-            //{
-            //    mGlyphNames[i] = pdf_standard[i];
-            //}
+                mGlyphNames[i] = pdf_standard[i];
+            }
             break;
-		default:break;
+        default:break;
 		}
+        
+        /*if ( mFontType == FONT_TYPE1 && (mBaseFont == "Symbol" || mBaseFont == "ZapfDingbats" ) )
+        {
+            for (HE_ULONG i = 0; i < 256; ++i)
+            {
+                mGlyphNames[i] = pdf_standard[i];
+            }
+
+        }*/
 
 		CHE_PDF_DictionaryPtr encodingDict;
 		CHE_PDF_ObjectPtr objPtr = mFontDict->GetElement("Encoding", OBJ_TYPE_DICTIONARY);
@@ -6983,13 +7013,24 @@ CHE_PDF_Type1_Font::~CHE_PDF_Type1_Font()
 
 HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid) const
 {
-    //static int index = 0;
+    static int index = 0;
 	HE_BOOL bUCSGet = false;
     HE_BOOL bGIDGet = false;
 	cid = 0;
     ucs = 0;
     gid = 0;
     
+    if ( mPlatformFontInfo == NULL && mFTFace == NULL )
+    {
+        //关键性错误，不能没有字体文件！！！
+        abort();
+        return false;
+    }
+    
+    if ( mEncoding.GetUnicode(charCode, ucs) )
+    {
+        bUCSGet = true;
+    }
 	if ( !bUCSGet && mToUnicode.size() )
 	{
 		std::unordered_map<HE_UINT32, HE_UINT32>::const_iterator it;
@@ -7000,37 +7041,76 @@ HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG &
 			bUCSGet = true;
 		}
 	}
-
-    if ( !bUCSGet )
-    {
-        ucs = charCode;
-    }
     
-    //index++;
-    //if (index == 65)
-    //{
-    //    int x = 0;
-    //    int y = x;
-    //}
+    index++;
+    if (index == 65)
+    {
+        int x = 0;
+        int y = x;
+    }
     
     gid = mGlyphId[charCode];
     if (gid != 0)
     {
         return true;
     }
+    
+    if ( mFTFace )
+    {
+        FT_Face ftface = (FT_Face)mFTFace;
+        gid = FT_Get_Char_Index( ftface, charCode );
+        if ( gid == 0 )
+        {
+            gid = FT_Get_Char_Index( ftface, ucs );
+            
+            if ( gid == 0 )
+            {
+                CTFontRef ctFontRef  = CTFontCreateWithGraphicsFont((CGFontRef)mPlatformFontInfo, 1, nil, nil);
+                UniChar character = charCode;
+                CGGlyph glyph = 0;
+                char glyphName[128];
+                sprintf( glyphName, "cid%d", charCode );
+                CFStringRef glyphNameStrRef = CFStringCreateWithCString(kCFAllocatorDefault, glyphName, kCFStringEncodingASCII);
+                glyph = CTFontGetGlyphWithName(ctFontRef, glyphNameStrRef);
+                if (glyph)
+                {
+                    gid = glyph;
+                    bGIDGet = true;
+                }
+                CFRelease(glyphNameStrRef);
+                CFRelease(ctFontRef);
+                
+                if( gid == 0)
+                {
+                    gid = charCode;
+                }
+            }
+        }
+        
+        return true;
+        //if ( gid == 0 )
+        //{
+        //    gid = FT_Get_Char_Index( ftface, 0xf000 + ucs );
+        //    if ( gid == 0 && ucs == 0x22ef )
+        //        gid = FT_Get_Char_Index( ftface, 0x2026 );
+        //}
+    }
+    
+
+    
+
     if ( mPlatformFontInfo )
 	{
         CTFontRef ctFontRef  = CTFontCreateWithGraphicsFont((CGFontRef)mPlatformFontInfo, 1, nil, nil);
         UniChar character = charCode;
         CGGlyph glyph = 0;
         
-        //FT_Charmap
         
-        if ( mEncoding.GetType() == FONT_ENCODING_NONE && mFTFace != NULL )
+        /*if ( mEncoding.GetType() == FONT_ENCODING_NONE )
         {
             gid = charCode;
             bGIDGet = true;
-        }else{
+        }else{*/
             if ( bUCSGet )
             {
                 character = ucs;
@@ -7046,9 +7126,18 @@ HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG &
                     gid = glyph;
                     bGIDGet = true;
                 }
-                
             }
-        }
+        
+            if (!bGIDGet)
+            {
+                character = charCode;
+                if ( CTFontGetGlyphsForCharacters(ctFontRef, &character, &glyph, 1) )
+                {
+                    gid = glyph;
+                    bGIDGet = true;
+                }
+            }
+        //}
         
         /*CFStringEncoding encoding = CTFontGetStringEncoding(ctFontRef);
         if ( encoding == kCFStringEncodingUnicode && bUCSGet )
@@ -7111,7 +7200,7 @@ HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG &
             CFRelease(glyphNameStrRef);
         }
         
-        if ( GetFontType() != FONT_TYPE1 )
+        /*if ( GetFontType() != FONT_TYPE1 )
         {
             if (!bGIDGet)
             {
@@ -7122,7 +7211,7 @@ HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG &
                     bGIDGet = true;
                 }
             }
-        }
+        }*/
         
         /*if ( !bGIDGet )
         {
@@ -7136,7 +7225,6 @@ HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG &
         
         CFRelease(ctFontRef);
 	}
-    
     
     if ( !bGIDGet )
     {
@@ -7212,10 +7300,10 @@ CHE_PDF_TrueType_Font::CHE_PDF_TrueType_Font( const CHE_PDF_DictionaryPtr & pFon
 	: CHE_PDF_Type1_Font(1, pFontDict, pAllocator)
 {
 	//¥¶¿Ì“ªœ¬◊÷ÃÂµƒcharmap
-	/*FT_CharMap cmap = NULL;
-	if (mFace)
+	FT_CharMap cmap = NULL;
+	if (mFTFace)
 	{
-		FT_Face ftface = (FT_Face)mFace;
+		FT_Face ftface = (FT_Face)mFTFace;
 		for (HE_INT32 i = 0; i < ftface->num_charmaps; ++i)
 		{
 			FT_CharMap test = ftface->charmaps[i];
@@ -7230,7 +7318,7 @@ CHE_PDF_TrueType_Font::CHE_PDF_TrueType_Font( const CHE_PDF_DictionaryPtr & pFon
 		{
 			FT_Set_Charmap(ftface, cmap);
 		}
-	}*/
+	}
     
     
     if (mPlatformFontInfo)
@@ -7467,7 +7555,7 @@ CHE_PDF_TrueType_Font::~CHE_PDF_TrueType_Font()
 {
 }
 
-HE_BOOL CHE_PDF_TrueType_Font::Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const
+/*HE_BOOL CHE_PDF_TrueType_Font::Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const
 {
     HE_BOOL bUCSGet = false;
     HE_BOOL bGIDGet = false;
@@ -7502,11 +7590,7 @@ HE_BOOL CHE_PDF_TrueType_Font::Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULO
         UniChar character = charCode;
         CGGlyph glyph = 0;
         
-        /*if ( mEncoding.GetType() == FONT_ENCODING_NONE )
-        {
-            gid = charCode;
-            bGIDGet = true;
-        }else{*/
+
             if ( bUCSGet )
             {
                 character = ucs;
@@ -7524,7 +7608,6 @@ HE_BOOL CHE_PDF_TrueType_Font::Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULO
                 }
                 
             }
-        //}
         
         if ( !bGIDGet )
         {
@@ -7558,7 +7641,7 @@ HE_BOOL CHE_PDF_TrueType_Font::Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULO
         gid = charCode;
     }
     return TRUE;
-}
+}*/
 
 CHE_PDF_Type3_Font::CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_PDF_Font(pFontDict, pAllocator), mFirstChar(0), mLastChar(255)

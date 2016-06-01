@@ -35,7 +35,7 @@ protected:
 	Mode       m_mode;
 	Direction  m_direction;
 	HE_BYTE  m_initVector[MAX_IV_SIZE];
-	HE_ULONG m_uRounds;
+	HE_UINT32 m_uRounds;
 	HE_BYTE  m_expandedKey[_MAX_ROUNDS+1][4][4];
 
 public:

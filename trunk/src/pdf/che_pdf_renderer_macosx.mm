@@ -540,7 +540,7 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                             
                             func->Calculate(input, output);
                             
-                            for (HE_INT32 j = output.size()-1; j >= 0 /*output.size()*/; --j)
+                            for (HE_LONG j = output.size()-1; j >= 0 /*output.size()*/; --j)
                             {
                                 *tmpOutByte = output[j] * 255;
                                 tmpOutByte++;
@@ -638,13 +638,13 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         }
         CGColorSpaceRef csRef = CreateColorSpace( csPtr );
         
-        PDF_COLORSPACE_TYPE t = csPtr->GetColorSpaceType();
+        //PDF_COLORSPACE_TYPE t = csPtr->GetColorSpaceType();
         
-        if (csRef == NULL)
+        /*if (csRef == NULL)
         {
             int x = 0;
             int y = 0;
-        }
+        }*/
         
         imgRef = CGImageCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), bpc, bpc*csPtr->GetComponentCount(),
                                (imagePtr->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,

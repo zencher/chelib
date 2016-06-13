@@ -540,7 +540,7 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                             
                             func->Calculate(input, output);
                             
-                            for (HE_LONG j = output.size()-1; j >= 0 /*output.size()*/; --j)
+                            for (HE_LONG j = 0; j < output.size(); ++j)
                             {
                                 *tmpOutByte = output[j] * 255;
                                 tmpOutByte++;

@@ -51,9 +51,6 @@ protected:
 	HE_UINT32					mOutputCount;
 	HE_FLOAT*					mpDomain;
 	HE_FLOAT*					mpRange;
-	HE_BOOL						mbRange;
-    HE_UINT32                   mBitsPerSample;
-
 	friend class CHE_Allocator;
 };
 
@@ -81,8 +78,7 @@ private:
 	HE_INT32*	mpSize;
 	HE_FLOAT*	mpEncode;
 	HE_FLOAT*	mpDecode;
-	HE_BYTE *	mpSample;
-
+    std::vector<HE_FLOAT> mSample;
 	friend class CHE_Allocator;
 };
 
@@ -125,142 +121,121 @@ private:
 	friend class CHE_Allocator;
 };
 
-enum PSFUNCITEM_TYPE
-{
-	PSITEM_BOOL,
-	PSITEM_INT,
-	PSITEM_FLOAT,
-	PSITEM_OPERATOR,
-	PSITEM_BLOCK
+enum PDF_PSOP {
+    PSOP_ADD,
+    PSOP_SUB,
+    PSOP_MUL,
+    PSOP_DIV,
+    PSOP_IDIV,
+    PSOP_MOD,
+    PSOP_NEG,
+    PSOP_ABS,
+    PSOP_CEILING,
+    PSOP_FLOOR,
+    PSOP_ROUND,
+    PSOP_TRUNCATE,
+    PSOP_SQRT,
+    PSOP_SIN,
+    PSOP_COS,
+    PSOP_ATAN,
+    PSOP_EXP,
+    PSOP_LN,
+    PSOP_LOG,
+    PSOP_CVI,
+    PSOP_CVR,
+    PSOP_EQ,
+    PSOP_NE,
+    PSOP_GT,
+    PSOP_GE,
+    PSOP_LT,
+    PSOP_LE,
+    PSOP_AND,
+    PSOP_OR,
+    PSOP_XOR,
+    PSOP_NOT,
+    PSOP_BITSHIFT,
+    PSOP_TRUE,
+    PSOP_FALSE,
+    PSOP_IF,
+    PSOP_IFELSE,
+    PSOP_POP,
+    PSOP_EXCH,
+    PSOP_DUP,
+    PSOP_COPY,
+    PSOP_INDEX,
+    PSOP_ROLL,
+    PSOP_PROC,
+    PSOP_CONST
 };
 
-enum PSFUNCITEM_OPERATOR
-{
-	PSOPERATOR_ABS, PSOPERATOR_ADD, PSOPERATOR_AND, PSOPERATOR_ATAN, PSOPERATOR_BITSHIFT,
-	PSOPERATOR_CEILING, PSOPERATOR_COPY, PSOPERATOR_COS, PSOPERATOR_CVI, PSOPERATOR_CVR,
-	PSOPERATOR_DIV, PSOPERATOR_DUP, PSOPERATOR_EQ, PSOPERATOR_EXCH, PSOPERATOR_EXP,
-	PSOPERATOR_FALSE, PSOPERATOR_FLOOR, PSOPERATOR_GE, PSOPERATOR_GT, PSOPERATOR_IDIV, PSOPERATOR_IF,
-	PSOPERATOR_IFELSE, PSOPERATOR_INDEX, PSOPERATOR_LE, PSOPERATOR_LN, PSOPERATOR_LOG, PSOPERATOR_LT,
-	PSOPERATOR_MOD, PSOPERATOR_MUL, PSOPERATOR_NE, PSOPERATOR_NEG, PSOPERATOR_NOT, PSOPERATOR_OR,
-	PSOPERATOR_POP, PSOPERATOR_RETURN, PSOPERATOR_ROLL, PSOPERATOR_ROUND, PSOPERATOR_SIN,
-	PSOPERATOR_SQRT, PSOPERATOR_SUB, PSOPERATOR_TRUE, PSOPERATOR_TRUNCATE, PSOPERATOR_XOR
-};
+const HE_UINT32 PSENGINE_STACKSIZE = 100;
+const HE_FLOAT RADIAN = 57.2957795;
 
-class PSFuncItem
-{
+class CHE_PDF_PSEngine;
+class CHE_PDF_PSProc;
+
+class CHE_PDF_PSOP {
 public:
-	PSFUNCITEM_TYPE				mType;
-	union{
-		PSFUNCITEM_OPERATOR		mOperator;
-		HE_BOOL					mBoolValue;
-		HE_FLOAT				mFloatValue;
-		HE_INT32				mIntegerValue;
-		HE_INT32				mBlockIndex;
-	};
+    explicit CHE_PDF_PSOP(PDF_PSOP op) : m_op(op), m_value(0) {}
+    explicit CHE_PDF_PSOP(HE_FLOAT value) : m_op(PSOP_CONST), m_value(value) {}
+    explicit CHE_PDF_PSOP(std::unique_ptr<CHE_PDF_PSProc> proc)
+        : m_op(PSOP_PROC), m_value(0), m_proc(std::move(proc)) {}
+
+    HE_FLOAT GetFloatValue() const {
+        if (m_op == PSOP_CONST)
+            return m_value;
+        return 0;
+    }
+
+    CHE_PDF_PSProc* GetProc() const {
+        if (m_op == PSOP_PROC)
+            return m_proc.get();
+        return nullptr;
+    }
+
+    PDF_PSOP GetOp() const { return m_op; }
+
+private:
+    const PDF_PSOP m_op;
+    const HE_FLOAT m_value;
+    std::unique_ptr<CHE_PDF_PSProc> m_proc;
 };
 
-class PSFuncStack
-{
+class CHE_PDF_PSProc {
 public:
-	PSFuncStack() {}
+    CHE_PDF_PSProc() {}
+    ~CHE_PDF_PSProc() {}
 
-	HE_VOID	Init()
-	{
-		while ( !mStack.empty() )
-		{
-			mStack.pop();
-		}
-	}
+    HE_BOOL Parse(CHE_PDF_SyntaxParser* parser);
+    HE_BOOL Execute(CHE_PDF_PSEngine* pEngine);
 
-	HE_VOID Push(const PSFuncItem & item )
-	{
-		mStack.push(item);
-	}
-
-	HE_VOID PushBool(HE_BOOL val)
-	{
-		PSFuncItem item;
-		item.mType = PSITEM_BOOL;
-		item.mBoolValue = val;
-		Push(item);
-	}
-
-	HE_VOID PushInteger(HE_INT32 val)
-	{
-		PSFuncItem item;
-		item.mType = PSITEM_INT;
-		item.mIntegerValue = val;
-		Push(item);
-	}
-
-	HE_VOID PushFloat( HE_FLOAT val )
-	{
-		PSFuncItem item;
-		item.mType = PSITEM_FLOAT;
-		item.mFloatValue = val;
-		Push( item );
-	}
-
-	HE_BOOL PopItem(PSFuncItem & item)
-	{
-		if (!mStack.empty())
-		{
-			item = mStack.top();
-			mStack.pop();
-			return true;
-		}
-		return false;
-	}
-
-	HE_BOOL PopBool( HE_BOOL & valRet )
-	{
-		if ( !mStack.empty() )
-		{
-			PSFuncItem item = mStack.top();
-			mStack.pop();
-			if (item.mType == PSITEM_BOOL)
-			{
-				valRet = item.mBoolValue;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	HE_BOOL PopInteger( HE_INT32 & valRet )
-	{
-		if (!mStack.empty())
-		{
-			PSFuncItem item = mStack.top();
-			mStack.pop();
-			if (item.mType == PSITEM_INT)
-			{
-				valRet = item.mIntegerValue;
-				return true;
-			}
-		}
-		return false;
-	}
-
-	HE_BOOL PopFloat( HE_FLOAT & valRet )
-	{
-		if (!mStack.empty())
-		{
-			PSFuncItem item = mStack.top();
-			mStack.pop();
-			if (item.mType == PSITEM_FLOAT)
-			{
-				valRet = item.mFloatValue;
-				return true;
-			}
-		}
-		return false;
-	}
-    
-	HE_BOOL Execute( PSFUNCITEM_OPERATOR op );
-	
-	stack<PSFuncItem>	mStack;
+private:
+    std::vector<std::unique_ptr<CHE_PDF_PSOP>> m_Operators;
 };
+
+
+
+class CHE_PDF_PSEngine {
+public:
+    CHE_PDF_PSEngine();
+    ~CHE_PDF_PSEngine();
+
+    HE_BOOL Parse(const HE_BYTE* str, HE_ULONG size);
+    HE_BOOL Execute() { return m_MainProc.Execute(this); }
+    HE_BOOL DoOperator(PDF_PSOP op);
+    void Reset() { m_StackCount = 0; }
+    void Push(HE_FLOAT value);
+    void Push(int value) { Push((HE_FLOAT)value); }
+    HE_FLOAT Pop();
+    HE_UINT32 GetStackSize() const { return m_StackCount; }
+
+private:
+    HE_FLOAT m_Stack[PSENGINE_STACKSIZE];
+    HE_UINT32 m_StackCount;
+    CHE_PDF_PSProc m_MainProc;
+};
+
+
 
 class CHE_PDF_Function_PostScript : public CHE_PDF_Function
 {
@@ -276,15 +251,11 @@ private:
 	
 	HE_VOID Parse();
 
-	HE_VOID ParseImp(CHE_PDF_SyntaxParser & syntaxParser);
-
 	HE_BOOL RunCode(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output);
-
-	HE_BOOL RunCodeImp(PSFuncStack & stack, HE_ULONG codeIndex);
 
 	HE_BOOL						mbParsed;
 	CHE_PDF_StreamPtr			mStmPtr;
-	std::vector<PSFuncItem>		mCodes;
+    CHE_PDF_PSEngine            mPSEngine;
 
 	friend class CHE_Allocator;
 };

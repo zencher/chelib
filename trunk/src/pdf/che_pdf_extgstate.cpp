@@ -249,7 +249,7 @@ CHE_PDF_ExtGState::CHE_PDF_ExtGState( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_
 	objPtr = dictPtr->GetElement( "ca", OBJ_TYPE_NUMBER );
 	if ( objPtr )
 	{
-		item.type = PDF_EXTGSTATE_CA;
+		item.type = PDF_EXTGSTATE_ca;
 		item.objPtr = objPtr;
 		mStateItems.push_back( item );
 	}

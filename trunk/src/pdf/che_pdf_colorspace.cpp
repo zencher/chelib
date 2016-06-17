@@ -156,10 +156,25 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, 
                     //pColorSpace->GetPatternPtr()->mUnderLyingColorspace = CHE_PDF_ColorSpace::Create(obj, pAllocator);
                 }
             }
+        }else if( arrayPtr->GetCount() == 1)
+        {
+            CHE_PDF_ObjectPtr obj;
+            obj = arrayPtr->GetElement(0, OBJ_TYPE_NAME);
+            if ( obj )
+            {
+                CHE_ByteString name = obj->GetNamePtr()->GetString();
+                if ( name == "Pattern" )
+                {
+                    CHE_PDF_ColorSpacePtr csptr = CreatePattern(pAllocator);
+                    obj = arrayPtr->GetElement(1);
+                    csptr->GetPatternPtr()->mUnderLyingColorspace = CHE_PDF_ColorSpace::Create(obj, pAllocator);
+                    return  csptr;
+                }
+            }
         }
     }
-	if ( pColorSpace->IsError() )
-	{
+    if ( pColorSpace->IsError() )
+    {
 		pAllocator->Delete(pColorSpace);
 		pColorSpace = NULL;
 	}else{
@@ -659,8 +674,7 @@ CHE_PDF_CS_Indexed::CHE_PDF_CS_Indexed(const CHE_PDF_ArrayPtr & array, CHE_Alloc
     }
     if (!mBaseColorSpace)
     {
-        int x= 0;
-        int y = x;
+        abort();
     }
 }
 
@@ -710,7 +724,7 @@ CHE_PDF_CS_DeviceN::CHE_PDF_CS_DeviceN(CHE_PDF_ArrayPtr & array, CHE_Allocator *
                 objPtr = array->GetElement(1, OBJ_TYPE_ARRAY);
                 if (objPtr)
                 {
-                    mComponentCount = objPtr->GetArrayPtr()->GetCount();
+                    mComponentCount = (HE_UINT32)objPtr->GetArrayPtr()->GetCount();
                 }
                 objPtr = array->GetElement(2);
                 if (objPtr)

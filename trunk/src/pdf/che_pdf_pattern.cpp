@@ -4,22 +4,46 @@
 CHE_PDF_ShadingPtr CHE_PDF_Shading::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator /*= NULL*/ )
 {
     CHE_PDF_ShadingPtr ptr;
+    
+    if ( pAllocator == NULL )
+    {
+        pAllocator = GetDefaultAllocator();
+    }
+    
     if ( rootObjPtr && rootObjPtr->GetType() == OBJ_TYPE_REFERENCE && pComponentMgr != NULL )
     {
         CHE_PDF_ObjectPtr objPtr = rootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
         if ( objPtr )
         {
-            if ( pAllocator == NULL )
+            CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
+            objPtr = dictPtr->GetElement("ShadingType", OBJ_TYPE_NUMBER);
+            if (objPtr)
             {
-                pAllocator = GetDefaultAllocator();
-            }
-            CHE_PDF_Shading * pShading = pAllocator->New<CHE_PDF_Shading>( rootObjPtr, pComponentMgr, pAllocator );
-            if ( pShading->IsError() )
-            {
-                pAllocator->Delete( pShading );
-                pShading = NULL;
-            }else{
-                ptr.Reset( pShading );
+                CHE_PDF_Shading * pShading = NULL;
+                PDF_SHADING_TYPE type = (PDF_SHADING_TYPE)objPtr->GetNumberPtr()->GetInteger();
+                switch(type)
+                {
+                case SHADING_TYPE_FunctionBase: break;
+                case SHADING_TYPE_Axial:
+                    pShading = pAllocator->New<CHE_PDF_Shading_Axial>(rootObjPtr, pComponentMgr, pAllocator);
+                    break;
+                case SHADING_TYPE_Radial:
+                    pShading = pAllocator->New<CHE_PDF_Shading_Radial>(rootObjPtr, pComponentMgr, pAllocator);
+                    break;
+                case SHADING_TYPE_FreeFormGouraudShadedTriangleMesh: break;
+                case SHADING_TYPE_LatticeFormGouraudShadedTriangleMesh: break;
+                case SHADING_TYPE_CoonsPatchMesh: break;
+                case SHADING_TYPE_TensorProductPatchMesh: break;
+                default: break;
+                }
+                
+                if ( pShading && pShading->IsError() )
+                {
+                    pAllocator->Delete( pShading );
+                    pShading = NULL;
+                }else{
+                    ptr.Reset( pShading );
+                }
             }
         }
     }
@@ -67,13 +91,163 @@ CHE_PDF_Shading::CHE_PDF_Shading(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_C
                 }
             }
         }
+    }
+}
+
+CHE_PDF_AxialShadingPtr CHE_PDF_Shading::GetAixalShadingPtr() const
+{
+    CHE_PDF_AxialShadingPtr ptr;
+    if ( mShadingType == SHADING_TYPE_Axial )
+    {
+        ptr.Reset( (CHE_PDF_Shading_Axial*)this );
+    }
+    return ptr;
+}
+
+CHE_PDF_RadialShadingPtr CHE_PDF_Shading::GetRadialShadingPtr() const
+{
+    CHE_PDF_RadialShadingPtr ptr;
+    if ( mShadingType == SHADING_TYPE_Radial )
+    {
+        ptr.Reset( (CHE_PDF_Shading_Radial*)this );
+    }
+    return ptr;
+
+}
+
+CHE_PDF_Shading_Axial::CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/)
+ : CHE_PDF_Shading(rootObjPtr, pComponentMgr, pAllocator), mStartExtend(FALSE), mEndExtend(FALSE)
+{
+    CHE_PDF_ObjectPtr objPtr = mRootObject;
+    objPtr = objPtr->GetRefPtr()->GetRefObj(OBJ_TYPE_DICTIONARY);
+    if (objPtr)
+    {
+        CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
         objPtr = dictPtr->GetElement("Function");
         if (objPtr)
         {
             mFunction = CHE_PDF_Function::Create(objPtr, pAllocator);
         }
+        objPtr = dictPtr->GetElement("Coords", OBJ_TYPE_ARRAY);
+        if (objPtr)
+        {
+            CHE_PDF_ArrayPtr arrPtr = objPtr->GetArrayPtr();
+            if (arrPtr->GetCount() >= 4)
+            {
+                objPtr = arrPtr->GetElement(0, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mStart.x = objPtr->GetNumberPtr()->GetFloat();
+                }
+                objPtr = arrPtr->GetElement(1, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mStart.y = objPtr->GetNumberPtr()->GetFloat();
+                }
+                objPtr = arrPtr->GetElement(2, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mEnd.x = objPtr->GetNumberPtr()->GetFloat();
+                }
+                objPtr = arrPtr->GetElement(3, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mEnd.y = objPtr->GetNumberPtr()->GetFloat();
+                }
+            }
+        }
+        objPtr = dictPtr->GetElement("Extend", OBJ_TYPE_ARRAY);
+        if (objPtr)
+        {
+            CHE_PDF_ArrayPtr arrPtr = objPtr->GetArrayPtr();
+            if (arrPtr->GetCount() >= 2)
+            {
+                objPtr = arrPtr->GetElement(0, OBJ_TYPE_BOOLEAN);
+                if (objPtr)
+                {
+                    mStartExtend = objPtr->GetBooleanPtr()->GetValue();
+                }
+                objPtr = arrPtr->GetElement(1, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mEndExtend = objPtr->GetBooleanPtr()->GetValue();
+                }
+            }
+        }
     }
 }
+
+CHE_PDF_Shading_Radial::CHE_PDF_Shading_Radial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/)
+ : CHE_PDF_Shading(rootObjPtr, pComponentMgr, pAllocator), mStartRadius(0), mEndRadius(0), mStartExtend(FALSE), mEndExtend(FALSE)
+{
+    CHE_PDF_ObjectPtr objPtr = mRootObject;
+    objPtr = objPtr->GetRefPtr()->GetRefObj(OBJ_TYPE_DICTIONARY);
+    if (objPtr)
+    {
+        CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
+        objPtr = dictPtr->GetElement("Function");
+        if (objPtr)
+        {
+            mFunction = CHE_PDF_Function::Create(objPtr, pAllocator);
+        }
+        objPtr = dictPtr->GetElement("Coords", OBJ_TYPE_ARRAY);
+        if (objPtr)
+        {
+            CHE_PDF_ArrayPtr arrPtr = objPtr->GetArrayPtr();
+            if (arrPtr->GetCount() >= 6)
+            {
+                objPtr = arrPtr->GetElement(0, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mStart.x = objPtr->GetNumberPtr()->GetFloat();
+                }
+                objPtr = arrPtr->GetElement(1, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mStart.y = objPtr->GetNumberPtr()->GetFloat();
+                }
+                objPtr = arrPtr->GetElement(2, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mStartRadius = objPtr->GetNumberPtr()->GetFloat();
+                }
+                objPtr = arrPtr->GetElement(3, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mEnd.x = objPtr->GetNumberPtr()->GetFloat();
+                }
+                objPtr = arrPtr->GetElement(4, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mEnd.y = objPtr->GetNumberPtr()->GetFloat();
+                }
+                objPtr = arrPtr->GetElement(5, OBJ_TYPE_NUMBER);
+                if (objPtr)
+                {
+                    mEndRadius = objPtr->GetNumberPtr()->GetFloat();
+                }            }
+        }
+        objPtr = dictPtr->GetElement("Extend", OBJ_TYPE_ARRAY);
+        if (objPtr)
+        {
+            CHE_PDF_ArrayPtr arrPtr = objPtr->GetArrayPtr();
+            if (arrPtr->GetCount() >= 2)
+            {
+                objPtr = arrPtr->GetElement(0, OBJ_TYPE_BOOLEAN);
+                if (objPtr)
+                {
+                    mStartExtend = objPtr->GetBooleanPtr()->GetValue();
+                }
+                objPtr = arrPtr->GetElement(1, OBJ_TYPE_BOOLEAN);
+                if (objPtr)
+                {
+                    mEndExtend = objPtr->GetBooleanPtr()->GetValue();
+                }
+            }
+        }
+    }
+}
+
 
 CHE_PDF_TilingPtr CHE_PDF_Tiling::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/ )
 {

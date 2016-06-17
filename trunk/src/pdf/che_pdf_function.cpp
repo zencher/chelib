@@ -847,6 +847,15 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate(const std::vector<HE_FLOAT> & inpu
 	HE_FLOAT inputValue = input[0];
 
 	inputValue = fz_clamp(inputValue, GetDomianMin(0), GetDomianMax(0) );
+    
+    if (mBounds.size() == 0)
+    {
+        CHE_PDF_FunctionPtr functionPtr = mFunctions[0];
+        if ( functionPtr )
+        {
+            return functionPtr->Calculate( input, output );
+        }
+    }
 
 	HE_UINT32 i = 0;
 	for ( ; i < mK; ++i )

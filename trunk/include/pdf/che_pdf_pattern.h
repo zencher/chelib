@@ -23,6 +23,8 @@ enum PDF_SHADING_TYPE
 };
 
 class CHE_PDF_Shading;
+class CHE_PDF_Shading_Axial;
+class CHE_PDF_Shading_Radial;
 
 class CHE_PDF_ShadingPtr : public CHE_PDF_ComponentPtr
 {
@@ -30,31 +32,88 @@ public:
 	CHE_PDF_Shading * operator->() const { return (CHE_PDF_Shading*)mpCom; }
 };
 
+class CHE_PDF_AxialShadingPtr : public CHE_PDF_ShadingPtr
+{
+public:
+    CHE_PDF_Shading_Axial * operator->() const { return (CHE_PDF_Shading_Axial*)mpCom; }
+};
+
+class CHE_PDF_RadialShadingPtr : public CHE_PDF_ShadingPtr
+{
+public:
+    CHE_PDF_Shading_Radial * operator->() const { return (CHE_PDF_Shading_Radial*)mpCom; }
+};
+
 class CHE_PDF_Shading : public CHE_PDF_Component
 {
 public:
 	static CHE_PDF_ShadingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
-
 	static CHE_PDF_ShadingPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
 
     PDF_SHADING_TYPE GetShadingType() const { return mShadingType; }
-    
     CHE_PDF_ColorSpacePtr GetColorSpace() const { return mColorSpace; }
-    
     CHE_PDF_Color GetBackgroundColor() const { return mBackgroundColor; }
+    
+    CHE_PDF_AxialShadingPtr GetAixalShadingPtr() const;
+    CHE_PDF_RadialShadingPtr GetRadialShadingPtr() const;
     
 private:
 	CHE_PDF_Shading( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
-    
     PDF_SHADING_TYPE mShadingType;
-    
     CHE_PDF_ColorSpacePtr mColorSpace;
-    
     CHE_PDF_Color mBackgroundColor;
-    
-    CHE_PDF_FunctionPtr mFunction;
 
 	friend class CHE_Allocator;
+    friend class CHE_PDF_Shading_Axial;
+    friend class CHE_PDF_Shading_Radial;
+};
+
+
+class CHE_PDF_Shading_Axial : public CHE_PDF_Shading
+{
+public:
+    CHE_PDF_FunctionPtr GetFunction() const { return mFunction; }
+    CHE_Point GetStartPoint() const { return mStart; }
+    CHE_Point GetEndPoint() const { return mEnd; }
+    HE_BOOL GetStartExtend() const { return mStartExtend; }
+    HE_BOOL GetEndExtend() const { return mEndExtend; }
+
+private:
+    CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+    
+    CHE_PDF_FunctionPtr mFunction;
+    CHE_Point mStart;
+    CHE_Point mEnd;
+    HE_BOOL mStartExtend;
+    HE_BOOL mEndExtend;
+    
+    friend class CHE_Allocator;
+};
+
+
+class CHE_PDF_Shading_Radial : public CHE_PDF_Shading
+{
+public:
+    CHE_PDF_FunctionPtr GetFunction() const { return mFunction; }
+    CHE_Point GetStartPoint() const { return mStart; }
+    CHE_Point GetEndPoint() const { return mEnd; }
+    HE_FLOAT GetStartRadius() const { return mStartRadius; }
+    HE_FLOAT GetEndRadius() const { return mEndRadius; }
+    HE_BOOL GetStartExtend() const { return mStartExtend; }
+    HE_BOOL GetEndExtend() const { return mEndExtend; }
+    
+private:
+    CHE_PDF_Shading_Radial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+    
+    CHE_PDF_FunctionPtr mFunction;
+    CHE_Point mStart;
+    CHE_Point mEnd;
+    HE_BOOL mStartExtend;
+    HE_BOOL mEndExtend;
+    HE_FLOAT mStartRadius;
+    HE_FLOAT mEndRadius;
+    
+    friend class CHE_Allocator;
 };
 
 
@@ -70,20 +129,14 @@ class CHE_PDF_Tiling : public CHE_PDF_Component
 {
 public:
 	static CHE_PDF_TilingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
-
 	static CHE_PDF_TilingPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
     
-    HE_BOOL IsColored() const { return mbColored; }
-    
     HE_UINT32 GetTilingType() const { return mTilingType; }
-    
     CHE_Matrix GetMatrix() const { return mMatrix; }
-    
     HE_INT32 GetXStep() const { return mXSetp; }
-    
     HE_INT32 GetYStep() const { return mYSetp; }
-    
     CHE_Rect GetBBox() const { return mBBox; }
+    HE_BOOL IsColored() const { return mbColored; }
     
     CHE_PDF_ContentObjectList & GetList() { return mContentList; }
     

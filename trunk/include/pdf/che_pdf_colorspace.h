@@ -32,8 +32,18 @@ public:
 			mComponent[i] = 0.0f;
 		}
 	}
+    
+    CHE_PDF_Color( const CHE_PDF_Color & cs )
+    : CHE_Object( cs.GetAllocator() ), mIndex(0)
+    {
+        mComponent[0] = cs.mComponent[0];
+        mComponent[1] = cs.mComponent[1];
+        mComponent[2] = cs.mComponent[2];
+        mComponent[3] = cs.mComponent[3];
+        mIndex = cs.mIndex;
+    }
 
-	CHE_PDF_Color * Clone() const
+	/*CHE_PDF_Color * Clone() const
 	{
 		CHE_PDF_Color * pRet = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
 		for ( HE_ULONG i = 0; i < 4; ++i )
@@ -42,7 +52,7 @@ public:
 		}
 		pRet->mIndex = mIndex;
 		return pRet;
-	}
+	}*/
 
 	HE_VOID Push( HE_FLOAT val )
 	{
@@ -292,7 +302,9 @@ private:
 class CHE_PDF_CS_Pattern : public CHE_PDF_ColorSpace
 {
 public:
-    CHE_PDF_ComponentPtr    mTiling;
+    CHE_PDF_ComponentPtr    mPattern;
+    //CHE_PDF_ComponentPtr    mShading;
+    CHE_Matrix              mPatternMatrix;
     CHE_PDF_ColorSpacePtr   mUnderLyingColorspace;
     
 private:

@@ -25,9 +25,7 @@ void TilingDrawCallBack( void *info, CGContextRef c )
 
 CHE_PDF_Renderer::CHE_PDF_Renderer( CGContextRef cgContext )
     : mFillMode(FillMode_Nonzero),mContextRef(cgContext), mPathRef(NULL),
-mFillColorSpace(NULL), mStrokeColorSpace(NULL), mImageColorSpace(NULL), mPosiX(0), mPosiY(0)
-{
-}
+mFillColorSpace(NULL), mStrokeColorSpace(NULL), mImageColorSpace(NULL), mPosiX(0), mPosiY(0), mStrokeAlpha(1), mFillAlpha(1) {}
 
 CHE_PDF_Renderer::~CHE_PDF_Renderer()
 {
@@ -224,7 +222,7 @@ HE_VOID	CHE_PDF_Renderer::SetFillColor( const HE_ULONG & color )
 {
     if ( mContextRef )
     {
-        CGContextSetRGBFillColor( mContextRef , (color>>16&0xFF)/256.0, (color>>8&0xFF)/256.0, (color&0xFF)/256.0, (color>>24&0xFF)/256.0 );
+        CGContextSetRGBFillColor( mContextRef , (color>>16&0xFF)/255.0f, (color>>8&0xFF)/255.0f, (color&0xFF)/255.0f, (color>>24&0xFF)/255.0f );
     }
 }
 
@@ -232,7 +230,7 @@ HE_VOID	CHE_PDF_Renderer::SetStrokeColor( const HE_ULONG & color )
 {
     if ( mContextRef )
     {
-        CGContextSetRGBStrokeColor( mContextRef , (color>>16&0xFF)/256.0, (color>>8&0xFF)/256.0, (color&0xFF)/256.0, (color>>24&0xFF)/256.0 );
+        CGContextSetRGBStrokeColor( mContextRef , (color>>16&0xFF)/255.0f, (color>>8&0xFF)/255.0f, (color&0xFF)/255.0f, (color>>24&0xFF)/255.0f );
     }
 }
 
@@ -244,7 +242,11 @@ HE_VOID CHE_PDF_Renderer::SetFillColor( const CHE_PDF_Color & color )
     {
         val[i] = color.GetComponent( i );
     }
-    val[i] = 1.0f;
+    val[i] = mFillAlpha;//1.0f;
+    if (mFillAlpha < 1)
+    {
+        int x = 0;
+    }
     
     if ( mFillPattern ) {
         if ( mFillPatternColored )
@@ -266,7 +268,8 @@ HE_VOID CHE_PDF_Renderer::SetStrokeColor( const CHE_PDF_Color & color )
     {
         val[i] = color.GetComponent( i );
     }
-    val[i] = 1.0f;
+    val[i] = mStrokeAlpha;//1.0f;
+    
     CGContextSetStrokeColor( mContextRef, val );
 }
 
@@ -282,104 +285,111 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
     if ( cs->GetColorSpaceType() == COLORSPACE_SPECIAL_PATTERN )
     {
         CHE_PDF_CS_PatternPtr pattern = cs->GetPatternPtr();
-        if ( pattern )
+        if ( pattern && pattern->mPattern )
         {
-            CHE_PDF_TilingPtr tilingPtr = CHE_PDF_Tiling::Convert( pattern->mTiling );
-            if ( tilingPtr )
+            if ( pattern->mPattern->GetType() == COMPONENT_TYPE_Tiling )
             {
-                CHE_Rect rect = tilingPtr->GetBBox();
-                CGRect bounds = CGRectMake( rect.left, rect.bottom, rect.width, rect.height );
-                
-                CHE_Matrix tilingMatrix = tilingPtr->GetMatrix();
-                CHE_Matrix matrix;
-                if ( mRotate == 90 )
+                CHE_PDF_TilingPtr tilingPtr = CHE_PDF_Tiling::Convert( pattern->mPattern );
+                if ( tilingPtr )
                 {
-                    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
-                    CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( mPageRect.height, 0 );
-                    rotateMatrix.Concat( transformMatrix );
-                    matrix.Concat( rotateMatrix );
-                }else if ( mRotate == 180 )
-                {
-                    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
-                    CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( mPageRect.width, mPageRect.height );
-                    rotateMatrix.Concat( transformMatrix );
-                    matrix.Concat( rotateMatrix );
-                }else if ( mRotate == 270 )
-                {
-                    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
-                    CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( 0, mPageRect.width );
-                    rotateMatrix.Concat( transformMatrix );
-                    matrix.Concat( rotateMatrix );
-                }
-                
-                CHE_Rect newPageRect = matrix.Transform( mPageRect );
-                
-                CHE_Matrix bboxClipMatrix;
-                bboxClipMatrix.a = 1;
-                bboxClipMatrix.b = 0;
-                bboxClipMatrix.c = 0;
-                bboxClipMatrix.d = 1;
-                bboxClipMatrix.e = -newPageRect.left;
-                bboxClipMatrix.f = -newPageRect.bottom;
-                matrix.Concat( bboxClipMatrix );
-                
-                /*CHE_Matrix flipMatrix;
-                flipMatrix.a = 1;
-                flipMatrix.b = 0;
-                flipMatrix.c = 0;
-                flipMatrix.d = -1;
-                flipMatrix.e = 0;
-                flipMatrix.f = newPageRect.height;
-                matrix.Concat( flipMatrix );*/
-                
-                CHE_Matrix scaletMatrix;
-                scaletMatrix.a = mDpix * mScale / 72;
-                scaletMatrix.b = 0;
-                scaletMatrix.c = 0;
-                scaletMatrix.d = mDpiy * mScale / 72;
-                scaletMatrix.e = 0;
-                scaletMatrix.f = 0;
-                matrix.Concat( scaletMatrix );
-                
-                CHE_Matrix offsetMatrix;
-                offsetMatrix.a = 1;
-                offsetMatrix.b = 0;
-                offsetMatrix.c = 0;
-                offsetMatrix.d = 1;
-                offsetMatrix.e = mPosiX + mPatternOffsetX;
-                offsetMatrix.f = mPosiY + mPatternOffsetY;
-                matrix.Concat( offsetMatrix );
-                
-                tilingMatrix.Concat( matrix );
-                CGAffineTransform m = CGAffineTransformMake( tilingMatrix.a, tilingMatrix.b, tilingMatrix.c, tilingMatrix.d, tilingMatrix.e, tilingMatrix.f );
-                
-                bool bColored = tilingPtr->IsColored();
-                CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( pattern->mUnderLyingColorspace );
-                CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( baseColorSpaceRef );
-                CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
-                CGColorSpaceRelease( patternColorSpaceRef );
-                if ( baseColorSpaceRef ) {
-                    CGColorSpaceRelease( baseColorSpaceRef );
-                }
-                CGPatternCallbacks callbacks;
-                callbacks.version = 0;
-                callbacks.drawPattern = TilingDrawCallBack;
-                callbacks.releaseInfo = NULL;
+                    CHE_Rect rect = tilingPtr->GetBBox();
+                    CGRect bounds = CGRectMake( rect.left, rect.bottom, rect.width, rect.height );
                     
-                CGPatternTiling type = kCGPatternTilingNoDistortion;
-                if ( tilingPtr->GetTilingType() == 1 ) {
-                    type = kCGPatternTilingConstantSpacing;
-                }else if ( tilingPtr->GetTilingType() == 2 )
-                {
-                    type = kCGPatternTilingNoDistortion;
-                }else if ( tilingPtr->GetTilingType() == 3 )
-                {
-                    type = kCGPatternTilingConstantSpacingMinimalDistortion;
-                }
+                    CHE_Matrix tilingMatrix = tilingPtr->GetMatrix();
+                    CHE_Matrix matrix;
+                    if ( mRotate == 90 )
+                    {
+                        CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
+                        CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( mPageRect.height, 0 );
+                        rotateMatrix.Concat( transformMatrix );
+                        matrix.Concat( rotateMatrix );
+                    }else if ( mRotate == 180 )
+                    {
+                        CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
+                        CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( mPageRect.width, mPageRect.height );
+                        rotateMatrix.Concat( transformMatrix );
+                        matrix.Concat( rotateMatrix );
+                    }else if ( mRotate == 270 )
+                    {
+                        CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix( mRotate );
+                        CHE_Matrix transformMatrix = CHE_Matrix::TranslateMatrix( 0, mPageRect.width );
+                        rotateMatrix.Concat( transformMatrix );
+                        matrix.Concat( rotateMatrix );
+                    }
                     
-                mFillPattern = CGPatternCreate( tilingPtr.GetPointer(), bounds, m, tilingPtr->GetXStep(),
-                                                tilingPtr->GetYStep(), type, bColored, &callbacks );
-                mFillPatternColored = bColored;
+                    CHE_Rect newPageRect = matrix.Transform( mPageRect );
+                    
+                    CHE_Matrix bboxClipMatrix;
+                    bboxClipMatrix.a = 1;
+                    bboxClipMatrix.b = 0;
+                    bboxClipMatrix.c = 0;
+                    bboxClipMatrix.d = 1;
+                    bboxClipMatrix.e = -newPageRect.left;
+                    bboxClipMatrix.f = -newPageRect.bottom;
+                    matrix.Concat( bboxClipMatrix );
+                    
+                    /*CHE_Matrix flipMatrix;
+                     flipMatrix.a = 1;
+                     flipMatrix.b = 0;
+                     flipMatrix.c = 0;
+                     flipMatrix.d = -1;
+                     flipMatrix.e = 0;
+                     flipMatrix.f = newPageRect.height;
+                     matrix.Concat( flipMatrix );*/
+                    
+                    CHE_Matrix scaletMatrix;
+                    scaletMatrix.a = mDpix * mScale / 72;
+                    scaletMatrix.b = 0;
+                    scaletMatrix.c = 0;
+                    scaletMatrix.d = mDpiy * mScale / 72;
+                    scaletMatrix.e = 0;
+                    scaletMatrix.f = 0;
+                    matrix.Concat( scaletMatrix );
+                    
+                    CHE_Matrix offsetMatrix;
+                    offsetMatrix.a = 1;
+                    offsetMatrix.b = 0;
+                    offsetMatrix.c = 0;
+                    offsetMatrix.d = 1;
+                    offsetMatrix.e = mPosiX + mPatternOffsetX;
+                    offsetMatrix.f = mPosiY + mPatternOffsetY;
+                    matrix.Concat( offsetMatrix );
+                    
+                    tilingMatrix.Concat( matrix );
+                    CGAffineTransform m = CGAffineTransformMake( tilingMatrix.a, tilingMatrix.b, tilingMatrix.c, tilingMatrix.d, tilingMatrix.e, tilingMatrix.f );
+                    
+                    bool bColored = tilingPtr->IsColored();
+                    CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( pattern->mUnderLyingColorspace );
+                    CGColorSpaceRef patternColorSpaceRef = CGColorSpaceCreatePattern( baseColorSpaceRef );
+                    CGContextSetFillColorSpace( mContextRef, patternColorSpaceRef );
+                    CGColorSpaceRelease( patternColorSpaceRef );
+                    if ( baseColorSpaceRef ) {
+                        CGColorSpaceRelease( baseColorSpaceRef );
+                    }
+                    CGPatternCallbacks callbacks;
+                    callbacks.version = 0;
+                    callbacks.drawPattern = TilingDrawCallBack;
+                    callbacks.releaseInfo = NULL;
+                    
+                    CGPatternTiling type = kCGPatternTilingNoDistortion;
+                    if ( tilingPtr->GetTilingType() == 1 ) {
+                        type = kCGPatternTilingConstantSpacing;
+                    }else if ( tilingPtr->GetTilingType() == 2 )
+                    {
+                        type = kCGPatternTilingNoDistortion;
+                    }else if ( tilingPtr->GetTilingType() == 3 )
+                    {
+                        type = kCGPatternTilingConstantSpacingMinimalDistortion;
+                    }
+                    
+                    mFillPattern = CGPatternCreate( tilingPtr.GetPointer(), bounds, m, tilingPtr->GetXStep(),
+                                                   tilingPtr->GetYStep(), type, bColored, &callbacks );
+                    mFillPatternColored = bColored;
+                }
+            }else if ( pattern->mPattern->GetType() == COMPONENT_TYPE_Shading )
+            {
+                mShading = CHE_PDF_Shading::Convert(pattern->mPattern);
+                mShadingMatrix = pattern->mPatternMatrix;
             }
         }
     }else{
@@ -504,13 +514,6 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                             }
                             *tmpOutByte = output[3] * 255;
                             tmpOutByte++;
-
-                            
-                            /*for (HE_UINT32 j = 0; j < output.size(); ++j)
-                            {
-                                *tmpOutByte = output[j] * 255;
-                                tmpOutByte++;
-                            }*/
                         }
                         CGColorSpaceRef baseColorSpaceRef = CreateColorSpace( baseCS->GetSeparationPtr()->mBaseColorSpace );
                         if ( baseColorSpaceRef )
@@ -587,7 +590,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
         
         CHE_PDF_ArrayPtr arrayPtr = imagePtr->GetDecodeArray();
-        if ( arrayPtr )
+        if ( 0 && arrayPtr )
         {
             CHE_PDF_ObjectPtr objPtr;
             for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 4; ++i )
@@ -611,7 +614,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         
         CHE_PDF_ColorSpacePtr csPtr = imagePtr->GetColorspace();
         
-        CGColorRenderingIntent ri = kCGRenderingIntentAbsoluteColorimetric;
+        CGColorRenderingIntent ri = kCGRenderingIntentPerceptual;
         switch ( imagePtr->GetRI() )
         {
             case RI_AbsoluteColorimetric:
@@ -629,6 +632,8 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
             default:
                 break;
         }
+        
+        CGContextSetBlendMode(mContextRef, kCGBlendModeMultiply);
 
         
         HE_ULONG bpc = imagePtr->GetBPC();
@@ -638,17 +643,9 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         }
         CGColorSpaceRef csRef = CreateColorSpace( csPtr );
         
-        //PDF_COLORSPACE_TYPE t = csPtr->GetColorSpaceType();
-        
-        /*if (csRef == NULL)
-        {
-            int x = 0;
-            int y = 0;
-        }*/
-        
         imgRef = CGImageCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), bpc, bpc*csPtr->GetComponentCount(),
                                (imagePtr->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
-                               kCGBitmapByteOrderDefault, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
+                               kCGBitmapByteOrderDefault|kCGImageAlphaNone, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
         CGDataProviderRelease( dataRef );
         CGColorSpaceRelease( csRef );
         
@@ -711,7 +708,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
         CHE_PDF_ColorSpacePtr csPtr = image->GetColorspace();
         
         CGColorRenderingIntent ri = kCGRenderingIntentAbsoluteColorimetric;
-        /*switch ( imagePtr->GetRI() )
+        switch ( image->GetRenderIntent() )
         {
             case RI_AbsoluteColorimetric:
                 ri = kCGRenderingIntentAbsoluteColorimetric;
@@ -727,7 +724,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
                 break;
             default:
                 break;
-        }*/
+        }
         
         
         HE_ULONG bpc = image->GetBpc();
@@ -822,15 +819,27 @@ HE_VOID	CHE_PDF_Renderer::FillPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
-        CGContextAddPath( mContextRef, mPathRef );
-        if ( mFillMode == FillMode_Nonzero )
+        if (mShading)
         {
-            CGContextFillPath( mContextRef );
+            StoreGState();
+            
+            ClipPath();
+            CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
+            DrawShading(mShading);
+            mShading.Reset();
+            
+            RestoreGState();
         }else{
-            CGContextEOFillPath( mContextRef );
+            CGContextAddPath( mContextRef, mPathRef );
+            if ( mFillMode == FillMode_Nonzero )
+            {
+                CGContextFillPath( mContextRef );
+            }else{
+                CGContextEOFillPath( mContextRef );
+            }
+            CGPathRelease( mPathRef );
+            mPathRef = NULL;
         }
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
     }
 }
 
@@ -1008,7 +1017,27 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
             }
         }else if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
         {
-            
+            CHE_PDF_CS_DeviceNPtr cs = fillColorSpace->GetDeviceNPtr();
+            if ( cs )
+            {
+                CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
+                if ( funcPtr )
+                {
+                    std::vector<HE_FLOAT> input;
+                    std::vector<HE_FLOAT> output;
+                    for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
+                    {
+                        input.push_back( fillColor.GetComponent( i ) );
+                    }
+                    funcPtr->Calculate( input, output );
+                    fillColor.Clear();
+                    for ( size_t j = 0; j < output.size(); ++j )
+                    {
+                        fillColor.Push( output[j] );
+                    }
+                }
+                SetFillColorSpace( cs->mBaseColorSpace );
+            }
         }else{
             SetFillColorSpace( fillColorSpace );
         }
@@ -1038,14 +1067,37 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
             }
         }else if ( strokeColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
         {
-            
+            CHE_PDF_CS_DeviceNPtr cs = strokeColorSpace->GetDeviceNPtr();
+            if ( cs )
+            {
+                CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
+                if ( funcPtr )
+                {
+                    std::vector<HE_FLOAT> input;
+                    std::vector<HE_FLOAT> output;
+                    for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
+                    {
+                        input.push_back( strokeColor.GetComponent( i ) );
+                    }
+                    funcPtr->Calculate( input, output );
+                    strokeColor.Clear();
+                    for ( size_t j = 0; j < output.size(); ++j )
+                    {
+                        strokeColor.Push( output[j] );
+                    }
+                }
+                SetStrokeColorSpace( cs->mBaseColorSpace );
+            }
         }else{
             SetStrokeColorSpace( strokeColorSpace );
         }
         
         SetFillColor( fillColor );
         SetStrokeColor( strokeColor );
+        
+        
     }
+    CGContextSetRenderingIntent(mContextRef, kCGRenderingIntentPerceptual);
 }
 
 HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
@@ -1054,6 +1106,9 @@ HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
     {
         GRAPHICS_STATE_BLENDMODE blendMode = pExtGState->GetBlendMode();
         SetBlendMode( blendMode );
+        
+        mFillAlpha = pExtGState->GetFillAlpha();
+        mStrokeAlpha = pExtGState->GetStrokeAlpha();
     }
 }
 
@@ -1520,7 +1575,18 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 		}
         case COMPONENT_TYPE_Shading:
 		{
+            //StoreGState();
+            
+            //CHE_Matrix t1 = mMatrix;
+            //t1.Concat(mExtMatrix);
+            
+            //CHE_Matrix revertMatrix;
+            //revertMatrix.Invert(t1);
+            //CGContextConcatCTM( mContextRef, CGAffineTransformMake( revertMatrix.a, revertMatrix.b, revertMatrix.c, revertMatrix.d, revertMatrix.e, revertMatrix.f) );
+            
             DrawShading( CHE_PDF_Shading::Convert(componentPtr) );
+            
+            //RestoreGState();
 			break;
 		}
         default:
@@ -1566,10 +1632,310 @@ HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
     }
 }
 
+void FunctionEvaluateCallback(void * __nullable info, const CGFloat *  in, CGFloat *  out)
+{
+    CHE_PDF_Renderer * pRender = (CHE_PDF_Renderer*)info;
+    std::vector<HE_FLOAT> input;
+    std::vector<HE_FLOAT> output;
+    input.push_back( in[0] );
+    pRender->shadingFunc->Calculate( input, output );
+    
+    if ( pRender->shadingCS->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
+        
+    {
+        std::vector<HE_FLOAT> routput;
+        pRender->shadingCS->GetSeparationPtr()->mFunction->Calculate(output, routput);
+        output = routput;
+    }else if ( pRender->shadingCS->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
+    {
+        std::vector<HE_FLOAT> routput;
+        pRender->shadingCS->GetDeviceNPtr()->mFunction->Calculate(output, routput);
+        output = routput;
+    }
+    int i = 0;
+    for( ; i < output.size(); ++i)
+    {
+        out[i] = output[i];
+    }
+    out[i] = 1.0f;
+}
+
+void FunctionEvaluateCallback1(void * __nullable info, const CGFloat *  in, CGFloat *  out)
+{
+    CHE_PDF_Renderer * pRender = (CHE_PDF_Renderer*)info;
+    int c = 0;
+    if ( pRender->shadingCS->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
+    {
+        c = pRender->shadingCS->GetSeparationPtr()->mBaseColorSpace->GetComponentCount() + 1;
+    }else if ( pRender->shadingCS->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
+    {
+        c = pRender->shadingCS->GetDeviceNPtr()->mBaseColorSpace->GetComponentCount() + 1;
+    }else{
+        c = pRender->shadingCS->GetComponentCount();
+    }
+    int i = 0;
+    for( ; i < c; ++i)
+    {
+        out[i] = in[0];
+    }
+    out[i] = 1.0f;
+}
+
+void FunctionReleaseInfoCallback(void * __nullable info)
+{
+    
+}
+
+static void myCalculateShadingValues (void *info,
+                                      const CGFloat *in,
+                                      CGFloat *out)
+{
+    CGFloat v;
+    size_t k, components;
+    static const CGFloat c[] = {1, 0, .5, 0 };
+    
+    components = (size_t)info;
+    
+    v = *in;
+    for (k = 0; k < components -1; k++)
+        *out++ = c[k] * v;
+    *out++ = 1;
+}
+
+static CGFunctionRef myGetFunction (CGColorSpaceRef colorspace)// 1
+{
+    size_t numComponents;
+    static const CGFloat input_value_range [2] = { 0, 1 };
+    static const CGFloat output_value_ranges [8] = { 0, 1, 0, 1, 0, 1, 0, 1 };
+    static const CGFunctionCallbacks callbacks = { 0,// 2
+        &myCalculateShadingValues,
+        NULL };
+    
+    numComponents = 1 + CGColorSpaceGetNumberOfComponents (colorspace);// 3
+    return CGFunctionCreate ((void *) numComponents, // 4
+                             1, // 5
+                             input_value_range, // 6
+                             numComponents, // 7
+                             output_value_ranges, // 8
+                             &callbacks);// 9
+}
+
 
 HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
 {
+    /*CGRect rc = CGContextGetClipBoundingBox(mContextRef);
+    CGContextSetRGBFillColor(mContextRef, 0.5, 0.5, 0, 1);
+    CGContextFillRect(mContextRef, rc);*/
     
+    if ( shading->GetShadingType() == SHADING_TYPE_Axial )
+    {
+        CGFloat domain[2];
+        domain[0] = 0;
+        domain[1] = 1;
+        CGFloat range[10];
+        range[0] = 0;
+        range[1] = 1;
+        range[2] = 0;
+        range[3] = 1;
+        range[4] = 0;
+        range[5] = 1;
+        range[6] = 0;
+        range[7] = 1;
+        range[8] = 0;
+        range[9] = 1;
+        CGFunctionCallbacks callbacks;
+        callbacks.version = 0;
+        callbacks.evaluate = FunctionEvaluateCallback;
+        callbacks.releaseInfo = FunctionReleaseInfoCallback;
+        
+        CHE_PDF_AxialShadingPtr ashading = shading->GetAixalShadingPtr();
+        
+        CHE_PDF_FunctionPtr fun = ashading->GetFunction();
+        
+        if (!fun )
+        {
+            return ;
+        }
+        shadingFunc = fun;
+        
+        CHE_PDF_ColorSpacePtr cs = shading->GetColorSpace();
+        
+        if ( !cs )
+        {
+            return;
+        }
+        
+        CHE_PDF_Color color = shading->GetBackgroundColor();
+        if ( color.GetComponentCount() )
+        {
+            CGRect rc = CGContextGetClipBoundingBox(mContextRef);
+            SetFillColorSpace(cs);
+            SetFillColor(color);
+            //CGContextAddRect(mContextRef, rc);
+            CGContextFillRect(mContextRef, rc);
+        }
+        
+        
+        
+        
+        
+        CGColorSpaceRef csref = CreateColorSpace(cs);
+        if ( csref == NULL )
+        {
+            if (cs->GetDeviceNPtr())
+            {
+                csref = CreateColorSpace(cs->GetDeviceNPtr()->mBaseColorSpace);
+            }else{
+                csref = CreateColorSpace(cs->GetSeparationPtr()->mBaseColorSpace);
+            }
+        }
+        shadingCS = cs;
+        size_t c = CGColorSpaceGetNumberOfComponents(csref) + 1;
+        CGFunctionRef funcRef = CGFunctionCreate( this, 1, domain, c, range, &callbacks );
+        CGShadingRef shadingRef = CGShadingCreateAxial( csref, CGPointMake(ashading->GetStartPoint().x, ashading->GetStartPoint().y),
+                                                       CGPointMake(ashading->GetEndPoint().x, ashading->GetEndPoint().y), funcRef,
+                                                       ashading->GetStartExtend(), ashading->GetEndExtend() );
+        CGContextDrawShading(mContextRef, shadingRef);
+    }else if ( shading->GetShadingType() == SHADING_TYPE_Radial )
+    {
+        /*CGRect rc = CGContextGetClipBoundingBox(mContextRef);
+         CGContextSetRGBFillColor(mContextRef, 0.5, 0.5, 0, 1);
+         CGContextFillRect(mContextRef, rc);*/
+        
+        CHE_PDF_ColorSpacePtr cs = shading->GetColorSpace();
+        
+        CHE_PDF_RadialShadingPtr ashading = shading->GetRadialShadingPtr();
+        
+        CGFloat domain[2];
+        domain[0] = 0;
+        domain[1] = 1;
+        CGFloat range[10];
+        range[0] = 0;
+        range[1] = 1;
+        range[2] = 0;
+        range[3] = 1;
+        range[4] = 0;
+        range[5] = 1;
+        range[6] = 0;
+        range[7] = 1;
+        range[8] = 0;
+        range[9] = 1;
+        CGFunctionCallbacks callbacks;
+        callbacks.version = 0;
+        callbacks.evaluate = FunctionEvaluateCallback;
+        callbacks.releaseInfo = FunctionReleaseInfoCallback;
+        
+        CHE_PDF_FunctionPtr fun = ashading->GetFunction();
+        
+        if (!fun )
+        {
+            return ;
+        }
+        shadingFunc = fun;
+        
+        if ( !cs )
+        {
+            return;
+        }
+        
+        CHE_PDF_Color color = shading->GetBackgroundColor();
+        if ( color.GetComponentCount() )
+        {
+            CGRect rc = CGContextGetClipBoundingBox(mContextRef);
+            SetFillColorSpace(cs);
+            SetFillColor(color);
+            //CGContextAddRect(mContextRef, rc);
+            CGContextFillRect(mContextRef, rc);
+        }
+        
+        
+        CGColorSpaceRef csref = CreateColorSpace(cs);
+        if ( csref == NULL )
+        {
+            if (cs->GetDeviceNPtr())
+            {
+                csref = CreateColorSpace(cs->GetDeviceNPtr()->mBaseColorSpace);
+            }else{
+                csref = CreateColorSpace(cs->GetSeparationPtr()->mBaseColorSpace);
+            }
+        }
+                size_t c = CGColorSpaceGetNumberOfComponents(csref) + 1;
+        CGFunctionRef funcRef = CGFunctionCreate( this, 1, domain, c, range, &callbacks );
+        CGShadingRef shadingRef = CGShadingCreateRadial(csref, CGPointMake(ashading->GetStartPoint().x, ashading->GetStartPoint().y), ashading->GetStartRadius(), CGPointMake(ashading->GetEndPoint().x, ashading->GetEndPoint().y), ashading->GetEndRadius(), funcRef, ashading->GetStartExtend(), ashading->GetEndExtend());
+        CGContextDrawShading(mContextRef, shadingRef);
+    }
+    
+    /*if ( shading->GetShadingType() == SHADING_TYPE_Axial )
+    {
+        CGFloat domain[2];
+        domain[0] = 0;
+        domain[1] = 1;
+        CGFloat range[8];
+        range[0] = 0;
+        range[1] = 1;
+        range[2] = 0;
+        range[3] = 1;
+        range[4] = 0;
+        range[5] = 1;
+        range[6] = 0;
+        range[7] = 1;
+        CGFunctionCallbacks callbacks;
+        callbacks.version = 0;
+        callbacks.evaluate = myCalculateShadingValues;//FunctionEvaluateCallback;
+        callbacks.releaseInfo = FunctionReleaseInfoCallback;
+        CHE_PDF_FunctionPtr fun = shading->GetFunction();
+        shadingFunc = fun;
+        
+        CHE_PDF_ColorSpacePtr cs = shading->GetColorSpace();
+        
+        if ( !cs )
+        {
+            return;
+        }
+        
+        
+        CGRect rc = CGContextGetClipBoundingBox(mContextRef);
+        
+        
+        CGColorSpaceRef csref = CreateColorSpace(cs);
+        if ( csref == NULL )
+        {
+            if (cs->GetDeviceNPtr())
+            {
+                csref = CreateColorSpace(cs->GetDeviceNPtr()->mBaseColorSpace);
+            }else{
+                csref = CreateColorSpace(cs->GetSeparationPtr()->mBaseColorSpace);
+            }
+        }
+        shadingCS = cs;
+        CGFunctionRef funcRef = CGFunctionCreate( (void *)4, 1, domain, 4, range, &callbacks );
+        CGShadingRef shadingRef = CGShadingCreateAxial( CGColorSpaceCreateDeviceRGB(), CGPointMake(0, 0), CGPointMake(1, 0), funcRef, true, true);
+        CGContextDrawShading(mContextRef, shadingRef);
+    }*/
+    
+    /*CGPoint     startPoint, endPoint;
+    CGFunctionRef myFunctionObject;
+    CGShadingRef myShading;
+    CGColorSpaceRef colorspace;
+    
+    CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+    
+
+    startPoint = CGPointMake(0,0);
+    endPoint = CGPointMake(1,0);
+    colorspace = CGColorSpaceCreateDeviceRGB();
+    myFunctionObject = myGetFunction (colorspace);
+    
+    myShading = CGShadingCreateAxial (colorspace,
+                                      startPoint, endPoint,
+                                      myFunctionObject,
+                                      false, false);
+    
+    CGContextDrawShading (context, myShading);
+    
+    CGShadingRelease (myShading);
+    CGColorSpaceRelease (colorspace);
+    CGFunctionRelease (myFunctionObject);*/
 }
 
 HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
@@ -1578,6 +1944,11 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
     ContentObjectList::iterator it = list.Begin();
     CHE_PDF_GState * pGState = NULL;
     CHE_PDF_ClipState * pClipState = NULL;
+    CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
+    
+    
+    CGContextBeginTransparencyLayer(mContextRef, NULL);
+    
 	for ( ; it != list.End(); ++it )
 	{
         StoreGState();
@@ -1589,6 +1960,11 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 			{
 				SetClipState( pClipState );
 			}
+            pExtGStateStack = pGState->GetExtGState();
+            if ( pExtGStateStack )
+            {
+                SetExtGState( pExtGStateStack );
+            }
 			SetCommonGState( pGState );
 		}
         
@@ -1611,7 +1987,9 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 			}
             case ContentType_Component:
 			{
+                //RestoreGState();
 				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
+                //StoreGState();
 				break;
 			}
             default:
@@ -1619,6 +1997,8 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 		}
         RestoreGState();
 	}
+    
+    CGContextEndTransparencyLayer(mContextRef);
 }
 
 HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list )
@@ -1626,6 +2006,7 @@ HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & lis
     ContentObjectList::iterator it = list.Begin();
     CHE_PDF_GState * pGState = NULL;
     CHE_PDF_ClipState * pClipState = NULL;
+    CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
 	for ( ; it != list.End(); ++it )
 	{
         StoreGState();
@@ -1637,6 +2018,11 @@ HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & lis
 			{
 				SetClipState( pClipState );
 			}
+            pExtGStateStack = pGState->GetExtGState();
+            if ( pExtGStateStack )
+            {
+                SetExtGState( pExtGStateStack );
+            }
 			SetCommonGState( pGState, TRUE, FALSE );
 		}
         
@@ -1758,12 +2144,12 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
 			{
 				SetClipState( pClipState );
 			}
-            SetCommonGState( pGState );
             pExtGStateStack = pGState->GetExtGState();
             if ( pExtGStateStack )
             {
                 SetExtGState( pExtGStateStack );
             }
+            SetCommonGState( pGState );
 		}
 		switch ( (*it)->GetType() )
 		{

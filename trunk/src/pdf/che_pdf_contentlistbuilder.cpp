@@ -1401,11 +1401,14 @@ HE_VOID CHE_PDF_ContentsParser::Handle_SCN()
             cmptPtr = mpCmptMgr->GetComponent( objPtr->GetRefPtr(), COMPONENT_TYPE_Tiling );
             if ( cmptPtr )
             {
-                csPtr->GetPatternPtr()->mTiling = CHE_PDF_Tiling::Convert(cmptPtr);
+                csPtr->GetPatternPtr()->mPattern = cmptPtr;//CHE_PDF_Tiling::Convert(cmptPtr);
             }else{
                 tilingPtr = CHE_PDF_Tiling::Create( objPtr, mpCmptMgr, GetAllocator() );
-                mpCmptMgr->PushComponent( objPtr->GetRefPtr(), tilingPtr );
-                csPtr->GetPatternPtr()->mTiling = tilingPtr;
+                if (tilingPtr)
+                {
+                    mpCmptMgr->PushComponent( objPtr->GetRefPtr(), tilingPtr );
+                    csPtr->GetPatternPtr()->mPattern = tilingPtr;
+                }
             }
         }
     }
@@ -2063,22 +2066,54 @@ HE_VOID CHE_PDF_ContentsParser::Handle_scn()
     
     if ( mName.GetLength() > 0 )
     {
+        CHE_PDF_ObjectPtr rootObjPtr;
         CHE_PDF_ObjectPtr objPtr;
         CHE_PDF_ComponentPtr cmptPtr;
         CHE_PDF_ColorSpacePtr csPtr;
         CHE_PDF_TilingPtr tilingPtr;
+        CHE_PDF_ShadingPtr shadingPtr;
         objPtr = mpContentResMgr->GetResObj( CONTENTRES_PATTERN, mName );
         csPtr = mpConstructor->State_GetFillColorSpace();
         if ( IsPdfRefPtr( objPtr ) && csPtr && csPtr->GetColorSpaceType() == COLORSPACE_SPECIAL_PATTERN )
         {
-            cmptPtr = mpCmptMgr->GetComponent( objPtr->GetRefPtr(), COMPONENT_TYPE_Tiling );
+            rootObjPtr = objPtr;
+            cmptPtr = mpCmptMgr->GetComponent( objPtr->GetRefPtr() );
             if ( cmptPtr )
             {
-                csPtr->GetPatternPtr()->mTiling = CHE_PDF_Tiling::Convert(cmptPtr);
+                if (cmptPtr->GetType() == COMPONENT_TYPE_Tiling)
+                {
+                    csPtr->GetPatternPtr()->mPattern = cmptPtr;
+                }else if (cmptPtr->GetType() == COMPONENT_TYPE_Shading)
+                {
+                    csPtr->GetPatternPtr()->mPattern = cmptPtr;
+                }
             }else{
-                tilingPtr = CHE_PDF_Tiling::Create( objPtr, mpCmptMgr, GetAllocator() );
-                mpCmptMgr->PushComponent( objPtr->GetRefPtr(), tilingPtr );
-                csPtr->GetPatternPtr()->mTiling = tilingPtr;
+                if (objPtr->GetType() == OBJ_TYPE_REFERENCE)
+                {
+                    objPtr = objPtr->GetRefPtr()->GetRefObj();
+                }
+                if (objPtr->GetType() == OBJ_TYPE_STREAM)
+                {
+                    tilingPtr = CHE_PDF_Tiling::Create(rootObjPtr, mpCmptMgr, GetAllocator() );
+                    mpCmptMgr->PushComponent( rootObjPtr->GetRefPtr(), tilingPtr );
+                    csPtr->GetPatternPtr()->mPattern = tilingPtr;
+                }else if (objPtr->GetType() == OBJ_TYPE_DICTIONARY)
+                {
+                    CHE_PDF_DictionaryPtr dict = objPtr->GetDictPtr();
+                    objPtr = dict->GetElement("Shading");
+                    shadingPtr = CHE_PDF_Shading::Create(objPtr, mpCmptMgr, GetAllocator() );
+                    mpCmptMgr->PushComponent( rootObjPtr->GetRefPtr(), shadingPtr );
+                    csPtr->GetPatternPtr()->mPattern = shadingPtr;
+                    
+                    objPtr = dict->GetElement("Matrix", OBJ_TYPE_ARRAY);
+                    if (objPtr)
+                    {
+                        CHE_PDF_ArrayPtr arr = objPtr->GetArrayPtr();
+                        CHE_Matrix matrix;
+                        arr->GetMatrix(matrix);
+                        csPtr->GetPatternPtr()->mPatternMatrix = matrix;
+                    }
+                }
             }
         }
     }

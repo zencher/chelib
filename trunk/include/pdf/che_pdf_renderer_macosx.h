@@ -15,6 +15,13 @@ public:
     CHE_PDF_Renderer( CGContextRef cgContext );
     ~CHE_PDF_Renderer();
     
+    CHE_PDF_FunctionPtr shadingFunc;
+    
+    CHE_PDF_ColorSpacePtr shadingCS;
+    
+    CHE_PDF_ShadingPtr mShading;
+    CHE_Matrix         mShadingMatrix;
+    
     HE_VOID     SetPosition( HE_FLOAT x, HE_FLOAT y );
     
     HE_VOID     Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy );
@@ -99,6 +106,9 @@ private:
     
     HE_FLOAT                    mPosiX;
     HE_FLOAT                    mPosiY;
+    
+    HE_FLOAT                    mFillAlpha;
+    HE_FLOAT                    mStrokeAlpha;
     
     CGContextRef                mContextRef;
     CGMutablePathRef            mPathRef;

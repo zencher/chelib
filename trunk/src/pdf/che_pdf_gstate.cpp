@@ -179,6 +179,11 @@ HE_BOOL CHE_PDF_ExtGStateStack::PushExtStateName( const CHE_ByteString & name, c
 			break;
 		case PDF_EXTGSTATE_ca:
 			mFillAlpha = iti->objPtr->GetNumberPtr()->GetFloat();
+                if (mFillAlpha < 1)
+                {
+                    int x = 9;
+                }
+            break;
 		default:break;
 		}
 	}
@@ -323,7 +328,7 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 
 	if ( mFlag & GSTATE_FLAG_FillColorSpace )
 	{
-		switch ( mFillColorSpace->GetType() )
+		switch ( mFillColorSpace->GetColorSpaceType() )
 		{
 		case COLORSPACE_DEVICE_GRAY:
 		case COLORSPACE_CIEBASE_CALGRAY:
@@ -350,11 +355,14 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_CIEBASE_ICCBASED:
-// 			colorRet.mConponents.push_back( 0 );
-// 			colorRet.mConponents.push_back( 0 );
-// 			colorRet.mConponents.push_back( 0 );
-// 			colorRet.mConponents.push_back( 0 );
-// 			break;
+            {
+                HE_UINT32 c = mFillColorSpace->GetICCBasedPtr()->mAlternate->GetComponentCount();
+                for (HE_UINT32 i = 0; i < c; ++i)
+                {
+                    colorRet.Push( 0 );
+                }
+            }
+            break;
 		case COLORSPACE_SPECIAL_PATTERN:break;
 		default:break;
 		}
@@ -375,7 +383,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 
 	if ( mFlag & GSTATE_FLAG_StrokeColorSpace )
 	{
-		switch ( mStrokeColorSpace->GetType() )
+		switch ( mStrokeColorSpace->GetColorSpaceType() )
 		{
 		case COLORSPACE_DEVICE_GRAY:
 		case COLORSPACE_CIEBASE_CALGRAY:
@@ -402,12 +410,14 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 			colorRet.Push( 0 );
 			break;
 		case COLORSPACE_CIEBASE_ICCBASED:
-//todo
-// 			colorRet.mConponents.Push( 0 );
-// 			colorRet.mConponents.Push( 0 );
-// 			colorRet.mConponents.Push( 0 );
-// 			colorRet.mConponents.Push( 0 );
-// 			break;
+            {
+                HE_UINT32 c = mStrokeColorSpace->GetICCBasedPtr()->mAlternate->GetComponentCount();
+                for (HE_UINT32 i = 0; i < c; ++i)
+                {
+                    colorRet.Push( 0 );
+                }
+            }
+            break;
 		case COLORSPACE_SPECIAL_PATTERN:break;
 		default:break;
 		}

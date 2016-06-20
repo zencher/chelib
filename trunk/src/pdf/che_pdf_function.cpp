@@ -365,6 +365,15 @@ HE_BOOL CHE_PDF_Function_Exponential::Calculate(const std::vector<HE_FLOAT> & in
     }
     
     return TRUE;
+    
+    /*for (uint32_t i = 0; i < mInputCount; i++)
+        for (uint32_t j = 0; j < m_nOrigOutputs; j++) {
+            
+           // output[i * m_nOrigOutputs + j] =
+            HE_FLOAT v =  m_pBeginValues[j] + (HE_FLOAT)powf(input[i], m_Exponent) * (m_pEndValues[j] - m_pBeginValues[j]);
+            output.push_back(v);
+        }
+    return TRUE;*/
 }
 
 CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
@@ -675,6 +684,44 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
 		SetError( COMPONENT_ERROR_CONSTRUCTION );
 		return;
 	}
+    
+    
+    
+    /*objPtr = dictPtr->GetElement("C0", OBJ_TYPE_ARRAY);
+    if (mOutputCount == 0)
+    {
+        mOutputCount = 1;
+        if (objPtr)
+        {
+            mOutputCount = objPtr->GetArrayPtr()->GetCount();
+        }
+    }
+    
+    CHE_PDF_ArrayPtr arrayPtr0 = objPtr->GetArrayPtr();
+    CHE_PDF_ArrayPtr arrayPtr1;
+    
+    objPtr = dictPtr->GetElement("C1", OBJ_TYPE_ARRAY);
+    if ( objPtr )
+    {
+        arrayPtr1 = objPtr->GetArrayPtr();
+    }
+    
+    m_pBeginValues = GetAllocator()->NewArray<HE_FLOAT>(2);
+    m_pEndValues = GetAllocator()->NewArray<HE_FLOAT>(2);
+    
+    for (uint32_t i = 0; i < mOutputCount; ++i) {
+        m_pBeginValues[i] = arrayPtr0 ? arrayPtr0->GetElement(i, OBJ_TYPE_NUMBER)->GetNumberPtr()->GetFloat() : 0.0f;
+        m_pEndValues[i] = arrayPtr1 ? arrayPtr1->GetElement(i, OBJ_TYPE_NUMBER)->GetNumberPtr()->GetFloat() : 1.0f;
+    }
+    
+    m_Exponent = dictPtr->GetElement("N", OBJ_TYPE_NUMBER)->GetNumberPtr()->GetFloat();
+    
+    m_nOrigOutputs = mOutputCount;
+    if (mOutputCount && mInputCount > INT_MAX / mOutputCount)
+    {
+        //error
+    }
+    mOutputCount *= mInputCount;*/
 
 	objPtr = dictPtr->GetElement( "N", OBJ_TYPE_NUMBER );
 	if ( objPtr )
@@ -714,7 +761,7 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
 			{
 				mpC1[i] = objPtr->GetNumberPtr()->GetFloat();
 			}else{
-				mpC1[i] = 0.0f;
+				mpC1[i] = 1.0f;
 			}
 		}
 	}
@@ -722,7 +769,7 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
 
 CHE_PDF_Function_Exponential::~CHE_PDF_Function_Exponential()
 {
-	if ( mpC0 )
+	/*if ( mpC0 )
 	{
 		GetAllocator()->DeleteArray<HE_FLOAT>( mpC0 );
 		mpC0 = NULL;
@@ -731,7 +778,7 @@ CHE_PDF_Function_Exponential::~CHE_PDF_Function_Exponential()
 	{
 		GetAllocator()->DeleteArray<HE_FLOAT>( mpC1 );
 		mpC1 = NULL;
-	}
+	}*/
 }
 
 CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )

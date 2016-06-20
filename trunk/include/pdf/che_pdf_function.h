@@ -96,6 +96,11 @@ private:
 	HE_INT32	mN;
 	HE_FLOAT*	mpC0;
 	HE_FLOAT*	mpC1;
+    
+    //HE_INT32 m_nOrigOutputs;
+    //HE_FLOAT m_Exponent;
+    //HE_FLOAT* m_pBeginValues;
+    //HE_FLOAT* m_pEndValues;
 
 	friend class CHE_Allocator;
 };

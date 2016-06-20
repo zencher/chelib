@@ -126,6 +126,7 @@ CHE_PDF_Shading_Axial::CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjP
         objPtr = dictPtr->GetElement("Function");
         if (objPtr)
         {
+            //objPtr = CHE_PDF_Reference::Create (25, 0, objPtr->GetRefPtr()->GetFile());
             mFunction = CHE_PDF_Function::Create(objPtr, pAllocator);
         }
         objPtr = dictPtr->GetElement("Coords", OBJ_TYPE_ARRAY);
@@ -167,7 +168,7 @@ CHE_PDF_Shading_Axial::CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjP
                 {
                     mStartExtend = objPtr->GetBooleanPtr()->GetValue();
                 }
-                objPtr = arrPtr->GetElement(1, OBJ_TYPE_NUMBER);
+                objPtr = arrPtr->GetElement(1, OBJ_TYPE_BOOLEAN);
                 if (objPtr)
                 {
                     mEndExtend = objPtr->GetBooleanPtr()->GetValue();

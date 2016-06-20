@@ -590,7 +590,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
         
         CHE_PDF_ArrayPtr arrayPtr = imagePtr->GetDecodeArray();
-        if ( 0 && arrayPtr )
+        if ( arrayPtr )
         {
             CHE_PDF_ObjectPtr objPtr;
             for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 4; ++i )
@@ -858,13 +858,29 @@ HE_VOID	CHE_PDF_Renderer::FillStrokePath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
-        CGContextAddPath( mContextRef, mPathRef );
-        if ( mFillMode == FillMode_Nonzero )
+        if (mShading)
         {
-            CGContextFillPath( mContextRef );
+            StoreGState();
+            
+            //ClipPath();
+            CGContextAddPath( mContextRef, mPathRef );
+            CGContextClip( mContextRef );
+            CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
+            DrawShading(mShading);
+            mShading.Reset();
+            
+            RestoreGState();
         }else{
-            CGContextEOFillPath( mContextRef );
+            CGContextAddPath( mContextRef, mPathRef );
+            if ( mFillMode == FillMode_Nonzero )
+            {
+                CGContextFillPath( mContextRef );
+            }else{
+                CGContextEOFillPath( mContextRef );
+            }
         }
+        
+        
         CGContextAddPath( mContextRef, mPathRef );
         CGContextStrokePath( mContextRef );
         CGPathRelease( mPathRef );
@@ -887,13 +903,29 @@ HE_VOID	CHE_PDF_Renderer::FillClipPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
-        CGContextAddPath( mContextRef, mPathRef );
-        if ( mFillMode == FillMode_Nonzero )
+        if (mShading)
         {
-            CGContextFillPath( mContextRef );
+            StoreGState();
+            
+            //ClipPath();
+            CGContextAddPath( mContextRef, mPathRef );
+            CGContextClip( mContextRef );
+            CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
+            DrawShading(mShading);
+            mShading.Reset();
+            
+            RestoreGState();
+
         }else{
-            CGContextEOFillPath( mContextRef );
+            CGContextAddPath( mContextRef, mPathRef );
+            if ( mFillMode == FillMode_Nonzero )
+            {
+                CGContextFillPath( mContextRef );
+            }else{
+                CGContextEOFillPath( mContextRef );
+            }
         }
+
         CGContextAddPath( mContextRef, mPathRef );
         CGContextClip( mContextRef );
         CGPathRelease( mPathRef );
@@ -918,13 +950,30 @@ HE_VOID	CHE_PDF_Renderer::FillStrokeClipPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
-        CGContextAddPath( mContextRef, mPathRef );
-        if ( mFillMode == FillMode_Nonzero )
+        if (mShading)
         {
-            CGContextFillPath( mContextRef );
+            StoreGState();
+            
+            //ClipPath();
+            CGContextAddPath( mContextRef, mPathRef );
+            CGContextClip( mContextRef );
+            CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
+            DrawShading(mShading);
+            mShading.Reset();
+            
+            RestoreGState();
+
         }else{
-            CGContextEOFillPath( mContextRef );
+            CGContextAddPath( mContextRef, mPathRef );
+            if ( mFillMode == FillMode_Nonzero )
+            {
+                CGContextFillPath( mContextRef );
+            }else{
+                CGContextEOFillPath( mContextRef );
+            }
         }
+        
+        
         CGContextAddPath( mContextRef, mPathRef );
         CGContextStrokePath( mContextRef );
         CGContextAddPath( mContextRef, mPathRef );
@@ -1523,8 +1572,6 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
     default:
         break;
     }
-    
-    //RestoreGState();
 }
 
 HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
@@ -1575,18 +1622,7 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 		}
         case COMPONENT_TYPE_Shading:
 		{
-            //StoreGState();
-            
-            //CHE_Matrix t1 = mMatrix;
-            //t1.Concat(mExtMatrix);
-            
-            //CHE_Matrix revertMatrix;
-            //revertMatrix.Invert(t1);
-            //CGContextConcatCTM( mContextRef, CGAffineTransformMake( revertMatrix.a, revertMatrix.b, revertMatrix.c, revertMatrix.d, revertMatrix.e, revertMatrix.f) );
-            
             DrawShading( CHE_PDF_Shading::Convert(componentPtr) );
-            
-            //RestoreGState();
 			break;
 		}
         default:
@@ -1660,66 +1696,10 @@ void FunctionEvaluateCallback(void * __nullable info, const CGFloat *  in, CGFlo
     out[i] = 1.0f;
 }
 
-void FunctionEvaluateCallback1(void * __nullable info, const CGFloat *  in, CGFloat *  out)
-{
-    CHE_PDF_Renderer * pRender = (CHE_PDF_Renderer*)info;
-    int c = 0;
-    if ( pRender->shadingCS->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
-    {
-        c = pRender->shadingCS->GetSeparationPtr()->mBaseColorSpace->GetComponentCount() + 1;
-    }else if ( pRender->shadingCS->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
-    {
-        c = pRender->shadingCS->GetDeviceNPtr()->mBaseColorSpace->GetComponentCount() + 1;
-    }else{
-        c = pRender->shadingCS->GetComponentCount();
-    }
-    int i = 0;
-    for( ; i < c; ++i)
-    {
-        out[i] = in[0];
-    }
-    out[i] = 1.0f;
-}
-
 void FunctionReleaseInfoCallback(void * __nullable info)
 {
     
 }
-
-static void myCalculateShadingValues (void *info,
-                                      const CGFloat *in,
-                                      CGFloat *out)
-{
-    CGFloat v;
-    size_t k, components;
-    static const CGFloat c[] = {1, 0, .5, 0 };
-    
-    components = (size_t)info;
-    
-    v = *in;
-    for (k = 0; k < components -1; k++)
-        *out++ = c[k] * v;
-    *out++ = 1;
-}
-
-static CGFunctionRef myGetFunction (CGColorSpaceRef colorspace)// 1
-{
-    size_t numComponents;
-    static const CGFloat input_value_range [2] = { 0, 1 };
-    static const CGFloat output_value_ranges [8] = { 0, 1, 0, 1, 0, 1, 0, 1 };
-    static const CGFunctionCallbacks callbacks = { 0,// 2
-        &myCalculateShadingValues,
-        NULL };
-    
-    numComponents = 1 + CGColorSpaceGetNumberOfComponents (colorspace);// 3
-    return CGFunctionCreate ((void *) numComponents, // 4
-                             1, // 5
-                             input_value_range, // 6
-                             numComponents, // 7
-                             output_value_ranges, // 8
-                             &callbacks);// 9
-}
-
 
 HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
 {
@@ -1771,13 +1751,8 @@ HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
             CGRect rc = CGContextGetClipBoundingBox(mContextRef);
             SetFillColorSpace(cs);
             SetFillColor(color);
-            //CGContextAddRect(mContextRef, rc);
             CGContextFillRect(mContextRef, rc);
         }
-        
-        
-        
-        
         
         CGColorSpaceRef csref = CreateColorSpace(cs);
         if ( csref == NULL )
@@ -1798,10 +1773,6 @@ HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
         CGContextDrawShading(mContextRef, shadingRef);
     }else if ( shading->GetShadingType() == SHADING_TYPE_Radial )
     {
-        /*CGRect rc = CGContextGetClipBoundingBox(mContextRef);
-         CGContextSetRGBFillColor(mContextRef, 0.5, 0.5, 0, 1);
-         CGContextFillRect(mContextRef, rc);*/
-        
         CHE_PDF_ColorSpacePtr cs = shading->GetColorSpace();
         
         CHE_PDF_RadialShadingPtr ashading = shading->GetRadialShadingPtr();
@@ -1844,58 +1815,8 @@ HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
             CGRect rc = CGContextGetClipBoundingBox(mContextRef);
             SetFillColorSpace(cs);
             SetFillColor(color);
-            //CGContextAddRect(mContextRef, rc);
             CGContextFillRect(mContextRef, rc);
         }
-        
-        
-        CGColorSpaceRef csref = CreateColorSpace(cs);
-        if ( csref == NULL )
-        {
-            if (cs->GetDeviceNPtr())
-            {
-                csref = CreateColorSpace(cs->GetDeviceNPtr()->mBaseColorSpace);
-            }else{
-                csref = CreateColorSpace(cs->GetSeparationPtr()->mBaseColorSpace);
-            }
-        }
-                size_t c = CGColorSpaceGetNumberOfComponents(csref) + 1;
-        CGFunctionRef funcRef = CGFunctionCreate( this, 1, domain, c, range, &callbacks );
-        CGShadingRef shadingRef = CGShadingCreateRadial(csref, CGPointMake(ashading->GetStartPoint().x, ashading->GetStartPoint().y), ashading->GetStartRadius(), CGPointMake(ashading->GetEndPoint().x, ashading->GetEndPoint().y), ashading->GetEndRadius(), funcRef, ashading->GetStartExtend(), ashading->GetEndExtend());
-        CGContextDrawShading(mContextRef, shadingRef);
-    }
-    
-    /*if ( shading->GetShadingType() == SHADING_TYPE_Axial )
-    {
-        CGFloat domain[2];
-        domain[0] = 0;
-        domain[1] = 1;
-        CGFloat range[8];
-        range[0] = 0;
-        range[1] = 1;
-        range[2] = 0;
-        range[3] = 1;
-        range[4] = 0;
-        range[5] = 1;
-        range[6] = 0;
-        range[7] = 1;
-        CGFunctionCallbacks callbacks;
-        callbacks.version = 0;
-        callbacks.evaluate = myCalculateShadingValues;//FunctionEvaluateCallback;
-        callbacks.releaseInfo = FunctionReleaseInfoCallback;
-        CHE_PDF_FunctionPtr fun = shading->GetFunction();
-        shadingFunc = fun;
-        
-        CHE_PDF_ColorSpacePtr cs = shading->GetColorSpace();
-        
-        if ( !cs )
-        {
-            return;
-        }
-        
-        
-        CGRect rc = CGContextGetClipBoundingBox(mContextRef);
-        
         
         CGColorSpaceRef csref = CreateColorSpace(cs);
         if ( csref == NULL )
@@ -1908,38 +1829,16 @@ HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
             }
         }
         shadingCS = cs;
-        CGFunctionRef funcRef = CGFunctionCreate( (void *)4, 1, domain, 4, range, &callbacks );
-        CGShadingRef shadingRef = CGShadingCreateAxial( CGColorSpaceCreateDeviceRGB(), CGPointMake(0, 0), CGPointMake(1, 0), funcRef, true, true);
+        size_t c = CGColorSpaceGetNumberOfComponents(csref) + 1;
+        CGFunctionRef funcRef = CGFunctionCreate( this, 1, domain, c, range, &callbacks );
+        CGShadingRef shadingRef = CGShadingCreateRadial(csref, CGPointMake(ashading->GetStartPoint().x, ashading->GetStartPoint().y), ashading->GetStartRadius(), CGPointMake(ashading->GetEndPoint().x, ashading->GetEndPoint().y), ashading->GetEndRadius(), funcRef, ashading->GetStartExtend(), ashading->GetEndExtend());
         CGContextDrawShading(mContextRef, shadingRef);
-    }*/
-    
-    /*CGPoint     startPoint, endPoint;
-    CGFunctionRef myFunctionObject;
-    CGShadingRef myShading;
-    CGColorSpaceRef colorspace;
-    
-    CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
-    
-
-    startPoint = CGPointMake(0,0);
-    endPoint = CGPointMake(1,0);
-    colorspace = CGColorSpaceCreateDeviceRGB();
-    myFunctionObject = myGetFunction (colorspace);
-    
-    myShading = CGShadingCreateAxial (colorspace,
-                                      startPoint, endPoint,
-                                      myFunctionObject,
-                                      false, false);
-    
-    CGContextDrawShading (context, myShading);
-    
-    CGShadingRelease (myShading);
-    CGColorSpaceRelease (colorspace);
-    CGFunctionRelease (myFunctionObject);*/
+    }
 }
 
 HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 {
+    
     CHE_PDF_ContentObjectList & list = form->GetList();
     ContentObjectList::iterator it = list.Begin();
     CHE_PDF_GState * pGState = NULL;
@@ -1947,7 +1846,7 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
     CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
     
     
-    CGContextBeginTransparencyLayer(mContextRef, NULL);
+    //CGContextBeginTransparencyLayer(mContextRef, NULL);
     
 	for ( ; it != list.End(); ++it )
 	{
@@ -1965,7 +1864,7 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
             {
                 SetExtGState( pExtGStateStack );
             }
-			SetCommonGState( pGState );
+            SetCommonGState( pGState );
 		}
         
 		switch ( (*it)->GetType() )
@@ -1987,9 +1886,7 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 			}
             case ContentType_Component:
 			{
-                //RestoreGState();
 				DrawComponentRef( (CHE_PDF_ComponentRef*)(*it) );
-                //StoreGState();
 				break;
 			}
             default:
@@ -1998,7 +1895,7 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
         RestoreGState();
 	}
     
-    CGContextEndTransparencyLayer(mContextRef);
+    //CGContextEndTransparencyLayer(mContextRef);
 }
 
 HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list )

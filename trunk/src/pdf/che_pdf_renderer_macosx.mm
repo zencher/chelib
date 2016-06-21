@@ -242,11 +242,7 @@ HE_VOID CHE_PDF_Renderer::SetFillColor( const CHE_PDF_Color & color )
     {
         val[i] = color.GetComponent( i );
     }
-    val[i] = mFillAlpha;//1.0f;
-    if (mFillAlpha < 1)
-    {
-        int x = 0;
-    }
+    val[i] = mFillAlpha;
     
     if ( mFillPattern ) {
         if ( mFillPatternColored )
@@ -268,7 +264,7 @@ HE_VOID CHE_PDF_Renderer::SetStrokeColor( const CHE_PDF_Color & color )
     {
         val[i] = color.GetComponent( i );
     }
-    val[i] = mStrokeAlpha;//1.0f;
+    val[i] = mStrokeAlpha;
     
     CGContextSetStrokeColor( mContextRef, val );
 }
@@ -633,9 +629,6 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
                 break;
         }
         
-        CGContextSetBlendMode(mContextRef, kCGBlendModeMultiply);
-
-        
         HE_ULONG bpc = imagePtr->GetBPC();
         if ( bpc == 0 )
         {
@@ -837,9 +830,9 @@ HE_VOID	CHE_PDF_Renderer::FillPath()
             }else{
                 CGContextEOFillPath( mContextRef );
             }
-            CGPathRelease( mPathRef );
-            mPathRef = NULL;
         }
+        
+        ResetPath();
     }
 }
 
@@ -849,9 +842,10 @@ HE_VOID	CHE_PDF_Renderer::StrokePath()
     {
         CGContextAddPath( mContextRef, mPathRef );
         CGContextStrokePath( mContextRef );
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
+        ResetPath();
     }
+    
+    
 }
 
 HE_VOID	CHE_PDF_Renderer::FillStrokePath()
@@ -861,8 +855,6 @@ HE_VOID	CHE_PDF_Renderer::FillStrokePath()
         if (mShading)
         {
             StoreGState();
-            
-            //ClipPath();
             CGContextAddPath( mContextRef, mPathRef );
             CGContextClip( mContextRef );
             CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
@@ -880,11 +872,9 @@ HE_VOID	CHE_PDF_Renderer::FillStrokePath()
             }
         }
         
-        
         CGContextAddPath( mContextRef, mPathRef );
         CGContextStrokePath( mContextRef );
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
+        ResetPath();
     }
 }
 
@@ -894,8 +884,7 @@ HE_VOID	CHE_PDF_Renderer::ClipPath()
     {
         CGContextAddPath( mContextRef, mPathRef );
         CGContextClip( mContextRef );
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
+        ResetPath();
     }
 }
 
@@ -907,7 +896,6 @@ HE_VOID	CHE_PDF_Renderer::FillClipPath()
         {
             StoreGState();
             
-            //ClipPath();
             CGContextAddPath( mContextRef, mPathRef );
             CGContextClip( mContextRef );
             CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
@@ -928,8 +916,7 @@ HE_VOID	CHE_PDF_Renderer::FillClipPath()
 
         CGContextAddPath( mContextRef, mPathRef );
         CGContextClip( mContextRef );
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
+        ResetPath();
     }
 }
 
@@ -941,8 +928,7 @@ HE_VOID	CHE_PDF_Renderer::StrokeClipPath()
         CGContextStrokePath( mContextRef );
         CGContextAddPath( mContextRef, mPathRef );
         CGContextClip( mContextRef );
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
+        ResetPath();
     }
 }
 
@@ -954,7 +940,6 @@ HE_VOID	CHE_PDF_Renderer::FillStrokeClipPath()
         {
             StoreGState();
             
-            //ClipPath();
             CGContextAddPath( mContextRef, mPathRef );
             CGContextClip( mContextRef );
             CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
@@ -973,13 +958,11 @@ HE_VOID	CHE_PDF_Renderer::FillStrokeClipPath()
             }
         }
         
-        
         CGContextAddPath( mContextRef, mPathRef );
         CGContextStrokePath( mContextRef );
         CGContextAddPath( mContextRef, mPathRef );
         CGContextClip( mContextRef );
-        CGPathRelease( mPathRef );
-        mPathRef = NULL;
+        ResetPath();
     }
 }
 
@@ -1146,7 +1129,6 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
         
         
     }
-    CGContextSetRenderingIntent(mContextRef, kCGRenderingIntentPerceptual);
 }
 
 HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
@@ -1157,6 +1139,7 @@ HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
         SetBlendMode( blendMode );
         
         mFillAlpha = pExtGState->GetFillAlpha();
+        //CGContextSetAlpha(mContextRef, 0.1);
         mStrokeAlpha = pExtGState->GetStrokeAlpha();
     }
 }
@@ -1846,7 +1829,7 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
     CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
     
     
-    //CGContextBeginTransparencyLayer(mContextRef, NULL);
+    CGContextBeginTransparencyLayer(mContextRef, NULL);
     
 	for ( ; it != list.End(); ++it )
 	{
@@ -1895,7 +1878,7 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
         RestoreGState();
 	}
     
-    //CGContextEndTransparencyLayer(mContextRef);
+    CGContextEndTransparencyLayer(mContextRef);
 }
 
 HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list )
@@ -2020,6 +2003,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
     SetExtMatrix( matrix );
     
     StoreGState();
+    CGContextBeginTransparencyLayer(mContextRef, NULL);
     
     //clip当前页面绘制的区域
     newPageRect = matrix.Transform( pageRect );
@@ -2045,6 +2029,10 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
             if ( pExtGStateStack )
             {
                 SetExtGState( pExtGStateStack );
+            }else{
+                SetBlendMode(BlendMode_Normal);
+                mFillAlpha = 1.0f;
+                mStrokeAlpha = 1.0f;
             }
             SetCommonGState( pGState );
 		}
@@ -2067,6 +2055,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
         RestoreGState();
 	}
     RestoreGState();
+    CGContextEndTransparencyLayer(mContextRef);
 }
 
 HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, HE_BOOL bColored )

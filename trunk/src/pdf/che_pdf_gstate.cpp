@@ -196,6 +196,7 @@ CHE_PDF_ExtGStateStack * CHE_PDF_ExtGStateStack::Clone() const
 	pRet->mExtGStateName = mExtGStateName;
 	pRet->mFillAlpha = mFillAlpha;
 	pRet->mStrokeAlpha = mStrokeAlpha;
+    pRet->mBlendMode = mBlendMode;
 	return pRet;
 }
 

@@ -641,9 +641,13 @@ HE_BOOL CHE_PDF_SyntaxParser::GetWord( CHE_PDF_ParseWordDes & des )
 										if ( byte == 0x0A )
 										{
 											mlFilePos+=2;
-										}
+                                        }else{
+                                            mlFilePos++;
+                                        }
+                                        continue;
 									}
 								case 0x0A:
+                                    mlFilePos++;
 									continue;
 								case 'n':
 									mWordBuffer[mlBufferPos++] = 0x0A;

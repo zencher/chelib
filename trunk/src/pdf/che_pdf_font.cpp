@@ -6035,10 +6035,10 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 		{
 			mType = FONT_ENCODING_IDENTITY;
             mBaseType = FONT_ENCODING_IDENTITY;
-		}else{
-			mType = FONT_ENCODING_BUILDINCMAP;
-            mBaseType = FONT_ENCODING_BUILDINCMAP;
-		}
+        }else{
+            mType = FONT_ENCODING_NONE;
+            mBaseType = FONT_ENCODING_NONE;
+        }
 	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
 	{
         mType = FONT_ENCODING_CUSTOM;
@@ -7088,17 +7088,15 @@ HE_BOOL CHE_PDF_Type1_Font::Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG &
                 gid = glyph;
                 bGIDGet = true;
             }
-        }
-        
-        /*if (!bGIDGet)
-        {
-            //character = charCode;
+        }else{
+            //对于系统字体，肯定需要unicode，但是在Encoding拿不到unicode的情况下，说明charcode本身很大可能性就是unicode
+            character = charCode;
             if ( CTFontGetGlyphsForCharacters(ctFontRef, &character, &glyph, 1) )
             {
                 gid = glyph;
                 bGIDGet = true;
             }
-        }*/
+        }
 
         if ( !bGIDGet )
         {

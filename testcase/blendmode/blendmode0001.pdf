@@ -1,0 +1,170 @@
+%PDF-1.4
+%����
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Kids [ 5 0 R ]
+/Count 1
+>>
+endobj
+3 0 obj
+<<
+/Producer (Haru\040Free\040PDF\040Library\0402.0.6)
+>>
+endobj
+4 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /StandardEncoding
+>>
+endobj
+5 0 obj
+<<
+/Type /Page
+/MediaBox [ 0 0 600 900 ]
+/Contents 6 0 R
+/Resources <<
+/ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+/Font <<
+/F1 4 0 R
+>>
+/ExtGState <<
+/E1 8 0 R
+/E2 9 0 R
+/E3 10 0 R
+/E4 11 0 R
+/E5 12 0 R
+/E6 13 0 R
+/E7 14 0 R
+/E8 15 0 R
+/E9 16 0 R
+/E10 17 0 R
+/E11 18 0 R
+/E12 19 0 R
+/E13 20 0 R
+>>
+>>
+/Parent 2 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 0
+>>
+stream
+q
+/E4 gs
+1 w
+0 0 0 RG
+1 0 0 rg
+100 150 100 100 re
+f
+0 1 0 rg
+75 125 100 100 re
+f
+0 0 1 rg
+125 125 100 100 re
+f
+Q
+endstream
+endobj
+7 0 obj
+8493
+endobj
+8 0 obj
+<<
+/Type /ExtGState
+/ca 0.8
+/CA 0.8
+>>
+endobj
+9 0 obj
+<<
+/Type /ExtGState
+/ca 0.4
+>>
+endobj
+10 0 obj
+<<
+/Type /ExtGState
+/BM /Multiply
+>>
+endobj
+11 0 obj
+<<
+/Type /ExtGState
+/BM /Screen
+>>
+endobj
+12 0 obj
+<<
+/Type /ExtGState
+/BM /Overlay
+>>
+endobj
+13 0 obj
+<<
+/Type /ExtGState
+/BM /Darken
+>>
+endobj
+14 0 obj
+<<
+/Type /ExtGState
+/BM /Lighten
+>>
+endobj
+15 0 obj
+<<
+/Type /ExtGState
+/BM /ColorDodge
+>>
+endobj
+16 0 obj
+<<
+/Type /ExtGState
+/BM /ColorBurn
+>>
+endobj
+17 0 obj
+<<
+/Type /ExtGState
+/BM /HardLight
+>>
+endobj
+18 0 obj
+<<
+/Type /ExtGState
+/BM /SoftLight
+>>
+endobj
+19 0 obj
+<<
+/Type /ExtGState
+/BM /Difference
+>>
+endobj
+20 0 obj
+<<
+/Type /ExtGState
+/BM /Exclusion
+>>
+endobj
+xref
+trailer
+<<
+/Root 1 0 R
+/Info 3 0 R
+/Size 21
+>>
+startxref
+0
+%%EOF

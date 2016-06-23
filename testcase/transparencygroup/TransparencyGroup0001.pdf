@@ -1,0 +1,191 @@
+%PDF-1.4
+%����
+1 0 obj
+<<
+/Type /Catalog
+/Pages 2 0 R
+>>
+endobj
+2 0 obj
+<<
+/Type /Pages
+/Kids [ 5 0 R ]
+/Count 1
+>>
+endobj
+3 0 obj
+<<
+/Producer (Haru\040Free\040PDF\040Library\0402.0.6)
+>>
+endobj
+4 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /StandardEncoding
+>>
+endobj
+5 0 obj
+<<
+/Type /Page
+/MediaBox [ 0 0 600 900 ]
+/Contents 6 0 R
+/Resources <<
+/ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+/Font <</F1 4 0 R>>
+/ExtGState <</E1 7 0 R>>
+/XObject <</Fm0 8 0 R /Fm1 9 0 R /Fm2 10 0 R>>
+>>
+/Parent 2 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 0
+>>
+stream
+q
+1	0 0 1 50 780 cm
+0 g
+BT
+/F1 10 Tf
+(Ungrouped & Fill Alpha=1.0 & Stroke Alpha=1.0) Tj
+ET
+1	0 0 1 -50 -780 cm
+
+1 0 0 1 75 550 cm
+1	1 0 rg
+0 0 100 200 re
+f
+1 0 0 1 25 50 cm
+/Fm0 Do
+Q
+
+q
+1	0 0 1 350 780 cm
+0 g
+BT
+/F1 10 Tf
+(Ungrouped & Fill Alpha=0.5 & Stroke Alpha=1.0) Tj
+ET
+1	0 0 1 -350 -780 cm
+
+1 0 0 1 375 550 cm
+1	1 0 rg
+0 0 100 200 re
+f
+1 0 0 1 25 50 cm
+/E1 gs
+/Fm0 Do
+Q
+
+q
+1	0 0 1 50 480 cm
+0 g
+BT
+/F1 10 Tf
+(Grouped & Fill Alpha=0.5 & Stroke Alpha=1.0) Tj
+ET
+1	0 0 1 -50 -480 cm
+
+1 0 0 1 75 250 cm
+1	1 0 rg
+0 0 100 200 re
+f
+1 0 0 1 25 50 cm
+/E1 gs
+/Fm1 Do
+Q
+
+q
+1	0 0 1 350 480 cm
+0 g
+BT
+/F1 10 Tf
+(Grouped & Fill Alpha=0.5 & Stroke Alpha=1.0) Tj
+0 -20 Td
+(inside : Fill Alpha=0.5 & Stroke Alpha=1.0) Tj
+ET
+1	0 0 1 -350 -480 cm
+
+1 0 0 1 375 250 cm
+1 1 0 rg
+0 0 100 200 re
+f
+1 0 0 1 25 50 cm
+/E1 gs
+/Fm2 Do
+Q
+
+endstream
+endobj
+
+7 0 obj
+<<
+/Type /ExtGState
+/ca 0.5
+>>
+endobj
+
+8 0 obj
+<</Type/XObject /Subtype/Form /FormType 1 /Resources <<>> /BBox [-10 -10 160 160] /Length 0>>
+stream
+10 w
+0 0 0 RG
+1 0 0 rg
+25 25 100 100 re
+B
+0 1 0 rg
+0 0 100 100 re
+B
+0 0 1 rg
+50 0 100 100 re
+B
+endstream
+endobj
+
+9 0 obj
+<</Type/XObject /Subtype/Form /FormType 1 /Resources <<>> /BBox [-10 -10 160 160] /Length 0 /Group <</K false/S/Transparency>> >>
+stream
+10 w
+0 0 0 RG
+1 0 0 rg
+25 25 100 100 re
+B
+0 1 0 rg
+0 0 100 100 re
+B
+0 0 1 rg
+50 0 100 100 re
+B
+endstream
+endobj
+
+10 0 obj
+<</Type/XObject /Subtype/Form /FormType 1 /Resources << /ExtGState <</E1 7 0 R>> >> /BBox [-10 -10 160 160] /Length 0 /Group <</K false/S/Transparency>> >>
+stream
+/E1 gs
+10 w
+0 0 0 RG
+1 0 0 rg
+25 25 100 100 re
+B
+0 1 0 rg
+0 0 100 100 re
+B
+0 0 1 rg
+50 0 100 100 re
+B
+endstream
+endobj
+
+xref
+trailer
+<<
+/Root 1 0 R
+/Info 3 0 R
+>>
+startxref
+0
+%%EOF

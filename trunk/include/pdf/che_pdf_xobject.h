@@ -85,6 +85,8 @@ public:
 	CHE_PDF_ContentObjectList & GetList() { return mList; }
     
     CHE_Matrix GetMatrix() const { return mMatrix; }
+    
+    HE_BOOL IsGroup() const { return mIsGroup; }
 
 private:
 	CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
@@ -92,6 +94,8 @@ private:
     CHE_Matrix mMatrix;
     
 	CHE_PDF_ContentObjectList mList;
+    
+    HE_BOOL mIsGroup;
 
 	friend class CHE_Allocator;
 };

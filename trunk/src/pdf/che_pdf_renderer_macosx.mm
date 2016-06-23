@@ -24,8 +24,8 @@ void TilingDrawCallBack( void *info, CGContextRef c )
 
 
 CHE_PDF_Renderer::CHE_PDF_Renderer( CGContextRef cgContext )
-    : mFillMode(FillMode_Nonzero),mContextRef(cgContext), mPathRef(NULL),
-mFillColorSpace(NULL), mStrokeColorSpace(NULL), mImageColorSpace(NULL), mPosiX(0), mPosiY(0), mStrokeAlpha(1), mFillAlpha(1) {}
+    : mFillMode(FillMode_Nonzero),mContextRef(cgContext), mPathRef(NULL), mFillColorSpace(NULL),
+mStrokeColorSpace(NULL), mImageColorSpace(NULL), mPosiX(0), mPosiY(0),mFillAlpha(1), mStrokeAlpha(1) {}
 
 CHE_PDF_Renderer::~CHE_PDF_Renderer()
 {
@@ -236,6 +236,12 @@ HE_VOID	CHE_PDF_Renderer::SetStrokeColor( const HE_ULONG & color )
 
 HE_VOID CHE_PDF_Renderer::SetFillColor( const CHE_PDF_Color & color )
 {
+    // why i do this?
+    /*if (mShading)
+    {
+        return;
+    }*/
+    
     CGFloat val[5];
     int i = 0;
     for ( ; i < color.GetComponentCount(); ++i )
@@ -812,11 +818,21 @@ HE_VOID	CHE_PDF_Renderer::FillPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
+        /*HE_BOOL bSoft = FALSE;
+        if (mSoftMask)
+        {
+            CGContextSetAlpha(mContextRef, 0.6);
+            CGContextBeginTransparencyLayer(mContextRef, nullptr);
+            CGContextSetBlendMode(mContextRef, kCGBlendModeLuminosity);
+            bSoft = TRUE;
+        }*/
+        
         if (mShading)
         {
             StoreGState();
             
-            ClipPath();
+            CGContextAddPath( mContextRef, mPathRef );
+            CGContextClip( mContextRef );
             CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
             DrawShading(mShading);
             mShading.Reset();
@@ -833,6 +849,34 @@ HE_VOID	CHE_PDF_Renderer::FillPath()
         }
         
         ResetPath();
+        
+        /*if (bSoft)
+        {
+            CHE_PDF_FormXObjectPtr tmpForm = mSoftMask;
+            mSoftMask.Reset();
+            
+            StoreGState();
+            
+            CHE_Matrix t1 = mMatrix;
+            t1.Concat(mExtMatrix);
+            
+            CHE_Matrix revertMatrix;
+            revertMatrix.Invert(t1);
+            CGContextConcatCTM( mContextRef, CGAffineTransformMake( revertMatrix.a, revertMatrix.b, revertMatrix.c, revertMatrix.d, revertMatrix.e, revertMatrix.f) );
+            
+            CHE_Matrix tmpMatrix = mMatrix;
+            CHE_Matrix tmpExtMatrix = mExtMatrix;
+            CHE_Matrix newExtMatrix = tmpForm->GetMatrix();
+            newExtMatrix.Concat( tmpExtMatrix );
+            SetExtMatrix( newExtMatrix );
+            DrawForm(tmpForm);
+            SetExtMatrix( tmpExtMatrix );
+            SetMatrix( tmpMatrix );
+            
+            RestoreGState();
+            
+            CGContextEndTransparencyLayer(mContextRef);
+        }*/
     }
 }
 
@@ -844,8 +888,6 @@ HE_VOID	CHE_PDF_Renderer::StrokePath()
         CGContextStrokePath( mContextRef );
         ResetPath();
     }
-    
-    
 }
 
 HE_VOID	CHE_PDF_Renderer::FillStrokePath()
@@ -1126,8 +1168,6 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
         
         SetFillColor( fillColor );
         SetStrokeColor( strokeColor );
-        
-        
     }
 }
 
@@ -1139,8 +1179,18 @@ HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
         SetBlendMode( blendMode );
         
         mFillAlpha = pExtGState->GetFillAlpha();
-        //CGContextSetAlpha(mContextRef, 0.1);
         mStrokeAlpha = pExtGState->GetStrokeAlpha();
+        
+        CHE_PDF_DictionaryPtr dict = pExtGState->GetSoftMaskDict();
+        if (dict)
+        {
+            CHE_PDF_ObjectPtr obj = dict->GetElement("G", OBJ_TYPE_REFERENCE);
+            if ( obj )
+            {
+                CHE_PDF_ComponentMgr mgr;
+                mSoftMask = CHE_PDF_FormXObject::Create(obj->GetRefPtr(), &mgr);
+            }
+        }
     }
 }
 
@@ -1577,6 +1627,19 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 		{
             StoreGState();
             
+            CHE_PDF_FormXObjectPtr formXObject = CHE_PDF_FormXObject::Convert( componentPtr );
+            
+            HE_FLOAT tmpFillAlpha = mFillAlpha;
+            HE_FLOAT tmpStrokeAlpha = mStrokeAlpha;
+            
+            if ( formXObject->IsGroup() )
+            {
+                CGContextSetAlpha(mContextRef, mFillAlpha);
+                mFillAlpha = 1.0f;
+                mStrokeAlpha = 1.0f;
+                CGContextBeginTransparencyLayer(mContextRef, nullptr);
+            }
+            
             CHE_Matrix t1 = mMatrix;
             t1.Concat(mExtMatrix);
             
@@ -1584,11 +1647,9 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
             revertMatrix.Invert(t1);
             CGContextConcatCTM( mContextRef, CGAffineTransformMake( revertMatrix.a, revertMatrix.b, revertMatrix.c, revertMatrix.d, revertMatrix.e, revertMatrix.f) );
             
-            CHE_PDF_FormXObjectPtr formPtr = CHE_PDF_FormXObject::Convert( componentPtr );
-            
             CHE_Matrix tmpMatrix = mMatrix;
 			CHE_Matrix tmpExtMatrix = mExtMatrix;
-            CHE_Matrix newExtMatrix = formPtr->GetMatrix();
+            CHE_Matrix newExtMatrix = formXObject->GetMatrix();
 			CHE_PDF_GState * pGState = cmptRef->GetGState();
 			if ( pGState )
 			{
@@ -1596,9 +1657,16 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 			}
 			newExtMatrix.Concat( tmpExtMatrix );
 			SetExtMatrix( newExtMatrix );
-            DrawForm( CHE_PDF_FormXObject::Convert( componentPtr ) );
+            DrawForm( formXObject );
 			SetExtMatrix( tmpExtMatrix );
             SetMatrix( tmpMatrix );
+            
+            if ( formXObject->IsGroup() )
+            {
+                mFillAlpha = tmpFillAlpha;
+                mStrokeAlpha = tmpStrokeAlpha;
+                CGContextEndTransparencyLayer(mContextRef);
+            }
             
             RestoreGState();
 			break;
@@ -1828,9 +1896,6 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
     CHE_PDF_ClipState * pClipState = NULL;
     CHE_PDF_ExtGStateStack * pExtGStateStack = NULL;
     
-    
-    CGContextBeginTransparencyLayer(mContextRef, NULL);
-    
 	for ( ; it != list.End(); ++it )
 	{
         StoreGState();
@@ -1877,8 +1942,6 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 		}
         RestoreGState();
 	}
-    
-    CGContextEndTransparencyLayer(mContextRef);
 }
 
 HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list )

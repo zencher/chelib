@@ -187,7 +187,7 @@ CHE_PDF_FormXObjectPtr CHE_PDF_FormXObject::Convert( const CHE_PDF_ComponentPtr 
 }
 
 CHE_PDF_FormXObject::CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
-	: CHE_PDF_Component( COMPONENT_TYPE_FormXObject, refPtr, pAllocator )
+	: CHE_PDF_Component( COMPONENT_TYPE_FormXObject, refPtr, pAllocator ), mIsGroup(FALSE)
 {
     CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj(OBJ_TYPE_STREAM);
     if (objPtr)
@@ -199,6 +199,12 @@ CHE_PDF_FormXObject::CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, C
         {
             CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
             arrayPtr->GetMatrix(mMatrix);
+        }
+        
+        objPtr = dictPtr->GetElement("Group", OBJ_TYPE_DICTIONARY);
+        if ( objPtr )
+        {
+            mIsGroup = TRUE;
         }
     }
 }

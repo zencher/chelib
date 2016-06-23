@@ -179,11 +179,21 @@ HE_BOOL CHE_PDF_ExtGStateStack::PushExtStateName( const CHE_ByteString & name, c
 			break;
 		case PDF_EXTGSTATE_ca:
 			mFillAlpha = iti->objPtr->GetNumberPtr()->GetFloat();
-                if (mFillAlpha < 1)
-                {
-                    int x = 9;
-                }
             break;
+        case PDF_EXTGSTATE_SMask:
+            {
+                if ( iti->objPtr->GetType() == OBJ_TYPE_DICTIONARY )
+                {
+                    mSMask = iti->objPtr->GetDictPtr();
+                    /*CHE_PDF_DictionaryPtr dict = objPtr->GetDictPtr();
+                    CHE_PDF_ObjectPtr obj = dict->GetElement("G", OBJ_TYPE_STREAM);
+                    if ( obj )
+                    {
+                        
+                    }*/
+                }
+                break;
+            }
 		default:break;
 		}
 	}
@@ -197,6 +207,7 @@ CHE_PDF_ExtGStateStack * CHE_PDF_ExtGStateStack::Clone() const
 	pRet->mFillAlpha = mFillAlpha;
 	pRet->mStrokeAlpha = mStrokeAlpha;
     pRet->mBlendMode = mBlendMode;
+    pRet->mSMask = mSMask;
 	return pRet;
 }
 

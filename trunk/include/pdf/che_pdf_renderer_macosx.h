@@ -22,6 +22,8 @@ public:
     CHE_PDF_ShadingPtr mShading;
     CHE_Matrix         mShadingMatrix;
     
+    CHE_PDF_FormXObjectPtr mSoftMask;
+    
     HE_VOID     SetPosition( HE_FLOAT x, HE_FLOAT y );
     
     HE_VOID     Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy );

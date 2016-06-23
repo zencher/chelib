@@ -124,6 +124,8 @@ public:
 	HE_FLOAT GetFillAlpha() const { return mFillAlpha; }
 
 	GRAPHICS_STATE_BLENDMODE GetBlendMode() const { return mBlendMode; }
+    
+    CHE_PDF_DictionaryPtr GetSoftMaskDict () const { return mSMask; }
 
 	CHE_PDF_ExtGStateStack * Clone() const;
 
@@ -138,6 +140,7 @@ private:
 	HE_FLOAT							mStrokeAlpha;
 	HE_FLOAT							mFillAlpha;
 	GRAPHICS_STATE_BLENDMODE			mBlendMode;
+    CHE_PDF_DictionaryPtr               mSMask;
 };
 
 #define GSTATE_FLAG_FillColor			0x00000001

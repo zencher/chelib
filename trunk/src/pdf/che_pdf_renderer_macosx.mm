@@ -589,13 +589,13 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         }
         
         double * pDecode = NULL;
-        double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
+        double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
         
         CHE_PDF_ArrayPtr arrayPtr = imagePtr->GetDecodeArray();
         if ( arrayPtr )
         {
             CHE_PDF_ObjectPtr objPtr;
-            for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 4; ++i )
+            for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 10; ++i )
             {
                 objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
                 if ( objPtr )
@@ -642,9 +642,11 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         }
         CGColorSpaceRef csRef = CreateColorSpace( csPtr );
         
+        CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
+        
         imgRef = CGImageCreate( imagePtr->GetWidth(), imagePtr->GetHeight(), bpc, bpc*csPtr->GetComponentCount(),
-                               (imagePtr->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
-                               kCGBitmapByteOrderDefault|kCGImageAlphaNone, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
+                                (imagePtr->GetWidth() * csPtr->GetComponentCount() * bpc + 7)/8, csRef,
+                                bitmapInfo, dataRef, pDecode, imagePtr->IsInterpolate(), ri );
         CGDataProviderRelease( dataRef );
         CGColorSpaceRelease( csRef );
         
@@ -677,7 +679,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
         }
         
         double * pDecode = NULL;
-        double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
+        double decode[] = { 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 1.0f };
         
         CHE_PDF_ArrayPtr arrayPtr;
         CHE_PDF_ObjectPtr objPtr = image->GetDecode();
@@ -686,7 +688,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
         }
         if ( arrayPtr )
         {
-            for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 4; ++i )
+            for ( unsigned int i = 0; i < arrayPtr->GetCount() && i < 10; ++i )
             {
                 objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
                 if ( objPtr )

@@ -5953,6 +5953,41 @@ IHE_SystemFontMgr * HE_GetSystemFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
 	return gpSystemFontMgr;
 }
 
+HE_BOOL CHE_PDF_Encoding::IsPredefinedCJKCMapNames(const CHE_ByteString & name)
+{
+    if ( name == "GB-EUC-H" || name == "GB-EUC-V" || name == "GBpc-EUC-H" || name == "GBpc-EUC-V" ||
+         name == "GBK-EUC-H" || name == "GBK-EUC-V" || name == "GBKp-EUC-H" || name == "GBKp-EUC-V" ||
+         name == "GBK2K-H" || name == "GBK2K-V" || name == "UniGB-UCS2-H" || name == "UniGB-UCS2-V" ||
+         name == "UniGB-UTF16-H" || name == "UniGB-UTF16-V" )
+    {
+        return TRUE;
+    }
+    
+    if ( name == "B5pc-H" || name == "B5pc-V""B5pc-V" || name == "HKscs-B5-H" || name == "HKscs-B5-V" ||
+         name == "ETen-B5-H" || name == "ETen-B5-V" || name == "ETenms-B5-H" || name == "ETenms-B5-V" ||
+         name == "CNS-EUC-H" || name == "CNS-EUC-V" || name == "UniCNS-UCS2-H" || name == "UniCNS-UCS2-V" ||
+         name == "UniCNS-UTF16-H" || name == "UniCNS-UTF16-V" )
+    {
+        return TRUE;
+    }
+    
+    if ( name == "83pv-RKSJ-H" || name == "90ms-RKSJ-H" || name == "90ms-RKSJ-V" || name == "90msp-RKSJ-H" ||
+        name == "90msp-RKSJ-V" || name == "90pv-RKSJ-H" || name == "Add-RKSJ-H" || name == "Add-RKSJ-V" ||
+        name == "H" || name == "V" || name == "UniJIS-UCS2-H" || name == "UniJIS-UCS2-V" ||
+        name == "UniJIS-UCS2-HW-H" || name == "UniJIS-UCS2-HW-V" || name == "UniJIS-UTF16-H" || name == "UniJIS-UTF16-V" )
+    {
+        return TRUE;
+    }
+    
+    if ( name == "KSC-EUC-H" || name == "KSC-EUC-V" || name == "KSCms-UHC-H" || name == "KSCms-UHC-V" ||
+        name == "KSCms-UHC-HW-H" || name == "KSCms-UHC-HW-V" || name == "KSCpc-EUC-H" || name == "UniKS-UCS2-H" ||
+        name == "UniKS-UCS2-V" || name == "UniKS-UTF16-H" || name == "UniKS-UTF16-V" )
+    {
+        return TRUE;
+    }
+    
+    return FALSE;
+}
 
 CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator /*= NULL*/ )
 	: CHE_Object(pAllocator), mType(FONT_ENCODING_NONE), mBaseType(FONT_ENCODING_NONE), mpCodeTable(NULL)
@@ -6036,8 +6071,14 @@ CHE_PDF_Encoding::CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_
 			mType = FONT_ENCODING_IDENTITY;
             mBaseType = FONT_ENCODING_IDENTITY;
         }else{
-            mType = FONT_ENCODING_NONE;
-            mBaseType = FONT_ENCODING_NONE;
+            if ( IsPredefinedCJKCMapNames(str) )
+            {
+                mType = FONT_ENCODING_BUILDINCMAP;
+                mBaseType = FONT_ENCODING_BUILDINCMAP;
+            }else{
+                mType = FONT_ENCODING_NONE;
+                mBaseType = FONT_ENCODING_NONE;
+            }
         }
 	}else if ( objPtr->GetType() == OBJ_TYPE_DICTIONARY )
 	{

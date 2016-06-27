@@ -54,6 +54,8 @@ class CHE_PDF_Encoding : public CHE_Object
 public:
 	CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
 	~CHE_PDF_Encoding();
+    
+    static HE_BOOL IsPredefinedCJKCMapNames(const CHE_ByteString & name);
 
 	PDF_FONT_ENCODING			GetType() const;
     PDF_FONT_ENCODING           GetBaseType() const;

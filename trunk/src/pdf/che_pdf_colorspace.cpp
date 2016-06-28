@@ -199,6 +199,189 @@ CHE_PDF_ColorSpace::CHE_PDF_ColorSpace(PDF_COLORSPACE_TYPE type, HE_UINT32 compo
 
 CHE_PDF_ColorSpace::~CHE_PDF_ColorSpace() {}
 
+CHE_PDF_Color CHE_PDF_ColorSpace::GetRGB(const CHE_PDF_Color & color)
+{
+    CHE_PDF_Color ret;
+    return ret;
+}
+
+
+class CFX_Vector_3by1 {
+public:
+    CFX_Vector_3by1() : a(0.0f), b(0.0f), c(0.0f) {}
+    
+    CFX_Vector_3by1(HE_FLOAT a1, HE_FLOAT b1, HE_FLOAT c1)
+    : a(a1), b(b1), c(c1) {}
+    
+    HE_FLOAT a;
+    HE_FLOAT b;
+    HE_FLOAT c;
+};
+class CFX_Matrix_3by3 {
+public:
+    CFX_Matrix_3by3()
+    : a(0.0f),
+    b(0.0f),
+    c(0.0f),
+    d(0.0f),
+    e(0.0f),
+    f(0.0f),
+    g(0.0f),
+    h(0.0f),
+    i(0.0f) {}
+    
+    CFX_Matrix_3by3(HE_FLOAT a1,
+                    HE_FLOAT b1,
+                    HE_FLOAT c1,
+                    HE_FLOAT d1,
+                    HE_FLOAT e1,
+                    HE_FLOAT f1,
+                    HE_FLOAT g1,
+                    HE_FLOAT h1,
+                    HE_FLOAT i1)
+    : a(a1), b(b1), c(c1), d(d1), e(e1), f(f1), g(g1), h(h1), i(i1) {}
+    
+    CFX_Matrix_3by3 Inverse();
+    
+    CFX_Matrix_3by3 Multiply(const CFX_Matrix_3by3& m);
+    
+    CFX_Vector_3by1 TransformVector(const CFX_Vector_3by1& v);
+    
+    HE_FLOAT a;
+    HE_FLOAT b;
+    HE_FLOAT c;
+    HE_FLOAT d;
+    HE_FLOAT e;
+    HE_FLOAT f;
+    HE_FLOAT g;
+    HE_FLOAT h;
+    HE_FLOAT i;
+};
+
+CFX_Matrix_3by3 CFX_Matrix_3by3::Inverse() {
+    HE_FLOAT det =
+    a * (e * i - f * h) - b * (i * d - f * g) + c * (d * h - e * g);
+    if (fabs(det) < 0.0000001)
+        return CFX_Matrix_3by3();
+    
+    return CFX_Matrix_3by3(
+                           (e * i - f * h) / det, -(b * i - c * h) / det, (b * f - c * e) / det,
+                           -(d * i - f * g) / det, (a * i - c * g) / det, -(a * f - c * d) / det,
+                           (d * h - e * g) / det, -(a * h - b * g) / det, (a * e - b * d) / det);
+}
+
+CFX_Matrix_3by3 CFX_Matrix_3by3::Multiply(const CFX_Matrix_3by3& m) {
+    return CFX_Matrix_3by3(
+                           a * m.a + b * m.d + c * m.g, a * m.b + b * m.e + c * m.h,
+                           a * m.c + b * m.f + c * m.i, d * m.a + e * m.d + f * m.g,
+                           d * m.b + e * m.e + f * m.h, d * m.c + e * m.f + f * m.i,
+                           g * m.a + h * m.d + i * m.g, g * m.b + h * m.e + i * m.h,
+                           g * m.c + h * m.f + i * m.i);
+}
+
+CFX_Vector_3by1 CFX_Matrix_3by3::TransformVector(const CFX_Vector_3by1& v) {
+    return CFX_Vector_3by1(a * v.a + b * v.b + c * v.c,
+                           d * v.a + e * v.b + f * v.c,
+                           g * v.a + h * v.b + i * v.c);
+}
+
+const uint8_t g_sRGBSamples1[] = {
+    0,   3,   6,   10,  13,  15,  18,  20,  22,  23,  25,  27,  28,  30,  31,
+    32,  34,  35,  36,  37,  38,  39,  40,  41,  42,  43,  44,  45,  46,  47,
+    48,  49,  49,  50,  51,  52,  53,  53,  54,  55,  56,  56,  57,  58,  58,
+    59,  60,  61,  61,  62,  62,  63,  64,  64,  65,  66,  66,  67,  67,  68,
+    68,  69,  70,  70,  71,  71,  72,  72,  73,  73,  74,  74,  75,  76,  76,
+    77,  77,  78,  78,  79,  79,  79,  80,  80,  81,  81,  82,  82,  83,  83,
+    84,  84,  85,  85,  85,  86,  86,  87,  87,  88,  88,  88,  89,  89,  90,
+    90,  91,  91,  91,  92,  92,  93,  93,  93,  94,  94,  95,  95,  95,  96,
+    96,  97,  97,  97,  98,  98,  98,  99,  99,  99,  100, 100, 101, 101, 101,
+    102, 102, 102, 103, 103, 103, 104, 104, 104, 105, 105, 106, 106, 106, 107,
+    107, 107, 108, 108, 108, 109, 109, 109, 110, 110, 110, 110, 111, 111, 111,
+    112, 112, 112, 113, 113, 113, 114, 114, 114, 115, 115, 115, 115, 116, 116,
+    116, 117, 117, 117, 118, 118, 118, 118, 119, 119, 119, 120,
+};
+
+const uint8_t g_sRGBSamples2[] = {
+    120, 121, 122, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135,
+    136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 148, 149,
+    150, 151, 152, 153, 154, 155, 155, 156, 157, 158, 159, 159, 160, 161, 162,
+    163, 163, 164, 165, 166, 167, 167, 168, 169, 170, 170, 171, 172, 173, 173,
+    174, 175, 175, 176, 177, 178, 178, 179, 180, 180, 181, 182, 182, 183, 184,
+    185, 185, 186, 187, 187, 188, 189, 189, 190, 190, 191, 192, 192, 193, 194,
+    194, 195, 196, 196, 197, 197, 198, 199, 199, 200, 200, 201, 202, 202, 203,
+    203, 204, 205, 205, 206, 206, 207, 208, 208, 209, 209, 210, 210, 211, 212,
+    212, 213, 213, 214, 214, 215, 215, 216, 216, 217, 218, 218, 219, 219, 220,
+    220, 221, 221, 222, 222, 223, 223, 224, 224, 225, 226, 226, 227, 227, 228,
+    228, 229, 229, 230, 230, 231, 231, 232, 232, 233, 233, 234, 234, 235, 235,
+    236, 236, 237, 237, 238, 238, 238, 239, 239, 240, 240, 241, 241, 242, 242,
+    243, 243, 244, 244, 245, 245, 246, 246, 246, 247, 247, 248, 248, 249, 249,
+    250, 250, 251, 251, 251, 252, 252, 253, 253, 254, 254, 255, 255,
+};
+
+HE_FLOAT RGB_Conversion(HE_FLOAT colorComponent) {
+    if (colorComponent > 1)
+        colorComponent = 1;
+    if (colorComponent < 0)
+        colorComponent = 0;
+    
+    int scale = (int)(colorComponent * 1023);
+    if (scale < 0)
+        scale = 0;
+    if (scale < 192)
+        colorComponent = (g_sRGBSamples1[scale] / 255.0f);
+    else
+        colorComponent = (g_sRGBSamples2[scale / 4 - 48] / 255.0f);
+    return colorComponent;
+}
+
+void XYZ_to_sRGB(HE_FLOAT X,
+                 HE_FLOAT Y,
+                 HE_FLOAT Z,
+                 HE_FLOAT& R,
+                 HE_FLOAT& G,
+                 HE_FLOAT& B) {
+    HE_FLOAT R1 = 3.2410f * X - 1.5374f * Y - 0.4986f * Z;
+    HE_FLOAT G1 = -0.9692f * X + 1.8760f * Y + 0.0416f * Z;
+    HE_FLOAT B1 = 0.0556f * X - 0.2040f * Y + 1.0570f * Z;
+    
+    R = RGB_Conversion(R1);
+    G = RGB_Conversion(G1);
+    B = RGB_Conversion(B1);
+}
+
+void XYZ_to_sRGB_WhitePoint(HE_FLOAT X,
+                            HE_FLOAT Y,
+                            HE_FLOAT Z,
+                            HE_FLOAT& R,
+                            HE_FLOAT& G,
+                            HE_FLOAT& B,
+                            HE_FLOAT Xw,
+                            HE_FLOAT Yw,
+                            HE_FLOAT Zw) {
+    // The following RGB_xyz is based on
+    // sRGB value {Rx,Ry}={0.64, 0.33}, {Gx,Gy}={0.30, 0.60}, {Bx,By}={0.15, 0.06}
+    
+    HE_FLOAT Rx = 0.64f, Ry = 0.33f;
+    HE_FLOAT Gx = 0.30f, Gy = 0.60f;
+    HE_FLOAT Bx = 0.15f, By = 0.06f;
+    CFX_Matrix_3by3 RGB_xyz(Rx, Gx, Bx, Ry, Gy, By, 1 - Rx - Ry, 1 - Gx - Gy,
+                            1 - Bx - By);
+    CFX_Vector_3by1 whitePoint(Xw, Yw, Zw);
+    CFX_Vector_3by1 XYZ(X, Y, Z);
+    
+    CFX_Vector_3by1 RGB_Sum_XYZ = RGB_xyz.Inverse().TransformVector(whitePoint);
+    CFX_Matrix_3by3 RGB_SUM_XYZ_DIAG(RGB_Sum_XYZ.a, 0, 0, 0, RGB_Sum_XYZ.b, 0, 0,
+                                     0, RGB_Sum_XYZ.c);
+    CFX_Matrix_3by3 M = RGB_xyz.Multiply(RGB_SUM_XYZ_DIAG);
+    CFX_Vector_3by1 RGB = M.Inverse().TransformVector(XYZ);
+    
+    R = RGB_Conversion(RGB.a);
+    G = RGB_Conversion(RGB.b);
+    B = RGB_Conversion(RGB.c);
+}
+
+
+
 // HE_BOOL CHE_PDF_ColorSpace::IsDeviceColorSpace() const
 // {
 // 	switch ( GetType() )
@@ -396,6 +579,15 @@ CHE_PDF_CS_CalGray::CHE_PDF_CS_CalGray(const CHE_PDF_DictionaryPtr & dict, CHE_A
     }
 }
 
+CHE_PDF_Color CHE_PDF_CS_CalGray::GetRGB(const CHE_PDF_Color & color)
+{
+    CHE_PDF_Color ret;
+    ret.Push( color.GetComponent(0) );
+    ret.Push( color.GetComponent(0) );
+    ret.Push( color.GetComponent(0) );
+    return  ret;
+}
+
 CHE_PDF_CS_CalRGB::CHE_PDF_CS_CalRGB(CHE_Allocator * pAllocator)
  : CHE_PDF_ColorSpace(COLORSPACE_CIEBASE_CALRGB, 3, pAllocator)
 {
@@ -505,6 +697,41 @@ CHE_PDF_CS_CalRGB::CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_All
     }
 }
 
+CHE_PDF_Color CHE_PDF_CS_CalRGB::GetRGB(const CHE_PDF_Color & color)
+{
+    CHE_PDF_Color ret;
+    
+    HE_FLOAT A_ = color.GetComponent(0);
+    HE_FLOAT B_ = color.GetComponent(1);
+    HE_FLOAT C_ = color.GetComponent(2);
+    if (mGamma) {
+        A_ = (HE_FLOAT)powf(A_, mGamma[0]);
+        B_ = (HE_FLOAT)powf(B_, mGamma[1]);
+        C_ = (HE_FLOAT)powf(C_, mGamma[2]);
+    }
+    
+    HE_FLOAT X;
+    HE_FLOAT Y;
+    HE_FLOAT Z;
+    if (mMatrix) {
+        X = mMatrix[0] * A_ + mMatrix[3] * B_ + mMatrix[6] * C_;
+        Y = mMatrix[1] * A_ + mMatrix[4] * B_ + mMatrix[7] * C_;
+        Z = mMatrix[2] * A_ + mMatrix[5] * B_ + mMatrix[8] * C_;
+    } else {
+        X = A_;
+        Y = B_;
+        Z = C_;
+    }
+    
+    HE_FLOAT R, G, B;
+    XYZ_to_sRGB_WhitePoint(X, Y, Z, R, G, B, mWhitePoint[0], mWhitePoint[1],
+                           mWhitePoint[2]);
+    ret.Push(R);
+    ret.Push(G);
+    ret.Push(B);
+    return ret;
+}
+
 CHE_PDF_CS_CalLab::CHE_PDF_CS_CalLab(CHE_Allocator * pAllocator)
 : CHE_PDF_ColorSpace(COLORSPACE_CIEBASE_CALLAB, 3, pAllocator)
 {
@@ -581,6 +808,39 @@ CHE_PDF_CS_CalLab::CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_All
             }
         }
     }
+}
+
+CHE_PDF_Color CHE_PDF_CS_CalLab::GetRGB(const CHE_PDF_Color & color)
+{
+    CHE_PDF_Color ret;
+    HE_FLOAT Lstar = color.GetComponent(0);
+    HE_FLOAT astar = color.GetComponent(1);
+    HE_FLOAT bstar = color.GetComponent(2);
+    HE_FLOAT M = (Lstar + 16.0f) / 116.0f;
+    HE_FLOAT L = M + astar / 500.0f;
+    HE_FLOAT N = M - bstar / 200.0f;
+    HE_FLOAT X, Y, Z;
+    HE_FLOAT R, G, B;
+    if (L < 0.2069f)
+        X = 0.957f * 0.12842f * (L - 0.1379f);
+    else
+        X = 0.957f * L * L * L;
+    
+    if (M < 0.2069f)
+        Y = 0.12842f * (M - 0.1379f);
+    else
+        Y = M * M * M;
+    
+    if (N < 0.2069f)
+        Z = 1.0889f * 0.12842f * (N - 0.1379f);
+    else
+        Z = 1.0889f * N * N * N;
+    
+    XYZ_to_sRGB(X, Y, Z, R, G, B);
+    ret.Push(R);
+    ret.Push(G);
+    ret.Push(B);
+    return ret;
 }
 
 CHE_PDF_CS_ICCBased::CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_Allocator * pAllocator)

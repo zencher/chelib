@@ -149,7 +149,7 @@
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
     if ( context )
     {
-        HE_UINT32 rotate = 0;
+        HE_UINT32 rotate = 0, tmpRotate = 0;
         switch ( [pdfDocData getRotateMode] )
         {
             case ROTATE_MODE_0:
@@ -166,10 +166,12 @@
             default:
                 break;
         }
-        
+
         HE_PDF_PAGE_RANGE range = [pdfDocData getCurPageRange];
         for ( HE_ULONG i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
         {
+            CGContextSaveGState( context );
+            
             pageRectInView = [pdfDocData getPageRectInView:i];
             pageRectWithShadowInView = pageRectInView;
             pageRectWithShadowInView.origin.x -= 10;
@@ -179,15 +181,15 @@
             if ( CGRectIntersectsRect( rect, pageRectWithShadowInView ) )
             {
                 [self drawPageBorderAndShadow:context bound:pageRectInView];
+                CGContextAddRect( context, rect );
+                CGContextClip( context );
                 
-                CGContextSaveGState( context );
-                //CGContextAddRect( context, rect );
-                //CGContextClip( context );
-                
-                
+                tmpRotate = [pdfDocData getPageRotate:i] % 360;
+                tmpRotate = 360 - tmpRotate;
+                tmpRotate += rotate;
+                tmpRotate %= 360;
                 
                 CHE_Rect pageRect = [pdfDocData getPageRect:i];
-                
                 CHE_PDF_Renderer render( context );
                 render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );
                 render.SetPatternOffset( 0/*leftFrame.size.width + 1*/,  visableRect.size.height - frame.size.height );
@@ -200,14 +202,13 @@
                  pageRectInView.origin.y + pageRectInView.size.height);
                  NSLog(@"frame(%f, %f, %f, %f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
                  NSLog(@"offsetX %f, offsetY %f", 0.0f, visableRect.size.height - frame.size.height);*/
-                
-                render.Render( *[pdfDocData getPageContent:i], pageRect, rotate, [pdfDocData getPageScaleInViwe:i], 72, 72 );
-                
-                CGContextRestoreGState( context );
+
+                render.Render( *[pdfDocData getPageContent:i], pageRect, tmpRotate, [pdfDocData getPageScaleInViwe:i], 72, 72 );
             }
+            
+            CGContextRestoreGState( context );
         }
     }
-    
     //NSLog(@"%f, %f", [parentScrollView horizontalLineScroll], [parentScrollView verticalLineScroll]);
 }
 

@@ -59,6 +59,8 @@ enum PDFVIEW_ROTATE_MODE
 
 -(HE_ULONG)getPageCount;
 
+-(HE_INT32)getPageRotate:(HE_ULONG)pageIndex;
+
 -(CHE_Rect)getPageRect:(HE_ULONG)pageIndex;
 
 -(CHE_PDF_ContentObjectList*)getPageContent:(HE_ULONG)pageIndex;

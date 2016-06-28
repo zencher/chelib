@@ -306,21 +306,8 @@ CHE_Rect CHE_PDF_Page::GetPageRect() const
     arrayPtr->GetRect( mediaRect );
     if (mediaRect.width < rect.height || mediaRect.height < rect.height)
     {
-        CHE_Matrix transferMatrix = CHE_Matrix::TranslateMatrix(-(mediaRect.width + mediaRect.left)/2, -(mediaRect.height + mediaRect.bottom)/2);
-        CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix(rotate);
-        CHE_Matrix backMatrix = CHE_Matrix::TranslateMatrix((mediaRect.width + mediaRect.left)/2, (mediaRect.height + mediaRect.bottom)/2);
-        transferMatrix.Concat(rotateMatrix);
-        transferMatrix.Concat(backMatrix);
-        mediaRect = transferMatrix.Transform(mediaRect);
-        return mediaRect;
+        rect = mediaRect;
     }
-    
-    CHE_Matrix transferMatrix = CHE_Matrix::TranslateMatrix(-(mediaRect.width + mediaRect.left)/2, -(mediaRect.height + mediaRect.bottom)/2);
-    CHE_Matrix rotateMatrix = CHE_Matrix::RotateMatrix(rotate);
-    CHE_Matrix backMatrix = CHE_Matrix::TranslateMatrix((mediaRect.width + mediaRect.left)/2, (mediaRect.height + mediaRect.bottom)/2);
-    transferMatrix.Concat(rotateMatrix);
-    transferMatrix.Concat(backMatrix);
-    rect = transferMatrix.Transform(rect);
 	return rect;
 }
 

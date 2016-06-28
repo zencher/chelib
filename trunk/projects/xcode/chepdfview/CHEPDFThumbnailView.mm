@@ -110,6 +110,10 @@
                 CHE_PDF_Renderer render( context );
                 render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );
                 render.SetPatternOffset( 0/*leftFrame.size.width + 1*/,  visableRect.size.height - frame.size.height );
+                
+                rotate = [pdfDocData getPageRotate:i] % 360;
+                rotate = 360 - rotate;
+
                 render.Render( *[pdfDocData getPageContent:i], pageRect, rotate, [pdfDocData getPageScaleInThumbnailView:i], 72, 72 );
                 CGContextRestoreGState( context );
                 

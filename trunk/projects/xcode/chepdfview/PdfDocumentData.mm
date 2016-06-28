@@ -103,8 +103,15 @@ HE_VOID	IHE_NSDataRead::Release()
                                 if ( pdfPage )
                                 {
                                     CHE_Rect rect = pdfPage->GetPageRect();
-                                    pdfPageLayout->AddPageSize(rect.width, rect.height);
-                                    pdfThumbnailLayout->AddPageSize(rect.width, rect.height);
+                                    HE_INT32 rotate = pdfPage->GetRotate() % 360;
+                                    if ( rotate == 90 || rotate == 270 )
+                                    {
+                                        pdfPageLayout->AddPageSize(rect.height, rect.width);
+                                        pdfThumbnailLayout->AddPageSize(rect.height, rect.width);
+                                    }else{
+                                        pdfPageLayout->AddPageSize(rect.width, rect.height);
+                                        pdfThumbnailLayout->AddPageSize(rect.width, rect.height);
+                                    }
                                 }
                             }
                         }
@@ -157,8 +164,15 @@ HE_VOID	IHE_NSDataRead::Release()
                                 if ( pdfPage )
                                 {
                                     CHE_Rect rect = pdfPage->GetPageRect();
-                                    pdfPageLayout->AddPageSize(rect.width, rect.height);
-                                    pdfThumbnailLayout->AddPageSize(rect.width, rect.height);
+                                    HE_INT32 rotate = pdfPage->GetRotate() % 360;
+                                    if ( rotate == 90 || rotate == 270 )
+                                    {
+                                        pdfPageLayout->AddPageSize(rect.height, rect.width);
+                                        pdfThumbnailLayout->AddPageSize(rect.height, rect.width);
+                                    }else{
+                                        pdfPageLayout->AddPageSize(rect.width, rect.height);
+                                        pdfThumbnailLayout->AddPageSize(rect.width, rect.height);
+                                    }
                                 }
                             }
                         }
@@ -213,6 +227,20 @@ HE_VOID	IHE_NSDataRead::Release()
 -(HE_ULONG)getPageCount
 {
     return pdfPageTree->GetPageCount();
+}
+
+-(HE_INT32)getPageRotate:(HE_ULONG)index
+{
+    HE_INT32 rotate = 0;
+    if ( index < pageCount )
+    {
+        CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
+        if ( pdfPage )
+        {
+            rotate = pdfPage->GetRotate();
+        }
+    }
+    return rotate;
 }
 
 -(CHE_Rect)getPageRect:(HE_ULONG)index
@@ -433,12 +461,10 @@ HE_VOID	IHE_NSDataRead::Release()
 {
     NSRect rect;
     CHE_Page_Rect pageRect = pdfPageLayout->GetPageRectInView(pageIndex);
-    
     rect.origin.x = pageRect.left;
     rect.origin.y = pageRect.top;
     rect.size.width = pageRect.Width();
     rect.size.height = pageRect.Height();
-    
     return rect;
 }
 
@@ -455,12 +481,10 @@ HE_VOID	IHE_NSDataRead::Release()
 {
     NSRect rect;
     CHE_Page_Rect pageRect = pdfThumbnailLayout->GetPageRectInView(pageIndex);
-    
     rect.origin.x = pageRect.left;
     rect.origin.y = pageRect.top;
     rect.size.width = pageRect.Width();
     rect.size.height = pageRect.Height();
-    
     return rect;
 }
 

@@ -1,11 +1,6 @@
 #ifndef _CHE_BASE_H_
 #define _CHE_BASE_H_
 
-#include "che_define.h"
-
-#include <new>
-#include <cstdlib>
-
 #ifdef _MAC_OS_X_
 #include <malloc/malloc.h>
 #include <pthread.h>
@@ -18,25 +13,30 @@
 #undef GetObject
 #endif
 
+#include <new>
+
+#include "che_define.h"
+
+
 class CHE_Allocator
 {
 public:
 	virtual ~CHE_Allocator(){}
-	virtual void* Alloc( size_t cb ) = 0;
-    virtual void Free( void* data ) = 0;
-	virtual size_t GetSize( void* data ) = 0;
+	virtual void * Alloc( size_t cb ) = 0;
+    virtual void Free( void * data ) = 0;
+	virtual size_t GetSize( void * data ) = 0;
 	
 	template <class Type>
-	inline Type* New()
+	inline Type * New()
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type;
 	}
 
 	template <class Type>
 	inline Type* NewArray( size_t count )
 	{
-		void* obj = Alloc( sizeof(Type) * count );
+		void * obj = Alloc( sizeof(Type) * count );
         size_t relCount = GetSize( obj ) / sizeof( Type ) ;
 		Type * pTmp = (Type *)obj;
 		for ( size_t i = 0; i < relCount; i++ )
@@ -50,7 +50,7 @@ public:
 	template <class Type>
 	inline void Delete( Type * p )
 	{
-		((Type*)p)->~Type();
+		((Type *)p)->~Type();
 		Free( p );
 	}
 
@@ -61,7 +61,7 @@ public:
 		Type * pTmp = p;
 		for ( size_t i = 0; i < count; i++ )
 		{
-			((Type*)pTmp)->~Type();
+			((Type *)pTmp)->~Type();
 			pTmp++;
 		}
 		Free( p ); 
@@ -72,96 +72,98 @@ public:
     template <class Type, typename... Args>
     inline Type * New(Args... args )
     {
-        void* obj =Alloc( sizeof(Type) );
+        void * obj =Alloc( sizeof(Type) );
         return new(obj) Type(args...);
     }
 #else
 	template <class Type, class Arg1>
-	inline Type* New( Arg1 arg1 )
+	inline Type * New( Arg1 arg1 )
 	{
-		void* obj =Alloc( sizeof(Type) );
+		void * obj =Alloc( sizeof(Type) );
 		return new(obj) Type(arg1);
 	}
 
 	template <class Type, class Arg1, class Arg2>
 	inline Type* New( Arg1 arg1, Arg2 arg2 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2);
 	}
 
 	template <class Type, class Arg1, class Arg2, class Arg3>
 	inline Type* New( Arg1 arg1, Arg2 arg2, Arg3 arg3 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3);
 	}
 
 	template <class Type, class Arg1, class Arg2, class Arg3, class Arg4>
 	inline Type* New( Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3, arg4);
 	}
 
 	template <class Type, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5>
 	inline Type* New(  Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4, Arg5 arg5 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3, arg4, arg5);
 	}
 
 	template <class Type, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6>
 	inline Type* New( Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4, Arg5 arg5, Arg6 arg6 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3, arg4, arg5, arg6);
 	}
 
 	template <class Type, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6, class Arg7>
 	inline Type* New( Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4, Arg5 arg5, Arg6 arg6, Arg7 arg7 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 	}
 
 	template <class Type, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6, class Arg7, class Arg8>
 	inline Type* New( Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4, Arg5 arg5, Arg6 arg6, Arg7 arg7, Arg8 arg8 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 	}
 
 	template <class Type, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6, class Arg7, class Arg8, class Arg9>
 	inline Type* New( Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4, Arg5 arg5, Arg6 arg6, Arg7 arg7, Arg8 arg8, Arg9 arg9 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
 	}
 
 	template <class Type, class Arg1, class Arg2, class Arg3, class Arg4, class Arg5, class Arg6, class Arg7, class Arg8, class Arg9, class Arg10>
 	inline Type* New( Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4, Arg5 arg5, Arg6 arg6, Arg7 arg7, Arg8 arg8, Arg9 arg9, Arg10 arg10 )
 	{
-		void* obj = Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
 	}
 #endif
 };
 
+
 class CHE_DefCrtAllocator : public CHE_Allocator
 {
 public:
-	inline void* Alloc( size_t cb );
+	inline void * Alloc( size_t cb );
 
-    inline void Free( void* data );
+    inline void Free( void * data );
 
 	inline size_t GetSize( void * data );
 };
 
+
 CHE_Allocator * GetDefaultAllocator();
 
-#ifdef WIN32
 
+#ifdef WIN32
 class CHE_HeapAllocator : public CHE_Allocator
 {
 public:
@@ -169,16 +171,16 @@ public:
 	
 	~CHE_HeapAllocator();
 		
-	inline void* Alloc( size_t cb );
+	inline void * Alloc( size_t cb );
 	
-	inline void Free( void* data );
+	inline void Free( void * data );
 
 	inline size_t GetSize( void * data );
 private:
 	HANDLE m_Heap;
 };
-
 #endif
+
 
 class CHE_Object
 {
@@ -190,62 +192,58 @@ public:
 private:
 	CHE_Allocator * m_pAllocator;
 };
- 
-class IHE_Pause
-{
-public:
-	virtual HE_BOOL	NeedToPauseNow() = 0;
-};
+
 
 class IHE_Write : public CHE_Object
 {
 public:
-	IHE_Write( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
+	IHE_Write( CHE_Allocator * pAllocator = nullptr ) : CHE_Object( pAllocator ) {};
 
 	virtual ~IHE_Write() {};
 
-	virtual HE_ULONG	GetSize() = 0;
+	virtual size_t GetSize() = 0;
 
-	virtual HE_ULONG	GetCurOffset() = 0;
+	virtual size_t GetCurOffset() = 0;
 
-	virtual HE_ULONG	Flush() = 0;
+	virtual size_t Flush() = 0;
 
-	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_ULONG offset, HE_ULONG size ) = 0;
+	virtual	bool WriteBlock( const void * pData, size_t offset, size_t size ) = 0;
 	
-	virtual	HE_BOOL		WriteBlock( const HE_LPVOID pData, HE_ULONG size )
+	virtual	bool WriteBlock( const void * pData, size_t size )
 	{
 		return WriteBlock( pData, GetSize(), size );
 	}
 
-	virtual HE_BOOL		WriteByte( HE_BYTE byte )
+	virtual bool WriteByte( BYTE byte )
 	{
 		return WriteBlock( &byte, 1 );
 	}
 
-	virtual HE_VOID		Release() = 0;
+	virtual void Release() = 0;
 };
 
-#define FILEWRITE_MODE_NEW			0
-#define FILEWRITE_MODE_OPEN			1
 
-IHE_Write*	HE_CreateFileWrite( HE_LPCSTR filename, HE_BYTE mode = FILEWRITE_MODE_NEW, CHE_Allocator * pAllocator = NULL );
+#define FILEWRITE_MODE_NEW  0
+#define FILEWRITE_MODE_OPEN 1
 
-HE_VOID		HE_DestoryIHEWrite( IHE_Write * pIHEWrite );
+IHE_Write* HE_CreateFileWrite( char const * filename, BYTE mode = FILEWRITE_MODE_NEW, CHE_Allocator * pAllocator = nullptr );
+
+void HE_DestoryIHEWrite( IHE_Write * pIHEWrite );
 
 class IHE_Read : public CHE_Object
 {
 public:
-	IHE_Read( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
+	IHE_Read( CHE_Allocator * pAllocator = nullptr ) : CHE_Object( pAllocator ) {}
 
 	virtual ~IHE_Read() {};
 
-	virtual HE_ULONG	GetSize() = 0;
+	virtual size_t GetSize() = 0;
 	
-	virtual HE_ULONG	ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size ) = 0;
+	virtual size_t ReadBlock( void * buffer, size_t offset, size_t size ) = 0;
 
-	virtual HE_BYTE		ReadByte( HE_ULONG offset ) = 0;
+	virtual BYTE ReadByte( size_t offset ) = 0;
 	
-	virtual HE_VOID		Release() = 0;
+	virtual void Release() = 0;
 };
 
 #define FILEREAD_MODE_DEFAULT		0
@@ -253,75 +251,71 @@ public:
 #define FILEREAD_MODE_BUFFER		2
 #define FILEREAD_MODE_BLOCKLINK		3
 
-IHE_Read*	HE_CreateFileRead( HE_LPCSTR filename, HE_BYTE mode = FILEREAD_MODE_DEFAULT, HE_ULONG param = 0, CHE_Allocator * pAllocator = NULL );
+IHE_Read * HE_CreateFileRead( char const * filename, BYTE mode = FILEREAD_MODE_DEFAULT, size_t param = 0, CHE_Allocator * pAllocator = nullptr );
 
-IHE_Read*	HE_CreateMemBufRead( HE_LPCBYTE pBuf, HE_ULONG lSize, CHE_Allocator * pAllocator = NULL );
+IHE_Read * HE_CreateMemBufRead( PCBYTE pBuf, size_t lSize, CHE_Allocator * pAllocator = nullptr );
 
-HE_VOID		HE_DestoryIHERead( IHE_Read * pIHERead );
+void HE_DestoryIHERead( IHE_Read * pIHERead );
 
 
 class CHE_DynBuffer : public CHE_Object
 {
 public:
-	CHE_DynBuffer( HE_ULONG capacity = 1024, HE_ULONG increament = 1024, CHE_Allocator * pAllocator = NULL );
+	CHE_DynBuffer( size_t capacity = 1024, size_t increament = 1024, CHE_Allocator * pAllocator = nullptr );
 	CHE_DynBuffer( const CHE_DynBuffer & buf );
 	~CHE_DynBuffer();
 
 	const CHE_DynBuffer & operator = ( const CHE_DynBuffer & buf );
 
-	HE_LPBYTE GetData() { return m_lpData; }
+	PBYTE GetData() { return m_lpData; }
 
-	HE_ULONG GetCapacity() { return m_lCapacity; }
+	size_t GetCapacity() { return m_lCapacity; }
 
-	HE_ULONG GetSize() { return m_lSize; }
+	size_t GetSize() { return m_lSize; }
 
-	HE_ULONG Write( HE_LPCBYTE pBuffer, HE_ULONG offset, HE_ULONG size );
+	size_t Write( PCBYTE pBuffer, size_t offset, size_t size );
 
-	HE_ULONG Write( HE_LPCBYTE pBuffer, HE_ULONG size );
+	size_t Write( PCBYTE pBuffer, size_t size );
 
-	HE_ULONG Read( HE_LPBYTE pBuffer, HE_ULONG size );
+	size_t Read( PBYTE pBuffer, size_t size );
 
-	HE_BOOL ReadByte( HE_ULONG offset, HE_LPBYTE pByte );
+	bool ReadByte( size_t offset, PBYTE pByte );
 
-	HE_ULONG Write( const CHE_DynBuffer & dynBuffer );
+	size_t Write( const CHE_DynBuffer & dynBuffer );
 
-	HE_VOID	Clear() { m_lSize = 0; }
+	void Clear() { m_lSize = 0; }
 
-	HE_VOID Alloc( HE_ULONG size );
+	void Alloc( size_t size );
 
 private:
-
-	HE_ULONG	m_lCapacity;
-	HE_ULONG	m_lIncreament;
-
-	HE_LPBYTE	m_lpData;
-	HE_ULONG	m_lSize;
+	size_t m_lCapacity;
+	size_t m_lIncreament;
+    size_t m_lSize;
+	PBYTE m_lpData;
 };
 
-IHE_Write * HE_CreateDynBufferWrite( CHE_DynBuffer * pBuffer, CHE_Allocator * pAllocator = NULL );
+
+IHE_Write * HE_CreateDynBufferWrite( CHE_DynBuffer * pBuffer, CHE_Allocator * pAllocator = nullptr );
 
 
 class CHE_RefCount
 {
 public:
-
 	CHE_RefCount() : mRefCount(0) {}
 
-	inline	operator HE_ULONG() { return mRefCount; }
+	inline operator size_t() { return mRefCount; }
 
-	/*inline*/ HE_VOID	AddRef();
-
-	/*inline*/ HE_VOID	DecRef();
+	void AddRef();
+	void DecRef();
 
 private:
-
 #ifdef _MAC_OS_X_
-	HE_INT32		mRefCount;
+    int32 mRefCount;
 #else
-	HE_LONG			mRefCount;
+	long mRefCount;
 #endif
-	
 };
+
 
 class CHE_Lock
 {
@@ -329,8 +323,8 @@ public:
 	CHE_Lock();
 	~CHE_Lock();
 
-	HE_VOID Lock();
-	HE_VOID UnLock();
+	void Lock();
+	void UnLock();
 
 #ifdef WIN32
 	HANDLE	mMutex;
@@ -339,7 +333,6 @@ public:
 #ifdef _MAC_OS_X_
     pthread_mutex_t mMutex;
 #endif
-
 };
 
 #endif

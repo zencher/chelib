@@ -1,59 +1,29 @@
 #ifndef _CHE_DEFINE_
 #define _CHE_DEFINE_
 
-typedef void	HE_VOID;
+#include <stdint.h>
 
-//Pointer to any type.
-typedef void *  HE_LPVOID;
+typedef uint8_t BYTE;
+
+typedef uint8_t * PBYTE;
+
+typedef uint8_t const * PCBYTE;
+
+typedef int8_t int8;
+
+typedef uint8_t uint8;
+
+typedef int16_t int16;
+
+typedef uint16_t uint16;
  
-//Pointer to any constant type. 
-typedef void const *  HE_LPCVOID;
-
-//Byte (8 bits).
-typedef unsigned char  HE_BYTE;
-
-//Pointer to a HE_BYTE.
-typedef unsigned char *  HE_LPBYTE;
-
-//Pointer to a constant HE_BYTE.
-typedef unsigned char const *  HE_LPCBYTE;
+typedef int32_t  int32;
  
-//Short integer (16 bits).
-typedef short  HE_SHORT;
+typedef uint32_t uint32;
 
-typedef unsigned short HE_USHORT;
+typedef int64_t int64;
 
-typedef short HE_INT16;
-
-typedef unsigned short HE_UINT16;
- 
-//32-bit signed integer.
-typedef int  HE_INT32;
-
-//32-bit unsigned integer.
-typedef unsigned int HE_UINT32;
- 
-//64-bit signed integer.
-typedef long long  HE_INT64;
-
-//64-bit unsigned integer.
-typedef unsigned long long HE_UINT64;
-
-typedef long HE_LONG;
-
-typedef unsigned long HE_ULONG;
-
-//Boolean variable (should be TRUE or FALSE).
-typedef bool HE_BOOL;
- 
-//8-bit Windows (ANSI) character. 
-typedef char  HE_CHAR;
-
-//Pointer to 8-bit Windows (ANSI) characters.
-typedef char *  HE_LPSTR;
- 
-//Pointer to constant 8-bit Windows (ANSI) characters. 
-typedef char const *  HE_LPCSTR;
+typedef uint64_t uint64;
 
 #ifdef _MSC_VER
 	#ifndef _WCHAR_T_DEFINED
@@ -61,43 +31,16 @@ typedef char const *  HE_LPCSTR;
 	#endif
 #endif
 
-//16-bit Unicode character.
-typedef wchar_t  HE_WCHAR;
+typedef wchar_t WCHAR;
 
-//Pointer to 16-bit Unicode characters.
-typedef wchar_t *  HE_LPWSTR;
+typedef wchar_t * PWSTR;
  
-//Pointer to constant 16-bit Unicode characters.
-typedef wchar_t const *  HE_LPCWSTR;
+typedef wchar_t const * PCWSTR;
 
-//Signed integral type for pointer precision.
-typedef int  HE_INTPTR;
+typedef float FLOAT;
 
-//Unsigned integral type for pointer precision.
-typedef unsigned int HE_UINTPTR;
+typedef double DOUBLE;
 
-//32-bit floating-point number.
-typedef float  HE_FLOAT;
-
-typedef double HE_DOUBLE;
-
-typedef HE_INT32 HE_ARGB;
-
-#define FALSE 0
-#define TRUE 1
-
-#ifndef NULL
-#define NULL 0
-#endif
-
-struct HE_RECT
-{
-	HE_ULONG left;
-	HE_ULONG top;
-	HE_ULONG width;
-	HE_ULONG height;
-};
-
-#define HE_ABS abs
+typedef uint32 ARGB;
 
 #endif

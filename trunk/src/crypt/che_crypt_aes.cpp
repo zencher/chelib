@@ -2,7 +2,7 @@
 
 #include <memory>
 
-static HE_BYTE S[256] =
+static BYTE S[256] =
 {
 	99, 124, 119, 123, 242, 107, 111, 197,  48,   1, 103,  43, 254, 215, 171, 118, 
 	202, 130, 201, 125, 250,  89,  71, 240, 173, 212, 162, 175, 156, 164, 114, 192, 
@@ -22,7 +22,7 @@ static HE_BYTE S[256] =
 	140, 161, 137,  13, 191, 230,  66, 104,  65, 153,  45,  15, 176,  84, 187,  22
 };
 
-static HE_BYTE T1[256][4]=
+static BYTE T1[256][4]=
 {
 	{0xc6,0x63,0x63,0xa5}, {0xf8,0x7c,0x7c,0x84}, {0xee,0x77,0x77,0x99}, {0xf6,0x7b,0x7b,0x8d}, 
 	{0xff,0xf2,0xf2,0x0d}, {0xd6,0x6b,0x6b,0xbd}, {0xde,0x6f,0x6f,0xb1}, {0x91,0xc5,0xc5,0x54}, 
@@ -90,7 +90,7 @@ static HE_BYTE T1[256][4]=
 	{0x7b,0xb0,0xb0,0xcb}, {0xa8,0x54,0x54,0xfc}, {0x6d,0xbb,0xbb,0xd6}, {0x2c,0x16,0x16,0x3a}
 };
 
-static HE_BYTE T2[256][4]=
+static BYTE T2[256][4]=
 {
 	{0xa5,0xc6,0x63,0x63}, {0x84,0xf8,0x7c,0x7c}, {0x99,0xee,0x77,0x77}, {0x8d,0xf6,0x7b,0x7b},
 	{0x0d,0xff,0xf2,0xf2}, {0xbd,0xd6,0x6b,0x6b}, {0xb1,0xde,0x6f,0x6f}, {0x54,0x91,0xc5,0xc5},
@@ -158,7 +158,7 @@ static HE_BYTE T2[256][4]=
 	{0xcb,0x7b,0xb0,0xb0}, {0xfc,0xa8,0x54,0x54}, {0xd6,0x6d,0xbb,0xbb}, {0x3a,0x2c,0x16,0x16}
 };
 
-static HE_BYTE T3[256][4]=
+static BYTE T3[256][4]=
 {
 	{0x63,0xa5,0xc6,0x63}, {0x7c,0x84,0xf8,0x7c}, {0x77,0x99,0xee,0x77}, {0x7b,0x8d,0xf6,0x7b}, 
 	{0xf2,0x0d,0xff,0xf2}, {0x6b,0xbd,0xd6,0x6b}, {0x6f,0xb1,0xde,0x6f}, {0xc5,0x54,0x91,0xc5}, 
@@ -226,7 +226,7 @@ static HE_BYTE T3[256][4]=
 	{0xb0,0xcb,0x7b,0xb0}, {0x54,0xfc,0xa8,0x54}, {0xbb,0xd6,0x6d,0xbb}, {0x16,0x3a,0x2c,0x16}
 };
 
-static HE_BYTE T4[256][4]=
+static BYTE T4[256][4]=
 {
 	{0x63,0x63,0xa5,0xc6}, {0x7c,0x7c,0x84,0xf8}, {0x77,0x77,0x99,0xee}, {0x7b,0x7b,0x8d,0xf6}, 
 	{0xf2,0xf2,0x0d,0xff}, {0x6b,0x6b,0xbd,0xd6}, {0x6f,0x6f,0xb1,0xde}, {0xc5,0xc5,0x54,0x91}, 
@@ -294,7 +294,7 @@ static HE_BYTE T4[256][4]=
 	{0xb0,0xb0,0xcb,0x7b}, {0x54,0x54,0xfc,0xa8}, {0xbb,0xbb,0xd6,0x6d}, {0x16,0x16,0x3a,0x2c}
 };
 
-static HE_BYTE T5[256][4]=
+static BYTE T5[256][4]=
 {
 	{0x51,0xf4,0xa7,0x50}, {0x7e,0x41,0x65,0x53}, {0x1a,0x17,0xa4,0xc3}, {0x3a,0x27,0x5e,0x96}, 
 	{0x3b,0xab,0x6b,0xcb}, {0x1f,0x9d,0x45,0xf1}, {0xac,0xfa,0x58,0xab}, {0x4b,0xe3,0x03,0x93}, 
@@ -362,7 +362,7 @@ static HE_BYTE T5[256][4]=
 	{0x7b,0xcb,0x84,0x61}, {0xd5,0x32,0xb6,0x70}, {0x48,0x6c,0x5c,0x74}, {0xd0,0xb8,0x57,0x42}
 };
 
-static HE_BYTE T6[256][4]=
+static BYTE T6[256][4]=
 {
 	{0x50,0x51,0xf4,0xa7}, {0x53,0x7e,0x41,0x65}, {0xc3,0x1a,0x17,0xa4}, {0x96,0x3a,0x27,0x5e}, 
 	{0xcb,0x3b,0xab,0x6b}, {0xf1,0x1f,0x9d,0x45}, {0xab,0xac,0xfa,0x58}, {0x93,0x4b,0xe3,0x03}, 
@@ -430,7 +430,7 @@ static HE_BYTE T6[256][4]=
 	{0x61,0x7b,0xcb,0x84}, {0x70,0xd5,0x32,0xb6}, {0x74,0x48,0x6c,0x5c}, {0x42,0xd0,0xb8,0x57}
 };
 
-static HE_BYTE T7[256][4]=
+static BYTE T7[256][4]=
 {
 	{0xa7,0x50,0x51,0xf4}, {0x65,0x53,0x7e,0x41}, {0xa4,0xc3,0x1a,0x17}, {0x5e,0x96,0x3a,0x27}, 
 	{0x6b,0xcb,0x3b,0xab}, {0x45,0xf1,0x1f,0x9d}, {0x58,0xab,0xac,0xfa}, {0x03,0x93,0x4b,0xe3}, 
@@ -498,7 +498,7 @@ static HE_BYTE T7[256][4]=
 	{0x84,0x61,0x7b,0xcb}, {0xb6,0x70,0xd5,0x32}, {0x5c,0x74,0x48,0x6c}, {0x57,0x42,0xd0,0xb8}
 };
 
-static HE_BYTE T8[256][4]=
+static BYTE T8[256][4]=
 {
 	{0xf4,0xa7,0x50,0x51}, {0x41,0x65,0x53,0x7e}, {0x17,0xa4,0xc3,0x1a}, {0x27,0x5e,0x96,0x3a}, 
 	{0xab,0x6b,0xcb,0x3b}, {0x9d,0x45,0xf1,0x1f}, {0xfa,0x58,0xab,0xac}, {0xe3,0x03,0x93,0x4b}, 
@@ -566,7 +566,7 @@ static HE_BYTE T8[256][4]=
 	{0xcb,0x84,0x61,0x7b}, {0x32,0xb6,0x70,0xd5}, {0x6c,0x5c,0x74,0x48}, {0xb8,0x57,0x42,0xd0}
 };
 
-static HE_BYTE S5[256]=
+static BYTE S5[256]=
 {
 	0x52,0x09,0x6a,0xd5,
 	0x30,0x36,0xa5,0x38,
@@ -634,7 +634,7 @@ static HE_BYTE S5[256]=
 	0x55,0x21,0x0c,0x7d
 };
 
-static HE_BYTE U1[256][4]=
+static BYTE U1[256][4]=
 {
 	{0x00,0x00,0x00,0x00}, {0x0e,0x09,0x0d,0x0b}, {0x1c,0x12,0x1a,0x16}, {0x12,0x1b,0x17,0x1d}, 
 	{0x38,0x24,0x34,0x2c}, {0x36,0x2d,0x39,0x27}, {0x24,0x36,0x2e,0x3a}, {0x2a,0x3f,0x23,0x31}, 
@@ -702,7 +702,7 @@ static HE_BYTE U1[256][4]=
 	{0x9f,0x5d,0x80,0xbe}, {0x91,0x54,0x8d,0xb5}, {0x83,0x4f,0x9a,0xa8}, {0x8d,0x46,0x97,0xa3}
 };
 
-static HE_BYTE U2[256][4]=
+static BYTE U2[256][4]=
 {
 	{0x00,0x00,0x00,0x00}, {0x0b,0x0e,0x09,0x0d}, {0x16,0x1c,0x12,0x1a}, {0x1d,0x12,0x1b,0x17}, 
 	{0x2c,0x38,0x24,0x34}, {0x27,0x36,0x2d,0x39}, {0x3a,0x24,0x36,0x2e}, {0x31,0x2a,0x3f,0x23}, 
@@ -770,7 +770,7 @@ static HE_BYTE U2[256][4]=
 	{0xbe,0x9f,0x5d,0x80}, {0xb5,0x91,0x54,0x8d}, {0xa8,0x83,0x4f,0x9a}, {0xa3,0x8d,0x46,0x97}
 };
 
-static HE_BYTE U3[256][4]=
+static BYTE U3[256][4]=
 {
 	{0x00,0x00,0x00,0x00}, {0x0d,0x0b,0x0e,0x09}, {0x1a,0x16,0x1c,0x12}, {0x17,0x1d,0x12,0x1b}, 
 	{0x34,0x2c,0x38,0x24}, {0x39,0x27,0x36,0x2d}, {0x2e,0x3a,0x24,0x36}, {0x23,0x31,0x2a,0x3f}, 
@@ -838,7 +838,7 @@ static HE_BYTE U3[256][4]=
 	{0x80,0xbe,0x9f,0x5d}, {0x8d,0xb5,0x91,0x54}, {0x9a,0xa8,0x83,0x4f}, {0x97,0xa3,0x8d,0x46}
 };
 
-static HE_BYTE U4[256][4]=
+static BYTE U4[256][4]=
 {
 	{0x00,0x00,0x00,0x00}, {0x09,0x0d,0x0b,0x0e}, {0x12,0x1a,0x16,0x1c}, {0x1b,0x17,0x1d,0x12}, 
 	{0x24,0x34,0x2c,0x38}, {0x2d,0x39,0x27,0x36}, {0x36,0x2e,0x3a,0x24}, {0x3f,0x23,0x31,0x2a}, 
@@ -906,7 +906,7 @@ static HE_BYTE U4[256][4]=
 	{0x5d,0x80,0xbe,0x9f}, {0x54,0x8d,0xb5,0x91}, {0x4f,0x9a,0xa8,0x83}, {0x46,0x97,0xa3,0x8d}
 };
 
-static HE_BYTE rcon[30]=
+static BYTE rcon[30]=
 { 
 	0x01, 0x02, 0x04, 0x08, 0x10, 0x20,
 	0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8,
@@ -924,7 +924,7 @@ CHE_CRYPT_Rijndael::~CHE_CRYPT_Rijndael()
 {
 }
 
-int CHE_CRYPT_Rijndael::init( Mode mode,Direction dir,const HE_BYTE * key,KeyLength keyLen, HE_BYTE * initVector )
+int CHE_CRYPT_Rijndael::init( Mode mode,Direction dir,const BYTE * key,KeyLength keyLen, BYTE * initVector )
 {
 	// Not initialized yet
 	m_state = Invalid;
@@ -953,7 +953,7 @@ int CHE_CRYPT_Rijndael::init( Mode mode,Direction dir,const HE_BYTE * key,KeyLen
 		}
 	}
 
-	HE_UINT32 uKeyLenInBytes;
+	uint32 uKeyLenInBytes;
 
 	// And check the key length
 	switch(keyLen)
@@ -979,9 +979,9 @@ int CHE_CRYPT_Rijndael::init( Mode mode,Direction dir,const HE_BYTE * key,KeyLen
 
 	if(!key)return RIJNDAEL_BAD_KEY;
 
-	HE_BYTE keyMatrix[_MAX_KEY_COLUMNS][4];
+	BYTE keyMatrix[_MAX_KEY_COLUMNS][4];
 
-	for(HE_UINT32 i = 0;i < uKeyLenInBytes;i++)keyMatrix[i >> 2][i & 3] = key[i];
+	for(uint32 i = 0;i < uKeyLenInBytes;i++)keyMatrix[i >> 2][i & 3] = key[i];
 
 	keySched(keyMatrix);
 
@@ -992,10 +992,10 @@ int CHE_CRYPT_Rijndael::init( Mode mode,Direction dir,const HE_BYTE * key,KeyLen
 	return RIJNDAEL_SUCCESS;
 }
 
-int CHE_CRYPT_Rijndael::blockEncrypt(const HE_BYTE *input,int inputLen,HE_BYTE *outBuffer)
+int CHE_CRYPT_Rijndael::blockEncrypt(const BYTE *input,int inputLen,BYTE *outBuffer)
 {
 	int i, k, numBlocks;
-	HE_BYTE block[16], iv[4][4];
+	BYTE block[16], iv[4][4];
 
 	if(m_state != Valid)return RIJNDAEL_NOT_INITIALIZED;
 	if(m_direction != Encrypt)return RIJNDAEL_BAD_DIRECTION;
@@ -1014,19 +1014,19 @@ int CHE_CRYPT_Rijndael::blockEncrypt(const HE_BYTE *input,int inputLen,HE_BYTE *
 		}
 		break;
 	case CBC:
-		reinterpret_cast<HE_UINT32*>(block)[0] = reinterpret_cast<const HE_UINT32*>(m_initVector)[0] ^ reinterpret_cast<const HE_UINT32*>(input)[0];
-		reinterpret_cast<HE_UINT32*>(block)[1] = reinterpret_cast<const HE_UINT32*>(m_initVector)[1] ^ reinterpret_cast<const HE_UINT32*>(input)[1];
-		reinterpret_cast<HE_UINT32*>(block)[2] = reinterpret_cast<const HE_UINT32*>(m_initVector)[2] ^ reinterpret_cast<const HE_UINT32*>(input)[2];
-		reinterpret_cast<HE_UINT32*>(block)[3] = reinterpret_cast<const HE_UINT32*>(m_initVector)[3] ^ reinterpret_cast<const HE_UINT32*>(input)[3];
+		reinterpret_cast<uint32*>(block)[0] = reinterpret_cast<const uint32*>(m_initVector)[0] ^ reinterpret_cast<const uint32*>(input)[0];
+		reinterpret_cast<uint32*>(block)[1] = reinterpret_cast<const uint32*>(m_initVector)[1] ^ reinterpret_cast<const uint32*>(input)[1];
+		reinterpret_cast<uint32*>(block)[2] = reinterpret_cast<const uint32*>(m_initVector)[2] ^ reinterpret_cast<const uint32*>(input)[2];
+		reinterpret_cast<uint32*>(block)[3] = reinterpret_cast<const uint32*>(m_initVector)[3] ^ reinterpret_cast<const uint32*>(input)[3];
 		encrypt(block,outBuffer);
 		input += 16;
 		for(i = numBlocks - 1;i > 0;i--)
 		{
 
-			reinterpret_cast<HE_UINT32*>(block)[0] = reinterpret_cast<const HE_UINT32*>(outBuffer)[0] ^ reinterpret_cast<const HE_UINT32*>(input)[0];
-			reinterpret_cast<HE_UINT32*>(block)[1] = reinterpret_cast<const HE_UINT32*>(outBuffer)[1] ^ reinterpret_cast<const HE_UINT32*>(input)[1];
-			reinterpret_cast<HE_UINT32*>(block)[2] = reinterpret_cast<const HE_UINT32*>(outBuffer)[2] ^ reinterpret_cast<const HE_UINT32*>(input)[2];
-			reinterpret_cast<HE_UINT32*>(block)[3] = reinterpret_cast<const HE_UINT32*>(outBuffer)[3] ^ reinterpret_cast<const HE_UINT32*>(input)[3];
+			reinterpret_cast<uint32*>(block)[0] = reinterpret_cast<const uint32*>(outBuffer)[0] ^ reinterpret_cast<const uint32*>(input)[0];
+			reinterpret_cast<uint32*>(block)[1] = reinterpret_cast<const uint32*>(outBuffer)[1] ^ reinterpret_cast<const uint32*>(input)[1];
+			reinterpret_cast<uint32*>(block)[2] = reinterpret_cast<const uint32*>(outBuffer)[2] ^ reinterpret_cast<const uint32*>(input)[2];
+			reinterpret_cast<uint32*>(block)[3] = reinterpret_cast<const uint32*>(outBuffer)[3] ^ reinterpret_cast<const uint32*>(input)[3];
 			outBuffer += 16;
 			encrypt(block,outBuffer);
 			input += 16;
@@ -1036,37 +1036,37 @@ int CHE_CRYPT_Rijndael::blockEncrypt(const HE_BYTE *input,int inputLen,HE_BYTE *
 #if STRICT_ALIGN 
 		memcpy(iv,m_initVector,16); 
 #else  /* !STRICT_ALIGN */
-		*reinterpret_cast<HE_UINT32*>(iv[0]) = *reinterpret_cast<const HE_UINT32*>((m_initVector   ));
-		*reinterpret_cast<HE_UINT32*>(iv[1]) = *reinterpret_cast<const HE_UINT32*>((m_initVector + 4));
-		*reinterpret_cast<HE_UINT32*>(iv[2]) = *reinterpret_cast<const HE_UINT32*>((m_initVector + 8));
-		*reinterpret_cast<HE_UINT32*>(iv[3]) = *reinterpret_cast<const HE_UINT32*>((m_initVector +12));
+		*reinterpret_cast<uint32*>(iv[0]) = *reinterpret_cast<const uint32*>((m_initVector   ));
+		*reinterpret_cast<uint32*>(iv[1]) = *reinterpret_cast<const uint32*>((m_initVector + 4));
+		*reinterpret_cast<uint32*>(iv[2]) = *reinterpret_cast<const uint32*>((m_initVector + 8));
+		*reinterpret_cast<uint32*>(iv[3]) = *reinterpret_cast<const uint32*>((m_initVector +12));
 #endif /* ?STRICT_ALIGN */
 		for(i = numBlocks; i > 0; i--)
 		{
 			for(k = 0; k < 128; k++)
 			{
-				*reinterpret_cast<HE_UINT32*>( block    ) = *reinterpret_cast<const HE_UINT32*>(iv[0]);
-				*reinterpret_cast<HE_UINT32*>((block+ 4)) = *reinterpret_cast<const HE_UINT32*>(iv[1]);
-				*reinterpret_cast<HE_UINT32*>((block+ 8)) = *reinterpret_cast<const HE_UINT32*>(iv[2]);
-				*reinterpret_cast<HE_UINT32*>((block+12)) = *reinterpret_cast<const HE_UINT32*>(iv[3]);
+				*reinterpret_cast<uint32*>( block    ) = *reinterpret_cast<const uint32*>(iv[0]);
+				*reinterpret_cast<uint32*>((block+ 4)) = *reinterpret_cast<const uint32*>(iv[1]);
+				*reinterpret_cast<uint32*>((block+ 8)) = *reinterpret_cast<const uint32*>(iv[2]);
+				*reinterpret_cast<uint32*>((block+12)) = *reinterpret_cast<const uint32*>(iv[3]);
 				encrypt(block,block);
 				outBuffer[k/8] ^= (block[0] & 0x80) >> (k & 7);
-				iv[0][0] = static_cast<HE_BYTE> ((iv[0][0] << 1) | (iv[0][1] >> 7));
-				iv[0][1] = static_cast<HE_BYTE> ((iv[0][1] << 1) | (iv[0][2] >> 7));
-				iv[0][2] = static_cast<HE_BYTE> ((iv[0][2] << 1) | (iv[0][3] >> 7));
-				iv[0][3] = static_cast<HE_BYTE> ((iv[0][3] << 1) | (iv[1][0] >> 7));
-				iv[1][0] = static_cast<HE_BYTE> ((iv[1][0] << 1) | (iv[1][1] >> 7));
-				iv[1][1] = static_cast<HE_BYTE> ((iv[1][1] << 1) | (iv[1][2] >> 7));
-				iv[1][2] = static_cast<HE_BYTE> ((iv[1][2] << 1) | (iv[1][3] >> 7));
-				iv[1][3] = static_cast<HE_BYTE> ((iv[1][3] << 1) | (iv[2][0] >> 7));
-				iv[2][0] = static_cast<HE_BYTE> ((iv[2][0] << 1) | (iv[2][1] >> 7));
-				iv[2][1] = static_cast<HE_BYTE> ((iv[2][1] << 1) | (iv[2][2] >> 7));
-				iv[2][2] = static_cast<HE_BYTE> ((iv[2][2] << 1) | (iv[2][3] >> 7));
-				iv[2][3] = static_cast<HE_BYTE> ((iv[2][3] << 1) | (iv[3][0] >> 7));
-				iv[3][0] = static_cast<HE_BYTE> ((iv[3][0] << 1) | (iv[3][1] >> 7));
-				iv[3][1] = static_cast<HE_BYTE> ((iv[3][1] << 1) | (iv[3][2] >> 7));
-				iv[3][2] = static_cast<HE_BYTE> ((iv[3][2] << 1) | (iv[3][3] >> 7));
-				iv[3][3] = static_cast<HE_BYTE> (((iv[3][3] << 1) | (outBuffer[k/8] >> (7-(k&7)))) & 1);
+				iv[0][0] = static_cast<BYTE> ((iv[0][0] << 1) | (iv[0][1] >> 7));
+				iv[0][1] = static_cast<BYTE> ((iv[0][1] << 1) | (iv[0][2] >> 7));
+				iv[0][2] = static_cast<BYTE> ((iv[0][2] << 1) | (iv[0][3] >> 7));
+				iv[0][3] = static_cast<BYTE> ((iv[0][3] << 1) | (iv[1][0] >> 7));
+				iv[1][0] = static_cast<BYTE> ((iv[1][0] << 1) | (iv[1][1] >> 7));
+				iv[1][1] = static_cast<BYTE> ((iv[1][1] << 1) | (iv[1][2] >> 7));
+				iv[1][2] = static_cast<BYTE> ((iv[1][2] << 1) | (iv[1][3] >> 7));
+				iv[1][3] = static_cast<BYTE> ((iv[1][3] << 1) | (iv[2][0] >> 7));
+				iv[2][0] = static_cast<BYTE> ((iv[2][0] << 1) | (iv[2][1] >> 7));
+				iv[2][1] = static_cast<BYTE> ((iv[2][1] << 1) | (iv[2][2] >> 7));
+				iv[2][2] = static_cast<BYTE> ((iv[2][2] << 1) | (iv[2][3] >> 7));
+				iv[2][3] = static_cast<BYTE> ((iv[2][3] << 1) | (iv[3][0] >> 7));
+				iv[3][0] = static_cast<BYTE> ((iv[3][0] << 1) | (iv[3][1] >> 7));
+				iv[3][1] = static_cast<BYTE> ((iv[3][1] << 1) | (iv[3][2] >> 7));
+				iv[3][2] = static_cast<BYTE> ((iv[3][2] << 1) | (iv[3][3] >> 7));
+				iv[3][3] = static_cast<BYTE> (((iv[3][3] << 1) | (outBuffer[k/8] >> (7-(k&7)))) & 1);
 			}
 		}
 		break;
@@ -1078,10 +1078,10 @@ int CHE_CRYPT_Rijndael::blockEncrypt(const HE_BYTE *input,int inputLen,HE_BYTE *
 	return 128 * numBlocks;
 }
 
-HE_INT32 CHE_CRYPT_Rijndael::padEncrypt(const HE_BYTE *input, HE_INT32 inputOctets, HE_BYTE *outBuffer)
+int32 CHE_CRYPT_Rijndael::padEncrypt(const BYTE *input, int32 inputOctets, BYTE *outBuffer)
 {
-	HE_INT32 i, numBlocks, padLen;
-	HE_BYTE block[16], *iv;
+	int32 i, numBlocks, padLen;
+	BYTE block[16], *iv;
 
 	if(m_state != Valid)return RIJNDAEL_NOT_INITIALIZED;
 	if(m_direction != Encrypt)return RIJNDAEL_NOT_INITIALIZED;
@@ -1109,10 +1109,10 @@ HE_INT32 CHE_CRYPT_Rijndael::padEncrypt(const HE_BYTE *input, HE_INT32 inputOcte
 		iv = m_initVector;
 		for(i = numBlocks; i > 0; i--)
 		{
-			reinterpret_cast<HE_UINT32*>(block)[0] = reinterpret_cast<const HE_UINT32*>(input)[0] ^ reinterpret_cast<const HE_UINT32*>(iv)[0];
-			reinterpret_cast<HE_UINT32*>(block)[1] = reinterpret_cast<const HE_UINT32*>(input)[1] ^ reinterpret_cast<const HE_UINT32*>(iv)[1];
-			reinterpret_cast<HE_UINT32*>(block)[2] = reinterpret_cast<const HE_UINT32*>(input)[2] ^ reinterpret_cast<const HE_UINT32*>(iv)[2];
-			reinterpret_cast<HE_UINT32*>(block)[3] = reinterpret_cast<const HE_UINT32*>(input)[3] ^ reinterpret_cast<const HE_UINT32*>(iv)[3];
+			reinterpret_cast<uint32*>(block)[0] = reinterpret_cast<const uint32*>(input)[0] ^ reinterpret_cast<const uint32*>(iv)[0];
+			reinterpret_cast<uint32*>(block)[1] = reinterpret_cast<const uint32*>(input)[1] ^ reinterpret_cast<const uint32*>(iv)[1];
+			reinterpret_cast<uint32*>(block)[2] = reinterpret_cast<const uint32*>(input)[2] ^ reinterpret_cast<const uint32*>(iv)[2];
+			reinterpret_cast<uint32*>(block)[3] = reinterpret_cast<const uint32*>(input)[3] ^ reinterpret_cast<const uint32*>(iv)[3];
 			encrypt(block, outBuffer);
 			iv = outBuffer;
 			input += 16;
@@ -1121,10 +1121,10 @@ HE_INT32 CHE_CRYPT_Rijndael::padEncrypt(const HE_BYTE *input, HE_INT32 inputOcte
 		padLen = 16 - (inputOctets - 16*numBlocks);
 		//      assert(padLen > 0 && padLen <= 16); // DO SOMETHING HERE ?
 		for (i = 0; i < 16 - padLen; i++) {
-			block[i] = static_cast<HE_BYTE> (input[i] ^ iv[i]);
+			block[i] = static_cast<BYTE> (input[i] ^ iv[i]);
 		}
 		for (i = 16 - padLen; i < 16; i++) {
-			block[i] = static_cast<HE_BYTE> (static_cast<HE_BYTE>( padLen ) ^ iv[i]);
+			block[i] = static_cast<BYTE> (static_cast<BYTE>( padLen ) ^ iv[i]);
 		}
 		encrypt(block,outBuffer);
 		break;
@@ -1137,10 +1137,10 @@ HE_INT32 CHE_CRYPT_Rijndael::padEncrypt(const HE_BYTE *input, HE_INT32 inputOcte
 	return 16*(numBlocks + 1);
 }
 
-int CHE_CRYPT_Rijndael::blockDecrypt(const HE_BYTE *input, int inputLen, HE_BYTE *outBuffer)
+int CHE_CRYPT_Rijndael::blockDecrypt(const BYTE *input, int inputLen, BYTE *outBuffer)
 {
 	int i, k, numBlocks;
-	HE_BYTE block[16], iv[4][4];
+	BYTE block[16], iv[4][4];
 
 	if(m_state != Valid)return RIJNDAEL_NOT_INITIALIZED;
 	if((m_mode != CFB1) && (m_direction == Encrypt))return RIJNDAEL_BAD_DIRECTION;
@@ -1163,26 +1163,26 @@ int CHE_CRYPT_Rijndael::blockDecrypt(const HE_BYTE *input, int inputLen, HE_BYTE
 #if STRICT_ALIGN 
 		memcpy(iv,m_initVector,16); 
 #else
-		*reinterpret_cast<HE_UINT32*>(iv[0]) = *reinterpret_cast<HE_UINT32*>((m_initVector  ));
-		*reinterpret_cast<HE_UINT32*>(iv[1]) = *reinterpret_cast<HE_UINT32*>((m_initVector+ 4));
-		*reinterpret_cast<HE_UINT32*>(iv[2]) = *reinterpret_cast<HE_UINT32*>((m_initVector+ 8));
-		*reinterpret_cast<HE_UINT32*>(iv[3]) = *reinterpret_cast<HE_UINT32*>((m_initVector+12));
+		*reinterpret_cast<uint32*>(iv[0]) = *reinterpret_cast<uint32*>((m_initVector  ));
+		*reinterpret_cast<uint32*>(iv[1]) = *reinterpret_cast<uint32*>((m_initVector+ 4));
+		*reinterpret_cast<uint32*>(iv[2]) = *reinterpret_cast<uint32*>((m_initVector+ 8));
+		*reinterpret_cast<uint32*>(iv[3]) = *reinterpret_cast<uint32*>((m_initVector+12));
 #endif
 		for (i = numBlocks; i > 0; i--)
 		{
 			decrypt(input, block);
-			reinterpret_cast<HE_UINT32*>(block)[0] ^= *reinterpret_cast<HE_UINT32*>(iv[0]);
-			reinterpret_cast<HE_UINT32*>(block)[1] ^= *reinterpret_cast<HE_UINT32*>(iv[1]);
-			reinterpret_cast<HE_UINT32*>(block)[2] ^= *reinterpret_cast<HE_UINT32*>(iv[2]);
-			reinterpret_cast<HE_UINT32*>(block)[3] ^= *reinterpret_cast<HE_UINT32*>(iv[3]);
+			reinterpret_cast<uint32*>(block)[0] ^= *reinterpret_cast<uint32*>(iv[0]);
+			reinterpret_cast<uint32*>(block)[1] ^= *reinterpret_cast<uint32*>(iv[1]);
+			reinterpret_cast<uint32*>(block)[2] ^= *reinterpret_cast<uint32*>(iv[2]);
+			reinterpret_cast<uint32*>(block)[3] ^= *reinterpret_cast<uint32*>(iv[3]);
 #if STRICT_ALIGN
 			memcpy(iv, input, 16);
 			memcpy(outBuf, block, 16);
 #else
-			*reinterpret_cast<HE_UINT32*>(iv[0]) = reinterpret_cast<const HE_UINT32*>(input)[0]; reinterpret_cast<HE_UINT32*>(outBuffer)[0] = reinterpret_cast<const HE_UINT32*>(block)[0];
-			*reinterpret_cast<HE_UINT32*>(iv[1]) = reinterpret_cast<const HE_UINT32*>(input)[1]; reinterpret_cast<HE_UINT32*>(outBuffer)[1] = reinterpret_cast<const HE_UINT32*>(block)[1];
-			*reinterpret_cast<HE_UINT32*>(iv[2]) = reinterpret_cast<const HE_UINT32*>(input)[2]; reinterpret_cast<HE_UINT32*>(outBuffer)[2] = reinterpret_cast<const HE_UINT32*>(block)[2];
-			*reinterpret_cast<HE_UINT32*>(iv[3]) = reinterpret_cast<const HE_UINT32*>(input)[3]; reinterpret_cast<HE_UINT32*>(outBuffer)[3] = reinterpret_cast<const HE_UINT32*>(block)[3];
+			*reinterpret_cast<uint32*>(iv[0]) = reinterpret_cast<const uint32*>(input)[0]; reinterpret_cast<uint32*>(outBuffer)[0] = reinterpret_cast<const uint32*>(block)[0];
+			*reinterpret_cast<uint32*>(iv[1]) = reinterpret_cast<const uint32*>(input)[1]; reinterpret_cast<uint32*>(outBuffer)[1] = reinterpret_cast<const uint32*>(block)[1];
+			*reinterpret_cast<uint32*>(iv[2]) = reinterpret_cast<const uint32*>(input)[2]; reinterpret_cast<uint32*>(outBuffer)[2] = reinterpret_cast<const uint32*>(block)[2];
+			*reinterpret_cast<uint32*>(iv[3]) = reinterpret_cast<const uint32*>(input)[3]; reinterpret_cast<uint32*>(outBuffer)[3] = reinterpret_cast<const uint32*>(block)[3];
 #endif
 			input += 16;
 			outBuffer += 16;
@@ -1192,36 +1192,36 @@ int CHE_CRYPT_Rijndael::blockDecrypt(const HE_BYTE *input, int inputLen, HE_BYTE
 #if STRICT_ALIGN 
 		memcpy(iv, m_initVector, 16); 
 #else
-		*reinterpret_cast<HE_UINT32*>(iv[0]) = *reinterpret_cast<HE_UINT32*>((m_initVector));
-		*reinterpret_cast<HE_UINT32*>(iv[1]) = *reinterpret_cast<HE_UINT32*>((m_initVector+ 4));
-		*reinterpret_cast<HE_UINT32*>(iv[2]) = *reinterpret_cast<HE_UINT32*>((m_initVector+ 8));
-		*reinterpret_cast<HE_UINT32*>(iv[3]) = *reinterpret_cast<HE_UINT32*>((m_initVector+12));
+		*reinterpret_cast<uint32*>(iv[0]) = *reinterpret_cast<uint32*>((m_initVector));
+		*reinterpret_cast<uint32*>(iv[1]) = *reinterpret_cast<uint32*>((m_initVector+ 4));
+		*reinterpret_cast<uint32*>(iv[2]) = *reinterpret_cast<uint32*>((m_initVector+ 8));
+		*reinterpret_cast<uint32*>(iv[3]) = *reinterpret_cast<uint32*>((m_initVector+12));
 #endif
 		for(i = numBlocks; i > 0; i--)
 		{
 			for(k = 0; k < 128; k++)
 			{
-				*reinterpret_cast<HE_UINT32*>( block    ) = *reinterpret_cast<const HE_UINT32*>(iv[0]);
-				*reinterpret_cast<HE_UINT32*>((block+ 4)) = *reinterpret_cast<const HE_UINT32*>(iv[1]);
-				*reinterpret_cast<HE_UINT32*>((block+ 8)) = *reinterpret_cast<const HE_UINT32*>(iv[2]);
-				*reinterpret_cast<HE_UINT32*>((block+12)) = *reinterpret_cast<const HE_UINT32*>(iv[3]);
+				*reinterpret_cast<uint32*>( block    ) = *reinterpret_cast<const uint32*>(iv[0]);
+				*reinterpret_cast<uint32*>((block+ 4)) = *reinterpret_cast<const uint32*>(iv[1]);
+				*reinterpret_cast<uint32*>((block+ 8)) = *reinterpret_cast<const uint32*>(iv[2]);
+				*reinterpret_cast<uint32*>((block+12)) = *reinterpret_cast<const uint32*>(iv[3]);
 				encrypt(block, block);
-				iv[0][0] = static_cast<HE_BYTE> ((iv[0][0] << 1) | (iv[0][1] >> 7));
-				iv[0][1] = static_cast<HE_BYTE> ((iv[0][1] << 1) | (iv[0][2] >> 7));
-				iv[0][2] = static_cast<HE_BYTE> ((iv[0][2] << 1) | (iv[0][3] >> 7));
-				iv[0][3] = static_cast<HE_BYTE> ((iv[0][3] << 1) | (iv[1][0] >> 7));
-				iv[1][0] = static_cast<HE_BYTE> ((iv[1][0] << 1) | (iv[1][1] >> 7));
-				iv[1][1] = static_cast<HE_BYTE> ((iv[1][1] << 1) | (iv[1][2] >> 7));
-				iv[1][2] = static_cast<HE_BYTE> ((iv[1][2] << 1) | (iv[1][3] >> 7));
-				iv[1][3] = static_cast<HE_BYTE> ((iv[1][3] << 1) | (iv[2][0] >> 7));
-				iv[2][0] = static_cast<HE_BYTE> ((iv[2][0] << 1) | (iv[2][1] >> 7));
-				iv[2][1] = static_cast<HE_BYTE> ((iv[2][1] << 1) | (iv[2][2] >> 7));
-				iv[2][2] = static_cast<HE_BYTE> ((iv[2][2] << 1) | (iv[2][3] >> 7));
-				iv[2][3] = static_cast<HE_BYTE> ((iv[2][3] << 1) | (iv[3][0] >> 7));
-				iv[3][0] = static_cast<HE_BYTE> ((iv[3][0] << 1) | (iv[3][1] >> 7));
-				iv[3][1] = static_cast<HE_BYTE> ((iv[3][1] << 1) | (iv[3][2] >> 7));
-				iv[3][2] = static_cast<HE_BYTE> ((iv[3][2] << 1) | (iv[3][3] >> 7));
-				iv[3][3] = static_cast<HE_BYTE> (((iv[3][3] << 1) | (input[k/8] >> (7-(k&7)))) & 1);
+				iv[0][0] = static_cast<BYTE> ((iv[0][0] << 1) | (iv[0][1] >> 7));
+				iv[0][1] = static_cast<BYTE> ((iv[0][1] << 1) | (iv[0][2] >> 7));
+				iv[0][2] = static_cast<BYTE> ((iv[0][2] << 1) | (iv[0][3] >> 7));
+				iv[0][3] = static_cast<BYTE> ((iv[0][3] << 1) | (iv[1][0] >> 7));
+				iv[1][0] = static_cast<BYTE> ((iv[1][0] << 1) | (iv[1][1] >> 7));
+				iv[1][1] = static_cast<BYTE> ((iv[1][1] << 1) | (iv[1][2] >> 7));
+				iv[1][2] = static_cast<BYTE> ((iv[1][2] << 1) | (iv[1][3] >> 7));
+				iv[1][3] = static_cast<BYTE> ((iv[1][3] << 1) | (iv[2][0] >> 7));
+				iv[2][0] = static_cast<BYTE> ((iv[2][0] << 1) | (iv[2][1] >> 7));
+				iv[2][1] = static_cast<BYTE> ((iv[2][1] << 1) | (iv[2][2] >> 7));
+				iv[2][2] = static_cast<BYTE> ((iv[2][2] << 1) | (iv[2][3] >> 7));
+				iv[2][3] = static_cast<BYTE> ((iv[2][3] << 1) | (iv[3][0] >> 7));
+				iv[3][0] = static_cast<BYTE> ((iv[3][0] << 1) | (iv[3][1] >> 7));
+				iv[3][1] = static_cast<BYTE> ((iv[3][1] << 1) | (iv[3][2] >> 7));
+				iv[3][2] = static_cast<BYTE> ((iv[3][2] << 1) | (iv[3][3] >> 7));
+				iv[3][3] = static_cast<BYTE> (((iv[3][3] << 1) | (input[k/8] >> (7-(k&7)))) & 1);
 				outBuffer[k/8] ^= (block[0] & 0x80) >> (k & 7);
 			}
 		}
@@ -1234,11 +1234,11 @@ int CHE_CRYPT_Rijndael::blockDecrypt(const HE_BYTE *input, int inputLen, HE_BYTE
 	return 128*numBlocks;
 }
 
-int CHE_CRYPT_Rijndael::padDecrypt(const HE_BYTE *input, int inputOctets, HE_BYTE *outBuffer)
+int CHE_CRYPT_Rijndael::padDecrypt(const BYTE *input, int inputOctets, BYTE *outBuffer)
 {
 	int i, numBlocks, padLen;
-	HE_BYTE block[16];
-	HE_UINT32 iv[4];
+	BYTE block[16];
+	uint32 iv[4];
 
 	if(m_state != Valid)return RIJNDAEL_NOT_INITIALIZED;
 	if(m_direction != Decrypt)return RIJNDAEL_BAD_DIRECTION;
@@ -1273,10 +1273,10 @@ int CHE_CRYPT_Rijndael::padDecrypt(const HE_BYTE *input, int inputOctets, HE_BYT
 		for (i = numBlocks - 1; i > 0; i--)
 		{
 			decrypt(input, block);
-			reinterpret_cast<HE_UINT32*>(block)[0] ^= iv[0];
-			reinterpret_cast<HE_UINT32*>(block)[1] ^= iv[1];
-			reinterpret_cast<HE_UINT32*>(block)[2] ^= iv[2];
-			reinterpret_cast<HE_UINT32*>(block)[3] ^= iv[3];
+			reinterpret_cast<uint32*>(block)[0] ^= iv[0];
+			reinterpret_cast<uint32*>(block)[1] ^= iv[1];
+			reinterpret_cast<uint32*>(block)[2] ^= iv[2];
+			reinterpret_cast<uint32*>(block)[3] ^= iv[3];
 			memcpy(iv, input, 16);
 			memcpy(outBuffer, block, 16);
 			input += 16;
@@ -1284,10 +1284,10 @@ int CHE_CRYPT_Rijndael::padDecrypt(const HE_BYTE *input, int inputOctets, HE_BYT
 		}
 		/* last block */
 		decrypt(input, block);
-		reinterpret_cast<HE_UINT32*>(block)[0] ^= iv[0];
-		reinterpret_cast<HE_UINT32*>(block)[1] ^= iv[1];
-		reinterpret_cast<HE_UINT32*>(block)[2] ^= iv[2];
-		reinterpret_cast<HE_UINT32*>(block)[3] ^= iv[3];
+		reinterpret_cast<uint32*>(block)[0] ^= iv[0];
+		reinterpret_cast<uint32*>(block)[1] ^= iv[1];
+		reinterpret_cast<uint32*>(block)[2] ^= iv[2];
+		reinterpret_cast<uint32*>(block)[3] ^= iv[3];
 		padLen = block[15];
 		if(padLen <= 0 || padLen > 16)return RIJNDAEL_CORRUPTED_DATA;
 		for(i = 16 - padLen; i < 16; i++)
@@ -1311,24 +1311,24 @@ int CHE_CRYPT_Rijndael::padDecrypt(const HE_BYTE *input, int inputOctets, HE_BYT
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-HE_VOID CHE_CRYPT_Rijndael::keySched( HE_BYTE key[_MAX_KEY_COLUMNS][4] )
+void CHE_CRYPT_Rijndael::keySched( BYTE key[_MAX_KEY_COLUMNS][4] )
 {
-	HE_UINT32 j, rconpointer = 0;
+	uint32 j, rconpointer = 0;
 
 	// Calculate the necessary round keys
 	// The number of calculations depends on keyBits and blockBits
-	HE_UINT32 uKeyColumns = m_uRounds - 6;
+	uint32 uKeyColumns = m_uRounds - 6;
 
-	HE_BYTE tempKey[_MAX_KEY_COLUMNS][4];
+	BYTE tempKey[_MAX_KEY_COLUMNS][4];
 
 	// Copy the input key to the temporary key matrix
 
 	for(j = 0;j < uKeyColumns;j++)
 	{
-		*reinterpret_cast<HE_UINT32*>((tempKey[j])) = *reinterpret_cast<HE_UINT32*>((key[j]));
+		*reinterpret_cast<uint32*>((tempKey[j])) = *reinterpret_cast<uint32*>((key[j]));
 	}
 
-	HE_UINT32 r = 0;
+	uint32 r = 0;
 	int t = 0;
 
 	// copy values into round key array
@@ -1336,7 +1336,7 @@ HE_VOID CHE_CRYPT_Rijndael::keySched( HE_BYTE key[_MAX_KEY_COLUMNS][4] )
 	{
 		for(;(j < uKeyColumns) && (t < 4); j++, t++)
 		{
-			*reinterpret_cast<HE_UINT32*>(m_expandedKey[r][t]) = *reinterpret_cast<HE_UINT32*>(tempKey[j]);
+			*reinterpret_cast<uint32*>(m_expandedKey[r][t]) = *reinterpret_cast<uint32*>(tempKey[j]);
 		}
 
 
@@ -1359,12 +1359,12 @@ HE_VOID CHE_CRYPT_Rijndael::keySched( HE_BYTE key[_MAX_KEY_COLUMNS][4] )
 		{
 			for(j = 1; j < uKeyColumns; j++)
 			{
-				*reinterpret_cast<HE_UINT32*>(tempKey[j]) ^= *reinterpret_cast<HE_UINT32*>(tempKey[j-1]);
+				*reinterpret_cast<uint32*>(tempKey[j]) ^= *reinterpret_cast<uint32*>(tempKey[j-1]);
 			}
 		} else {
 			for(j = 1; j < uKeyColumns/2; j++)
 			{
-				*reinterpret_cast<HE_UINT32*>(tempKey[j]) ^= *reinterpret_cast<HE_UINT32*>(tempKey[j-1]);
+				*reinterpret_cast<uint32*>(tempKey[j]) ^= *reinterpret_cast<uint32*>(tempKey[j-1]);
 			}
 			tempKey[uKeyColumns/2][0] ^= S[tempKey[uKeyColumns/2 - 1][0]];
 			tempKey[uKeyColumns/2][1] ^= S[tempKey[uKeyColumns/2 - 1][1]];
@@ -1372,14 +1372,14 @@ HE_VOID CHE_CRYPT_Rijndael::keySched( HE_BYTE key[_MAX_KEY_COLUMNS][4] )
 			tempKey[uKeyColumns/2][3] ^= S[tempKey[uKeyColumns/2 - 1][3]];
 			for(j = uKeyColumns/2 + 1; j < uKeyColumns; j++)
 			{
-				*reinterpret_cast<HE_UINT32*>(tempKey[j]) ^= *reinterpret_cast<HE_UINT32*>(tempKey[j-1]);
+				*reinterpret_cast<uint32*>(tempKey[j]) ^= *reinterpret_cast<uint32*>(tempKey[j-1]);
 			}
 		}
 		for(j = 0; (j < uKeyColumns) && (r <= m_uRounds); )
 		{
 			for(; (j < uKeyColumns) && (t < 4); j++, t++)
 			{
-				*reinterpret_cast<HE_UINT32*>(m_expandedKey[r][t]) = *reinterpret_cast<HE_UINT32*>(tempKey[j]);
+				*reinterpret_cast<uint32*>(m_expandedKey[r][t]) = *reinterpret_cast<uint32*>(tempKey[j]);
 			}
 			if(t == 4)
 			{
@@ -1392,75 +1392,75 @@ HE_VOID CHE_CRYPT_Rijndael::keySched( HE_BYTE key[_MAX_KEY_COLUMNS][4] )
 
 void CHE_CRYPT_Rijndael::keyEncToDec()
 {
-	HE_UINT32 r;
-	HE_BYTE *w;
+	uint32 r;
+	BYTE *w;
 
 	for(r = 1; r < m_uRounds; r++)
 	{
 		w = m_expandedKey[r][0];
-		*reinterpret_cast<HE_UINT32*>(w) = *reinterpret_cast<HE_UINT32*>(U1[w[0]]) ^ *reinterpret_cast<HE_UINT32*>(U2[w[1]]) ^ *reinterpret_cast<const HE_UINT32*>(U3[w[2]]) ^ *reinterpret_cast<const HE_UINT32*>(U4[w[3]]);
+		*reinterpret_cast<uint32*>(w) = *reinterpret_cast<uint32*>(U1[w[0]]) ^ *reinterpret_cast<uint32*>(U2[w[1]]) ^ *reinterpret_cast<const uint32*>(U3[w[2]]) ^ *reinterpret_cast<const uint32*>(U4[w[3]]);
 		w = m_expandedKey[r][1];
-		*reinterpret_cast<HE_UINT32*>(w) = *reinterpret_cast<HE_UINT32*>(U1[w[0]]) ^ *reinterpret_cast<HE_UINT32*>(U2[w[1]]) ^ *reinterpret_cast<const HE_UINT32*>(U3[w[2]]) ^ *reinterpret_cast<const HE_UINT32*>(U4[w[3]]);
+		*reinterpret_cast<uint32*>(w) = *reinterpret_cast<uint32*>(U1[w[0]]) ^ *reinterpret_cast<uint32*>(U2[w[1]]) ^ *reinterpret_cast<const uint32*>(U3[w[2]]) ^ *reinterpret_cast<const uint32*>(U4[w[3]]);
 		w = m_expandedKey[r][2];
-		*reinterpret_cast<HE_UINT32*>(w) = *reinterpret_cast<HE_UINT32*>(U1[w[0]]) ^ *reinterpret_cast<HE_UINT32*>(U2[w[1]]) ^ *reinterpret_cast<const HE_UINT32*>(U3[w[2]]) ^ *reinterpret_cast<const HE_UINT32*>(U4[w[3]]);
+		*reinterpret_cast<uint32*>(w) = *reinterpret_cast<uint32*>(U1[w[0]]) ^ *reinterpret_cast<uint32*>(U2[w[1]]) ^ *reinterpret_cast<const uint32*>(U3[w[2]]) ^ *reinterpret_cast<const uint32*>(U4[w[3]]);
 		w = m_expandedKey[r][3];
-		*reinterpret_cast<HE_UINT32*>(w) = *reinterpret_cast<HE_UINT32*>(U1[w[0]]) ^ *reinterpret_cast<HE_UINT32*>(U2[w[1]]) ^ *reinterpret_cast<const HE_UINT32*>(U3[w[2]]) ^ *reinterpret_cast<const HE_UINT32*>(U4[w[3]]);
+		*reinterpret_cast<uint32*>(w) = *reinterpret_cast<uint32*>(U1[w[0]]) ^ *reinterpret_cast<uint32*>(U2[w[1]]) ^ *reinterpret_cast<const uint32*>(U3[w[2]]) ^ *reinterpret_cast<const uint32*>(U4[w[3]]);
 	}
 }  
 
-void CHE_CRYPT_Rijndael::encrypt(const HE_BYTE a[16], HE_BYTE b[16])
+void CHE_CRYPT_Rijndael::encrypt(const BYTE a[16], BYTE b[16])
 {
-	HE_UINT32 r;
-	HE_BYTE temp[4][4];
+	uint32 r;
+	BYTE temp[4][4];
 
-	*reinterpret_cast<HE_UINT32*>(temp[0]) = *reinterpret_cast<const HE_UINT32*>((a   )) ^ *reinterpret_cast<const HE_UINT32*>(m_expandedKey[0][0]);
-	*reinterpret_cast<HE_UINT32*>(temp[1]) = *reinterpret_cast<const HE_UINT32*>((a+ 4)) ^ *reinterpret_cast<const HE_UINT32*>(m_expandedKey[0][1]);
-	*reinterpret_cast<HE_UINT32*>(temp[2]) = *reinterpret_cast<const HE_UINT32*>((a+ 8)) ^ *reinterpret_cast<const HE_UINT32*>(m_expandedKey[0][2]);
-	*reinterpret_cast<HE_UINT32*>(temp[3]) = *reinterpret_cast<const HE_UINT32*>((a+12)) ^ *reinterpret_cast<const HE_UINT32*>(m_expandedKey[0][3]);
-	*reinterpret_cast<HE_UINT32*>((b    )) = *reinterpret_cast<const HE_UINT32*>(T1[temp[0][0]])
-		^ *reinterpret_cast<HE_UINT32*>(T2[temp[1][1]])
-		^ *reinterpret_cast<HE_UINT32*>(T3[temp[2][2]])
-		^ *reinterpret_cast<HE_UINT32*>(T4[temp[3][3]]);
-	*reinterpret_cast<HE_UINT32*>((b + 4)) = *reinterpret_cast<HE_UINT32*>(T1[temp[1][0]])
-		^ *reinterpret_cast<HE_UINT32*>(T2[temp[2][1]])
-		^ *reinterpret_cast<HE_UINT32*>(T3[temp[3][2]])
-		^ *reinterpret_cast<HE_UINT32*>(T4[temp[0][3]]);
-	*reinterpret_cast<HE_UINT32*>((b + 8)) = *reinterpret_cast<HE_UINT32*>(T1[temp[2][0]])
-		^ *reinterpret_cast<HE_UINT32*>(T2[temp[3][1]])
-		^ *reinterpret_cast<HE_UINT32*>(T3[temp[0][2]])
-		^ *reinterpret_cast<HE_UINT32*>(T4[temp[1][3]]);
-	*reinterpret_cast<HE_UINT32*>((b +12)) = *reinterpret_cast<HE_UINT32*>(T1[temp[3][0]])
-		^ *reinterpret_cast<HE_UINT32*>(T2[temp[0][1]])
-		^ *reinterpret_cast<HE_UINT32*>(T3[temp[1][2]])
-		^ *reinterpret_cast<HE_UINT32*>(T4[temp[2][3]]);
+	*reinterpret_cast<uint32*>(temp[0]) = *reinterpret_cast<const uint32*>((a   )) ^ *reinterpret_cast<const uint32*>(m_expandedKey[0][0]);
+	*reinterpret_cast<uint32*>(temp[1]) = *reinterpret_cast<const uint32*>((a+ 4)) ^ *reinterpret_cast<const uint32*>(m_expandedKey[0][1]);
+	*reinterpret_cast<uint32*>(temp[2]) = *reinterpret_cast<const uint32*>((a+ 8)) ^ *reinterpret_cast<const uint32*>(m_expandedKey[0][2]);
+	*reinterpret_cast<uint32*>(temp[3]) = *reinterpret_cast<const uint32*>((a+12)) ^ *reinterpret_cast<const uint32*>(m_expandedKey[0][3]);
+	*reinterpret_cast<uint32*>((b    )) = *reinterpret_cast<const uint32*>(T1[temp[0][0]])
+		^ *reinterpret_cast<uint32*>(T2[temp[1][1]])
+		^ *reinterpret_cast<uint32*>(T3[temp[2][2]])
+		^ *reinterpret_cast<uint32*>(T4[temp[3][3]]);
+	*reinterpret_cast<uint32*>((b + 4)) = *reinterpret_cast<uint32*>(T1[temp[1][0]])
+		^ *reinterpret_cast<uint32*>(T2[temp[2][1]])
+		^ *reinterpret_cast<uint32*>(T3[temp[3][2]])
+		^ *reinterpret_cast<uint32*>(T4[temp[0][3]]);
+	*reinterpret_cast<uint32*>((b + 8)) = *reinterpret_cast<uint32*>(T1[temp[2][0]])
+		^ *reinterpret_cast<uint32*>(T2[temp[3][1]])
+		^ *reinterpret_cast<uint32*>(T3[temp[0][2]])
+		^ *reinterpret_cast<uint32*>(T4[temp[1][3]]);
+	*reinterpret_cast<uint32*>((b +12)) = *reinterpret_cast<uint32*>(T1[temp[3][0]])
+		^ *reinterpret_cast<uint32*>(T2[temp[0][1]])
+		^ *reinterpret_cast<uint32*>(T3[temp[1][2]])
+		^ *reinterpret_cast<uint32*>(T4[temp[2][3]]);
 	for(r = 1; r < m_uRounds-1; r++)
 	{
-		*reinterpret_cast<HE_UINT32*>(temp[0]) = *reinterpret_cast<HE_UINT32*>((b   )) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[r][0]);
-		*reinterpret_cast<HE_UINT32*>(temp[1]) = *reinterpret_cast<HE_UINT32*>((b+ 4)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[r][1]);
-		*reinterpret_cast<HE_UINT32*>(temp[2]) = *reinterpret_cast<HE_UINT32*>((b+ 8)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[r][2]);
-		*reinterpret_cast<HE_UINT32*>(temp[3]) = *reinterpret_cast<HE_UINT32*>((b+12)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[r][3]);
+		*reinterpret_cast<uint32*>(temp[0]) = *reinterpret_cast<uint32*>((b   )) ^ *reinterpret_cast<uint32*>(m_expandedKey[r][0]);
+		*reinterpret_cast<uint32*>(temp[1]) = *reinterpret_cast<uint32*>((b+ 4)) ^ *reinterpret_cast<uint32*>(m_expandedKey[r][1]);
+		*reinterpret_cast<uint32*>(temp[2]) = *reinterpret_cast<uint32*>((b+ 8)) ^ *reinterpret_cast<uint32*>(m_expandedKey[r][2]);
+		*reinterpret_cast<uint32*>(temp[3]) = *reinterpret_cast<uint32*>((b+12)) ^ *reinterpret_cast<uint32*>(m_expandedKey[r][3]);
 
-		*reinterpret_cast<HE_UINT32*>((b    )) = *reinterpret_cast<HE_UINT32*>(T1[temp[0][0]])
-			^ *reinterpret_cast<HE_UINT32*>(T2[temp[1][1]])
-			^ *reinterpret_cast<HE_UINT32*>(T3[temp[2][2]])
-			^ *reinterpret_cast<HE_UINT32*>(T4[temp[3][3]]);
-		*reinterpret_cast<HE_UINT32*>((b + 4)) = *reinterpret_cast<HE_UINT32*>(T1[temp[1][0]])
-			^ *reinterpret_cast<HE_UINT32*>(T2[temp[2][1]])
-			^ *reinterpret_cast<HE_UINT32*>(T3[temp[3][2]])
-			^ *reinterpret_cast<HE_UINT32*>(T4[temp[0][3]]);
-		*reinterpret_cast<HE_UINT32*>((b + 8)) = *reinterpret_cast<HE_UINT32*>(T1[temp[2][0]])
-			^ *reinterpret_cast<HE_UINT32*>(T2[temp[3][1]])
-			^ *reinterpret_cast<HE_UINT32*>(T3[temp[0][2]])
-			^ *reinterpret_cast<HE_UINT32*>(T4[temp[1][3]]);
-		*reinterpret_cast<HE_UINT32*>((b +12)) = *reinterpret_cast<HE_UINT32*>(T1[temp[3][0]])
-			^ *reinterpret_cast<HE_UINT32*>(T2[temp[0][1]])
-			^ *reinterpret_cast<HE_UINT32*>(T3[temp[1][2]])
-			^ *reinterpret_cast<HE_UINT32*>(T4[temp[2][3]]);
+		*reinterpret_cast<uint32*>((b    )) = *reinterpret_cast<uint32*>(T1[temp[0][0]])
+			^ *reinterpret_cast<uint32*>(T2[temp[1][1]])
+			^ *reinterpret_cast<uint32*>(T3[temp[2][2]])
+			^ *reinterpret_cast<uint32*>(T4[temp[3][3]]);
+		*reinterpret_cast<uint32*>((b + 4)) = *reinterpret_cast<uint32*>(T1[temp[1][0]])
+			^ *reinterpret_cast<uint32*>(T2[temp[2][1]])
+			^ *reinterpret_cast<uint32*>(T3[temp[3][2]])
+			^ *reinterpret_cast<uint32*>(T4[temp[0][3]]);
+		*reinterpret_cast<uint32*>((b + 8)) = *reinterpret_cast<uint32*>(T1[temp[2][0]])
+			^ *reinterpret_cast<uint32*>(T2[temp[3][1]])
+			^ *reinterpret_cast<uint32*>(T3[temp[0][2]])
+			^ *reinterpret_cast<uint32*>(T4[temp[1][3]]);
+		*reinterpret_cast<uint32*>((b +12)) = *reinterpret_cast<uint32*>(T1[temp[3][0]])
+			^ *reinterpret_cast<uint32*>(T2[temp[0][1]])
+			^ *reinterpret_cast<uint32*>(T3[temp[1][2]])
+			^ *reinterpret_cast<uint32*>(T4[temp[2][3]]);
 	}
-	*reinterpret_cast<HE_UINT32*>(temp[0]) = *reinterpret_cast<HE_UINT32*>((b   )) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[m_uRounds-1][0]);
-	*reinterpret_cast<HE_UINT32*>(temp[1]) = *reinterpret_cast<HE_UINT32*>((b+ 4)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[m_uRounds-1][1]);
-	*reinterpret_cast<HE_UINT32*>(temp[2]) = *reinterpret_cast<HE_UINT32*>((b+ 8)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[m_uRounds-1][2]);
-	*reinterpret_cast<HE_UINT32*>(temp[3]) = *reinterpret_cast<HE_UINT32*>((b+12)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[m_uRounds-1][3]);
+	*reinterpret_cast<uint32*>(temp[0]) = *reinterpret_cast<uint32*>((b   )) ^ *reinterpret_cast<uint32*>(m_expandedKey[m_uRounds-1][0]);
+	*reinterpret_cast<uint32*>(temp[1]) = *reinterpret_cast<uint32*>((b+ 4)) ^ *reinterpret_cast<uint32*>(m_expandedKey[m_uRounds-1][1]);
+	*reinterpret_cast<uint32*>(temp[2]) = *reinterpret_cast<uint32*>((b+ 8)) ^ *reinterpret_cast<uint32*>(m_expandedKey[m_uRounds-1][2]);
+	*reinterpret_cast<uint32*>(temp[3]) = *reinterpret_cast<uint32*>((b+12)) ^ *reinterpret_cast<uint32*>(m_expandedKey[m_uRounds-1][3]);
 	b[ 0] = T1[temp[0][0]][1];
 	b[ 1] = T1[temp[1][1]][1];
 	b[ 2] = T1[temp[2][2]][1];
@@ -1477,66 +1477,66 @@ void CHE_CRYPT_Rijndael::encrypt(const HE_BYTE a[16], HE_BYTE b[16])
 	b[13] = T1[temp[0][1]][1];
 	b[14] = T1[temp[1][2]][1];
 	b[15] = T1[temp[2][3]][1];
-	*reinterpret_cast<HE_UINT32*>((b   )) ^= *reinterpret_cast<HE_UINT32*>(m_expandedKey[m_uRounds][0]);
-	*reinterpret_cast<HE_UINT32*>((b+ 4)) ^= *reinterpret_cast<HE_UINT32*>(m_expandedKey[m_uRounds][1]);
-	*reinterpret_cast<HE_UINT32*>((b+ 8)) ^= *reinterpret_cast<HE_UINT32*>(m_expandedKey[m_uRounds][2]);
-	*reinterpret_cast<HE_UINT32*>((b+12)) ^= *reinterpret_cast<HE_UINT32*>(m_expandedKey[m_uRounds][3]);
+	*reinterpret_cast<uint32*>((b   )) ^= *reinterpret_cast<uint32*>(m_expandedKey[m_uRounds][0]);
+	*reinterpret_cast<uint32*>((b+ 4)) ^= *reinterpret_cast<uint32*>(m_expandedKey[m_uRounds][1]);
+	*reinterpret_cast<uint32*>((b+ 8)) ^= *reinterpret_cast<uint32*>(m_expandedKey[m_uRounds][2]);
+	*reinterpret_cast<uint32*>((b+12)) ^= *reinterpret_cast<uint32*>(m_expandedKey[m_uRounds][3]);
 }
 
-void CHE_CRYPT_Rijndael::decrypt(const HE_BYTE a[16], HE_BYTE b[16])
+void CHE_CRYPT_Rijndael::decrypt(const BYTE a[16], BYTE b[16])
 {
-	HE_UINT32 r;
-	HE_BYTE temp[4][4];
+	uint32 r;
+	BYTE temp[4][4];
 
-	*reinterpret_cast<HE_UINT32*>(temp[0]) = *reinterpret_cast<const HE_UINT32*>((a   )) ^ *reinterpret_cast<const HE_UINT32*>(m_expandedKey[m_uRounds][0]);
-	*reinterpret_cast<HE_UINT32*>(temp[1]) = *reinterpret_cast<const HE_UINT32*>((a+ 4)) ^ *reinterpret_cast<const HE_UINT32*>(m_expandedKey[m_uRounds][1]);
-	*reinterpret_cast<HE_UINT32*>(temp[2]) = *reinterpret_cast<const HE_UINT32*>((a+ 8)) ^ *reinterpret_cast<const HE_UINT32*>(m_expandedKey[m_uRounds][2]);
-	*reinterpret_cast<HE_UINT32*>(temp[3]) = *reinterpret_cast<const HE_UINT32*>((a+12)) ^ *reinterpret_cast<const HE_UINT32*>(m_expandedKey[m_uRounds][3]);
+	*reinterpret_cast<uint32*>(temp[0]) = *reinterpret_cast<const uint32*>((a   )) ^ *reinterpret_cast<const uint32*>(m_expandedKey[m_uRounds][0]);
+	*reinterpret_cast<uint32*>(temp[1]) = *reinterpret_cast<const uint32*>((a+ 4)) ^ *reinterpret_cast<const uint32*>(m_expandedKey[m_uRounds][1]);
+	*reinterpret_cast<uint32*>(temp[2]) = *reinterpret_cast<const uint32*>((a+ 8)) ^ *reinterpret_cast<const uint32*>(m_expandedKey[m_uRounds][2]);
+	*reinterpret_cast<uint32*>(temp[3]) = *reinterpret_cast<const uint32*>((a+12)) ^ *reinterpret_cast<const uint32*>(m_expandedKey[m_uRounds][3]);
 
-	*reinterpret_cast<HE_UINT32*>((b   )) = *reinterpret_cast<HE_UINT32*>(T5[temp[0][0]])
-		^ *reinterpret_cast<HE_UINT32*>(T6[temp[3][1]])
-		^ *reinterpret_cast<HE_UINT32*>(T7[temp[2][2]]) 
-		^ *reinterpret_cast<HE_UINT32*>(T8[temp[1][3]]);
-	*reinterpret_cast<HE_UINT32*>((b+ 4)) = *reinterpret_cast<HE_UINT32*>(T5[temp[1][0]])
-		^ *reinterpret_cast<HE_UINT32*>(T6[temp[0][1]])
-		^ *reinterpret_cast<HE_UINT32*>(T7[temp[3][2]]) 
-		^ *reinterpret_cast<HE_UINT32*>(T8[temp[2][3]]);
-	*reinterpret_cast<HE_UINT32*>((b+ 8)) = *reinterpret_cast<HE_UINT32*>(T5[temp[2][0]])
-		^ *reinterpret_cast<HE_UINT32*>(T6[temp[1][1]])
-		^ *reinterpret_cast<HE_UINT32*>(T7[temp[0][2]]) 
-		^ *reinterpret_cast<HE_UINT32*>(T8[temp[3][3]]);
-	*reinterpret_cast<HE_UINT32*>((b+12)) = *reinterpret_cast<HE_UINT32*>(T5[temp[3][0]])
-		^ *reinterpret_cast<HE_UINT32*>(T6[temp[2][1]])
-		^ *reinterpret_cast<HE_UINT32*>(T7[temp[1][2]]) 
-		^ *reinterpret_cast<HE_UINT32*>(T8[temp[0][3]]);
+	*reinterpret_cast<uint32*>((b   )) = *reinterpret_cast<uint32*>(T5[temp[0][0]])
+		^ *reinterpret_cast<uint32*>(T6[temp[3][1]])
+		^ *reinterpret_cast<uint32*>(T7[temp[2][2]]) 
+		^ *reinterpret_cast<uint32*>(T8[temp[1][3]]);
+	*reinterpret_cast<uint32*>((b+ 4)) = *reinterpret_cast<uint32*>(T5[temp[1][0]])
+		^ *reinterpret_cast<uint32*>(T6[temp[0][1]])
+		^ *reinterpret_cast<uint32*>(T7[temp[3][2]]) 
+		^ *reinterpret_cast<uint32*>(T8[temp[2][3]]);
+	*reinterpret_cast<uint32*>((b+ 8)) = *reinterpret_cast<uint32*>(T5[temp[2][0]])
+		^ *reinterpret_cast<uint32*>(T6[temp[1][1]])
+		^ *reinterpret_cast<uint32*>(T7[temp[0][2]]) 
+		^ *reinterpret_cast<uint32*>(T8[temp[3][3]]);
+	*reinterpret_cast<uint32*>((b+12)) = *reinterpret_cast<uint32*>(T5[temp[3][0]])
+		^ *reinterpret_cast<uint32*>(T6[temp[2][1]])
+		^ *reinterpret_cast<uint32*>(T7[temp[1][2]]) 
+		^ *reinterpret_cast<uint32*>(T8[temp[0][3]]);
 	for(r = m_uRounds-1; r > 1; r--)
 	{
-		*reinterpret_cast<HE_UINT32*>(temp[0]) = *reinterpret_cast<HE_UINT32*>((b   )) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[r][0]);
-		*reinterpret_cast<HE_UINT32*>(temp[1]) = *reinterpret_cast<HE_UINT32*>((b+ 4)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[r][1]);
-		*reinterpret_cast<HE_UINT32*>(temp[2]) = *reinterpret_cast<HE_UINT32*>((b+ 8)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[r][2]);
-		*reinterpret_cast<HE_UINT32*>(temp[3]) = *reinterpret_cast<HE_UINT32*>((b+12)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[r][3]);
-		*reinterpret_cast<HE_UINT32*>((b   )) = *reinterpret_cast<HE_UINT32*>(T5[temp[0][0]])
-			^ *reinterpret_cast<HE_UINT32*>(T6[temp[3][1]])
-			^ *reinterpret_cast<HE_UINT32*>(T7[temp[2][2]]) 
-			^ *reinterpret_cast<HE_UINT32*>(T8[temp[1][3]]);
-		*reinterpret_cast<HE_UINT32*>((b+ 4)) = *reinterpret_cast<HE_UINT32*>(T5[temp[1][0]])
-			^ *reinterpret_cast<HE_UINT32*>(T6[temp[0][1]])
-			^ *reinterpret_cast<HE_UINT32*>(T7[temp[3][2]]) 
-			^ *reinterpret_cast<HE_UINT32*>(T8[temp[2][3]]);
-		*reinterpret_cast<HE_UINT32*>((b+ 8)) = *reinterpret_cast<HE_UINT32*>(T5[temp[2][0]])
-			^ *reinterpret_cast<HE_UINT32*>(T6[temp[1][1]])
-			^ *reinterpret_cast<HE_UINT32*>(T7[temp[0][2]]) 
-			^ *reinterpret_cast<HE_UINT32*>(T8[temp[3][3]]);
-		*reinterpret_cast<HE_UINT32*>((b+12)) = *reinterpret_cast<HE_UINT32*>(T5[temp[3][0]])
-			^ *reinterpret_cast<HE_UINT32*>(T6[temp[2][1]])
-			^ *reinterpret_cast<HE_UINT32*>(T7[temp[1][2]]) 
-			^ *reinterpret_cast<HE_UINT32*>(T8[temp[0][3]]);
+		*reinterpret_cast<uint32*>(temp[0]) = *reinterpret_cast<uint32*>((b   )) ^ *reinterpret_cast<uint32*>(m_expandedKey[r][0]);
+		*reinterpret_cast<uint32*>(temp[1]) = *reinterpret_cast<uint32*>((b+ 4)) ^ *reinterpret_cast<uint32*>(m_expandedKey[r][1]);
+		*reinterpret_cast<uint32*>(temp[2]) = *reinterpret_cast<uint32*>((b+ 8)) ^ *reinterpret_cast<uint32*>(m_expandedKey[r][2]);
+		*reinterpret_cast<uint32*>(temp[3]) = *reinterpret_cast<uint32*>((b+12)) ^ *reinterpret_cast<uint32*>(m_expandedKey[r][3]);
+		*reinterpret_cast<uint32*>((b   )) = *reinterpret_cast<uint32*>(T5[temp[0][0]])
+			^ *reinterpret_cast<uint32*>(T6[temp[3][1]])
+			^ *reinterpret_cast<uint32*>(T7[temp[2][2]]) 
+			^ *reinterpret_cast<uint32*>(T8[temp[1][3]]);
+		*reinterpret_cast<uint32*>((b+ 4)) = *reinterpret_cast<uint32*>(T5[temp[1][0]])
+			^ *reinterpret_cast<uint32*>(T6[temp[0][1]])
+			^ *reinterpret_cast<uint32*>(T7[temp[3][2]]) 
+			^ *reinterpret_cast<uint32*>(T8[temp[2][3]]);
+		*reinterpret_cast<uint32*>((b+ 8)) = *reinterpret_cast<uint32*>(T5[temp[2][0]])
+			^ *reinterpret_cast<uint32*>(T6[temp[1][1]])
+			^ *reinterpret_cast<uint32*>(T7[temp[0][2]]) 
+			^ *reinterpret_cast<uint32*>(T8[temp[3][3]]);
+		*reinterpret_cast<uint32*>((b+12)) = *reinterpret_cast<uint32*>(T5[temp[3][0]])
+			^ *reinterpret_cast<uint32*>(T6[temp[2][1]])
+			^ *reinterpret_cast<uint32*>(T7[temp[1][2]]) 
+			^ *reinterpret_cast<uint32*>(T8[temp[0][3]]);
 	}
 
-	*reinterpret_cast<HE_UINT32*>(temp[0]) = *reinterpret_cast<HE_UINT32*>((b   )) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[1][0]);
-	*reinterpret_cast<HE_UINT32*>(temp[1]) = *reinterpret_cast<HE_UINT32*>((b+ 4)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[1][1]);
-	*reinterpret_cast<HE_UINT32*>(temp[2]) = *reinterpret_cast<HE_UINT32*>((b+ 8)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[1][2]);
-	*reinterpret_cast<HE_UINT32*>(temp[3]) = *reinterpret_cast<HE_UINT32*>((b+12)) ^ *reinterpret_cast<HE_UINT32*>(m_expandedKey[1][3]);
+	*reinterpret_cast<uint32*>(temp[0]) = *reinterpret_cast<uint32*>((b   )) ^ *reinterpret_cast<uint32*>(m_expandedKey[1][0]);
+	*reinterpret_cast<uint32*>(temp[1]) = *reinterpret_cast<uint32*>((b+ 4)) ^ *reinterpret_cast<uint32*>(m_expandedKey[1][1]);
+	*reinterpret_cast<uint32*>(temp[2]) = *reinterpret_cast<uint32*>((b+ 8)) ^ *reinterpret_cast<uint32*>(m_expandedKey[1][2]);
+	*reinterpret_cast<uint32*>(temp[3]) = *reinterpret_cast<uint32*>((b+12)) ^ *reinterpret_cast<uint32*>(m_expandedKey[1][3]);
 	b[ 0] = S5[temp[0][0]];
 	b[ 1] = S5[temp[3][1]];
 	b[ 2] = S5[temp[2][2]];
@@ -1553,8 +1553,8 @@ void CHE_CRYPT_Rijndael::decrypt(const HE_BYTE a[16], HE_BYTE b[16])
 	b[13] = S5[temp[2][1]];
 	b[14] = S5[temp[1][2]];
 	b[15] = S5[temp[0][3]];
-	*reinterpret_cast<HE_UINT32*>((b   )) ^= *reinterpret_cast<HE_UINT32*>(m_expandedKey[0][0]);
-	*reinterpret_cast<HE_UINT32*>((b+ 4)) ^= *reinterpret_cast<HE_UINT32*>(m_expandedKey[0][1]);
-	*reinterpret_cast<HE_UINT32*>((b+ 8)) ^= *reinterpret_cast<HE_UINT32*>(m_expandedKey[0][2]);
-	*reinterpret_cast<HE_UINT32*>((b+12)) ^= *reinterpret_cast<HE_UINT32*>(m_expandedKey[0][3]);
+	*reinterpret_cast<uint32*>((b   )) ^= *reinterpret_cast<uint32*>(m_expandedKey[0][0]);
+	*reinterpret_cast<uint32*>((b+ 4)) ^= *reinterpret_cast<uint32*>(m_expandedKey[0][1]);
+	*reinterpret_cast<uint32*>((b+ 8)) ^= *reinterpret_cast<uint32*>(m_expandedKey[0][2]);
+	*reinterpret_cast<uint32*>((b+12)) ^= *reinterpret_cast<uint32*>(m_expandedKey[0][3]);
 }

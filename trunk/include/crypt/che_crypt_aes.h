@@ -31,25 +31,25 @@ public:
 
 protected:
 	enum State { Valid , Invalid };
-	State      m_state;
-	Mode       m_mode;
-	Direction  m_direction;
-	HE_BYTE  m_initVector[MAX_IV_SIZE];
-	HE_UINT32 m_uRounds;
-	HE_BYTE  m_expandedKey[_MAX_ROUNDS+1][4][4];
+	State       m_state;
+	Mode        m_mode;
+	Direction   m_direction;
+	BYTE        m_initVector[MAX_IV_SIZE];
+	uint32      m_uRounds;
+	BYTE        m_expandedKey[_MAX_ROUNDS+1][4][4];
 
 public:
-	HE_INT32 init( Mode mode, Direction dir, const HE_BYTE *key, KeyLength keyLen, HE_BYTE * initVector = 0 );
-	HE_INT32 blockEncrypt( const HE_BYTE *input, HE_INT32 inputLen, HE_BYTE *outBuffer );
-	HE_INT32 padEncrypt( const HE_BYTE *input, HE_INT32 inputOctets, HE_BYTE *outBuffer );
-	HE_INT32 blockDecrypt( const HE_BYTE *input, HE_INT32 inputLen, HE_BYTE *outBuffer );
-	HE_INT32 padDecrypt( const HE_BYTE *input, HE_INT32 inputOctets, HE_BYTE *outBuffer );
+	int32 init( Mode mode, Direction dir, const BYTE *key, KeyLength keyLen, BYTE * initVector = 0 );
+	int32 blockEncrypt( const BYTE *input, int32 inputLen, BYTE *outBuffer );
+	int32 padEncrypt( const BYTE *input, int32 inputOctets, BYTE *outBuffer );
+	int32 blockDecrypt( const BYTE *input, int32 inputLen, BYTE *outBuffer );
+	int32 padDecrypt( const BYTE *input, int32 inputOctets, BYTE *outBuffer );
 
 protected:
-	HE_VOID keySched( HE_BYTE key[_MAX_KEY_COLUMNS][4] );
-	HE_VOID keyEncToDec();
-	HE_VOID encrypt( const HE_BYTE a[16], HE_BYTE b[16] );
-	HE_VOID decrypt( const HE_BYTE a[16], HE_BYTE b[16] );
+	void keySched( BYTE key[_MAX_KEY_COLUMNS][4] );
+	void keyEncToDec();
+	void encrypt( const BYTE a[16], BYTE b[16] );
+	void decrypt( const BYTE a[16], BYTE b[16] );
 };
 
 #endif

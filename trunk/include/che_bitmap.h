@@ -1,8 +1,9 @@
 #ifndef _CHE_BITMAP_H_
 #define _CHE_BITMAP_H_
 
-#include "che_base.h"
 #include <vector>
+
+#include "che_base.h"
 
 enum HE_BITMAP_DEPTH
 {
@@ -36,112 +37,118 @@ enum HE_BITMAP_COMPRESSION
 	BITMAP_COMPRESSION_BITFIELDS =3
 };
 
+struct BITMAP_RECT
+{
+	uint32 left;
+	uint32 top;
+	uint32 width;
+	uint32 height;
+};
+
+
 class CHE_Palette : public CHE_Object
 {
 public:
-	CHE_Palette( HE_BITMAP_DEPTH depth, const HE_ARGB * const pPalette = NULL, CHE_Allocator * pAllocator = NULL );
-	CHE_Palette( const CHE_Palette& palette );
+	CHE_Palette( HE_BITMAP_DEPTH depth, const ARGB * const pPalette = nullptr, CHE_Allocator * pAllocator = nullptr );
+	CHE_Palette( const CHE_Palette & palette );
 	~CHE_Palette();
 
-	CHE_Palette & operator=( const CHE_Palette& palette );
+	CHE_Palette & operator = ( const CHE_Palette & palette );
 
-	HE_ULONG	GetCount() const;
-	HE_BOOL		GetColor( HE_ULONG index, HE_ARGB & colorRet ) const;
-	HE_BOOL		GetColorIndex( HE_ARGB color, HE_ULONG & indexRet ) const;
-	HE_BOOL		GetNearColorIndex( HE_ARGB color, HE_ULONG & indexRet ) const;
-	HE_BOOL		SetColor( HE_ULONG index, HE_ARGB color );
-	HE_BOOL		IsColorExist( HE_ARGB color ) const;
+	size_t  GetCount() const;
+	bool    GetColor( size_t index, ARGB & colorRet ) const;
+	bool    GetColorIndex( ARGB color, size_t & indexRet ) const;
+	bool    GetNearColorIndex( ARGB color, size_t & indexRet ) const;
+	bool    SetColor( size_t index, ARGB color );
+	bool    IsColorExist( ARGB color ) const;
 private:
-	friend class CHE_Bitmap;
-
-	HE_ARGB *	m_pPalette;
-	HE_ULONG	m_nPaletteSize;			
+	ARGB *	mpPalette;
+	size_t	mPaletteSize;
+    
+    friend class CHE_Bitmap;
 };
 
 
 class CHE_Bitmap : public CHE_Object
 {
 public:
-	CHE_Bitmap( CHE_Allocator * pAllocator = NULL );
+	CHE_Bitmap( CHE_Allocator * pAllocator = nullptr );
 	CHE_Bitmap( const CHE_Bitmap & bitmap );
 	~CHE_Bitmap();
 
 	CHE_Bitmap & operator = ( const CHE_Bitmap & bitmap );
 
 	//file Operation
-	HE_BOOL		Load( HE_LPCSTR );
-	HE_BOOL		Save( HE_LPCSTR );
+	bool		Load( char const * );
+	bool		Save( char const * );
+	bool		SaveToMem( PBYTE buffer, size_t size );
 
-	HE_BOOL		SaveToMem( HE_LPBYTE buffer, HE_ULONG size );
-
-	HE_ULONG	GetMemBitmapDataSize();
-	HE_BOOL		GetMemBitmapData( HE_LPBYTE buffer, HE_ULONG size );
+	size_t      GetMemBitmapDataSize();
+	bool		GetMemBitmapData( PBYTE buffer, size_t size );
 
 	//bitmap basic information
-	HE_ULONG				Width() const { return m_lWidth; } ;
-	HE_ULONG				Height() const { return m_lHeight; } ;
-	HE_ULONG				Pitch() const { return ( ( ( m_lWidth * m_Depth ) + 31 ) & ~31 ) >> 3; } ;
-	HE_BITMAP_DEPTH			Depth() const { return m_Depth; };
-	HE_BITMAP_DIRECTION		Direction() const { return m_Direction; } ;
-	HE_BOOL					IsCompression() const { return ( m_Compression > 0 ) ? TRUE : FALSE; } ;
-	HE_BITMAP_COMPRESSION	GetCompressionType() const { return m_Compression; } ;
+	size_t				Width() const { return mWidth; } ;
+	size_t				Height() const { return mHeight; } ;
+	size_t				Pitch() const { return ( ( ( mWidth * mDepth ) + 31 ) & ~31 ) >> 3; } ;
+	HE_BITMAP_DEPTH			Depth() const { return mDepth; };
+	HE_BITMAP_DIRECTION		Direction() const { return mDirection; } ;
+	bool					IsCompression() const { return ( mCompression > 0 ) ? TRUE : false; } ;
+	HE_BITMAP_COMPRESSION	GetCompressionType() const { return mCompression; } ;
 
 	//palette
-	CHE_Palette*			GetPalette() const { return m_lpPalette; };
+	CHE_Palette *			GetPalette() const { return mpPalette; };
 
 	//access data	
-	HE_LPBYTE				GetBuffer() const { return m_lpBits; } ;
+	PBYTE				GetBuffer() const { return mpBits; } ;
 	
 	//pixel operation
-	HE_BOOL				GetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB & colorRet ) const;
-	HE_BOOL				SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB color );
-	HE_BOOL				SetPixelColor( HE_ULONG x, HE_ULONG y, std::vector<HE_ARGB> & colors );
-    HE_BOOL             SetPixelColor( HE_ULONG x, HE_ULONG y, HE_ARGB* pColors, HE_ULONG count );
-	HE_BOOL				GetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE & indexRet ) const;
-	HE_BOOL				SetPixelIndex( HE_ULONG x, HE_ULONG y, HE_BYTE index );
+	bool				GetPixelColor( size_t x, size_t y, ARGB & colorRet ) const;
+	bool				SetPixelColor( size_t x, size_t y, ARGB color );
+	bool				SetPixelColor( size_t x, size_t y, std::vector<ARGB> & colors );
+    bool                SetPixelColor( size_t x, size_t y, ARGB * pColors, size_t count );
+	bool				GetPixelIndex( size_t x, size_t y, BYTE & indexRet ) const;
+	bool				SetPixelIndex( size_t x, size_t y, BYTE index );
 
 	//channel operation
-	HE_BOOL				SetChannel( HE_BITMAP_CHANNEL channel, HE_BYTE vlaue );
-	HE_BOOL				SetChannelByAlpha( HE_BITMAP_CHANNEL channel, HE_BYTE alpha );
-	//CHE_Bitmap &	SaveChannelAsBitmap( HE_BITMAP_CHANNEL channel, HE_BOOL bMask = FALSE );
-	HE_BOOL				ExchangeChannel( HE_BITMAP_CHANNEL channel1, HE_BITMAP_CHANNEL channel2 );
-	HE_BOOL				CopyChannel( HE_BITMAP_CHANNEL channelDes, HE_BITMAP_CHANNEL channelSrc );
+	bool				SetChannel( HE_BITMAP_CHANNEL channel, BYTE vlaue );
+	bool				SetChannelByAlpha( HE_BITMAP_CHANNEL channel, BYTE alpha );
+	//CHE_Bitmap &	SaveChannelAsBitmap( HE_BITMAP_CHANNEL channel, bool bMask = false );
+	bool				ExchangeChannel( HE_BITMAP_CHANNEL channel1, HE_BITMAP_CHANNEL channel2 );
+	bool				CopyChannel( HE_BITMAP_CHANNEL channelDes, HE_BITMAP_CHANNEL channelSrc );
 
 	//area operation
-	HE_BOOL				Fill( HE_ARGB color );
-	HE_BOOL				Fill( HE_ARGB color, const HE_RECT* rect );
-	HE_VOID				DrawLine( HE_ULONG nLine, HE_ULONG nStart, HE_ULONG nLength, HE_ARGB color );
-	HE_VOID				DrawLine( HE_ULONG nLine, HE_ULONG nStrat, HE_ULONG nLength, HE_LPBYTE lpDatabuf, HE_ULONG nBufSize );
+	bool				Fill( ARGB color );
+	bool				Fill( ARGB color, const BITMAP_RECT* rect );
+	void				DrawLine( size_t lineIndex, size_t xIndex, size_t pixelCount, ARGB color );
+	void				DrawLine( size_t lineIndex, size_t xIndex, size_t pixelCount, PBYTE pData, size_t dataSize );
 
 	//bitmap operation
-	HE_BOOL				Create( HE_ULONG width, HE_ULONG height, HE_BITMAP_DEPTH depth, HE_BITMAP_DIRECTION direction, HE_ULONG bufferSize = 0,
-						HE_LPCBYTE buffer = NULL, CHE_Palette* pPalette = NULL );
-	CHE_Bitmap*			Clone( const HE_RECT* pRect = NULL ) const;
-	HE_VOID				Clean();
+	bool                Create( size_t width, size_t height, HE_BITMAP_DEPTH depth, HE_BITMAP_DIRECTION direction, size_t dataSize = 0,
+						PCBYTE data = nullptr, CHE_Palette* pPalette = nullptr );
+	CHE_Bitmap *        Clone( const BITMAP_RECT* pRect = nullptr ) const;
+	void				Clean();
 
-	HE_BOOL				ConvertDetph( HE_BITMAP_DEPTH depth );
+	bool				ConvertDetph( HE_BITMAP_DEPTH depth );
 
 	//bitmap operation, for 24bit and 32bit only
-	HE_BOOL				CompositeMask( HE_ARGB color, HE_ULONG x, HE_ULONG y, CHE_Bitmap & maskBitmap );
-	HE_BOOL				Insert( const CHE_Bitmap & bitmap, HE_ULONG x, HE_ULONG y );
-	//HE_BOOL			Insert( const CHE_Bitmap & bitmap, HE_ULONG x, HE_ULONG y, CHE_Bitmap & maskBitmap );
-
-	CHE_Bitmap*			StretchTo( HE_ULONG desWidth, HE_ULONG desHeight, HE_ULONG flag, HE_RECT * pRect = NULL );
-
-	CHE_Bitmap*			Translate( HE_FLOAT a, HE_FLOAT b, HE_FLOAT c, HE_FLOAT d, HE_FLOAT e, HE_FLOAT f );
+	bool				CompositeMask( ARGB color, size_t x, size_t y, CHE_Bitmap & maskBitmap );
+	bool				Insert( const CHE_Bitmap & bitmap, size_t x, size_t y );
+	//bool			Insert( const CHE_Bitmap & bitmap, size_t x, size_t y, CHE_Bitmap & maskBitmap );
+    
+	CHE_Bitmap*			StretchTo( size_t desWidth, size_t desHeight, size_t flag, BITMAP_RECT * pRect = nullptr );
+	CHE_Bitmap*			Translate( FLOAT a, FLOAT b, FLOAT c, FLOAT d, FLOAT e, FLOAT f );
 
 
 private:
+	size_t				GetPixelByteIndex( size_t x, size_t y ) const;
 
-	HE_ULONG				GetPixelByteIndex( HE_ULONG x, HE_ULONG y ) const;
-
-	HE_ULONG				m_lWidth;
-	HE_ULONG				m_lHeight;
-	HE_BITMAP_DEPTH			m_Depth;
-	HE_BITMAP_DIRECTION		m_Direction;
-	HE_BITMAP_COMPRESSION	m_Compression;
-	CHE_Palette*			m_lpPalette;
-	HE_LPBYTE				m_lpBits;
+	size_t				mWidth;
+	size_t				mHeight;
+	HE_BITMAP_DEPTH			mDepth;
+	HE_BITMAP_DIRECTION		mDirection;
+	HE_BITMAP_COMPRESSION	mCompression;
+	CHE_Palette *			mpPalette;
+	PBYTE                   mpBits;
 };
 
 #endif

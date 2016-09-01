@@ -55,15 +55,15 @@ public:
 
 	CHE_Palette & operator = ( const CHE_Palette & palette );
 
-	size_t  GetCount() const;
-	bool    GetColor( size_t index, ARGB & colorRet ) const;
-	bool    GetColorIndex( ARGB color, size_t & indexRet ) const;
-	bool    GetNearColorIndex( ARGB color, size_t & indexRet ) const;
-	bool    SetColor( size_t index, ARGB color );
+	uint32  GetCount() const;
+	bool    GetColor( uint32 index, ARGB & colorRet ) const;
+	bool    GetColorIndex( ARGB color, uint32 & indexRet ) const;
+	bool    GetNearColorIndex( ARGB color, uint32 & indexRet ) const;
+	bool    SetColor( uint32 index, ARGB color );
 	bool    IsColorExist( ARGB color ) const;
 private:
 	ARGB *	mpPalette;
-	size_t	mPaletteSize;
+	uint32	mPaletteSize;
     
     friend class CHE_Bitmap;
 };
@@ -87,8 +87,8 @@ public:
 	bool		GetMemBitmapData( PBYTE buffer, size_t size );
 
 	//bitmap basic information
-	size_t				Width() const { return mWidth; } ;
-	size_t				Height() const { return mHeight; } ;
+	uint32				Width() const { return mWidth; } ;
+	uint32				Height() const { return mHeight; } ;
 	size_t				Pitch() const { return ( ( ( mWidth * mDepth ) + 31 ) & ~31 ) >> 3; } ;
 	HE_BITMAP_DEPTH			Depth() const { return mDepth; };
 	HE_BITMAP_DIRECTION		Direction() const { return mDirection; } ;
@@ -102,12 +102,12 @@ public:
 	PBYTE				GetBuffer() const { return mpBits; } ;
 	
 	//pixel operation
-	bool				GetPixelColor( size_t x, size_t y, ARGB & colorRet ) const;
-	bool				SetPixelColor( size_t x, size_t y, ARGB color );
-	bool				SetPixelColor( size_t x, size_t y, std::vector<ARGB> & colors );
-    bool                SetPixelColor( size_t x, size_t y, ARGB * pColors, size_t count );
-	bool				GetPixelIndex( size_t x, size_t y, BYTE & indexRet ) const;
-	bool				SetPixelIndex( size_t x, size_t y, BYTE index );
+	bool				GetPixelColor( uint32 x, uint32 y, ARGB & colorRet ) const;
+	bool				SetPixelColor( uint32 x, uint32 y, ARGB color );
+	bool				SetPixelColor( uint32 x, uint32 y, std::vector<ARGB> & colors );
+    bool                SetPixelColor( uint32 x, uint32 y, ARGB * pColors, size_t count );
+	bool				GetPixelIndex( uint32 x, uint32 y, BYTE & indexRet ) const;
+	bool				SetPixelIndex( uint32 x, uint32 y, BYTE index );
 
 	//channel operation
 	bool				SetChannel( HE_BITMAP_CHANNEL channel, BYTE vlaue );
@@ -119,11 +119,11 @@ public:
 	//area operation
 	bool				Fill( ARGB color );
 	bool				Fill( ARGB color, const BITMAP_RECT* rect );
-	void				DrawLine( size_t lineIndex, size_t xIndex, size_t pixelCount, ARGB color );
-	void				DrawLine( size_t lineIndex, size_t xIndex, size_t pixelCount, PBYTE pData, size_t dataSize );
+	void				DrawLine( uint32 lineIndex, uint32 xIndex, uint32 pixelCount, ARGB color );
+	void				DrawLine( uint32 lineIndex, uint32 xIndex, uint32 pixelCount, PBYTE pData, size_t dataSize );
 
 	//bitmap operation
-	bool                Create( size_t width, size_t height, HE_BITMAP_DEPTH depth, HE_BITMAP_DIRECTION direction, size_t dataSize = 0,
+	bool                Create( uint32 width, uint32 height, HE_BITMAP_DEPTH depth, HE_BITMAP_DIRECTION direction, size_t dataSize = 0,
 						PCBYTE data = nullptr, CHE_Palette* pPalette = nullptr );
 	CHE_Bitmap *        Clone( const BITMAP_RECT* pRect = nullptr ) const;
 	void				Clean();
@@ -131,19 +131,19 @@ public:
 	bool				ConvertDetph( HE_BITMAP_DEPTH depth );
 
 	//bitmap operation, for 24bit and 32bit only
-	bool				CompositeMask( ARGB color, size_t x, size_t y, CHE_Bitmap & maskBitmap );
-	bool				Insert( const CHE_Bitmap & bitmap, size_t x, size_t y );
+	bool				CompositeMask( ARGB color, uint32 x, uint32 y, CHE_Bitmap & maskBitmap );
+	bool				Insert( const CHE_Bitmap & bitmap, uint32 x, uint32 y );
 	//bool			Insert( const CHE_Bitmap & bitmap, size_t x, size_t y, CHE_Bitmap & maskBitmap );
     
-	CHE_Bitmap*			StretchTo( size_t desWidth, size_t desHeight, size_t flag, BITMAP_RECT * pRect = nullptr );
+	CHE_Bitmap*			StretchTo( uint32 desWidth, uint32 desHeight, uint32 flag, BITMAP_RECT * pRect = nullptr );
 	CHE_Bitmap*			Translate( FLOAT a, FLOAT b, FLOAT c, FLOAT d, FLOAT e, FLOAT f );
 
 
 private:
-	size_t				GetPixelByteIndex( size_t x, size_t y ) const;
+	size_t				GetPixelByteIndex( uint32 x, uint32 y ) const;
 
-	size_t				mWidth;
-	size_t				mHeight;
+    uint32				mWidth;
+	uint32				mHeight;
 	HE_BITMAP_DEPTH			mDepth;
 	HE_BITMAP_DIRECTION		mDirection;
 	HE_BITMAP_COMPRESSION	mCompression;

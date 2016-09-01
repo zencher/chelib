@@ -31,11 +31,11 @@ typedef uint64_t uint64;
 	#endif
 #endif
 
-typedef wchar_t WCHAR;
+//typedef wchar_t WCHAR;
 
-typedef wchar_t * PWSTR;
+//typedef wchar_t * PWSTR;
  
-typedef wchar_t const * PCWSTR;
+//typedef wchar_t const * PCWSTR;
 
 typedef float FLOAT;
 

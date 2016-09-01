@@ -7,62 +7,60 @@ struct HE_ByteStringData
 {
 	HE_ByteStringData()
 	{
-		m_lpString = nullptr;
-		m_dwLength = 0;
+		mpStr = nullptr;
+		mLength = 0;
 	}
-	char * m_lpString;
-	size_t m_dwLength;
-	CHE_RefCount m_dwRef;
+	char *          mpStr;
+	size_t          mLength;
+	CHE_RefCount    mRefCount;
 };
 
 class CHE_ByteString : public CHE_Object
 {
 public:
-	CHE_ByteString( CHE_Allocator * pAllocator = nullptr ) : CHE_Object( pAllocator )
-	{
-		m_lpData = nullptr;
-	}
+    CHE_ByteString( CHE_Allocator * pAllocator = nullptr ) : CHE_Object(pAllocator), mpData(nullptr) {}
+	
 	~CHE_ByteString()
 	{
 		Clear();
 	}
 
 	CHE_ByteString( char ch, CHE_Allocator * pAllocator = nullptr );
-	CHE_ByteString( char const * str, size_t nStrSize = 0, CHE_Allocator * pAllocator = nullptr );
+	CHE_ByteString( char const * pstr, size_t length = 0, CHE_Allocator * pAllocator = nullptr );
 	CHE_ByteString( const CHE_ByteString& str );
 	
 	CHE_ByteString & operator=( char ch );
-	CHE_ByteString & operator=( char const * lpStr );
+	CHE_ByteString & operator=( char const * pstr );
 	CHE_ByteString & operator=( const CHE_ByteString& str );
 
 	bool operator==( char ch ) const;
-	bool operator==( char const * lpStr ) const;
+	bool operator==( char const * pstr ) const;
 	bool operator==( const CHE_ByteString & str ) const;
 	friend bool operator==( char ch, CHE_ByteString & str );
-	friend bool operator==( char * lpStr, CHE_ByteString & str );
+	friend bool operator==( char * pstr, CHE_ByteString & str );
 
 	CHE_ByteString operator+( char ch );
-	CHE_ByteString operator+( char const * lpStr );
+	CHE_ByteString operator+( char const * pstr );
 	CHE_ByteString operator+( const CHE_ByteString & str );
  	friend CHE_ByteString operator+( char ch, CHE_ByteString & str );
- 	friend CHE_ByteString operator+( char const * lpStr, CHE_ByteString & str );
+ 	friend CHE_ByteString operator+( char const * pstr, CHE_ByteString & str );
 	
 	CHE_ByteString & operator+=( char ch );
-	CHE_ByteString & operator+=( char const * lpStr );
-	CHE_ByteString & operator+=( const CHE_ByteString& str );
+	CHE_ByteString & operator+=( char const * pstr );
+	CHE_ByteString & operator+=( const CHE_ByteString & str );
 	
 	bool operator!=( char ch ) const;
-	bool operator!=( char const * lpStr ) const;
+	bool operator!=( char const * pstr ) const;
 	bool operator!=( const CHE_ByteString& str ) const;
 	friend bool operator!=( char ch, CHE_ByteString & str );
-	friend bool operator!=( char const * lpStr, CHE_ByteString & str );
+	friend bool operator!=( char const * pstr, CHE_ByteString & str );
     
     char operator[]( size_t index ) const;
     
     size_t GetLength() const;
     
-    bool SetData( BYTE * data, size_t size );
-    char const * GetData() const { return m_lpData ? m_lpData->m_lpString : nullptr; }
+    bool SetData( BYTE * data, size_t length );
+    char const * GetData() const { return mpData ? mpData->mpStr : nullptr; }
     
     int32 GetInteger() const;
     FLOAT GetFloat() const;
@@ -70,99 +68,95 @@ public:
     void Clear();
     
 private:
-	HE_ByteStringData* m_lpData;
+	HE_ByteStringData* mpData;
 };
 
 bool operator==( char ch, CHE_ByteString & str );
 bool operator==( char const * lpStr, CHE_ByteString & str );
 
 CHE_ByteString operator+( char ch, CHE_ByteString & str );
-CHE_ByteString operator+( char const * lpStr, CHE_ByteString & str );
+CHE_ByteString operator+( char const * pstr, CHE_ByteString & str );
 
 bool operator!=( char ch, CHE_ByteString & str );
-bool operator!=( char const * lpStr, CHE_ByteString & str );
+bool operator!=( char const * pstr, CHE_ByteString & str );
 
 
 struct HE_WideStringData
 {
     HE_WideStringData()
     {
-        m_lpString = nullptr;
-        m_dwLength = 0;
+        mpStr = nullptr;
+        mLength = 0;
     }
-    PWSTR m_lpString;
-	size_t m_dwLength;
-	CHE_RefCount m_dwRef;
+    wchar_t *       mpStr;
+	size_t          mLength;
+	CHE_RefCount    mRefCount;
 };
 
 class CHE_WideString : public CHE_Object
 {
 public:
-	CHE_WideString( CHE_Allocator * pAllocator = nullptr ) : CHE_Object( pAllocator )
-	{
-		m_lpData = nullptr;
-	}
+    CHE_WideString( CHE_Allocator * pAllocator = nullptr ) : CHE_Object(pAllocator), mpData(nullptr) {}
 
 	~CHE_WideString()
 	{
 		Clear();
 	}
 	
-	CHE_WideString( WCHAR wch, CHE_Allocator * pAllocator = nullptr );
-	CHE_WideString( PCWSTR wstr, size_t nStrSize = 0, CHE_Allocator * pAllocator = nullptr );
-	CHE_WideString( const CHE_WideString& wstr );
+	CHE_WideString( wchar_t wch, CHE_Allocator * pAllocator = nullptr );
+	CHE_WideString( wchar_t const * pstr, size_t nStrSize = 0, CHE_Allocator * pAllocator = nullptr );
+	CHE_WideString( const CHE_WideString & str );
 
-	CHE_WideString & operator=( WCHAR wch );
-    CHE_WideString & operator=( PCWSTR lpWstr );
-	CHE_WideString & operator=( const CHE_WideString& wstr );
+	CHE_WideString & operator=( wchar_t wch );
+    CHE_WideString & operator=( wchar_t const * pstr );
+	CHE_WideString & operator=( const CHE_WideString & str );
 	
-	bool operator==( WCHAR wch ) const;
-	bool operator==( PCWSTR lpWstr ) const;
-	bool operator==( const CHE_WideString & wstr ) const;
-	friend bool operator==( WCHAR wch, CHE_WideString & wstr );
-	friend bool operator==( PCWSTR lpWstr, CHE_WideString & wstr );
+	bool operator==( wchar_t wch ) const;
+	bool operator==( wchar_t const * pstr ) const;
+	bool operator==( const CHE_WideString & str ) const;
+	friend bool operator==( wchar_t wch, CHE_WideString & str );
+	friend bool operator==( wchar_t const * pstr, CHE_WideString & str );
 
-	CHE_WideString operator+( const CHE_WideString & wstr );
-	CHE_WideString operator+( WCHAR wch );
-	CHE_WideString operator+( PCWSTR lpStr );
-	friend CHE_WideString operator+( WCHAR wch, CHE_WideString & wstr );
-	friend CHE_WideString operator+( PCWSTR lpWstr, CHE_WideString & wstr );
+	CHE_WideString operator+( const CHE_WideString & str );
+	CHE_WideString operator+( wchar_t wch );
+	CHE_WideString operator+( wchar_t const * pstr );
+	friend CHE_WideString operator+( wchar_t wch, CHE_WideString & str );
+	friend CHE_WideString operator+( wchar_t const * pstr, CHE_WideString & str );
 	
-	CHE_WideString & operator+=( const CHE_WideString & wstr );
-	CHE_WideString & operator+=( WCHAR wch );
-	CHE_WideString & operator+=( PCWSTR lpWstr );
+	CHE_WideString & operator+=( const CHE_WideString & str );
+	CHE_WideString & operator+=( wchar_t wch );
+	CHE_WideString & operator+=( wchar_t const * pstr );
 
 	bool operator!=( const CHE_WideString & wstr ) const;
-	bool operator!=( WCHAR wch ) const;
-	bool operator!=( PCWSTR lpWstr ) const;
-	friend bool operator!=( WCHAR wch, CHE_WideString & wstr );
-	friend bool operator!=( PCWSTR lpWstr, CHE_WideString & wstr );
+	bool operator!=( wchar_t wch ) const;
+	bool operator!=( wchar_t const * pstr ) const;
+	friend bool operator!=( wchar_t wch, CHE_WideString & str );
+	friend bool operator!=( wchar_t const * pstr, CHE_WideString & str );
     
-    WCHAR operator [] ( size_t index ) const;
+    wchar_t operator [] ( size_t index ) const;
     
     size_t GetLength() const;
     
-    bool SetData( WCHAR * pData, size_t size );
-    PCWSTR GetData() const { return ( m_lpData ) ? m_lpData->m_lpString : nullptr; }
+    bool SetData( wchar_t * pData, size_t length );
+    wchar_t const *  GetData() const { return ( mpData ) ? mpData->mpStr : nullptr; }
     
     int32 GetInteger() const;
-
     FLOAT GetFloat() const;
     
     void Clear();
     
 private:
-	HE_WideStringData * m_lpData;
+	HE_WideStringData * mpData;
 };
 
-bool operator==( WCHAR wch, CHE_WideString & wstr );
-bool operator==( PWSTR lpWstr, CHE_WideString & wstr );
+bool operator==( wchar_t wch, CHE_WideString & str );
+bool operator==( wchar_t * pstr, CHE_WideString & str );
 
-CHE_WideString operator+( WCHAR wch, CHE_WideString & wstr );
-CHE_WideString operator+( PCWSTR lpWstr, CHE_WideString & wstr );
+CHE_WideString operator+( wchar_t wch, CHE_WideString & str );
+CHE_WideString operator+( wchar_t const * pstr, CHE_WideString & str );
 
-bool operator!=( WCHAR wch, CHE_WideString & wstr );
-bool operator!=( PCWSTR lpWstr, CHE_ByteString & wstr );
+bool operator!=( wchar_t wch, CHE_WideString & str );
+bool operator!=( wchar_t const *  lstr, CHE_ByteString & str );
 
 #define A(a)		(a)
 #define B(a,b)		(a | b<<8)

@@ -57,12 +57,12 @@ CHE_Allocator * GetDefaultAllocator()
 
 CHE_HeapAllocator::CHE_HeapAllocator( size_t initSize )
 {
-	m_Heap = HeapCreate( 0, initSize, 0 );
+	mHeap = HeapCreate( 0, initSize, 0 );
 }
 
 CHE_HeapAllocator::~CHE_HeapAllocator()
 {
-	if ( m_Heap )
+	if ( mHeap )
 	{
 		HeapDestroy( m_Heap );
 	}
@@ -70,17 +70,17 @@ CHE_HeapAllocator::~CHE_HeapAllocator()
 
 inline void * CHE_HeapAllocator::Alloc( size_t cb )
 {
-	return HeapAlloc( m_Heap, 0, cb );
+	return HeapAlloc( mHeap, 0, cb );
 }
 
 inline void CHE_HeapAllocator::Free( void * data )
 {
-	HeapFree( m_Heap, 0, data );
+	HeapFree( mHeap, 0, data );
 }
 
 inline size_t CHE_HeapAllocator::GetSize( void * data )
 {
-	return HeapSize( m_Heap, 0, data );
+	return HeapSize( mHeap, 0, data );
 }
 
 #endif
@@ -512,34 +512,34 @@ class IHE_File : public CHE_Object
 CHE_DynBuffer::CHE_DynBuffer( size_t capacity /*= 1024*/, size_t increament /*= 1024*/, CHE_Allocator * pAllocator /*= nullptr*/ )
 	: CHE_Object( pAllocator )
 {
-	m_lCapacity = capacity;
-	m_lIncreament = increament;
+	mCapacity = capacity;
+	mIncreament = increament;
 
-	m_lpData = GetAllocator()->NewArray<BYTE>( m_lCapacity );
-	memset( m_lpData, 0, m_lCapacity );
-	m_lSize = 0;
+	mpData = GetAllocator()->NewArray<BYTE>( mCapacity );
+	memset( mpData, 0, mCapacity );
+	mSize = 0;
 }
 
 CHE_DynBuffer::CHE_DynBuffer( const CHE_DynBuffer & buf )
 	: CHE_Object( buf.GetAllocator() )
 {
-	m_lCapacity = buf.m_lCapacity;
-	m_lIncreament = buf.m_lIncreament;
-	m_lSize = buf.m_lSize;
-	m_lpData = GetAllocator()->NewArray<BYTE>( m_lCapacity );
-	memset( m_lpData, 0, m_lCapacity );
-	if ( m_lSize > 0 )
+	mCapacity = buf.mCapacity;
+	mIncreament = buf.mIncreament;
+	mSize = buf.mSize;
+	mpData = GetAllocator()->NewArray<BYTE>( mCapacity );
+	memset( mpData, 0, mCapacity );
+	if ( mSize > 0 )
 	{
-		memcpy( m_lpData, buf.m_lpData, m_lSize );
+		memcpy( mpData, buf.mpData, mSize );
 	}
 }
 
 CHE_DynBuffer::~CHE_DynBuffer()
 {
-	if ( m_lpData )
+	if ( mpData )
 	{
-		GetAllocator()->DeleteArray<BYTE>( m_lpData );
-		m_lpData = nullptr;
+		GetAllocator()->DeleteArray<BYTE>( mpData );
+		mpData = nullptr;
 	}
 }
 
@@ -547,18 +547,18 @@ const CHE_DynBuffer & CHE_DynBuffer::operator = ( const CHE_DynBuffer & buf )
 {
 	if ( this != &buf )
 	{
-		if ( m_lpData )
+		if ( mpData )
 		{
-			GetAllocator()->DeleteArray<BYTE>( m_lpData );
+			GetAllocator()->DeleteArray<BYTE>( mpData );
 		}
-		m_lCapacity = buf.m_lCapacity;
-		m_lIncreament = buf.m_lIncreament;
-		m_lSize = buf.m_lSize;
-		m_lpData = GetAllocator()->NewArray<BYTE>( m_lCapacity );
-		memset( m_lpData, 0, m_lCapacity );
-		if ( m_lSize > 0 )
+		mCapacity = buf.mCapacity;
+		mIncreament = buf.mIncreament;
+		mSize = buf.mSize;
+		mpData = GetAllocator()->NewArray<BYTE>( mCapacity );
+		memset( mpData, 0, mCapacity );
+		if ( mSize > 0 )
 		{
-			memcpy( m_lpData, buf.m_lpData, m_lSize );
+			memcpy( mpData, buf.mpData, mSize );
 		}
 	}
 	return *this;
@@ -566,87 +566,87 @@ const CHE_DynBuffer & CHE_DynBuffer::operator = ( const CHE_DynBuffer & buf )
 
 size_t CHE_DynBuffer::Write( PCBYTE pBuffer, size_t offset, size_t size )
 {
-	if ( pBuffer == nullptr || size == 0 || offset > m_lSize )
+	if ( pBuffer == nullptr || size == 0 || offset > mSize )
 	{
 		return 0;
 	}
 
-	if ( size + offset > m_lCapacity )
+	if ( size + offset > mCapacity )
 	{
-		size_t lNeed = size + offset - m_lCapacity;
-		if ( lNeed <= m_lIncreament )
+		size_t lNeed = size + offset - mCapacity;
+		if ( lNeed <= mIncreament )
 		{
 			lNeed = 1;
 		}else{
-			lNeed = (size_t)( lNeed / m_lIncreament ) + 1;
+			lNeed = (size_t)( lNeed / mIncreament ) + 1;
 		}
-		PBYTE tmp = GetAllocator()->NewArray<BYTE>( m_lCapacity + lNeed * m_lIncreament );
-		memset( tmp, 0, m_lCapacity + lNeed * m_lIncreament );
-		memcpy( tmp, m_lpData, m_lSize );
+		PBYTE tmp = GetAllocator()->NewArray<BYTE>( mCapacity + lNeed * mIncreament );
+		memset( tmp, 0, mCapacity + lNeed * mIncreament );
+		memcpy( tmp, mpData, mSize );
 		memcpy( tmp + offset, pBuffer, size );
-		GetAllocator()->DeleteArray<BYTE>( m_lpData );
-		m_lpData = tmp;
-		m_lSize = offset + size;
-		m_lCapacity += lNeed * m_lIncreament;
+		GetAllocator()->DeleteArray<BYTE>( mpData );
+		mpData = tmp;
+		mSize = offset + size;
+		mCapacity += lNeed * mIncreament;
 		return size;
 	}else{
-		memcpy( m_lpData + offset, pBuffer, size );
-		m_lSize = offset + size;
+		memcpy( mpData + offset, pBuffer, size );
+		mSize = offset + size;
 		return size;
 	}
 }
 
 void CHE_DynBuffer::Alloc( size_t size )
 {
-	if ( size <= m_lCapacity )
+	if ( size <= mCapacity )
 	{
-		m_lSize = size;
+		mSize = size;
 		return;
 	}
-	if ( m_lpData )
+	if ( mpData )
 	{
-		GetAllocator()->DeleteArray( m_lpData );
+		GetAllocator()->DeleteArray( mpData );
 	}
-	m_lpData = GetAllocator()->NewArray<BYTE>( size );
-	m_lSize = size;
-	m_lCapacity = size;
-	m_lIncreament = size;
+	mpData = GetAllocator()->NewArray<BYTE>( size );
+	mSize = size;
+	mCapacity = size;
+	mIncreament = size;
 }
 
 size_t CHE_DynBuffer::Write( PCBYTE pBuffer, size_t size )
 {
-	return Write( pBuffer, m_lSize, size );
+	return Write( pBuffer, mSize, size );
 }
 
 size_t CHE_DynBuffer::Write( const CHE_DynBuffer & dynBuffer )
 {
-	if ( dynBuffer.m_lpData == nullptr || dynBuffer.m_lSize == 0 )
+	if ( dynBuffer.mpData == nullptr || dynBuffer.mSize == 0 )
 	{
 		return 0;
 	}
 
-	if ( m_lSize + dynBuffer.m_lSize > m_lCapacity )
+	if ( mSize + dynBuffer.mSize > mCapacity )
 	{
-		size_t lNeed = m_lSize + dynBuffer.m_lSize - m_lCapacity;
-		if ( lNeed <= m_lIncreament )
+		size_t lNeed = mSize + dynBuffer.mSize - mCapacity;
+		if ( lNeed <= mIncreament )
 		{
 			lNeed = 1;
 		}else{
-			lNeed = (size_t)( lNeed / m_lIncreament ) + 1;
+			lNeed = (size_t)( lNeed / mIncreament ) + 1;
 		}
-		PBYTE tmp = GetAllocator()->NewArray<BYTE>( m_lCapacity + lNeed * m_lIncreament );
-		memset( tmp, 0, m_lCapacity + lNeed * m_lIncreament );
-		memcpy( tmp, m_lpData, m_lSize );
-		memcpy( tmp+m_lSize, dynBuffer.m_lpData, dynBuffer.m_lSize );
-		GetAllocator()->DeleteArray<BYTE>( m_lpData );
-		m_lpData = tmp;
-		m_lSize += dynBuffer.m_lSize;
-		m_lCapacity += lNeed*m_lIncreament;
-		return dynBuffer.m_lSize;
+		PBYTE tmp = GetAllocator()->NewArray<BYTE>( mCapacity + lNeed * mIncreament );
+		memset( tmp, 0, mCapacity + lNeed * mIncreament );
+		memcpy( tmp, mpData, mSize );
+		memcpy( tmp + mSize, dynBuffer.mpData, dynBuffer.mSize );
+		GetAllocator()->DeleteArray<BYTE>( mpData );
+		mpData = tmp;
+		mSize += dynBuffer.mSize;
+		mCapacity += lNeed * mIncreament;
+		return dynBuffer.mSize;
 	}else{
-		memcpy( m_lpData+m_lSize, dynBuffer.m_lpData, dynBuffer.m_lSize );
-		m_lSize += dynBuffer.m_lSize;
-		return dynBuffer.m_lSize;
+		memcpy( mpData + mSize, dynBuffer.mpData, dynBuffer.mSize );
+		mSize += dynBuffer.mSize;
+		return dynBuffer.mSize;
 	}
 }
 
@@ -656,22 +656,19 @@ size_t CHE_DynBuffer::Read( PBYTE pBuffer, size_t size )
 	{
 		return 0;
 	}
-
-	if ( m_lSize < size )
+	if ( mSize < size )
 	{
-		size = m_lSize;
+		size = mSize;
 	}
-
-	memcpy( pBuffer, m_lpData, size );
-
+	memcpy( pBuffer, mpData, size );
 	return size;
 }
 
 bool CHE_DynBuffer::ReadByte( size_t offset, PBYTE pByte )
 {
-	if ( offset < m_lSize  )
+	if ( offset < mSize  )
 	{
-		*pByte = *(m_lpData+offset);
+		*pByte = *(mpData + offset);
 		return TRUE;
 	}
 	return false;

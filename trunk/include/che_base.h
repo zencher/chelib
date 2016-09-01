@@ -177,7 +177,7 @@ public:
 
 	inline size_t GetSize( void * data );
 private:
-	HANDLE m_Heap;
+	HANDLE mHeap;
 };
 #endif
 
@@ -267,11 +267,11 @@ public:
 
 	const CHE_DynBuffer & operator = ( const CHE_DynBuffer & buf );
 
-	PBYTE GetData() { return m_lpData; }
+	PBYTE GetData() { return mpData; }
 
-	size_t GetCapacity() { return m_lCapacity; }
+	size_t GetCapacity() { return mCapacity; }
 
-	size_t GetSize() { return m_lSize; }
+	size_t GetSize() { return mSize; }
 
 	size_t Write( PCBYTE pBuffer, size_t offset, size_t size );
 
@@ -283,15 +283,15 @@ public:
 
 	size_t Write( const CHE_DynBuffer & dynBuffer );
 
-	void Clear() { m_lSize = 0; }
+	void Clear() { mSize = 0; }
 
 	void Alloc( size_t size );
 
 private:
-	size_t m_lCapacity;
-	size_t m_lIncreament;
-    size_t m_lSize;
-	PBYTE m_lpData;
+	size_t mCapacity;
+	size_t mIncreament;
+    size_t mSize;
+	PBYTE mpData;
 };
 
 

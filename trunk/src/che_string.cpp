@@ -5,77 +5,77 @@
 #include <cwchar>
 #include <memory>
 
+//@zctodo:optimize:simpleness:for,class,CHE_ByteString:"make HE_ByteString a class, maintain the refcount and data by itself";
+//@zctodo:optimize:performance:for,class,CHE_ByteString:"reduce memory copy times";
+//@zctodo:optimize:simpleness:for,class,CHE_WideString:"make HE_ByteString a class, maintain the refcount and data by itself"
+//@zctodo:optimize:performance:for,class,CHE_WideString:"reduce memory copy times";
+
 CHE_ByteString::CHE_ByteString( char ch, CHE_Allocator * pAllocator )
 : CHE_Object( pAllocator )
 {
 	if ( ch == '\0' )
 	{
-		m_lpData = nullptr;
+		mpData = nullptr;
 	}else{
-		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		m_lpData->m_dwLength = 1;
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_lpString[0] = ch;
-		m_lpData->m_lpString = GetAllocator()->NewArray<char>( 2 );
-		m_lpData->m_lpString[1] = '\0';
+		mpData = GetAllocator()->New<HE_ByteStringData>();
+		mpData->mLength = 1;
+		mpData->mRefCount.AddRef();
+		mpData->mpStr[0] = ch;
+		mpData->mpStr = GetAllocator()->NewArray<char>( 2 );
+		mpData->mpStr[1] = '\0';
 	}
 }
 
-CHE_ByteString::CHE_ByteString( char const * lpStr, size_t nStrSize /* = 0 */, CHE_Allocator * pAllocator /*= nullptr*/ )
+CHE_ByteString::CHE_ByteString( char const * pstr, size_t length /* = 0 */, CHE_Allocator * pAllocator /*= nullptr*/ )
 : CHE_Object( pAllocator )
 {
-	if ( lpStr == nullptr )
+	if ( pstr == nullptr )
 	{
-		m_lpData = nullptr;
+		mpData = nullptr;
 		return;
 	}
-
-	size_t nStrlen = 0;
-	if ( nStrSize == 0 )
+	if ( length == 0 )
 	{
-		nStrlen = strlen( lpStr );
-	}else{
-		nStrlen = nStrSize;
+		length = strlen( pstr );
 	}
-
-	if ( nStrlen > 0 )
+	if ( length > 0 )
 	{
-		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_dwLength = nStrlen;
-		m_lpData->m_lpString = GetAllocator()->NewArray<char>( nStrlen+1 );
-		memcpy( m_lpData->m_lpString, lpStr, nStrlen );
-		m_lpData->m_lpString[nStrlen] = '\0';
+		mpData = GetAllocator()->New<HE_ByteStringData>();
+		mpData->mRefCount.AddRef();
+		mpData->mLength = length;
+		mpData->mpStr = GetAllocator()->NewArray<char>( length+1 );
+		memcpy( mpData->mpStr, pstr, length );
+		mpData->mpStr[length] = '\0';
 	}else{
-		m_lpData = nullptr;
+		mpData = nullptr;
 	}
 }
 
 CHE_ByteString::CHE_ByteString( const CHE_ByteString & str )
 : CHE_Object( str.GetAllocator() )
 {
-	if ( str.m_lpData == nullptr )
+	if ( str.mpData == nullptr )
 	{
-		m_lpData = nullptr;
+		mpData = nullptr;
 	}else{
-		m_lpData = str.m_lpData;
-		str.m_lpData->m_dwRef.AddRef();
+		mpData = str.mpData;
+		str.mpData->mRefCount.AddRef();
 	}
 }
 
 void CHE_ByteString::Clear()
 {
-	if ( m_lpData )
+	if ( mpData )
 	{
-		m_lpData->m_dwRef.DecRef();
+		mpData->mRefCount.DecRef();
 
-		if ( m_lpData->m_dwRef == 0 && m_lpData->m_lpString )
+		if ( mpData->mRefCount == 0 && mpData->mpStr )
 		{
-			GetAllocator()->DeleteArray<char>( m_lpData->m_lpString );
-			m_lpData->m_lpString = nullptr;
-			GetAllocator()->Delete<HE_ByteStringData>( m_lpData );
+			GetAllocator()->DeleteArray<char>( mpData->mpStr );
+			mpData->mpStr = nullptr;
+			GetAllocator()->Delete<HE_ByteStringData>( mpData );
 		}
-		m_lpData = nullptr;
+		mpData = nullptr;
 	}
 }
 
@@ -88,36 +88,36 @@ CHE_ByteString & CHE_ByteString::operator=( char ch )
 		return *this;
 	}
 	
-	m_lpData = GetAllocator()->New<HE_ByteStringData>();
-	m_lpData->m_dwLength = 1;
-	m_lpData->m_dwRef.AddRef();
-	m_lpData->m_lpString = GetAllocator()->NewArray<char>( 2 );
-	m_lpData->m_lpString[0] = ch;
-	m_lpData->m_lpString[1] = '\0';
+	mpData = GetAllocator()->New<HE_ByteStringData>();
+	mpData->mLength = 1;
+	mpData->mRefCount.AddRef();
+	mpData->mpStr = GetAllocator()->NewArray<char>( 2 );
+	mpData->mpStr[0] = ch;
+	mpData->mpStr[1] = '\0';
 
 	return *this;
 }
 
-CHE_ByteString & CHE_ByteString::operator=( char const * lpStr )
+CHE_ByteString & CHE_ByteString::operator=( char const * pstr )
 {
 	Clear();
 
-	if ( lpStr == nullptr )
+	if ( pstr == nullptr )
+	{
+		return *this;
+	}
+    
+	size_t length = strlen( pstr );
+	if ( length == 0 )
 	{
 		return *this;
 	}
 
-	size_t nStrlen = strlen( lpStr );
-	if ( nStrlen == 0 )
-	{
-		return *this;
-	}
-
-	m_lpData = GetAllocator()->New<HE_ByteStringData>();
-	m_lpData->m_dwRef.AddRef();
-	m_lpData->m_dwLength = nStrlen;
-	m_lpData->m_lpString = GetAllocator()->NewArray<char>( nStrlen+1 );
-	strcpy( m_lpData->m_lpString, lpStr );
+	mpData = GetAllocator()->New<HE_ByteStringData>();
+	mpData->mRefCount.AddRef();
+	mpData->mLength = length;
+	mpData->mpStr = GetAllocator()->NewArray<char>( length+1 );
+	strcpy( mpData->mpStr, pstr );
 
 	return *this;
 }
@@ -129,25 +129,25 @@ CHE_ByteString & CHE_ByteString::operator=( const CHE_ByteString & str )
 		return *this;
 	}
 
-	if ( m_lpData == str.m_lpData )
+	if ( mpData == str.mpData )
 	{
 		return *this;
 	}
 
 	Clear();
 
-	if ( str.m_lpData )
+	if ( str.mpData )
 	{
-		m_lpData = str.m_lpData;
-		str.m_lpData->m_dwRef.AddRef();
+		mpData = str.mpData;
+		str.mpData->mRefCount.AddRef();
 	}
 
 	return *this;
 }
 
-bool CHE_ByteString::operator==( char ch )const
+bool CHE_ByteString::operator==( char ch ) const
 {
-	if ( m_lpData == nullptr || strlen( m_lpData->m_lpString ) == 0 )
+	if ( mpData == nullptr || strlen( mpData->mpStr ) == 0 )
 	{
 		if ( ch == '\0' )
 		{
@@ -156,11 +156,11 @@ bool CHE_ByteString::operator==( char ch )const
 			return false;
 		}
 	}else{
-		if ( m_lpData->m_dwLength != 1 )
+		if ( mpData->mLength != 1 )
 		{
 			return false;
 		}else{
-			if ( m_lpData->m_lpString[0] == ch )
+			if ( mpData->mpStr[0] == ch )
 			{
 				return true;
 			}else{
@@ -170,27 +170,27 @@ bool CHE_ByteString::operator==( char ch )const
 	}
 }
 
-bool CHE_ByteString::operator==( char const * lpStr )const
+bool CHE_ByteString::operator==( char const * pstr ) const
 {
-	if ( m_lpData == nullptr || strlen( m_lpData->m_lpString ) == 0 )
+	if ( mpData == nullptr || strlen( mpData->mpStr ) == 0 )
 	{
-		if ( lpStr == nullptr || strlen( lpStr ) == 0 )
+		if ( pstr == nullptr || strlen( pstr ) == 0 )
 		{
 			return true;
 		}else{
 			return false;
 		}
 	}else{
-		if ( lpStr == nullptr )
+		if ( pstr == nullptr )
 		{
-			if ( m_lpData->m_lpString == nullptr )
+			if ( mpData->mpStr == nullptr )
 			{
 				return true;
 			}else{
 				return false;
 			}
 		}else{
-			if ( strcmp( m_lpData->m_lpString, lpStr ) == 0 )
+			if ( strcmp( mpData->mpStr, pstr ) == 0 )
 			{
 				return true;
 			}else{
@@ -200,21 +200,21 @@ bool CHE_ByteString::operator==( char const * lpStr )const
 	}
 }
 
-bool CHE_ByteString::operator==( const CHE_ByteString & str )const
+bool CHE_ByteString::operator==( const CHE_ByteString & str ) const
 {
 	if ( this == &str )
 	{
 		return true;
 	}else{
-		if ( m_lpData == str.m_lpData )
+		if ( mpData == str.mpData )
 		{
 			return true;
 		}else{
-			if ( m_lpData == nullptr )
+			if ( mpData == nullptr )
 			{
 				return false;
 			}else{
-				if ( strcmp( m_lpData->m_lpString, str.m_lpData->m_lpString ) == 0 )
+				if ( strcmp( mpData->mpStr, str.mpData->mpStr ) == 0 )
 				{
 					return true;
 				}else{
@@ -225,41 +225,41 @@ bool CHE_ByteString::operator==( const CHE_ByteString & str )const
 	}
 }
 
-bool CHE_ByteString::SetData( BYTE * pData, size_t size )
+bool CHE_ByteString::SetData( BYTE * pData, size_t length )
 {
-	if ( pData == nullptr || size == 0 )
+	if ( pData == nullptr || length == 0 )
 	{
 		Clear();
 		return TRUE;
 	}
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
-		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_dwLength = size;
-		m_lpData->m_lpString = GetAllocator()->NewArray<char>( size+1 );
-		memcpy( m_lpData->m_lpString, pData, size );
-		m_lpData->m_lpString[size] = '\0';
+		mpData = GetAllocator()->New<HE_ByteStringData>();
+		mpData->mRefCount.AddRef();
+		mpData->mLength = length;
+		mpData->mpStr = GetAllocator()->NewArray<char>( length+1 );
+		memcpy( mpData->mpStr, pData, length );
+		mpData->mpStr[length] = '\0';
 	}else{
-		m_lpData->m_dwRef.DecRef();
-		if ( m_lpData->m_dwRef == 0 )
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 )
 		{
-			if ( m_lpData->m_lpString )
+			if ( mpData->mpStr )
 			{
-				GetAllocator()->DeleteArray<char>( m_lpData->m_lpString );
+				GetAllocator()->DeleteArray<char>( mpData->mpStr );
 			}
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_dwLength = size;
-			m_lpData->m_lpString= GetAllocator()->NewArray<char>( size+1 );
-			memcpy( m_lpData->m_lpString, pData, size );
-			m_lpData->m_lpString[size] = '\0';
+			mpData->mRefCount.AddRef();
+			mpData->mLength = length;
+			mpData->mpStr= GetAllocator()->NewArray<char>( length+1 );
+			memcpy( mpData->mpStr, pData, length );
+			mpData->mpStr[length] = '\0';
 		}else {
-			m_lpData = GetAllocator()->New<HE_ByteStringData>();
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_dwLength = size;
-			m_lpData->m_lpString= GetAllocator()->NewArray<char>( size+1 );
-			memcpy( m_lpData->m_lpString, pData, size );
-			m_lpData->m_lpString[size] = '\0';
+			mpData = GetAllocator()->New<HE_ByteStringData>();
+			mpData->mRefCount.AddRef();
+			mpData->mLength = length;
+			mpData->mpStr= GetAllocator()->NewArray<char>( length+1 );
+			memcpy( mpData->mpStr, pData, length );
+			mpData->mpStr[length] = '\0';
 		}
 	}
 	return TRUE;
@@ -267,24 +267,24 @@ bool CHE_ByteString::SetData( BYTE * pData, size_t size )
 
 size_t CHE_ByteString::GetLength() const
 {
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
 		return 0;
 	}else{
-		return m_lpData->m_dwLength;
+		return mpData->mLength;
 	}
 }
 
-char CHE_ByteString::operator[]( size_t index )const
+char CHE_ByteString::operator[]( size_t index ) const
 {
-	if ( m_lpData != nullptr )
+	if ( mpData != nullptr )
 	{
-		if ( index >= m_lpData->m_dwLength )
+		if ( index >= mpData->mLength )
 		{
 			return 0;
-		}else if ( m_lpData->m_lpString )
+		}else if ( mpData->mpStr )
 		{
-			return m_lpData->m_lpString[index];
+			return mpData->mpStr[index];
 		}else{
 			return 0;
 		}
@@ -305,318 +305,300 @@ FLOAT CHE_ByteString::GetFloat() const
 
 CHE_ByteString CHE_ByteString::operator+( char ch )
 {
-	if ( m_lpData == nullptr || m_lpData->m_lpString == nullptr )
+	if ( mpData == nullptr || mpData->mpStr == nullptr )
 	{
 		return CHE_ByteString( ch, GetAllocator() );
 	}
 
-	size_t dwStrlen = m_lpData->m_dwLength + 2;
-	char * pTempStr = GetAllocator()->NewArray<char>( dwStrlen );
+	size_t length = mpData->mLength + 2;
+	char * pstr = GetAllocator()->NewArray<char>( length );
 
-	strcpy( pTempStr, m_lpData->m_lpString );
-	pTempStr[dwStrlen-2] = ch;
-	pTempStr[dwStrlen-1] = '\0';
+	strcpy( pstr, mpData->mpStr );
+	pstr[length-2] = ch;
+	pstr[length-1] = '\0';
 
-	CHE_ByteString tmpString( pTempStr, dwStrlen-1, GetAllocator() );
-	GetAllocator()->DeleteArray<char>( pTempStr );
-	return tmpString;
+	CHE_ByteString str( pstr, length-1, GetAllocator() );
+	GetAllocator()->DeleteArray<char>( pstr );
+	return str;
 }
 
-CHE_ByteString CHE_ByteString::operator+( char const * lpStr )
+
+CHE_ByteString CHE_ByteString::operator+( char const * pstr )
 {
-	if ( lpStr == nullptr )
+	if ( pstr == nullptr )
 	{
 		return CHE_ByteString( *this );
 	}
 
-	if ( m_lpData == nullptr || m_lpData->m_lpString == nullptr )
+	if ( mpData == nullptr || mpData->mpStr == nullptr )
 	{
-		return CHE_ByteString( lpStr, strlen(lpStr), GetAllocator() );
+		return CHE_ByteString( pstr, strlen(pstr), GetAllocator() );
 	}
 
-	size_t dwStrlen = m_lpData->m_dwLength + strlen(lpStr) + 1;
-	char * pTempStr = GetAllocator()->NewArray<char>( dwStrlen );
+	size_t length = mpData->mLength + strlen(pstr) + 1;
+	char * pTmpStr = GetAllocator()->NewArray<char>( length );
 
-	strcpy( pTempStr, m_lpData->m_lpString );
-	strcat( pTempStr, lpStr );
+	strcpy( pTmpStr, mpData->mpStr );
+	strcat( pTmpStr, pstr );
 
-	CHE_ByteString tmpString( pTempStr, strlen(pTempStr), GetAllocator() );
-	GetAllocator()->DeleteArray<char>( pTempStr );
-	return tmpString;
+	CHE_ByteString str( pTmpStr, strlen(pTmpStr), GetAllocator() );
+	GetAllocator()->DeleteArray<char>( pTmpStr );
+	return str;
 }
 
-CHE_ByteString CHE_ByteString::operator+( const CHE_ByteString& str )
+CHE_ByteString CHE_ByteString::operator+( const CHE_ByteString & str )
 {
-	if ( str.m_lpData == nullptr )
+	if ( str.mpData == nullptr )
 	{
 		return CHE_ByteString( *this );
 	}
 	
-	if ( m_lpData == nullptr || m_lpData->m_lpString == nullptr )
+	if ( mpData == nullptr || mpData->mpStr == nullptr )
 	{
 		return CHE_ByteString( str );
 	}
 	
-	size_t dwStrlen = m_lpData->m_dwLength + str.m_lpData->m_dwLength + 1;
-	char * pTempStr = GetAllocator()->NewArray<char>( dwStrlen );
-	strcpy( pTempStr, m_lpData->m_lpString );
-	strcat( pTempStr, str.m_lpData->m_lpString );
+	size_t length = mpData->mLength + str.mpData->mLength + 1;
+	char * pTempStr = GetAllocator()->NewArray<char>( length );
+	strcpy( pTempStr, mpData->mpStr );
+	strcat( pTempStr, str.mpData->mpStr );
 	
-	CHE_ByteString tmpString(pTempStr);
+	CHE_ByteString strRet(pTempStr);
 	GetAllocator()->DeleteArray<char>( pTempStr );
-	return tmpString;
+	return strRet;
 }
 
-CHE_ByteString& CHE_ByteString::operator+=( char ch )
+CHE_ByteString & CHE_ByteString::operator+=( char ch )
 {
 	if ( ch == 0 )
 	{
 		return *this;
 	}
 
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
-		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		//m_lpData->m_dwRef = 1;
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_dwLength = 1;
-		m_lpData->m_lpString = GetAllocator()->NewArray<char>( 2 );
-		m_lpData->m_lpString[0] = ch;
-		m_lpData->m_lpString[1] = '\0';
+		mpData = GetAllocator()->New<HE_ByteStringData>();
+		mpData->mRefCount.AddRef();
+		mpData->mLength = 1;
+		mpData->mpStr = GetAllocator()->NewArray<char>( 2 );
+		mpData->mpStr[0] = ch;
+		mpData->mpStr[1] = '\0';
 	}else{
-		if ( m_lpData->m_lpString == nullptr )
+		if ( mpData->mpStr == nullptr )
 		{
-			m_lpData->m_dwLength = 1;
-			//m_lpData->m_dwRef = 1;
-			//m_lpData->m_dwRef.AddRef();
-			m_lpData->m_lpString = GetAllocator()->NewArray<char>( 2 );
-			m_lpData->m_lpString[0] = ch;
-			m_lpData->m_lpString[1] = '\0';
+			mpData->mLength = 1;
+			mpData->mRefCount.AddRef();
+			mpData->mpStr = GetAllocator()->NewArray<char>( 2 );
+			mpData->mpStr[0] = ch;
+			mpData->mpStr[1] = '\0';
 			return *this;
 		}
-		char * pTempStr = GetAllocator()->NewArray<char>( strlen(m_lpData->m_lpString)+2 );
-		strcpy( pTempStr, m_lpData->m_lpString );
-		//m_lpData->m_dwRef--;
-		m_lpData->m_dwRef.DecRef();
-		if ( m_lpData->m_dwRef == 0 )
+		char * pTmpStr = GetAllocator()->NewArray<char>( strlen(mpData->mpStr)+2 );
+		strcpy( pTmpStr, mpData->mpStr );
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 )
 		{
-			if ( m_lpData->m_lpString )
+			if ( mpData->mpStr )
 			{
-				GetAllocator()->DeleteArray<char>( m_lpData->m_lpString );
-				m_lpData->m_lpString = nullptr;
+				GetAllocator()->DeleteArray<char>( mpData->mpStr );
+				mpData->mpStr = nullptr;
 			}
-			m_lpData->m_dwLength = 0;
-			//m_lpData->m_dwRef = 1;
-			m_lpData->m_dwRef.AddRef();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
 		}else{
-			m_lpData = GetAllocator()->New<HE_ByteStringData>();
-			m_lpData->m_dwLength = 0;
-			//m_lpData->m_dwRef = 1;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_lpString = nullptr;
+			mpData = GetAllocator()->New<HE_ByteStringData>();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
+			mpData->mpStr = nullptr;
 		}
 		
-		size_t dwBufferSize = strlen( pTempStr )+2;
-		m_lpData->m_lpString = GetAllocator()->NewArray<char>( dwBufferSize );
-		strcpy( m_lpData->m_lpString, pTempStr );
-		m_lpData->m_lpString[dwBufferSize-2] = ch;
-		m_lpData->m_lpString[dwBufferSize-1] = '\0';
-		m_lpData->m_dwLength = dwBufferSize-1;
+		size_t length = strlen( pTmpStr )+2;
+		mpData->mpStr = GetAllocator()->NewArray<char>( length );
+		strcpy( mpData->mpStr, pTmpStr );
+		mpData->mpStr[length-2] = ch;
+		mpData->mpStr[length-1] = '\0';
+		mpData->mLength = length-1;
 		
-		GetAllocator()->DeleteArray<char>( pTempStr );
+		GetAllocator()->DeleteArray<char>( pTmpStr );
 	}
 	return *this;
 }
 
-CHE_ByteString& CHE_ByteString::operator+=( char const * lpStr )
+CHE_ByteString & CHE_ByteString::operator+=( char const * pstr )
 {
-	if ( lpStr == nullptr )
+	if ( pstr == nullptr )
 	{
 		return *this;
 	}
 
-	if ( strlen( lpStr ) == 0 )
+	if ( strlen( pstr ) == 0 )
 	{
 		return *this;
 	}
 
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
-		size_t iStrlen = strlen(lpStr);
-		m_lpData = GetAllocator()->New<HE_ByteStringData>();
-		//m_lpData->m_dwRef = 1;
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_lpString = GetAllocator()->NewArray<char>( iStrlen+1 );
-		strcpy( m_lpData->m_lpString, lpStr );
-		m_lpData->m_dwLength = iStrlen;
+		size_t length = strlen(pstr);
+		mpData = GetAllocator()->New<HE_ByteStringData>();
+		mpData->mRefCount.AddRef();
+		mpData->mpStr = GetAllocator()->NewArray<char>( length+1 );
+		strcpy( mpData->mpStr, pstr );
+		mpData->mLength = length;
 	}else{
-		if ( m_lpData->m_lpString == nullptr )
+		if ( mpData->mpStr == nullptr )
 		{
-			size_t dwStrlen = strlen(lpStr);
-			m_lpData->m_lpString = GetAllocator()->NewArray<char>( dwStrlen+1 );
-			strcpy( m_lpData->m_lpString, lpStr );
-			m_lpData->m_dwLength = dwStrlen;
-			//m_lpData->m_dwRef = 1;
+			size_t length = strlen(pstr);
+			mpData->mpStr = GetAllocator()->NewArray<char>( length+1 );
+			strcpy( mpData->mpStr, pstr );
+			mpData->mLength = length;
 			return *this;
 		}
 
-		char * pTempStr = GetAllocator()->NewArray<char>( strlen(m_lpData->m_lpString)+1 );
-		strcpy( pTempStr, m_lpData->m_lpString );
+		char * pTmpStr = GetAllocator()->NewArray<char>( strlen(mpData->mpStr)+1 );
+		strcpy( pTmpStr, mpData->mpStr );
 
-		//m_lpData->m_dwRef--;
-		m_lpData->m_dwRef.DecRef();
-		if ( m_lpData->m_dwRef == 0 )
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 )
 		{
-			if ( m_lpData->m_lpString )
+			if ( mpData->mpStr )
 			{
-				GetAllocator()->DeleteArray<char>( m_lpData->m_lpString );
-				m_lpData->m_lpString = nullptr;
+				GetAllocator()->DeleteArray<char>( mpData->mpStr );
+				mpData->mpStr = nullptr;
 			}
-			m_lpData->m_dwLength = 0;
-			//m_lpData->m_dwRef = 1;
-			m_lpData->m_dwRef.AddRef();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
 		}else{
-			m_lpData = GetAllocator()->New<HE_ByteStringData>();
-			m_lpData->m_dwLength = 0;
-			//m_lpData->m_dwRef = 1;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_lpString = nullptr;
+			mpData = GetAllocator()->New<HE_ByteStringData>();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
+			mpData->mpStr = nullptr;
 		}
 
-		size_t dwStrlen = strlen(pTempStr) + strlen(lpStr);
-		m_lpData->m_lpString = GetAllocator()->NewArray<char>( dwStrlen+1 );
-		strcpy( m_lpData->m_lpString, pTempStr );
-		strcat( m_lpData->m_lpString, lpStr );
-		m_lpData->m_dwLength = dwStrlen;
+		size_t length = strlen(pTmpStr) + strlen(pstr);
+		mpData->mpStr = GetAllocator()->NewArray<char>( length+1 );
+		strcpy( mpData->mpStr, pTmpStr );
+		strcat( mpData->mpStr, pstr );
+		mpData->mLength = length;
 	}
 	
 	return *this;
 }
 
-CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
+CHE_ByteString & CHE_ByteString::operator+=( const CHE_ByteString & str )
 {
-	if ( str.m_lpData == nullptr || str.m_lpData->m_lpString == nullptr )
+	if ( str.mpData == nullptr || str.mpData->mpStr == nullptr )
 	{
 		return *this;
 	}
 
 	if ( this == &str )
 	{
-		char * pTempStr = GetAllocator()->NewArray<char>( strlen(m_lpData->m_lpString)+1 );
-		strcpy( pTempStr, m_lpData->m_lpString );
+		char * pTmpStr = GetAllocator()->NewArray<char>( strlen(mpData->mpStr)+1 );
+		strcpy( pTmpStr, mpData->mpStr );
 
-		//m_lpData->m_dwRef--;
-		m_lpData->m_dwRef.DecRef();
-		if ( m_lpData->m_dwRef == 0 )
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 )
 		{
-			if ( m_lpData->m_lpString )
+			if ( mpData->mpStr )
 			{
-				GetAllocator()->DeleteArray<char>( m_lpData->m_lpString );
-				m_lpData->m_lpString = nullptr;
+				GetAllocator()->DeleteArray<char>( mpData->mpStr );
+				mpData->mpStr = nullptr;
 			}
-			m_lpData->m_dwLength = 0;
-			//m_lpData->m_dwRef = 1;
-			m_lpData->m_dwRef.AddRef();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
 		}else{
-			m_lpData = GetAllocator()->New<HE_ByteStringData>();
-			m_lpData->m_dwLength = 0;
-			//m_lpData->m_dwRef = 1;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_lpString = nullptr;
+			mpData = GetAllocator()->New<HE_ByteStringData>();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
+			mpData->mpStr = nullptr;
 		}
 
-		size_t iBufferSize = strlen(pTempStr) * 2 + 1;
-		m_lpData->m_lpString = GetAllocator()->NewArray<char>( iBufferSize );
-		strcpy( m_lpData->m_lpString, pTempStr );
-		strcat( m_lpData->m_lpString, pTempStr );
+		size_t length = strlen(pTmpStr) * 2 + 1;
+		mpData->mpStr = GetAllocator()->NewArray<char>( length );
+		strcpy( mpData->mpStr, pTmpStr );
+		strcat( mpData->mpStr, pTmpStr );
 
-		m_lpData->m_dwLength = iBufferSize-1;
+		mpData->mLength = length-1;
 
-		GetAllocator()->DeleteArray<char>( pTempStr );
-		pTempStr = nullptr;
+		GetAllocator()->DeleteArray<char>( pTmpStr );
+		pTmpStr = nullptr;
 		
 		return *this;
 	}else{
-		if ( m_lpData == str.m_lpData )
+		if ( mpData == str.mpData )
 		{
-			char * pTempStr = GetAllocator()->NewArray<char>( strlen(m_lpData->m_lpString)+1 );
-			strcpy( pTempStr, m_lpData->m_lpString );
+			char * pTmpStr = GetAllocator()->NewArray<char>( strlen(mpData->mpStr)+1 );
+			strcpy( pTmpStr, mpData->mpStr );
 
-			//m_lpData->m_dwRef-=2;
-			m_lpData->m_dwRef.DecRef();
-			m_lpData->m_dwRef.DecRef();
-			if ( m_lpData->m_dwRef == 0 )
+			mpData->mRefCount.DecRef();
+			mpData->mRefCount.DecRef();
+			if ( mpData->mRefCount == 0 )
 			{
-				if ( m_lpData->m_lpString )
+				if ( mpData->mpStr )
 				{
-					GetAllocator()->DeleteArray<char>( m_lpData->m_lpString );
-					m_lpData->m_lpString = nullptr;
+					GetAllocator()->DeleteArray<char>( mpData->mpStr );
+					mpData->mpStr = nullptr;
 				}
-				m_lpData->m_dwLength = 0;
-				//m_lpData->m_dwRef = 2;
-				m_lpData->m_dwRef.AddRef();
-				m_lpData->m_dwRef.AddRef();
+				mpData->mLength = 0;
+				mpData->mRefCount.AddRef();
+				mpData->mRefCount.AddRef();
 			}else{
-				m_lpData = GetAllocator()->New<HE_ByteStringData>();
-				//m_lpData->m_dwRef = 2;
-				m_lpData->m_dwRef.AddRef();
-				m_lpData->m_dwRef.AddRef();
-				m_lpData->m_lpString = nullptr;
-				m_lpData->m_dwLength = 0;
+				mpData = GetAllocator()->New<HE_ByteStringData>();
+				mpData->mRefCount.AddRef();
+				mpData->mRefCount.AddRef();
+				mpData->mpStr = nullptr;
+				mpData->mLength = 0;
 			}
 
-			size_t iBufferSize = strlen(pTempStr) * 2 + 1;
-			m_lpData->m_lpString = GetAllocator()->NewArray<char>( iBufferSize );
-			strcpy( m_lpData->m_lpString, pTempStr );
-			strcat( m_lpData->m_lpString, pTempStr );
+			size_t length = strlen(pTmpStr) * 2 + 1;
+			mpData->mpStr = GetAllocator()->NewArray<char>( length );
+			strcpy( mpData->mpStr, pTmpStr );
+			strcat( mpData->mpStr, pTmpStr );
 			
-			m_lpData->m_dwLength = iBufferSize-1;
+			mpData->mLength = length-1;
 			
-			GetAllocator()->DeleteArray<char>( pTempStr );
-			pTempStr = nullptr;
+			GetAllocator()->DeleteArray<char>( pTmpStr );
+			pTmpStr = nullptr;
 			
 			return *this;
 		}else{
-			if ( m_lpData->m_lpString == nullptr )
+			if ( mpData->mpStr == nullptr )
 			{
-				size_t iBufferSize = strlen(str.m_lpData->m_lpString)+1;
-				m_lpData->m_lpString = GetAllocator()->NewArray<char>( iBufferSize );
-				strcpy( m_lpData->m_lpString, str.m_lpData->m_lpString );
+				size_t length = strlen(str.mpData->mpStr)+1;
+				mpData->mpStr = GetAllocator()->NewArray<char>( length );
+				strcpy( mpData->mpStr, str.mpData->mpStr );
 				return *this;
 			}
 
-			char * pTempStr = GetAllocator()->NewArray<char>( strlen(m_lpData->m_lpString)+1 );
-			strcpy( pTempStr, m_lpData->m_lpString );
+			char * pTmpStr = GetAllocator()->NewArray<char>( strlen(mpData->mpStr)+1 );
+			strcpy( pTmpStr, mpData->mpStr );
 
-			if ( m_lpData->m_dwRef == 1 )
+			if ( mpData->mRefCount == 1 )
 			{
-				if ( m_lpData->m_lpString )
+				if ( mpData->mpStr )
 				{
-					GetAllocator()->DeleteArray<char>( m_lpData->m_lpString );
-					m_lpData->m_lpString = nullptr;
-					m_lpData->m_dwLength = 0;
-					//m_lpData->m_dwRef = 1;
+					GetAllocator()->DeleteArray<char>( mpData->mpStr );
+					mpData->mpStr = nullptr;
+					mpData->mLength = 0;
 				}
 			}else{
-				//m_lpData->m_dwRef--;
-				m_lpData->m_dwRef.DecRef();
-				m_lpData = GetAllocator()->New<HE_ByteStringData>();
-				m_lpData->m_dwLength = 0;
-				//m_lpData->m_dwRef = 1;
-				m_lpData->m_dwRef.AddRef();
-				m_lpData->m_lpString = nullptr;
+				mpData->mRefCount.DecRef();
+				mpData = GetAllocator()->New<HE_ByteStringData>();
+				mpData->mLength = 0;
+				mpData->mRefCount.AddRef();
+				mpData->mpStr = nullptr;
 			}
 
-			size_t iBufferSize = strlen( str.m_lpData->m_lpString );
-			iBufferSize += strlen( pTempStr )+1;
-			m_lpData->m_lpString = GetAllocator()->NewArray<char>( iBufferSize );
-			strcpy( m_lpData->m_lpString, pTempStr );
-			strcat( m_lpData->m_lpString, str.m_lpData->m_lpString );
+			size_t length = strlen( str.mpData->mpStr );
+			length += strlen( pTmpStr )+1;
+			mpData->mpStr = GetAllocator()->NewArray<char>( length );
+			strcpy( mpData->mpStr, pTmpStr );
+			strcat( mpData->mpStr, str.mpData->mpStr );
 
-			GetAllocator()->DeleteArray<char>( pTempStr );
-			pTempStr = nullptr;
+			GetAllocator()->DeleteArray<char>( pTmpStr );
+			pTmpStr = nullptr;
 			
-			m_lpData->m_dwLength = iBufferSize-1;
+			mpData->mLength = length-1;
 			
 			return *this;
 		}
@@ -625,7 +607,7 @@ CHE_ByteString& CHE_ByteString::operator+=( const CHE_ByteString& str )
 
 bool CHE_ByteString::operator!=( char ch )const
 {
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
 		if ( ch == 0 )
 		{
@@ -634,11 +616,11 @@ bool CHE_ByteString::operator!=( char ch )const
 			return true;
 		}
 	}else{
-		if ( m_lpData->m_dwLength != 1 )
+		if ( mpData->mLength != 1 )
 		{
 			return true;
 		}else{
-			if ( m_lpData->m_lpString[0] == ch )
+			if ( mpData->mpStr[0] == ch )
 			{
 				return false;
 			}else{
@@ -648,27 +630,27 @@ bool CHE_ByteString::operator!=( char ch )const
 	}
 }
 
-bool CHE_ByteString::operator!=( char const * lpStr )const
+bool CHE_ByteString::operator!=( char const * pstr )const
 {
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
-		if ( lpStr == nullptr || strlen( lpStr ) == 0 )
+		if ( pstr == nullptr || strlen( pstr ) == 0 )
 		{
 			return false;
 		}else{
 			return true;
 		}
 	}else{
-		if ( lpStr == nullptr )
+		if ( pstr == nullptr )
 		{
-			if ( m_lpData->m_lpString == nullptr )
+			if ( mpData->mpStr == nullptr )
 			{
 				return false;
 			}else{
 				return true;
 			}
 		}else{
-			if ( strcmp( m_lpData->m_lpString, lpStr ) == 0 )
+			if ( strcmp( mpData->mpStr, pstr ) == 0 )
 			{
 				return false;
 			}else{
@@ -678,21 +660,21 @@ bool CHE_ByteString::operator!=( char const * lpStr )const
 	}
 }
 
-bool CHE_ByteString::operator!=( const CHE_ByteString& str )const
+bool CHE_ByteString::operator!=( const CHE_ByteString & str )const
 {
 	if ( this == &str )
 	{
 		return false;
 	}else{
-		if ( m_lpData == str.m_lpData )
+		if ( mpData == str.mpData )
 		{
 			return false;
 		}else{
-			if ( m_lpData == nullptr )
+			if ( mpData == nullptr )
 			{
 				return true;
 			}else{
-				if ( strcmp( m_lpData->m_lpString, str.m_lpData->m_lpString ) == 0 )
+				if ( strcmp( mpData->mpStr, str.mpData->mpStr ) == 0 )
 				{
 					return false;
 				}else{
@@ -703,189 +685,176 @@ bool CHE_ByteString::operator!=( const CHE_ByteString& str )const
 	}	
 }
 
-bool operator==( char ch, CHE_ByteString& str )
+bool operator==( char ch, CHE_ByteString & str )
 {
 	return ( str == ch );
 }
 
-bool operator==( char const * lpStr, const CHE_ByteString& str )
+bool operator==( char const * pstr, const CHE_ByteString & str )
 {
-	return ( str == lpStr );
+	return ( str == pstr );
 }
 
-CHE_ByteString operator+( char ch, const CHE_ByteString& str )
+CHE_ByteString operator+( char ch, const CHE_ByteString & str )
 {
 	CHE_ByteString tempStr( ch, str.GetAllocator() );
 	tempStr+=str;
 	return tempStr;
 }
 
-CHE_ByteString operator+( char const * lpStr, const CHE_ByteString& str )
+CHE_ByteString operator+( char const * pstr, const CHE_ByteString & str )
 {
-	CHE_ByteString tempStr( lpStr, strlen(lpStr), str.GetAllocator() );
+	CHE_ByteString tempStr( pstr, strlen(pstr), str.GetAllocator() );
 	tempStr+= str;
 	return tempStr;
 }
 
-bool operator!=( char ch, const CHE_ByteString& str )
+bool operator!=( char ch, const CHE_ByteString & str )
 {
 	return ( str != ch );
 }
 
-bool operator!=( char const * lpStr, const CHE_ByteString& str )
+bool operator!=( char const * pstr, const CHE_ByteString & str )
 {
-	return ( str != lpStr );
+	return ( str != pstr );
 }
 
 
-CHE_WideString::CHE_WideString( WCHAR wch, CHE_Allocator * pAllocator ) : CHE_Object( pAllocator )
+
+CHE_WideString::CHE_WideString( wchar_t wch, CHE_Allocator * pAllocator ) : CHE_Object( pAllocator )
 {
 	if ( wch == '\0' )
 	{
-		m_lpData = nullptr;
+		mpData = nullptr;
 	}else{
-		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		m_lpData->m_dwLength = 1;
-		//m_lpData->m_dwRef = 1;
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>(2);
-		m_lpData->m_lpString[0] = wch;
-		m_lpData->m_lpString[1] = '\0';
+		mpData = GetAllocator()->New<HE_WideStringData>();
+		mpData->mLength = 1;
+		mpData->mRefCount.AddRef();
+		mpData->mpStr = GetAllocator()->NewArray<wchar_t >(2);
+		mpData->mpStr[0] = wch;
+		mpData->mpStr[1] = '\0';
 	}
 }
 
-CHE_WideString::CHE_WideString( PCWSTR lpwstr, size_t nStrSize /* = -1 */,  CHE_Allocator * pAllocator) : CHE_Object( pAllocator )
+CHE_WideString::CHE_WideString( wchar_t const * pstr, size_t length /* = 0 */,  CHE_Allocator * pAllocator) : CHE_Object( pAllocator )
 {
-	if ( lpwstr == nullptr )
+	if ( pstr == nullptr )
 	{
-		m_lpData = nullptr;
+		mpData = nullptr;
 		return;
 	}
-
-	size_t nStrlen = 0;
-	if ( nStrSize <= 0 )
+	if ( length == 0 )
 	{
-		nStrlen = wcslen( lpwstr );
-	}else{
-		nStrlen = nStrSize;
+		length = wcslen( pstr );
 	}
-
-	if ( nStrlen > 0 )
+	if ( length > 0 )
 	{
-		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		//m_lpData->m_dwRef = 1;
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_dwLength = nStrlen;
-		m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( nStrlen+1 );
-		wcscpy( m_lpData->m_lpString, lpwstr );
-		m_lpData->m_lpString[nStrlen] = '\0';
+		mpData = GetAllocator()->New<HE_WideStringData>();
+		mpData->mRefCount.AddRef();
+		mpData->mLength = length;
+		mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+		wcscpy( mpData->mpStr, pstr );
+		mpData->mpStr[length] = '\0';
 	}else{
-		m_lpData = nullptr;
+		mpData = nullptr;
 	}
 }
 
-CHE_WideString::CHE_WideString( const CHE_WideString& wstr ) : CHE_Object( wstr.GetAllocator() )
+CHE_WideString::CHE_WideString( const CHE_WideString & str ) : CHE_Object( str.GetAllocator() )
 {
-	if ( wstr.m_lpData == nullptr )
+	if ( str.mpData == nullptr )
 	{
-		m_lpData = nullptr;
+		mpData = nullptr;
 	}else{
-		m_lpData = wstr.m_lpData;
-		//wstr.m_lpData->m_dwRef++;
-		wstr.m_lpData->m_dwRef.AddRef();
+		mpData = str.mpData;
+		str.mpData->mRefCount.AddRef();
 	}
 }
 
 void CHE_WideString::Clear()
 {
-	if ( m_lpData )
+	if ( mpData )
 	{
-		//--(m_lpData->m_dwRef);
-		m_lpData->m_dwRef.DecRef();
-
-		if ( m_lpData->m_dwRef == 0 && m_lpData->m_lpString )
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 && mpData->mpStr )
 		{
-			GetAllocator()->DeleteArray<WCHAR>( m_lpData->m_lpString );
-			m_lpData->m_lpString = nullptr;
-			GetAllocator()->Delete<HE_WideStringData>( m_lpData );
+			GetAllocator()->DeleteArray<wchar_t >( mpData->mpStr );
+			mpData->mpStr = nullptr;
+			GetAllocator()->Delete<HE_WideStringData>( mpData );
 		}
 
-		m_lpData = nullptr;
+		mpData = nullptr;
 	}
 }
 
-CHE_WideString& CHE_WideString::operator=( WCHAR wch )
+CHE_WideString & CHE_WideString::operator=( wchar_t  wch )
 {
 	Clear();
 
-	if ( wch == (WCHAR)( 0x0000 ) )
+	if ( wch == (wchar_t )0x0000 )
 	{
 		return *this;
 	}
 
-	m_lpData = GetAllocator()->New<HE_WideStringData>();
-	m_lpData->m_dwLength = 1;
-	//m_lpData->m_dwRef = 1;
-	m_lpData->m_dwRef.AddRef();
-	m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( 2 );
-	m_lpData->m_lpString[0] = wch;
-	m_lpData->m_lpString[1] = (WCHAR)( 0x0000 );
+	mpData = GetAllocator()->New<HE_WideStringData>();
+	mpData->mLength = 1;
+	mpData->mRefCount.AddRef();
+	mpData->mpStr = GetAllocator()->NewArray<wchar_t >( 2 );
+	mpData->mpStr[0] = wch;
+	mpData->mpStr[1] = (wchar_t)0x0000;
 
 	return *this;
 }
 
-CHE_WideString& CHE_WideString::operator=( PCWSTR lpWstr )
+CHE_WideString& CHE_WideString::operator=( wchar_t const * pstr )
 {
 	Clear();
 
-	if ( lpWstr == nullptr )
+	if ( pstr  == nullptr )
 	{
 		return *this;
 	}
 
-	size_t nStrlen = wcslen( lpWstr );
-	if ( nStrlen == 0 )
+	size_t length = wcslen( pstr );
+	if ( length == 0 )
 	{
 		return *this;
 	}
 
-	m_lpData = GetAllocator()->New<HE_WideStringData>();
-	//m_lpData->m_dwRef = 1;
-	m_lpData->m_dwRef.AddRef();
-	m_lpData->m_dwLength = nStrlen;
-	m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( nStrlen+1 );
-	wcscpy( m_lpData->m_lpString, lpWstr );
-
+	mpData = GetAllocator()->New<HE_WideStringData>();
+	mpData->mRefCount.AddRef();
+	mpData->mLength = length;
+	mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+	wcscpy( mpData->mpStr, pstr );
 	return *this;
 }
 
-CHE_WideString& CHE_WideString::operator=( const CHE_WideString& wstr )
+CHE_WideString & CHE_WideString::operator=( const CHE_WideString & str )
 {
-	if ( this == &wstr )
+	if ( this == &str )
 	{
 		return *this;
 	}
 	
-	if ( m_lpData == wstr.m_lpData )
+	if ( mpData == str.mpData )
 	{
 		return *this;
 	}
 
 	Clear();
 
-	if ( wstr.m_lpData )
+	if ( str.mpData )
 	{
-		m_lpData = wstr.m_lpData;
-		//wstr.m_lpData->m_dwRef++;
-		wstr.m_lpData->m_dwRef.AddRef();
+		mpData = str.mpData;
+		str.mpData->mRefCount.AddRef();
 	}
 
 	return *this;
 }
 
-bool CHE_WideString::operator==( WCHAR wch )const
+bool CHE_WideString::operator==( wchar_t wch )const
 {
-	if ( m_lpData == nullptr || wcslen( m_lpData->m_lpString ) == 0 )
+	if ( mpData == nullptr || wcslen( mpData->mpStr ) == 0 )
 	{
 		if ( wch == '\0' )
 		{
@@ -894,11 +863,11 @@ bool CHE_WideString::operator==( WCHAR wch )const
 			return false;
 		}
 	}else{
-		if ( m_lpData->m_dwLength != 1 )
+		if ( mpData->mLength != 1 )
 		{
 			return false;
 		}else{
-			if ( m_lpData->m_lpString[0] == wch )
+			if ( mpData->mpStr[0] == wch )
 			{
 				return true;
 			}else{
@@ -908,27 +877,27 @@ bool CHE_WideString::operator==( WCHAR wch )const
 	}
 }
 
-bool CHE_WideString::operator==( PCWSTR lpWstr )const
+bool CHE_WideString::operator==( wchar_t const * pstr )const
 {
-	if ( m_lpData == nullptr || wcslen( m_lpData->m_lpString ) == 0 )
+	if ( mpData == nullptr || wcslen( mpData->mpStr ) == 0 )
 	{
-		if ( lpWstr == nullptr || wcslen( lpWstr ) == 0 )
+		if ( pstr == nullptr || wcslen( pstr ) == 0 )
 		{
 			return true;
 		}else{
 			return false;
 		}
 	}else{
-		if ( lpWstr == nullptr )
+		if ( pstr == nullptr )
 		{
-			if ( m_lpData->m_lpString == nullptr )
+			if ( mpData->mpStr == nullptr )
 			{
 				return true;
 			}else{
 				return false;
 			}
 		}else{
-			if ( wcscmp( m_lpData->m_lpString, lpWstr ) == 0 )
+			if ( wcscmp( mpData->mpStr, pstr ) == 0 )
 			{
 				return true;
 			}else{
@@ -938,21 +907,21 @@ bool CHE_WideString::operator==( PCWSTR lpWstr )const
 	}
 }
 
-bool CHE_WideString::operator==( const CHE_WideString& wstr )const
+bool CHE_WideString::operator==( const CHE_WideString & str )const
 {
-	if ( this == &wstr )
+	if ( this == &str )
 	{
 		return true;
 	}else{
-		if ( m_lpData == wstr.m_lpData )
+		if ( mpData == str.mpData )
 		{
 			return true;
 		}else{
-			if ( m_lpData == nullptr )
+			if ( mpData == nullptr )
 			{
 				return false;
 			}else{
-				if ( wcscmp( m_lpData->m_lpString, wstr.m_lpData->m_lpString ) == 0 )
+				if ( wcscmp( mpData->mpStr, str.mpData->mpStr ) == 0 )
 				{
 					return true;
 				}else{
@@ -963,45 +932,41 @@ bool CHE_WideString::operator==( const CHE_WideString& wstr )const
 	}
 }
 
-bool	CHE_WideString::SetData( WCHAR * pData, size_t size )
+bool CHE_WideString::SetData( wchar_t * pData, size_t length )
 {
-	if ( pData == nullptr || size == 0 )
+	if ( pData == nullptr || length == 0 )
 	{
 		Clear();
 		return TRUE;
 	}
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
-		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		//m_lpData->m_dwRef = 1;
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_dwLength = size;
-		m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>(size+1);
-		memcpy( m_lpData->m_lpString, pData, size * sizeof( WCHAR ) );
-		m_lpData->m_lpString[size] = '\0';
+		mpData = GetAllocator()->New<HE_WideStringData>();
+		mpData->mRefCount.AddRef();
+		mpData->mLength = length;
+		mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+		memcpy( mpData->mpStr, pData, length * sizeof(wchar_t) );
+		mpData->mpStr[length] = '\0';
 	}else{
-		//m_lpData->m_dwRef--;
-		m_lpData->m_dwRef.DecRef();
-		if ( m_lpData->m_dwRef == 0 )
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 )
 		{
-			if ( m_lpData->m_lpString )
+			if ( mpData->mpStr )
 			{
-				GetAllocator()->DeleteArray<WCHAR>( m_lpData->m_lpString );
+				GetAllocator()->DeleteArray<wchar_t >( mpData->mpStr );
 			}
-			//m_lpData->m_dwRef = 1;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_dwLength = size;
-			m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>(size+1);
-			memcpy( m_lpData->m_lpString, pData, size * sizeof( WCHAR ) );
-			m_lpData->m_lpString[size] = '\0';
+			mpData->mRefCount.AddRef();
+			mpData->mLength = length;
+			mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+			memcpy( mpData->mpStr, pData, length * sizeof(wchar_t) );
+			mpData->mpStr[length] = '\0';
 		}else {
-			m_lpData = GetAllocator()->New<HE_WideStringData>();
-			//m_lpData->m_dwRef = 1;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_dwLength = size;
-			m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( size+1 );
-			memcpy( m_lpData->m_lpString, pData, size * sizeof( WCHAR ) );
-			m_lpData->m_lpString[size] = '\0';
+			mpData = GetAllocator()->New<HE_WideStringData>();
+			mpData->mRefCount.AddRef();
+			mpData->mLength = length;
+			mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+			memcpy( mpData->mpStr, pData, length * sizeof(wchar_t) );
+			mpData->mpStr[length] = '\0';
 		}
 	}
 	return TRUE;
@@ -1009,24 +974,24 @@ bool	CHE_WideString::SetData( WCHAR * pData, size_t size )
 
 size_t CHE_WideString::GetLength() const
 {
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
 		return 0;
 	}else{
-		return m_lpData->m_dwLength;
+		return mpData->mLength;
 	}
 }
 
-WCHAR CHE_WideString::operator[]( size_t index )const
+wchar_t  CHE_WideString::operator[]( size_t index )const
 {
-	if ( m_lpData != nullptr )
+	if ( mpData != nullptr )
 	{
-		if ( index >= m_lpData->m_dwLength )
+		if ( index >= mpData->mLength )
 		{
 			return 0;
-		}else if ( m_lpData->m_lpString )
+		}else if ( mpData->mpStr )
 		{
-			return m_lpData->m_lpString[index];
+			return mpData->mpStr[index];
 		}else{
 			return 0;
 		}
@@ -1042,10 +1007,10 @@ int32 CHE_WideString::GetInteger() const
 		return 0;
 	}else{
 		bool bBegin = TRUE;
-		bool	bNegative = false;
+		bool bNegative = false;
 		int32 iValue = 0;
 		bool bSign = false;
-		WCHAR tmpChar = 0;
+		wchar_t  tmpChar = 0;
 		for ( size_t i = 0; i < GetLength(); i++ )
 		{
 			if ( bBegin && i > 0 )
@@ -1098,13 +1063,13 @@ FLOAT CHE_WideString::GetFloat() const
 	{
 		return 0;
 	}else{
-		bool	bNegative = false;
+		bool bNegative = false;
 		bool bBegin = TRUE;
 		size_t lPointBit = 1;
 		FLOAT fValue = 0;
 		bool bPoint = false;
 		bool bSign = false;
-		WCHAR tmpChar = 0;
+		wchar_t  tmpChar = 0;
 		for ( size_t i = 0; i < GetLength(); i++ )
 		{
 			if ( bBegin && i > 0 )
@@ -1165,315 +1130,315 @@ FLOAT CHE_WideString::GetFloat() const
 	}
 }
 
-CHE_WideString CHE_WideString::operator+( WCHAR wch )
+CHE_WideString CHE_WideString::operator+( wchar_t wch )
 {
-	if ( m_lpData == nullptr || m_lpData->m_lpString == nullptr )
+	if ( mpData == nullptr || mpData->mpStr == nullptr )
 	{
 		return CHE_WideString( wch, GetAllocator() );
 	}
 
-	size_t dwStrlen = m_lpData->m_dwLength + 2;
-	WCHAR * pTempStr = GetAllocator()->NewArray<WCHAR>(dwStrlen);
+	size_t length = mpData->mLength + 2;
+	wchar_t  * pTempStr = GetAllocator()->NewArray<wchar_t >(length);
 
-	wcscpy( pTempStr, m_lpData->m_lpString );
-	pTempStr[dwStrlen-2] = wch;
-	pTempStr[dwStrlen-1] = '\0';
+	wcscpy( pTempStr, mpData->mpStr );
+	pTempStr[length-2] = wch;
+	pTempStr[length-1] = '\0';
 
 	CHE_WideString tmpString(pTempStr);
-	GetAllocator()->DeleteArray<WCHAR>( pTempStr );
+	GetAllocator()->DeleteArray<wchar_t >( pTempStr );
 	return tmpString;
 }
 
-CHE_WideString CHE_WideString::operator+( PCWSTR lpWstr )
+CHE_WideString CHE_WideString::operator+( wchar_t const * pstr )
 {
-	if ( lpWstr == nullptr )
+	if ( pstr == nullptr )
 	{
 		return CHE_WideString(*this);
 	}
 
-	if ( m_lpData == nullptr || m_lpData->m_lpString == nullptr )
+	if ( mpData == nullptr || mpData->mpStr == nullptr )
 	{
-		return CHE_WideString( lpWstr );
+		return CHE_WideString( pstr );
 	}
 	
-	size_t dwStrlen = m_lpData->m_dwLength + wcslen(lpWstr) + 1;
-	WCHAR * pTempStr = GetAllocator()->NewArray<WCHAR>( dwStrlen );
-	
-	wcscpy( pTempStr, m_lpData->m_lpString );
-	wcscat( pTempStr, lpWstr );
+	size_t length = mpData->mLength + wcslen(pstr);
+	wchar_t  * pTempStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+	wcscpy( pTempStr, mpData->mpStr );
+	wcscat( pTempStr, pstr );
+    mpData->mLength = length;
 
 	CHE_WideString tmpString(pTempStr);
-	GetAllocator()->DeleteArray<WCHAR>( pTempStr );
+	GetAllocator()->DeleteArray<wchar_t >( pTempStr );
 	return tmpString;
 }
 
-CHE_WideString CHE_WideString::operator+( const CHE_WideString& wstr )
+CHE_WideString CHE_WideString::operator+( const CHE_WideString & str )
 {
-	if ( wstr.m_lpData == nullptr )
+	if ( str.mpData == nullptr )
 	{
 		return CHE_WideString(*this);
 	}
 	
-	if ( m_lpData == nullptr || m_lpData->m_lpString == nullptr )
+	if ( mpData == nullptr || mpData->mpStr == nullptr )
 	{
-		return CHE_WideString( wstr );
+		return CHE_WideString( str );
 	}
 	
-	size_t dwStrlen = m_lpData->m_dwLength + wstr.m_lpData->m_dwLength + 1;
-	WCHAR * pTempStr = GetAllocator()->NewArray<WCHAR>( dwStrlen );
+	size_t length = mpData->mLength + str.mpData->mLength;
+	wchar_t  * pTempStr = GetAllocator()->NewArray<wchar_t >( length+1 );
 	
-	wcscpy( pTempStr, m_lpData->m_lpString );
-	wcscat( pTempStr, wstr.m_lpData->m_lpString );
+	wcscpy( pTempStr, mpData->mpStr );
+	wcscat( pTempStr, str.mpData->mpStr );
+    mpData->mLength = length;
 	
 	CHE_WideString tmpString(pTempStr);
-	GetAllocator()->DeleteArray<WCHAR>( pTempStr );
+	GetAllocator()->DeleteArray<wchar_t >( pTempStr );
 	return tmpString;
 }
 
-CHE_WideString& CHE_WideString::operator+=( WCHAR wch )
+CHE_WideString & CHE_WideString::operator+=( wchar_t wch )
 {
 	if ( wch == 0 )
 	{
 		return *this;
 	}
 
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
-		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_dwLength = 1;
-		m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>(2);
-		m_lpData->m_lpString[0] = wch;
-		m_lpData->m_lpString[1] = '\0';
+		mpData = GetAllocator()->New<HE_WideStringData>();
+		mpData->mRefCount.AddRef();
+		mpData->mLength = 1;
+		mpData->mpStr = GetAllocator()->NewArray<wchar_t >(2);
+		mpData->mpStr[0] = wch;
+		mpData->mpStr[1] = '\0';
 	}else{
-		if ( m_lpData->m_lpString == nullptr )
+		if ( mpData->mpStr == nullptr )
 		{
-			m_lpData->m_dwLength = 1;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>(2);
-			m_lpData->m_lpString[0] = wch;
-			m_lpData->m_lpString[1] = '\0';
-			
+			mpData->mLength = 1;
+			mpData->mRefCount.AddRef();
+			mpData->mpStr = GetAllocator()->NewArray<wchar_t >(2);
+			mpData->mpStr[0] = wch;
+			mpData->mpStr[1] = '\0';
 			return *this;
 		}
 		
-		PWSTR pTempStr = GetAllocator()->NewArray<WCHAR>( wcslen(m_lpData->m_lpString)+2 );
-		wcscpy( pTempStr, m_lpData->m_lpString );
+		wchar_t *  pTempStr = GetAllocator()->NewArray<wchar_t >( wcslen(mpData->mpStr)+2 );
+		wcscpy( pTempStr, mpData->mpStr );
 		
-		m_lpData->m_dwRef.DecRef();
-		if ( m_lpData->m_dwRef == 0 )
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 )
 		{
-			if ( m_lpData->m_lpString )
+			if ( mpData->mpStr )
 			{
-				GetAllocator()->DeleteArray<WCHAR>( m_lpData->m_lpString );
-				m_lpData->m_lpString = nullptr;
+				GetAllocator()->DeleteArray<wchar_t >( mpData->mpStr );
+				mpData->mpStr = nullptr;
 			}
-			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef.AddRef();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
 		}else{
-			m_lpData = GetAllocator()->New<HE_WideStringData>();
-			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_lpString = nullptr;
+			mpData = GetAllocator()->New<HE_WideStringData>();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
+			mpData->mpStr = nullptr;
 		}
 		
 		size_t dwBufferSize = wcslen( pTempStr )+2;
-		m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( dwBufferSize );
-		wcscpy( m_lpData->m_lpString, pTempStr );
-		m_lpData->m_lpString[dwBufferSize-2] = wch;
-		m_lpData->m_lpString[dwBufferSize-1] = '\0';
-		m_lpData->m_dwLength = dwBufferSize-1;
+		mpData->mpStr = GetAllocator()->NewArray<wchar_t >( dwBufferSize );
+		wcscpy( mpData->mpStr, pTempStr );
+		mpData->mpStr[dwBufferSize-2] = wch;
+		mpData->mpStr[dwBufferSize-1] = '\0';
+		mpData->mLength = dwBufferSize-1;
 		
-		GetAllocator()->DeleteArray<WCHAR>( pTempStr );
+		GetAllocator()->DeleteArray<wchar_t >( pTempStr );
 	}
 	return *this;
 }
 
-CHE_WideString & CHE_WideString::operator+=( PCWSTR lpWstr )
+CHE_WideString & CHE_WideString::operator+=( wchar_t const * pstr )
 {
-	if ( lpWstr == nullptr )
+	if ( pstr == nullptr )
 	{
 		return *this;
 	}
 
-	if ( wcslen( lpWstr ) == 0 )
+	if ( wcslen( pstr ) == 0 )
 	{
 		return *this;
 	}
 
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
-		size_t iStrlen = wcslen(lpWstr);
-		m_lpData = GetAllocator()->New<HE_WideStringData>();
-		m_lpData->m_dwRef.AddRef();
-		m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( iStrlen+1 );
-		wcscpy( m_lpData->m_lpString, lpWstr );
-		m_lpData->m_dwLength = iStrlen;
+		size_t length = wcslen(pstr);
+		mpData = GetAllocator()->New<HE_WideStringData>();
+		mpData->mRefCount.AddRef();
+		mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+		wcscpy( mpData->mpStr, pstr );
+		mpData->mLength = length;
 	}else{
-		if ( m_lpData->m_lpString == nullptr )
+		if ( mpData->mpStr == nullptr )
 		{
-			size_t dwStrlen = wcslen(lpWstr);
-			m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( dwStrlen+1 );
-			wcscpy( m_lpData->m_lpString, lpWstr );
-			m_lpData->m_dwLength = dwStrlen;
-			m_lpData->m_dwRef.AddRef();
+			size_t length = wcslen(pstr);
+			mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+			wcscpy( mpData->mpStr, pstr );
+			mpData->mLength = length;
+			mpData->mRefCount.AddRef();
 			return *this;
 		}
 		
-		PWSTR pTempStr = GetAllocator()->NewArray<WCHAR>( wcslen(m_lpData->m_lpString)+1 );
-		wcscpy( pTempStr, m_lpData->m_lpString );
+		wchar_t * pTempStr = GetAllocator()->NewArray<wchar_t >( wcslen(mpData->mpStr)+1 );
+		wcscpy( pTempStr, mpData->mpStr );
 		
-		m_lpData->m_dwRef.DecRef();
-		if ( m_lpData->m_dwRef == 0 )
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 )
 		{
-			if ( m_lpData->m_lpString )
+			if ( mpData->mpStr )
 			{
-				GetAllocator()->DeleteArray<WCHAR>( m_lpData->m_lpString );
-				m_lpData->m_lpString = nullptr;
+				GetAllocator()->DeleteArray<wchar_t >( mpData->mpStr );
+				mpData->mpStr = nullptr;
 			}
-			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef.AddRef();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
 		}else{
-			m_lpData = GetAllocator()->New<HE_WideStringData>();
-			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_lpString = nullptr;
+			mpData = GetAllocator()->New<HE_WideStringData>();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
+			mpData->mpStr = nullptr;
 		}
 		
-		size_t dwStrlen = wcslen(pTempStr) + wcslen(lpWstr);
-		m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( dwStrlen+1 );
-		wcscpy( m_lpData->m_lpString, pTempStr );
-		wcscat( m_lpData->m_lpString, lpWstr );
-		m_lpData->m_dwLength = dwStrlen;
+		size_t length = wcslen(pTempStr) + wcslen(pstr);
+		mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+		wcscpy( mpData->mpStr, pTempStr );
+		wcscat( mpData->mpStr, pstr );
+		mpData->mLength = length;
 	}
 	
 	return *this;
 }
 
-CHE_WideString & CHE_WideString::operator+=( const CHE_WideString & wstr )
+CHE_WideString & CHE_WideString::operator+=( const CHE_WideString & str )
 {
-	if ( wstr.m_lpData == nullptr || wstr.m_lpData->m_lpString == nullptr )
+	if ( str.mpData == nullptr || str.mpData->mpStr == nullptr )
 	{
 		return *this;
 	}
 
-	if ( this == &wstr )
+	if ( this == &str )
 	{
-		PWSTR pTempStr = GetAllocator()->NewArray<WCHAR>( wcslen(m_lpData->m_lpString)+1 );
-		wcscpy( pTempStr, m_lpData->m_lpString );
+		wchar_t * pTempStr = GetAllocator()->NewArray<wchar_t >( wcslen(mpData->mpStr)+1 );
+		wcscpy( pTempStr, mpData->mpStr );
 
-		m_lpData->m_dwRef.DecRef();
-		if ( m_lpData->m_dwRef == 0 )
+		mpData->mRefCount.DecRef();
+		if ( mpData->mRefCount == 0 )
 		{
-			if ( m_lpData->m_lpString )
+			if ( mpData->mpStr )
 			{
-				GetAllocator()->DeleteArray<WCHAR>( m_lpData->m_lpString );
-				m_lpData->m_lpString = nullptr;
+				GetAllocator()->DeleteArray<wchar_t >( mpData->mpStr );
+				mpData->mpStr = nullptr;
 			}
-			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef.AddRef();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
 		}else{
-			m_lpData = GetAllocator()->New<HE_WideStringData>();
-			m_lpData->m_dwLength = 0;
-			m_lpData->m_dwRef.AddRef();
-			m_lpData->m_lpString = nullptr;
+			mpData = GetAllocator()->New<HE_WideStringData>();
+			mpData->mLength = 0;
+			mpData->mRefCount.AddRef();
+			mpData->mpStr = nullptr;
 		}
 
-		size_t iBufferSize = wcslen(pTempStr) * 2 + 1;
-		m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( iBufferSize );
-		wcscpy( m_lpData->m_lpString, pTempStr );
-		wcscat( m_lpData->m_lpString, pTempStr );
+		size_t length = wcslen(pTempStr) * 2;
+		mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+		wcscpy( mpData->mpStr, pTempStr );
+		wcscat( mpData->mpStr, pTempStr );
 
-		m_lpData->m_dwLength = iBufferSize-1;
+		mpData->mLength = length;
 
-		GetAllocator()->DeleteArray<WCHAR>( pTempStr );
+		GetAllocator()->DeleteArray<wchar_t >( pTempStr );
 		pTempStr = nullptr;
 		
 		return *this;
 	}else{
-		if ( m_lpData == wstr.m_lpData )
+		if ( mpData == str.mpData )
 		{
-			PWSTR pTempStr = GetAllocator()->NewArray<WCHAR>( wcslen(m_lpData->m_lpString)+1 );
-			wcscpy( pTempStr, m_lpData->m_lpString );
+			wchar_t *  pTempStr = GetAllocator()->NewArray<wchar_t >( wcslen(mpData->mpStr)+1 );
+			wcscpy( pTempStr, mpData->mpStr );
 
-			m_lpData->m_dwRef.DecRef();
-			m_lpData->m_dwRef.DecRef();
-			if ( m_lpData->m_dwRef == 0 )
+			mpData->mRefCount.DecRef();
+			mpData->mRefCount.DecRef();
+			if ( mpData->mRefCount == 0 )
 			{
-				if ( m_lpData->m_lpString )
+				if ( mpData->mpStr )
 				{
-					GetAllocator()->DeleteArray<WCHAR>( m_lpData->m_lpString );
-					m_lpData->m_lpString = nullptr;
+					GetAllocator()->DeleteArray<wchar_t >( mpData->mpStr );
+					mpData->mpStr = nullptr;
 				}
-				m_lpData->m_dwLength = 0;
-				m_lpData->m_dwRef.AddRef();
-				m_lpData->m_dwRef.AddRef();
+				mpData->mLength = 0;
+				mpData->mRefCount.AddRef();
+				mpData->mRefCount.AddRef();
 			}else{
-				m_lpData = GetAllocator()->New<HE_WideStringData>();
-				m_lpData->m_dwRef.AddRef();
-				m_lpData->m_dwRef.AddRef();
-				m_lpData->m_lpString = nullptr;
-				m_lpData->m_dwLength = 0;
+				mpData = GetAllocator()->New<HE_WideStringData>();
+				mpData->mRefCount.AddRef();
+				mpData->mRefCount.AddRef();
+				mpData->mpStr = nullptr;
+				mpData->mLength = 0;
 			}
 
-			size_t iBufferSize = wcslen(pTempStr) * 2 + 1;
-			m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( iBufferSize );
-			wcscpy( m_lpData->m_lpString, pTempStr );
-			wcscat( m_lpData->m_lpString, pTempStr );
+			size_t length = wcslen(pTempStr) * 2;
+			mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+			wcscpy( mpData->mpStr, pTempStr );
+			wcscat( mpData->mpStr, pTempStr );
 			
-			m_lpData->m_dwLength = iBufferSize-1;
+			mpData->mLength = length;
 			
-			GetAllocator()->DeleteArray<WCHAR>( pTempStr );
+			GetAllocator()->DeleteArray<wchar_t >( pTempStr );
 			pTempStr = nullptr;
 			
 			return *this;
 		}else{
-			if ( m_lpData->m_lpString == nullptr )
+			if ( mpData->mpStr == nullptr )
 			{
-				size_t iBufferSize = wcslen(wstr.m_lpData->m_lpString)+1;
-				m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( iBufferSize );
-				wcscpy( m_lpData->m_lpString, wstr.m_lpData->m_lpString );
+				size_t length = wcslen(str.mpData->mpStr);
+				mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+				wcscpy( mpData->mpStr, str.mpData->mpStr );
 				return *this;
 			}
 
-			PWSTR pTempStr = GetAllocator()->NewArray<WCHAR>( wcslen(m_lpData->m_lpString)+1 );
-			wcscpy( pTempStr, m_lpData->m_lpString );
+			wchar_t * pTempStr = GetAllocator()->NewArray<wchar_t >( wcslen(mpData->mpStr)+1 );
+			wcscpy( pTempStr, mpData->mpStr );
 
-			if ( m_lpData->m_dwRef == 1 )
+			if ( mpData->mRefCount == 1 )
 			{
-				if ( m_lpData->m_lpString )
+				if ( mpData->mpStr )
 				{
-					GetAllocator()->DeleteArray<WCHAR>( m_lpData->m_lpString );
-					m_lpData->m_lpString = nullptr;
-					m_lpData->m_dwLength = 0;
+					GetAllocator()->DeleteArray<wchar_t >( mpData->mpStr );
+					mpData->mpStr = nullptr;
+					mpData->mLength = 0;
 				}
 			}else{
-				m_lpData->m_dwRef.DecRef();
-				m_lpData = GetAllocator()->New<HE_WideStringData>();
-				m_lpData->m_dwLength = 0;
-				m_lpData->m_dwRef.AddRef();
-				m_lpData->m_lpString = nullptr;
+				mpData->mRefCount.DecRef();
+				mpData = GetAllocator()->New<HE_WideStringData>();
+				mpData->mLength = 0;
+				mpData->mRefCount.AddRef();
+				mpData->mpStr = nullptr;
 			}
 
-			size_t iBufferSize = wcslen( wstr.m_lpData->m_lpString );
-			iBufferSize += wcslen( pTempStr )+1;
-			m_lpData->m_lpString = GetAllocator()->NewArray<WCHAR>( iBufferSize );
-			wcscpy( m_lpData->m_lpString, pTempStr );
-			wcscat( m_lpData->m_lpString, wstr.m_lpData->m_lpString );
+			size_t length = wcslen( str.mpData->mpStr );
+			length += wcslen( pTempStr );
+			mpData->mpStr = GetAllocator()->NewArray<wchar_t >( length+1 );
+			wcscpy( mpData->mpStr, pTempStr );
+			wcscat( mpData->mpStr, str.mpData->mpStr );
 
-			GetAllocator()->DeleteArray<WCHAR>( pTempStr );
+			GetAllocator()->DeleteArray<wchar_t >( pTempStr );
 			pTempStr = nullptr;
 			
-			m_lpData->m_dwLength = iBufferSize-1;
+			mpData->mLength = length;
 			
 			return *this;
 		}
 	}
 }
 
-bool CHE_WideString::operator!=( WCHAR wch )const
+bool CHE_WideString::operator!=( wchar_t  wch )const
 {
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
 		if ( wch == 0 )
 		{
@@ -1482,11 +1447,11 @@ bool CHE_WideString::operator!=( WCHAR wch )const
 			return true;
 		}
 	}else{
-		if ( m_lpData->m_dwLength != 1 )
+		if ( mpData->mLength != 1 )
 		{
 			return true;
 		}else{
-			if ( m_lpData->m_lpString[0] == wch )
+			if ( mpData->mpStr[0] == wch )
 			{
 				return false;
 			}else{
@@ -1496,27 +1461,27 @@ bool CHE_WideString::operator!=( WCHAR wch )const
 	}
 }
 
-bool CHE_WideString::operator!=( PCWSTR lpWstr )const
+bool CHE_WideString::operator!=( wchar_t const * pstr  )const
 {
-	if ( m_lpData == nullptr )
+	if ( mpData == nullptr )
 	{
-		if ( lpWstr == nullptr || wcslen( lpWstr ) == 0 )
+		if ( pstr == nullptr || wcslen( pstr ) == 0 )
 		{
 			return false;
 		}else{
 			return true;
 		}
 	}else{
-		if ( lpWstr == nullptr )
+		if ( pstr == nullptr )
 		{
-			if ( m_lpData->m_lpString == nullptr )
+			if ( mpData->mpStr == nullptr )
 			{
 				return false;
 			}else{
 				return true;
 			}
 		}else{
-			if ( wcscmp( m_lpData->m_lpString, lpWstr ) == 0 )
+			if ( wcscmp( mpData->mpStr, pstr ) == 0 )
 			{
 				return false;
 			}else{
@@ -1526,21 +1491,21 @@ bool CHE_WideString::operator!=( PCWSTR lpWstr )const
 	}
 }
 
-bool CHE_WideString::operator!=( const CHE_WideString & wstr )const
+bool CHE_WideString::operator!=( const CHE_WideString & str )const
 {
-	if ( this == &wstr )
+	if ( this == &str )
 	{
 		return false;
 	}else{
-		if ( m_lpData == wstr.m_lpData )
+		if ( mpData == str.mpData )
 		{
 			return false;
 		}else{
-			if ( m_lpData == nullptr )
+			if ( mpData == nullptr )
 			{
 				return true;
 			}else{
-				if ( wcscmp( m_lpData->m_lpString, wstr.m_lpData->m_lpString ) == 0 )
+				if ( wcscmp( mpData->mpStr, str.mpData->mpStr ) == 0 )
 				{
 					return false;
 				}else{
@@ -1551,38 +1516,38 @@ bool CHE_WideString::operator!=( const CHE_WideString & wstr )const
 	}	
 }
 
-bool operator==( WCHAR wch, CHE_WideString & wstr )
+bool operator==( wchar_t  wch, CHE_WideString & str )
 {
-	return ( wstr == wch );
+	return ( str == wch );
 }
 
-bool operator==( PCWSTR lpWstr, const CHE_WideString & wstr )
+bool operator==( wchar_t const * pstr, const CHE_WideString & str )
 {
-	return ( wstr == lpWstr );
+	return ( str == pstr );
 }
 
-CHE_WideString operator+( WCHAR wch, const CHE_WideString & wstr )
+CHE_WideString operator+( wchar_t wch, const CHE_WideString & str )
 {
-	CHE_WideString tempStr( wch, wstr.GetAllocator() );
-	tempStr+=wstr;
+	CHE_WideString tempStr( wch, str.GetAllocator() );
+	tempStr+=str;
 	return tempStr;
 }
 
-CHE_WideString operator+( PCWSTR lpWstr, const CHE_WideString & wstr )
+CHE_WideString operator+( wchar_t const * pstr, const CHE_WideString & str )
 {
-	CHE_WideString tempStr( lpWstr, wcslen(lpWstr), wstr.GetAllocator() );
-	tempStr+= wstr;
+	CHE_WideString tempStr( pstr, wcslen(pstr), str.GetAllocator() );
+	tempStr+= str;
 	return tempStr;
 }
 
-bool operator!=( WCHAR wch, const CHE_WideString& wstr )
+bool operator!=( wchar_t  wch, const CHE_WideString & str )
 {
-	return ( wstr != wch );
+	return ( str != wch );
 }
 
-bool operator!=( PCWSTR lpWstr, const CHE_WideString& wstr )
+bool operator!=( wchar_t const * pstr, const CHE_WideString & str )
 {
-	return ( wstr != lpWstr );
+	return ( str != pstr );
 }
 
 uint32 StringToUINT32( const CHE_ByteString & str )

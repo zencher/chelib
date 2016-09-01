@@ -1,6 +1,6 @@
 #include "../../include/pdf/che_pdf_font.h"
 
-const HE_BYTE pdf_font_Dingbats[29708] = {
+const BYTE pdf_font_Dingbats[29708] = {
 1,0,4,4,0,1,1,1,9,68,105,110,103,98,97,116,115,0,1,2,0,1,0,49,248,228,0,248,
 229,1,248,230,2,248,231,3,248,24,4,67,12,3,175,12,4,138,251,35,250,105,249,
 199,5,28,4,247,15,28,6,140,16,28,7,88,17,28,0,33,28,114,254,18,0,205,2,0,
@@ -1442,7 +1442,7 @@ const HE_BYTE pdf_font_Dingbats[29708] = {
 251,55,251,51,251,90,251,93,247,52,251,53,247,92,247,91,247,53,247,53,247,
 91,247,87,251,53,247,56,251,85,31,11,0,0,0,};
 
-const HE_BYTE pdf_font_NimbusMonL_Bold[27132] = {
+const BYTE pdf_font_NimbusMonL_Bold[27132] = {
 1,0,4,4,0,1,1,1,16,78,105,109,98,117,115,77,111,110,76,45,66,111,108,100,
 0,1,2,0,1,0,46,248,31,0,248,32,1,248,33,2,248,34,3,248,20,4,140,12,1,96,251,
 121,249,10,249,251,5,28,0,224,15,28,0,0,16,28,2,177,17,28,0,45,28,91,91,18,
@@ -2781,7 +2781,7 @@ const HE_BYTE pdf_font_NimbusMonL_Bold[27132] = {
 8,251,152,252,87,5,132,128,136,130,139,133,139,122,155,123,157,139,153,139,
 148,146,150,158,8,11,0,0,0,};
 
-const HE_BYTE pdf_font_NimbusMonL_BoldObli[28956] = {
+const BYTE pdf_font_NimbusMonL_BoldObli[28956] = {
 1,0,4,4,0,1,1,1,20,78,105,109,98,117,115,77,111,110,76,45,66,111,108,100,
 79,98,108,105,0,1,2,0,1,0,49,248,31,0,248,32,1,248,33,2,248,34,3,248,20,4,
 140,12,1,127,12,2,78,251,121,249,115,249,251,5,28,0,239,15,28,0,0,16,28,2,
@@ -4215,7 +4215,7 @@ const HE_BYTE pdf_font_NimbusMonL_BoldObli[28956] = {
 158,129,146,112,31,82,6,11,0,0,};
 
 
-const HE_BYTE pdf_font_NimbusMonL_Regu[21764] = {
+const BYTE pdf_font_NimbusMonL_Regu[21764] = {
 1,0,4,4,0,1,1,1,16,78,105,109,98,117,115,77,111,110,76,45,82,101,103,117,
 0,1,2,0,1,0,46,248,31,0,248,32,1,248,33,2,248,34,3,248,24,4,140,12,1,127,
 251,108,248,248,249,191,5,28,0,227,15,28,0,0,16,28,2,180,17,28,0,44,28,72,
@@ -5270,7 +5270,7 @@ const HE_BYTE pdf_font_NimbusMonL_Regu[21764] = {
 157,30,11,0,0,};
 
 
-const HE_BYTE pdf_font_NimbusMonL_ReguObli[25396] = {
+const BYTE pdf_font_NimbusMonL_ReguObli[25396] = {
 1,0,4,4,0,1,1,1,20,78,105,109,98,117,115,77,111,110,76,45,82,101,103,117,
 79,98,108,105,0,1,2,0,1,0,49,248,31,0,248,32,1,248,33,2,248,34,3,248,24,4,
 140,12,1,127,12,2,78,251,108,249,90,249,191,5,28,0,242,15,28,0,0,16,28,2,
@@ -6517,7 +6517,7 @@ const HE_BYTE pdf_font_NimbusMonL_ReguObli[25396] = {
 51,251,45,251,41,251,57,251,10,53,225,247,9,247,51,247,45,247,41,247,56,31,
 11,};
 
-const HE_BYTE pdf_font_NimbusRomNo9L_Medi[21080] = {
+const BYTE pdf_font_NimbusRomNo9L_Medi[21080] = {
 1,0,4,4,0,1,1,1,19,78,105,109,98,117,115,82,111,109,78,111,57,76,45,77,101,
 100,105,0,1,2,0,1,0,44,248,31,0,248,32,1,248,33,2,248,34,3,248,20,4,251,60,
 251,110,250,124,250,72,5,28,0,237,15,28,0,0,16,28,2,190,17,28,0,55,28,72,
@@ -7528,7 +7528,7 @@ const HE_BYTE pdf_font_NimbusRomNo9L_Medi[21080] = {
 247,61,247,15,247,27,247,46,31,11,0,0,};
 
 
-const HE_BYTE pdf_font_NimbusRomNo9L_MediItal[22256] = {
+const BYTE pdf_font_NimbusRomNo9L_MediItal[22256] = {
 1,0,4,4,0,1,1,1,23,78,105,109,98,117,115,82,111,109,78,111,57,76,45,77,101,
 100,105,73,116,97,108,0,1,2,0,1,0,50,248,31,0,248,32,1,248,33,2,248,34,3,
 248,20,4,30,225,90,63,12,2,251,92,251,110,250,120,250,73,5,28,0,254,15,28,
@@ -8604,7 +8604,7 @@ const HE_BYTE pdf_font_NimbusRomNo9L_MediItal[22256] = {
 251,84,31,11,247,46,247,21,251,31,251,58,251,62,251,19,251,28,251,52,251,
 42,251,21,247,32,247,57,247,60,247,20,247,30,247,47,31,11,0,};
 
-const HE_BYTE pdf_font_NimbusRomNo9L_Regu[20936] = {
+const BYTE pdf_font_NimbusRomNo9L_Regu[20936] = {
 1,0,4,4,0,1,1,1,19,78,105,109,98,117,115,82,111,109,78,111,57,76,45,82,101,
 103,117,0,1,2,0,1,0,44,248,31,0,248,32,1,248,33,2,248,34,3,248,24,4,251,60,
 251,110,250,124,250,39,5,28,0,238,15,28,0,0,16,28,2,191,17,28,0,53,28,70,
@@ -9606,7 +9606,7 @@ const HE_BYTE pdf_font_NimbusRomNo9L_Regu[20936] = {
 116,247,145,139,5,11,84,247,150,92,6,251,95,251,158,139,90,247,72,139,139,
 49,209,139,139,229,194,139,5,11,};
 
-const HE_BYTE pdf_font_NimbusRomNo9L_ReguItal[22540] = {
+const BYTE pdf_font_NimbusRomNo9L_ReguItal[22540] = {
 1,0,4,4,0,1,1,1,23,78,105,109,98,117,115,82,111,109,78,111,57,76,45,82,101,
 103,117,73,116,97,108,0,1,2,0,1,0,50,248,31,0,248,32,1,248,33,2,248,34,3,
 248,24,4,30,225,90,95,12,2,251,61,251,109,250,134,250,28,5,28,0,255,15,28,
@@ -10699,7 +10699,7 @@ const HE_BYTE pdf_font_NimbusRomNo9L_ReguItal[22540] = {
 51,251,22,251,28,251,45,251,47,251,22,247,28,247,55,247,56,247,22,247,29,
 247,47,31,11,};
 
-const HE_BYTE pdf_font_NimbusSanL_Bold[16484] = {
+const BYTE pdf_font_NimbusSanL_Bold[16484] = {
 1,0,4,4,0,1,1,1,16,78,105,109,98,117,115,83,97,110,76,45,66,111,108,100,0,
 1,2,0,1,0,51,248,31,0,248,32,1,248,33,2,248,34,3,248,20,4,251,47,12,3,208,
 12,4,251,65,251,126,250,127,250,73,5,28,0,229,15,28,0,0,16,28,2,182,17,28,
@@ -11474,7 +11474,7 @@ const HE_BYTE pdf_font_NimbusSanL_Bold[16484] = {
 60,247,29,251,31,251,63,251,65,251,28,251,30,251,64,251,56,251,29,247,34,
 247,61,247,63,247,29,247,31,247,59,31,11,0,0,};
 
-const HE_BYTE pdf_font_NimbusSanL_BoldItal[18008] = {
+const BYTE pdf_font_NimbusSanL_BoldItal[18008] = {
 1,0,4,4,0,1,1,1,20,78,105,109,98,117,115,83,97,110,76,45,66,111,108,100,73,
 116,97,108,0,1,2,0,1,0,54,248,31,0,248,32,1,248,33,2,248,34,3,248,20,4,127,
 12,2,251,3,12,3,208,12,4,251,69,251,125,250,231,250,77,5,28,0,243,15,28,0,
@@ -12329,7 +12329,7 @@ const HE_BYTE pdf_font_NimbusSanL_BoldItal[18008] = {
 247,151,251,0,139,251,109,251,152,123,67,247,69,139,119,46,233,139,158,232,
 185,139,5,11,};
 
-const HE_BYTE pdf_font_NimbusSanL_Regu[15788] = {
+const BYTE pdf_font_NimbusSanL_Regu[15788] = {
 1,0,4,4,0,1,1,1,16,78,105,109,98,117,115,83,97,110,76,45,82,101,103,117,0,
 1,2,0,1,0,48,248,31,0,248,32,1,248,33,2,248,34,3,248,24,4,251,43,12,3,251,
 66,251,112,250,125,250,77,5,28,0,229,15,28,0,0,16,28,2,182,17,28,0,50,28,
@@ -13075,7 +13075,7 @@ const HE_BYTE pdf_font_NimbusSanL_Regu[15788] = {
 247,33,251,36,251,67,251,71,251,32,251,34,251,70,251,61,251,33,247,38,247,
 66,247,68,247,33,247,36,247,65,31,11,0,};
 
-const HE_BYTE pdf_font_NimbusSanL_ReguItal[18132] = {
+const BYTE pdf_font_NimbusSanL_ReguItal[18132] = {
 1,0,4,4,0,1,1,1,20,78,105,109,98,117,115,83,97,110,76,45,82,101,103,117,73,
 116,97,108,0,1,2,0,1,0,51,248,31,0,248,32,1,248,33,2,248,34,3,248,24,4,127,
 12,2,251,43,12,3,251,70,251,112,250,232,250,77,5,28,0,243,15,28,0,0,16,28,
@@ -13945,7 +13945,7 @@ const HE_BYTE pdf_font_NimbusSanL_ReguItal[18132] = {
 69,31,11,247,36,245,32,251,37,251,93,251,81,251,79,251,94,251,36,33,246,247,
 38,247,92,247,81,247,79,247,94,31,11,};
 
-static const HE_BYTE pdf_font_StandardSymL[19768] = {
+static const BYTE pdf_font_StandardSymL[19768] = {
 1,0,4,4,0,1,1,1,13,83,116,97,110,100,97,114,100,83,121,109,76,0,1,2,0,1,0,
 51,248,172,0,248,173,1,248,174,2,248,175,3,248,24,4,251,121,12,3,185,12,4,
 251,72,251,185,250,214,250,134,5,28,6,101,15,28,7,224,16,28,8,159,17,28,0,
@@ -14900,87 +14900,87 @@ static const HE_BYTE pdf_font_StandardSymL[19768] = {
 24,247,30,247,60,247,61,247,24,247,30,247,53,31,11,0,0,0,};
 
 
-HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_ULONG & fileSizeRet )
+bool HE_GetType1BaseFontFile( const CHE_ByteString & fontName, PBYTE & pFileBufRet, size_t & fileSizeRet )
 {
 	if ( fontName == "Courier" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusMonL_Regu );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusMonL_Regu );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusMonL_Regu );
 		return TRUE;
 	}else if ( fontName == "Courier-Bold" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusMonL_Bold );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusMonL_Bold );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusMonL_Bold );
 		return TRUE;
 	}else if ( fontName == "Courier-Oblique" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusMonL_ReguObli );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusMonL_ReguObli );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusMonL_ReguObli );
 		return TRUE;
 	}else if ( fontName == "Courier-BoldOblique" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusMonL_BoldObli );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusMonL_BoldObli );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusMonL_BoldObli );
 		return TRUE;
 	}else if ( fontName == "Helvetica" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusSanL_Regu );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusSanL_Regu );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusSanL_Regu );
 		return TRUE;
 	}else if ( fontName == "Helvetica-Bold" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusSanL_Bold );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusSanL_Bold );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusSanL_Bold );
 		return TRUE;
 	}else if ( fontName == "Helvetica-Oblique" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusSanL_ReguItal );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusSanL_ReguItal );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusSanL_ReguItal );
 		return TRUE;
 	}else if ( fontName == "Helvetica-BoldOblique" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusSanL_BoldItal );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusSanL_BoldItal );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusSanL_BoldItal );
 		return TRUE;
 	}else if ( fontName == "Times-Roman" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusRomNo9L_Regu );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusRomNo9L_Regu );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusRomNo9L_Regu );
 		return TRUE;
 	}else if ( fontName == "Times-Bold" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusRomNo9L_Medi );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusRomNo9L_Medi );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusRomNo9L_Medi );
 		return TRUE;
 	}else if ( fontName == "Times-Italic" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusRomNo9L_ReguItal );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusRomNo9L_ReguItal );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusRomNo9L_ReguItal );
 		return TRUE;
 	}else if ( fontName == "Times-BoldItalic" )
 	{
 		fileSizeRet = sizeof( pdf_font_NimbusRomNo9L_MediItal );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusRomNo9L_MediItal );
+		pFileBufRet = (PBYTE)( pdf_font_NimbusRomNo9L_MediItal );
 		return TRUE;
 	}else if ( fontName == "Symbol" )
 	{
 		fileSizeRet = sizeof( pdf_font_StandardSymL );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_StandardSymL );
+		pFileBufRet = (PBYTE)( pdf_font_StandardSymL );
 		return TRUE;
 	}else if ( fontName == "ZapfDingbats" )
 	{
 		fileSizeRet = sizeof( pdf_font_Dingbats );
-		pFileBufRet = (HE_LPBYTE)( pdf_font_Dingbats );
+		pFileBufRet = (PBYTE)( pdf_font_Dingbats );
 		return TRUE;
 	}
 	fileSizeRet = 0;
-	pFileBufRet = NULL;
-	return FALSE;
+	pFileBufRet = nullptr;
+	return false;
 }
 
-HE_BOOL HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, HE_LPBYTE & pFileBufRet, HE_ULONG & fileSizeRet )
+bool HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, PBYTE & pFileBufRet, size_t & fileSizeRet )
 {
 	fileSizeRet = sizeof( pdf_font_NimbusMonL_Regu );
-	pFileBufRet = (HE_LPBYTE)( pdf_font_NimbusMonL_Regu );
+	pFileBufRet = (PBYTE)( pdf_font_NimbusMonL_Regu );
 	return TRUE;
 }

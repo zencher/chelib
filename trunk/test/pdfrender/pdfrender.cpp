@@ -36,8 +36,8 @@ unsigned int			gPageIndex = 0;
 unsigned int			gPageCount = 0;
 
 
-HE_ULONG parseTime = 0;
-HE_ULONG renderTime = 0;
+size_t parseTime = 0;
+size_t renderTime = 0;
 LARGE_INTEGER gFeq;
 LARGE_INTEGER gBegin, gEnd;
 
@@ -55,7 +55,7 @@ void RenderPage( HWND hwnd )
 // 	clipRect.width = 200;//rect.width / 2;
 // 	clipRect.height = 200;//rect.height / 2;
 
-	HE_UINT32 rotate = gpPage->GetRotate();
+	int32 rotate = gpPage->GetRotate();
 
 	if ( gpDrawer == NULL )
 	{

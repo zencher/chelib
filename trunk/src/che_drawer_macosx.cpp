@@ -5,7 +5,7 @@ CHE_GraphicsDrawer::CHE_GraphicsDrawer( CGContextRef context )
     mContentRef = context;
 }
 
-CHE_GraphicsDrawer::CHE_GraphicsDrawer( HE_ULONG width, HE_ULONG height )
+CHE_GraphicsDrawer::CHE_GraphicsDrawer( uint32 width, uint32 height )
     : mContentRef( NULL ), mWidth( width ), mHeight( height ),
       mExtMatrix( CHE_Matrix() ), mFillMode( FillMode_Nonzero ), mPathRef( NULL )
 {
@@ -41,7 +41,7 @@ CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
     }*/
 }
 
-HE_VOID CHE_GraphicsDrawer::Resize( HE_ULONG width, HE_ULONG height )
+void CHE_GraphicsDrawer::Resize( uint32 width, uint32 height )
 {
     /*if ( mContentRef )
     {
@@ -72,17 +72,17 @@ HE_VOID CHE_GraphicsDrawer::Resize( HE_ULONG width, HE_ULONG height )
     CGContextSetAllowsFontSubpixelQuantization( mContentRef, false );*/
 }
 
-HE_ULONG CHE_GraphicsDrawer::GetWidth() const
+uint32 CHE_GraphicsDrawer::GetWidth() const
 {
     return mWidth;
 }
 
-HE_ULONG CHE_GraphicsDrawer::GetHeight() const
+uint32 CHE_GraphicsDrawer::GetHeight() const
 {
     return mHeight;
 }
 
-HE_VOID CHE_GraphicsDrawer::Clear()
+void CHE_GraphicsDrawer::Clear()
 {
     if ( mContentRef )
     {
@@ -91,17 +91,17 @@ HE_VOID CHE_GraphicsDrawer::Clear()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetMatrix( const CHE_Matrix & matrix )
+void CHE_GraphicsDrawer::SetMatrix( const CHE_Matrix & matrix )
 {
     mMatrix = matrix;
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetExtMatrix( const CHE_Matrix & matrix )
+void CHE_GraphicsDrawer::SetExtMatrix( const CHE_Matrix & matrix )
 {
     mExtMatrix = matrix;
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetLineWidth( const HE_FLOAT & lineWidth )
+void CHE_GraphicsDrawer::SetLineWidth( const FLOAT & lineWidth )
 {
     if ( mContentRef )
     {
@@ -109,7 +109,7 @@ HE_VOID	CHE_GraphicsDrawer::SetLineWidth( const HE_FLOAT & lineWidth )
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetMiterLimit( const HE_FLOAT & miterLimit )
+void CHE_GraphicsDrawer::SetMiterLimit( const FLOAT & miterLimit )
 {
     if ( mContentRef )
     {
@@ -117,7 +117,7 @@ HE_VOID	CHE_GraphicsDrawer::SetMiterLimit( const HE_FLOAT & miterLimit )
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
+void CHE_GraphicsDrawer::SetFillColor( const ARGB & color )
 {
     if ( mContentRef )
     {
@@ -125,7 +125,7 @@ HE_VOID	CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetStrokeColor( const HE_ULONG & color )
+void CHE_GraphicsDrawer::SetStrokeColor( const ARGB & color )
 {
     if ( mContentRef )
     {
@@ -133,7 +133,7 @@ HE_VOID	CHE_GraphicsDrawer::SetStrokeColor( const HE_ULONG & color )
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
+void CHE_GraphicsDrawer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 {
     if ( mContentRef )
     {
@@ -154,7 +154,7 @@ HE_VOID	CHE_GraphicsDrawer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
+void CHE_GraphicsDrawer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
 {
     if ( mContentRef )
 	{
@@ -175,7 +175,7 @@ HE_VOID	CHE_GraphicsDrawer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJio
 	}
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
+void CHE_GraphicsDrawer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
 {
     CGFloat * pCGFloatArray = NULL;
     if ( dashPattern.dashArray.size() > 0 )
@@ -195,12 +195,12 @@ HE_VOID	CHE_GraphicsDrawer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dash
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
+void CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
 {
     mFillMode = mode;
 }
 
-HE_VOID	CHE_GraphicsDrawer::MoveTo( HE_FLOAT x, HE_FLOAT y )
+void CHE_GraphicsDrawer::MoveTo( FLOAT x, FLOAT y )
 {
     if ( mPathRef == NULL )
     {
@@ -218,7 +218,7 @@ HE_VOID	CHE_GraphicsDrawer::MoveTo( HE_FLOAT x, HE_FLOAT y )
     CGPathMoveToPoint( mPathRef, &mAffineTransform, x, y );
 }
 
-HE_VOID	CHE_GraphicsDrawer::LineTo( HE_FLOAT x, HE_FLOAT y )
+void CHE_GraphicsDrawer::LineTo( FLOAT x, FLOAT y )
 {
     if ( mPathRef )
     {
@@ -235,7 +235,7 @@ HE_VOID	CHE_GraphicsDrawer::LineTo( HE_FLOAT x, HE_FLOAT y )
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 )
+void CHE_GraphicsDrawer::CurveTo( FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2, FLOAT x3, FLOAT y3 )
 {
     if ( mPathRef )
     {
@@ -252,7 +252,7 @@ HE_VOID	CHE_GraphicsDrawer::CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_F
     }
 }
 
-HE_VOID CHE_GraphicsDrawer::Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height )
+void CHE_GraphicsDrawer::Rectangle( FLOAT x, FLOAT y, FLOAT width, FLOAT height )
 {
     if ( mPathRef == NULL )
     {
@@ -273,7 +273,7 @@ HE_VOID CHE_GraphicsDrawer::Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, H
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::ClosePath()
+void CHE_GraphicsDrawer::ClosePath()
 {
     if ( mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -281,7 +281,7 @@ HE_VOID	CHE_GraphicsDrawer::ClosePath()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::FillPath()
+void CHE_GraphicsDrawer::FillPath()
 {
     if ( mContentRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -297,7 +297,7 @@ HE_VOID	CHE_GraphicsDrawer::FillPath()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::StrokePath()
+void CHE_GraphicsDrawer::StrokePath()
 {
     if ( mContentRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -308,7 +308,7 @@ HE_VOID	CHE_GraphicsDrawer::StrokePath()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::FillStrokePath()
+void CHE_GraphicsDrawer::FillStrokePath()
 {
     if ( mContentRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -326,7 +326,7 @@ HE_VOID	CHE_GraphicsDrawer::FillStrokePath()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::ClipPath()
+void CHE_GraphicsDrawer::ClipPath()
 {
     if ( mContentRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -337,7 +337,7 @@ HE_VOID	CHE_GraphicsDrawer::ClipPath()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::FillClipPath()
+void CHE_GraphicsDrawer::FillClipPath()
 {
     if ( mContentRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -355,7 +355,7 @@ HE_VOID	CHE_GraphicsDrawer::FillClipPath()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::StrokeClipPath()
+void CHE_GraphicsDrawer::StrokeClipPath()
 {
     if ( mContentRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -368,7 +368,7 @@ HE_VOID	CHE_GraphicsDrawer::StrokeClipPath()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::FillStrokeClipPath()
+void CHE_GraphicsDrawer::FillStrokeClipPath()
 {
     if ( mContentRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -388,7 +388,7 @@ HE_VOID	CHE_GraphicsDrawer::FillStrokeClipPath()
     }
 }
 
-HE_VOID	CHE_GraphicsDrawer::ResetClip()
+void CHE_GraphicsDrawer::ResetClip()
 {
     if ( mContentRef )
     {
@@ -399,7 +399,7 @@ HE_VOID	CHE_GraphicsDrawer::ResetClip()
     }
 }
 
-HE_VOID CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
+void CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
 {
     if ( pBitmap && mContentRef )
     {
@@ -428,7 +428,7 @@ HE_VOID CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
     }
 }
 
-HE_VOID CHE_GraphicsDrawer::SetTextFont( HE_LPBYTE fontData, HE_ULONG dataSize )
+void CHE_GraphicsDrawer::SetTextFont( PBYTE fontData, size_t dataSize )
 {
     CFDataRef dataRef = CFDataCreateWithBytesNoCopy( kCFAllocatorDefault, fontData, dataSize, kCFAllocatorNull );
     if ( dataRef )
@@ -444,12 +444,12 @@ HE_VOID CHE_GraphicsDrawer::SetTextFont( HE_LPBYTE fontData, HE_ULONG dataSize )
     //CGContextSetFont( mContentRef, cgFont );
 }
 
-HE_VOID CHE_GraphicsDrawer::SetTextMatrix( CHE_Matrix textMatrix )
+void CHE_GraphicsDrawer::SetTextMatrix( CHE_Matrix textMatrix )
 {
     mTextMatrix = textMatrix;
 }
 
-HE_VOID CHE_GraphicsDrawer::DrawText( unsigned short gid )
+void CHE_GraphicsDrawer::DrawText( unsigned short gid )
 {
     CGPoint position;
     position.x = 0;
@@ -464,7 +464,7 @@ HE_VOID CHE_GraphicsDrawer::DrawText( unsigned short gid )
     CGContextShowGlyphsAtPositions( mContentRef, &gid, &position, 1 );
 }
 
-HE_VOID CHE_GraphicsDrawer::SaveToFile( const char * pPath )
+void CHE_GraphicsDrawer::SaveToFile( const char * pPath )
 {
     CGImageRef imageRef = CGBitmapContextCreateImage( mContentRef );
     if ( imageRef == nil )

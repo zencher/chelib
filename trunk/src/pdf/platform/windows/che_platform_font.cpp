@@ -1,4 +1,4 @@
-#include "../../../../include/pdf/che_pdf_fontmgr.h"
+/*#include "../../../../include/pdf/che_pdf_fontmgr.h"
 #include "../../../../extlib/freetype/include/ft2build.h"
 #include "../../../../extlib/freetype/include/freetype/freetype.h"
 #include <list>
@@ -21,9 +21,9 @@ public:
 	CHE_ByteString	mPostScriptName;
 	CHE_ByteString	mFilePath;
 	CHE_Rect	mFontBBox;
-	HE_FLOAT		mAscent;
-	HE_FLOAT		mDescent;
-	HE_FLOAT		mHeight;
+	FLOAT		mAscent;
+	FLOAT		mDescent;
+	FLOAT		mHeight;
 };
 
 
@@ -35,14 +35,14 @@ public:
 
 	CHE_ByteString GetFontFilePath( const CHE_ByteString & fontName );
 
-	CHE_ByteString GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent );
+	CHE_ByteString GetFontFilePath( FLOAT ascent, FLOAT descent );
 
 private:
 	std::list<CHE_WindowsFontInfo>	mFontList;
 };
 
 
-IHE_SystemFontMgr * IHE_SystemFontMgr::Create( CHE_Allocator * pAllocator /*= NULL*/ )
+IHE_SystemFontMgr * IHE_SystemFontMgr::Create( CHE_Allocator * pAllocator )
 {
 	if ( gdiplusToken == NULL )
 	{
@@ -60,7 +60,7 @@ IHE_SystemFontMgr * IHE_SystemFontMgr::Create( CHE_Allocator * pAllocator /*= NU
 }
 
 
-HE_VOID IHE_SystemFontMgr::Destroy( IHE_SystemFontMgr * pSystemFontMgr )
+void IHE_SystemFontMgr::Destroy( IHE_SystemFontMgr * pSystemFontMgr )
 {
 // 	if ( gdiplusToken )
 // 	{
@@ -75,12 +75,12 @@ HE_VOID IHE_SystemFontMgr::Destroy( IHE_SystemFontMgr * pSystemFontMgr )
 }
 
 
-CHE_WindowsFontInfo::CHE_WindowsFontInfo( CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_WindowsFontInfo::CHE_WindowsFontInfo( CHE_Allocator * pAllocator )
 	: CHE_Object( pAllocator ), mFamilyName( pAllocator ), mPostScriptName( pAllocator ), mFilePath( pAllocator ),
 	mAscent( 0 ), mDescent( 0 ), mHeight( 0 ) {}
 
 
-CHE_WindowsFontMgr::CHE_WindowsFontMgr( CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_WindowsFontMgr::CHE_WindowsFontMgr( CHE_Allocator * pAllocator )
 	: IHE_SystemFontMgr( pAllocator )
 {
 	//load all system fonts to get information
@@ -158,12 +158,12 @@ CHE_WindowsFontMgr::~CHE_WindowsFontMgr()
 
 CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( const CHE_ByteString & fontName )
 {
-	HE_BOOL bStyle = FALSE;
-	HE_BOOL bBold = FALSE;
-	HE_BOOL bItalic = FALSE;
+	bool bStyle = FALSE;
+	bool bBold = FALSE;
+	bool bItalic = FALSE;
 	CHE_ByteString name;
 	CHE_ByteString style;
-	for ( HE_ULONG i = 0; i < fontName.GetLength(); ++i )
+	for ( size_t i = 0; i < fontName.GetLength(); ++i )
 	{
 		if ( fontName[i] == '+' )
 		{
@@ -263,7 +263,7 @@ CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( const CHE_ByteString & fontN
 }
 
 
-CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent )
+CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( FLOAT ascent, FLOAT descent )
 {
 	CHE_ByteString fontPath;
 	std::list<CHE_WindowsFontInfo>::iterator it;
@@ -276,4 +276,4 @@ CHE_ByteString CHE_WindowsFontMgr::GetFontFilePath( HE_FLOAT ascent, HE_FLOAT de
 		}
 	}
 	return fontPath;
-}
+}*/

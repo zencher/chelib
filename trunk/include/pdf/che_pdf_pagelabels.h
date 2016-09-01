@@ -21,21 +21,21 @@ class CHE_PDF_PageLabel
 {
 public:
 	PDF_LABEL_STYLE	stype;
-	HE_INT32		start;
+	int32		start;
 	CHE_ByteString	prefix;
 };
 
 class CHE_PDF_PageLabels : public CHE_Object
 {
 public:
-    CHE_PDF_PageLabels(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_PageLabels(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = nullptr);
 	~CHE_PDF_PageLabels();
     
 private:
-	HE_BOOL GetLabel(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_PageLabel & label);
+	bool GetLabel(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_PageLabel & label);
 
 	CHE_PDF_NumberTree * mpNumberTree;
-	std::unordered_map<HE_INT32, CHE_PDF_PageLabel> mLabelsInfo;
+	std::unordered_map<int32, CHE_PDF_PageLabel> mLabelsInfo;
 };
 
 #endif

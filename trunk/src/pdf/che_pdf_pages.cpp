@@ -23,7 +23,7 @@ CHE_PDF_PageTree::CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & PagesDictPtr, 
 	{
 		CHE_PDF_ArrayPtr KidsArrayPtr = ObjPtr->GetArrayPtr();
 
-		for ( HE_ULONG i = KidsArrayPtr->GetCount() ; i > 0; --i )
+		for ( size_t i = KidsArrayPtr->GetCount() ; i > 0; --i )
 		{
 			ObjPtr = KidsArrayPtr->GetElement( i - 1 );
 			if ( IsPdfRefPtr( ObjPtr ) )
@@ -38,14 +38,14 @@ CHE_PDF_PageTree::~CHE_PDF_PageTree()
 {
 }
 
-HE_ULONG CHE_PDF_PageTree::GetPageCount()
+size_t CHE_PDF_PageTree::GetPageCount()
 {
 	return mPageCount;
 }
 
-CHE_PDF_Page * CHE_PDF_PageTree::GetPage( HE_ULONG index )
+CHE_PDF_Page * CHE_PDF_PageTree::GetPage( size_t index )
 {
-    std::unordered_map<HE_ULONG, CHE_PDF_Page*>::iterator it = mPageMap.find(index);
+    std::unordered_map<size_t, CHE_PDF_Page*>::iterator it = mPageMap.find(index);
     if (it != mPageMap.end()) {
         return it->second;
     }
@@ -64,14 +64,14 @@ CHE_PDF_Page * CHE_PDF_PageTree::GetPage( HE_ULONG index )
             return page;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
-HE_VOID CHE_PDF_PageTree::ReleasePage( CHE_PDF_Page * pPage )
+void CHE_PDF_PageTree::ReleasePage( CHE_PDF_Page * pPage )
 {
 	if ( pPage )
 	{
-        std::unordered_map<HE_ULONG, CHE_PDF_Page*>::iterator it = mPageMap.begin();
+        std::unordered_map<size_t, CHE_PDF_Page*>::iterator it = mPageMap.begin();
         for (; it != mPageMap.end(); ++it) {
             if (it->second == pPage) {
                 mPageMap.erase(it);
@@ -82,11 +82,11 @@ HE_VOID CHE_PDF_PageTree::ReleasePage( CHE_PDF_Page * pPage )
 	}
 }
 
-HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet )
+bool CHE_PDF_PageTree::GetPageRefInfo( size_t index, PDF_RefInfo & refRet )
 {
 	if ( index >= mPageCount )
 	{
-		return FALSE;
+		return false;
 	}
 
 	if ( mPageObjList.size() > index && mPageObjList[index].objNum != 0 )
@@ -125,7 +125,7 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet )
 				
 				if ( ! objPtr )
 				{
-					return FALSE;
+					return false;
 				}
 
 				namePtr = objPtr->GetNamePtr();
@@ -148,7 +148,7 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet )
 					if ( objPtr )
 					{
 						arrayPtr = objPtr->GetArrayPtr();
-						for ( HE_ULONG i = arrayPtr->GetCount(); i > 0; --i )
+						for ( size_t i = arrayPtr->GetCount(); i > 0; --i )
 						{
 							objPtr = arrayPtr->GetElement( i-1, OBJ_TYPE_REFERENCE );
 
@@ -162,10 +162,10 @@ HE_BOOL CHE_PDF_PageTree::GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet )
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-HE_VOID CHE_PDF_PageTree::AppendPage( HE_ULONG width, HE_ULONG height )
+void CHE_PDF_PageTree::AppendPage( size_t width, size_t height )
 {
 	assert( mpFile );
 
@@ -229,13 +229,13 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_ULONG width, HE_ULONG height )
 				}
 
 				CHE_PDF_ArrayPtr tmpArrayPtr = CHE_PDF_Array::Create( GetAllocator() );
-				CHE_PDF_NumberPtr tmpNumberPtr = CHE_PDF_Number::Create( (HE_INT32)(0), GetAllocator() );
+				CHE_PDF_NumberPtr tmpNumberPtr = CHE_PDF_Number::Create( (int32)(0), GetAllocator() );
 				tmpArrayPtr->Append( tmpNumberPtr );
-				tmpNumberPtr = CHE_PDF_Number::Create( (HE_INT32)(0), GetAllocator() );
+				tmpNumberPtr = CHE_PDF_Number::Create( (int32)(0), GetAllocator() );
 				tmpArrayPtr->Append( tmpNumberPtr );
-				tmpNumberPtr = CHE_PDF_Number::Create( (HE_INT32)(width), GetAllocator() );
+				tmpNumberPtr = CHE_PDF_Number::Create( (int32)(width), GetAllocator() );
 				tmpArrayPtr->Append( tmpNumberPtr );
-				tmpNumberPtr = CHE_PDF_Number::Create( (HE_INT32)(height), GetAllocator() );
+				tmpNumberPtr = CHE_PDF_Number::Create( (int32)(height), GetAllocator() );
 				tmpArrayPtr->Append( tmpNumberPtr );
 				pageDictPtr->SetArray( "MediaBox", tmpArrayPtr );
 
@@ -246,7 +246,7 @@ HE_VOID CHE_PDF_PageTree::AppendPage( HE_ULONG width, HE_ULONG height )
 	}
 }
 
-HE_VOID CHE_PDF_PageTree::ParseAllPageRefInfo()
+void CHE_PDF_PageTree::ParseAllPageRefInfo()
 {
 	if ( mPageNodeStack.empty() )
 	{
@@ -298,7 +298,7 @@ CHE_Rect CHE_PDF_Page::GetPageRect() const
 	CHE_Rect rect;
     CHE_Rect mediaRect;
     CHE_PDF_ArrayPtr arrayPtr = GetCropBoxArray();
-    HE_UINT32 rotate = GetRotate();
+    uint32 rotate = GetRotate();
     rotate = rotate % 360;
 
 	arrayPtr->GetRect( rect );
@@ -386,9 +386,9 @@ CHE_PDF_ArrayPtr CHE_PDF_Page::GetArtBoxArray() const
 	return GetCropBoxArray();
 }
 
-HE_INT32 CHE_PDF_Page::GetRotate() const
+int32 CHE_PDF_Page::GetRotate() const
 {
-	HE_INT32 ret = 0;
+	int32 ret = 0;
 
 	CHE_PDF_ObjectPtr objPtr = mPageDict->GetElement( "Rotate", OBJ_TYPE_NUMBER );
 	if ( objPtr )
@@ -414,17 +414,17 @@ HE_INT32 CHE_PDF_Page::GetRotate() const
 	return ret;
 }
 
-HE_BOOL	CHE_PDF_Page::ReleasePage( CHE_PDF_Page * pPage )
+bool	CHE_PDF_Page::ReleasePage( CHE_PDF_Page * pPage )
 {
 	if ( pPage )
 	{
 		pPage->GetAllocator()->Delete( pPage );
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_Page::ParsePageContent(CHE_PDF_ComponentMgr * pComMgr)
+bool CHE_PDF_Page::ParsePageContent(CHE_PDF_ComponentMgr * pComMgr)
 {
 	if (mbParsed == false)
 	{

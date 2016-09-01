@@ -20,11 +20,11 @@ CHE_PDF_Document * CHE_PDF_Document::CreateDocument( CHE_PDF_File * pPDFFile )
 			return pDocument;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 CHE_PDF_Document::CHE_PDF_Document( CHE_PDF_File * pFile, CHE_Allocator * pAllocator )
-	: CHE_Object(pAllocator), mpFile(pFile), mpPageTree(NULL), mpNameDict(NULL), mpOutline(NULL), mpPageLabels(NULL), mpComponentMgr(NULL)
+	: CHE_Object(pAllocator), mpFile(pFile), mpPageTree(nullptr), mpNameDict(nullptr), mpOutline(nullptr), mpPageLabels(nullptr), mpComponentMgr(nullptr)
 {
 	mpComponentMgr = GetAllocator()->New<CHE_PDF_ComponentMgr>( GetAllocator() );
 }
@@ -49,7 +49,7 @@ CHE_PDF_Document::~CHE_PDF_Document()
 	}
 }
 
-HE_ULONG CHE_PDF_Document::GetPageCount() const
+size_t CHE_PDF_Document::GetPageCount() const
 {
 	if ( mpPageTree )
 	{
@@ -58,13 +58,13 @@ HE_ULONG CHE_PDF_Document::GetPageCount() const
 	return 0;
 }
 
-CHE_PDF_Page * CHE_PDF_Document::GetPage( HE_ULONG index )
+CHE_PDF_Page * CHE_PDF_Document::GetPage( size_t index )
 {
 	if ( mpPageTree )
 	{
 		return mpPageTree->GetPage( index );
 	}
-	return NULL;
+	return nullptr;
 }
 
 CHE_PDF_ComponentMgr * CHE_PDF_Document::GetComponentMgr() const
@@ -77,16 +77,16 @@ CHE_PDF_Outline * CHE_PDF_Document::GetOutline()
     return mpOutline;
 }
 
-HE_BOOL CHE_PDF_Document::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str )
+bool CHE_PDF_Document::SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str )
 {
 	if ( mpFile )
 	{
 		return mpFile->SetInfo( infoType, str );
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_Document::ParsePageTree()
+bool CHE_PDF_Document::ParsePageTree()
 {
 	CHE_PDF_DictionaryPtr pDict = mpFile->GetRootDict();
 	CHE_PDF_ObjectPtr pObj;
@@ -103,10 +103,10 @@ HE_BOOL CHE_PDF_Document::ParsePageTree()
 			return TRUE;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_Document::ParseNameDict()
+bool CHE_PDF_Document::ParseNameDict()
 {
 	if ( mpFile )
 	{
@@ -119,10 +119,10 @@ HE_BOOL CHE_PDF_Document::ParseNameDict()
 			return TRUE;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_Document::ParseOutline()
+bool CHE_PDF_Document::ParseOutline()
 {
 	if ( mpFile )
 	{
@@ -137,10 +137,10 @@ HE_BOOL CHE_PDF_Document::ParseOutline()
 			return TRUE;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_Document::ParsePageLabels()
+bool CHE_PDF_Document::ParsePageLabels()
 {
 	if ( mpFile )
 	{
@@ -152,12 +152,12 @@ HE_BOOL CHE_PDF_Document::ParsePageLabels()
 			return TRUE;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-HE_VOID CHE_PDF_Document::CreateCatalogDict()
+void CHE_PDF_Document::CreateCatalogDict()
 {
-	if ( mpFile == NULL )
+	if ( mpFile == nullptr )
 	{
 		return;
 	}

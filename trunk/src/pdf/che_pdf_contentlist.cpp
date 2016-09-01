@@ -17,10 +17,10 @@ CHE_PDF_ContentObjectList::~CHE_PDF_ContentObjectList()
 // 	return pObjList;
 // }
 
-HE_VOID CHE_PDF_ContentObjectList::Clear()
+void CHE_PDF_ContentObjectList::Clear()
 {
 	ContentObjectList::iterator it = Begin();
-	CHE_PDF_ContentObject * pObj = NULL;
+	CHE_PDF_ContentObject * pObj = nullptr;
 	for ( ; it != End(); ++it )
 	{
 		pObj = *it;
@@ -53,13 +53,13 @@ ContentObjectList::iterator CHE_PDF_ContentObjectList::End()
 	return mList.end();
 }
 
-HE_VOID CHE_PDF_ContentObjectList::SetType3BBox( const HE_INT32 type, std::vector<HE_FLOAT> & param )
+void CHE_PDF_ContentObjectList::SetType3BBox( const int32 type, std::vector<FLOAT> & param )
 {
 	mType3DType = type;
 	mType3Param = param;
 }
 
-HE_BOOL CHE_PDF_ContentObjectList::GetType3BBox( HE_INT32 & type, std::vector<HE_FLOAT> & param )
+bool CHE_PDF_ContentObjectList::GetType3BBox( int32 & type, std::vector<FLOAT> & param )
 {
 	type = mType3DType;
 	param = mType3Param;

@@ -509,7 +509,7 @@ PDF_CMAP_RANGE CMap_Adobe_CNS1_UCS2_Ranges[] = {
 {19076,26,14875},{19084,14,14882},
 };
 
-HE_UINT16 CMap_Adobe_CNS1_UCS2_Table[14886] = {
+uint16 CMap_Adobe_CNS1_UCS2_Table[14886] = {
 169,8482,8230,12288,65292,65294,8231,65307,65306,65311,65281,65072,
 8943,8229,65372,8211,65073,8212,65533,65533,65533,65533,65371,65373,
 8245,8242,65283,65286,65290,8251,167,12291,9675,9679,9651,9650,
@@ -1757,7 +1757,7 @@ PDF_CMAP CMap_Adobe_CNS1_UCS2 = {
 	-1, "Adobe-CNS1-UCS2", "", 0, 0, 1,
 	{ {2,0,65535}, },
 	2018, 2018, (PDF_CMAP_RANGE*) CMap_Adobe_CNS1_UCS2_Ranges,
-	14886, 14886, (HE_UINT16*) CMap_Adobe_CNS1_UCS2_Table,
+	14886, 14886, (uint16*) CMap_Adobe_CNS1_UCS2_Table,
 };
 
 /* Adobe-CNS1-0 */
@@ -1766,13 +1766,13 @@ PDF_CMAP_RANGE CMap_Adobe_CNS1_0_Ranges[] = {
 {0,56393,0},
 };
 
-const HE_UINT16 CMap_Adobe_CNS1_0_Table[] = { 0 };
+const uint16 CMap_Adobe_CNS1_0_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_CNS1_0 = {
 	-1, "Adobe-CNS1-0", "", 0, 0, 1,
 	{ {2,0,14335}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_Adobe_CNS1_0_Ranges,
-	0, 0, (HE_UINT16*) CMap_Adobe_CNS1_0_Table,
+	0, 0, (uint16*) CMap_Adobe_CNS1_0_Table,
 };
 
 /* Adobe-CNS1-1 */
@@ -1781,13 +1781,13 @@ PDF_CMAP_RANGE CMap_Adobe_CNS1_1_Ranges[] = {
 {0,65533,0},{16384,4093,16384},
 };
 
-const HE_UINT16 CMap_Adobe_CNS1_1_Table[] = { 0 };
+const uint16 CMap_Adobe_CNS1_1_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_CNS1_1 = {
 	-1, "Adobe-CNS1-1", "", 0, 0, 1,
 	{ {2,0,17407}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_CNS1_1_Ranges,
-	0, 0, (HE_UINT16*) CMap_Adobe_CNS1_1_Table,
+	0, 0, (uint16*) CMap_Adobe_CNS1_1_Table,
 };
 
 /* Adobe-CNS1-2 */
@@ -1796,13 +1796,13 @@ PDF_CMAP_RANGE CMap_Adobe_CNS1_2_Ranges[] = {
 {0,65533,0},{16384,4865,16384},
 };
 
-const HE_UINT16 CMap_Adobe_CNS1_2_Table[] = { 0 };
+const uint16 CMap_Adobe_CNS1_2_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_CNS1_2 = {
 	-1, "Adobe-CNS1-2", "", 0, 0, 1,
 	{ {2,0,17663}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_CNS1_2_Ranges,
-	0, 0, (HE_UINT16*) CMap_Adobe_CNS1_2_Table,
+	0, 0, (uint16*) CMap_Adobe_CNS1_2_Table,
 };
 
 /* Adobe-CNS1-3 */
@@ -1811,13 +1811,13 @@ PDF_CMAP_RANGE CMap_Adobe_CNS1_3_Ranges[] = {
 {0,65533,0},{16384,9845,16384},
 };
 
-const HE_UINT16 CMap_Adobe_CNS1_3_Table[] = { 0 };
+const uint16 CMap_Adobe_CNS1_3_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_CNS1_3 = {
 	-1, "Adobe-CNS1-3", "", 0, 0, 1,
 	{ {2,0,18943}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_CNS1_3_Ranges,
-	0, 0, (HE_UINT16*) CMap_Adobe_CNS1_3_Table,
+	0, 0, (uint16*) CMap_Adobe_CNS1_3_Table,
 };
 
 /* Adobe-CNS1-4 */
@@ -1826,13 +1826,13 @@ PDF_CMAP_RANGE CMap_Adobe_CNS1_4_Ranges[] = {
 {0,65533,0},{16384,10321,16384},
 };
 
-const HE_UINT16 CMap_Adobe_CNS1_4_Table[] = { 0 };
+const uint16 CMap_Adobe_CNS1_4_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_CNS1_4 = {
 	-1, "Adobe-CNS1-4", "", 0, 0, 1,
 	{ {2,0,19199}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_CNS1_4_Ranges,
-	0, 0, (HE_UINT16*) CMap_Adobe_CNS1_4_Table,
+	0, 0, (uint16*) CMap_Adobe_CNS1_4_Table,
 };
 
 /* Adobe-CNS1-5 */
@@ -1841,13 +1841,13 @@ PDF_CMAP_RANGE CMap_Adobe_CNS1_5_Ranges[] = {
 {0,65533,0},{16384,10813,16384},
 };
 
-const HE_UINT16 CMap_Adobe_CNS1_5_Table[] = { 0 };
+const uint16 CMap_Adobe_CNS1_5_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_CNS1_5 = {
 	-1, "Adobe-CNS1-5", "", 0, 0, 1,
 	{ {2,0,19199}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_CNS1_5_Ranges,
-	0, 0, (HE_UINT16*) CMap_Adobe_CNS1_5_Table,
+	0, 0, (uint16*) CMap_Adobe_CNS1_5_Table,
 };
 
 /* Adobe-CNS1-6 */
@@ -1856,13 +1856,13 @@ PDF_CMAP_RANGE CMap_Adobe_CNS1_6_Ranges[] = {
 {0,65533,0},{16384,11085,16384},
 };
 
-const HE_UINT16 CMap_Adobe_CNS1_6_Table[] = { 0 };
+const uint16 CMap_Adobe_CNS1_6_Table[] = { 0 };
 
 PDF_CMAP CMap_Adobe_CNS1_6 = {
 	-1, "Adobe-CNS1-6", "", 0, 0, 1,
 	{ {2,0,19199}, },
 	2, 2, (PDF_CMAP_RANGE*) CMap_Adobe_CNS1_6_Ranges,
-	0, 0, (HE_UINT16*) CMap_Adobe_CNS1_6_Table,
+	0, 0, (uint16*) CMap_Adobe_CNS1_6_Table,
 };
 
 /* B5-H */
@@ -1930,7 +1930,7 @@ PDF_CMAP_RANGE CMap_B5_H_Ranges[] = {
 {63905,137,13594},{63940,10,4},{63943,41,13630},{63954,13,13642},
 };
 
-const HE_UINT16 CMap_B5_H_Table[7] = {
+const uint16 CMap_B5_H_Table[7] = {
 248,247,5551,5550,13585,13629,13641,
 };
 
@@ -1938,7 +1938,7 @@ PDF_CMAP CMap_B5_H = {
 	-1, "B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,41280,65278}, },
 	240, 240, (PDF_CMAP_RANGE*) CMap_B5_H_Ranges,
-	7, 7, (HE_UINT16*) CMap_B5_H_Table,
+	7, 7, (uint16*) CMap_B5_H_Table,
 };
 
 /* B5-V */
@@ -1949,13 +1949,13 @@ PDF_CMAP_RANGE CMap_B5_V_Ranges[] = {
 {41329,5,150},{41333,5,154},{41337,5,158},{41443,0,13647},
 };
 
-const HE_UINT16 CMap_B5_V_Table[] = { 0 };
+const uint16 CMap_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_B5_V = {
 	-1, "B5-V", "B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_B5_V_Table,
+	0, 0, (uint16*) CMap_B5_V_Table,
 };
 
 /* B5pc-H */
@@ -2024,7 +2024,7 @@ PDF_CMAP_RANGE CMap_B5pc_H_Ranges[] = {
 {63940,10,4},{63943,41,13630},{63954,13,13642},
 };
 
-const HE_UINT16 CMap_B5pc_H_Table[7] = {
+const uint16 CMap_B5pc_H_Table[7] = {
 248,247,5551,5550,13585,13629,13641,
 };
 
@@ -2032,7 +2032,7 @@ PDF_CMAP CMap_B5pc_H = {
 	-1, "B5pc-H", "", 0, 0, 3,
 	{ {1,0,128},{2,41280,64766},{1,253,255}, },
 	243, 243, (PDF_CMAP_RANGE*) CMap_B5pc_H_Ranges,
-	7, 7, (HE_UINT16*) CMap_B5pc_H_Table,
+	7, 7, (uint16*) CMap_B5pc_H_Table,
 };
 
 /* B5pc-V */
@@ -2043,13 +2043,13 @@ PDF_CMAP_RANGE CMap_B5pc_V_Ranges[] = {
 {41329,5,150},{41333,5,154},{41337,5,158},{41443,0,13647},
 };
 
-const HE_UINT16 CMap_B5pc_V_Table[] = { 0 };
+const uint16 CMap_B5pc_V_Table[] = { 0 };
 
 PDF_CMAP CMap_B5pc_V = {
 	-1, "B5pc-V", "B5pc-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_B5pc_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_B5pc_V_Table,
+	0, 0, (uint16*) CMap_B5pc_V_Table,
 };
 
 /* CNS-EUC-H */
@@ -2150,7 +2150,7 @@ PDF_CMAP_RANGE CMap_CNS_EUC_H_Ranges[] = {
 {64673,373,5859},{64929,169,5953},{64929,169,5953},
 };
 
-const HE_UINT16 CMap_CNS_EUC_H_Table[48] = {
+const uint16 CMap_CNS_EUC_H_Table[48] = {
 596,539,539,602,602,540,607,5998,5998,608,608,610,
 610,544,544,611,611,5999,5999,545,546,6000,6000,547,
 547,614,614,633,633,6005,6006,646,646,550,725,556,
@@ -2161,7 +2161,7 @@ PDF_CMAP CMap_CNS_EUC_H = {
 	-1, "CNS-EUC-H", "", 0, 0, 5,
 	{ {1,0,128},{4,41377,65278},{4,41377,65278},{4,41377,65278},{2,41377,65278}, },
 	371, 371, (PDF_CMAP_RANGE*) CMap_CNS_EUC_H_Ranges,
-	48, 48, (HE_UINT16*) CMap_CNS_EUC_H_Table,
+	48, 48, (uint16*) CMap_CNS_EUC_H_Table,
 };
 
 /* CNS-EUC-V */
@@ -2273,7 +2273,7 @@ PDF_CMAP_RANGE CMap_CNS_EUC_V_Ranges[] = {
 {64673,373,5859},{64673,373,5859},{64929,169,5953},{64929,169,5953},
 };
 
-const HE_UINT16 CMap_CNS_EUC_V_Table[50] = {
+const uint16 CMap_CNS_EUC_V_Table[50] = {
 124,126,126,126,596,539,539,602,602,540,607,5998,
 5998,608,608,610,610,544,544,611,611,5999,5999,545,
 546,6000,6000,547,547,614,614,633,633,6005,6006,646,
@@ -2285,7 +2285,7 @@ PDF_CMAP CMap_CNS_EUC_V = {
 	-1, "CNS-EUC-V", "", 0, 1, 5,
 	{ {1,0,128},{4,41377,65278},{4,41377,65278},{4,41377,65278},{2,41377,65278}, },
 	416, 416, (PDF_CMAP_RANGE*) CMap_CNS_EUC_V_Ranges,
-	50, 50, (HE_UINT16*) CMap_CNS_EUC_V_Table,
+	50, 50, (uint16*) CMap_CNS_EUC_V_Table,
 };
 
 /* CNS1-H */
@@ -2326,7 +2326,7 @@ PDF_CMAP_RANGE CMap_CNS1_H_Ranges[] = {
 {31265,373,5671},{31521,373,5765},{31777,373,5859},{32033,169,5953},
 };
 
-const HE_UINT16 CMap_CNS1_H_Table[34] = {
+const uint16 CMap_CNS1_H_Table[34] = {
 596,539,602,540,607,5998,608,610,544,611,5999,545,
 546,6000,547,614,633,6005,6006,646,550,725,556,862,
 866,6163,6168,560,1307,7731,2552,7732,9056,9746,
@@ -2336,7 +2336,7 @@ PDF_CMAP CMap_CNS1_H = {
 	-1, "CNS1-H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	132, 132, (PDF_CMAP_RANGE*) CMap_CNS1_H_Ranges,
-	34, 34, (HE_UINT16*) CMap_CNS1_H_Table,
+	34, 34, (uint16*) CMap_CNS1_H_Table,
 };
 
 /* CNS1-V */
@@ -2347,13 +2347,13 @@ PDF_CMAP_RANGE CMap_CNS1_V_Ranges[] = {
 {8530,5,150},{8534,5,154},{8538,5,158},{8772,0,13647},
 };
 
-const HE_UINT16 CMap_CNS1_V_Table[] = { 0 };
+const uint16 CMap_CNS1_V_Table[] = { 0 };
 
 PDF_CMAP CMap_CNS1_V = {
 	-1, "CNS1-V", "CNS1-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_CNS1_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_CNS1_V_Table,
+	0, 0, (uint16*) CMap_CNS1_V_Table,
 };
 
 /* CNS2-H */
@@ -2382,13 +2382,13 @@ PDF_CMAP_RANGE CMap_CNS2_H_Ranges[] = {
 {28961,373,13516},{29217,141,13610},
 };
 
-const HE_UINT16 CMap_CNS2_H_Table[] = { 0 };
+const uint16 CMap_CNS2_H_Table[] = { 0 };
 
 PDF_CMAP CMap_CNS2_H = {
 	-1, "CNS2-H", "", 0, 0, 1,
 	{ {2,8481,32382}, },
 	82, 82, (PDF_CMAP_RANGE*) CMap_CNS2_H_Ranges,
-	0, 0, (HE_UINT16*) CMap_CNS2_H_Table,
+	0, 0, (uint16*) CMap_CNS2_H_Table,
 };
 
 /* CNS2-V */
@@ -2396,13 +2396,13 @@ PDF_CMAP CMap_CNS2_H = {
 PDF_CMAP_RANGE CMap_CNS2_V_Ranges[] = { {0,1,0}
 };
 
-const HE_UINT16 CMap_CNS2_V_Table[] = { 0 };
+const uint16 CMap_CNS2_V_Table[] = { 0 };
 
 PDF_CMAP CMap_CNS2_V = {
 	-1, "CNS2-V", "CNS2-H", 0, 1, 0,
 	{ {0,0,0}, },
 	0, 0, (PDF_CMAP_RANGE*) CMap_CNS2_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_CNS2_V_Table,
+	0, 0, (uint16*) CMap_CNS2_V_Table,
 };
 
 /* ETen-B5-H */
@@ -2473,7 +2473,7 @@ PDF_CMAP_RANGE CMap_ETen_B5_H_Ranges[] = {
 {63954,13,13642},{63958,161,14056},
 };
 
-const HE_UINT16 CMap_ETen_B5_H_Table[7] = {
+const uint16 CMap_ETen_B5_H_Table[7] = {
 248,247,5551,5550,13585,13629,13641,
 };
 
@@ -2481,7 +2481,7 @@ PDF_CMAP CMap_ETen_B5_H = {
 	-1, "ETen-B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,41280,65278}, },
 	250, 250, (PDF_CMAP_RANGE*) CMap_ETen_B5_H_Ranges,
-	7, 7, (HE_UINT16*) CMap_ETen_B5_H_Table,
+	7, 7, (uint16*) CMap_ETen_B5_H_Table,
 };
 
 /* ETen-B5-V */
@@ -2493,13 +2493,13 @@ PDF_CMAP_RANGE CMap_ETen_B5_V_Ranges[] = {
 {50916,5,14097},
 };
 
-const HE_UINT16 CMap_ETen_B5_V_Table[] = { 0 };
+const uint16 CMap_ETen_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_ETen_B5_V = {
 	-1, "ETen-B5-V", "ETen-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	13, 13, (PDF_CMAP_RANGE*) CMap_ETen_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_ETen_B5_V_Table,
+	0, 0, (uint16*) CMap_ETen_B5_V_Table,
 };
 
 /* ETenms-B5-H */
@@ -2508,13 +2508,13 @@ PDF_CMAP_RANGE CMap_ETenms_B5_H_Ranges[] = {
 {32,377,1},
 };
 
-const HE_UINT16 CMap_ETenms_B5_H_Table[] = { 0 };
+const uint16 CMap_ETenms_B5_H_Table[] = { 0 };
 
 PDF_CMAP CMap_ETenms_B5_H = {
 	-1, "ETenms-B5-H", "ETen-B5-H", 0, 0, 0,
 	{ {0,0,0}, },
 	1, 1, (PDF_CMAP_RANGE*) CMap_ETenms_B5_H_Ranges,
-	0, 0, (HE_UINT16*) CMap_ETenms_B5_H_Table,
+	0, 0, (uint16*) CMap_ETenms_B5_H_Table,
 };
 
 /* ETenms-B5-V */
@@ -2527,7 +2527,7 @@ PDF_CMAP_RANGE CMap_ETenms_B5_V_Ranges[] = {
 {50916,5,14097},
 };
 
-const HE_UINT16 CMap_ETenms_B5_V_Table[2] = {
+const uint16 CMap_ETenms_B5_V_Table[2] = {
 13646,109,
 };
 
@@ -2535,7 +2535,7 @@ PDF_CMAP CMap_ETenms_B5_V = {
 	-1, "ETenms-B5-V", "ETenms-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	17, 17, (PDF_CMAP_RANGE*) CMap_ETenms_B5_V_Ranges,
-	2, 2, (HE_UINT16*) CMap_ETenms_B5_V_Table,
+	2, 2, (uint16*) CMap_ETenms_B5_V_Table,
 };
 
 /* ETHK-B5-H */
@@ -2791,7 +2791,7 @@ PDF_CMAP_RANGE CMap_ETHK_B5_H_Ranges[] = {
 {65261,5,18783},{65263,61,17144},
 };
 
-const HE_UINT16 CMap_ETHK_B5_H_Table[315] = {
+const uint16 CMap_ETHK_B5_H_Table[315] = {
 17723,17347,17388,17777,17387,17778,17308,17815,17310,17816,17311,17313,
 17820,17315,17845,17161,17214,17850,17851,17219,17852,17221,17853,17855,
 17245,17856,17247,17860,17371,17294,17886,17295,17887,17296,17888,17297,
@@ -2825,7 +2825,7 @@ PDF_CMAP CMap_ETHK_B5_H = {
 	-1, "ETHK-B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,34624,65278}, },
 	990, 990, (PDF_CMAP_RANGE*) CMap_ETHK_B5_H_Ranges,
-	315, 315, (HE_UINT16*) CMap_ETHK_B5_H_Table,
+	315, 315, (uint16*) CMap_ETHK_B5_H_Table,
 };
 
 /* ETHK-B5-V */
@@ -2837,13 +2837,13 @@ PDF_CMAP_RANGE CMap_ETHK_B5_V_Ranges[] = {
 {50916,5,14097},
 };
 
-const HE_UINT16 CMap_ETHK_B5_V_Table[] = { 0 };
+const uint16 CMap_ETHK_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_ETHK_B5_V = {
 	-1, "ETHK-B5-V", "ETHK-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	13, 13, (PDF_CMAP_RANGE*) CMap_ETHK_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_ETHK_B5_V_Table,
+	0, 0, (uint16*) CMap_ETHK_B5_V_Table,
 };
 
 /* HKdla-B5-H */
@@ -2917,7 +2917,7 @@ PDF_CMAP_RANGE CMap_HKdla_B5_H_Ranges[] = {
 {65205,5,14566},{65207,286,707},
 };
 
-const HE_UINT16 CMap_HKdla_B5_H_Table[779] = {
+const uint16 CMap_HKdla_B5_H_Table[779] = {
 248,247,5551,5550,13585,13629,13641,16713,16035,16004,16007,15877,
 16534,14788,15725,15999,15479,16006,14460,16039,16910,16036,16778,16479,
 16662,16523,15974,15973,15759,16798,14950,16737,16010,15758,16013,15804,
@@ -2989,7 +2989,7 @@ PDF_CMAP CMap_HKdla_B5_H = {
 	-1, "HKdla-B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,41280,65278}, },
 	262, 262, (PDF_CMAP_RANGE*) CMap_HKdla_B5_H_Ranges,
-	779, 779, (HE_UINT16*) CMap_HKdla_B5_H_Table,
+	779, 779, (uint16*) CMap_HKdla_B5_H_Table,
 };
 
 /* HKdla-B5-V */
@@ -3000,13 +3000,13 @@ PDF_CMAP_RANGE CMap_HKdla_B5_V_Ranges[] = {
 {41329,5,150},{41333,5,154},{41337,5,158},{41443,0,13647},
 };
 
-const HE_UINT16 CMap_HKdla_B5_V_Table[] = { 0 };
+const uint16 CMap_HKdla_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_HKdla_B5_V = {
 	-1, "HKdla-B5-V", "HKdla-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_HKdla_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_HKdla_B5_V_Table,
+	0, 0, (uint16*) CMap_HKdla_B5_V_Table,
 };
 
 /* HKdlb-B5-H */
@@ -3078,7 +3078,7 @@ PDF_CMAP_RANGE CMap_HKdlb_B5_H_Ranges[] = {
 {63943,41,13630},{63954,13,13642},
 };
 
-const HE_UINT16 CMap_HKdlb_B5_H_Table[668] = {
+const uint16 CMap_HKdlb_B5_H_Table[668] = {
 15735,15724,16217,14617,15984,14162,14511,14214,16155,15708,16281,16360,
 14475,14556,16298,17096,14145,15743,17132,16275,14490,14457,14138,17104,
 15983,16152,14056,14137,16025,15180,15826,16297,16300,16331,14131,16287,
@@ -3141,7 +3141,7 @@ PDF_CMAP CMap_HKdlb_B5_H = {
 	-1, "HKdlb-B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,36416,65278}, },
 	254, 254, (PDF_CMAP_RANGE*) CMap_HKdlb_B5_H_Ranges,
-	668, 668, (HE_UINT16*) CMap_HKdlb_B5_H_Table,
+	668, 668, (uint16*) CMap_HKdlb_B5_H_Table,
 };
 
 /* HKdlb-B5-V */
@@ -3152,13 +3152,13 @@ PDF_CMAP_RANGE CMap_HKdlb_B5_V_Ranges[] = {
 {41329,5,150},{41333,5,154},{41337,5,158},{41443,0,13647},
 };
 
-const HE_UINT16 CMap_HKdlb_B5_V_Table[] = { 0 };
+const uint16 CMap_HKdlb_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_HKdlb_B5_V = {
 	-1, "HKdlb-B5-V", "HKdlb-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_HKdlb_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_HKdlb_B5_V_Table,
+	0, 0, (uint16*) CMap_HKdlb_B5_V_Table,
 };
 
 /* HKgccs-B5-H */
@@ -3302,7 +3302,7 @@ PDF_CMAP_RANGE CMap_HKgccs_B5_H_Ranges[] = {
 {65194,0,288},{65195,201,17080},{65248,49,17131},{65263,61,17144},
 };
 
-const HE_UINT16 CMap_HKgccs_B5_H_Table[14] = {
+const uint16 CMap_HKgccs_B5_H_Table[14] = {
 284,283,15812,7188,15813,15857,13418,248,247,5551,5550,13585,
 13629,13641,
 };
@@ -3311,7 +3311,7 @@ PDF_CMAP CMap_HKgccs_B5_H = {
 	-1, "HKgccs-B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,35392,65278}, },
 	544, 544, (PDF_CMAP_RANGE*) CMap_HKgccs_B5_H_Ranges,
-	14, 14, (HE_UINT16*) CMap_HKgccs_B5_H_Table,
+	14, 14, (uint16*) CMap_HKgccs_B5_H_Table,
 };
 
 /* HKgccs-B5-V */
@@ -3322,13 +3322,13 @@ PDF_CMAP_RANGE CMap_HKgccs_B5_V_Ranges[] = {
 {41329,5,150},{41333,5,154},{41337,5,158},{41443,0,13647},
 };
 
-const HE_UINT16 CMap_HKgccs_B5_V_Table[] = { 0 };
+const uint16 CMap_HKgccs_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_HKgccs_B5_V = {
 	-1, "HKgccs-B5-V", "HKgccs-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_HKgccs_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_HKgccs_B5_V_Table,
+	0, 0, (uint16*) CMap_HKgccs_B5_V_Table,
 };
 
 /* HKm314-B5-H */
@@ -3405,7 +3405,7 @@ PDF_CMAP_RANGE CMap_HKm314_B5_H_Ranges[] = {
 {63954,13,13642},
 };
 
-const HE_UINT16 CMap_HKm314_B5_H_Table[289] = {
+const uint16 CMap_HKm314_B5_H_Table[289] = {
 248,247,5551,5550,15725,14788,17305,15877,14058,14792,14653,17307,
 16418,17309,16436,17311,16035,16038,16465,16459,16463,17314,16474,16036,
 15805,15807,16476,16479,17316,16507,16514,16237,16523,17318,16531,16534,
@@ -3437,7 +3437,7 @@ PDF_CMAP CMap_HKm314_B5_H = {
 	-1, "HKm314-B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,41280,65278}, },
 	273, 273, (PDF_CMAP_RANGE*) CMap_HKm314_B5_H_Ranges,
-	289, 289, (HE_UINT16*) CMap_HKm314_B5_H_Table,
+	289, 289, (uint16*) CMap_HKm314_B5_H_Table,
 };
 
 /* HKm314-B5-V */
@@ -3448,13 +3448,13 @@ PDF_CMAP_RANGE CMap_HKm314_B5_V_Ranges[] = {
 {41329,5,150},{41333,5,154},{41337,5,158},{41443,0,13647},
 };
 
-const HE_UINT16 CMap_HKm314_B5_V_Table[] = { 0 };
+const uint16 CMap_HKm314_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_HKm314_B5_V = {
 	-1, "HKm314-B5-V", "HKm314-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_HKm314_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_HKm314_B5_V_Table,
+	0, 0, (uint16*) CMap_HKm314_B5_V_Table,
 };
 
 /* HKm471-B5-H */
@@ -3536,7 +3536,7 @@ PDF_CMAP_RANGE CMap_HKm471_B5_H_Ranges[] = {
 {64756,5,17394},{64758,34,415},
 };
 
-const HE_UINT16 CMap_HKm471_B5_H_Table[424] = {
+const uint16 CMap_HKm471_B5_H_Table[424] = {
 248,247,5551,5550,13585,13629,13641,15725,14788,17305,16207,15877,
 17306,15246,14058,14792,14653,17307,16418,17308,14789,17309,16436,16035,
 16038,17312,16465,16459,16463,16468,16760,16138,16474,16036,15805,17315,
@@ -3579,7 +3579,7 @@ PDF_CMAP CMap_HKm471_B5_H = {
 	-1, "HKm471-B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,41280,65278}, },
 	294, 294, (PDF_CMAP_RANGE*) CMap_HKm471_B5_H_Ranges,
-	424, 424, (HE_UINT16*) CMap_HKm471_B5_H_Table,
+	424, 424, (uint16*) CMap_HKm471_B5_H_Table,
 };
 
 /* HKm471-B5-V */
@@ -3590,13 +3590,13 @@ PDF_CMAP_RANGE CMap_HKm471_B5_V_Ranges[] = {
 {41329,5,150},{41333,5,154},{41337,5,158},{41443,0,13647},
 };
 
-const HE_UINT16 CMap_HKm471_B5_V_Table[] = { 0 };
+const uint16 CMap_HKm471_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_HKm471_B5_V = {
 	-1, "HKm471-B5-V", "HKm471-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_HKm471_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_HKm471_B5_V_Table,
+	0, 0, (uint16*) CMap_HKm471_B5_V_Table,
 };
 
 /* HKscs-B5-H */
@@ -3853,7 +3853,7 @@ PDF_CMAP_RANGE CMap_HKscs_B5_H_Ranges[] = {
 {65263,61,17144},
 };
 
-const HE_UINT16 CMap_HKscs_B5_H_Table[315] = {
+const uint16 CMap_HKscs_B5_H_Table[315] = {
 17723,17347,17388,17777,17387,17778,17308,17815,17310,17816,17311,17313,
 17820,17315,17845,17161,17214,17850,17851,17219,17852,17221,17853,17855,
 17245,17856,17247,17860,17371,17294,17886,17295,17887,17296,17888,17297,
@@ -3887,7 +3887,7 @@ PDF_CMAP CMap_HKscs_B5_H = {
 	-1, "HKscs-B5-H", "", 0, 0, 2,
 	{ {1,0,128},{2,34624,65278}, },
 	993, 993, (PDF_CMAP_RANGE*) CMap_HKscs_B5_H_Ranges,
-	315, 315, (HE_UINT16*) CMap_HKscs_B5_H_Table,
+	315, 315, (uint16*) CMap_HKscs_B5_H_Table,
 };
 
 /* HKscs-B5-V */
@@ -3899,13 +3899,13 @@ PDF_CMAP_RANGE CMap_HKscs_B5_V_Ranges[] = {
 {50916,5,14097},
 };
 
-const HE_UINT16 CMap_HKscs_B5_V_Table[] = { 0 };
+const uint16 CMap_HKscs_B5_V_Table[] = { 0 };
 
 PDF_CMAP CMap_HKscs_B5_V = {
 	-1, "HKscs-B5-V", "HKscs-B5-H", 0, 1, 0,
 	{ {0,0,0}, },
 	13, 13, (PDF_CMAP_RANGE*) CMap_HKscs_B5_V_Ranges,
-	0, 0, (HE_UINT16*) CMap_HKscs_B5_V_Table,
+	0, 0, (uint16*) CMap_HKscs_B5_V_Table,
 };
 
 /* UniCNS-UCS2-H */
@@ -5263,7 +5263,7 @@ PDF_CMAP_RANGE CMap_UniCNS_UCS2_H_Ranges[] = {
 {65380,0,113},{65506,0,14049},{65508,0,14050},
 };
 
-const HE_UINT16 CMap_UniCNS_UCS2_H_Table[13509] = {
+const uint16 CMap_UniCNS_UCS2_H_Table[13509] = {
 178,13747,280,212,18788,18786,18792,18790,18801,18796,18794,18805,
 18803,18810,18808,18832,18814,18812,18818,18816,211,18840,18822,18820,
 18785,18802,18789,18807,18791,18809,18841,18793,18815,18787,18804,18813,
@@ -6396,7 +6396,7 @@ PDF_CMAP CMap_UniCNS_UCS2_H = {
 	-1, "UniCNS-UCS2-H", "", 0, 0, 2,
 	{ {2,0,55295},{2,57344,65535}, },
 	5399, 5399, (PDF_CMAP_RANGE*) CMap_UniCNS_UCS2_H_Ranges,
-	13509, 13509, (HE_UINT16*) CMap_UniCNS_UCS2_H_Table,
+	13509, 13509, (uint16*) CMap_UniCNS_UCS2_H_Table,
 };
 
 /* UniCNS-UCS2-V */
@@ -6407,7 +6407,7 @@ PDF_CMAP_RANGE CMap_UniCNS_UCS2_V_Ranges[] = {
 {65103,0,13745},{65288,5,130},{65371,0,134},{65373,0,135},
 };
 
-const HE_UINT16 CMap_UniCNS_UCS2_V_Table[2] = {
+const uint16 CMap_UniCNS_UCS2_V_Table[2] = {
 120,122,
 };
 
@@ -6415,7 +6415,7 @@ PDF_CMAP CMap_UniCNS_UCS2_V = {
 	-1, "UniCNS-UCS2-V", "UniCNS-UCS2-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_UniCNS_UCS2_V_Ranges,
-	2, 2, (HE_UINT16*) CMap_UniCNS_UCS2_V_Table,
+	2, 2, (uint16*) CMap_UniCNS_UCS2_V_Table,
 };
 
 /* UniCNS-UTF16-H */
@@ -8005,7 +8005,7 @@ PDF_CMAP_RANGE CMap_UniCNS_UTF16_H_Ranges[] = {
 {65517,0,14096},
 };
 
-const HE_UINT16 CMap_UniCNS_UTF16_H_Table[15177] = {
+const uint16 CMap_UniCNS_UTF16_H_Table[15177] = {
 178,13747,195,280,212,18788,18786,18792,18790,18801,18796,18794,
 18805,18803,18810,18808,18832,18814,18812,18818,18816,211,18840,18822,
 18820,18785,18802,18789,18807,18791,18809,18841,18793,18815,18787,18804,
@@ -9277,7 +9277,7 @@ PDF_CMAP CMap_UniCNS_UTF16_H = {
 	-1, "UniCNS-UTF16-H", "", 0, 0, 3,
 	{ {2,0,55295},{4,56320,57343},{2,57344,65535}, },
 	6325, 6325, (PDF_CMAP_RANGE*) CMap_UniCNS_UTF16_H_Ranges,
-	15177, 15177, (HE_UINT16*) CMap_UniCNS_UTF16_H_Table,
+	15177, 15177, (uint16*) CMap_UniCNS_UTF16_H_Table,
 };
 
 /* UniCNS-UTF16-V */
@@ -9288,7 +9288,7 @@ PDF_CMAP_RANGE CMap_UniCNS_UTF16_V_Ranges[] = {
 {65103,0,13745},{65288,5,130},{65371,0,134},{65373,0,135},
 };
 
-const HE_UINT16 CMap_UniCNS_UTF16_V_Table[2] = {
+const uint16 CMap_UniCNS_UTF16_V_Table[2] = {
 120,122,
 };
 
@@ -9296,7 +9296,7 @@ PDF_CMAP CMap_UniCNS_UTF16_V = {
 	-1, "UniCNS-UTF16-V", "UniCNS-UTF16-H", 0, 1, 0,
 	{ {0,0,0}, },
 	12, 12, (PDF_CMAP_RANGE*) CMap_UniCNS_UTF16_V_Ranges,
-	2, 2, (HE_UINT16*) CMap_UniCNS_UTF16_V_Table,
+	2, 2, (uint16*) CMap_UniCNS_UTF16_V_Table,
 };
 
 #endif

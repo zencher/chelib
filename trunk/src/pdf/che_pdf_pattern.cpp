@@ -1,16 +1,16 @@
 #include "../../include/pdf/che_pdf_pattern.h"
 
 
-CHE_PDF_ShadingPtr CHE_PDF_Shading::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_ShadingPtr CHE_PDF_Shading::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator /*= nullptr*/ )
 {
     CHE_PDF_ShadingPtr ptr;
     
-    if ( pAllocator == NULL )
+    if ( pAllocator == nullptr )
     {
         pAllocator = GetDefaultAllocator();
     }
     
-    if ( rootObjPtr && rootObjPtr->GetType() == OBJ_TYPE_REFERENCE && pComponentMgr != NULL )
+    if ( rootObjPtr && rootObjPtr->GetType() == OBJ_TYPE_REFERENCE && pComponentMgr != nullptr )
     {
         CHE_PDF_ObjectPtr objPtr = rootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_DICTIONARY );
         if ( objPtr )
@@ -19,7 +19,7 @@ CHE_PDF_ShadingPtr CHE_PDF_Shading::Create( const CHE_PDF_ObjectPtr & rootObjPtr
             objPtr = dictPtr->GetElement("ShadingType", OBJ_TYPE_NUMBER);
             if (objPtr)
             {
-                CHE_PDF_Shading * pShading = NULL;
+                CHE_PDF_Shading * pShading = nullptr;
                 PDF_SHADING_TYPE type = (PDF_SHADING_TYPE)objPtr->GetNumberPtr()->GetInteger();
                 switch(type)
                 {
@@ -40,7 +40,7 @@ CHE_PDF_ShadingPtr CHE_PDF_Shading::Create( const CHE_PDF_ObjectPtr & rootObjPtr
                 if ( pShading && pShading->IsError() )
                 {
                     pAllocator->Delete( pShading );
-                    pShading = NULL;
+                    pShading = nullptr;
                 }else{
                     ptr.Reset( pShading );
                 }
@@ -60,7 +60,7 @@ CHE_PDF_ShadingPtr CHE_PDF_Shading::Convert( const CHE_PDF_ComponentPtr & compon
     return ptr;
 }
 
-CHE_PDF_Shading::CHE_PDF_Shading(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/)
+CHE_PDF_Shading::CHE_PDF_Shading(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= nullptr*/)
     : CHE_PDF_Component(COMPONENT_TYPE_Shading, rootObjPtr, pAllocator), mShadingType(SHADING_TYPE_FunctionBase)
 {
     CHE_PDF_ObjectPtr objPtr = mRootObject;
@@ -82,7 +82,7 @@ CHE_PDF_Shading::CHE_PDF_Shading(const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_C
         if (objPtr)
         {
             CHE_PDF_ArrayPtr arrPtr = objPtr->GetArrayPtr();
-            for(HE_ULONG i = 0; i < arrPtr->GetCount(); ++i)
+            for(size_t i = 0; i < arrPtr->GetCount(); ++i)
             {
                 objPtr = arrPtr->GetElement(i, OBJ_TYPE_NUMBER);
                 if (objPtr)
@@ -115,8 +115,8 @@ CHE_PDF_RadialShadingPtr CHE_PDF_Shading::GetRadialShadingPtr() const
 
 }
 
-CHE_PDF_Shading_Axial::CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/)
- : CHE_PDF_Shading(rootObjPtr, pComponentMgr, pAllocator), mStartExtend(FALSE), mEndExtend(FALSE)
+CHE_PDF_Shading_Axial::CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= nullptr*/)
+ : CHE_PDF_Shading(rootObjPtr, pComponentMgr, pAllocator), mStartExtend(false), mEndExtend(false)
 {
     CHE_PDF_ObjectPtr objPtr = mRootObject;
     objPtr = objPtr->GetRefPtr()->GetRefObj(OBJ_TYPE_DICTIONARY);
@@ -178,8 +178,8 @@ CHE_PDF_Shading_Axial::CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjP
     }
 }
 
-CHE_PDF_Shading_Radial::CHE_PDF_Shading_Radial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/)
- : CHE_PDF_Shading(rootObjPtr, pComponentMgr, pAllocator), mStartRadius(0), mEndRadius(0), mStartExtend(FALSE), mEndExtend(FALSE)
+CHE_PDF_Shading_Radial::CHE_PDF_Shading_Radial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= nullptr*/)
+ : CHE_PDF_Shading(rootObjPtr, pComponentMgr, pAllocator), mStartRadius(0), mEndRadius(0), mStartExtend(false), mEndExtend(false)
 {
     CHE_PDF_ObjectPtr objPtr = mRootObject;
     objPtr = objPtr->GetRefPtr()->GetRefObj(OBJ_TYPE_DICTIONARY);
@@ -250,15 +250,15 @@ CHE_PDF_Shading_Radial::CHE_PDF_Shading_Radial( const CHE_PDF_ObjectPtr & rootOb
 }
 
 
-CHE_PDF_TilingPtr CHE_PDF_Tiling::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/ )
+CHE_PDF_TilingPtr CHE_PDF_Tiling::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= nullptr*/ )
 {
 	CHE_PDF_TilingPtr ptr;
-	if ( rootObjPtr && rootObjPtr->GetType() == OBJ_TYPE_REFERENCE && pComponentMgr != NULL )
+	if ( rootObjPtr && rootObjPtr->GetType() == OBJ_TYPE_REFERENCE && pComponentMgr != nullptr )
 	{
 		CHE_PDF_ObjectPtr objPtr = rootObjPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
 		if ( objPtr )
 		{
-			if ( pAllocator == NULL )
+			if ( pAllocator == nullptr )
 			{
 				pAllocator = GetDefaultAllocator();
 			}
@@ -266,7 +266,7 @@ CHE_PDF_TilingPtr CHE_PDF_Tiling::Create( const CHE_PDF_ObjectPtr & rootObjPtr, 
 			if ( pTiling->IsError() )
 			{
 				pAllocator->Delete( pTiling );
-				pTiling = NULL;
+				pTiling = nullptr;
 			}else{
 				ptr.Reset( pTiling );
 			}
@@ -285,8 +285,8 @@ CHE_PDF_TilingPtr CHE_PDF_Tiling::Convert( const CHE_PDF_ComponentPtr & componen
 	return ptr;
 }
 
-CHE_PDF_Tiling::CHE_PDF_Tiling( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= NULL*/ )
-	: CHE_PDF_Component(COMPONENT_TYPE_Tiling, rootObjPtr, pAllocator), mbColored(FALSE), mTilingType(1), mXSetp(100), mYSetp(100)
+CHE_PDF_Tiling::CHE_PDF_Tiling( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*= nullptr*/ )
+	: CHE_PDF_Component(COMPONENT_TYPE_Tiling, rootObjPtr, pAllocator), mbColored(false), mTilingType(1), mXSetp(100), mYSetp(100)
 {
 	CHE_PDF_ObjectPtr objPtr = mRootObject;
 	objPtr = objPtr->GetRefPtr()->GetRefObj( OBJ_TYPE_STREAM );
@@ -314,7 +314,7 @@ CHE_PDF_Tiling::CHE_PDF_Tiling( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_Co
 			objPtr = dictPtr->GetElement( "PatternType", OBJ_TYPE_NUMBER );
 			if ( objPtr )
 			{
-				HE_INT32 patternType = objPtr->GetNumberPtr()->GetInteger();
+				int32 patternType = objPtr->GetNumberPtr()->GetInteger();
 				if ( patternType != 1 )
 				{
 					SetError( COMPONENT_ERROR_CONSTRUCTION );
@@ -325,13 +325,13 @@ CHE_PDF_Tiling::CHE_PDF_Tiling( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_Co
 			objPtr = dictPtr->GetElement( "PaintType", OBJ_TYPE_NUMBER );
 			if ( objPtr )
 			{
-				HE_INT32 paintType = objPtr->GetNumberPtr()->GetInteger();
+				int32 paintType = objPtr->GetNumberPtr()->GetInteger();
 				if ( paintType == 1 )
 				{
 					mbColored = TRUE;
 				}else if ( paintType == 2 )
 				{
-					mbColored = FALSE;
+					mbColored = false;
 				}else{
 					SetError( COMPONENT_ERROR_CONSTRUCTION );
 					return;

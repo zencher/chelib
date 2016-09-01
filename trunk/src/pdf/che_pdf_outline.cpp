@@ -1,22 +1,22 @@
 #include "../../include/pdf/che_pdf_outline.h"
 
-CHE_PDF_OutlineItem::CHE_PDF_OutlineItem(CHE_Allocator * pAllocator /*= NULL*/)
-: CHE_Object(pAllocator), mCount(0), mFlag(0), mpParent(NULL), mpPrev(NULL), mpNext(NULL), mpFirst(NULL), mpLast(NULL)
+CHE_PDF_OutlineItem::CHE_PDF_OutlineItem(CHE_Allocator * pAllocator /*= nullptr*/)
+: CHE_Object(pAllocator), mCount(0), mFlag(0), mpParent(nullptr), mpPrev(nullptr), mpNext(nullptr), mpFirst(nullptr), mpLast(nullptr)
 {
 	mRGBColor[0] = 0;
 	mRGBColor[1] = 0;
 	mRGBColor[2] = 0;
 }
 
-CHE_PDF_Outline::CHE_PDF_Outline(CHE_Allocator * pAllocator /*= NULL*/)
-: CHE_Object(pAllocator), mCount(0), mpFirst(NULL), mpLast(NULL), mpNameDict(NULL) {}
+CHE_PDF_Outline::CHE_PDF_Outline(CHE_Allocator * pAllocator /*= nullptr*/)
+: CHE_Object(pAllocator), mCount(0), mpFirst(nullptr), mpLast(nullptr), mpNameDict(nullptr) {}
 
 CHE_PDF_Outline::~CHE_PDF_Outline()
 {
 	Clear();
 }
 
-HE_VOID	CHE_PDF_Outline::Clear()
+void	CHE_PDF_Outline::Clear()
 {
 	if ( mpFirst && mpLast )
 	{
@@ -24,13 +24,13 @@ HE_VOID	CHE_PDF_Outline::Clear()
 	}
 }
 
-HE_BOOL CHE_PDF_Outline::Parse( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_NameDict * pNameDict /*= NULL*/ )
+bool CHE_PDF_Outline::Parse( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_NameDict * pNameDict /*= nullptr*/ )
 {
 	mpNameDict = pNameDict;
 
 	if ( !refPtr )
 	{
-		return FALSE;
+		return false;
 	}
 
 	if ( mpFirst && mpLast )
@@ -41,19 +41,19 @@ HE_BOOL CHE_PDF_Outline::Parse( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_Nam
 	CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj( OBJ_TYPE_DICTIONARY );
 	if ( ! objPtr )
 	{
-		return FALSE;
+		return false;
 	}
 
 	CHE_PDF_DictionaryPtr dictPtr = objPtr->GetDictPtr();
-	if ( ! dictPtr->CheckName( "Type", "Outlines", FALSE ) )
+	if ( ! dictPtr->CheckName( "Type", "Outlines", false ) )
 	{
-		return FALSE;
+		return false;
 	}
 
 	objPtr = dictPtr->GetElement( "Count", OBJ_TYPE_NUMBER );
 	if ( !objPtr )
 	{
-		return FALSE;
+		return false;
 	}
 	mCount = objPtr->GetNumberPtr()->GetInteger();
 
@@ -72,7 +72,7 @@ HE_BOOL CHE_PDF_Outline::Parse( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_Nam
 	if ( !firstRefPtr && !lastRefPtr )
 	{
 		mCount = 0;
-		return FALSE;
+		return false;
 	}
 
 	mRefPtr = refPtr;
@@ -84,11 +84,11 @@ HE_BOOL CHE_PDF_Outline::Parse( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_Nam
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_Outline::GetOutlineItem( CHE_PDF_OutlineItem * pItem, const CHE_PDF_DictionaryPtr & dictPtr )
+bool CHE_PDF_Outline::GetOutlineItem( CHE_PDF_OutlineItem * pItem, const CHE_PDF_DictionaryPtr & dictPtr )
 {
-	if ( pItem == NULL )
+	if ( pItem == nullptr )
 	{
-		return FALSE;
+		return false;
 	}
 
 	if ( dictPtr )
@@ -192,14 +192,14 @@ HE_BOOL CHE_PDF_Outline::GetOutlineItem( CHE_PDF_OutlineItem * pItem, const CHE_
 	return TRUE;
 }
 
-HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const CHE_PDF_ReferencePtr & firstRef, const CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot /*= FALSE*/ )
+uint32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const CHE_PDF_ReferencePtr & firstRef, const CHE_PDF_ReferencePtr & lastRef, bool bRoot /*= false*/ )
 {
-	if ( pCurItem == NULL )
+	if ( pCurItem == nullptr )
 	{
 		return 0;
 	}
 
-	HE_UINT32 count = 0;
+	uint32 count = 0;
 	CHE_PDF_ObjectPtr objPtr1;
 	CHE_PDF_ObjectPtr objPtr2;
 	objPtr1 = firstRef->GetRefObj( OBJ_TYPE_DICTIONARY );
@@ -216,7 +216,7 @@ HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const
 	pTmpItem->mpParent = pCurItem;
 	if ( bRoot )
 	{
-		pTmpItem->mpParent = NULL;
+		pTmpItem->mpParent = nullptr;
 	}
 
 	pCurItem->mpFirst = pTmpItem;
@@ -228,7 +228,7 @@ HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const
 		objPtr2 = dictPtr->GetElement( "Last", OBJ_TYPE_REFERENCE );
 		if ( objPtr1 && objPtr2 )
 		{
-			HE_UINT32 childCount = BuildChildTree( pTmpItem, objPtr1->GetRefPtr(), objPtr2->GetRefPtr() );
+			uint32 childCount = BuildChildTree( pTmpItem, objPtr1->GetRefPtr(), objPtr2->GetRefPtr() );
 			if ( childCount != pTmpItem->mCount )
 			{
 				pTmpItem->mCount = childCount;
@@ -250,7 +250,7 @@ HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const
 			pTmpItem->mpParent = pCurItem;
 			if ( bRoot )
 			{
-				pTmpItem->mpParent = NULL;
+				pTmpItem->mpParent = nullptr;
 			}
 		}else{
 			break;
@@ -261,7 +261,7 @@ HE_UINT32 CHE_PDF_Outline::BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const
 	return count;
 }
 
-HE_VOID CHE_PDF_Outline::CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_OutlineItem * pLast )
+void CHE_PDF_Outline::CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_OutlineItem * pLast )
 {
 	if ( !pFirst || !pLast )
 	{
@@ -269,7 +269,7 @@ HE_VOID CHE_PDF_Outline::CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_O
 	}
 
 	CHE_PDF_OutlineItem * pTmp = pFirst;
-	CHE_PDF_OutlineItem * pTarget = NULL;
+	CHE_PDF_OutlineItem * pTarget = nullptr;
 	while ( pTmp != pLast )
 	{
 		pTarget = pTmp;

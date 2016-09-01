@@ -149,7 +149,7 @@
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
     if ( context )
     {
-        HE_UINT32 rotate = 0, tmpRotate = 0;
+        uint32 rotate = 0, tmpRotate = 0;
         switch ( [pdfDocData getRotateMode] )
         {
             case ROTATE_MODE_0:
@@ -168,7 +168,7 @@
         }
 
         HE_PDF_PAGE_RANGE range = [pdfDocData getCurPageRange];
-        for ( HE_ULONG i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
+        for ( size_t i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
         {
             CGContextSaveGState( context );
             

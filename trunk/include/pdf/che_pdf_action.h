@@ -57,14 +57,14 @@ public:
 class CHE_PDF_Action : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_ActionPtr Create(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict = NULL, CHE_Allocator * pAllocator = NULL);
+	static CHE_PDF_ActionPtr Create(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict = nullptr, CHE_Allocator * pAllocator = nullptr);
 
 	PDF_ACTION_TYPE GetActionType() const { return mActionType; }
 
 	CHE_PDF_ActionPtr GetNext() const { return mNext; }
 
 protected:
-	CHE_PDF_Action( PDF_ACTION_TYPE type, const CHE_PDF_ObjectPtr & obj, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Action( PDF_ACTION_TYPE type, const CHE_PDF_ObjectPtr & obj, CHE_Allocator * pAllocator = nullptr );
 
 	PDF_ACTION_TYPE		mActionType;
 	CHE_PDF_ActionPtr	mNext;
@@ -84,7 +84,7 @@ public:
 	CHE_PDF_DestinationPtr GetDest() const { return mDestPtr; }
 
 private:
-	CHE_PDF_GoToAction(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict = NULL, CHE_Allocator * pAllocator = NULL);
+	CHE_PDF_GoToAction(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict = nullptr, CHE_Allocator * pAllocator = nullptr);
 
 	CHE_PDF_DestinationPtr	mDestPtr;
 
@@ -103,9 +103,9 @@ class CHE_PDF_GoToRAction : public  CHE_PDF_Action
 public:
 
 private:
-	CHE_PDF_GoToRAction(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict = NULL, CHE_Allocator * pAllocator = NULL);
+	CHE_PDF_GoToRAction(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict = nullptr, CHE_Allocator * pAllocator = nullptr);
 
-	HE_BOOL					mbNewWindow;
+	bool					mbNewWindow;
 	CHE_PDF_FileSpec		mFileSpec;
 	CHE_PDF_DestinationPtr	mDestPtr;
 

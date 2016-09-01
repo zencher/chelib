@@ -25,10 +25,10 @@ public:
 	CHE_WDM_Layout( const WDM_Layout_Type & VertLayout, const WDM_Layout_Type & HoriLayout )
 		: CHE_Object( NULL ), mVertLayout( VertLayout ), mHoriLayout( HoriLayout ) {}
 
-	HE_VOID								SetVertLayout( const WDM_Layout_Type & layout ) { mVertLayout = layout; }
+	void								SetVertLayout( const WDM_Layout_Type & layout ) { mVertLayout = layout; }
 	WDM_Layout_Type						GetVertLayout() const { return mVertLayout; }
 	
-	HE_VOID								SetHoriLayout( const WDM_Layout_Type & layout ) { mHoriLayout = layout; }
+	void								SetHoriLayout( const WDM_Layout_Type & layout ) { mHoriLayout = layout; }
 	WDM_Layout_Type						GetHoriLayout() const { return mHoriLayout; }
 
 private:
@@ -66,11 +66,11 @@ public:
 
 	bool operator!() const { return mpItem ? FALSE : TRUE ; }
 
-	operator HE_BOOL() const { return mpItem ? TRUE : FALSE ; }
+	operator bool() const { return mpItem ? TRUE : FALSE ; }
 
 	inline CHE_WDM_AppearItem *	operator->() const { return mpItem; }
 
-	HE_VOID	reset( CHE_WDM_AppearItem * pItem = NULL );
+	void	reset( CHE_WDM_AppearItem * pItem = NULL );
 
 	CHE_WDM_AppearImagePtr GetImagePtr();
 
@@ -87,23 +87,23 @@ class CHE_WDM_AppearItem : public CHE_Object
 public:
 	virtual WDM_APPEAR_ITEM_TYPE		GetType() = 0;
 
-	HE_VOID								SetAlpha( HE_FLOAT alpha ) { mAlpha = alpha; }
-	HE_FLOAT							GetAlpha() const { return mAlpha; }
+	void								SetAlpha( FLOAT alpha ) { mAlpha = alpha; }
+	FLOAT							GetAlpha() const { return mAlpha; }
 	
-	HE_VOID								SetScaleX( HE_FLOAT scaleX ) { mScaleX = scaleX; }
-	HE_FLOAT							GetScaleX() const { return mScaleX; }
+	void								SetScaleX( FLOAT scaleX ) { mScaleX = scaleX; }
+	FLOAT							GetScaleX() const { return mScaleX; }
 	
-	HE_VOID								SetScaleY( HE_FLOAT scaleY ) { mScaleY = scaleY; }
-	HE_FLOAT							GetScaleY() const { return mScaleY; }
+	void								SetScaleY( FLOAT scaleY ) { mScaleY = scaleY; }
+	FLOAT							GetScaleY() const { return mScaleY; }
 	
-	HE_VOID								SetPosiX( HE_INT32 x ) { mPosiX = x; }
-	HE_INT32							GetPosiX() const { return mPosiX; }
+	void								SetPosiX( int32 x ) { mPosiX = x; }
+	int32							GetPosiX() const { return mPosiX; }
 	
-	HE_VOID								SetPosiY( HE_INT32 y ) { mPosiY = y; }
-	HE_INT32							GetPosiY() const { return mPosiY; }
+	void								SetPosiY( int32 y ) { mPosiY = y; }
+	int32							GetPosiY() const { return mPosiY; }
 	
-	HE_VOID								SetExtData( HE_LPVOID pExtData ) { mExtData = pExtData; }
-	HE_LPVOID							GetExtData() const { return mExtData; }
+	void								SetExtData( void * pExtData ) { mExtData = pExtData; }
+	void *							GetExtData() const { return mExtData; }
 
 protected:
 	CHE_WDM_AppearItem( CHE_Allocator * pAllocator = NULL )
@@ -111,12 +111,12 @@ protected:
 
 	virtual ~CHE_WDM_AppearItem() {}
 
-	HE_FLOAT							mAlpha;
-	HE_FLOAT							mScaleX;
-	HE_FLOAT							mScaleY;
-	HE_INT32							mPosiX;
-	HE_INT32							mPosiY;
-	HE_LPVOID							mExtData;
+	FLOAT							mAlpha;
+	FLOAT							mScaleX;
+	FLOAT							mScaleY;
+	int32							mPosiX;
+	int32							mPosiY;
+	void *							mExtData;
 
 	CHE_RefCount						mRefs;
 
@@ -144,11 +144,11 @@ public:
 
 	WDM_APPEAR_ITEM_TYPE				GetType() { return APPEAR_ITEM_IMAGE; }
 
-	HE_VOID								SetStyle( WDM_APPEAR_IMAGE_STYLE style ) { mStyle = style; }
+	void								SetStyle( WDM_APPEAR_IMAGE_STYLE style ) { mStyle = style; }
 	WDM_APPEAR_IMAGE_STYLE				GetStyle() { return mStyle; }
 
-	HE_VOID								SetImageFile( HE_LPWSTR pFile );
-	HE_LPWSTR							GetImageFile() { return mFile; }
+	void								SetImageFile( PWSTR pFile );
+	PWSTR							GetImageFile() { return mFile; }
 
 protected:
 	CHE_WDM_AppearImage( CHE_Allocator * pAllocator = NULL )
@@ -157,7 +157,7 @@ protected:
 	~CHE_WDM_AppearImage();
 
 	WDM_APPEAR_IMAGE_STYLE				mStyle;
-	HE_LPWSTR							mFile;
+	PWSTR							mFile;
 
 	friend class CHE_Allocator;
 	friend class CHE_WDM_AppearImagePtr;
@@ -176,26 +176,26 @@ public:
 
 	WDM_APPEAR_ITEM_TYPE				GetType() { return APPEAR_ITEM_TEXT; }
 
-	HE_VOID								SetText( HE_LPCWSTR text );
-	HE_LPCWSTR							GetText() const { return mText; }
+	void								SetText( PCWSTR text );
+	PCWSTR							GetText() const { return mText; }
 
-	HE_VOID								SetColor( HE_ULONG val ) { mColor = val; }
-	HE_ULONG							GetColor() const { return mColor; }
+	void								SetColor( size_t val ) { mColor = val; }
+	size_t							GetColor() const { return mColor; }
 
-	HE_VOID								SetFontFile( HE_LPCWSTR file );
-	HE_LPWSTR							GetFontFile() const { return mFontFile; }
+	void								SetFontFile( PCWSTR file );
+	PWSTR							GetFontFile() const { return mFontFile; }
 
-	HE_VOID								SetLayout( CHE_WDM_Layout layout ) { mLayout = layout; }
+	void								SetLayout( CHE_WDM_Layout layout ) { mLayout = layout; }
 	CHE_WDM_Layout						GetLayout() const { return mLayout; }
 
-	HE_VOID								SetSize( HE_ULONG size ) { mSize = size; }
-	HE_ULONG							GetSize() const { return mSize; }
+	void								SetSize( size_t size ) { mSize = size; }
+	size_t							GetSize() const { return mSize; }
 
-	HE_VOID								SetWidth( HE_ULONG width ) { mWidth = width; }
-	HE_ULONG							GetWidth() const { return mWidth; }
+	void								SetWidth( size_t width ) { mWidth = width; }
+	size_t							GetWidth() const { return mWidth; }
 
-	HE_VOID								SetHeight( HE_ULONG height ) { mHeight = height; }
-	HE_ULONG							GetHeight() const { return mHeight; }
+	void								SetHeight( size_t height ) { mHeight = height; }
+	size_t							GetHeight() const { return mHeight; }
 
 protected:
 	CHE_WDM_AppearText( CHE_Allocator * pAllocator = NULL )
@@ -203,13 +203,13 @@ protected:
 
 	~CHE_WDM_AppearText();
 
-	HE_LPWSTR							mText;
-	HE_LPWSTR							mFontFile;
-	HE_ULONG							mSize;
-	HE_ULONG							mColor;
+	PWSTR							mText;
+	PWSTR							mFontFile;
+	size_t							mSize;
+	size_t							mColor;
 	CHE_WDM_Layout						mLayout;
- 	HE_ULONG							mWidth;
- 	HE_ULONG							mHeight;
+ 	size_t							mWidth;
+ 	size_t							mHeight;
 
 	friend class CHE_Allocator;
 	friend class CHE_WDM_AppearTextPtr;
@@ -240,17 +240,17 @@ class CHE_WDM_AppearPathItem : public CHE_Object
 public:
 	CHE_WDM_AppearPathItem() : CHE_Object( NULL ), mValue( 0 ) {}
 
-	HE_VOID								SetType( WDM_APPEAR_PATH_TYPE type ) { mType = type; }
+	void								SetType( WDM_APPEAR_PATH_TYPE type ) { mType = type; }
 	WDM_APPEAR_PATH_TYPE				GetType() const { return mType; }
 
-	HE_VOID								SetValue( float val ) { mValue = val; }
-	HE_FLOAT							GetValue() const { return mValue; }
+	void								SetValue( float val ) { mValue = val; }
+	FLOAT							GetValue() const { return mValue; }
 
 private:
 	union
 	{
 		WDM_APPEAR_PATH_TYPE			mType;
-		HE_FLOAT						mValue;
+		FLOAT						mValue;
 	};
 };
 
@@ -267,26 +267,26 @@ public:
 
 	WDM_APPEAR_ITEM_TYPE				GetType() { return APPEAR_ITEM_PATH; }
 
-	HE_VOID								AddLine( HE_FLOAT xStart, HE_FLOAT yStart, HE_FLOAT xEnd, HE_FLOAT yEnd );
-	HE_VOID								AddRect( HE_FLOAT left, HE_FLOAT top, HE_FLOAT width, HE_FLOAT hight );
-	HE_VOID								AddCurve( HE_FLOAT x0, HE_FLOAT y0, HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2 );
+	void								AddLine( FLOAT xStart, FLOAT yStart, FLOAT xEnd, FLOAT yEnd );
+	void								AddRect( FLOAT left, FLOAT top, FLOAT width, FLOAT hight );
+	void								AddCurve( FLOAT x0, FLOAT y0, FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2 );
 
-	HE_ULONG							GetItemCount();
-	HE_BOOL								GetItem( HE_ULONG index, CHE_WDM_AppearPathItem & itemRet );
+	size_t							GetItemCount();
+	bool								GetItem( size_t index, CHE_WDM_AppearPathItem & itemRet );
 
-	HE_VOID								SetLineWidth( HE_FLOAT width ) { mLineWidth = width; }
-	HE_FLOAT							GetLineWidth() const { return mLineWidth; }
+	void								SetLineWidth( FLOAT width ) { mLineWidth = width; }
+	FLOAT							GetLineWidth() const { return mLineWidth; }
 
-	HE_VOID								SetFillColor( HE_ULONG color ) { mFillColor = color; }
-	HE_ULONG							GetFillColor() const { return mFillColor; }
+	void								SetFillColor(ARGB color) { mFillColor = color; }
+	ARGB							GetFillColor() const { return mFillColor; }
 
-	HE_VOID								SetStrokeColor( HE_ULONG color ) { mStrokeColor = color; }
-	HE_ULONG							GetStrokeColor() const { return mStrokeColor; }
+	void								SetStrokeColor(ARGB color) { mStrokeColor = color; }
+	ARGB							GetStrokeColor() const { return mStrokeColor; }
 
-	HE_VOID								SetOperator( WDM_APPEAR_PATH_OPERATOR opt ) { mOperator = opt; }
+	void								SetOperator( WDM_APPEAR_PATH_OPERATOR opt ) { mOperator = opt; }
 	WDM_APPEAR_PATH_OPERATOR			GetOperator() const { return mOperator; }
 
-	HE_VOID								SetFillMode( WDM_APPEAR_PATH_FILL_MODE fillMode ) { mFillMode = fillMode; }
+	void								SetFillMode( WDM_APPEAR_PATH_FILL_MODE fillMode ) { mFillMode = fillMode; }
 	WDM_APPEAR_PATH_FILL_MODE			GetFillMode() const { return mFillMode; }
 
 private:
@@ -296,9 +296,9 @@ private:
 
 	~CHE_WDM_AppearPath() {}
 
-	HE_FLOAT							mLineWidth;
-	HE_ULONG							mFillColor;
-	HE_ULONG							mStrokeColor;
+	FLOAT							mLineWidth;
+	ARGB							mFillColor;
+	ARGB							mStrokeColor;
 	WDM_APPEAR_PATH_OPERATOR			mOperator;
 	WDM_APPEAR_PATH_FILL_MODE			mFillMode;
 	std::vector<CHE_WDM_AppearPathItem>	mItems;
@@ -336,22 +336,22 @@ enum WDM_AREA_APPEAR_TYPE
 class IHE_WDM_InterActive
 {
 public:
-	virtual HE_VOID						Invalidate() = 0;
-	virtual HE_VOID						InvalidateRect( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom ) = 0;
+	virtual void						Invalidate() = 0;
+	virtual void						InvalidateRect( int32 left, int32 top, int32 right, int32 bottom ) = 0;
 
-	virtual HE_VOID						SetClip( CHE_WDM_Area * pArea ) = 0;
-	virtual HE_VOID						SetClip( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom ) = 0;
-	virtual HE_VOID						ResetClip() = 0;
+	virtual void						SetClip( CHE_WDM_Area * pArea ) = 0;
+	virtual void						SetClip( int32 left, int32 top, int32 right, int32 bottom ) = 0;
+	virtual void						ResetClip() = 0;
 
-	virtual HE_VOID						Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE ) = 0;
-	virtual HE_VOID						Draw( CHE_WDM_Area * pArea, CHE_WDM_AppearItemPtr appearPtr ) = 0;
+	virtual void						Draw( CHE_WDM_Area * pArea, WDM_AREA_APPEAR_TYPE ) = 0;
+	virtual void						Draw( CHE_WDM_Area * pArea, CHE_WDM_AppearItemPtr appearPtr ) = 0;
 
-	virtual HE_VOID						SetTimer( CHE_WDM_Area * pArea, HE_ULONG elapse ) = 0;
-	virtual HE_VOID						KillTimer( CHE_WDM_Area * pArea ) = 0;
+	virtual void						SetTimer( CHE_WDM_Area * pArea, size_t elapse ) = 0;
+	virtual void						KillTimer( CHE_WDM_Area * pArea ) = 0;
 
-	virtual HE_BOOL						MeasureString( CHE_WDM_AppearTextPtr ptr, HE_ULONG & width, HE_ULONG & height ) = 0;
-	virtual HE_BOOL						MeasureChars( CHE_WDM_AppearTextPtr ptr, HE_ULONG count, HE_ULONG & width, HE_ULONG & height ) = 0;
-	virtual HE_FLOAT					GetFontHeight( CHE_WDM_AppearTextPtr ptr ) = 0;
+	virtual bool						MeasureString( CHE_WDM_AppearTextPtr ptr, size_t & width, size_t & height ) = 0;
+	virtual bool						MeasureChars( CHE_WDM_AppearTextPtr ptr, size_t count, size_t & width, size_t & height ) = 0;
+	virtual FLOAT					GetFontHeight( CHE_WDM_AppearTextPtr ptr ) = 0;
 };
 
 
@@ -421,97 +421,97 @@ public:
 
 	virtual	~CHE_WDM_Area();
 
-	HE_VOID								SetName( const CHE_ByteString & name ) { mName = name; }
+	void								SetName( const CHE_ByteString & name ) { mName = name; }
 	CHE_ByteString &					GetName() { return mName; }
 
-	HE_VOID								SetWidth( HE_INT32 width );
-	HE_INT32							GetWidth() const { return mWidth; }
+	void								SetWidth( int32 width );
+	int32							GetWidth() const { return mWidth; }
 
-	HE_VOID								SetHeight( HE_INT32 height );
-	HE_INT32							GetHeight() const {return mHeight; }
+	void								SetHeight( int32 height );
+	int32							GetHeight() const {return mHeight; }
 
-	HE_VOID								SetPosiX( HE_INT32 x );
-	HE_VOID								SetPosiY( HE_INT32 y );
-	HE_INT32							GetPosiX() const { return mPosX; }
-	HE_INT32							GetPosiY() const { return mPosY; }
+	void								SetPosiX( int32 x );
+	void								SetPosiY( int32 y );
+	int32							GetPosiX() const { return mPosX; }
+	int32							GetPosiY() const { return mPosY; }
 
-	HE_VOID								SetLayout( const CHE_WDM_Layout & layout ) { mLayout = layout; }
+	void								SetLayout( const CHE_WDM_Layout & layout ) { mLayout = layout; }
 	CHE_WDM_Layout						GetLayout() const { return mLayout; }
 
-	HE_BOOL								IsMouseOver() const { return mbMO; }
-	HE_BOOL								IsMouseLBDown() const { return mbLBD; }
-	HE_BOOL								IsMouseRBDown() const { return mbRBD; }
+	bool								IsMouseOver() const { return mbMO; }
+	bool								IsMouseLBDown() const { return mbLBD; }
+	bool								IsMouseRBDown() const { return mbRBD; }
 
-	HE_VOID								EnableClip() { mbClip = TRUE; }
-	HE_VOID								DisableClip() { mbClip = FALSE; }
-	HE_BOOL								IsClipEnable() const { return mbClip; }
+	void								EnableClip() { mbClip = TRUE; }
+	void								DisableClip() { mbClip = FALSE; }
+	bool								IsClipEnable() const { return mbClip; }
 
-	HE_VOID								SetVisable( HE_BOOL bVisable ) { mbVisable = bVisable; };
-	HE_BOOL								IsVisable() const { return mbVisable; }
+	void								SetVisable( bool bVisable ) { mbVisable = bVisable; };
+	bool								IsVisable() const { return mbVisable; }
 
-	HE_VOID								SetEnable( HE_BOOL bEnable );
-	HE_BOOL								IsEnable() const { return mbEnable; }
+	void								SetEnable( bool bEnable );
+	bool								IsEnable() const { return mbEnable; }
 
-	HE_VOID								Refresh();
+	void								Refresh();
 
 	CHE_WDM_Appearance &				GetAppear() { return mAppearance; }
-	HE_VOID								AppendAppearItem( const CHE_WDM_AppearItemPtr & ptr, WDM_AREA_APPEAR_TYPE type );
+	void								AppendAppearItem( const CHE_WDM_AppearItemPtr & ptr, WDM_AREA_APPEAR_TYPE type );
 
-	HE_ULONG							GetChildrenCount() const;
+	size_t							GetChildrenCount() const;
 
-	HE_VOID								AppendChild( CHE_WDM_Area * pChlid );
-	CHE_WDM_Area *						PopChild( HE_ULONG index );
-	CHE_WDM_Area *						GetChild( HE_ULONG index ) const;
-	HE_VOID								ClearChild();
+	void								AppendChild( CHE_WDM_Area * pChlid );
+	CHE_WDM_Area *						PopChild( size_t index );
+	CHE_WDM_Area *						GetChild( size_t index ) const;
+	void								ClearChild();
 
-	HE_BOOL								ChildToLower( HE_ULONG index );
-	HE_BOOL								ChildToUpper( HE_ULONG index );
+	bool								ChildToLower( size_t index );
+	bool								ChildToUpper( size_t index );
 
-	virtual HE_BOOL						OnMouseMove( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL						OnMouseOver();
-	virtual HE_BOOL						OnMouseOut();
-	virtual HE_BOOL						OnMouseLBDown( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL						OnMouseLBUp( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL						OnMouseRBDown( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL						OnMouseRBUp( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL						OnMouseLDBClick( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL						OnMouseRDBClick( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL						OnKeyDown( HE_INT32 /*keyCode*/ ) { return FALSE; }
-	virtual HE_BOOL						OnKeyUp( HE_INT32 /*keyCode*/ ) { return FALSE; }
-	virtual HE_BOOL						OnChar( HE_WCHAR /*charCode*/ ) { return FALSE; }
-	virtual HE_BOOL						OnTimer() { return FALSE; }
-	virtual HE_BOOL						OnDraw();
-	virtual HE_BOOL						OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom );
+	virtual bool						OnMouseMove( int32 x, int32 y );
+	virtual bool						OnMouseOver();
+	virtual bool						OnMouseOut();
+	virtual bool						OnMouseLBDown( int32 x, int32 y );
+	virtual bool						OnMouseLBUp( int32 x, int32 y );
+	virtual bool						OnMouseRBDown( int32 x, int32 y );
+	virtual bool						OnMouseRBUp( int32 x, int32 y );
+	virtual bool						OnMouseLDBClick( int32 x, int32 y );
+	virtual bool						OnMouseRDBClick( int32 x, int32 y );
+	virtual bool						OnKeyDown( int32 /*keyCode*/ ) { return FALSE; }
+	virtual bool						OnKeyUp( int32 /*keyCode*/ ) { return FALSE; }
+	virtual bool						OnChar( WCHAR /*charCode*/ ) { return FALSE; }
+	virtual bool						OnTimer() { return FALSE; }
+	virtual bool						OnDraw();
+	virtual bool						OnDraw( int32 left, int32 top, int32 right, int32 bottom );
 
-	HE_VOID								SetFocus( CHE_WDM_Area * pChild );
-	HE_VOID								ReleaseFocus();
+	void								SetFocus( CHE_WDM_Area * pChild );
+	void								ReleaseFocus();
 
-	HE_VOID								SetCapture( CHE_WDM_Area * pChild );
-	HE_VOID								ReleaseCapture();
+	void								SetCapture( CHE_WDM_Area * pChild );
+	void								ReleaseCapture();
 
 	CHE_WDM_Area *						GetParent() const { return mParent; }
 
 protected:
 	CHE_WDM_Area( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator = NULL );
 
-	HE_VOID								SetParent( CHE_WDM_Area * pParent ) { mParent = pParent; }
+	void								SetParent( CHE_WDM_Area * pParent ) { mParent = pParent; }
 
-	HE_VOID								SetInterActive( IHE_WDM_InterActive * pInterActive ) { mInterActive = pInterActive; }
+	void								SetInterActive( IHE_WDM_InterActive * pInterActive ) { mInterActive = pInterActive; }
 	IHE_WDM_InterActive *				GetInterActive() { return mInterActive; }
 
 private:
-	HE_BOOL								mbLBD;
-	HE_BOOL								mbRBD;
-	HE_BOOL								mbMO;
+	bool								mbLBD;
+	bool								mbRBD;
+	bool								mbMO;
 
-	HE_BOOL								mbClip;
-	HE_BOOL								mbVisable;
-	HE_BOOL								mbEnable;
+	bool								mbClip;
+	bool								mbVisable;
+	bool								mbEnable;
 
-	HE_ULONG							mWidth;
-	HE_ULONG							mHeight;
-	HE_INT32							mPosX;
-	HE_INT32							mPosY;
+	size_t							mWidth;
+	size_t							mHeight;
+	int32							mPosX;
+	int32							mPosY;
 
 	CHE_WDM_Layout						mLayout;
 	CHE_WDM_Area *						mParent;
@@ -531,14 +531,14 @@ class CHE_WDM_AnimationData
 public:
 	CHE_WDM_AnimationData() : mAlpha(1), mScaleX(1), mScaleY(1), mPosiX(0), mPosiY(0) {}
 
-	HE_FLOAT							mAlpha;
-	HE_FLOAT							mScaleX;
-	HE_FLOAT							mScaleY;
-	HE_INT32							mPosiX;
-	HE_INT32							mPosiY;
+	FLOAT							mAlpha;
+	FLOAT							mScaleX;
+	FLOAT							mScaleY;
+	int32							mPosiX;
+	int32							mPosiY;
 };
 
-typedef HE_VOID (*Function)();
+typedef void (*Function)();
 
 class CHE_WDM_AreaAnimation
 {
@@ -548,26 +548,26 @@ public:
 
 	~CHE_WDM_AreaAnimation() {};
 
-	HE_BOOL								SetTarget( CHE_WDM_Area * pArea );
-	HE_VOID								SetState( const CHE_WDM_AnimationData & state ) { mState = state; }
-	HE_VOID								SetLoop( HE_BOOL bLoop ) { mbLoop = bLoop; }
-	HE_VOID								SetOverFunction( Function pFunction ) { mpOverFunction = pFunction; }
-	HE_VOID								CallFunction();
-	HE_VOID								InsertFrames( HE_ULONG frames, const CHE_WDM_AnimationData & state );
+	bool								SetTarget( CHE_WDM_Area * pArea );
+	void								SetState( const CHE_WDM_AnimationData & state ) { mState = state; }
+	void								SetLoop( bool bLoop ) { mbLoop = bLoop; }
+	void								SetOverFunction( Function pFunction ) { mpOverFunction = pFunction; }
+	void								CallFunction();
+	void								InsertFrames( size_t frames, const CHE_WDM_AnimationData & state );
 
-	HE_VOID								Init();
-	HE_VOID								Execute();
+	void								Init();
+	void								Execute();
 
-	HE_BOOL								IsOver();
-	HE_BOOL								IsLoop() const { return mbLoop; }
+	bool								IsOver();
+	bool								IsLoop() const { return mbLoop; }
 
 protected:
-	HE_BOOL								mbLoop;
+	bool								mbLoop;
 
-	HE_ULONG							mFramesCount;
-	HE_ULONG							mCurFrame;
-	HE_ULONG							mIndex;
-	HE_ULONG							mFramesToGo;
+	size_t							mFramesCount;
+	size_t							mCurFrame;
+	size_t							mIndex;
+	size_t							mFramesToGo;
 
 	CHE_WDM_Area	*					mpArea;
 	CHE_WDM_AnimationData				mState;
@@ -575,16 +575,16 @@ protected:
 	Function							mpOverFunction;
 
 	std::vector<CHE_WDM_AnimationData>	mAnimations;
-	std::vector<HE_ULONG>				mAnimationFrames;
+	std::vector<size_t>				mAnimationFrames;
 };
 
 class CHE_WDM_AppearAnimation : public CHE_WDM_AreaAnimation
 {
 public:
-	HE_VOID							SetAppear( const CHE_WDM_AppearItemPtr & appearPtr ) { mAppearPtr = appearPtr; }
+	void							SetAppear( const CHE_WDM_AppearItemPtr & appearPtr ) { mAppearPtr = appearPtr; }
 
-	HE_VOID							Init();
-	HE_VOID							Execute();
+	void							Init();
+	void							Execute();
 
 protected:
 	CHE_WDM_AppearItemPtr			mAppearPtr;
@@ -593,35 +593,35 @@ protected:
 class CHE_WDM_AnimationMgr
 {
 public:
-	HE_VOID Execute();
+	void Execute();
 
-	HE_VOID	StartAreaAnimation( const CHE_WDM_AreaAnimation & animation );
+	void	StartAreaAnimation( const CHE_WDM_AreaAnimation & animation );
 
-	HE_VOID	StartAppearAnimation( const CHE_WDM_AppearAnimation & animation );
+	void	StartAppearAnimation( const CHE_WDM_AppearAnimation & animation );
 
 public:
 	std::vector<CHE_WDM_AreaAnimation>		mAreaAnimations;
 	std::vector<CHE_WDM_AppearAnimation>	mAppearAnimations;
 };
 
-typedef HE_VOID (*EventFunction)( CHE_WDM_Area * pArea );
+typedef void (*EventFunction)( CHE_WDM_Area * pArea );
 
 class CHE_WDM_Button : public CHE_WDM_Area
 {
 public:
 	static CHE_WDM_Button *			Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
 
-	HE_VOID							SetMouseLBDEvent( EventFunction eventFunc ) { mLBDEventFunc = eventFunc; }
+	void							SetMouseLBDEvent( EventFunction eventFunc ) { mLBDEventFunc = eventFunc; }
 
-	HE_VOID							SetMouseLBUEvent( EventFunction eventFunc ) { mLBUEventFunc = eventFunc; }
+	void							SetMouseLBUEvent( EventFunction eventFunc ) { mLBUEventFunc = eventFunc; }
 
-	HE_VOID							SetDBClickEvent( EventFunction eventFunc ) { mDBClickEventFunc = eventFunc; }
+	void							SetDBClickEvent( EventFunction eventFunc ) { mDBClickEventFunc = eventFunc; }
 
-	virtual HE_BOOL					OnMouseLBDown( HE_INT32 x, HE_INT32 y );
+	virtual bool					OnMouseLBDown( int32 x, int32 y );
 
-	virtual HE_BOOL					OnMouseLBUp( HE_INT32 x, HE_INT32 y );
+	virtual bool					OnMouseLBUp( int32 x, int32 y );
 
-	virtual HE_BOOL					OnMouseLDBClick( HE_INT32 x, HE_INT32 y );
+	virtual bool					OnMouseLDBClick( int32 x, int32 y );
 
 protected:
 	CHE_WDM_Button( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
@@ -641,11 +641,11 @@ public:
 
 	~CHE_WDM_MouseEventBtn() {};
 
-	HE_VOID							SetMouseOverEvent( EventFunction eventFunc ) { mMouseOverEventFunc = eventFunc; }
-	HE_VOID							SetMouseOutEvent( EventFunction eventFunc ) { mMouseOutEventFunc = eventFunc; }
+	void							SetMouseOverEvent( EventFunction eventFunc ) { mMouseOverEventFunc = eventFunc; }
+	void							SetMouseOutEvent( EventFunction eventFunc ) { mMouseOutEventFunc = eventFunc; }
 
-	virtual HE_BOOL					OnMouseOver();
-	virtual HE_BOOL					OnMouseOut();
+	virtual bool					OnMouseOver();
+	virtual bool					OnMouseOut();
 
 protected:
 	CHE_WDM_MouseEventBtn( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
@@ -662,24 +662,24 @@ class CHE_WDM_DragArea : public CHE_WDM_Area
 public:
 	static CHE_WDM_DragArea *		Create( IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
 
-	virtual HE_BOOL					OnMouseLBDown( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL					OnMouseLBUp( HE_INT32 x, HE_INT32 y );
-	virtual HE_BOOL					OnMouseMove( HE_INT32 x, HE_INT32 y );
+	virtual bool					OnMouseLBDown( int32 x, int32 y );
+	virtual bool					OnMouseLBUp( int32 x, int32 y );
+	virtual bool					OnMouseMove( int32 x, int32 y );
 
-	HE_VOID							SetRange( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom );
-	HE_VOID							SetDragEvent( EventFunction eventFunc ) { mEventFunc = eventFunc; }
+	void							SetRange( int32 left, int32 top, int32 right, int32 bottom );
+	void							SetDragEvent( EventFunction eventFunc ) { mEventFunc = eventFunc; }
 
 protected:
 	CHE_WDM_DragArea( IHE_WDM_InterActive * pInteractive, CHE_Allocator * pAllocator )
 		: CHE_WDM_Area( pInteractive ), mOffsetX( 0 ), mOffsetY( 0 ), mRangeLeft( 0 ), 
 		mRangeTop( 0 ), mRangeRight( 0 ), mRangeBottom( 0 ), mEventFunc( NULL ) {};
 
-	HE_INT32 mOffsetX;
-	HE_INT32 mOffsetY;
-	HE_INT32 mRangeLeft;
-	HE_INT32 mRangeTop;
-	HE_INT32 mRangeRight;
-	HE_INT32 mRangeBottom;
+	int32 mOffsetX;
+	int32 mOffsetY;
+	int32 mRangeLeft;
+	int32 mRangeTop;
+	int32 mRangeRight;
+	int32 mRangeBottom;
 
 	EventFunction mEventFunc;
 

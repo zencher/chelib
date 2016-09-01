@@ -21,69 +21,69 @@ enum ImageTypeSupport
 class CHE_GraphicsDrawer
 {
 public:
-	CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dibHeight );
+	CHE_GraphicsDrawer( HDC hDC, size_t dibWidth, size_t dibHeight );
 	~CHE_GraphicsDrawer();
 
-	HE_VOID			Resize( HE_ULONG dibWidth, HE_ULONG dibHeight );
-	HE_ULONG		GetWidth() const;
-	HE_ULONG		GetHeight() const;
-	HE_VOID			Clear();
+	void			Resize( size_t dibWidth, size_t dibHeight );
+	size_t		GetWidth() const;
+	size_t		GetHeight() const;
+	void			Clear();
 	HDC				GetMemDC() const;
 
-	HE_BOOL			GetBitmap( CHE_Bitmap & bitmap );
+	bool			GetBitmap( CHE_Bitmap & bitmap );
 
 	//properties setting
-	HE_VOID			SetMatrix( const CHE_Matrix & matrix );
-	HE_VOID			SetExtMatrix( const CHE_Matrix & matrix );
-	HE_VOID			SetLineWidth( const HE_FLOAT & lineWidth );
-	HE_VOID			SetMiterLimit( const HE_FLOAT & miterLimit );
-	HE_VOID			SetFillColor( const HE_ULONG & color );
-	HE_VOID			SetStrokeColor( const HE_ULONG & color );
-	HE_VOID			SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
-	HE_VOID			SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
-	HE_VOID			SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
-	HE_VOID			SetFillMode( GRAPHICS_STATE_FILLMODE mode );
-	HE_VOID			SetFillAlpha( HE_FLOAT & alpha );
-	HE_VOID			SetStrokeAlpha( HE_FLOAT & alpha );
+	void			SetMatrix( const CHE_Matrix & matrix );
+	void			SetExtMatrix( const CHE_Matrix & matrix );
+	void			SetLineWidth( const FLOAT & lineWidth );
+	void			SetMiterLimit( const FLOAT & miterLimit );
+	void			SetFillColor( const size_t & color );
+	void			SetStrokeColor( const size_t & color );
+	void			SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
+	void			SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
+	void			SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
+	void			SetFillMode( GRAPHICS_STATE_FILLMODE mode );
+	void			SetFillAlpha( FLOAT & alpha );
+	void			SetStrokeAlpha( FLOAT & alpha );
 
 // 	//properties getting
 // 	inline CHE_Matrix	GetMatrix() const;
 // 	inline CHE_Matrix	GetExtMatrix() const;
- 	HE_FLOAT		GetLineWidth() const;
-// 	inline HE_FLOAT		GetMiterLimit() const;
-// 	inline HE_ULONG		GetFillColor() const;
-// 	inline HE_ULONG		GetStrokeColor() const;
-	 HE_FLOAT		GetDashPhase() const;
+ 	FLOAT		GetLineWidth() const;
+// 	inline FLOAT		GetMiterLimit() const;
+// 	inline size_t		GetFillColor() const;
+// 	inline size_t		GetStrokeColor() const;
+	 FLOAT		GetDashPhase() const;
  	 GRAPHICS_STATE_LINECAP		GetLineCap() const;
  	 GRAPHICS_STATE_LINEJOIN	GetLineJion() const;
 // 	inline GRAPHICS_STATE_DASHPATTERN	GetLineDash() const;
 
 	//path & clip operations
-	 HE_VOID		MoveTo( HE_FLOAT x, HE_FLOAT y );
-	 HE_VOID		LineTo( HE_FLOAT x, HE_FLOAT y );
-	 HE_VOID		CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 );
-	//inline HE_VOID	Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height );
-	 HE_VOID		ClosePath();
-	 HE_VOID		FillPath();
-	 HE_VOID		StrokePath();
-	 HE_VOID		FillStrokePath();
-	 HE_VOID		ClipPath();
-	 HE_VOID		FillClipPath();
-	 HE_VOID		StrokeClipPath();
-	 HE_VOID		FillStrokeClipPath();
-	 HE_VOID		ResetClip();
+	 void		MoveTo( FLOAT x, FLOAT y );
+	 void		LineTo( FLOAT x, FLOAT y );
+	 void		CurveTo( FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2, FLOAT x3, FLOAT y3 );
+	//inline void	Rectangle( FLOAT x, FLOAT y, FLOAT width, FLOAT height );
+	 void		ClosePath();
+	 void		FillPath();
+	 void		StrokePath();
+	 void		FillStrokePath();
+	 void		ClipPath();
+	 void		FillClipPath();
+	 void		StrokeClipPath();
+	 void		FillStrokeClipPath();
+	 void		ResetClip();
 
-	 //HE_VOID		DrawBitmap( HE_ULONG width, HE_ULONG height, HE_BYTE bpc, HE_LPBYTE pData, HE_ULONG size );
-	 HE_VOID		DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size );
-	 HE_VOID		DrawBitmap( CHE_Bitmap * pBitmap );
+	 //void		DrawBitmap( size_t width, size_t height, BYTE bpc, PBYTE pData, size_t size );
+	 void		DrawImage( ImageTypeSupport imgType, PBYTE data, size_t size );
+	 void		DrawBitmap( CHE_Bitmap * pBitmap );
 	
 private:
 	HDC							m_DC;
 	HDC							m_MemDC;
 	HBITMAP						m_Bitmap;
 	HGDIOBJ						m_OldBitmap;
-	HE_ULONG					m_dwWidth;
-	HE_ULONG					m_dwHeight;
+	size_t					m_dwWidth;
+	size_t					m_dwHeight;
 
 	Gdiplus::Graphics *			m_pGraphics;
 	Gdiplus::Pen *				m_pPen;
@@ -91,16 +91,16 @@ private:
 	Gdiplus::GraphicsPath		m_path;
 	Gdiplus::GraphicsPath		m_pathToDraw;
 
-	HE_FLOAT					mStrokeAlpha;
-	HE_FLOAT					mFillAlpha;
-	HE_FLOAT					mCurX;
-	HE_FLOAT					mCurY;
-	HE_FLOAT					mBeginX;
-	HE_FLOAT					mBeginY;
-	HE_FLOAT					mLineWidth;
+	FLOAT					mStrokeAlpha;
+	FLOAT					mFillAlpha;
+	FLOAT					mCurX;
+	FLOAT					mCurY;
+	FLOAT					mBeginX;
+	FLOAT					mBeginY;
+	FLOAT					mLineWidth;
 	GRAPHICS_STATE_LINECAP		mLineCap;
 	GRAPHICS_STATE_LINEJOIN		mLineJion;
-	HE_FLOAT					mDashPhase;
+	FLOAT					mDashPhase;
 	CHE_Matrix					mExtMatrix;
 };
 

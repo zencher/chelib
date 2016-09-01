@@ -23,7 +23,7 @@
 - (void)windowDidLoad {
     [super windowDidLoad];
     
-    MyWindow * mywin = [self window];
+    MyWindow * mywin = (MyWindow*)[self window];
     [mywin load:[[self document] getPdfDocumentData]];
 }
 

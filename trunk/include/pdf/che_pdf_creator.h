@@ -9,39 +9,39 @@
 class CHE_PDF_Creator : public CHE_Object
 {
 public:
-	static CHE_PDF_Creator *	Create( IHE_Write * pWrite, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_Creator *	Create( IHE_Write * pWrite, CHE_Allocator * pAllocator = nullptr );
 
-    HE_VOID				OutPutObject( IHE_Write * pWrite, const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj, CHE_PDF_Encrypt * pEncrypt = NULL );
+    void				OutPutObject( IHE_Write * pWrite, const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj, CHE_PDF_Encrypt * pEncrypt = nullptr );
 
 	~CHE_PDF_Creator();
 
-	HE_BOOL						SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { mpEncrypt = pEncrypt; return TRUE; }
+	bool						SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { mpEncrypt = pEncrypt; return TRUE; }
 
-	HE_BOOL						SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,
-											HE_BYTE algorithm, HE_BYTE keyLength, HE_BYTE revision,  HE_BOOL bMetaData, HE_ULONG pValue );
+	bool						SetEncryption(	const CHE_ByteString id, const CHE_ByteString userPassword, const CHE_ByteString ownerPassword,
+											BYTE algorithm, BYTE keyLength, BYTE revision,  bool bMetaData, size_t pValue );
     
-    HE_VOID                     SetCompress( HE_BOOL bEnable ) { mbCompress = bEnable; }
+    void                     SetCompress( bool bEnable ) { mbCompress = bEnable; }
 
-	HE_VOID						OutPutFileHead( PDF_VERSION version );
+	void						OutPutFileHead( PDF_VERSION version );
 
-	HE_ULONG					OutPutObject( const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj );
+	size_t					OutPutObject( const PDF_RefInfo refInfo, const CHE_PDF_ObjectPtr & pObj );
 
-	HE_ULONG					OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr, HE_BOOL bEncrypt = FALSE );
+	size_t					OutPutInObject( const PDF_RefInfo & refInfo, const CHE_PDF_ObjectPtr & objPtr, bool bEncrypt = false );
 
-	HE_ULONG					OutPutXRefTable( CHE_PDF_XRefTable & xref );
+	size_t					OutPutXRefTable( CHE_PDF_XRefTable & xref );
 
-	HE_VOID						OutPutTailerDict( const CHE_PDF_DictionaryPtr & pDcit );
+	void						OutPutTailerDict( const CHE_PDF_DictionaryPtr & pDcit );
 
-	HE_VOID						OutPutFileTailer( HE_ULONG startxref );
+	void						OutPutFileTailer( size_t startxref );
 
 private:
-	CHE_PDF_Creator( IHE_Write * pWrite, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Creator( IHE_Write * pWrite, CHE_Allocator * pAllocator = nullptr );
 
 	IHE_Write *					mpWrite;
 
 	CHE_PDF_Encrypt *			mpEncrypt;
     
-    HE_BOOL                     mbCompress;
+    bool                     mbCompress;
 
 	friend class CHE_Allocator;
 };

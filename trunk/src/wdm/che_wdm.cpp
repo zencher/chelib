@@ -22,7 +22,7 @@ CHE_WDM_AppearImage::~CHE_WDM_AppearImage()
 	}
 }
 
-HE_VOID CHE_WDM_AppearImage::SetImageFile( HE_LPWSTR pFile )
+void CHE_WDM_AppearImage::SetImageFile( PWSTR pFile )
 {
 	if ( mFile )
 	{
@@ -31,7 +31,7 @@ HE_VOID CHE_WDM_AppearImage::SetImageFile( HE_LPWSTR pFile )
 	}
 	if ( pFile )
 	{
-		mFile = GetAllocator()->NewArray<HE_WCHAR>( wcslen(pFile)+1 );
+		mFile = GetAllocator()->NewArray<WCHAR>( wcslen(pFile)+1 );
 		wcscpy( mFile, pFile );
 	}
 }
@@ -62,7 +62,7 @@ CHE_WDM_AppearText::~CHE_WDM_AppearText()
 	}
 }
 
-HE_VOID CHE_WDM_AppearText::SetText( HE_LPCWSTR text )
+void CHE_WDM_AppearText::SetText( PCWSTR text )
 {
 	if ( mText )
 	{
@@ -71,12 +71,12 @@ HE_VOID CHE_WDM_AppearText::SetText( HE_LPCWSTR text )
 	}
 	if ( text )
 	{
-		mText = GetAllocator()->NewArray<HE_WCHAR>( wcslen( text ) + 1 );
+		mText = GetAllocator()->NewArray<WCHAR>( wcslen( text ) + 1 );
 		wcscpy( mText, text );
 	}
 }
 
-HE_VOID CHE_WDM_AppearText::SetFontFile( HE_LPCWSTR file )
+void CHE_WDM_AppearText::SetFontFile( PCWSTR file )
 {
 	if ( mFontFile )
 	{
@@ -85,7 +85,7 @@ HE_VOID CHE_WDM_AppearText::SetFontFile( HE_LPCWSTR file )
 	}
 	if ( file )
 	{
-		mFontFile = GetAllocator()->NewArray<HE_WCHAR>( wcslen(file) + 1 );
+		mFontFile = GetAllocator()->NewArray<WCHAR>( wcslen(file) + 1 );
 		wcscpy( mFontFile, file );
 	}
 }
@@ -102,7 +102,7 @@ CHE_WDM_AppearPathPtr CHE_WDM_AppearPath::Create( CHE_Allocator * pAllocator )
 	return ptr;
 }
 
-HE_VOID CHE_WDM_AppearPath::AddLine( HE_FLOAT xStart, HE_FLOAT yStart, HE_FLOAT xEnd, HE_FLOAT yEnd )
+void CHE_WDM_AppearPath::AddLine( FLOAT xStart, FLOAT yStart, FLOAT xEnd, FLOAT yEnd )
 {
 	CHE_WDM_AppearPathItem item;
 	item.SetType( APPEAR_PATH_ITEM_LINE );
@@ -117,7 +117,7 @@ HE_VOID CHE_WDM_AppearPath::AddLine( HE_FLOAT xStart, HE_FLOAT yStart, HE_FLOAT 
 	mItems.push_back( item );
 }
 
-HE_VOID CHE_WDM_AppearPath::AddRect( HE_FLOAT left, HE_FLOAT top, HE_FLOAT width, HE_FLOAT hight )
+void CHE_WDM_AppearPath::AddRect( FLOAT left, FLOAT top, FLOAT width, FLOAT hight )
 {
 	CHE_WDM_AppearPathItem item;
 	item.SetType( APPEAR_PATH_ITEM_RECT );
@@ -132,7 +132,7 @@ HE_VOID CHE_WDM_AppearPath::AddRect( HE_FLOAT left, HE_FLOAT top, HE_FLOAT width
 	mItems.push_back( item );
 }
 
-HE_VOID CHE_WDM_AppearPath::AddCurve( HE_FLOAT x0, HE_FLOAT y0, HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2 )
+void CHE_WDM_AppearPath::AddCurve( FLOAT x0, FLOAT y0, FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2 )
 {
 	CHE_WDM_AppearPathItem item;
 	item.SetType( APPEAR_PATH_ITEM_CURVE );
@@ -151,12 +151,12 @@ HE_VOID CHE_WDM_AppearPath::AddCurve( HE_FLOAT x0, HE_FLOAT y0, HE_FLOAT x1, HE_
 	mItems.push_back( item );
 }
 
-HE_ULONG CHE_WDM_AppearPath::GetItemCount()
+size_t CHE_WDM_AppearPath::GetItemCount()
 {
 	return mItems.size();
 }
 
-HE_BOOL CHE_WDM_AppearPath::GetItem( HE_ULONG index, CHE_WDM_AppearPathItem & itemRet )
+bool CHE_WDM_AppearPath::GetItem( size_t index, CHE_WDM_AppearPathItem & itemRet )
 {
 	if ( index >= mItems.size() )
 	{
@@ -196,7 +196,7 @@ CHE_WDM_Area::~CHE_WDM_Area()
 	}
 }
 
-HE_VOID CHE_WDM_Area::SetWidth( HE_INT32 width )
+void CHE_WDM_Area::SetWidth( int32 width )
 {
 	mWidth = width;
 
@@ -230,7 +230,7 @@ HE_VOID CHE_WDM_Area::SetWidth( HE_INT32 width )
 	}
 }
 
-HE_VOID CHE_WDM_Area::SetHeight( HE_INT32 height )
+void CHE_WDM_Area::SetHeight( int32 height )
 {
 	mHeight = height;
 
@@ -266,9 +266,9 @@ HE_VOID CHE_WDM_Area::SetHeight( HE_INT32 height )
 	}
 }
 
-HE_VOID CHE_WDM_Area::SetPosiX( HE_INT32 x )
+void CHE_WDM_Area::SetPosiX( int32 x )
 {
-	HE_INT32 offset = x - mPosX;
+	int32 offset = x - mPosX;
 	mPosX = x;
 
 	CHE_WDM_Area * pTmp = NULL;
@@ -282,9 +282,9 @@ HE_VOID CHE_WDM_Area::SetPosiX( HE_INT32 x )
 	}
 }
 
-HE_VOID CHE_WDM_Area::SetPosiY( HE_INT32 y )
+void CHE_WDM_Area::SetPosiY( int32 y )
 {
-	HE_INT32 offset = y - mPosY;
+	int32 offset = y - mPosY;
 	mPosY = y;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = 0; i < mChildren.size(); ++i )
@@ -297,7 +297,7 @@ HE_VOID CHE_WDM_Area::SetPosiY( HE_INT32 y )
 	}
 }
 
-HE_VOID CHE_WDM_Area::SetEnable( HE_BOOL bEnable = TRUE )
+void CHE_WDM_Area::SetEnable( bool bEnable = TRUE )
 {
 	mbEnable = bEnable;
 	if ( ! mbEnable )
@@ -311,7 +311,7 @@ HE_VOID CHE_WDM_Area::SetEnable( HE_BOOL bEnable = TRUE )
 	}
 }
 
-HE_VOID CHE_WDM_Area::SetFocus( CHE_WDM_Area * pChild )
+void CHE_WDM_Area::SetFocus( CHE_WDM_Area * pChild )
 {
 	if ( pChild )
 	{
@@ -323,7 +323,7 @@ HE_VOID CHE_WDM_Area::SetFocus( CHE_WDM_Area * pChild )
 	}
 }
 
-HE_VOID CHE_WDM_Area::ReleaseFocus()
+void CHE_WDM_Area::ReleaseFocus()
 {
 	if ( mpMouseOverArea )
 	{
@@ -335,7 +335,7 @@ HE_VOID CHE_WDM_Area::ReleaseFocus()
 	}
 }
 
-HE_VOID CHE_WDM_Area::SetCapture( CHE_WDM_Area * pChild )
+void CHE_WDM_Area::SetCapture( CHE_WDM_Area * pChild )
 {
 	if ( pChild )
 	{
@@ -347,7 +347,7 @@ HE_VOID CHE_WDM_Area::SetCapture( CHE_WDM_Area * pChild )
 	}
 }
 
-HE_VOID CHE_WDM_Area::ReleaseCapture()
+void CHE_WDM_Area::ReleaseCapture()
 {
 	mpCaptureChild = NULL;
 	if ( GetParent() )
@@ -356,7 +356,7 @@ HE_VOID CHE_WDM_Area::ReleaseCapture()
 	}
 }
 
-HE_VOID CHE_WDM_Area::Refresh()
+void CHE_WDM_Area::Refresh()
 {
 	if ( mInterActive )
 	{
@@ -364,7 +364,7 @@ HE_VOID CHE_WDM_Area::Refresh()
 	}
 }
 
-HE_VOID CHE_WDM_Area::AppendAppearItem( const CHE_WDM_AppearItemPtr & ptr, WDM_AREA_APPEAR_TYPE type )
+void CHE_WDM_Area::AppendAppearItem( const CHE_WDM_AppearItemPtr & ptr, WDM_AREA_APPEAR_TYPE type )
 {
 	switch ( type )
 	{
@@ -391,7 +391,7 @@ HE_VOID CHE_WDM_Area::AppendAppearItem( const CHE_WDM_AppearItemPtr & ptr, WDM_A
 	}
 }
 
-HE_VOID CHE_WDM_Area::AppendChild( CHE_WDM_Area * pChlid )
+void CHE_WDM_Area::AppendChild( CHE_WDM_Area * pChlid )
 {
 	if( pChlid )
 	{
@@ -400,13 +400,13 @@ HE_VOID CHE_WDM_Area::AppendChild( CHE_WDM_Area * pChlid )
 	}
 }
 
-CHE_WDM_Area * CHE_WDM_Area::PopChild( HE_ULONG index )
+CHE_WDM_Area * CHE_WDM_Area::PopChild( size_t index )
 {
 	std::vector<CHE_WDM_Area*>::iterator it = mChildren.begin();
 	
 	CHE_WDM_Area * pTmp = NULL;
 
-	for ( HE_ULONG i = 0; it != mChildren.end(); ++it, ++i )
+	for ( size_t i = 0; it != mChildren.end(); ++it, ++i )
 	{
 		if ( index == i )
 		{
@@ -419,7 +419,7 @@ CHE_WDM_Area * CHE_WDM_Area::PopChild( HE_ULONG index )
 	return NULL;
 }
 
-HE_BOOL CHE_WDM_Area::ChildToLower( HE_ULONG index )
+bool CHE_WDM_Area::ChildToLower( size_t index )
 {
 	if ( index == 0 )
 	{
@@ -432,7 +432,7 @@ HE_BOOL CHE_WDM_Area::ChildToLower( HE_ULONG index )
 	return TRUE;
 }
 
-HE_BOOL CHE_WDM_Area::ChildToUpper( HE_ULONG index )
+bool CHE_WDM_Area::ChildToUpper( size_t index )
 {
 	if ( index >= mChildren.size() - 1 )
 	{
@@ -445,22 +445,22 @@ HE_BOOL CHE_WDM_Area::ChildToUpper( HE_ULONG index )
 	return TRUE;
 }
 
-HE_ULONG CHE_WDM_Area::GetChildrenCount() const
+size_t CHE_WDM_Area::GetChildrenCount() const
 {
 	return mChildren.size();
 }
 
-CHE_WDM_Area * CHE_WDM_Area::GetChild( HE_ULONG index ) const
+CHE_WDM_Area * CHE_WDM_Area::GetChild( size_t index ) const
 {
 	return ( index < GetChildrenCount() ) ? mChildren[index] : NULL ;
 }
 
-HE_VOID CHE_WDM_Area::ClearChild()
+void CHE_WDM_Area::ClearChild()
 {
 	mChildren.clear();
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseMove( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Area::OnMouseMove( int32 x, int32 y )
 {
 	if ( !mbEnable )
 	{
@@ -472,8 +472,8 @@ HE_BOOL CHE_WDM_Area::OnMouseMove( HE_INT32 x, HE_INT32 y )
 		return mpCaptureChild->OnMouseMove( x, y );
 	}
 
-	HE_BOOL bHandled = FALSE;
-	HE_BOOL bChildrenGet = FALSE;
+	bool bHandled = FALSE;
+	bool bChildrenGet = FALSE;
 
 	CHE_WDM_Area * pTmp = NULL;
 	
@@ -525,7 +525,7 @@ HE_BOOL CHE_WDM_Area::OnMouseMove( HE_INT32 x, HE_INT32 y )
 	return bHandled;
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseOver()
+bool CHE_WDM_Area::OnMouseOver()
 {
 	if ( !mbEnable )
 	{
@@ -545,7 +545,7 @@ HE_BOOL CHE_WDM_Area::OnMouseOver()
 	return FALSE;
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseOut()
+bool CHE_WDM_Area::OnMouseOut()
 {
 	if ( GetParent() )
 	{
@@ -562,7 +562,7 @@ HE_BOOL CHE_WDM_Area::OnMouseOut()
 	return FALSE;
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Area::OnMouseLBDown( int32 x, int32 y )
 {
 	if ( !mbEnable )
 	{
@@ -572,7 +572,7 @@ HE_BOOL CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 	{
 		return mpCaptureChild->OnMouseLBDown( x, y );
 	}
-	HE_BOOL bHandled = FALSE;
+	bool bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -598,7 +598,7 @@ HE_BOOL CHE_WDM_Area::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 	return bHandled;
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Area::OnMouseLBUp( int32 x, int32 y )
 {
 	if ( !mbEnable )
 	{
@@ -610,7 +610,7 @@ HE_BOOL CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 		return mpCaptureChild->OnMouseLBUp( x, y );
 	}
 
-	HE_BOOL bHandled = FALSE;
+	bool bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -636,7 +636,7 @@ HE_BOOL CHE_WDM_Area::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 	return bHandled;
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Area::OnMouseRBDown( int32 x, int32 y )
 {
 	if ( !mbEnable )
 	{
@@ -646,7 +646,7 @@ HE_BOOL CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
 	{
 		return mpCaptureChild->OnMouseRBDown( x, y );
 	}
-	HE_BOOL bHandled = FALSE;
+	bool bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -672,7 +672,7 @@ HE_BOOL CHE_WDM_Area::OnMouseRBDown( HE_INT32 x, HE_INT32 y )
 	return bHandled;
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Area::OnMouseRBUp( int32 x, int32 y )
 {
 	if ( !mbEnable )
 	{
@@ -682,7 +682,7 @@ HE_BOOL CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
 	{
 		return mpCaptureChild->OnMouseRBUp( x, y );
 	}
-	HE_BOOL bHandled = FALSE;
+	bool bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -708,13 +708,13 @@ HE_BOOL CHE_WDM_Area::OnMouseRBUp( HE_INT32 x, HE_INT32 y )
 	return bHandled;
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Area::OnMouseLDBClick( int32 x, int32 y )
 {
 	if ( !mbEnable )
 	{
 		return FALSE;
 	}
-	HE_BOOL bHandled = FALSE;
+	bool bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -732,13 +732,13 @@ HE_BOOL CHE_WDM_Area::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
 	return bHandled;
 }
 
-HE_BOOL CHE_WDM_Area::OnMouseRDBClick( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Area::OnMouseRDBClick( int32 x, int32 y )
 {
 	if ( !mbEnable )
 	{
 		return FALSE;
 	}
-	HE_BOOL bHandled = FALSE;
+	bool bHandled = FALSE;
 	CHE_WDM_Area * pTmp = NULL;
 	for ( size_t i = mChildren.size(); i > 0; --i )
 	{
@@ -756,7 +756,7 @@ HE_BOOL CHE_WDM_Area::OnMouseRDBClick( HE_INT32 x, HE_INT32 y )
 	return bHandled;
 }
 
-HE_BOOL CHE_WDM_Area::OnDraw()
+bool CHE_WDM_Area::OnDraw()
 {
 	if ( ! mbVisable )
 	{
@@ -805,7 +805,7 @@ HE_BOOL CHE_WDM_Area::OnDraw()
 	return TRUE;
 }
 
-HE_BOOL CHE_WDM_Area::OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom )
+bool CHE_WDM_Area::OnDraw( int32 left, int32 top, int32 right, int32 bottom )
 {
 	if ( !mbVisable )
 	{
@@ -877,7 +877,7 @@ CHE_WDM_Button * CHE_WDM_Button::Create( IHE_WDM_InterActive * pInterActive, CHE
 	return pButtun;
 }
 
-HE_BOOL CHE_WDM_Button::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Button::OnMouseLBDown( int32 x, int32 y )
 {
 	if ( IsEnable() )
 	{
@@ -894,11 +894,11 @@ HE_BOOL CHE_WDM_Button::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 	return FALSE;
 }
 
-HE_BOOL CHE_WDM_Button::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_Button::OnMouseLBUp( int32 x, int32 y )
 {
 	if ( IsEnable() )
 	{
-		/*HE_BOOL bLBD = IsMouseLBDown();*/
+		/*bool bLBD = IsMouseLBDown();*/
 		if ( CHE_WDM_Area::OnMouseLBUp( x, y ) )
 		{
 			return TRUE;
@@ -912,7 +912,7 @@ HE_BOOL CHE_WDM_Button::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
 	return FALSE;
 }
 
-HE_BOOL	CHE_WDM_Button::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
+bool	CHE_WDM_Button::OnMouseLDBClick( int32 x, int32 y )
 {
 	if ( IsEnable() )
 	{
@@ -929,7 +929,7 @@ HE_BOOL	CHE_WDM_Button::OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
 	return FALSE;
 }
 
-HE_BOOL	CHE_WDM_MouseEventBtn::OnMouseOver()
+bool	CHE_WDM_MouseEventBtn::OnMouseOver()
 {
 	if ( IsEnable() )
 	{
@@ -943,7 +943,7 @@ HE_BOOL	CHE_WDM_MouseEventBtn::OnMouseOver()
 	return FALSE;
 }
 
-HE_BOOL	CHE_WDM_MouseEventBtn::OnMouseOut()
+bool	CHE_WDM_MouseEventBtn::OnMouseOut()
 {
 	if ( IsEnable() )
 	{
@@ -976,7 +976,7 @@ CHE_WDM_DragArea * CHE_WDM_DragArea::Create( IHE_WDM_InterActive * pInterActive,
 	return pArea;
 }
 
-HE_BOOL CHE_WDM_DragArea::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_DragArea::OnMouseLBDown( int32 x, int32 y )
 {
 	mOffsetX = x - GetPosiX();
 	mOffsetY = y - GetPosiY();
@@ -985,14 +985,14 @@ HE_BOOL CHE_WDM_DragArea::OnMouseLBDown( HE_INT32 x, HE_INT32 y )
 	return TRUE;
 }
 
-HE_BOOL CHE_WDM_DragArea::OnMouseLBUp( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_DragArea::OnMouseLBUp( int32 x, int32 y )
 {
 	GetParent()->ReleaseCapture();
 	CHE_WDM_Area::OnMouseLBUp( x, y );
 	return TRUE;
 }
 
-HE_VOID CHE_WDM_DragArea::SetRange( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom )
+void CHE_WDM_DragArea::SetRange( int32 left, int32 top, int32 right, int32 bottom )
 {
 	mRangeLeft = left;
 	mRangeTop = top;
@@ -1000,11 +1000,11 @@ HE_VOID CHE_WDM_DragArea::SetRange( HE_INT32 left, HE_INT32 top, HE_INT32 right,
 	mRangeBottom = bottom;
 }
 
-HE_BOOL CHE_WDM_DragArea::OnMouseMove( HE_INT32 x, HE_INT32 y )
+bool CHE_WDM_DragArea::OnMouseMove( int32 x, int32 y )
 {
 	if ( IsMouseLBDown() )
 	{
-		HE_INT32 tmpX = x - mOffsetX;
+		int32 tmpX = x - mOffsetX;
 		if ( tmpX < mRangeLeft )
 		{
 			SetPosiX( mRangeLeft );
@@ -1016,7 +1016,7 @@ HE_BOOL CHE_WDM_DragArea::OnMouseMove( HE_INT32 x, HE_INT32 y )
 		{
 			SetPosiX( tmpX );
 		}
-		HE_INT32 tmpY = y - mOffsetY;
+		int32 tmpY = y - mOffsetY;
 		if ( tmpY < mRangeTop )
 		{
 			SetPosiY( mRangeTop );
@@ -1042,7 +1042,7 @@ HE_BOOL CHE_WDM_DragArea::OnMouseMove( HE_INT32 x, HE_INT32 y )
 	return TRUE;
 }
 
-HE_BOOL CHE_WDM_AreaAnimation::SetTarget( CHE_WDM_Area * pArea )
+bool CHE_WDM_AreaAnimation::SetTarget( CHE_WDM_Area * pArea )
 {
 	if ( pArea )
 	{
@@ -1052,7 +1052,7 @@ HE_BOOL CHE_WDM_AreaAnimation::SetTarget( CHE_WDM_Area * pArea )
 	return FALSE;
 }
 
-HE_VOID CHE_WDM_AreaAnimation::Init()
+void CHE_WDM_AreaAnimation::Init()
 {
 	mCurFrame = 0;
 	mIndex = 0;
@@ -1077,7 +1077,7 @@ HE_VOID CHE_WDM_AreaAnimation::Init()
 	}
 }
 
-HE_VOID CHE_WDM_AreaAnimation::CallFunction()
+void CHE_WDM_AreaAnimation::CallFunction()
 {
 	if ( mpOverFunction )
 	{
@@ -1085,7 +1085,7 @@ HE_VOID CHE_WDM_AreaAnimation::CallFunction()
 	}
 }
 
-HE_VOID CHE_WDM_AreaAnimation::InsertFrames( HE_ULONG frames, const CHE_WDM_AnimationData & state )
+void CHE_WDM_AreaAnimation::InsertFrames( size_t frames, const CHE_WDM_AnimationData & state )
 {
 	if ( frames > 0 )
 	{
@@ -1095,7 +1095,7 @@ HE_VOID CHE_WDM_AreaAnimation::InsertFrames( HE_ULONG frames, const CHE_WDM_Anim
 	}
 }
 
-HE_VOID CHE_WDM_AreaAnimation::Execute()
+void CHE_WDM_AreaAnimation::Execute()
 {
 	if ( mCurFrame < mFramesCount && mpArea )
 	{
@@ -1124,7 +1124,7 @@ HE_VOID CHE_WDM_AreaAnimation::Execute()
 	}
 }
 
-HE_BOOL CHE_WDM_AreaAnimation::IsOver()
+bool CHE_WDM_AreaAnimation::IsOver()
 {
 	if( mCurFrame == mFramesCount )
 	{
@@ -1133,7 +1133,7 @@ HE_BOOL CHE_WDM_AreaAnimation::IsOver()
 	return FALSE;
 }
 
-HE_VOID CHE_WDM_AppearAnimation::Init()
+void CHE_WDM_AppearAnimation::Init()
 {
 	mCurFrame = 0;
 	mIndex = 0;
@@ -1157,7 +1157,7 @@ HE_VOID CHE_WDM_AppearAnimation::Init()
 	}
 }
 
-HE_VOID CHE_WDM_AppearAnimation::Execute()
+void CHE_WDM_AppearAnimation::Execute()
 {
 	if ( mCurFrame < mFramesCount && mpArea )
 	{
@@ -1186,19 +1186,19 @@ HE_VOID CHE_WDM_AppearAnimation::Execute()
 	}
 }
 
-HE_VOID	CHE_WDM_AnimationMgr::StartAreaAnimation( const CHE_WDM_AreaAnimation & animation )
+void	CHE_WDM_AnimationMgr::StartAreaAnimation( const CHE_WDM_AreaAnimation & animation )
 {
 	mAreaAnimations.push_back( animation );
 	mAreaAnimations[mAreaAnimations.size()-1].Init();
 }
 
-HE_VOID	CHE_WDM_AnimationMgr::StartAppearAnimation( const CHE_WDM_AppearAnimation & animation )
+void	CHE_WDM_AnimationMgr::StartAppearAnimation( const CHE_WDM_AppearAnimation & animation )
 {
 	mAppearAnimations.push_back( animation );
 	mAppearAnimations[mAppearAnimations.size()-1].Init();
 }
 
-HE_VOID CHE_WDM_AnimationMgr::Execute()
+void CHE_WDM_AnimationMgr::Execute()
 {
 	std::vector<CHE_WDM_AreaAnimation>::iterator it;
 	for ( it = mAreaAnimations.begin(); it != mAreaAnimations.end(); ++it )
@@ -1294,7 +1294,7 @@ CHE_WDM_AppearItemPtr CHE_WDM_AppearItemPtr::operator = ( const CHE_WDM_AppearIt
 	return *this;
 }
 
-HE_VOID	CHE_WDM_AppearItemPtr::reset( CHE_WDM_AppearItem * pItem )
+void	CHE_WDM_AppearItemPtr::reset( CHE_WDM_AppearItem * pItem )
 {
 	if ( mpItem != pItem )
 	{

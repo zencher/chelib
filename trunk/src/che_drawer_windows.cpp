@@ -1,7 +1,7 @@
 #include "../include/che_drawer_windows.h"
 #include "../Include/che_bitmap.h"
 
-CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, HE_ULONG dibWidth, HE_ULONG dibHeight )
+CHE_GraphicsDrawer::CHE_GraphicsDrawer( HDC hDC, size_t dibWidth, size_t dibHeight )
 {
 	m_DC = hDC;
 	m_dwWidth = dibWidth;
@@ -42,36 +42,36 @@ CHE_GraphicsDrawer::~CHE_GraphicsDrawer()
 	if ( m_pBrush )
 	{
 		delete m_pBrush;
-		m_pBrush = NULL;
+		m_pBrush = nullptr;
 	}
 	if ( m_pPen )
 	{
 		delete m_pPen;
-		m_pPen = NULL;
+		m_pPen = nullptr;
 	}
 	if ( m_MemDC )
 	{
 		if ( m_OldBitmap )
 		{
 			SelectObject( m_MemDC, m_OldBitmap );
-			m_OldBitmap = NULL;
+			m_OldBitmap = nullptr;
 		}
 		if ( m_Bitmap )
 		{
 			DeleteObject( m_Bitmap );
-			m_Bitmap = NULL;
+			m_Bitmap = nullptr;
 		}
 		DeleteDC( m_MemDC );
-		m_MemDC = NULL;
+		m_MemDC = nullptr;
 	}
 	if ( m_pGraphics )
 	{
 		delete m_pGraphics;
-		m_pGraphics = NULL;
+		m_pGraphics = nullptr;
 	}
 }
 
-HE_VOID	CHE_GraphicsDrawer::Resize( HE_ULONG dibWidth, HE_ULONG dibHeight )
+void	CHE_GraphicsDrawer::Resize( size_t dibWidth, size_t dibHeight )
 {
 	m_dwWidth = dibWidth;
 	m_dwHeight = dibHeight;
@@ -81,13 +81,13 @@ HE_VOID	CHE_GraphicsDrawer::Resize( HE_ULONG dibWidth, HE_ULONG dibHeight )
 		if ( m_OldBitmap )
 		{
 			SelectObject( m_MemDC, m_OldBitmap );
-			m_OldBitmap = NULL;
+			m_OldBitmap = nullptr;
 		}
 		DeleteDC( m_MemDC );
 		if ( m_Bitmap )
 		{
 			DeleteObject( m_Bitmap );
-			m_Bitmap = NULL;
+			m_Bitmap = nullptr;
 		}
 	}
 	m_MemDC = CreateCompatibleDC( m_DC );
@@ -104,7 +104,7 @@ HE_VOID	CHE_GraphicsDrawer::Resize( HE_ULONG dibWidth, HE_ULONG dibHeight )
 	if ( m_pGraphics )
 	{
 		delete m_pGraphics;
-		m_pGraphics = NULL;
+		m_pGraphics = nullptr;
 	}
 
 	m_pGraphics  = new Gdiplus::Graphics( m_MemDC );
@@ -112,12 +112,12 @@ HE_VOID	CHE_GraphicsDrawer::Resize( HE_ULONG dibWidth, HE_ULONG dibHeight )
 	m_pGraphics->SetPageUnit( Gdiplus::UnitPixel );
 }
 
-HE_ULONG CHE_GraphicsDrawer::GetWidth() const
+size_t CHE_GraphicsDrawer::GetWidth() const
 {
 	return m_dwWidth;
 }
 
-HE_ULONG CHE_GraphicsDrawer::GetHeight() const
+size_t CHE_GraphicsDrawer::GetHeight() const
 {
 	return m_dwHeight;
 }
@@ -127,21 +127,21 @@ HDC CHE_GraphicsDrawer::GetMemDC() const
 	return m_MemDC;
 }
 
-HE_BOOL CHE_GraphicsDrawer::GetBitmap( CHE_Bitmap & bitmap )
+bool CHE_GraphicsDrawer::GetBitmap( CHE_Bitmap & bitmap )
 {
 	if ( m_Bitmap )
 	{
 		BITMAP info;
 		GetObjectW( m_Bitmap, sizeof(BITMAP), &info );
 		bitmap.Create( m_dwWidth, m_dwHeight, (HE_BITMAP_DEPTH)info.bmBitsPixel, BITMAP_DIRECTION_DOWN );
-		HE_BYTE * pBytes = (HE_LPBYTE)bitmap.GetBuffer();
+		BYTE * pBytes = (PBYTE)bitmap.GetBuffer();
 		GetBitmapBits( m_Bitmap, info.bmWidthBytes * info.bmHeight, pBytes );
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_VOID	CHE_GraphicsDrawer::Clear()
+void	CHE_GraphicsDrawer::Clear()
 {
 	RECT rt;
 	rt.top = 0;
@@ -151,7 +151,7 @@ HE_VOID	CHE_GraphicsDrawer::Clear()
 	FillRect( m_MemDC, &rt, HBRUSH(WHITE_BRUSH) );
 }
 
-HE_VOID CHE_GraphicsDrawer::MoveTo( HE_FLOAT x, HE_FLOAT y )
+void CHE_GraphicsDrawer::MoveTo( FLOAT x, FLOAT y )
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
@@ -162,21 +162,21 @@ HE_VOID CHE_GraphicsDrawer::MoveTo( HE_FLOAT x, HE_FLOAT y )
 	mBeginY = mCurY = y;
 }
 
-HE_VOID CHE_GraphicsDrawer::LineTo( HE_FLOAT x, HE_FLOAT y )
+void CHE_GraphicsDrawer::LineTo( FLOAT x, FLOAT y )
 {
 	m_path.AddLine( mCurX, mCurY, x, y );
 	mCurX = x;
 	mCurY = y;
 }
 
-HE_VOID CHE_GraphicsDrawer::CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 )
+void CHE_GraphicsDrawer::CurveTo( FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2, FLOAT x3, FLOAT y3 )
 {
 	m_path.AddBezier( mCurX, mCurY, x1, y1, x2, y2, x3, y3 );
 	mCurX = x3;
 	mCurY = y3;
 }
 
-HE_VOID CHE_GraphicsDrawer::ClosePath()
+void CHE_GraphicsDrawer::ClosePath()
 {
 	m_path.CloseFigure();
 	if ( m_path.GetPointCount() > 0 )
@@ -188,7 +188,7 @@ HE_VOID CHE_GraphicsDrawer::ClosePath()
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::FillPath()
+void CHE_GraphicsDrawer::FillPath()
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
@@ -202,7 +202,7 @@ HE_VOID CHE_GraphicsDrawer::FillPath()
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::StrokePath()
+void CHE_GraphicsDrawer::StrokePath()
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
@@ -216,7 +216,7 @@ HE_VOID CHE_GraphicsDrawer::StrokePath()
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::FillStrokePath()
+void CHE_GraphicsDrawer::FillStrokePath()
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
@@ -231,7 +231,7 @@ HE_VOID CHE_GraphicsDrawer::FillStrokePath()
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::ClipPath()
+void CHE_GraphicsDrawer::ClipPath()
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
@@ -245,7 +245,7 @@ HE_VOID CHE_GraphicsDrawer::ClipPath()
 	}
 }
 
-HE_VOID	CHE_GraphicsDrawer::FillClipPath()
+void	CHE_GraphicsDrawer::FillClipPath()
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
@@ -260,7 +260,7 @@ HE_VOID	CHE_GraphicsDrawer::FillClipPath()
 	}
 }
 
-HE_VOID	CHE_GraphicsDrawer::StrokeClipPath()
+void	CHE_GraphicsDrawer::StrokeClipPath()
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
@@ -275,7 +275,7 @@ HE_VOID	CHE_GraphicsDrawer::StrokeClipPath()
 	}
 }
 
-HE_VOID	CHE_GraphicsDrawer::FillStrokeClipPath()
+void	CHE_GraphicsDrawer::FillStrokeClipPath()
 {
 	if ( m_path.GetPointCount() > 0 )
 	{
@@ -291,12 +291,12 @@ HE_VOID	CHE_GraphicsDrawer::FillStrokeClipPath()
 	}	
 }
 
-HE_VOID	CHE_GraphicsDrawer::ResetClip()
+void	CHE_GraphicsDrawer::ResetClip()
 {
 	m_pGraphics->ResetClip();
 }
 
-HE_VOID CHE_GraphicsDrawer::SetMatrix( const CHE_Matrix & matrix )
+void CHE_GraphicsDrawer::SetMatrix( const CHE_Matrix & matrix )
 {
 	if ( m_pGraphics )
 	{
@@ -307,12 +307,12 @@ HE_VOID CHE_GraphicsDrawer::SetMatrix( const CHE_Matrix & matrix )
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::SetExtMatrix( const CHE_Matrix & matrix )
+void CHE_GraphicsDrawer::SetExtMatrix( const CHE_Matrix & matrix )
 {
 	mExtMatrix = matrix;
 }
 
-HE_VOID CHE_GraphicsDrawer::SetLineWidth( const HE_FLOAT & lineWidth )
+void CHE_GraphicsDrawer::SetLineWidth( const FLOAT & lineWidth )
 {
 	if ( m_pPen )
 	{
@@ -321,7 +321,7 @@ HE_VOID CHE_GraphicsDrawer::SetLineWidth( const HE_FLOAT & lineWidth )
 	mLineWidth = lineWidth;
 }
 
-HE_VOID CHE_GraphicsDrawer::SetMiterLimit( const HE_FLOAT & miterLimit )
+void CHE_GraphicsDrawer::SetMiterLimit( const FLOAT & miterLimit )
 {
 	if ( m_pPen )
 	{
@@ -329,7 +329,7 @@ HE_VOID CHE_GraphicsDrawer::SetMiterLimit( const HE_FLOAT & miterLimit )
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
+void CHE_GraphicsDrawer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 {
 	if ( m_pPen )
 	{
@@ -351,7 +351,7 @@ HE_VOID CHE_GraphicsDrawer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 	mLineCap = lineCap;
 }
 
-HE_VOID CHE_GraphicsDrawer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
+void CHE_GraphicsDrawer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
 {
 	if ( m_pPen )
 	{
@@ -373,7 +373,7 @@ HE_VOID CHE_GraphicsDrawer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJio
 	mLineJion = lineJion;
 }
 
-HE_VOID CHE_GraphicsDrawer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
+void CHE_GraphicsDrawer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
 {
 	if ( dashPattern.dashArray.size() == 1 )
 	{
@@ -464,7 +464,7 @@ HE_VOID CHE_GraphicsDrawer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dash
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
+void CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
 {
 	if ( mode == FillMode_EvenOdd )
 	{
@@ -476,17 +476,17 @@ HE_VOID CHE_GraphicsDrawer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::SetFillAlpha( HE_FLOAT & alpha )
+void CHE_GraphicsDrawer::SetFillAlpha( FLOAT & alpha )
 {
 	mFillAlpha = alpha;
 }
 
-HE_VOID	CHE_GraphicsDrawer::SetStrokeAlpha( HE_FLOAT & alpha )
+void	CHE_GraphicsDrawer::SetStrokeAlpha( FLOAT & alpha )
 {
 	mStrokeAlpha = alpha;
 }
 
-HE_VOID CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
+void CHE_GraphicsDrawer::SetFillColor( const size_t & color )
 {
 	if ( m_pBrush )
 	{
@@ -494,7 +494,7 @@ HE_VOID CHE_GraphicsDrawer::SetFillColor( const HE_ULONG & color )
 	}
 }
 
-HE_VOID CHE_GraphicsDrawer::SetStrokeColor( const HE_ULONG & color )
+void CHE_GraphicsDrawer::SetStrokeColor( const size_t & color )
 {
 	if ( m_pPen )
 	{
@@ -502,7 +502,7 @@ HE_VOID CHE_GraphicsDrawer::SetStrokeColor( const HE_ULONG & color )
 	}
 }
 
-HE_FLOAT CHE_GraphicsDrawer::GetLineWidth() const
+FLOAT CHE_GraphicsDrawer::GetLineWidth() const
 {
 	return mLineWidth;
 }
@@ -517,22 +517,22 @@ GRAPHICS_STATE_LINEJOIN CHE_GraphicsDrawer::GetLineJion() const
 	return mLineJion;
 }
 
-HE_FLOAT CHE_GraphicsDrawer::GetDashPhase() const
+FLOAT CHE_GraphicsDrawer::GetDashPhase() const
 {
 	return mDashPhase;
 }
 
-// HE_VOID CHE_GraphicsDrawer::DrawBitmap( HE_ULONG width, HE_ULONG height, HE_BYTE bpc, HE_LPBYTE pData, HE_ULONG size )
+// void CHE_GraphicsDrawer::DrawBitmap( size_t width, size_t height, BYTE bpc, PBYTE pData, size_t size )
 // {
 // 	BITMAPINFO bitmapInfo;
 // 	bitmapInfo.bmiHeader.biSize = 40;
-// 	bitmapInfo.bmiHeader.biWidth = (HE_INT32)width;
-// 	HE_LONG lHeight = height;
-// 	bitmapInfo.bmiHeader.biHeight = (HE_INT32)(-lHeight);
+// 	bitmapInfo.bmiHeader.biWidth = (int32)width;
+// 	size_t lHeight = height;
+// 	bitmapInfo.bmiHeader.biHeight = (int32)(-lHeight);
 // 	bitmapInfo.bmiHeader.biPlanes = 1;
 // 	bitmapInfo.bmiHeader.biBitCount = bpc;
 // 	bitmapInfo.bmiHeader.biCompression = 0;
-// 	bitmapInfo.bmiHeader.biSizeImage = (HE_UINT32)( size );
+// 	bitmapInfo.bmiHeader.biSizeImage = (uint32)( size );
 // 	bitmapInfo.bmiHeader.biXPelsPerMeter = 0;
 // 	bitmapInfo.bmiHeader.biYPelsPerMeter = 0;
 // 	bitmapInfo.bmiHeader.biClrUsed = 0;
@@ -544,7 +544,7 @@ HE_FLOAT CHE_GraphicsDrawer::GetDashPhase() const
 // 	m_pGraphics->DrawCachedBitmap( cacheBitmap, 0, 1, 1, -1 );
 // }
 
-HE_VOID	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, HE_LPBYTE data, HE_ULONG size )
+void	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, PBYTE data, size_t size )
 {
 	if ( m_pGraphics )
 	{
@@ -557,7 +557,7 @@ HE_VOID	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, HE_LPBYTE data,
 				memcpy( dest, data, size );
 				::GlobalUnlock( global );
 
-				IStream * stream = NULL;
+				IStream * stream = nullptr;
 				if( ::CreateStreamOnHGlobal( global, TRUE, &stream ) != S_OK )
 				{
 					::GlobalFree( global );
@@ -578,9 +578,9 @@ HE_VOID	CHE_GraphicsDrawer::DrawImage( ImageTypeSupport imgType, HE_LPBYTE data,
 	}
 }
 
-HE_VOID	CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
+void	CHE_GraphicsDrawer::DrawBitmap( CHE_Bitmap * pBitmap )
 {
-	if ( pBitmap == NULL )
+	if ( pBitmap == nullptr )
 	{
 		return;
 	}

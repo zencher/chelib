@@ -38,15 +38,15 @@ CHE_PDF_ClipStateItem::~CHE_PDF_ClipStateItem()
 	}
 }
 
-HE_BOOL CHE_PDF_ClipStateItem::SetElement( CHE_PDF_ContentObject * pElement )
+bool CHE_PDF_ClipStateItem::SetElement( CHE_PDF_ContentObject * pElement )
 {
-	if ( pElement == NULL )
+	if ( pElement == nullptr )
 	{
-		return FALSE;
+		return false;
 	}
 	if ( pElement->GetType() != ContentType_Text && pElement->GetType() != ContentType_Path )
 	{
-		return FALSE;
+		return false;
 	}
 	mpClipElement = pElement;
 	return TRUE;
@@ -74,11 +74,11 @@ CHE_PDF_ClipState::~CHE_PDF_ClipState()
 	}
 }
 
-HE_BOOL CHE_PDF_ClipState::Append( CHE_PDF_ClipStateItem * pItem )
+bool CHE_PDF_ClipState::Append( CHE_PDF_ClipStateItem * pItem )
 {
-	if ( pItem == NULL )
+	if ( pItem == nullptr )
 	{
-		return FALSE;
+		return false;
 	}
 
 	mClipElementList.push_back( pItem );
@@ -97,11 +97,11 @@ CHE_PDF_ClipState * CHE_PDF_ClipState::Clone() const
 	return pRet;
 }
 
-HE_BOOL CHE_PDF_ExtGStateStack::PushExtStateName( const CHE_ByteString & name, const CHE_PDF_ExtGStatePtr & extgstate )
+bool CHE_PDF_ExtGStateStack::PushExtStateName( const CHE_ByteString & name, const CHE_PDF_ExtGStatePtr & extgstate )
 {
 	if ( ! extgstate )
 	{
-		return FALSE;
+		return false;
 	}
 	std::list<CHE_ByteString>::iterator itn = mExtGStateName.begin();
 	for ( ; itn != mExtGStateName.end(); ++itn )
@@ -328,7 +328,7 @@ CHE_PDF_GState * CHE_PDF_GState::Clone() const
 	return pRet;
 }
 
-HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
+void	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_FillColor )
 	{
@@ -368,8 +368,8 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 			break;
 		case COLORSPACE_CIEBASE_ICCBASED:
             {
-                HE_UINT32 c = mFillColorSpace->GetICCBasedPtr()->mAlternate->GetComponentCount();
-                for (HE_UINT32 i = 0; i < c; ++i)
+                uint32 c = mFillColorSpace->GetICCBasedPtr()->mAlternate->GetComponentCount();
+                for (uint32 i = 0; i < c; ++i)
                 {
                     colorRet.Push( 0 );
                 }
@@ -383,7 +383,7 @@ HE_VOID	CHE_PDF_GState::GetFillColor( CHE_PDF_Color & colorRet ) const
 	}
 }
 
-HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
+void CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_StrokeColor )
 	{
@@ -423,8 +423,8 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 			break;
 		case COLORSPACE_CIEBASE_ICCBASED:
             {
-                HE_UINT32 c = mStrokeColorSpace->GetICCBasedPtr()->mAlternate->GetComponentCount();
-                for (HE_UINT32 i = 0; i < c; ++i)
+                uint32 c = mStrokeColorSpace->GetICCBasedPtr()->mAlternate->GetComponentCount();
+                for (uint32 i = 0; i < c; ++i)
                 {
                     colorRet.Push( 0 );
                 }
@@ -438,7 +438,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColor( CHE_PDF_Color & colorRet ) const
 	}
 }
 
-HE_VOID CHE_PDF_GState::GetFillColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const
+void CHE_PDF_GState::GetFillColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_FillColorSpace )
 	{
@@ -448,7 +448,7 @@ HE_VOID CHE_PDF_GState::GetFillColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet
 	colorSpaceRet = CHE_PDF_ColorSpace::CreateDeviceGray();
 }
 
-HE_VOID CHE_PDF_GState::GetStrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const
+void CHE_PDF_GState::GetStrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_StrokeColorSpace )
 	{
@@ -458,7 +458,7 @@ HE_VOID CHE_PDF_GState::GetStrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceR
 	colorSpaceRet = CHE_PDF_ColorSpace::CreateDeviceGray();
 }
 
-HE_VOID	CHE_PDF_GState::GetLineWidth( HE_FLOAT & lineWidthRet ) const
+void	CHE_PDF_GState::GetLineWidth( FLOAT & lineWidthRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_LineWidth )
 	{
@@ -468,7 +468,7 @@ HE_VOID	CHE_PDF_GState::GetLineWidth( HE_FLOAT & lineWidthRet ) const
 	lineWidthRet = 1;
 }
 
-HE_VOID CHE_PDF_GState::GetMiterLimit( HE_FLOAT & miterLimitRet ) const
+void CHE_PDF_GState::GetMiterLimit( FLOAT & miterLimitRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_MiterLimit )
 	{
@@ -478,7 +478,7 @@ HE_VOID CHE_PDF_GState::GetMiterLimit( HE_FLOAT & miterLimitRet ) const
 	miterLimitRet = 10;
 }
 
-HE_VOID CHE_PDF_GState::GetLineCap( GRAPHICS_STATE_LINECAP & lineCapRet ) const
+void CHE_PDF_GState::GetLineCap( GRAPHICS_STATE_LINECAP & lineCapRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_LineCap )
 	{
@@ -488,7 +488,7 @@ HE_VOID CHE_PDF_GState::GetLineCap( GRAPHICS_STATE_LINECAP & lineCapRet ) const
 	lineCapRet = LineCap_Butt;
 }
 
-HE_VOID CHE_PDF_GState::GetLineJoin( GRAPHICS_STATE_LINEJOIN & lineJoinRet ) const
+void CHE_PDF_GState::GetLineJoin( GRAPHICS_STATE_LINEJOIN & lineJoinRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_LineJoin )
 	{
@@ -498,7 +498,7 @@ HE_VOID CHE_PDF_GState::GetLineJoin( GRAPHICS_STATE_LINEJOIN & lineJoinRet ) con
 	lineJoinRet = LineJoin_Miter;
 }
 
-HE_VOID CHE_PDF_GState::GetLineDash( GRAPHICS_STATE_DASHPATTERN & lineDash ) const
+void CHE_PDF_GState::GetLineDash( GRAPHICS_STATE_DASHPATTERN & lineDash ) const
 {
 	if ( mFlag & GSTATE_FLAG_LineDash )
 	{
@@ -509,7 +509,7 @@ HE_VOID CHE_PDF_GState::GetLineDash( GRAPHICS_STATE_DASHPATTERN & lineDash ) con
 	lineDash.dashArray.clear();
 }
 
-HE_VOID CHE_PDF_GState::GetTextMatrix( CHE_Matrix & matrixRet ) const
+void CHE_PDF_GState::GetTextMatrix( CHE_Matrix & matrixRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_TextMatirx )
 	{
@@ -519,7 +519,7 @@ HE_VOID CHE_PDF_GState::GetTextMatrix( CHE_Matrix & matrixRet ) const
 	matrixRet = CHE_Matrix();
 }
 
-HE_VOID CHE_PDF_GState::GetTextFontSize( HE_FLOAT & fontSizeRet ) const
+void CHE_PDF_GState::GetTextFontSize( FLOAT & fontSizeRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_Font )
 	{
@@ -529,7 +529,7 @@ HE_VOID CHE_PDF_GState::GetTextFontSize( HE_FLOAT & fontSizeRet ) const
 	fontSizeRet = 1;
 }
 
-HE_VOID CHE_PDF_GState::GetTextCharSpace( HE_FLOAT & charSpaceRet ) const
+void CHE_PDF_GState::GetTextCharSpace( FLOAT & charSpaceRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_CharSpace )
 	{
@@ -539,7 +539,7 @@ HE_VOID CHE_PDF_GState::GetTextCharSpace( HE_FLOAT & charSpaceRet ) const
 	charSpaceRet = 0;
 }
 
-HE_VOID CHE_PDF_GState::GetTextWordSpace( HE_FLOAT & wordSpaceRet ) const
+void CHE_PDF_GState::GetTextWordSpace( FLOAT & wordSpaceRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_WordSpace )
 	{
@@ -549,7 +549,7 @@ HE_VOID CHE_PDF_GState::GetTextWordSpace( HE_FLOAT & wordSpaceRet ) const
 	wordSpaceRet = 0;
 }
 
-HE_VOID CHE_PDF_GState::GetTextScaling( HE_FLOAT & scalingRet ) const
+void CHE_PDF_GState::GetTextScaling( FLOAT & scalingRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_Scaling )
 	{
@@ -559,7 +559,7 @@ HE_VOID CHE_PDF_GState::GetTextScaling( HE_FLOAT & scalingRet ) const
 	scalingRet = 100;
 }
 
-HE_VOID CHE_PDF_GState::GetTextRise( HE_FLOAT & riseRet ) const
+void CHE_PDF_GState::GetTextRise( FLOAT & riseRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_Rise )
 	{
@@ -575,10 +575,10 @@ CHE_PDF_Font * CHE_PDF_GState::GetTextFont() const
 	{
 		return mpTextState->GetFont();
 	}
-	return NULL;
+	return nullptr;
 }
 
-HE_VOID CHE_PDF_GState::GetTextFontResName( CHE_ByteString & resNameRet ) const
+void CHE_PDF_GState::GetTextFontResName( CHE_ByteString & resNameRet ) const
 {
 	if ( mFlag & GSTATE_FLAG_Font )
 	{
@@ -588,7 +588,7 @@ HE_VOID CHE_PDF_GState::GetTextFontResName( CHE_ByteString & resNameRet ) const
 	resNameRet.Clear();
 }
 
-HE_VOID CHE_PDF_GState::GetTextRenderMode( GRAPHICS_STATE_TEXTRENDERMODE & rm ) const
+void CHE_PDF_GState::GetTextRenderMode( GRAPHICS_STATE_TEXTRENDERMODE & rm ) const
 {
 	if ( mFlag & GSTATE_FLAG_RenderMode )
 	{
@@ -598,145 +598,145 @@ HE_VOID CHE_PDF_GState::GetTextRenderMode( GRAPHICS_STATE_TEXTRENDERMODE & rm ) 
 	rm = TextRenderMode_Fill;
 }
 
-HE_VOID CHE_PDF_GState::SetMatrix( const CHE_Matrix & matirx )
+void CHE_PDF_GState::SetMatrix( const CHE_Matrix & matirx )
 {
 	mMatrix = matirx;
 }
 
-HE_VOID CHE_PDF_GState::SetRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri )
+void CHE_PDF_GState::SetRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri )
 {
 	mFlag |= GSTATE_FLAG_RenderIntents;
 	mRenderIntents = ri;
 }
-HE_VOID CHE_PDF_GState::SetFlatness( const HE_FLOAT & flatness )
+void CHE_PDF_GState::SetFlatness( const FLOAT & flatness )
 {
 	mFlag |= GSTATE_FLAG_Flatness;
 	mFlatness = flatness;
 }
 
-HE_BOOL CHE_PDF_GState::SetFillColor( const CHE_PDF_Color & color )
+bool CHE_PDF_GState::SetFillColor( const CHE_PDF_Color & color )
 {
 	mFillColor = color;
 	mFlag |= GSTATE_FLAG_FillColor;
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::SetStrokeColor( const CHE_PDF_Color & color )
+bool CHE_PDF_GState::SetStrokeColor( const CHE_PDF_Color & color )
 {
 	mStrokeColor = color;
 	mFlag |= GSTATE_FLAG_StrokeColor;
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::SetFillColorSpace( CHE_PDF_ColorSpacePtr colorSpace )
+bool CHE_PDF_GState::SetFillColorSpace( CHE_PDF_ColorSpacePtr colorSpace )
 {
 	mFillColorSpace = colorSpace;
 	mFlag |= GSTATE_FLAG_FillColorSpace;
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::SetStrokeColorSpace( CHE_PDF_ColorSpacePtr colorSpace )
+bool CHE_PDF_GState::SetStrokeColorSpace( CHE_PDF_ColorSpacePtr colorSpace )
 {
 	mStrokeColorSpace = colorSpace;
 	mFlag |= GSTATE_FLAG_StrokeColorSpace;
 	return TRUE;
 }
 
-HE_VOID	CHE_PDF_GState::SetLineWidth( const HE_FLOAT & lineWidth )
+void	CHE_PDF_GState::SetLineWidth( const FLOAT & lineWidth )
 {
 	MakeStrokeState()->SetLineWidth( lineWidth );
 	mFlag |= GSTATE_FLAG_LineWidth;
 }
 
-HE_VOID	CHE_PDF_GState::SetMiterLimit( const HE_FLOAT & miterLimit )
+void	CHE_PDF_GState::SetMiterLimit( const FLOAT & miterLimit )
 {
 	MakeStrokeState()->SetMiterLimit( miterLimit );
 	mFlag |= GSTATE_FLAG_MiterLimit;
 }
 
-HE_VOID	CHE_PDF_GState::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
+void	CHE_PDF_GState::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 {
 	MakeStrokeState()->SetLineCap( lineCap );
 	mFlag |= GSTATE_FLAG_LineCap;
 }
 
-HE_VOID	CHE_PDF_GState::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
+void	CHE_PDF_GState::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
 {
 	MakeStrokeState()->SetLineJoin( lineJion );
 	mFlag |= GSTATE_FLAG_LineJoin;
 }
 
-HE_VOID	CHE_PDF_GState::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
+void	CHE_PDF_GState::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
 {
 	MakeStrokeState()->SetLineDash( dashPattern );
 	mFlag |= GSTATE_FLAG_LineDash;
 }
 
-HE_VOID CHE_PDF_GState::SetTextMatrix( const CHE_Matrix & matrix )
+void CHE_PDF_GState::SetTextMatrix( const CHE_Matrix & matrix )
 {
 	MakeTextState()->SetMatirx( matrix );
 	mFlag |= GSTATE_FLAG_TextMatirx;
 }
 
-HE_VOID CHE_PDF_GState::SetTextFont( CHE_PDF_Font * pFont )
+void CHE_PDF_GState::SetTextFont( CHE_PDF_Font * pFont )
 {
 	MakeTextState()->SetFont( pFont );
 	mFlag |= GSTATE_FLAG_Font;
 }
 
-HE_VOID CHE_PDF_GState::SetTextFontSize( const HE_FLOAT & size )
+void CHE_PDF_GState::SetTextFontSize( const FLOAT & size )
 {
 	MakeTextState()->SetFontSize( size );
 	mFlag |= GSTATE_FLAG_Font;
 }
 
-HE_VOID CHE_PDF_GState::SetTextFontResName( const CHE_ByteString & resName )
+void CHE_PDF_GState::SetTextFontResName( const CHE_ByteString & resName )
 {
 	MakeTextState()->SetFontResName( resName );
 	mFlag |= GSTATE_FLAG_Font;
 }
 
-HE_VOID CHE_PDF_GState::SetTextCharSpace( const HE_FLOAT & charSpace )
+void CHE_PDF_GState::SetTextCharSpace( const FLOAT & charSpace )
 {
 	MakeTextState()->SetCharSpace( charSpace );
 	mFlag |= GSTATE_FLAG_CharSpace;
 }
 
-HE_VOID CHE_PDF_GState::SetTextWordSpace( const HE_FLOAT & wordSpace )
+void CHE_PDF_GState::SetTextWordSpace( const FLOAT & wordSpace )
 {
 	MakeTextState()->SetWordSpace( wordSpace );
 	mFlag |= GSTATE_FLAG_WordSpace;
 }
 
-// HE_VOID CHE_PDF_GState::SetTextLeading( const HE_FLOAT & leading )
+// void CHE_PDF_GState::SetTextLeading( const FLOAT & leading )
 // {
 // 	MakeTextState()->SetLeading( leading );
 // 	mFlag |= GSTATE_FLAG_Leading;
 // }
 
-HE_VOID CHE_PDF_GState::SetTextScaling( const HE_FLOAT & scaling )
+void CHE_PDF_GState::SetTextScaling( const FLOAT & scaling )
 {
 	MakeTextState()->SetScaling( scaling );
 	mFlag |= GSTATE_FLAG_Scaling;
 }
 
-HE_VOID CHE_PDF_GState::SetTextRise( const HE_FLOAT & rise )
+void CHE_PDF_GState::SetTextRise( const FLOAT & rise )
 {
 	MakeTextState()->SetRise( rise );
 	mFlag |= GSTATE_FLAG_Rise;
 }
 
-HE_VOID CHE_PDF_GState::SetTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm )
+void CHE_PDF_GState::SetTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm )
 {
 	MakeTextState()->SetRenderMode( rm );
 	mFlag |= GSTATE_FLAG_RenderMode;
 }
 
-HE_BOOL CHE_PDF_GState::PushClipElement( CHE_PDF_ContentObject * pElement )
+bool CHE_PDF_GState::PushClipElement( CHE_PDF_ContentObject * pElement )
 {
 	if ( !pElement )
 	{
-		return FALSE;
+		return false;
 	}
 	CHE_PDF_ClipStateItem * pItem = GetAllocator()->New<CHE_PDF_ClipStateItem>( GetAllocator() );
 	pItem->SetElement( pElement );
@@ -744,7 +744,7 @@ HE_BOOL CHE_PDF_GState::PushClipElement( CHE_PDF_ContentObject * pElement )
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, const CHE_PDF_ExtGStatePtr & extgstate )
+bool CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, const CHE_PDF_ExtGStatePtr & extgstate )
 {
 	MakeExtGState()->PushExtStateName( resName, extgstate );
 
@@ -809,12 +809,12 @@ HE_BOOL CHE_PDF_GState::PushExtGState( const CHE_ByteString & resName, const CHE
 	return TRUE;
 }
 
-HE_VOID	CHE_PDF_GState::CopyTextState( CHE_PDF_GState * pGState )
+void	CHE_PDF_GState::CopyTextState( CHE_PDF_GState * pGState )
 {
 	if ( mpTextState )
 	{
 		mpTextState->GetAllocator()->Delete( mpTextState );
-		mpTextState = NULL;
+		mpTextState = nullptr;
 		mFlag &= ~GSTATE_FLAG_Font;
 		mFlag &= ~GSTATE_FLAG_TextMatirx;
 		mFlag &= ~GSTATE_FLAG_CharSpace;
@@ -836,166 +836,166 @@ HE_VOID	CHE_PDF_GState::CopyTextState( CHE_PDF_GState * pGState )
 	}
 }
 
-HE_BOOL IsFloatEqual( const HE_FLOAT & val1, const HE_FLOAT & val2 )
+bool IsFloatEqual( const FLOAT & val1, const FLOAT & val2 )
 {
 	if ( fabsf( val1 - val2 ) <= FLT_EPSILON )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsDefLineWidth( const HE_FLOAT & lineWidth )
+bool IsDefLineWidth( const FLOAT & lineWidth )
 {
 	return IsFloatEqual( lineWidth, 1 );
 }
 
-HE_BOOL IsDefLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
+bool IsDefLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 {
 	if ( lineCap == LineCap_Butt )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsDefLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJoin )
+bool IsDefLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJoin )
 {
 	if ( lineJoin == LineJoin_Miter )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsDefMiterLimit( const HE_FLOAT & miterLimit )
+bool IsDefMiterLimit( const FLOAT & miterLimit )
 {
 	return IsFloatEqual( miterLimit, 10 );
 }
 
-HE_BOOL IsDefLineDash( const GRAPHICS_STATE_DASHPATTERN & lineDash )
+bool IsDefLineDash( const GRAPHICS_STATE_DASHPATTERN & lineDash )
 {
 	if ( IsFloatEqual( lineDash.dashPhase, 0 ) && ( lineDash.dashArray.size() == 0 ) )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsDefMatrix( const CHE_Matrix & textMatrix )
+bool IsDefMatrix( const CHE_Matrix & textMatrix )
 {
 	if ( IsFloatEqual( textMatrix.a, 1 ) && IsFloatEqual( textMatrix.b, 0 ) && IsFloatEqual( textMatrix.c, 0 ) &&
 		 IsFloatEqual( textMatrix.d, 1 ) && IsFloatEqual( textMatrix.e, 0 ) && IsFloatEqual( textMatrix.f, 0 ) )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsDefTextCharSpace( const HE_FLOAT & charSpace )
+bool IsDefTextCharSpace( const FLOAT & charSpace )
 {
 	return IsFloatEqual( charSpace, 0 );	
 }
 
-HE_BOOL IsDefTextWrodSpace( const HE_FLOAT & wordSpace )
+bool IsDefTextWrodSpace( const FLOAT & wordSpace )
 {
 	return IsFloatEqual( wordSpace, 0 );
 }
 
-HE_BOOL IsDefTextRise( const HE_FLOAT & textRise )
+bool IsDefTextRise( const FLOAT & textRise )
 {
 	return IsFloatEqual( textRise, 0 );
 }
 
-HE_BOOL IsDefTextScaling( const HE_FLOAT & textScaling )
+bool IsDefTextScaling( const FLOAT & textScaling )
 {
 	return IsFloatEqual( textScaling, 100 );
 }
 
-HE_BOOL IsDefTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm )
+bool IsDefTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm )
 {
 	if ( rm == TextRenderMode_Fill )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsDefFlatness( const HE_FLOAT & flatness )
+bool IsDefFlatness( const FLOAT & flatness )
 {
 	return IsFloatEqual( flatness, 0 );
 }
 
-HE_BOOL IsDefRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri )
+bool IsDefRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri )
 {
 	if ( ri == RI_AbsoluteColorimetric )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace )
+bool IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace )
 {
-	if ( colorSpace.GetType() == COLORSPACE_DEVICE_GRAY )
+	if ( colorSpace.GetColorSpaceType() == COLORSPACE_DEVICE_GRAY )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsDefColor( const CHE_PDF_Color & color )
+bool IsDefColor( const CHE_PDF_Color & color )
 {
 	if ( color.GetComponentCount() == 1 && IsFloatEqual( color.GetComponent(0), 0 ) )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 )
+bool	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 )
 {
 	//zctodo
 	if ( cs1.GetType() == cs2.GetType() /*&& cs1.GetResName() == cs2.GetResName()*/ )
 	{
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 )
+bool IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 )
 {
 	if ( c1.GetComponentCount() != c2.GetComponentCount() )
 	{
-		return FALSE;
+		return false;
 	}
-	for ( HE_ULONG i = 0; i < c1.GetComponentCount(); ++i )
+	for ( size_t i = 0; i < c1.GetComponentCount(); ++i )
 	{
 		if ( c1.GetComponent(i) != c2.GetComponent(i) )
 		{
-			return FALSE;
+			return false;
 		}
 	}
 	return TRUE;
 }
 
-HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 )
+bool IsExtGStateEqual( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 )
 {
 	if ( pExtGS1 == pExtGS2 )
 	{
 		return TRUE;
 	}
 
-	if ( pExtGS1 == NULL || pExtGS2 == NULL )
+	if ( pExtGS1 == nullptr || pExtGS2 == nullptr )
 	{
-		return FALSE;
+		return false;
 	}
 
 	if (	! IsFloatEqual( pExtGS1->GetFillAlpha(), pExtGS2->GetFillAlpha() )		|| 
 			! IsFloatEqual( pExtGS1->GetStrokeAlpha(), pExtGS2->GetStrokeAlpha() )	||
 			pExtGS1->mExtGStateName.size() != pExtGS2->mExtGStateName.size() )
 	{
-		return FALSE;
+		return false;
 	}
 
 	std::list<CHE_ByteString>::const_iterator it1, it2;
@@ -1006,32 +1006,32 @@ HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_
 	{
 		if ( *it1 != *it2 )
 		{
-			return FALSE;
+			return false;
 		}
 	}
 	return TRUE;
 }
 
-HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 )
+bool IsExtGStateContinue( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 )
 {
-	if ( pExtGS1 == NULL && pExtGS2 != NULL )
+	if ( pExtGS1 == nullptr && pExtGS2 != nullptr )
 	{
 		return TRUE;
 	}
 
-	if ( pExtGS1 != NULL && pExtGS2 == NULL )
+	if ( pExtGS1 != nullptr && pExtGS2 == nullptr )
 	{
-		return FALSE;
+		return false;
 	}
 
-	if ( pExtGS1 == NULL && pExtGS2 == NULL )
+	if ( pExtGS1 == nullptr && pExtGS2 == nullptr )
 	{
-		return FALSE;
+		return false;
 	}
 
 	if ( pExtGS2->mExtGStateName.size() <= pExtGS1->mExtGStateName.size() )
 	{
-		return FALSE;
+		return false;
 	}
 
 	std::list<CHE_ByteString>::const_iterator it1, it2;
@@ -1041,32 +1041,32 @@ HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_P
 	{
 		if ( *it1 != *it2 )
 		{
-			return FALSE;
+			return false;
 		}
 	}
 
 	return TRUE;
 }
 
-HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 )
+bool IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 )
 {
 	if ( pClipGS1 == pClipGS2 )
 	{
 		return TRUE;
 	}
 
-	if ( pClipGS1 == NULL || pClipGS2 == NULL )
+	if ( pClipGS1 == nullptr || pClipGS2 == nullptr )
 	{
-		return FALSE;
+		return false;
 	}
 
 	if ( pClipGS1->mClipElementList.size() != pClipGS2->mClipElementList.size() )
 	{
-		return FALSE;
+		return false;
 	}
 
 	std::list<CHE_PDF_ClipStateItem*>::const_iterator it1, it2;
-	CHE_PDF_ContentObject * pElement1 = NULL, * pElement2 = NULL;
+	CHE_PDF_ContentObject * pElement1 = nullptr, * pElement2 = nullptr;
 	it1 = pClipGS1->mClipElementList.begin();
 	it2 = pClipGS2->mClipElementList.begin();
 
@@ -1075,22 +1075,22 @@ HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_Clip
         //zctodo
 		//if ( (*it1)->GetMatrix() != (*it2)->GetMatrix() )
 		//{
-		//	return FALSE;
+		//	return false;
 		//}
 		pElement1 = (*it1)->GetElement();
 		pElement2 = (*it2)->GetElement();
 		if ( pElement1->GetType() != pElement2->GetType() )
 		{
-			return FALSE;
+			return false;
 		}
 // 		if ( pElement1->GetExtMatrix() != pElement2->GetExtMatrix() )
 // 		{
-// 			return FALSE;
+// 			return false;
 // 		}
 //		zctodo 判断clip对应的图形状态是不是相等
 // 		if ( pElement1->GetGState() != pElement2->GetGState() )
 // 		{
-// 			return FALSE;
+// 			return false;
 // 		}
 		if ( pElement1->GetType() == ContentType_Text && pElement2->GetType() == ContentType_Text )
 		{
@@ -1104,35 +1104,35 @@ HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_Clip
 //			zctodo
 // 			if (	pPath1->GetGState() != pPath2->GetGState() )
 // 			{
-// 				return FALSE;
+// 				return false;
 // 			}
 			if (	
 // 					pPath1->GetExtMatrix() != pPath2->GetExtMatrix() ||
 // 					pPath1->GetFillMode() != pPath2->GetFillMode() ||
 					pPath1->GetPaintType() != pPath2->GetPaintType() )
 			{
-				return FALSE;
+				return false;
 			}
 			if ( pPath1->mItems.size() != pPath2->mItems.size() )
 			{
-				return FALSE;
+				return false;
 			}
-			for ( HE_ULONG i = 0; i != pPath1->mItems.size(); ++i )
+			for ( size_t i = 0; i != pPath1->mItems.size(); ++i )
 			{
 				if ( pPath1->mItems[i].type != pPath2->mItems[i].type ||
 					 pPath1->mItems[i].value != pPath2->mItems[i].value )
 				{
-					return FALSE;
+					return false;
 				}
 			}
 		}else{
-			return FALSE;
+			return false;
 		}
 	}
 	return TRUE;
 }
 
-HE_BOOL IsClipStateContinue( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 )
+bool IsClipStateContinue( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 )
 {
-	return FALSE;
+	return false;
 }

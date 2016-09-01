@@ -27,9 +27,6 @@
     <Filter Include="include\pdf">
       <UniqueIdentifier>{b8490f1c-7584-4064-97ed-7d7b1c842b90}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\wdm">
-      <UniqueIdentifier>{686c123a-3843-434c-9f73-9e40841c4d0e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\crypt">
       <UniqueIdentifier>{9b7e57c2-050b-41e8-b009-1fce0b0be2a0}</UniqueIdentifier>
     </Filter>
@@ -38,9 +35,6 @@
     </Filter>
     <Filter Include="src\pdf">
       <UniqueIdentifier>{891c0d2f-38ca-4310-b516-e1f34536cb59}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\wdm">
-      <UniqueIdentifier>{eacbe4b1-f01d-4c6b-b32f-034d028ffed0}</UniqueIdentifier>
     </Filter>
     <Filter Include="extlib\openjpeg">
       <UniqueIdentifier>{8832000c-3814-4e1d-9faf-96876f08bad6}</UniqueIdentifier>
@@ -107,12 +101,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_document.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\wdm\che_wdm.h">
-      <Filter>include\wdm</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h">
-      <Filter>include\wdm</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_outline.h">
       <Filter>include\pdf</Filter>
     </ClInclude>
@@ -170,9 +158,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h">
       <Filter>include\pdf\component</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\pdf\che_pdf_fontmgr.h">
-      <Filter>include\pdf\component</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\pdf\che_pdf_function.h">
       <Filter>include\pdf\component</Filter>
     </ClInclude>
@@ -219,12 +204,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp">
       <Filter>src\pdf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\wdm\che_wdm.cpp">
-      <Filter>src\wdm</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\wdm\che_wdm_textbox.cpp">
-      <Filter>src\wdm</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp">
       <Filter>src\pdf</Filter>
@@ -616,9 +595,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp">
       <Filter>src\pdf\component</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp">
-      <Filter>src\pdf\component</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_function.cpp">
       <Filter>src\pdf\component</Filter>
     </ClCompile>
@@ -643,8 +619,35 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp">
       <Filter>src\pdf\base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\platform\windows\che_platform_font.cpp">
-      <Filter>src\pdf\component</Filter>
+    <ClCompile Include="..\..\src\pdf\che_pdf_action.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_annotation.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_filespec.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_namedict.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_numbertree.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_objectstring.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_page_layout.cpp">
+      <Filter>include\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pdf\che_pdf_pagelabels.cpp">
+      <Filter>include\pdf</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

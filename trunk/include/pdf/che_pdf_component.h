@@ -38,18 +38,18 @@ public:
 
 	CHE_PDF_ObjectPtr		GetRootObject() const;
 
-	HE_VOID					Release();
+	void					Release();
 
-	HE_BOOL					IsError() const { return (mError == COMPONENT_ERROR_NOERROR) ? FALSE : TRUE; }
+	bool					IsError() const { return (mError == COMPONENT_ERROR_NOERROR) ? false : TRUE; }
 	
 protected:
-    CHE_PDF_Component( PDF_COMPONENT_TYPE type, CHE_Allocator * pAllocator = NULL )
+    CHE_PDF_Component( PDF_COMPONENT_TYPE type, CHE_Allocator * pAllocator = nullptr )
     : CHE_Object(pAllocator), mType(type), mError(COMPONENT_ERROR_NOERROR) {}
     
-	CHE_PDF_Component( PDF_COMPONENT_TYPE type, const CHE_PDF_ObjectPtr & rootObject, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Component( PDF_COMPONENT_TYPE type, const CHE_PDF_ObjectPtr & rootObject, CHE_Allocator * pAllocator = nullptr )
 		: CHE_Object(pAllocator), mType(type), mError(COMPONENT_ERROR_NOERROR), mRootObject(rootObject) {}
 
-	HE_VOID					SetError(PDF_COMPONENT_ERROR error) { mError = error; }
+	void					SetError(PDF_COMPONENT_ERROR error) { mError = error; }
 
 	PDF_COMPONENT_TYPE		mType;
 	PDF_COMPONENT_ERROR		mError;
@@ -64,7 +64,7 @@ protected:
 class CHE_PDF_ComponentPtr
 {
 public:
-	CHE_PDF_ComponentPtr() : mpCom( NULL ) {}
+	CHE_PDF_ComponentPtr() : mpCom( nullptr ) {}
 
 	CHE_PDF_ComponentPtr( const CHE_PDF_ComponentPtr & ptr );
 
@@ -72,19 +72,19 @@ public:
 
 	CHE_PDF_ComponentPtr operator = ( const CHE_PDF_ComponentPtr & ptr );
 
-	bool operator!() const { return mpCom ? FALSE : TRUE ; }
+	bool operator!() const { return mpCom ? false : TRUE ; }
 
-	operator HE_BOOL() const { return mpCom ? TRUE : FALSE ; }
+	operator bool() const { return mpCom ? TRUE : false ; }
 
 	CHE_PDF_Component * operator->() const { return mpCom; }
 
 	CHE_PDF_Component * GetPointer() const { return mpCom; } 
 
-	HE_VOID	Reset( CHE_PDF_Component * pCom = NULL );
+	void	Reset( CHE_PDF_Component * pCom = nullptr );
 
-// 	HE_BOOL IsExtStateComponent() const;
+// 	bool IsExtStateComponent() const;
 // 
-// 	HE_BOOL IsColorSpaceComponent() const;
+// 	bool IsColorSpaceComponent() const;
 
 protected:
 	CHE_PDF_Component * mpCom;

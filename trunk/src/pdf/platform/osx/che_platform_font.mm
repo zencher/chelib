@@ -1,5 +1,5 @@
 //#include "../../../../include/pdf/che_pdf_fontmgr.h"
-#include_next "../../../include/pdf/che_pdf_font.h"
+#include "../../../include/pdf/che_pdf_font.h"
 #include "../../../../extlib/freetype/include/ft2build.h"
 #include "../../../../extlib/freetype/include/freetype/freetype.h"
 #include <list>
@@ -15,14 +15,14 @@ public:
 	CHE_ByteString	mPostScriptName;
 	CHE_ByteString	mFilePath;
 	//CHE_Rect        mFontBBox;
-    HE_FLOAT        mItalicAngle;
-	HE_FLOAT		mAscent;
-	HE_FLOAT		mDescent;
-    HE_FLOAT        mLeading;
-	HE_FLOAT		mCapHeight;
-    HE_FLOAT        mXHeight;
-    HE_FLOAT        mStemV;
-    HE_FLOAT        mStemH;
+    FLOAT        mItalicAngle;
+	FLOAT		mAscent;
+	FLOAT		mDescent;
+    FLOAT        mLeading;
+	FLOAT		mCapHeight;
+    FLOAT        mXHeight;
+    FLOAT        mStemV;
+    FLOAT        mStemH;
 };
 
 CHE_WindowsFontInfo::CHE_WindowsFontInfo( CHE_Allocator * pAllocator /*= NULL*/ )
@@ -38,7 +38,7 @@ public:
 
 	CHE_ByteString GetFontFilePath( const CHE_ByteString & fontName );
 
-	CHE_ByteString GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent );
+	CHE_ByteString GetFontFilePath( FLOAT ascent, FLOAT descent );
     
     CHE_ByteString GetFontFilePath( CHE_PDF_FontDescriptor * pFontDes );
     
@@ -60,7 +60,7 @@ IHE_SystemFontMgr * IHE_SystemFontMgr::Create( CHE_Allocator * pAllocator /*= NU
 }
 
 
-HE_VOID IHE_SystemFontMgr::Destroy( IHE_SystemFontMgr * pSystemFontMgr )
+void IHE_SystemFontMgr::Destroy( IHE_SystemFontMgr * pSystemFontMgr )
 {
 	if ( pSystemFontMgr )
 	{
@@ -171,12 +171,12 @@ CHE_MacOSXFontMgr::~CHE_MacOSXFontMgr()
 CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( const CHE_ByteString & fontName )
 {
     NSLog( @"GetFontFilePath for %s", fontName.GetData() );
-	HE_BOOL bStyle = FALSE;
-	HE_BOOL bBold = FALSE;
-	HE_BOOL bItalic = FALSE;
+	bool bStyle = FALSE;
+	bool bBold = FALSE;
+	bool bItalic = FALSE;
 	CHE_ByteString name;
 	CHE_ByteString style;
-	for ( HE_ULONG i = 0; i < fontName.GetLength(); ++i )
+	for ( size_t i = 0; i < fontName.GetLength(); ++i )
 	{
 		if ( fontName[i] == '+' )
 		{
@@ -280,7 +280,7 @@ CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( const CHE_ByteString & fontNa
 }
 
 
-CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent )
+CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( FLOAT ascent, FLOAT descent )
 {
 	CHE_ByteString fontPath;
 	std::list<CHE_WindowsFontInfo>::iterator it;
@@ -298,22 +298,22 @@ CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( HE_FLOAT ascent, HE_FLOAT des
 CHE_ByteString CHE_MacOSXFontMgr::GetFontFilePath( CHE_PDF_FontDescriptor * pFontDes )
 {
     
-    HE_FLOAT italicAngle = 0.0f;
-    HE_FLOAT ascent = 0.0f;
-    HE_FLOAT descent = 0.0f;
-    HE_FLOAT leading = 0.0f;
-    HE_FLOAT capHeight = 0.0f;
-    HE_FLOAT xHeight = 0.0f;
-    HE_FLOAT stemV = 0.0f;
-    HE_FLOAT stemH = 0.0f;
+    FLOAT italicAngle = 0.0f;
+    FLOAT ascent = 0.0f;
+    FLOAT descent = 0.0f;
+    FLOAT leading = 0.0f;
+    FLOAT capHeight = 0.0f;
+    FLOAT xHeight = 0.0f;
+    FLOAT stemV = 0.0f;
+    FLOAT stemH = 0.0f;
     
     
-    HE_FLOAT v = 99999999.0f;
-    HE_FLOAT t = 0.0f;
-    HE_LONG index = -1;
+    FLOAT v = 99999999.0f;
+    FLOAT t = 0.0f;
+    size_t index = -1;
     std::list<CHE_WindowsFontInfo>::iterator target;
     
-    std::list<HE_LONG> optional;
+    std::list<size_t> optional;
     
     
     italicAngle = pFontDes->GetItalicAngle();

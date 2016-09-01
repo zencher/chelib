@@ -39,21 +39,21 @@ enum HE_PDF_VIEW_ROTATE_MODE
 
 struct HE_PDF_PAGE_SIZE
 {
-    HE_FLOAT width;
-    HE_FLOAT height;
+    FLOAT width;
+    FLOAT height;
 };
 
 struct HE_PDF_PAGE_RANGE
 {
-    HE_ULONG pageStart;
-    HE_ULONG pageCount;
+    size_t pageStart;
+    size_t pageCount;
 };
 
 class CHE_Page_Rect
 {
 public:
     CHE_Page_Rect() : left(0), top(0), right(0), bottom(0) {}
-    CHE_Page_Rect( HE_FLOAT l, HE_FLOAT t, HE_FLOAT r, HE_FLOAT b )
+    CHE_Page_Rect( FLOAT l, FLOAT t, FLOAT r, FLOAT b )
     : left(l), top(t), right(r), bottom(b) {}
     
     bool IsEmpty() const
@@ -112,20 +112,20 @@ public:
         return ! operator==( rect );
     }
     
-    HE_FLOAT Width() const
+    FLOAT Width() const
     {
         return fabsf(right-left);
     }
     
-    HE_FLOAT Height() const
+    FLOAT Height() const
     {
         return fabsf(bottom-top);
     }
     
-    HE_FLOAT	left;
-    HE_FLOAT	top;
-    HE_FLOAT	right;
-    HE_FLOAT	bottom;
+    FLOAT	left;
+    FLOAT	top;
+    FLOAT	right;
+    FLOAT	bottom;
 };
 
 class CHE_PDF_ThumbnailPageLayout
@@ -134,32 +134,32 @@ public:
     CHE_PDF_ThumbnailPageLayout();
     ~CHE_PDF_ThumbnailPageLayout();
     
-    void SetViewSize( HE_FLOAT width, HE_FLOAT height );
+    void SetViewSize( FLOAT width, FLOAT height );
     
     void CleanPageSizeInfo();
-    void AddPageSize( HE_FLOAT width, HE_FLOAT height );
+    void AddPageSize( FLOAT width, FLOAT height );
     
     HE_PDF_PAGE_SIZE GetContentSize();
     
     void UpdatePageInViewRectInfo();
     
-    CHE_Page_Rect GetPageRectInView(HE_ULONG pageIndex);
+    CHE_Page_Rect GetPageRectInView(size_t pageIndex);
     
-    HE_FLOAT GetPageScaleInView(HE_ULONG pageIndex);
+    FLOAT GetPageScaleInView(size_t pageIndex);
     
 private:
     void FinalAdjuest(const CHE_Page_Rect & bbox);
     
-    HE_UINT32                           mSpaceX;
-    HE_UINT32                           mSpaceY;
-    HE_FLOAT                            mViewWidth;
-    HE_FLOAT                            mViewHeight;
-    HE_FLOAT                            mContentWidth;
-    HE_FLOAT                            mContentHeight;
+    uint32                           mSpaceX;
+    uint32                           mSpaceY;
+    FLOAT                            mViewWidth;
+    FLOAT                            mViewHeight;
+    FLOAT                            mContentWidth;
+    FLOAT                            mContentHeight;
     
     std::vector<HE_PDF_PAGE_SIZE>       mPageSizes;
     std::vector<CHE_Page_Rect>          mPageRectInView;
-    std::vector<HE_FLOAT>               mPageScaleInView;
+    std::vector<FLOAT>               mPageScaleInView;
 };
 
 class CHE_PDF_PageLayout
@@ -168,35 +168,35 @@ public:
     CHE_PDF_PageLayout();
     ~CHE_PDF_PageLayout();
     
-    void SetScale( HE_FLOAT scale );
-    void SetSpace( HE_UINT32 xspace, HE_UINT32 yspace );
+    void SetScale( FLOAT scale );
+    void SetSpace( uint32 xspace, uint32 yspace );
     void SetPageMode( HE_PDF_VIEW_PAGE_MODE mode );
     void SetZoomMode( HE_PDF_VIEW_ZOOM_MODE mode );
     void SetRotateMode( HE_PDF_VIEW_ROTATE_MODE mode );
-    void SetViewSize( HE_FLOAT width, HE_FLOAT height );
+    void SetViewSize( FLOAT width, FLOAT height );
     
-    HE_FLOAT GetScale() const { return mScale; }
+    FLOAT GetScale() const { return mScale; }
     HE_PDF_VIEW_PAGE_MODE GetPageMode() const { return mMode; }
     HE_PDF_VIEW_ZOOM_MODE GetZoomMode() const { return mZoom; }
     HE_PDF_VIEW_ROTATE_MODE GetRotateMode() const { return mRotate; }
     
     void CleanPageSizeInfo();
-    void AddPageSize( HE_FLOAT width, HE_FLOAT height );
+    void AddPageSize( FLOAT width, FLOAT height );
     
     HE_PDF_PAGE_SIZE GetContentSize();
     
     void UpdatePageInViewRectInfo();
     
-    CHE_Page_Rect GetPageRectInView(HE_ULONG pageIndex);
+    CHE_Page_Rect GetPageRectInView(size_t pageIndex);
     
-    HE_FLOAT GetPageScaleInView(HE_ULONG pageIndex);
+    FLOAT GetPageScaleInView(size_t pageIndex);
     
-    void SetCurPageRange( HE_ULONG pageIndex, HE_ULONG pageCount );
+    void SetCurPageRange( size_t pageIndex, size_t pageCount );
     HE_PDF_PAGE_RANGE GetCurPageRange();
     
 private:
-    HE_FLOAT GetPageWidthForRotateMode(HE_ULONG pageIndex);
-    HE_FLOAT GetPageHeightForRotateMode(HE_ULONG pageIndex);
+    FLOAT GetPageWidthForRotateMode(size_t pageIndex);
+    FLOAT GetPageHeightForRotateMode(size_t pageIndex);
     
     void FinalAdjuest(const CHE_Page_Rect & bbox);
     
@@ -205,23 +205,23 @@ private:
     void UpdatePageInfoDoublePage();
     void UpdatePageInfoDoublePageScroll();
     
-    HE_FLOAT                mScale;
-    HE_UINT32               mSpaceX;
-    HE_UINT32               mSpaceY;
+    FLOAT                mScale;
+    uint32               mSpaceX;
+    uint32               mSpaceY;
     HE_PDF_VIEW_PAGE_MODE   mMode;
     HE_PDF_VIEW_ZOOM_MODE   mZoom;
     HE_PDF_VIEW_ROTATE_MODE mRotate;
-    HE_FLOAT                mViewWidth;
-    HE_FLOAT                mViewHeight;
-    HE_FLOAT                mContentWidth;
-    HE_FLOAT                mContentHeight;
+    FLOAT                mViewWidth;
+    FLOAT                mViewHeight;
+    FLOAT                mContentWidth;
+    FLOAT                mContentHeight;
     std::vector<HE_PDF_PAGE_SIZE>       mPageSizes;
-    HE_BOOL                             mNeedUpdate;
+    bool                             mNeedUpdate;
     std::vector<CHE_Page_Rect>          mPageRectInView;
-    std::vector<HE_FLOAT>               mPageScaleInView;
+    std::vector<FLOAT>               mPageScaleInView;
     
-    HE_ULONG                   mCurPageStart;
-    HE_ULONG                   mCurPageCountInView;
+    size_t                   mCurPageStart;
+    size_t                   mCurPageCountInView;
 };
 
 

@@ -24,10 +24,10 @@ enum PDF_COLORSPACE_TYPE
 class CHE_PDF_Color : public CHE_Object
 {
 public:
-	CHE_PDF_Color( CHE_Allocator * pAllocator = NULL ) 
+	CHE_PDF_Color( CHE_Allocator * pAllocator = nullptr ) 
 		: CHE_Object( pAllocator ), mIndex(0)
 	{
-		for ( HE_ULONG i = 0; i < 4; ++i )
+		for ( size_t i = 0; i < 4; ++i )
 		{
 			mComponent[i] = 0.0f;
 		}
@@ -46,7 +46,7 @@ public:
 	/*CHE_PDF_Color * Clone() const
 	{
 		CHE_PDF_Color * pRet = GetAllocator()->New<CHE_PDF_Color>( GetAllocator() );
-		for ( HE_ULONG i = 0; i < 4; ++i )
+		for ( size_t i = 0; i < 4; ++i )
 		{
 			pRet->mComponent[i] = mComponent[i]; 
 		}
@@ -54,7 +54,7 @@ public:
 		return pRet;
 	}*/
 
-	HE_VOID Push( HE_FLOAT val )
+	void Push( FLOAT val )
 	{
 		if ( mIndex < 4 )
 		{
@@ -62,12 +62,12 @@ public:
 		}
 	}
 
-	HE_ULONG GetComponentCount() const
+	size_t GetComponentCount() const
 	{
 		return mIndex;
 	}
 
-	HE_FLOAT GetComponent( HE_ULONG index ) const
+	FLOAT GetComponent( size_t index ) const
 	{
 		if ( index < mIndex )
 		{
@@ -77,14 +77,14 @@ public:
 		}
 	}
 
-	HE_VOID Clear()
+	void Clear()
 	{
 		mIndex = 0;
 	}
 
 private:
-	HE_FLOAT				mComponent[4];
-	HE_ULONG				mIndex;
+	FLOAT				mComponent[4];
+	size_t				mIndex;
 };
 
 
@@ -157,17 +157,17 @@ public:
 class CHE_PDF_ColorSpace : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_ColorSpacePtr CreateDeviceGray(CHE_Allocator * pAllocator = NULL);
+	static CHE_PDF_ColorSpacePtr CreateDeviceGray(CHE_Allocator * pAllocator = nullptr);
 
-	static CHE_PDF_ColorSpacePtr CreateDeviceRGB(CHE_Allocator * pAllocator = NULL);
+	static CHE_PDF_ColorSpacePtr CreateDeviceRGB(CHE_Allocator * pAllocator = nullptr);
 
-	static CHE_PDF_ColorSpacePtr CreateDeviceCMYK(CHE_Allocator * pAllocator = NULL);
+	static CHE_PDF_ColorSpacePtr CreateDeviceCMYK(CHE_Allocator * pAllocator = nullptr);
 
-	static CHE_PDF_ColorSpacePtr CreatePattern(CHE_Allocator * pAllocator = NULL);
+	static CHE_PDF_ColorSpacePtr CreatePattern(CHE_Allocator * pAllocator = nullptr);
 
-	static CHE_PDF_ColorSpacePtr Create(const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL);
+	static CHE_PDF_ColorSpacePtr Create(const CHE_ByteString & str, CHE_Allocator * pAllocator = nullptr);
 
-	static CHE_PDF_ColorSpacePtr Create(const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator = NULL);
+	static CHE_PDF_ColorSpacePtr Create(const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator = nullptr);
     
     static CHE_PDF_ColorSpacePtr Convert( const CHE_PDF_ComponentPtr & componetPtr );
 
@@ -175,7 +175,7 @@ public:
 
 	PDF_COLORSPACE_TYPE         GetColorSpaceType() const { return mColorSpaceType; }
 
-	HE_UINT32                   GetComponentCount() const;
+	uint32                   GetComponentCount() const;
     
     CHE_PDF_CS_CalGrayPtr       GetCalGrayPtr() const;
 
@@ -194,14 +194,14 @@ public:
     CHE_PDF_CS_DeviceNPtr       GetDeviceNPtr() const;
 
 #ifdef WIN32
-	virtual HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+	virtual ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
 #endif
 
 protected:
-	CHE_PDF_ColorSpace(PDF_COLORSPACE_TYPE type, HE_UINT32 componentCount, CHE_Allocator * pAllocator = NULL);
+	CHE_PDF_ColorSpace(PDF_COLORSPACE_TYPE type, uint32 componentCount, CHE_Allocator * pAllocator = nullptr);
 
 	PDF_COLORSPACE_TYPE		mColorSpaceType;
-	HE_UINT32				mComponentCount;
+	uint32				mComponentCount;
 
 	friend class CHE_Allocator;
 };
@@ -210,14 +210,14 @@ protected:
 class CHE_PDF_CS_CalGray : public CHE_PDF_ColorSpace
 {
 public:
-    HE_DOUBLE   mWhitePoint[3];
-    HE_DOUBLE   mBlackPoint[3];
-    HE_DOUBLE   mGamma;
+    DOUBLE   mWhitePoint[3];
+    DOUBLE   mBlackPoint[3];
+    DOUBLE   mGamma;
 
 private:
-    CHE_PDF_CS_CalGray(CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_CalGray(CHE_Allocator * pAllocator = nullptr);
     
-    CHE_PDF_CS_CalGray(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_CalGray(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = nullptr);
     
     friend class CHE_Allocator;
 };
@@ -226,15 +226,15 @@ private:
 class CHE_PDF_CS_CalRGB : public CHE_PDF_ColorSpace
 {
 public:
-    HE_DOUBLE   mWhitePoint[3];
-    HE_DOUBLE   mBlackPoint[3];
-    HE_DOUBLE	mGamma[3];
-    HE_DOUBLE	mMatrix[9];
+    DOUBLE   mWhitePoint[3];
+    DOUBLE   mBlackPoint[3];
+    DOUBLE	mGamma[3];
+    DOUBLE	mMatrix[9];
     
 private:
-    CHE_PDF_CS_CalRGB(CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_CalRGB(CHE_Allocator * pAllocator = nullptr);
     
-    CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = nullptr);
     
     friend class CHE_Allocator;
 };
@@ -243,18 +243,18 @@ private:
 class CHE_PDF_CS_CalLab : public CHE_PDF_ColorSpace
 {
 public:
-    HE_DOUBLE				mWhitePoint[3];
-    HE_DOUBLE				mBlackPoint[3];
-    HE_DOUBLE				mRange[4];
+    DOUBLE				mWhitePoint[3];
+    DOUBLE				mBlackPoint[3];
+    DOUBLE				mRange[4];
 
 #ifdef WIN32
-	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+	ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
 #endif
     
 private:
-    CHE_PDF_CS_CalLab(CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_CalLab(CHE_Allocator * pAllocator = nullptr);
     
-    CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = nullptr);
     
     friend class CHE_Allocator;
 };
@@ -263,16 +263,16 @@ private:
 class CHE_PDF_CS_ICCBased : public CHE_PDF_ColorSpace
 {
 public:
-    HE_DOUBLE				mRange[8];
+    DOUBLE				mRange[8];
     CHE_PDF_ColorSpacePtr   mAlternate;
     CHE_PDF_StreamAcc       mStmAcc;
 
 #ifdef WIN32
-	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+	ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
 #endif
     
 private:
-    CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_Allocator * pAllocator = nullptr);
     
     friend class CHE_Allocator;
 };
@@ -281,19 +281,19 @@ private:
 class CHE_PDF_CS_Indexed : public CHE_PDF_ColorSpace
 {
 public:
-    HE_ULONG				mIndexCount;
-    HE_ULONG				mIndexTableSize;
-    HE_LPBYTE				mpIndexTable;
-    HE_LPBYTE               mpNewTable;
-    HE_ULONG                mNewTableSize;
+    size_t				mIndexCount;
+    size_t				mIndexTableSize;
+    PBYTE				mpIndexTable;
+    PBYTE               mpNewTable;
+    size_t                mNewTableSize;
     CHE_PDF_ColorSpacePtr	mBaseColorSpace;
 
 #ifdef WIN32
-	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+	ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
 #endif
     
 private:
-    CHE_PDF_CS_Indexed(const CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_Indexed(const CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = nullptr);
     
     friend class CHE_Allocator;
 };
@@ -308,7 +308,7 @@ public:
     CHE_PDF_ColorSpacePtr   mUnderLyingColorspace;
     
 private:
-    CHE_PDF_CS_Pattern(CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_Pattern(CHE_Allocator * pAllocator = nullptr);
     
     friend class CHE_Allocator;
 };
@@ -321,11 +321,11 @@ public:
     CHE_PDF_FunctionPtr		mFunction;
 
 #ifdef WIN32
-	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+	ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
 #endif
     
 private:
-    CHE_PDF_CS_Separation(CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_Separation(CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = nullptr);
     
     friend class CHE_Allocator;
 };
@@ -338,11 +338,11 @@ public:
     CHE_PDF_FunctionPtr		mFunction;
 
 #ifdef WIN32
-	HE_ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+	ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
 #endif
 
 private:
-    CHE_PDF_CS_DeviceN(CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_CS_DeviceN(CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator = nullptr);
     
     friend class CHE_Allocator;
 };

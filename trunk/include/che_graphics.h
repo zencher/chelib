@@ -30,7 +30,7 @@ struct GRAPHICS_STATE_DASHPATTERN
 	{
 		dashPhase = 0;
 	}
-	HE_FLOAT dashPhase;
+	FLOAT dashPhase;
 	std::vector<float> dashArray;
 };
 
@@ -85,25 +85,25 @@ class CHE_Point
 {
 public:
 	CHE_Point() : x(0), y(0) {}
-	CHE_Point( HE_FLOAT vx, HE_FLOAT vy ) : x(vx), y(vy) {}
+	CHE_Point( FLOAT vx, FLOAT vy ) : x(vx), y(vy) {}
 
-	HE_FLOAT	x;
-	HE_FLOAT	y;
+	FLOAT	x;
+	FLOAT	y;
 };
 
 class CHE_Rect
 {
 public:
 	CHE_Rect() : left(0), bottom(0), width(0), height(0) {}
-	CHE_Rect( HE_FLOAT vleft, HE_FLOAT vbottom, HE_FLOAT vwidth, HE_FLOAT vheight )
+	CHE_Rect( FLOAT vleft, FLOAT vbottom, FLOAT vwidth, FLOAT vheight )
 		: left(vleft), bottom(vbottom), width(vwidth), height(vheight) {}
 
-	HE_BOOL	IsEmpty() const
+	bool	IsEmpty() const
 	{
 		return ( fabs(width) < FLT_EPSILON || fabs(height) < FLT_EPSILON );
 	}
 
-	HE_BOOL IsUnion( const CHE_Rect & rect )
+	bool IsUnion( const CHE_Rect & rect )
 	{
 		CHE_Point p1;
 		CHE_Point p2;
@@ -111,16 +111,16 @@ public:
 		p1.y = bottom + height / 2;
 		p2.x = rect.left + rect.width / 2;
 		p2.y = rect.bottom + rect.height / 2;
-		HE_FLOAT xDis = fabsf( p1.x - p2.x );
-		HE_FLOAT yDis = fabsf( p1.y - p2.y );
+		FLOAT xDis = fabsf( p1.x - p2.x );
+		FLOAT yDis = fabsf( p1.y - p2.y );
 		if ( ( xDis < ( rect.width + width ) / 2 ) && ( yDis < ( rect.height + height ) / 2 ) )
 		{
-			return TRUE;
+			return true;
 		}
-		return FALSE;
+		return false;
 	}
 
-	HE_VOID	Union( const CHE_Rect & rect )
+	void	Union( const CHE_Rect & rect )
 	{
 		if ( &rect != this )
 		{
@@ -160,10 +160,10 @@ public:
 		return ! operator==( rect );
 	}
 
-	HE_FLOAT	left;
-	HE_FLOAT	bottom;
-	HE_FLOAT	width;
-	HE_FLOAT	height;
+	FLOAT	left;
+	FLOAT	bottom;
+	FLOAT	width;
+	FLOAT	height;
 };
 
 
@@ -185,7 +185,7 @@ public:
 	CHE_Matrix( float va, float vb, float vc, float vd, float ve, float vf )
 		: a(va), b(vb), c(vc), d(vd), e(ve), f(vf) {}
 
-	static CHE_Matrix TranslateMatrix( HE_FLOAT tx, HE_FLOAT ty )
+	static CHE_Matrix TranslateMatrix( FLOAT tx, FLOAT ty )
 	{
 		CHE_Matrix matrixRet;
 		matrixRet.e = tx;
@@ -193,7 +193,7 @@ public:
 		return matrixRet;
 	}
 
-	static CHE_Matrix RotateMatrix( HE_FLOAT theta )
+	static CHE_Matrix RotateMatrix( FLOAT theta )
 	{
 		float s;
 		float c;
@@ -236,7 +236,7 @@ public:
 		return matrixRet;
 	}
 
-	static CHE_Matrix ScaleMatrix( HE_FLOAT sx, HE_FLOAT sy )
+	static CHE_Matrix ScaleMatrix( FLOAT sx, FLOAT sy )
 	{
 		CHE_Matrix matrixRet;
 		matrixRet.a = sx;
@@ -244,7 +244,7 @@ public:
 		return matrixRet;
 	}
 
-	static CHE_Matrix SkewMatrix( HE_FLOAT a, HE_FLOAT b )
+	static CHE_Matrix SkewMatrix( FLOAT a, FLOAT b )
 	{
 		CHE_Matrix matrixRet;
 		matrixRet.b = tanf(a);
@@ -274,9 +274,9 @@ public:
 		f = - matirx.e * b - matirx.f * d;
 	}
 
-	HE_FLOAT AbsValue() const
+	FLOAT AbsValue() const
 	{
-		HE_FLOAT val = 1 / ( a * d - b * c );
+		FLOAT val = 1 / ( a * d - b * c );
 		return val;
 	}
 

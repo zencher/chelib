@@ -6,13 +6,13 @@
 
 #include <setjmp.h>
 
-HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_HexFilter::Encode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0  )
+	if ( pData == nullptr || length == 0  )
 	{
 		return;
 	}
-    HE_BYTE data[2];
+    BYTE data[2];
     while( length-- )
     {
         data[0]  = (*pData & 0xF0) >> 4;
@@ -26,15 +26,15 @@ HE_VOID CHE_PDF_HexFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	buffer.Write( data, 1 );
 }
 
-HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_HexFilter::Decode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0  )
+	if ( pData == nullptr || length == 0  )
 	{
 		return;
 	}
-	HE_BOOL	bLow = FALSE;
-    HE_BYTE chr = 0;
-	HE_BYTE	val = 0;
+	bool	bLow = false;
+    BYTE chr = 0;
+	BYTE	val = 0;
     while( length-- ) 
     {
         chr  = *pData;
@@ -49,7 +49,7 @@ HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 			{
 				buffer.Write( &val, 1 );
 				val = 0;
-				bLow = FALSE;
+				bLow = false;
 			}else{
 				val *= 16;
 				bLow = TRUE;
@@ -61,7 +61,7 @@ HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 			{
 				buffer.Write( &val, 1 );
 				val = 0;
-				bLow = FALSE;
+				bLow = false;
 			}else{
 				val *= 16;
 				bLow = TRUE;
@@ -73,7 +73,7 @@ HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 			{
 				buffer.Write( &val, 1 );
 				val = 0;
-				bLow = FALSE;
+				bLow = false;
 			}else{
 				val *= 16;
 				bLow = TRUE;
@@ -83,13 +83,13 @@ HE_VOID CHE_PDF_HexFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
     }
 }
 
-HE_VOID CHE_PDF_ASCII85Filter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_ASCII85Filter::Encode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
 	m_count = 0;
     m_tuple = 0;
 
-	HE_ULONG  c;
-    const HE_CHAR *   z = "z";
+	size_t  c;
+    const char *   z = "z";
 	
     while( length ) 
     {
@@ -123,12 +123,12 @@ HE_VOID CHE_PDF_ASCII85Filter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_Dyn
 	buffer.Write( (unsigned char*)("~>"), 2 );
 }
 
-HE_VOID CHE_PDF_ASCII85Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_ASCII85Filter::Decode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
 	m_count = 0;
     m_tuple = 0;
-    HE_BOOL foundEndMarker = FALSE;
-	const HE_ULONG sPowers85[] = { 85*85*85*85, 85*85*85, 85*85, 85, 1 };
+    bool foundEndMarker = false;
+	const size_t sPowers85[] = { 85*85*85*85, 85*85*85, 85*85, 85, 1 };
 	
     while( length && !foundEndMarker ) 
     {
@@ -183,17 +183,17 @@ HE_VOID CHE_PDF_ASCII85Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_Dyn
 	}
 }
 
-HE_VOID CHE_PDF_ASCII85Filter::EncodeTuple( HE_ULONG tuple, HE_ULONG count, CHE_DynBuffer & buffer )
+void CHE_PDF_ASCII85Filter::EncodeTuple( size_t tuple, size_t count, CHE_DynBuffer & buffer )
 {
-	HE_ULONG i = 5;
-	HE_ULONG z = 0;
-	HE_CHAR buf[5];
-	HE_CHAR out[5];
-	HE_CHAR* start = buf;
+	size_t i = 5;
+	size_t z = 0;
+	char buf[5];
+	char out[5];
+	char* start = buf;
 	
 	do 
 	{
-		*start++ = (HE_CHAR)(tuple % 85);
+		*start++ = (char)(tuple % 85);
 		tuple /= 85;
 	} 
 	while (--i > 0);
@@ -201,14 +201,14 @@ HE_VOID CHE_PDF_ASCII85Filter::EncodeTuple( HE_ULONG tuple, HE_ULONG count, CHE_
 	i = count;
 	do 
 	{
-		out[z++] = (HE_CHAR)(*--start) + '!';
+		out[z++] = (char)(*--start) + '!';
 	} 
 	while( i-- > 0 );
 
 	buffer.Write( (unsigned char*)out, z );
 }
 	
-HE_VOID CHE_PDF_ASCII85Filter::WidePut( HE_ULONG tuple, HE_ULONG bytes, CHE_DynBuffer & buffer )
+void CHE_PDF_ASCII85Filter::WidePut( size_t tuple, size_t bytes, CHE_DynBuffer & buffer )
 {
     char data[4];
 
@@ -247,21 +247,21 @@ HE_VOID CHE_PDF_ASCII85Filter::WidePut( HE_ULONG tuple, HE_ULONG bytes, CHE_DynB
 	buffer.Write( (unsigned char*)data, bytes );
 }
 
-HE_VOID CHE_PDF_FlateFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_FlateFilter::Encode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0 )
+	if ( pData == nullptr || length == 0 )
 	{
 		return;
 	}
 
-	HE_BYTE tmpBuffer[4096];
-	HE_ULONG nWrittenData = 0;
+	BYTE tmpBuffer[4096];
+	size_t nWrittenData = 0;
 	z_stream stream;
-	HE_INT32 param = Z_NO_FLUSH;
+	int32 param = Z_NO_FLUSH;
 
-	stream.zalloc = NULL;
-	stream.zfree = NULL;
-    stream.avail_in = (HE_INT32)length;
+	stream.zalloc = nullptr;
+	stream.zfree = nullptr;
+    stream.avail_in = (int32)length;
     stream.next_in  = pData;
 	deflateInit( &stream, Z_DEFAULT_COMPRESSION );
 	
@@ -295,21 +295,21 @@ HE_VOID CHE_PDF_FlateFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
     }
 }
 
-HE_VOID CHE_PDF_FlateFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_FlateFilter::Decode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0 )
+	if ( pData == nullptr || length == 0 )
 	{
 		return;
 	}
 
-	HE_BYTE tmpBuffer[4096];
-	HE_ULONG nWrittenData = 0;
+	BYTE tmpBuffer[4096];
+	size_t nWrittenData = 0;
 	z_stream stream;
-	HE_INT32 param = Z_NO_FLUSH;
+	int32 param = Z_NO_FLUSH;
 
-	stream.zalloc = NULL;
-	stream.zfree = NULL;
-	stream.avail_in = (HE_INT32)length;
+	stream.zalloc = nullptr;
+	stream.zfree = nullptr;
+	stream.avail_in = (int32)length;
 	stream.next_in  = pData;
 	inflateInit( &stream );
 
@@ -352,12 +352,12 @@ const unsigned short CHE_PDF_LZWFilter::s_masks[] = {	0x01FF,
 const unsigned short CHE_PDF_LZWFilter::s_clear  = 0x0100;      // clear table
 const unsigned short CHE_PDF_LZWFilter::s_eod    = 0x0101;      // end of data
 
-HE_VOID CHE_PDF_LZWFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_LZWFilter::Encode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
 	return;
 }
 
-HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & outBuffer )
+void CHE_PDF_LZWFilter::Decode( PBYTE pData, size_t length, CHE_DynBuffer & outBuffer )
 {
 	m_mask       = 0;
     m_code_len   = 9;
@@ -368,9 +368,9 @@ HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	unsigned int       buffer_size = 0;
     const unsigned int buffer_max  = 24;
 	
-    HE_ULONG         old         = 0;
-    HE_ULONG         code        = 0;
-    HE_ULONG         buffer      = 0;
+    size_t         old         = 0;
+    size_t         code        = 0;
+    size_t         buffer      = 0;
 	
     TLzwItem           item;
 	
@@ -388,7 +388,7 @@ HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
         while( buffer_size <= (buffer_max-8) && length )
         {
             buffer <<= 8;
-            buffer |= static_cast<HE_ULONG>(static_cast<unsigned char>(*pData));
+            buffer |= static_cast<size_t>(static_cast<unsigned char>(*pData));
             buffer_size += 8;
 			
             ++pData;
@@ -428,7 +428,7 @@ HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
                     data = m_table[code].value;
 				
                 // Write data to the output device
-				outBuffer.Write( (HE_LPBYTE)(&(data[0])), data.size() );
+				outBuffer.Write( (PBYTE)(&(data[0])), data.size() );
 				
                 m_character = data[0];
                 if( old < m_table.size() ) // fix the first loop
@@ -456,7 +456,7 @@ HE_VOID CHE_PDF_LZWFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	return;
 }
 
-HE_VOID CHE_PDF_LZWFilter::InitTable()
+void CHE_PDF_LZWFilter::InitTable()
 {
 	int      i;
 	TLzwItem item;
@@ -476,25 +476,25 @@ HE_VOID CHE_PDF_LZWFilter::InitTable()
 	m_table.push_back( item );
 }
 
-HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_RLEFileter::Encode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0 )
+	if ( pData == nullptr || length == 0 )
 	{
 		return;
 	}
 
 	CHE_DynBuffer buf( length, length, GetAllocator() );
-	HE_BYTE byte = *pData;
+	BYTE byte = *pData;
 	pData++;
-	HE_ULONG lCount = 1;
-	HE_BYTE countByte = 0;
+	size_t lCount = 1;
+	BYTE countByte = 0;
 	while ( length > 1 )
 	{
 		if ( byte == *pData )
 		{
 			if ( buf.GetSize() > 1 )
 			{
-				countByte = (HE_BYTE)(buf.GetSize() - 1);
+				countByte = (BYTE)(buf.GetSize() - 1);
 				buffer.Write( &countByte, 1 );
 				buffer.Write( buf );
 				buf.Clear();
@@ -502,7 +502,7 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 			lCount++;
 			if ( lCount == 128 )
 			{
-				countByte = (HE_BYTE)(lCount + 127);
+				countByte = (BYTE)(lCount + 127);
 				buffer.Write( &countByte, 1 );
 				buffer.Write( &byte, 1 );
 				lCount = 1;
@@ -512,7 +512,7 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 		{
 			if ( lCount >= 2 )
 			{
-				countByte = (HE_BYTE)(lCount + 127);
+				countByte = (BYTE)(lCount + 127);
 				buffer.Write( &countByte, 1 );
 				buffer.Write( &byte, 1 );
 				lCount = 1;
@@ -522,7 +522,7 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 				byte = *pData;
 				if ( buf.GetSize() == 128 )
 				{
-					countByte = (HE_BYTE)(buf.GetSize() - 1);
+					countByte = (BYTE)(buf.GetSize() - 1);
 					buffer.Write( &countByte, 1 );
 					buffer.Write( buf );
 					buf.Clear();
@@ -535,19 +535,19 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 
 	if ( buf.GetSize() > 0 )
 	{
-		countByte = (HE_BYTE)(buf.GetSize() - 1);
+		countByte = (BYTE)(buf.GetSize() - 1);
 		buffer.Write( &countByte, 1 );
 		buffer.Write( buf );
 		buf.Clear();
 	}
 	if ( lCount == 1 )
 	{
-		countByte = (HE_BYTE)(lCount - 1);
+		countByte = (BYTE)(lCount - 1);
 		buffer.Write( &countByte, 1 );
 		buffer.Write( &byte, 1 );
 	}else if ( lCount > 1 )
 	{
-		countByte = (HE_BYTE)(lCount + 127);
+		countByte = (BYTE)(lCount + 127);
 		buffer.Write( &countByte, 1 );
 		buffer.Write( &byte, 1 );
 	}
@@ -555,14 +555,14 @@ HE_VOID CHE_PDF_RLEFileter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 	buffer.Write( &countByte, 1 );
 }
 
-HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_RLEFileter::Decode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0 )
+	if ( pData == nullptr || length == 0 )
 	{
 		return;
 	}
 
-	HE_BYTE	byteLen = 0;
+	BYTE	byteLen = 0;
 	while ( length > 0 )
 	{
 		byteLen = *pData;
@@ -578,7 +578,7 @@ HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 			pData+= byteLen+1;
 		}else if ( byteLen > 128 )
 		{
-			for ( HE_BYTE i = 0; i < byteLen - 127; i++ )
+			for ( BYTE i = 0; i < byteLen - 127; i++ )
 			{
 				buffer.Write( pData, 1 );
 			}
@@ -590,7 +590,7 @@ HE_VOID CHE_PDF_RLEFileter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 
 
 CHE_PDF_FaxDecodeParams::CHE_PDF_FaxDecodeParams( CHE_PDF_DictionaryPtr dictPtr )
-	: k(0), columns(1728), rows(0), eol(FALSE), eba(FALSE), eob(TRUE), bi1(FALSE)
+	: k(0), columns(1728), rows(0), eol(false), eba(false), eob(TRUE), bi1(false)
 {
 	if ( dictPtr )
 	{
@@ -762,7 +762,7 @@ static const cfd_node cf_2d_decode[] = {
 };
 
 /* Uncompressed decoding table. */
-static const cfd_node cf_uncompressed_decode[] = {
+/*static const cfd_node cf_uncompressed_decode[] = {
 	{64,12},{5,6},{4,5},{4,5},{3,4},{3,4},{3,4},{3,4},{2,3},{2,3},
 	{2,3},{2,3},{2,3},{2,3},{2,3},{2,3},{1,2},{1,2},{1,2},{1,2},{1,2},
 	{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},
@@ -775,7 +775,7 @@ static const cfd_node cf_uncompressed_decode[] = {
 	{0,2},{0,2},{0,2},{0,2},{0,2},{0,2},{0,2},{0,2},{0,2},{0,2},{0,2},
 	{0,2},{0,2},{0,2},{0,2},{0,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},
 	{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2},{1,2}
-};
+};*/
 
 /* bit magic */
 
@@ -877,9 +877,9 @@ struct fz_faxd_s
 // 	fz_context *ctx;
 // 	fz_stream *chain;
 
-	HE_LPBYTE data;
-	HE_ULONG index;
-	HE_ULONG size;
+	PBYTE data;
+	size_t index;
+	size_t size;
 
 	int k;
 	int end_of_line;
@@ -1105,7 +1105,7 @@ static void dec2d(/*fz_context *ctx, */fz_faxd *fax)
 }
 
 
-CHE_PDF_FaxFilter::CHE_PDF_FaxFilter( CHE_PDF_FaxDecodeParams * pParams, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_FaxFilter::CHE_PDF_FaxFilter( CHE_PDF_FaxDecodeParams * pParams, CHE_Allocator * pAllocator /*= nullptr*/ )
 	: CHE_PDF_Filter( pAllocator ), mpParams(pParams)
 {
 }
@@ -1114,14 +1114,14 @@ CHE_PDF_FaxFilter::~CHE_PDF_FaxFilter()
 {
 }
 
-HE_VOID CHE_PDF_FaxFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_FaxFilter::Encode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
 
 }
 
-HE_VOID CHE_PDF_FaxFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_FaxFilter::Decode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0 )
+	if ( pData == nullptr || length == 0 )
 	{
 		return;
 	}
@@ -1129,8 +1129,8 @@ HE_VOID CHE_PDF_FaxFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	fz_faxd faxs;
 	if ( mpParams )
 	{
-		faxs.ref = NULL;
-		faxs.dst = NULL;
+		faxs.ref = nullptr;
+		faxs.dst = nullptr;
 
 		faxs.data = pData;
 		faxs.index = 0;
@@ -1155,8 +1155,8 @@ HE_VOID CHE_PDF_FaxFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 		faxs.dim = faxs.k < 0 ? 2 : 1;
 		faxs.eolc = 0;
 
-		faxs.ref = GetAllocator()->NewArray<HE_BYTE>( faxs.stride );
-		faxs.dst = GetAllocator()->NewArray<HE_BYTE>( faxs.stride );
+		faxs.ref = GetAllocator()->NewArray<BYTE>( faxs.stride );
+		faxs.dst = GetAllocator()->NewArray<BYTE>( faxs.stride );
 		faxs.rp = faxs.dst;
 		faxs.wp = faxs.dst + faxs.stride;
 
@@ -1166,21 +1166,20 @@ HE_VOID CHE_PDF_FaxFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	
 	fz_faxd * fax = &faxs;
 
-	unsigned char * tmp = NULL;
-	unsigned char tmpByte = 0;
+	unsigned char * tmp = nullptr;
 
 	if (fax->stage == STATE_DONE)
 	{
 		if ( !fax->black_is_1 )
 		{
-			HE_LPBYTE pByte = buffer.GetData();
-			for ( HE_ULONG i = 0; i < buffer.GetSize(); ++i )
+			PBYTE pByte = buffer.GetData();
+			for ( size_t i = 0; i < buffer.GetSize(); ++i )
 			{
 				*pByte = *pByte ^ 0xFF;
 				++pByte;
 			}
 		}
-		return/* 0*/;
+		return;
 	}
 
 	if (fax->stage == STATE_EOL)
@@ -1308,8 +1307,8 @@ rtc:
 
 	if ( !fax->black_is_1 )
 	{
-		HE_LPBYTE pByte = buffer.GetData();
-		for ( HE_ULONG i = 0; i < buffer.GetSize(); ++i )
+		PBYTE pByte = buffer.GetData();
+		for ( size_t i = 0; i < buffer.GetSize(); ++i )
 		{
 			*pByte = *pByte ^ 0xFF;
 			++pByte;
@@ -1363,13 +1362,13 @@ static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
 }
 
 
-HE_VOID CHE_PDF_DCTDFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer &buffer )
+void CHE_PDF_DCTDFilter::Decode( PBYTE pData, size_t length, CHE_DynBuffer &buffer )
 {
     jpeg_decompress_struct cinfo;
 	jpeg_error_mgr_jmp err;
 	struct jpeg_source_mgr src;
-	HE_LPBYTE p = NULL;
-	HE_BYTE * row[1];
+	PBYTE p = nullptr;
+	BYTE * row[1];
     
 	if (setjmp(err.env))
 	{
@@ -1397,7 +1396,7 @@ HE_VOID CHE_PDF_DCTDFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuf
 
 	buffer.Clear();
     
-	p = GetAllocator()->NewArray<HE_BYTE>( cinfo.output_components * cinfo.output_width );
+	p = GetAllocator()->NewArray<BYTE>( cinfo.output_components * cinfo.output_width );
 	row[0] = p;
 	while (cinfo.output_scanline < cinfo.output_height)
 	{
@@ -1429,7 +1428,7 @@ static void fz_opj_info_callback(const char *msg, void *client_data)
 	/* fz_warn("openjpeg info: %s", msg); */
 }
 
-CHE_PDF_JPXFilter::CHE_PDF_JPXFilter( CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_JPXFilter::CHE_PDF_JPXFilter( CHE_Allocator * pAllocator /*= nullptr*/ )
     : CHE_PDF_Filter(pAllocator)
 {
 }
@@ -1438,11 +1437,11 @@ CHE_PDF_JPXFilter::~CHE_PDF_JPXFilter()
 {
 }
 
-HE_VOID	CHE_PDF_JPXFilter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void	CHE_PDF_JPXFilter::Encode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
 }
 
-HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void	CHE_PDF_JPXFilter::Decode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
     if ( !pData || length <= 2 )
     {
@@ -1451,9 +1450,9 @@ HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
     
 	opj_event_mgr_t     evtmgr;
 	opj_dparameters_t   params;
-	opj_dinfo_t *       info = NULL;
-	opj_cio_t *         cio = NULL;
-	opj_image_t *       jpx = NULL;
+	opj_dinfo_t *       info = nullptr;
+	opj_cio_t *         cio = nullptr;
+	opj_image_t *       jpx = nullptr;
     CODEC_FORMAT        format;
 
 	int a, n, w, h, depth, sgnd;
@@ -1481,10 +1480,10 @@ HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
     
 	info = opj_create_decompress( format );
     
-	opj_set_event_mgr( (opj_common_ptr)info, &evtmgr, NULL );
+	opj_set_event_mgr( (opj_common_ptr)info, &evtmgr, nullptr );
 	opj_setup_decoder( info, &params );
     
-	cio = opj_cio_open( (opj_common_ptr)info, pData, length );
+	cio = opj_cio_open( (opj_common_ptr)info, pData, (uint32)length );
     
 	jpx = opj_decode( info, cio );
     
@@ -1529,7 +1528,7 @@ HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 	else { a = 0; }
     
     buffer.Alloc( n * w * h );
-	HE_LPBYTE pByte = buffer.GetData();
+	PBYTE pByte = buffer.GetData();
     
 	for (y = 0; y < h; y++)
 	{
@@ -1543,19 +1542,19 @@ HE_VOID	CHE_PDF_JPXFilter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuff
 				if (depth > 8)
 					v = v >> (depth - 8);
 				*pByte++ = v;
-				//buffer.Write( (HE_LPBYTE)&v, 1 );
+				//buffer.Write( (PBYTE)&v, 1 );
 			}
 // 			if (!a)
 //                 v = 255;
-//                 buffer.Write( (HE_LPBYTE)&v, 1 );
+//                 buffer.Write( (PBYTE)&v, 1 );
 		}
 	}
  
 	opj_image_destroy( jpx );
 }
 
-CHE_PDF_JBig2Filter::CHE_PDF_JBig2Filter( CHE_Allocator * pAllocator /*= NULL*/ )
-	: CHE_PDF_Filter(pAllocator), mGlobalsParam(NULL), mGlobalsParamLength(0)
+CHE_PDF_JBig2Filter::CHE_PDF_JBig2Filter( CHE_Allocator * pAllocator /*= nullptr*/ )
+	: CHE_PDF_Filter(pAllocator), mGlobalsParam(nullptr), mGlobalsParamLength(0)
 {
 }
 
@@ -1563,32 +1562,32 @@ CHE_PDF_JBig2Filter::~CHE_PDF_JBig2Filter()
 {
 }
 
-HE_VOID CHE_PDF_JBig2Filter::SetGlobals( HE_LPBYTE pData, HE_ULONG length )
+void CHE_PDF_JBig2Filter::SetGlobals( PBYTE pData, size_t length )
 {
 	mGlobalsParam = pData;
 	mGlobalsParamLength = length;
 }
 
-HE_VOID CHE_PDF_JBig2Filter::Encode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_JBig2Filter::Encode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
 }
 
-HE_VOID CHE_PDF_JBig2Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBuffer & buffer )
+void CHE_PDF_JBig2Filter::Decode( PBYTE pData, size_t length, CHE_DynBuffer & buffer )
 {
-	if ( pData == NULL || length == 0 )
+	if ( pData == nullptr || length == 0 )
 	{
 		return;
 	}
 
-	Jbig2Ctx *ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, NULL, NULL, NULL );
-	Jbig2GlobalCtx *gctx = NULL;
-	Jbig2Image *page = NULL;
+	Jbig2Ctx *ctx = jbig2_ctx_new( nullptr, JBIG2_OPTIONS_EMBEDDED, nullptr, nullptr, nullptr );
+	Jbig2GlobalCtx *gctx = nullptr;
+	Jbig2Image *page = nullptr;
 
 	if ( mGlobalsParam )
 	{
 		jbig2_data_in( ctx, mGlobalsParam, mGlobalsParamLength );
 		gctx = jbig2_make_global_ctx( ctx );
-		ctx = jbig2_ctx_new( NULL, JBIG2_OPTIONS_EMBEDDED, gctx, NULL, NULL );
+		ctx = jbig2_ctx_new( nullptr, JBIG2_OPTIONS_EMBEDDED, gctx, nullptr, nullptr );
 	}
     
 	if ( !page )
@@ -1596,13 +1595,13 @@ HE_VOID CHE_PDF_JBig2Filter::Decode( HE_LPBYTE pData, HE_ULONG length, CHE_DynBu
         jbig2_data_in( ctx, pData, length );
 		jbig2_complete_page( ctx );
 		page = jbig2_page_out( ctx );
-        //if page = NULL error happened!
+        //if page = nullptr error happened!
 	}
     
-    HE_LPBYTE p = page->data;
-	HE_LPBYTE s = page->data;
-	HE_INT32 w = page->height * page->stride;
-	HE_INT32 x = 0;
+    PBYTE p = page->data;
+	PBYTE s = page->data;
+	int32 w = page->height * page->stride;
+	int32 x = 0;
  	while (x < w)
  	{
  		*p++ = ~ s[x++];

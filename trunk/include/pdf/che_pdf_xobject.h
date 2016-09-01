@@ -19,21 +19,21 @@ public:
 class CHE_PDF_ImageXObject : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_ImageXObjectPtr Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ImageXObjectPtr Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = nullptr );
 
 	static CHE_PDF_ImageXObjectPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
 
 	~CHE_PDF_ImageXObject();
 
 	CHE_PDF_StreamPtr       GetStreamPtr() { return mStmPtr; }
-	HE_ULONG                GetWidth() const { return mWidth; }
-	HE_ULONG                GetHeight() const { return mHeight; }
-	HE_ULONG                GetBPC() const { return mBpc; }
+	size_t                GetWidth() const { return mWidth; }
+	size_t                GetHeight() const { return mHeight; }
+	size_t                GetBPC() const { return mBpc; }
 	CHE_PDF_ColorSpacePtr	GetColorspace() const { return mColorspace; }
-	HE_BOOL                 IsMask() const { return mbMask; }
-	HE_BOOL                 IsInterpolate() const { return mbInterpolate; }
-    HE_LPBYTE               GetData();
-    HE_ULONG                GetSize();
+	bool                 IsMask() const { return mbMask; }
+	bool                 IsInterpolate() const { return mbInterpolate; }
+    PBYTE               GetData();
+    size_t                GetSize();
     
     CHE_PDF_ArrayPtr        GetDecodeArray() const { return mDecodeArray; }
     
@@ -44,17 +44,17 @@ public:
     GRAPHICS_STATE_RENDERINTENTS GetRI() const { return mRI; }
 
 private:
- 	CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
+ 	CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = nullptr );
 	
-	HE_ULONG                mWidth;
-	HE_ULONG                mHeight;
-	HE_ULONG                mBpc;
-    HE_BOOL                 mbInterpolate;
+	size_t                mWidth;
+	size_t                mHeight;
+	size_t                mBpc;
+    bool                 mbInterpolate;
     CHE_PDF_StreamPtr       mStmPtr;
     CHE_PDF_StreamAcc       mStmAcc;
 	CHE_PDF_ColorSpacePtr	mColorspace;
 	
-    HE_BOOL					mbMask;
+    bool					mbMask;
 	CHE_PDF_ArrayPtr        mColorKeyMaskPtr;
     CHE_PDF_ImageXObjectPtr mMaskImagePtr;
     CHE_PDF_ImageXObjectPtr mSoftMaskImagePtr;
@@ -78,7 +78,7 @@ public:
 class CHE_PDF_FormXObject : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_FormXObjectPtr Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_FormXObjectPtr Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = nullptr );
 
 	static CHE_PDF_FormXObjectPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
 
@@ -86,16 +86,16 @@ public:
     
     CHE_Matrix GetMatrix() const { return mMatrix; }
     
-    HE_BOOL IsGroup() const { return mIsGroup; }
+    bool IsGroup() const { return mIsGroup; }
 
 private:
-	CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator = nullptr );
 
     CHE_Matrix mMatrix;
     
 	CHE_PDF_ContentObjectList mList;
     
-    HE_BOOL mIsGroup;
+    bool mIsGroup;
 
 	friend class CHE_Allocator;
 };

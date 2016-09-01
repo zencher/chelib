@@ -6,7 +6,7 @@
 #include "../../include/pdf/che_pdf_font.h"
 
 
-HE_VOID	CHE_PDF_Component::Release()
+void	CHE_PDF_Component::Release()
 {
 	switch ( mType )
 	{
@@ -43,9 +43,9 @@ CHE_PDF_ComponentPtr::~CHE_PDF_ComponentPtr()
 
 
 CHE_PDF_ComponentPtr::CHE_PDF_ComponentPtr( const CHE_PDF_ComponentPtr & ptr )
-	: mpCom( NULL )
+	: mpCom( nullptr )
 {
-	if ( mpCom != ptr.mpCom && ptr.mpCom != NULL )
+	if ( mpCom != ptr.mpCom && ptr.mpCom != nullptr )
 	{
 		if ( mpCom )
 		{
@@ -75,7 +75,7 @@ CHE_PDF_ComponentPtr CHE_PDF_ComponentPtr::operator = ( const CHE_PDF_ComponentP
 		if ( mpCom->mRefs == 0 )
 		{
 			mpCom->Release();
-			mpCom = NULL;
+			mpCom = nullptr;
 		}
 	}
 	mpCom = ptr.mpCom;
@@ -87,7 +87,7 @@ CHE_PDF_ComponentPtr CHE_PDF_ComponentPtr::operator = ( const CHE_PDF_ComponentP
 }
 
 
-HE_VOID	CHE_PDF_ComponentPtr::Reset( CHE_PDF_Component * pCom /*= NULL*/ )
+void	CHE_PDF_ComponentPtr::Reset( CHE_PDF_Component * pCom /*= nullptr*/ )
 {
 	if ( mpCom != pCom )
 	{

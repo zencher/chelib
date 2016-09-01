@@ -19,24 +19,24 @@ class CHE_PDF_Path;
 class CHE_PDF_TextItem
 {
 public:
-	HE_WCHAR charCode;
-	HE_ULONG gid;
-	HE_ULONG cid;
-	HE_WCHAR ucs;
-	HE_INT32 kerning;
-	HE_FLOAT width;
-	HE_FLOAT height;
+	wchar_t charCode;
+    wchar_t ucs;
+	uint32  gid;
+	uint32  cid;
+	int32   kerning;
+	FLOAT   width;
+	FLOAT   height;
 };
 
 class CHE_PDF_Text : public CHE_PDF_ContentObject
 {									 
 public:
-	CHE_PDF_Text( CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Text( CHE_Allocator * pAllocator = nullptr )
 		: CHE_PDF_ContentObject( ContentType_Text, pAllocator ), mpLastKerning( 0 ) {}
 
 	~CHE_PDF_Text(){}
 
-	HE_BOOL SetTextObject( const CHE_PDF_ObjectPtr & pObj );
+	bool SetTextObject( const CHE_PDF_ObjectPtr & pObj );
 
 	CHE_PDF_ObjectPtr GetTextObject() const { return mpObj; }
 
@@ -44,23 +44,22 @@ public:
 
 	CHE_Matrix GetTextMatrix() const;
 
-	CHE_Matrix GetCharMatrix( HE_ULONG index ) const;
+	CHE_Matrix GetCharMatrix( size_t index ) const;
 
 	CHE_Rect GetTextRect() const;
 
-	CHE_Rect GetCharRect( HE_ULONG index ) const;
+	CHE_Rect GetCharRect( size_t index ) const;
 
-	//º∆À„“ª∏ˆTJ°¢Tj÷∏¡Ó÷–µƒÀ˘”–ƒ⁄»›À˘≤˙…˙µƒ∆´“∆£¨∞¸¿®Õ∑Œ≤µƒkerning£¨“ÚŒ™Õ∑Œ≤µƒkering‘⁄º∆À„Œƒ±æ∫Õ◊÷∑˚¥Ææÿ–Œµƒ ±∫Úª·±ªÃ¯π˝
-	HE_FLOAT GetOffSet() const;
+    //ËÆ°ÁÆó‰∏Ä‰∏™TJ„ÄÅTjÊåá‰ª§‰∏≠ÁöÑÊâÄÊúâÂÜÖÂÆπÊâÄ‰∫ßÁîüÁöÑÂÅèÁßªÔºåÂåÖÊã¨Â§¥Â∞æÁöÑkerningÔºåÂõ†‰∏∫Â§¥Â∞æÁöÑkeringÂú®ËÆ°ÁÆóÊñáÊú¨ÂíåÂ≠óÁ¨¶‰∏≤Áü©ÂΩ¢ÁöÑÊó∂ÂÄô‰ºöË¢´Ë∑≥Ëøá
+    FLOAT GetOffSet() const;
 
+    std::vector<CHE_PDF_TextItem> mItems;
 
-	std::vector<CHE_PDF_TextItem> mItems;
-
-	CHE_PDF_Path * GetGraphPath( HE_ULONG index );
+	CHE_PDF_Path * GetGraphPath( size_t index );
 
 private:
 	CHE_PDF_ObjectPtr	mpObj;
-	HE_FLOAT			mpLastKerning;
+	FLOAT			mpLastKerning;
 };
 
 
@@ -80,7 +79,7 @@ public:
 	union
 	{
 		PDF_PATHITEM_TYPE	type;
-		HE_FLOAT			value;
+		FLOAT			value;
 	};
 };
 
@@ -101,18 +100,18 @@ enum PDF_FILL_MODE
 class CHE_PDF_Path : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_Path( CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Path( CHE_Allocator * pAllocator = nullptr )
 		: CHE_PDF_ContentObject( ContentType_Path, pAllocator ) {}
 
 	~CHE_PDF_Path();
 
 	std::vector<CHE_PDF_PathItem> mItems;
 
-	HE_VOID SetPaintType( PDF_PATH_PAINT type ) { mType = type; }
+	void SetPaintType( PDF_PATH_PAINT type ) { mType = type; }
 
 	PDF_PATH_PAINT GetPaintType() const { return mType; }
 
-	HE_VOID SetFillMode( PDF_FILL_MODE mode ) { mFillMode = mode; }
+	void SetFillMode( PDF_FILL_MODE mode ) { mFillMode = mode; }
 
 	PDF_FILL_MODE GetFillMode() const { return mFillMode; }
 
@@ -135,27 +134,27 @@ enum PDF_MARK_TYPE
 class CHE_PDF_Mark : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_Mark( CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Mark( CHE_Allocator * pAllocator = nullptr )
 		: CHE_PDF_ContentObject( ContentType_Mark, pAllocator ), mMarkType( Mark_MP ) {}
 
 	~CHE_PDF_Mark() {}
 
-	HE_VOID SetMarkType( PDF_MARK_TYPE type ) { mMarkType = type; }
+	void SetMarkType( PDF_MARK_TYPE type ) { mMarkType = type; }
 
 	PDF_MARK_TYPE GetMarkType() const { return mMarkType; }
 
-	HE_VOID SetTag( const CHE_ByteString & tag ) { mTag = tag; }
+	void SetTag( const CHE_ByteString & tag ) { mTag = tag; }
 
 	CHE_ByteString GetTag() const { return mTag; }
 
-	HE_VOID SetProperty( const CHE_PDF_DictionaryPtr & pDict )
+	void SetProperty( const CHE_PDF_DictionaryPtr & pDict )
 	{
 		mpDictionary = pDict;
 	}
 
 	CHE_ByteString GetPropertyResName() const { return mDictName; }
 
-	HE_VOID SetPropertyResName( const CHE_ByteString & resName ) { mDictName = resName; }
+	void SetPropertyResName( const CHE_ByteString & resName ) { mDictName = resName; }
 
 	CHE_PDF_DictionaryPtr GetProperty() const { return mpDictionary; }
 
@@ -180,35 +179,35 @@ private:
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_InlineImage(	HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bpc, HE_LPBYTE pBytes, HE_ULONG size, CHE_PDF_ObjectPtr objPtr,
-                            CHE_PDF_ColorSpacePtr colorspace, GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_InlineImage(	bool bMask, size_t width, size_t hight, size_t bpc, PBYTE pBytes, size_t size, CHE_PDF_ObjectPtr objPtr,
+                            CHE_PDF_ColorSpacePtr colorspace, GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator = nullptr );
 
 	~CHE_PDF_InlineImage();
 
 	CHE_PDF_ContentObject * Clone() const;
 
-	HE_BOOL	IsMask() const { return mbMask; }
-	HE_ULONG GetWidth() const { return mWidth; }
-	HE_ULONG GetHeight() const { return mHeight; }
-	HE_ULONG GetBpc() const { return mBpc; }
+	bool	IsMask() const { return mbMask; }
+	size_t GetWidth() const { return mWidth; }
+	size_t GetHeight() const { return mHeight; }
+	size_t GetBpc() const { return mBpc; }
 	CHE_PDF_ColorSpacePtr GetColorspace() const { return mColorspace; }
 	CHE_PDF_ObjectPtr GetDecode() const { return mDecodeObjPtr; }
     GRAPHICS_STATE_RENDERINTENTS GetRenderIntent() const { return mRI; }
 
-	HE_LPBYTE GetData() const { return mpData; }
-	HE_ULONG GetDataSize() const { return mDataSize; }
+	PBYTE GetData() const { return mpData; }
+	size_t GetDataSize() const { return mDataSize; }
 
 #ifdef WIN32
 	CHE_Bitmap * GetBitmap();
 #endif
 
 private:
-	HE_BOOL					mbMask;
-	HE_ULONG				mWidth;
-	HE_ULONG				mHeight;
-	HE_ULONG				mBpc;
-	HE_LPBYTE				mpData;
-	HE_ULONG				mDataSize;
+	bool					mbMask;
+	size_t				mWidth;
+	size_t				mHeight;
+	size_t				mBpc;
+	PBYTE				mpData;
+	size_t				mDataSize;
 	CHE_PDF_ColorSpacePtr	mColorspace;
 	CHE_PDF_ObjectPtr		mDecodeObjPtr;
     GRAPHICS_STATE_RENDERINTENTS    mRI;
@@ -217,7 +216,7 @@ private:
 class CHE_PDF_ComponentRef : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_ComponentRef( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & componentPtr, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_ComponentRef( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & componentPtr, CHE_Allocator * pAllocator = nullptr )
 		: CHE_PDF_ContentObject( ContentType_Component, pAllocator ), mName( name ), mComponentPtr( componentPtr ) {}
 
 	CHE_ByteString			GetName() const { return mName; }

@@ -47,74 +47,74 @@ public:
 	CHE_PDF_ParseWordDes() : type(PARSE_WORD_UNKNOWN), offset(0) {};
 
 	PDF_PARSE_WORD		type;
-	HE_ULONG			offset;
+	size_t			offset;
 };
 
 class CHE_PDF_SyntaxParser : public CHE_Object
 {
 public:
-	CHE_PDF_SyntaxParser( CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_SyntaxParser( CHE_PDF_File * pFile, CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_SyntaxParser();
 
-	HE_BOOL				InitParser( IHE_Read* pIFileRead );
-	HE_ULONG			GetFileSize() { return mlFileSize; };
+	bool				InitParser( IHE_Read* pIFileRead );
+	size_t			GetFileSize() { return mlFileSize; };
 
-	HE_VOID				SetFile( CHE_PDF_File * pFile ) { mpFile = pFile; }
+	void				SetFile( CHE_PDF_File * pFile ) { mpFile = pFile; }
 	CHE_PDF_File *		GetFile()const { return mpFile; }
 
 	/*	当前位置移动和设置的相关操作	*/
-	HE_ULONG			GetPos() { return mlFilePos; };
-	HE_VOID				SetPos( HE_ULONG pos) { mlFilePos = pos; };
-	HE_ULONG			Seek( HE_ULONG bytes );
-	HE_VOID				SeekToPrevLine();
-	HE_VOID				SeekToNextLine();
-	HE_VOID				SeekToPrevWord();
-	HE_VOID				SeekToNextWord();
- 	HE_VOID				SeekToEndStream();
- 	HE_VOID				SeekToEndobj();
+	size_t			GetPos() { return mlFilePos; };
+	void				SetPos( size_t pos) { mlFilePos = pos; };
+	size_t			Seek( size_t bytes );
+	void				SeekToPrevLine();
+	void				SeekToNextLine();
+	void				SeekToPrevWord();
+	void				SeekToNextWord();
+ 	void				SeekToEndStream();
+ 	void				SeekToEndobj();
 
-	HE_VOID				SeekToMark( CHE_ByteString markStr );
-	HE_VOID				SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { mpStrEncrypt = pEncrypt; }
-	HE_VOID				SetCurObjNum( HE_ULONG objNum ) { mCurObjNum = objNum; }
-	HE_VOID				SetCurGenNum( HE_ULONG genNum ) { mCurGenNum = genNum; }
+	void				SeekToMark( CHE_ByteString markStr );
+	void				SetEncrypt( CHE_PDF_Encrypt * pEncrypt ) { mpStrEncrypt = pEncrypt; }
+	void				SetCurObjNum( size_t objNum ) { mCurObjNum = objNum; }
+	void				SetCurGenNum( size_t genNum ) { mCurGenNum = genNum; }
 	CHE_PDF_Encrypt *	GetEncrypt() { return mpStrEncrypt; }
-	HE_ULONG			ReadBytes( HE_LPBYTE pBuffer, HE_ULONG length );
-	HE_BOOL				GetWord( CHE_PDF_ParseWordDes & des );
+	size_t			ReadBytes( PBYTE pBuffer, size_t length );
+	bool				GetWord( CHE_PDF_ParseWordDes & des );
 	/* 从当前位置开始解析一个数组，如果当前位置不是一个数组，则返回空（当前位置必须是数组开始"["） */
 	CHE_PDF_ArrayPtr	GetArrayPtr();
 	/*	从当前位置开始解析一个字典，如果当前位置不是一个字典，则返回空（当前位置必须是字典开始"<<"）*/
 	CHE_PDF_DictionaryPtr	GetDictionaryPtr();
 
-	HE_BOOL				IsWord( const char * words );
+	bool				IsWord( const char * words );
 
-	HE_INT32			GetInteger();
-	HE_FLOAT			GetFloat();
+	int32			GetInteger();
+	FLOAT			GetFloat();
 
 	CHE_ByteString		GetString();
 	void				GetString( CHE_ByteString & str );
 
 private:
-	HE_VOID				SubmitBufferStr();
+	void				SubmitBufferStr();
 
 	CHE_PDF_File *		mpFile;
 	IHE_Read*			mpIFileRead;
 	CHE_PDF_Encrypt	*	mpStrEncrypt;
 
-	HE_ULONG			mlFilePos;
-	HE_ULONG			mlFileSize;
+	size_t			mlFilePos;
+	size_t			mlFileSize;
 
-	HE_ULONG			mlBufferSize;
-	HE_ULONG			mlBufferPos;
-	HE_ULONG			mlSubmitSize;
+	size_t			mlBufferSize;
+	size_t			mlBufferPos;
+	size_t			mlSubmitSize;
 
-	HE_ULONG			mCurObjNum;
-	HE_ULONG			mCurGenNum;
+	size_t			mCurObjNum;
+	size_t			mCurGenNum;
 
-	HE_BOOL				mbBegin;
-	HE_BOOL				mbPoint;
-	HE_BOOL				mbSign;
+	bool				mbBegin;
+	bool				mbPoint;
+	bool				mbSign;
 
-	HE_BYTE				mWordBuffer[32770];
+	BYTE				mWordBuffer[32770];
 
 	friend class CHE_PDF_Parser;
 };
@@ -122,43 +122,43 @@ private:
 class CHE_PDF_Parser : public CHE_Object
 {
 public:
-	static CHE_PDF_Parser * Create( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XRefTable * pXrefTable, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_Parser * Create( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XRefTable * pXrefTable, CHE_Allocator * pAllocator = nullptr );
 
 	~CHE_PDF_Parser();
 
 	//Basic information
-	HE_ULONG					GetFileSize() const;
+	size_t					GetFileSize() const;
 	PDF_VERSION					GetPDFVersion() const;
 
 	//Encryption
-	HE_BOOL						Authenticate( const CHE_ByteString & password );
+	bool						Authenticate( const CHE_ByteString & password );
 
-	HE_ULONG					GetReadPos() { return mSyntaxParser.GetPos(); }
-	HE_VOID						SetReadPos( HE_ULONG pos) { mSyntaxParser.SetPos( pos ); }
+	size_t					GetReadPos() { return mSyntaxParser.GetPos(); }
+	void						SetReadPos( size_t pos) { mSyntaxParser.SetPos( pos ); }
 
 	CHE_PDF_ObjectPtr			GetObject();
-	CHE_PDF_ObjectPtr			GetObjectInObjStm( CHE_PDF_StreamPtr & pStream, const PDF_RefInfo & ObjrefInfo, HE_ULONG index );
-	HE_BOOL						GetAllObjectsInObjStm( CHE_PDF_StreamPtr & pStream, CHE_PDF_Collector * pCollector );
+	CHE_PDF_ObjectPtr			GetObjectInObjStm( CHE_PDF_StreamPtr & pStream, const PDF_RefInfo & ObjrefInfo, size_t index );
+	bool						GetAllObjectsInObjStm( CHE_PDF_StreamPtr & pStream, CHE_PDF_Collector * pCollector );
 
 /*	CHE_PDF_ReferencePtr		GetEncryptRef() const { return mpEncryptRef; } */
 
 private:
-	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XRefTable * pXrefTable, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Parser( CHE_PDF_File * pFile, IHE_Read * pRead, CHE_PDF_XRefTable * pXrefTable, CHE_Allocator * pAllocator = nullptr );
 
-	HE_ULONG					GetStartxref( HE_ULONG range );
+	size_t					GetStartxref( size_t range );
 
-	HE_ULONG					ParseXRef();
-	HE_ULONG					ParseXRefTable( HE_ULONG offset, CHE_PDF_DictionaryPtr & pTrailerDictRet );
-	HE_ULONG					ParseXRefStream( HE_ULONG offset, CHE_PDF_DictionaryPtr & pTrailerDictRet );
-	HE_ULONG					FullParseForXRef();
+	size_t					ParseXRef();
+	size_t					ParseXRefTable( size_t offset, CHE_PDF_DictionaryPtr & pTrailerDictRet );
+	size_t					ParseXRefStream( size_t offset, CHE_PDF_DictionaryPtr & pTrailerDictRet );
+	size_t					FullParseForXRef();
 
-	HE_BOOL						ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict, const CHE_PDF_ArrayPtr & pIdArray );
+	bool						ParseEncrypt( const CHE_PDF_DictionaryPtr & pEncryptDict, const CHE_PDF_ArrayPtr & pIdArray );
 
 private:
 	CHE_PDF_SyntaxParser		mSyntaxParser;
 	CHE_PDF_File *				mpFile;
 	IHE_Read *					mpIFileRead;
-	HE_ULONG					mlStartxref;
+	size_t					mlStartxref;
 	CHE_PDF_XRefTable *			mpXRefTable;
 	CHE_PDF_Encrypt	*			mpStrEncrypt;
 	CHE_PDF_Encrypt	*			mpStmEncrypt;

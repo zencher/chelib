@@ -1,14 +1,14 @@
 #include "../../include/pdf/che_pdf_xobject.h"
 #include "../../include/pdf/che_pdf_contentlistbuilder.h"
 
-CHE_PDF_ImageXObjectPtr CHE_PDF_ImageXObject::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
+CHE_PDF_ImageXObjectPtr CHE_PDF_ImageXObject::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= nullptr*/ )
 {
 	CHE_PDF_ImageXObjectPtr ptr;
 	if ( ! refPtr || ! refPtr->GetRefObj( OBJ_TYPE_STREAM ) )
 	{
 		return ptr;
 	}
-	if ( pAllocator == NULL )
+	if ( pAllocator == nullptr )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -27,9 +27,9 @@ CHE_PDF_ImageXObjectPtr CHE_PDF_ImageXObject::Convert( const CHE_PDF_ComponentPt
 }
 
 
-CHE_PDF_ImageXObject::CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
+CHE_PDF_ImageXObject::CHE_PDF_ImageXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= nullptr*/ )
 	: CHE_PDF_Component( COMPONENT_TYPE_ImageXObject, refPtr, pAllocator ), mWidth(0), mHeight(0), mBpc(0),
-mbInterpolate(FALSE), mStmAcc(pAllocator), mbMask(FALSE), mRI(RI_AbsoluteColorimetric)
+mbInterpolate(false), mStmAcc(pAllocator), mbMask(false), mRI(RI_AbsoluteColorimetric)
 {
 	if ( refPtr )
 	{
@@ -99,7 +99,7 @@ mbInterpolate(FALSE), mStmAcc(pAllocator), mbMask(FALSE), mRI(RI_AbsoluteColorim
                         mRI = RI_Perceptual;
                     }
                 }
-				if ( mbMask == FALSE )
+				if ( mbMask == false )
 				{
 					objPtr = dictPtr->GetElement( "Mask" );
 					if ( objPtr )
@@ -134,35 +134,35 @@ CHE_PDF_ImageXObject::~CHE_PDF_ImageXObject()
 {
 }
 
-HE_LPBYTE CHE_PDF_ImageXObject::GetData()
+PBYTE CHE_PDF_ImageXObject::GetData()
 {
-    HE_LPBYTE lpByte = mStmAcc.GetData();
-    if ( lpByte == NULL )
+    PBYTE PBYTE = mStmAcc.GetData();
+    if ( PBYTE == nullptr )
     {
         mStmAcc.Attach( mStmPtr );
-        lpByte = mStmAcc.GetData();
+        PBYTE = mStmAcc.GetData();
     }
-    return lpByte;
+    return PBYTE;
 }
 
-HE_ULONG CHE_PDF_ImageXObject::GetSize()
+size_t CHE_PDF_ImageXObject::GetSize()
 {
-    HE_LPBYTE lpByte = mStmAcc.GetData();
-    if ( lpByte == NULL )
+    PBYTE PBYTE = mStmAcc.GetData();
+    if ( PBYTE == nullptr )
     {
         mStmAcc.Attach( mStmPtr );
     }
     return mStmAcc.GetSize();
 }
 
-CHE_PDF_FormXObjectPtr CHE_PDF_FormXObject::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*=  NULL*/ )
+CHE_PDF_FormXObjectPtr CHE_PDF_FormXObject::Create( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator/*=  nullptr*/ )
 {
 	CHE_PDF_FormXObjectPtr ptr;
-	if ( !refPtr || ! refPtr->GetRefObj( OBJ_TYPE_STREAM ) || pComponentMgr == NULL )
+	if ( !refPtr || ! refPtr->GetRefObj( OBJ_TYPE_STREAM ) || pComponentMgr == nullptr )
 	{
 		return ptr;
 	}
-	if ( pAllocator == NULL )
+	if ( pAllocator == nullptr )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -186,8 +186,8 @@ CHE_PDF_FormXObjectPtr CHE_PDF_FormXObject::Convert( const CHE_PDF_ComponentPtr 
 	return ptr;
 }
 
-CHE_PDF_FormXObject::CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= NULL*/ )
-	: CHE_PDF_Component( COMPONENT_TYPE_FormXObject, refPtr, pAllocator ), mIsGroup(FALSE)
+CHE_PDF_FormXObject::CHE_PDF_FormXObject( const CHE_PDF_ReferencePtr & refPtr, CHE_Allocator * pAllocator/*= nullptr*/ )
+	: CHE_PDF_Component( COMPONENT_TYPE_FormXObject, refPtr, pAllocator ), mIsGroup(false)
 {
     CHE_PDF_ObjectPtr objPtr = refPtr->GetRefObj(OBJ_TYPE_STREAM);
     if (objPtr)

@@ -18,31 +18,31 @@ class CHE_PDF_PageTree : public CHE_Object
 {
 public:
     
-    CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_PageTree( const CHE_PDF_DictionaryPtr & pPagesDict, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = nullptr );
 
 	~CHE_PDF_PageTree();
 
-	HE_ULONG						GetPageCount();
+	size_t                          GetPageCount();
 
-	CHE_PDF_Page *					GetPage( HE_ULONG index );
+	CHE_PDF_Page *					GetPage( size_t index );
 
-	HE_VOID							ReleasePage( CHE_PDF_Page * pPage );
+	void							ReleasePage( CHE_PDF_Page * pPage );
 
-	HE_BOOL							GetPageRefInfo( HE_ULONG index, PDF_RefInfo & refRet );
+	bool							GetPageRefInfo( size_t index, PDF_RefInfo & refRet );
 
-	HE_VOID							AppendPage( HE_ULONG width, HE_ULONG height );
+	void							AppendPage( size_t width, size_t height );
 
 private:
 
-	HE_VOID							ParseAllPageRefInfo();
+	void							ParseAllPageRefInfo();
 
-	HE_ULONG						mPageCount;
+	size_t                          mPageCount;
 
 	std::vector<PDF_RefInfo>		mPageObjList;
 
 	std::stack<CHE_PDF_ReferencePtr>mPageNodeStack;
 
-    std::unordered_map<HE_ULONG, CHE_PDF_Page*> mPageMap;
+    std::unordered_map<size_t, CHE_PDF_Page*> mPageMap;
     
 	CHE_PDF_File *					mpFile;
 
@@ -72,21 +72,21 @@ public:
 
 	CHE_PDF_ArrayPtr		GetArtBoxArray() const;
 
-	HE_INT32				GetRotate() const;
+	int32                   GetRotate() const;
 
-	static HE_BOOL			ReleasePage( CHE_PDF_Page * pPage );
+	static bool             ReleasePage( CHE_PDF_Page * pPage );
 
-	HE_BOOL					ParsePageContent( CHE_PDF_ComponentMgr * pComMgr );
+	bool					ParsePageContent( CHE_PDF_ComponentMgr * pComMgr );
 
 	CHE_PDF_ContentObjectList & GetPageContentList() { return mContentList; }
 
 private:
-	CHE_PDF_Page( const CHE_PDF_DictionaryPtr pageDict, CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_Page( const CHE_PDF_DictionaryPtr pageDict, CHE_Allocator * pAllocator = nullptr )
 		: CHE_Object(pAllocator), mbParsed(false), mPageDict(pageDict) {}
 
 	~CHE_PDF_Page() {}
 
-	HE_BOOL						mbParsed;
+	bool						mbParsed;
 	CHE_PDF_DictionaryPtr		mPageDict;
 	CHE_PDF_ContentObjectList	mContentList;
 

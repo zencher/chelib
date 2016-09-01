@@ -11,7 +11,7 @@
 #define pdf_range_set_high(r, h) ((r)->extent_flags = (((r)->extent_flags & 3) | ((h - (r)->low) << 2)))
 #define pdf_range_set_flags(r, f) ((r)->extent_flags = (((r)->extent_flags & ~3) | f))
 
-const struct { const HE_CHAR * name; PDF_CMAP * cmap; } cmap_table[] =
+const struct { const char * name; PDF_CMAP * cmap; } cmap_table[] =
 {
 	{"78-EUC-H",&CMap_78_EUC_H},
 	{"78-EUC-V",&CMap_78_EUC_V},
@@ -165,14 +165,14 @@ const struct { const HE_CHAR * name; PDF_CMAP * cmap; } cmap_table[] =
 	{"WP-Symbol",&CMap_WP_Symbol},
 };
 
-PDF_CMAP * Get_Builtin_CMap( HE_CHAR * cmap_name )
+PDF_CMAP * Get_Builtin_CMap( char * cmap_name )
 {
-	HE_INT32 l = 0;
-	HE_INT32 r = sizeof( cmap_table ) / sizeof( (cmap_table)[0] ) - 1;
+	int32 l = 0;
+	int32 r = sizeof( cmap_table ) / sizeof( (cmap_table)[0] ) - 1;
 	while (l <= r)
 	{
-		HE_INT32 m = (l + r) >> 1;
-		HE_INT32 c = strcmp( cmap_name, cmap_table[m].name );
+		int32 m = (l + r) >> 1;
+		int32 c = strcmp( cmap_name, cmap_table[m].name );
 		if ( c < 0 )
 			r = m - 1;
 		else if ( c > 0 )
@@ -180,15 +180,15 @@ PDF_CMAP * Get_Builtin_CMap( HE_CHAR * cmap_name )
 		else
 			return cmap_table[m].cmap;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
-HE_BOOL LookUp_CMap( PDF_CMAP * cmap, HE_ULONG cpt, HE_ULONG & codeRet )
+bool LookUp_CMap( PDF_CMAP * cmap, uint32 cpt, uint32 & codeRet )
 {
-	HE_INT32 l = 0;
-	HE_INT32 r = cmap->rlen - 1;
-	HE_INT32 m = 0;
+	int32 l = 0;
+	int32 r = cmap->rlen - 1;
+	int32 m = 0;
 
 	while ( l <= r )
 	{
@@ -199,7 +199,7 @@ HE_BOOL LookUp_CMap( PDF_CMAP * cmap, HE_ULONG cpt, HE_ULONG & codeRet )
 			l = m + 1;
 		else
 		{
-			HE_ULONG i = cpt - cmap->ranges[m].low + cmap->ranges[m].offset;
+			uint32 i = cpt - cmap->ranges[m].low + cmap->ranges[m].offset;
 			if ( pdf_range_flags( &cmap->ranges[m] ) == CMAP_TABLE )
 			{
 				codeRet = cmap->table[i];
@@ -207,7 +207,7 @@ HE_BOOL LookUp_CMap( PDF_CMAP * cmap, HE_ULONG cpt, HE_ULONG & codeRet )
 			}
 			if ( pdf_range_flags( &cmap->ranges[m] ) == CMAP_MULTI )
 			{
-				return FALSE; /* should use lookup_cmap_full */
+				return false; /* should use lookup_cmap_full */
 			}
 			codeRet = i;
 			return TRUE;
@@ -217,15 +217,15 @@ HE_BOOL LookUp_CMap( PDF_CMAP * cmap, HE_ULONG cpt, HE_ULONG & codeRet )
 	if ( cmap->usecmap )
 		return LookUp_CMap( cmap->usecmap, cpt, codeRet );
 
-	return FALSE;
+	return false;
 }
 
-HE_INT32 LookUp_CMap_Full( PDF_CMAP *cmap, HE_INT32 cpt, HE_INT32 *out )
+int32 LookUp_CMap_Full( PDF_CMAP *cmap, int32 cpt, int32 *out )
 {
-	HE_INT32 i, k, n;
-	HE_INT32 l = 0;
-	HE_INT32 r = cmap->rlen - 1;
-	HE_INT32 m = 0;
+	int32 i, k, n;
+	int32 l = 0;
+	int32 r = cmap->rlen - 1;
+	int32 m = 0;
 
 	while ( l <= r )
 	{
@@ -265,16 +265,16 @@ HE_INT32 LookUp_CMap_Full( PDF_CMAP *cmap, HE_INT32 cpt, HE_INT32 *out )
 
 CHE_PDF_CMap * CHE_PDF_CMap::LoadBuildinCMap( const CHE_ByteString & cmapName,  CHE_Allocator * pAllocator )
 {
-	PDF_CMAP * pRet = Get_Builtin_CMap( (HE_CHAR *)( cmapName.GetData() ) );
+	PDF_CMAP * pRet = Get_Builtin_CMap( (char *)( cmapName.GetData() ) );
 	if ( !pRet )
 	{
-		return NULL;
+		return nullptr;
 	}
 	if ( pAllocator )
 	{
 		return pAllocator->New<CHE_PDF_CMap>( pRet, false, pAllocator );
 	}
-	return new CHE_PDF_CMap( pRet, false, NULL ); 
+	return new CHE_PDF_CMap( pRet, false, nullptr ); 
 }
 
 CHE_PDF_CMap::~CHE_PDF_CMap()
@@ -285,22 +285,22 @@ CHE_PDF_CMap::~CHE_PDF_CMap()
 	}
 }
 
-HE_BOOL CHE_PDF_CMap::LookupCode( HE_ULONG code, HE_ULONG & codeRet ) const
+bool CHE_PDF_CMap::LookupCode( uint32 code, uint32 & codeRet ) const
 {
 	if ( mpCMap )
 	{
 		return LookUp_CMap( mpCMap, code, codeRet );
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_CMap::IsCode( HE_ULONG cpt, HE_BYTE byteCount ) const
+bool CHE_PDF_CMap::IsCode( uint32 cpt, BYTE byteCount ) const
 {
 	if ( !mpCMap )
 	{
-		return FALSE;
+		return false;
 	}
-	for ( HE_ULONG i = 0; i < mpCMap->codespace_len; ++i )
+	for ( uint32 i = 0; i < mpCMap->codespace_len; ++i )
 	{
 		if (mpCMap->codespace[i].n == byteCount )
 		{
@@ -310,5 +310,5 @@ HE_BOOL CHE_PDF_CMap::IsCode( HE_ULONG cpt, HE_BYTE byteCount ) const
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }

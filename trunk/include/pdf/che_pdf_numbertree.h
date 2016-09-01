@@ -9,25 +9,25 @@
 class CHE_PDF_NumberTree : public CHE_Object
 {
 public:
-	CHE_PDF_NumberTree(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = NULL)
+	CHE_PDF_NumberTree(const CHE_PDF_DictionaryPtr & dict, CHE_Allocator * pAllocator = nullptr)
 		: CHE_Object(pAllocator), mDictPtr(dict) {}
 
-	CHE_PDF_ObjectPtr GetObject( HE_INT32 num );
+	CHE_PDF_ObjectPtr GetObject( int32 num );
 
-	HE_VOID ParseAll() { Parse(mDictPtr); }
+	void ParseAll() { Parse(mDictPtr); }
 
-	CHE_PDF_ObjectPtr First(HE_INT32 & ret);
+	CHE_PDF_ObjectPtr First(int32 & ret);
 
-	CHE_PDF_ObjectPtr Next(HE_INT32 & ret);
+	CHE_PDF_ObjectPtr Next(int32 & ret);
 
 private:
-	HE_BOOL Find( HE_INT32 num, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet );
+	bool Find( int32 num, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet );
 
-	HE_BOOL Parse(const CHE_PDF_DictionaryPtr & dict);
+	bool Parse(const CHE_PDF_DictionaryPtr & dict);
 
 	CHE_PDF_DictionaryPtr							mDictPtr;
-	std::map<HE_INT32,CHE_PDF_ObjectPtr>::iterator	mIt;
-	std::map<HE_INT32,CHE_PDF_ObjectPtr>			mMap;
+	std::map<int32,CHE_PDF_ObjectPtr>::iterator	mIt;
+	std::map<int32,CHE_PDF_ObjectPtr>			mMap;
 };
 
 #endif

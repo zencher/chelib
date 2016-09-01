@@ -7,19 +7,19 @@
 class CHE_PDF_ObjectString
 {
 public:
-	static HE_BOOL PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & objPtr, CHE_DynBuffer & buf );
+	static bool PdfObjPtrToBuf( const CHE_PDF_ObjectPtr & objPtr, CHE_DynBuffer & buf );
 
-	static HE_BOOL FloatToBuf( HE_FLOAT val, CHE_DynBuffer & buf );
+	static bool FloatToBuf( FLOAT val, CHE_DynBuffer & buf );
 
-	static HE_BOOL IntegerToBuf( HE_INT32 val, CHE_DynBuffer & buf );
+	static bool IntegerToBuf( INT32 val, CHE_DynBuffer & buf );
 
-	static HE_BOOL DWORDToBuf( HE_ULONG val, CHE_DynBuffer & buf );
+	static bool DWORDToBuf( size_t val, CHE_DynBuffer & buf );
 
-	static HE_BOOL SpaceToBuf( CHE_DynBuffer & buf );
+	static bool SpaceToBuf( CHE_DynBuffer & buf );
 
-	static HE_BOOL StringToBuf( HE_LPCSTR pChar, CHE_DynBuffer & buf );
+	static bool StringToBuf( char const * pChar, CHE_DynBuffer & buf );
 
-	static HE_BOOL StringToBuf( const CHE_ByteString & str, CHE_DynBuffer & buf );
+	static bool StringToBuf( const CHE_ByteString & str, CHE_DynBuffer & buf );
 }; 
 
 #endif

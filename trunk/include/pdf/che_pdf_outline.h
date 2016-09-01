@@ -16,9 +16,9 @@ class CHE_PDF_OutlineItem : public CHE_Object
 public:
 	CHE_PDF_ReferencePtr	mRefPtr;
 
-	HE_INT32				mCount;
-	HE_ULONG				mFlag;
-	HE_FLOAT				mRGBColor[3];
+	int32				mCount;
+	size_t				mFlag;
+	FLOAT				mRGBColor[3];
 	CHE_ByteString			mTitle;
 
 	CHE_PDF_ObjectPtr		mDestObj;
@@ -34,7 +34,7 @@ public:
 	CHE_PDF_OutlineItem *	mpLast;
 
 private:
-	CHE_PDF_OutlineItem( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_OutlineItem( CHE_Allocator * pAllocator = nullptr );
 
 	friend class CHE_Allocator;
 	friend class CHE_PDF_Outline;
@@ -43,28 +43,28 @@ private:
 class CHE_PDF_Outline : public CHE_Object
 {
 public:
-	CHE_PDF_Outline( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Outline( CHE_Allocator * pAllocator = nullptr );
 
 	~CHE_PDF_Outline();
 
-	HE_BOOL Parse( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_NameDict * pNameTree /*= NULL*/ );
+	bool Parse( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_NameDict * pNameTree /*= nullptr*/ );
 
-	HE_VOID	Clear();
+	void	Clear();
 
 	CHE_PDF_OutlineItem * First() const { return mpFirst; }
 
 	CHE_PDF_OutlineItem * Last() const { return mpLast; }
 
 private:
-	HE_BOOL GetOutlineItem( CHE_PDF_OutlineItem * pItem, const CHE_PDF_DictionaryPtr & dictPtr );
+	bool GetOutlineItem( CHE_PDF_OutlineItem * pItem, const CHE_PDF_DictionaryPtr & dictPtr );
 
-	HE_UINT32 BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const CHE_PDF_ReferencePtr & firstRef, const CHE_PDF_ReferencePtr & lastRef, HE_BOOL bRoot = FALSE );
+	uint32 BuildChildTree( CHE_PDF_OutlineItem * pCurItem, const CHE_PDF_ReferencePtr & firstRef, const CHE_PDF_ReferencePtr & lastRef, bool bRoot = false );
 
-	HE_VOID CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_OutlineItem * pLast );
+	void CleanChildTree( CHE_PDF_OutlineItem * pFirst, CHE_PDF_OutlineItem * pLast );
 
 private:
 	CHE_PDF_ReferencePtr	mRefPtr;
-	HE_ULONG				mCount;
+	size_t				mCount;
 	CHE_PDF_OutlineItem *	mpFirst;
 	CHE_PDF_OutlineItem *	mpLast;
 	CHE_PDF_NameDict	*	mpNameDict;

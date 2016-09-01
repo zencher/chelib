@@ -11,58 +11,58 @@ class CHE_GraphicsDrawer
 {
 public:
     CHE_GraphicsDrawer( CGContextRef context );
-    CHE_GraphicsDrawer( HE_ULONG width, HE_ULONG height );
+    CHE_GraphicsDrawer( uint32 width, uint32 height );
     ~CHE_GraphicsDrawer();
 
-    HE_VOID		Resize( HE_ULONG width, HE_ULONG height );
-    HE_ULONG	GetWidth() const;
-    HE_ULONG	GetHeight() const;
-    HE_VOID		Clear();
+    void		Resize( uint32 width, uint32 height );
+    uint32      GetWidth() const;
+    uint32      GetHeight() const;
+    void		Clear();
 
     //properties setting
-    HE_VOID		SetMatrix( const CHE_Matrix & matrix );
-    HE_VOID		SetExtMatrix( const CHE_Matrix & matrix );
-    HE_VOID		SetLineWidth( const HE_FLOAT & lineWidth );
-    HE_VOID		SetMiterLimit( const HE_FLOAT & miterLimit );
-    HE_VOID		SetFillColor( const HE_ULONG & color );
-    HE_VOID		SetStrokeColor( const HE_ULONG & color );
-    HE_VOID		SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
-    HE_VOID		SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
-    HE_VOID		SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
-    HE_VOID		SetFillMode( GRAPHICS_STATE_FILLMODE mode );
+    void		SetMatrix( const CHE_Matrix & matrix );
+    void		SetExtMatrix( const CHE_Matrix & matrix );
+    void		SetLineWidth( const FLOAT & lineWidth );
+    void		SetMiterLimit( const FLOAT & miterLimit );
+    void		SetFillColor( const ARGB & color );
+    void		SetStrokeColor( const ARGB & color );
+    void		SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
+    void		SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
+    void		SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
+    void		SetFillMode( GRAPHICS_STATE_FILLMODE mode );
 
 
     //path & clip operations
-    HE_VOID		MoveTo( HE_FLOAT x, HE_FLOAT y );
-    HE_VOID		LineTo( HE_FLOAT x, HE_FLOAT y );
-    HE_VOID		CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 );
-    HE_VOID     Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height );
-    HE_VOID		ClosePath();
-    HE_VOID		FillPath();
-    HE_VOID		StrokePath();
-    HE_VOID		FillStrokePath();
-    HE_VOID		ClipPath();
-    HE_VOID		FillClipPath();
-    HE_VOID		StrokeClipPath();
-    HE_VOID		FillStrokeClipPath();
-    HE_VOID		ResetClip();
+    void		MoveTo( FLOAT x, FLOAT y );
+    void		LineTo( FLOAT x, FLOAT y );
+    void		CurveTo( FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2, FLOAT x3, FLOAT y3 );
+    void     Rectangle( FLOAT x, FLOAT y, FLOAT width, FLOAT height );
+    void		ClosePath();
+    void		FillPath();
+    void		StrokePath();
+    void		FillStrokePath();
+    void		ClipPath();
+    void		FillClipPath();
+    void		StrokeClipPath();
+    void		FillStrokeClipPath();
+    void		ResetClip();
     
-    HE_VOID     DrawBitmap( CHE_Bitmap * pBitmap );
+    void     DrawBitmap( CHE_Bitmap * pBitmap );
     
-    HE_VOID     SetTextFont( HE_LPBYTE fontData, HE_ULONG dataSize );
-    HE_VOID     SetTextMatrix( CHE_Matrix textMatrix );
-    HE_VOID     DrawText( unsigned short gid );
+    void     SetTextFont( PBYTE fontData, size_t dataSize );
+    void     SetTextMatrix( CHE_Matrix textMatrix );
+    void     DrawText( unsigned short gid );
     
     //todo
-    HE_VOID         SaveToFile( const char * pPath );
+    void         SaveToFile( const char * pPath );
     CGContextRef    GetContextRef() const { return mContentRef; }
 
 private:
     
     CGContextRef                mContentRef;
     CGColorSpaceRef             mColorSpaceRef;
-    HE_ULONG					mWidth;
-    HE_ULONG					mHeight;
+    uint32                      mWidth;
+    uint32                      mHeight;
     CHE_Matrix                  mMatrix;
     CHE_Matrix					mExtMatrix;
     CHE_Matrix                  mTextMatrix;

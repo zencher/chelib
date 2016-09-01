@@ -1,9 +1,9 @@
 #include "../../include/pdf/che_pdf_destination.h"
 
-CHE_PDF_DestinationPtr CHE_PDF_Destination::Create(const CHE_PDF_ArrayPtr & destArray, CHE_Allocator * pAllocator /*= NULL*/)
+CHE_PDF_DestinationPtr CHE_PDF_Destination::Create(const CHE_PDF_ArrayPtr & destArray, CHE_Allocator * pAllocator /*= nullptr*/)
 {
 	CHE_PDF_DestinationPtr ptr;
-	if ( pAllocator == NULL )
+	if ( pAllocator == nullptr )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -14,7 +14,7 @@ CHE_PDF_DestinationPtr CHE_PDF_Destination::Create(const CHE_PDF_ArrayPtr & dest
 	return ptr;
 }
 
-CHE_PDF_Destination::CHE_PDF_Destination(const CHE_PDF_ArrayPtr & arr, CHE_Allocator * pAllocator/*= NULL*/)
+CHE_PDF_Destination::CHE_PDF_Destination(const CHE_PDF_ArrayPtr & arr, CHE_Allocator * pAllocator/*= nullptr*/)
 	: CHE_PDF_Component(COMPONENT_TYPE_Destination, arr, pAllocator), mDestType(DESTINATION_NONE), 
 	mLeft(0.0), mRight(0.0), mTop(0.0), mBottom(0.0), mZoom(0.0)
 {

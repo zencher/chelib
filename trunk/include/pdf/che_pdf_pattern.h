@@ -47,7 +47,7 @@ public:
 class CHE_PDF_Shading : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_ShadingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_ShadingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = nullptr );
 	static CHE_PDF_ShadingPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
 
     PDF_SHADING_TYPE GetShadingType() const { return mShadingType; }
@@ -58,7 +58,7 @@ public:
     CHE_PDF_RadialShadingPtr GetRadialShadingPtr() const;
     
 private:
-	CHE_PDF_Shading( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Shading( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = nullptr );
     PDF_SHADING_TYPE mShadingType;
     CHE_PDF_ColorSpacePtr mColorSpace;
     CHE_PDF_Color mBackgroundColor;
@@ -75,17 +75,17 @@ public:
     CHE_PDF_FunctionPtr GetFunction() const { return mFunction; }
     CHE_Point GetStartPoint() const { return mStart; }
     CHE_Point GetEndPoint() const { return mEnd; }
-    HE_BOOL GetStartExtend() const { return mStartExtend; }
-    HE_BOOL GetEndExtend() const { return mEndExtend; }
+    bool GetStartExtend() const { return mStartExtend; }
+    bool GetEndExtend() const { return mEndExtend; }
 
 private:
-    CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_Shading_Axial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = nullptr );
     
     CHE_PDF_FunctionPtr mFunction;
     CHE_Point mStart;
     CHE_Point mEnd;
-    HE_BOOL mStartExtend;
-    HE_BOOL mEndExtend;
+    bool mStartExtend;
+    bool mEndExtend;
     
     friend class CHE_Allocator;
 };
@@ -97,21 +97,21 @@ public:
     CHE_PDF_FunctionPtr GetFunction() const { return mFunction; }
     CHE_Point GetStartPoint() const { return mStart; }
     CHE_Point GetEndPoint() const { return mEnd; }
-    HE_FLOAT GetStartRadius() const { return mStartRadius; }
-    HE_FLOAT GetEndRadius() const { return mEndRadius; }
-    HE_BOOL GetStartExtend() const { return mStartExtend; }
-    HE_BOOL GetEndExtend() const { return mEndExtend; }
+    FLOAT GetStartRadius() const { return mStartRadius; }
+    FLOAT GetEndRadius() const { return mEndRadius; }
+    bool GetStartExtend() const { return mStartExtend; }
+    bool GetEndExtend() const { return mEndExtend; }
     
 private:
-    CHE_PDF_Shading_Radial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_Shading_Radial( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = nullptr );
     
     CHE_PDF_FunctionPtr mFunction;
     CHE_Point mStart;
     CHE_Point mEnd;
-    HE_BOOL mStartExtend;
-    HE_BOOL mEndExtend;
-    HE_FLOAT mStartRadius;
-    HE_FLOAT mEndRadius;
+    bool mStartExtend;
+    bool mEndExtend;
+    FLOAT mStartRadius;
+    FLOAT mEndRadius;
     
     friend class CHE_Allocator;
 };
@@ -128,26 +128,26 @@ public:
 class CHE_PDF_Tiling : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_TilingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_TilingPtr Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = nullptr );
 	static CHE_PDF_TilingPtr Convert( const CHE_PDF_ComponentPtr & componentPtr );
     
-    HE_UINT32 GetTilingType() const { return mTilingType; }
+    uint32 GetTilingType() const { return mTilingType; }
     CHE_Matrix GetMatrix() const { return mMatrix; }
-    HE_INT32 GetXStep() const { return mXSetp; }
-    HE_INT32 GetYStep() const { return mYSetp; }
+    int32 GetXStep() const { return mXSetp; }
+    int32 GetYStep() const { return mYSetp; }
     CHE_Rect GetBBox() const { return mBBox; }
-    HE_BOOL IsColored() const { return mbColored; }
+    bool IsColored() const { return mbColored; }
     
     CHE_PDF_ContentObjectList & GetList() { return mContentList; }
     
 private:
-	CHE_PDF_Tiling( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Tiling( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator = nullptr );
 
 private:
-	HE_BOOL						mbColored;
-	HE_UINT32					mTilingType;
-	HE_INT32					mXSetp;
-	HE_INT32					mYSetp;
+	bool						mbColored;
+	uint32					mTilingType;
+	int32					mXSetp;
+	int32					mYSetp;
 	CHE_Matrix					mMatrix;
 	CHE_Rect					mBBox;
 	CHE_PDF_ContentObjectList	mContentList;

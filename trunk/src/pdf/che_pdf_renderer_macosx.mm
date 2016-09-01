@@ -51,23 +51,23 @@ CHE_PDF_Renderer::~CHE_PDF_Renderer()
     }
 }
 
-HE_VOID CHE_PDF_Renderer::SetPosition( HE_FLOAT x, HE_FLOAT y )
+void CHE_PDF_Renderer::SetPosition( FLOAT x, FLOAT y )
 {
     mPosiX = x;
     mPosiY = y;
 }
 
-HE_VOID	CHE_PDF_Renderer::SetMatrix( const CHE_Matrix & matrix )
+void	CHE_PDF_Renderer::SetMatrix( const CHE_Matrix & matrix )
 {
     mMatrix = matrix;
 }
 
-HE_VOID	CHE_PDF_Renderer::SetExtMatrix( const CHE_Matrix & matrix )
+void	CHE_PDF_Renderer::SetExtMatrix( const CHE_Matrix & matrix )
 {
     mExtMatrix = matrix;
 }
 
-HE_VOID	CHE_PDF_Renderer::SetLineWidth( const HE_FLOAT & lineWidth )
+void	CHE_PDF_Renderer::SetLineWidth( const FLOAT & lineWidth )
 {
     if ( mContextRef )
     {
@@ -75,7 +75,7 @@ HE_VOID	CHE_PDF_Renderer::SetLineWidth( const HE_FLOAT & lineWidth )
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::SetMiterLimit( const HE_FLOAT & miterLimit )
+void	CHE_PDF_Renderer::SetMiterLimit( const FLOAT & miterLimit )
 {
     if ( mContextRef )
     {
@@ -83,7 +83,7 @@ HE_VOID	CHE_PDF_Renderer::SetMiterLimit( const HE_FLOAT & miterLimit )
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
+void	CHE_PDF_Renderer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 {
     if ( mContextRef )
     {
@@ -105,7 +105,7 @@ HE_VOID	CHE_PDF_Renderer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
 
 }
 
-HE_VOID	CHE_PDF_Renderer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
+void	CHE_PDF_Renderer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
 {
     if ( mContextRef )
 	{
@@ -126,7 +126,7 @@ HE_VOID	CHE_PDF_Renderer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion 
 	}
 }
 
-HE_VOID	CHE_PDF_Renderer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
+void	CHE_PDF_Renderer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
 {
     if ( dashPattern.dashArray.size() > 0 )
     {
@@ -143,12 +143,12 @@ HE_VOID	CHE_PDF_Renderer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPa
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
+void	CHE_PDF_Renderer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
 {
     mFillMode = mode;
 }
 
-HE_VOID CHE_PDF_Renderer::SetBlendMode( GRAPHICS_STATE_BLENDMODE mode )
+void CHE_PDF_Renderer::SetBlendMode( GRAPHICS_STATE_BLENDMODE mode )
 {
     switch ( mode )
     {
@@ -205,7 +205,7 @@ HE_VOID CHE_PDF_Renderer::SetBlendMode( GRAPHICS_STATE_BLENDMODE mode )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::SetTextFont( CGFontRef font )
+void CHE_PDF_Renderer::SetTextFont( CGFontRef font )
 {
     if ( mContextRef )
     {
@@ -213,12 +213,12 @@ HE_VOID CHE_PDF_Renderer::SetTextFont( CGFontRef font )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::SetTextMatrix( CHE_Matrix textMatrix )
+void CHE_PDF_Renderer::SetTextMatrix( CHE_Matrix textMatrix )
 {
     mTextMatrix = textMatrix;
 }
 
-HE_VOID	CHE_PDF_Renderer::SetFillColor( const HE_ULONG & color )
+void	CHE_PDF_Renderer::SetFillColor( const ARGB & color )
 {
     if ( mContextRef )
     {
@@ -226,7 +226,7 @@ HE_VOID	CHE_PDF_Renderer::SetFillColor( const HE_ULONG & color )
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::SetStrokeColor( const HE_ULONG & color )
+void	CHE_PDF_Renderer::SetStrokeColor( const ARGB & color )
 {
     if ( mContextRef )
     {
@@ -234,7 +234,7 @@ HE_VOID	CHE_PDF_Renderer::SetStrokeColor( const HE_ULONG & color )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::SetFillColor( const CHE_PDF_Color & color )
+void CHE_PDF_Renderer::SetFillColor( const CHE_PDF_Color & color )
 {
     // why i do this?
     /*if (mShading)
@@ -262,7 +262,7 @@ HE_VOID CHE_PDF_Renderer::SetFillColor( const CHE_PDF_Color & color )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::SetStrokeColor( const CHE_PDF_Color & color )
+void CHE_PDF_Renderer::SetStrokeColor( const CHE_PDF_Color & color )
 {
     CGFloat val[5];
     int i = 0;
@@ -275,7 +275,7 @@ HE_VOID CHE_PDF_Renderer::SetStrokeColor( const CHE_PDF_Color & color )
     CGContextSetStrokeColor( mContextRef, val );
 }
 
-HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
+void CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
 {
     mFillPattern = NULL;
     if ( mFillColorSpace )
@@ -400,7 +400,7 @@ HE_VOID CHE_PDF_Renderer::SetFillColorSpace( const CHE_PDF_ColorSpacePtr & cs )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::SetStrokeColorSpace( const CHE_PDF_ColorSpacePtr & cs )
+void CHE_PDF_Renderer::SetStrokeColorSpace( const CHE_PDF_ColorSpacePtr & cs )
 {
     if ( mStrokeColorSpace )
     {
@@ -493,23 +493,23 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                     {
                         CHE_PDF_FunctionPtr func = baseCS->GetSeparationPtr()->mFunction;
                         indexcs->mNewTableSize = baseCS->GetComponentCount() * (indexcs->mIndexCount + 1);
-                        HE_UINT32 components = indexcs->mIndexTableSize / (indexcs->mIndexCount + 1);
-                        std::vector<HE_FLOAT> input;
-                        std::vector<HE_FLOAT> output;
-                        HE_LPBYTE tmpByte= indexcs->mpIndexTable;
-                        HE_LPBYTE tmpOutByte = indexcs->mpNewTable;
-                        for (HE_UINT32 i = 0; i <= indexcs->mIndexCount; ++i)
+                        size_t components = indexcs->mIndexTableSize / (indexcs->mIndexCount + 1);
+                        std::vector<FLOAT> input;
+                        std::vector<FLOAT> output;
+                        PBYTE tmpByte= indexcs->mpIndexTable;
+                        PBYTE tmpOutByte = indexcs->mpNewTable;
+                        for (uint32 i = 0; i <= indexcs->mIndexCount; ++i)
                         {
                             input.clear();
                             output.clear();
-                            for (HE_UINT32 c = 0; c < components; ++c)
+                            for (uint32 c = 0; c < components; ++c)
                             {
                                 input.push_back( *tmpByte / 255.0 );
                                 tmpByte++;
                             }
                             
                             func->Calculate(input, output);
-                            for (HE_UINT32 j = 0; j < components; ++j)
+                            for (uint32 j = 0; j < components; ++j)
                             {
                                 *tmpOutByte = input[j] * 255;
                                 tmpOutByte++;
@@ -528,16 +528,16 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                         CHE_PDF_FunctionPtr func = baseCS->GetDeviceNPtr()->mFunction;
                         indexcs->mNewTableSize = 4 * (indexcs->mIndexCount + 1);
                         indexcs->mpNewTable = new unsigned char [indexcs->mNewTableSize];
-                        HE_UINT32 components = indexcs->mIndexTableSize / (indexcs->mIndexCount + 1);
-                        std::vector<HE_FLOAT> input;
-                        std::vector<HE_FLOAT> output;
-                        HE_LPBYTE tmpByte= indexcs->mpIndexTable;
-                        HE_LPBYTE tmpOutByte = indexcs->mpNewTable;
-                        for (HE_UINT32 i = 0; i <= indexcs->mIndexCount; ++i)
+                        size_t components = indexcs->mIndexTableSize / (indexcs->mIndexCount + 1);
+                        std::vector<FLOAT> input;
+                        std::vector<FLOAT> output;
+                        PBYTE tmpByte= indexcs->mpIndexTable;
+                        PBYTE tmpOutByte = indexcs->mpNewTable;
+                        for (uint32 i = 0; i <= indexcs->mIndexCount; ++i)
                         {
                             input.clear();
                             output.clear();
-                            for (HE_UINT32 c = 0; c < components; ++c)
+                            for (uint32 c = 0; c < components; ++c)
                             {
                                 input.push_back( *tmpByte / 255.0f );
                                 tmpByte++;
@@ -545,7 +545,7 @@ CGColorSpaceRef CHE_PDF_Renderer::CreateColorSpace( const CHE_PDF_ColorSpacePtr 
                             
                             func->Calculate(input, output);
                             
-                            for (HE_LONG j = 0; j < output.size(); ++j)
+                            for (size_t j = 0; j < output.size(); ++j)
                             {
                                 *tmpOutByte = output[j] * 255;
                                 tmpOutByte++;
@@ -635,7 +635,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
                 break;
         }
         
-        HE_ULONG bpc = imagePtr->GetBPC();
+        size_t bpc = imagePtr->GetBPC();
         if ( bpc == 0 )
         {
             bpc = imagePtr->GetSize() * 8 / ( imagePtr->GetWidth() * imagePtr->GetHeight() * csPtr->GetComponentCount() );
@@ -653,7 +653,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( const CHE_PDF_ImageXObjectPtr & imageP
         CHE_PDF_ArrayPtr arrPtr = imagePtr->GetColorKeyMask();
         if ( arrPtr ) {
             CGFloat val[8];
-            for (HE_ULONG i = 0; i < arrPtr->GetCount(); ++i) {
+            for (size_t i = 0; i < arrPtr->GetCount(); ++i) {
                 val[i] = arrPtr->GetElement(i)->GetNumberPtr()->GetInteger();
             }
             CGImageRef newImgRef = CGImageCreateWithMaskingColors(imgRef, val);
@@ -728,7 +728,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
         }
         
         
-        HE_ULONG bpc = image->GetBpc();
+        size_t bpc = image->GetBpc();
         if ( bpc == 0 )
         {
             bpc = image->GetDataSize() * 8 / ( image->GetWidth() * image->GetHeight() * csPtr->GetComponentCount() );
@@ -748,7 +748,7 @@ CGImageRef CHE_PDF_Renderer::CreateImage( CHE_PDF_InlineImage * image )
     return imgRef;
 }
 
-HE_VOID CHE_PDF_Renderer::SetImageColorSpace( const CHE_PDF_ColorSpacePtr & cs )
+void CHE_PDF_Renderer::SetImageColorSpace( const CHE_PDF_ColorSpacePtr & cs )
 {
     if ( mImageColorSpace )
     {
@@ -758,7 +758,7 @@ HE_VOID CHE_PDF_Renderer::SetImageColorSpace( const CHE_PDF_ColorSpacePtr & cs )
     mImageColorSpace = CreateColorSpace( cs );
 }
 
-HE_VOID CHE_PDF_Renderer::ResetPath()
+void CHE_PDF_Renderer::ResetPath()
 {
     if ( mPathRef )
     {
@@ -767,7 +767,7 @@ HE_VOID CHE_PDF_Renderer::ResetPath()
     mPathRef = CGPathCreateMutable();
 }
 
-HE_VOID	CHE_PDF_Renderer::MoveTo( HE_FLOAT x, HE_FLOAT y )
+void	CHE_PDF_Renderer::MoveTo( FLOAT x, FLOAT y )
 {
     if ( mPathRef == NULL )
     {
@@ -777,7 +777,7 @@ HE_VOID	CHE_PDF_Renderer::MoveTo( HE_FLOAT x, HE_FLOAT y )
     CGPathMoveToPoint( mPathRef, &affine, x, y );
 }
 
-HE_VOID	CHE_PDF_Renderer::LineTo( HE_FLOAT x, HE_FLOAT y )
+void	CHE_PDF_Renderer::LineTo( FLOAT x, FLOAT y )
 {
     if ( mPathRef )
     {
@@ -786,7 +786,7 @@ HE_VOID	CHE_PDF_Renderer::LineTo( HE_FLOAT x, HE_FLOAT y )
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLOAT y2, HE_FLOAT x3, HE_FLOAT y3 )
+void	CHE_PDF_Renderer::CurveTo( FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2, FLOAT x3, FLOAT y3 )
 {
     if ( mPathRef )
     {
@@ -795,7 +795,7 @@ HE_VOID	CHE_PDF_Renderer::CurveTo( HE_FLOAT x1, HE_FLOAT y1, HE_FLOAT x2, HE_FLO
     }
 }
 
-HE_VOID CHE_PDF_Renderer::Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_FLOAT height )
+void CHE_PDF_Renderer::Rectangle( FLOAT x, FLOAT y, FLOAT width, FLOAT height )
 {
     if ( mPathRef == NULL )
     {
@@ -808,7 +808,7 @@ HE_VOID CHE_PDF_Renderer::Rectangle( HE_FLOAT x, HE_FLOAT y, HE_FLOAT width, HE_
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::ClosePath()
+void	CHE_PDF_Renderer::ClosePath()
 {
     if ( mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -816,11 +816,11 @@ HE_VOID	CHE_PDF_Renderer::ClosePath()
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::FillPath()
+void	CHE_PDF_Renderer::FillPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
-        /*HE_BOOL bSoft = FALSE;
+        /*bool bSoft = FALSE;
         if (mSoftMask)
         {
             CGContextSetAlpha(mContextRef, 0.6);
@@ -882,7 +882,7 @@ HE_VOID	CHE_PDF_Renderer::FillPath()
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::StrokePath()
+void	CHE_PDF_Renderer::StrokePath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -892,7 +892,7 @@ HE_VOID	CHE_PDF_Renderer::StrokePath()
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::FillStrokePath()
+void	CHE_PDF_Renderer::FillStrokePath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -922,7 +922,7 @@ HE_VOID	CHE_PDF_Renderer::FillStrokePath()
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::ClipPath()
+void	CHE_PDF_Renderer::ClipPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -932,7 +932,7 @@ HE_VOID	CHE_PDF_Renderer::ClipPath()
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::FillClipPath()
+void	CHE_PDF_Renderer::FillClipPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -964,7 +964,7 @@ HE_VOID	CHE_PDF_Renderer::FillClipPath()
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::StrokeClipPath()
+void	CHE_PDF_Renderer::StrokeClipPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -976,7 +976,7 @@ HE_VOID	CHE_PDF_Renderer::StrokeClipPath()
     }
 }
 
-HE_VOID	CHE_PDF_Renderer::FillStrokeClipPath()
+void	CHE_PDF_Renderer::FillStrokeClipPath()
 {
     if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
     {
@@ -1010,24 +1010,24 @@ HE_VOID	CHE_PDF_Renderer::FillStrokeClipPath()
     }
 }
 
-HE_VOID CHE_PDF_Renderer::StoreGState()
+void CHE_PDF_Renderer::StoreGState()
 {
     CGContextSaveGState( mContextRef );
 }
 
-HE_VOID CHE_PDF_Renderer::RestoreGState()
+void CHE_PDF_Renderer::RestoreGState()
 {
     CGContextRestoreGState( mContextRef );
 }
 
-HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bColor, HE_BOOL bMatrix )
+void CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, bool bColor, bool bMatrix )
 {
     if ( pGState == NULL )
     {
         return;
     }
     
-    static HE_FLOAT val = 0;
+    static FLOAT val = 0;
 	static CHE_Matrix matrix;
 	static GRAPHICS_STATE_LINECAP linCap = LineCap_Butt;
 	static GRAPHICS_STATE_LINEJOIN lineJoin = LineJoin_Miter;
@@ -1076,8 +1076,8 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                 CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
                 if ( funcPtr )
                 {
-                    std::vector<HE_FLOAT> input;
-                    std::vector<HE_FLOAT> output;
+                    std::vector<FLOAT> input;
+                    std::vector<FLOAT> output;
                     for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
                     {
                         input.push_back( fillColor.GetComponent( i ) );
@@ -1099,8 +1099,8 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                 CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
                 if ( funcPtr )
                 {
-                    std::vector<HE_FLOAT> input;
-                    std::vector<HE_FLOAT> output;
+                    std::vector<FLOAT> input;
+                    std::vector<FLOAT> output;
                     for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
                     {
                         input.push_back( fillColor.GetComponent( i ) );
@@ -1126,8 +1126,8 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                 CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
                 if ( funcPtr )
                 {
-                    std::vector<HE_FLOAT> input;
-                    std::vector<HE_FLOAT> output;
+                    std::vector<FLOAT> input;
+                    std::vector<FLOAT> output;
                     for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
                     {
                         input.push_back( strokeColor.GetComponent( i ) );
@@ -1149,8 +1149,8 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
                 CHE_PDF_FunctionPtr funcPtr = cs->mFunction;
                 if ( funcPtr )
                 {
-                    std::vector<HE_FLOAT> input;
-                    std::vector<HE_FLOAT> output;
+                    std::vector<FLOAT> input;
+                    std::vector<FLOAT> output;
                     for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
                     {
                         input.push_back( strokeColor.GetComponent( i ) );
@@ -1173,7 +1173,7 @@ HE_VOID CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, HE_BOOL bCo
     }
 }
 
-HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
+void CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
 {
     if ( pExtGState )
     {
@@ -1196,7 +1196,7 @@ HE_VOID CHE_PDF_Renderer::SetExtGState( CHE_PDF_ExtGStateStack * pExtGState )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
+void CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
 {
     if ( pClipState == NULL )
     {
@@ -1294,7 +1294,7 @@ HE_VOID CHE_PDF_Renderer::SetClipState( CHE_PDF_ClipState * pClipState )
 	}
 }
 
-HE_VOID CGFontCleanCallBack( HE_LPVOID info )
+void CGFontCleanCallBack( void * info )
 {
     if ( info )
     {
@@ -1303,7 +1303,7 @@ HE_VOID CGFontCleanCallBack( HE_LPVOID info )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
+void CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
 {
     if ( pPath->GetFillMode() == Mode_Nonzero )
     {
@@ -1372,7 +1372,7 @@ HE_VOID CHE_PDF_Renderer::DrawPath( CHE_PDF_Path * pPath )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawTextGlyph( CGGlyph gid )
+void CHE_PDF_Renderer::DrawTextGlyph( CGGlyph gid )
 {
     StoreGState();
     CGPoint position;
@@ -1387,7 +1387,7 @@ HE_VOID CHE_PDF_Renderer::DrawTextGlyph( CGGlyph gid )
 
 
 
-HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
+void CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
 {
     GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
     CHE_PDF_GState * pGState = pText->GetGState();
@@ -1445,7 +1445,7 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
                 CGContextConcatCTM( mContextRef, CGAffineTransformMake( inverstMatrix.a, inverstMatrix.b, inverstMatrix.c, inverstMatrix.d, inverstMatrix.e, inverstMatrix.f) );
                 
                 CHE_PDF_Type3_Font * pFontType3 = (CHE_PDF_Type3_Font*)pFont;
-                for ( HE_ULONG i = 0; i < pText->mItems.size(); ++i )
+                for ( size_t i = 0; i < pText->mItems.size(); ++i )
                 {
                     StoreGState();
                     
@@ -1495,12 +1495,12 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
             
             char glyphName[128];
             CHE_Matrix textMatirx;
-            for ( HE_ULONG i = 0; i < pText->mItems.size(); ++i )
+            for ( size_t i = 0; i < pText->mItems.size(); ++i )
             {
                 textMatirx = pText->GetCharMatrix( i );
                 SetTextMatrix( textMatirx );
                 
-                sprintf( glyphName, "cid%ld", pText->mItems[i].gid );
+                sprintf( glyphName, "cid%u", pText->mItems[i].gid );
                 CFStringRef glyphNameStrRef = CFStringCreateWithCString( kCFAllocatorDefault, glyphName, kCFStringEncodingASCII );
                 GlyphID gid = CGFontGetGlyphWithGlyphName( cgfontRef, glyphNameStrRef );
                 CFRelease(glyphNameStrRef);
@@ -1518,7 +1518,7 @@ HE_VOID CHE_PDF_Renderer::DrawText( CHE_PDF_Text * pText )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
+void CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
 {
     GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
     CHE_PDF_GState * pGState = pText->GetGState();
@@ -1534,12 +1534,12 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
     case TextRenderMode_Stroke:
     case TextRenderMode_StrokeClip:
     case TextRenderMode_FillStrokeClip:
-        for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
+        for ( size_t j = 0; j < pText->mItems.size(); ++j )
         {
             CHE_PDF_Path * pPath = pText->GetGraphPath( j );
             if ( pPath )
             {
-                for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
+                for ( size_t i = 0; i < pPath->mItems.size(); ++i )
                 {
                     switch ( pPath->mItems[i].type )
                     {
@@ -1609,7 +1609,7 @@ HE_VOID CHE_PDF_Renderer::DrawTextAsPath( CHE_PDF_Text * pText )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
+void CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 {
     if ( cmptRef == NULL )
 	{
@@ -1631,8 +1631,8 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
             
             CHE_PDF_FormXObjectPtr formXObject = CHE_PDF_FormXObject::Convert( componentPtr );
             
-            HE_FLOAT tmpFillAlpha = mFillAlpha;
-            HE_FLOAT tmpStrokeAlpha = mStrokeAlpha;
+            FLOAT tmpFillAlpha = mFillAlpha;
+            FLOAT tmpStrokeAlpha = mStrokeAlpha;
             
             if ( formXObject->IsGroup() )
             {
@@ -1683,7 +1683,7 @@ HE_VOID CHE_PDF_Renderer::DrawComponentRef( CHE_PDF_ComponentRef * cmptRef )
 	}
 }
 
-HE_VOID CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
+void CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
 {
     if ( image )
     {
@@ -1711,7 +1711,7 @@ HE_VOID CHE_PDF_Renderer::DrawRefImage( const CHE_PDF_ImageXObjectPtr & image )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
+void CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
 {
     CGImageRef imgRef = CreateImage( pImage );
     if ( imgRef )
@@ -1724,20 +1724,20 @@ HE_VOID CHE_PDF_Renderer::DrawInlineImage( CHE_PDF_InlineImage * pImage )
 void FunctionEvaluateCallback(void * __nullable info, const CGFloat *  in, CGFloat *  out)
 {
     CHE_PDF_Renderer * pRender = (CHE_PDF_Renderer*)info;
-    std::vector<HE_FLOAT> input;
-    std::vector<HE_FLOAT> output;
+    std::vector<FLOAT> input;
+    std::vector<FLOAT> output;
     input.push_back( in[0] );
     pRender->shadingFunc->Calculate( input, output );
     
     if ( pRender->shadingCS->GetColorSpaceType() == COLORSPACE_SPECIAL_SEPARATION )
         
     {
-        std::vector<HE_FLOAT> routput;
+        std::vector<FLOAT> routput;
         pRender->shadingCS->GetSeparationPtr()->mFunction->Calculate(output, routput);
         output = routput;
     }else if ( pRender->shadingCS->GetColorSpaceType() == COLORSPACE_SPECIAL_DEVICEN )
     {
-        std::vector<HE_FLOAT> routput;
+        std::vector<FLOAT> routput;
         pRender->shadingCS->GetDeviceNPtr()->mFunction->Calculate(output, routput);
         output = routput;
     }
@@ -1754,7 +1754,7 @@ void FunctionReleaseInfoCallback(void * __nullable info)
     
 }
 
-HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
+void CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
 {
     /*CGRect rc = CGContextGetClipBoundingBox(mContextRef);
     CGContextSetRGBFillColor(mContextRef, 0.5, 0.5, 0, 1);
@@ -1889,7 +1889,7 @@ HE_VOID CHE_PDF_Renderer::DrawShading( const CHE_PDF_ShadingPtr & shading )
     }
 }
 
-HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
+void CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 {
     
     CHE_PDF_ContentObjectList & list = form->GetList();
@@ -1946,7 +1946,7 @@ HE_VOID CHE_PDF_Renderer::DrawForm( const CHE_PDF_FormXObjectPtr & form )
 	}
 }
 
-HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list )
+void CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & list )
 {
     ContentObjectList::iterator it = list.Begin();
     CHE_PDF_GState * pGState = NULL;
@@ -2000,7 +2000,7 @@ HE_VOID CHE_PDF_Renderer::DrawContentObjectList( CHE_PDF_ContentObjectList & lis
 	}
 }
 
-HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dpix, HE_FLOAT dpiy )
+void CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect pageRect, uint32 rotate, FLOAT scale, FLOAT dpix, FLOAT dpiy )
 {
     mbNoColor = FALSE;
     mDpix = dpix;
@@ -2123,7 +2123,7 @@ HE_VOID CHE_PDF_Renderer::Render( CHE_PDF_ContentObjectList & content, CHE_Rect 
     CGContextEndTransparencyLayer(mContextRef);
 }
 
-HE_VOID CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, HE_BOOL bColored )
+void CHE_PDF_Renderer::RenderTiling( CHE_PDF_ContentObjectList & content, bool bColored )
 {
 	CHE_PDF_GState * pGState = NULL;
 	CHE_PDF_ClipState * pClipState = NULL;

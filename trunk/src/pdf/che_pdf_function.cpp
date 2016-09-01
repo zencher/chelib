@@ -30,7 +30,7 @@ CHE_PDF_Function * CHE_PDF_FunctionPtr::operator->() const
 	return (CHE_PDF_Function*)mpCom;
 }
 
-CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator /*= nullptr*/ )
 {
 	CHE_PDF_FunctionPtr ptr;
 
@@ -38,7 +38,7 @@ CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjP
 	{
 		return ptr;
 	}
-	if ( pAllocator == NULL )
+	if ( pAllocator == nullptr )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -46,7 +46,7 @@ CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjP
 	CHE_PDF_ObjectPtr objPtr;
 	CHE_PDF_DictionaryPtr dictPtr;
     CHE_PDF_StreamPtr streamPtr;
-	CHE_PDF_Function * pTmp = NULL;
+	CHE_PDF_Function * pTmp = nullptr;
 
 	if ( rootObjPtr->GetType() == OBJ_TYPE_REFERENCE )
 	{
@@ -107,7 +107,7 @@ CHE_PDF_FunctionPtr CHE_PDF_Function::Create( const CHE_PDF_ObjectPtr & rootObjP
 	return ptr;
 }
 
-HE_FLOAT CHE_PDF_Function::GetDomianMin( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function::GetDomianMin( uint32 index ) const
 {
 	if ( index < GetInputCount() && mpDomain )
 	{
@@ -116,7 +116,7 @@ HE_FLOAT CHE_PDF_Function::GetDomianMin( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_FLOAT CHE_PDF_Function::GetDomianMax( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function::GetDomianMax( uint32 index ) const
 {
 	if ( index < GetInputCount() && mpDomain )
 	{
@@ -125,7 +125,7 @@ HE_FLOAT CHE_PDF_Function::GetDomianMax( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_FLOAT CHE_PDF_Function::GetRangeMin( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function::GetRangeMin( uint32 index ) const
 {
 	if ( index < GetOutputCount() && mpRange )
 	{
@@ -134,7 +134,7 @@ HE_FLOAT CHE_PDF_Function::GetRangeMin( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_FLOAT CHE_PDF_Function::GetRangeMax( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function::GetRangeMax( uint32 index ) const
 {
 	if ( index < GetOutputCount() && mpRange )
 	{
@@ -143,9 +143,9 @@ HE_FLOAT CHE_PDF_Function::GetRangeMax( HE_UINT32 index ) const
 	return 0;
 }
 
-CHE_PDF_Function::CHE_PDF_Function(const CHE_PDF_ObjectPtr & root, CHE_Allocator * pAllocator/*= NULL*/)
+CHE_PDF_Function::CHE_PDF_Function(const CHE_PDF_ObjectPtr & root, CHE_Allocator * pAllocator/*= nullptr*/)
 	: CHE_PDF_Component(COMPONENT_TYPE_Function, root, pAllocator), mFunctionType(FUNCTION_TYPE_SAMPLE),
-	mInputCount(0), mOutputCount(0), mpDomain(NULL), mpRange(NULL)
+	mInputCount(0), mOutputCount(0), mpDomain(nullptr), mpRange(nullptr)
 {
 	CHE_PDF_ObjectPtr		objPtr;
 	CHE_PDF_DictionaryPtr	dictPtr;
@@ -202,9 +202,9 @@ CHE_PDF_Function::CHE_PDF_Function(const CHE_PDF_ObjectPtr & root, CHE_Allocator
 	if (objPtr)
 	{
 		CHE_PDF_ArrayPtr array = objPtr->GetArrayPtr();
-		mInputCount = (HE_UINT32)array->GetCount() / 2;
-		mpDomain = GetAllocator()->NewArray<HE_FLOAT>(mInputCount * 2);
-		for (HE_ULONG i = 0; i < array->GetCount(); ++i)
+		mInputCount = (uint32)array->GetCount() / 2;
+		mpDomain = GetAllocator()->NewArray<FLOAT>(mInputCount * 2);
+		for (size_t i = 0; i < array->GetCount(); ++i)
 		{
 			objPtr = array->GetElement(i, OBJ_TYPE_NUMBER);
 			if (objPtr)
@@ -225,9 +225,9 @@ CHE_PDF_Function::CHE_PDF_Function(const CHE_PDF_ObjectPtr & root, CHE_Allocator
 	if (objPtr)
 	{
 		CHE_PDF_ArrayPtr array = objPtr->GetArrayPtr();
-		mOutputCount = (HE_UINT32)array->GetCount() / 2;
-		mpRange = GetAllocator()->NewArray<HE_FLOAT>(mOutputCount * 2);
-		for (HE_ULONG i = 0; i < array->GetCount(); ++i)
+		mOutputCount = (uint32)array->GetCount() / 2;
+		mpRange = GetAllocator()->NewArray<FLOAT>(mOutputCount * 2);
+		for (size_t i = 0; i < array->GetCount(); ++i)
 		{
 			objPtr = array->GetElement(i, OBJ_TYPE_NUMBER);
 			if (objPtr)
@@ -240,8 +240,8 @@ CHE_PDF_Function::CHE_PDF_Function(const CHE_PDF_ObjectPtr & root, CHE_Allocator
 		}
 	}else{
         /*mOutputCount = mInputCount;
-        mpRange = GetAllocator()->NewArray<HE_FLOAT>(mInputCount * 2);
-        for (HE_ULONG i = 0; i < mInputCount * 2; ++i)
+        mpRange = GetAllocator()->NewArray<FLOAT>(mInputCount * 2);
+        for (size_t i = 0; i < mInputCount * 2; ++i)
         {
             mpRange[i] = mpDomain[i];
         }*/
@@ -254,33 +254,33 @@ class CHE_PDF_StreamBitsRead
 {
 public:
     CHE_PDF_StreamBitsRead();
-    CHE_PDF_StreamBitsRead(HE_LPBYTE pData, HE_ULONG size);
+    CHE_PDF_StreamBitsRead(PBYTE pData, size_t size);
     
-    HE_VOID Attach(HE_LPBYTE pData, HE_ULONG size);
-    HE_VOID Detach();
+    void Attach(PBYTE pData, size_t size);
+    void Detach();
     
-    HE_VOID Reset();
+    void Reset();
     
-    HE_UINT32 GetBits(HE_UINT32 n);
+    uint32 GetBits(uint32 n);
     
-    HE_INT32 GetByte();
+    int32 GetByte();
     
 private:
-    HE_UINT32 mAvail;
-    HE_UINT32 mBits;
-    HE_ULONG mSize;
-    HE_LPBYTE mpBytesBegin;
-    HE_LPBYTE mpBytesEnd;
-    HE_LPBYTE mpCurByte;
+    uint32 mAvail;
+    uint32 mBits;
+    size_t mSize;
+    PBYTE mpBytesBegin;
+    PBYTE mpBytesEnd;
+    PBYTE mpCurByte;
 };
 
 CHE_PDF_StreamBitsRead::CHE_PDF_StreamBitsRead()
-: mAvail(0), mBits(0), mSize(0), mpBytesBegin(NULL), mpBytesEnd(NULL), mpCurByte(NULL) {}
+: mAvail(0), mBits(0), mSize(0), mpBytesBegin(nullptr), mpBytesEnd(nullptr), mpCurByte(nullptr) {}
 
-CHE_PDF_StreamBitsRead::CHE_PDF_StreamBitsRead(HE_LPBYTE pData, HE_ULONG size)
+CHE_PDF_StreamBitsRead::CHE_PDF_StreamBitsRead(PBYTE pData, size_t size)
 : mAvail(0), mBits(0), mSize(size), mpBytesBegin(pData), mpBytesEnd(pData+size), mpCurByte(pData) {}
 
-HE_VOID CHE_PDF_StreamBitsRead::Attach(HE_LPBYTE pData, HE_ULONG size)
+void CHE_PDF_StreamBitsRead::Attach(PBYTE pData, size_t size)
 {
     if (pData && size)
     {
@@ -291,20 +291,20 @@ HE_VOID CHE_PDF_StreamBitsRead::Attach(HE_LPBYTE pData, HE_ULONG size)
     }
 }
 
-HE_VOID CHE_PDF_StreamBitsRead::Detach()
+void CHE_PDF_StreamBitsRead::Detach()
 {
     mAvail = mBits = mSize = 0;
-    mpCurByte = mpBytesBegin = mpBytesEnd = NULL;
+    mpCurByte = mpBytesBegin = mpBytesEnd = nullptr;
 }
 
-HE_VOID CHE_PDF_StreamBitsRead::Reset()
+void CHE_PDF_StreamBitsRead::Reset()
 {
     mAvail = mBits = 0;
 }
 
-HE_UINT32 CHE_PDF_StreamBitsRead::GetBits(HE_UINT32 n)
+uint32 CHE_PDF_StreamBitsRead::GetBits(uint32 n)
 {
-    HE_UINT32 x;
+    uint32 x;
     if (n <= mAvail)
     {
         mAvail -= n;
@@ -330,7 +330,7 @@ HE_UINT32 CHE_PDF_StreamBitsRead::GetBits(HE_UINT32 n)
     return x;
 }
 
-HE_INT32 CHE_PDF_StreamBitsRead::GetByte()
+int32 CHE_PDF_StreamBitsRead::GetByte()
 {
     if (mpCurByte != mpBytesEnd)
     {
@@ -339,22 +339,22 @@ HE_INT32 CHE_PDF_StreamBitsRead::GetByte()
     return EOF;
 }
 
-HE_BOOL CHE_PDF_Function_Exponential::Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output)
+bool CHE_PDF_Function_Exponential::Calculate(const std::vector<FLOAT> & input, std::vector<FLOAT> & output)
 {
     if ( input.size() == 0 || input.size() < GetInputCount() )
     {
-        return FALSE;
+        return false;
     }
     
-    HE_FLOAT x = input[0];
+    FLOAT x = input[0];
     x = fz_clamp( x, GetDomianMin(0), GetDomianMax(0) );
     
     output.clear();
     
-    HE_FLOAT tmp1 = powf( x, GetOutputCount() );
-    HE_FLOAT tmp2 = 0.0f;
+    FLOAT tmp1 = powf( x, GetOutputCount() );
+    FLOAT tmp2 = 0.0f;
     
-    for ( HE_UINT32 i = 0; i < GetOutputCount(); ++i )
+    for ( uint32 i = 0; i < GetOutputCount(); ++i )
     {
         tmp2 = mpC0[i] + tmp1 * ( mpC1[i] - mpC0[i] );
         if ( HasRange() )
@@ -370,14 +370,14 @@ HE_BOOL CHE_PDF_Function_Exponential::Calculate(const std::vector<HE_FLOAT> & in
         for (uint32_t j = 0; j < m_nOrigOutputs; j++) {
             
            // output[i * m_nOrigOutputs + j] =
-            HE_FLOAT v =  m_pBeginValues[j] + (HE_FLOAT)powf(input[i], m_Exponent) * (m_pEndValues[j] - m_pBeginValues[j]);
+            FLOAT v =  m_pBeginValues[j] + (FLOAT)powf(input[i], m_Exponent) * (m_pEndValues[j] - m_pBeginValues[j]);
             output.push_back(v);
         }
     return TRUE;*/
 }
 
 CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator )
-	: CHE_PDF_Function( rootObjPtr, pAllocator ), mBps(1), mOrder(1), mpSize(NULL), mpEncode(NULL), mpDecode(NULL)
+	: CHE_PDF_Function( rootObjPtr, pAllocator ), mBps(1), mOrder(1), mpSize(nullptr), mpEncode(nullptr), mpDecode(nullptr)
 {
 	if ( mRootObject->GetType() != OBJ_TYPE_REFERENCE )
 	{
@@ -411,8 +411,8 @@ CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & ro
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-		mpSize = GetAllocator()->NewArray<HE_INT32>( 2 * GetInputCount() );
-		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 2 * GetInputCount(); ++i )
+		mpSize = GetAllocator()->NewArray<int32>( 2 * GetInputCount() );
+		for ( size_t i = 0; i < arrayPtr->GetCount() && i < 2 * GetInputCount(); ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
@@ -428,8 +428,8 @@ CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & ro
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-		mpEncode = GetAllocator()->NewArray<HE_FLOAT>( 2 * GetInputCount() );
-		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 2 * GetInputCount(); ++i )
+		mpEncode = GetAllocator()->NewArray<FLOAT>( 2 * GetInputCount() );
+		for ( size_t i = 0; i < arrayPtr->GetCount() && i < 2 * GetInputCount(); ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
@@ -445,8 +445,8 @@ CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & ro
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-		mpDecode = GetAllocator()->NewArray<HE_FLOAT>( 2 * GetOutputCount() );
-		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 2 * GetOutputCount(); ++i )
+		mpDecode = GetAllocator()->NewArray<FLOAT>( 2 * GetOutputCount() );
+		for ( size_t i = 0; i < arrayPtr->GetCount() && i < 2 * GetOutputCount(); ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
@@ -463,11 +463,11 @@ CHE_PDF_Function_Sampled::CHE_PDF_Function_Sampled( const CHE_PDF_ObjectPtr & ro
 	if ( stmAcc.Attach( stmPtr ) )
 	{
         stmBits.Attach(stmAcc.GetData(), stmAcc.GetSize());
-        HE_ULONG count = stmAcc.GetSize() * 8 / mBps;
+        size_t count = stmAcc.GetSize() * 8 / mBps;
         mSample.resize( count );
-        HE_FLOAT s = 0;
-        HE_UINT32 x = 0;
-        for (HE_ULONG i = 0; i < count; ++i)
+        FLOAT s = 0;
+        uint32 x = 0;
+        for (size_t i = 0; i < count; ++i)
         {
             switch (mBps)
             {
@@ -510,18 +510,18 @@ CHE_PDF_Function_Sampled::~CHE_PDF_Function_Sampled()
 {
 	if ( mpSize )
 	{
-		GetAllocator()->DeleteArray<HE_INT32>( mpSize );
-		mpSize = NULL;
+		GetAllocator()->DeleteArray<int32>( mpSize );
+		mpSize = nullptr;
 	}
 	if ( mpEncode )
 	{
-		GetAllocator()->DeleteArray<HE_FLOAT>( mpEncode );
-		mpEncode = NULL;
+		GetAllocator()->DeleteArray<FLOAT>( mpEncode );
+		mpEncode = nullptr;
 	}
 	if ( mpDecode )
 	{
-		GetAllocator()->DeleteArray<HE_FLOAT>( mpDecode );
-		mpDecode = NULL;
+		GetAllocator()->DeleteArray<FLOAT>( mpDecode );
+		mpDecode = nullptr;
 	}
 }
 
@@ -547,7 +547,7 @@ float CHE_PDF_Function_Sampled::interpolate_sample( int *scale, int *e0, int *e1
 	return a + (b - a) * efrac[dim];
 }
 
-HE_INT32 CHE_PDF_Function_Sampled::GetSize( HE_UINT32 index ) const
+int32 CHE_PDF_Function_Sampled::GetSize( uint32 index ) const
 {
 	if ( index < GetInputCount() && mpSize )
 	{
@@ -556,7 +556,7 @@ HE_INT32 CHE_PDF_Function_Sampled::GetSize( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_FLOAT CHE_PDF_Function_Sampled::GetEncodeMin( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function_Sampled::GetEncodeMin( uint32 index ) const
 {
 	if ( index < GetInputCount() && mpEncode )
 	{
@@ -565,7 +565,7 @@ HE_FLOAT CHE_PDF_Function_Sampled::GetEncodeMin( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_FLOAT CHE_PDF_Function_Sampled::GetEncodeMax( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function_Sampled::GetEncodeMax( uint32 index ) const
 {
 	if ( index < GetInputCount() && mpEncode )
 	{
@@ -574,7 +574,7 @@ HE_FLOAT CHE_PDF_Function_Sampled::GetEncodeMax( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_FLOAT CHE_PDF_Function_Sampled::GetDecodeMin( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function_Sampled::GetDecodeMin( uint32 index ) const
 {
 	if ( index < GetOutputCount() && mpDecode )
 	{
@@ -583,7 +583,7 @@ HE_FLOAT CHE_PDF_Function_Sampled::GetDecodeMin( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_FLOAT CHE_PDF_Function_Sampled::GetDecodeMax( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function_Sampled::GetDecodeMax( uint32 index ) const
 {
 	if ( index < GetOutputCount() && mpDecode )
 	{
@@ -592,19 +592,19 @@ HE_FLOAT CHE_PDF_Function_Sampled::GetDecodeMax( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_BOOL CHE_PDF_Function_Sampled::Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output)
+bool CHE_PDF_Function_Sampled::Calculate(const std::vector<FLOAT> & input, std::vector<FLOAT> & output)
 {
 	if ( input.size() == 0 || input.size() < GetInputCount() )
 	{
-		return FALSE;
+		return false;
 	}
 
-	HE_INT32 e0[64], e1[64], scale[64];
-	HE_FLOAT efrac[64];
-    HE_FLOAT tmpValue;
+	int32 e0[64], e1[64], scale[64];
+	FLOAT efrac[64];
+    FLOAT tmpValue;
 
 	/* encode input coordinates */
-	for ( HE_UINT32 i = 0; i < GetInputCount(); ++i )
+	for ( uint32 i = 0; i < GetInputCount(); ++i )
 	{
 		tmpValue = fz_clamp( input[i], GetDomianMin( i ), GetDomianMax( i ) );
 		tmpValue = lerp( tmpValue, GetDomianMin( i ), GetDomianMax( i ), GetEncodeMin( i ), GetEncodeMax( i ) );
@@ -615,12 +615,12 @@ HE_BOOL CHE_PDF_Function_Sampled::Calculate(const std::vector<HE_FLOAT> & input,
 	}
 
 	scale[0] = GetOutputCount();
-	for ( HE_UINT32 i = 1; i < GetInputCount(); ++i )
+	for ( uint32 i = 1; i < GetInputCount(); ++i )
 	{
 		scale[i] = scale[i - 1] * GetSize( i );
 	}
 
-	for ( HE_UINT32 i = 0; i < GetOutputCount(); ++i )
+	for ( uint32 i = 0; i < GetOutputCount(); ++i )
 	{
 		if ( GetInputCount() == 1 )
 		{
@@ -706,8 +706,8 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
         arrayPtr1 = objPtr->GetArrayPtr();
     }
     
-    m_pBeginValues = GetAllocator()->NewArray<HE_FLOAT>(2);
-    m_pEndValues = GetAllocator()->NewArray<HE_FLOAT>(2);
+    m_pBeginValues = GetAllocator()->NewArray<FLOAT>(2);
+    m_pEndValues = GetAllocator()->NewArray<FLOAT>(2);
     
     for (uint32_t i = 0; i < mOutputCount; ++i) {
         m_pBeginValues[i] = arrayPtr0 ? arrayPtr0->GetElement(i, OBJ_TYPE_NUMBER)->GetNumberPtr()->GetFloat() : 0.0f;
@@ -734,9 +734,9 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
         
-        mOutputCount = (HE_UINT32)arrayPtr->GetCount();
-		mpC0 = GetAllocator()->NewArray<HE_FLOAT>( 2 * GetOutputCount() );
-		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 2 * GetOutputCount(); ++i )
+        mOutputCount = (uint32)arrayPtr->GetCount();
+		mpC0 = GetAllocator()->NewArray<FLOAT>( 2 * GetOutputCount() );
+		for ( size_t i = 0; i < arrayPtr->GetCount() && i < 2 * GetOutputCount(); ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
@@ -752,9 +752,9 @@ CHE_PDF_Function_Exponential::CHE_PDF_Function_Exponential( const CHE_PDF_Object
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-        mOutputCount = (HE_UINT32)arrayPtr->GetCount();
-		mpC1 = GetAllocator()->NewArray<HE_FLOAT>( 2 * GetOutputCount() );
-		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 2 * GetOutputCount(); ++i )
+        mOutputCount = (uint32)arrayPtr->GetCount();
+		mpC1 = GetAllocator()->NewArray<FLOAT>( 2 * GetOutputCount() );
+		for ( size_t i = 0; i < arrayPtr->GetCount() && i < 2 * GetOutputCount(); ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
@@ -771,13 +771,13 @@ CHE_PDF_Function_Exponential::~CHE_PDF_Function_Exponential()
 {
 	/*if ( mpC0 )
 	{
-		GetAllocator()->DeleteArray<HE_FLOAT>( mpC0 );
-		mpC0 = NULL;
+		GetAllocator()->DeleteArray<FLOAT>( mpC0 );
+		mpC0 = nullptr;
 	}
 	if ( mpC1 )
 	{
-		GetAllocator()->DeleteArray<HE_FLOAT>( mpC1 );
-		mpC1 = NULL;
+		GetAllocator()->DeleteArray<FLOAT>( mpC1 );
+		mpC1 = nullptr;
 	}*/
 }
 
@@ -812,11 +812,11 @@ CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( const CHE_PDF_ObjectPtr 
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-		mK = (HE_UINT32)arrayPtr->GetCount();
+		mK = (uint32)arrayPtr->GetCount();
 		if ( mK > 0 )
 		{
 			CHE_PDF_FunctionPtr tmpFunctionPtr;
-			for ( HE_ULONG i = 0; i < mK; ++i )
+			for ( size_t i = 0; i < mK; ++i )
 			{
 				objPtr = arrayPtr->GetElement( i, OBJ_TYPE_REFERENCE );
 				if ( objPtr )
@@ -832,7 +832,7 @@ CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( const CHE_PDF_ObjectPtr 
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < 2 * GetInputCount(); ++i )
+		for ( size_t i = 0; i < arrayPtr->GetCount() && i < 2 * GetInputCount(); ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
@@ -848,7 +848,7 @@ CHE_PDF_Function_Stitching::CHE_PDF_Function_Stitching( const CHE_PDF_ObjectPtr 
 	if ( objPtr )
 	{
 		CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
-		for ( HE_ULONG i = 0; i < arrayPtr->GetCount() && i < GetInputCount() - 1; ++i )
+		for ( size_t i = 0; i < arrayPtr->GetCount() && i < GetInputCount() - 1; ++i )
 		{
 			objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
 			if ( objPtr )
@@ -865,7 +865,7 @@ CHE_PDF_Function_Stitching::~CHE_PDF_Function_Stitching()
 {
 }
 
-HE_FLOAT CHE_PDF_Function_Stitching::GetEncodeMin( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function_Stitching::GetEncodeMin( uint32 index ) const
 {
 	if ( index < GetInputCount() )
 	{
@@ -874,7 +874,7 @@ HE_FLOAT CHE_PDF_Function_Stitching::GetEncodeMin( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_FLOAT CHE_PDF_Function_Stitching::GetEncodeMax( HE_UINT32 index ) const
+FLOAT CHE_PDF_Function_Stitching::GetEncodeMax( uint32 index ) const
 {
 	if ( index < GetInputCount() )
 	{
@@ -883,15 +883,15 @@ HE_FLOAT CHE_PDF_Function_Stitching::GetEncodeMax( HE_UINT32 index ) const
 	return 0;
 }
 
-HE_BOOL CHE_PDF_Function_Stitching::Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output)
+bool CHE_PDF_Function_Stitching::Calculate(const std::vector<FLOAT> & input, std::vector<FLOAT> & output)
 {
 	if ( input.size() == 0 )
 	{
-		return FALSE;
+		return false;
 	}
 
-	HE_FLOAT low, high;
-	HE_FLOAT inputValue = input[0];
+	FLOAT low, high;
+	FLOAT inputValue = input[0];
 
 	inputValue = fz_clamp(inputValue, GetDomianMin(0), GetDomianMax(0) );
     
@@ -904,7 +904,7 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate(const std::vector<HE_FLOAT> & inpu
         }
     }
 
-	HE_UINT32 i = 0;
+	uint32 i = 0;
 	for ( ; i < mK; ++i )
 	{
 		if ( inputValue < mBounds[i] )
@@ -932,7 +932,7 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate(const std::vector<HE_FLOAT> & inpu
 
 	inputValue = lerp(inputValue, low, high, GetEncodeMin(i), GetEncodeMax(i) );
 
-	std::vector<HE_FLOAT> newInput;
+	std::vector<FLOAT> newInput;
 	newInput.push_back( inputValue );
 
 	CHE_PDF_FunctionPtr functionPtr = mFunctions[i];
@@ -941,19 +941,19 @@ HE_BOOL CHE_PDF_Function_Stitching::Calculate(const std::vector<HE_FLOAT> & inpu
 		return functionPtr->Calculate( newInput, output );
 	}
 
-	return FALSE;
+	return false;
 }
 
 CHE_PDF_Function_PostScript::CHE_PDF_Function_PostScript(const CHE_PDF_StreamPtr & stm, CHE_Allocator * pAllocator)
- : CHE_PDF_Function(stm, pAllocator), mbParsed(FALSE), mStmPtr(stm) {}
+ : CHE_PDF_Function(stm, pAllocator), mbParsed(false), mStmPtr(stm) {}
 
 CHE_PDF_Function_PostScript::~CHE_PDF_Function_PostScript()
 {
 }
 
-HE_BOOL CHE_PDF_Function_PostScript::Calculate(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+bool CHE_PDF_Function_PostScript::Calculate(const std::vector<FLOAT> & input, std::vector<FLOAT> & output )
 {
-	if ( mbParsed == FALSE )
+	if ( mbParsed == false )
 	{
 		Parse();
 	}
@@ -961,9 +961,9 @@ HE_BOOL CHE_PDF_Function_PostScript::Calculate(const std::vector<HE_FLOAT> & inp
 	return RunCode( input, output );
 }
 
-HE_VOID CHE_PDF_Function_PostScript::Parse()
+void CHE_PDF_Function_PostScript::Parse()
 {
-	if ( mbParsed != FALSE && !mStmPtr )
+	if ( mbParsed != false && !mStmPtr )
 	{
 		return;
 	}
@@ -976,23 +976,23 @@ HE_VOID CHE_PDF_Function_PostScript::Parse()
 }
 
 
-HE_BOOL CHE_PDF_Function_PostScript::RunCode(const std::vector<HE_FLOAT> & input, std::vector<HE_FLOAT> & output )
+bool CHE_PDF_Function_PostScript::RunCode(const std::vector<FLOAT> & input, std::vector<FLOAT> & output )
 {
     CHE_PDF_PSEngine & PS = const_cast<CHE_PDF_PSEngine&>(mPSEngine);
-    HE_FLOAT tmpVal = 0.0f;
+    FLOAT tmpVal = 0.0f;
     PS.Reset();
-    for (HE_UINT32 i = 0; i < input.size(); i++)
+    for (uint32 i = 0; i < input.size(); i++)
     {
         tmpVal = fz_clamp( input[i], GetDomianMin( i ), GetDomianMax( i ) );
         PS.Push(tmpVal);
     }
     PS.Execute();
     if (PS.GetStackSize() < GetOutputCount())
-        return FALSE;
+        return false;
     
-    HE_UINT32 c = GetOutputCount();
+    uint32 c = GetOutputCount();
     output.resize(c);
-    for (HE_UINT32 i = 0; i < c; i++)
+    for (uint32 i = 0; i < c; i++)
     {
         output[c - i - 1] = PS.Pop();
         output[c - i - 1] = fz_clamp(output[c - i - 1], GetRangeMin(c - i - 1), GetRangeMax(c - i - 1));
@@ -1005,7 +1005,7 @@ HE_BOOL CHE_PDF_Function_PostScript::RunCode(const std::vector<HE_FLOAT> & input
 
 
 
-HE_BOOL CHE_PDF_PSProc::Execute(CHE_PDF_PSEngine* pEngine)
+bool CHE_PDF_PSProc::Execute(CHE_PDF_PSEngine* pEngine)
 {
     for (size_t i = 0; i < m_Operators.size(); ++i)
     {
@@ -1022,14 +1022,14 @@ HE_BOOL CHE_PDF_PSProc::Execute(CHE_PDF_PSEngine* pEngine)
         if (op == PSOP_IF)
         {
             if (i == 0 || m_Operators[i - 1]->GetOp() != PSOP_PROC)
-                return FALSE;
+                return false;
 
             if (static_cast<int>(pEngine->Pop()))
                 m_Operators[i - 1]->GetProc()->Execute(pEngine);
         } else if (op == PSOP_IFELSE) {
             if (i < 2 || m_Operators[i - 1]->GetOp() != PSOP_PROC ||
                 m_Operators[i - 2]->GetOp() != PSOP_PROC) {
-                    return FALSE;
+                    return false;
             }
             size_t offset = static_cast<int>(pEngine->Pop()) ? 2 : 1;
             m_Operators[i - offset]->GetProc()->Execute(pEngine);
@@ -1044,7 +1044,7 @@ CHE_PDF_PSEngine::CHE_PDF_PSEngine() { m_StackCount = 0;}
 
 CHE_PDF_PSEngine::~CHE_PDF_PSEngine() {}
 
-void CHE_PDF_PSEngine::Push(HE_FLOAT v)
+void CHE_PDF_PSEngine::Push(FLOAT v)
 {
     if (m_StackCount == PSENGINE_STACKSIZE)
     {
@@ -1053,7 +1053,7 @@ void CHE_PDF_PSEngine::Push(HE_FLOAT v)
     m_Stack[m_StackCount++] = v;
 }
 
-HE_FLOAT CHE_PDF_PSEngine::Pop()
+FLOAT CHE_PDF_PSEngine::Pop()
 {
     if (m_StackCount == 0)
     {
@@ -1062,24 +1062,24 @@ HE_FLOAT CHE_PDF_PSEngine::Pop()
     return m_Stack[--m_StackCount];
 }
 
-HE_BOOL CHE_PDF_PSEngine::Parse(const HE_BYTE * str, HE_ULONG size) {
+bool CHE_PDF_PSEngine::Parse(const BYTE * str, size_t size) {
 
-    HE_BOOL bRet = FALSE;
+    bool bRet = false;
     IHE_Read *  pRead = HE_CreateMemBufRead( str, size, GetDefaultAllocator() );
-    CHE_PDF_SyntaxParser syntaxParser(NULL, GetDefaultAllocator());
+    CHE_PDF_SyntaxParser syntaxParser(nullptr, GetDefaultAllocator());
     syntaxParser.InitParser(pRead);
 
     CHE_PDF_ParseWordDes wordDes;
     if ( !syntaxParser.GetWord(wordDes) || wordDes.type != PARSE_WORD_BLOCK_B )
     {
-        return FALSE;
+        return false;
     }
     bRet = m_MainProc.Parse(&syntaxParser);
     HE_DestoryIHERead( pRead );
     return bRet;
 }
 
-HE_BOOL CHE_PDF_PSProc::Parse(CHE_PDF_SyntaxParser* parser)
+bool CHE_PDF_PSProc::Parse(CHE_PDF_SyntaxParser* parser)
 {
     CHE_ByteString word;
     CHE_PDF_ParseWordDes wordDes;
@@ -1106,7 +1106,7 @@ HE_BOOL CHE_PDF_PSProc::Parse(CHE_PDF_SyntaxParser* parser)
                 m_Operators.push_back(std::move(op));
                 if (!m_Operators.back()->GetProc()->Parse(parser))
                 {
-                    return FALSE;
+                    return false;
                 }
                 break;
             }
@@ -1120,7 +1120,7 @@ HE_BOOL CHE_PDF_PSProc::Parse(CHE_PDF_SyntaxParser* parser)
                 parser->GetString(word);
                 if (word.GetLength())
                 {
-                    switch (StringToDWORD(word))
+                    switch (StringToUINT32(word))
                     {
                     case C('a', 'b', 's'): op = PSOP_ABS; break;
                     case C('a', 'd', 'd'): op = PSOP_ADD; break;
@@ -1164,12 +1164,12 @@ HE_BOOL CHE_PDF_PSProc::Parse(CHE_PDF_SyntaxParser* parser)
                     case D('i', 'n', 'd', 'e'): op = PSOP_INDEX; break;
                     case C('p', 'o', 'p'): op = PSOP_POP; break;
                     case D('r', 'o', 'l', 'l'): op = PSOP_ROLL; break;
-                    default: return FALSE;
+                    default: return false;
                     }
                     std::unique_ptr<CHE_PDF_PSOP> psop(new CHE_PDF_PSOP(op));
                     m_Operators.push_back(std::move(psop));
                 }else{
-                    return FALSE;
+                    return false;
                 }
                 break;
             }
@@ -1180,10 +1180,10 @@ HE_BOOL CHE_PDF_PSProc::Parse(CHE_PDF_SyntaxParser* parser)
     return TRUE;
 }
 
-HE_BOOL CHE_PDF_PSEngine::DoOperator(PDF_PSOP op)
+bool CHE_PDF_PSEngine::DoOperator(PDF_PSOP op)
 {
     int i1, i2;
-    HE_FLOAT d1, d2;
+    FLOAT d1, d2;
     switch (op) {
     case PSOP_ADD:
         d1 = Pop();
@@ -1221,15 +1221,15 @@ HE_BOOL CHE_PDF_PSEngine::DoOperator(PDF_PSOP op)
         break;
     case PSOP_ABS:
         d1 = Pop();
-        Push((HE_FLOAT)fabsf(d1));
+        Push((FLOAT)fabsf(d1));
         break;
     case PSOP_CEILING:
         d1 = Pop();
-        Push((HE_FLOAT)ceilf(d1));
+        Push((FLOAT)ceilf(d1));
         break;
     case PSOP_FLOOR:
         d1 = Pop();
-        Push((HE_FLOAT)floor(d1));
+        Push((FLOAT)floor(d1));
         break;
     case PSOP_ROUND:
         d1 = Pop();
@@ -1241,20 +1241,20 @@ HE_BOOL CHE_PDF_PSEngine::DoOperator(PDF_PSOP op)
         break;
     case PSOP_SQRT:
         d1 = Pop();
-        Push((HE_FLOAT)sqrt(d1));
+        Push((FLOAT)sqrt(d1));
         break;
     case PSOP_SIN:
         d1 = Pop();
-        Push((HE_FLOAT)sin(d1 / RADIAN));
+        Push((FLOAT)sin(d1 / RADIAN));
         break;
     case PSOP_COS:
         d1 = Pop();
-        Push((HE_FLOAT)cos(d1 / RADIAN));
+        Push((FLOAT)cos(d1 / RADIAN));
         break;
     case PSOP_ATAN:
         d2 = Pop();
         d1 = Pop();
-        d1 = (HE_FLOAT)(atan2f(d1, d2) * RADIAN);
+        d1 = (FLOAT)(atan2f(d1, d2) * RADIAN);
         if (d1 < 0) {
             d1 += 360;
         }
@@ -1263,15 +1263,15 @@ HE_BOOL CHE_PDF_PSEngine::DoOperator(PDF_PSOP op)
     case PSOP_EXP:
         d2 = Pop();
         d1 = Pop();
-        Push((HE_FLOAT)powf(d1, d2));
+        Push((FLOAT)powf(d1, d2));
         break;
     case PSOP_LN:
         d1 = Pop();
-        Push((HE_FLOAT)logf(d1));
+        Push((FLOAT)logf(d1));
         break;
     case PSOP_LOG:
         d1 = Pop();
-        Push((HE_FLOAT)log10f(d1));
+        Push((FLOAT)log10f(d1));
         break;
     case PSOP_CVI:
         i1 = (int)Pop();
@@ -1388,14 +1388,14 @@ HE_BOOL CHE_PDF_PSEngine::DoOperator(PDF_PSOP op)
                 break;
             if (j < 0) {
                 for (int i = 0; i < -j; i++) {
-                    HE_FLOAT first = m_Stack[m_StackCount - n];
+                    FLOAT first = m_Stack[m_StackCount - n];
                     for (int ii = 0; ii < n - 1; ii++)
                         m_Stack[m_StackCount - n + ii] = m_Stack[m_StackCount - n + ii + 1];
                     m_Stack[m_StackCount - 1] = first;
                 }
             } else {
                 for (int i = 0; i < j; i++) {
-                    HE_FLOAT last = m_Stack[m_StackCount - 1];
+                    FLOAT last = m_Stack[m_StackCount - 1];
                     int ii;
                     for (ii = 0; ii < n - 1; ii++)
                         m_Stack[m_StackCount - ii - 1] = m_Stack[m_StackCount - ii - 2];

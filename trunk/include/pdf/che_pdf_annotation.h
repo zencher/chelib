@@ -39,21 +39,21 @@ enum PDF_ANNOT_TYPE
 class CHE_PDF_Annotation : public CHE_Object
 {
 public:
-    CHE_PDF_Annotation(CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator = NULL);
+    CHE_PDF_Annotation(CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator = nullptr);
     
-    HE_BOOL IsInvisable() const;
-    HE_BOOL IsHidden() const;
-    HE_BOOL IsPrint() const;
-    HE_BOOL IsNoZoom() const;
-    HE_BOOL IsNoRotate() const;
-    HE_BOOL IsNoView() const;
-    HE_BOOL IsReadOnly() const;
-    HE_BOOL Locked() const;
-    HE_BOOL ToggleNoView() const;
-    HE_BOOL LockedContents() const;
+    bool IsInvisable() const;
+    bool IsHidden() const;
+    bool IsPrint() const;
+    bool IsNoZoom() const;
+    bool IsNoRotate() const;
+    bool IsNoView() const;
+    bool IsReadOnly() const;
+    bool Locked() const;
+    bool ToggleNoView() const;
+    bool LockedContents() const;
     
 protected:
-    HE_UINT32                   mFlag;
+    uint32                   mFlag;
     PDF_ANNOT_TYPE              mType;
     CHE_PDF_DictionaryPtr       mDictPtr;
 };

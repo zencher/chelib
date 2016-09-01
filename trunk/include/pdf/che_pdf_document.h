@@ -19,29 +19,29 @@ public:
 
 	PDF_VERSION					GetVersion() { return mpFile->GetPDFVersion(); }
 
-	HE_ULONG					GetPageCount() const;
+	size_t					GetPageCount() const;
 
 	CHE_PDF_PageTree *			GetPageTree() const { return mpPageTree; }
 
-	CHE_PDF_Page *				GetPage( HE_ULONG index );
+	CHE_PDF_Page *				GetPage( size_t index );
 
 	CHE_PDF_ComponentMgr *		GetComponentMgr() const;
 
 	CHE_PDF_Outline *			GetOutline();
 
-	HE_VOID						SetVersion( PDF_VERSION version ) { mpFile->SetPDFVersion( version ); }
+	void						SetVersion( PDF_VERSION version ) { mpFile->SetPDFVersion( version ); }
 
-	HE_BOOL						SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str );
+	bool						SetDocumentInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str );
 	
 private:
 	CHE_PDF_Document( CHE_PDF_File * mpFile, CHE_Allocator * pAllocator );
 
-	HE_BOOL						ParsePageTree();
-	HE_BOOL						ParseNameDict();
-	HE_BOOL						ParseOutline();
-	HE_BOOL						ParsePageLabels();
+	bool						ParsePageTree();
+	bool						ParseNameDict();
+	bool						ParseOutline();
+	bool						ParsePageLabels();
 
-	HE_VOID						CreateCatalogDict();
+	void						CreateCatalogDict();
 
 	CHE_PDF_File *				mpFile;
 	CHE_PDF_PageTree *			mpPageTree;

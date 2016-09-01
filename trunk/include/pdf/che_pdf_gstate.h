@@ -12,26 +12,26 @@ class CHE_PDF_ContentObject;
 class CHE_PDF_StrokeState : public CHE_Object
 {
 public:
-	CHE_PDF_StrokeState( CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_StrokeState( CHE_Allocator * pAllocator = nullptr )
 		: CHE_Object( pAllocator ), mLineCap(LineCap_Butt), mLineJoin(LineJoin_Miter), mLineWidth(1), mMiterLimit(10) {}
 
-	HE_FLOAT					GetLineWidth() const { return mLineWidth; }
-	HE_FLOAT					GetMiterLimit() const { return mMiterLimit; }
+	FLOAT					GetLineWidth() const { return mLineWidth; }
+	FLOAT					GetMiterLimit() const { return mMiterLimit; }
 	GRAPHICS_STATE_LINECAP		GetLineCap() const { return mLineCap; }
 	GRAPHICS_STATE_LINEJOIN		GetLineJoin() const { return mLineJoin; }
 	GRAPHICS_STATE_DASHPATTERN	GetLineDash() const { return mLineDash; }
 
-	HE_VOID						SetLineWidth( HE_FLOAT lineWidth ) { mLineWidth = lineWidth; }
-	HE_VOID						SetMiterLimit( HE_FLOAT miterLimit ) { mMiterLimit = miterLimit; }
-	HE_VOID						SetLineCap( GRAPHICS_STATE_LINECAP lineCap ) { mLineCap = lineCap; }
-	HE_VOID						SetLineJoin( GRAPHICS_STATE_LINEJOIN lineJion ) { mLineJoin = lineJion; }
-	HE_VOID						SetLineDash( GRAPHICS_STATE_DASHPATTERN dashPattern ) { mLineDash = dashPattern; }
+	void						SetLineWidth( FLOAT lineWidth ) { mLineWidth = lineWidth; }
+	void						SetMiterLimit( FLOAT miterLimit ) { mMiterLimit = miterLimit; }
+	void						SetLineCap( GRAPHICS_STATE_LINECAP lineCap ) { mLineCap = lineCap; }
+	void						SetLineJoin( GRAPHICS_STATE_LINEJOIN lineJion ) { mLineJoin = lineJion; }
+	void						SetLineDash( GRAPHICS_STATE_DASHPATTERN dashPattern ) { mLineDash = dashPattern; }
 
 	CHE_PDF_StrokeState *		Clone() const;
 
 private:
-	HE_FLOAT					mLineWidth;
-	HE_FLOAT					mMiterLimit;
+	FLOAT					mLineWidth;
+	FLOAT					mMiterLimit;
 	GRAPHICS_STATE_LINECAP		mLineCap;
 	GRAPHICS_STATE_LINEJOIN		mLineJoin;
 	GRAPHICS_STATE_DASHPATTERN	mLineDash;
@@ -40,40 +40,40 @@ private:
 class CHE_PDF_TextGState : public CHE_Object
 {
 public:
-	CHE_PDF_TextGState( CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mRMode(TextRenderMode_Fill), mpFont(NULL), mFontSize(1),
+	CHE_PDF_TextGState( CHE_Allocator * pAllocator = nullptr )
+		: CHE_Object(pAllocator), mRMode(TextRenderMode_Fill), mpFont(nullptr), mFontSize(1),
 		  mCharSpace(0), mWordSpace(0), mLeading(0), mScaling(100), mRise(0) {}
 
 	CHE_Matrix GetMatrix() const { return mMatrix; }
-	HE_FLOAT GetFontSize() const { return mFontSize; }
+	FLOAT GetFontSize() const { return mFontSize; }
 	CHE_PDF_Font * GetFont() const { return mpFont; }
-	HE_FLOAT GetCharSpace() const { return mCharSpace; }
-	HE_FLOAT GetWordSpace() const { return mWordSpace; }
-	HE_FLOAT GetScaling() const { return mScaling; }
-	HE_FLOAT GetRise() const { return mRise; }
+	FLOAT GetCharSpace() const { return mCharSpace; }
+	FLOAT GetWordSpace() const { return mWordSpace; }
+	FLOAT GetScaling() const { return mScaling; }
+	FLOAT GetRise() const { return mRise; }
 	CHE_ByteString GetFontResName() const { return mFontName; }
 	GRAPHICS_STATE_TEXTRENDERMODE GetRenderMode() const { return mRMode; }
 
-	HE_VOID SetMatirx( const CHE_Matrix & matrix  ) { mMatrix = matrix; }
-	HE_VOID SetFontSize( HE_FLOAT size ) { mFontSize = size; }
-	HE_VOID SetFont( CHE_PDF_Font * pFont ) { mpFont = pFont; }
-	HE_VOID SetCharSpace( HE_FLOAT charSpace ) { mCharSpace = charSpace; }
-	HE_VOID SetWordSpace( HE_FLOAT wordSpace ) { mWordSpace = wordSpace; }
-	HE_VOID SetScaling( HE_FLOAT scaling ) { mScaling = scaling; }
-	HE_VOID SetRise( HE_FLOAT rise ) { mRise = rise; }
-	HE_VOID SetFontResName( const CHE_ByteString & resName ) { mFontName = resName; }
-	HE_VOID SetRenderMode( GRAPHICS_STATE_TEXTRENDERMODE rm ) { mRMode = rm; }
+	void SetMatirx( const CHE_Matrix & matrix  ) { mMatrix = matrix; }
+	void SetFontSize( FLOAT size ) { mFontSize = size; }
+	void SetFont( CHE_PDF_Font * pFont ) { mpFont = pFont; }
+	void SetCharSpace( FLOAT charSpace ) { mCharSpace = charSpace; }
+	void SetWordSpace( FLOAT wordSpace ) { mWordSpace = wordSpace; }
+	void SetScaling( FLOAT scaling ) { mScaling = scaling; }
+	void SetRise( FLOAT rise ) { mRise = rise; }
+	void SetFontResName( const CHE_ByteString & resName ) { mFontName = resName; }
+	void SetRenderMode( GRAPHICS_STATE_TEXTRENDERMODE rm ) { mRMode = rm; }
 
 	CHE_PDF_TextGState * Clone() const;
 
 private:
 	CHE_Matrix						mMatrix;
-	HE_FLOAT						mFontSize;
-	HE_FLOAT						mCharSpace;
-	HE_FLOAT						mWordSpace;
-	HE_FLOAT						mLeading;
-	HE_FLOAT						mScaling;
-	HE_FLOAT						mRise;
+	FLOAT						mFontSize;
+	FLOAT						mCharSpace;
+	FLOAT						mWordSpace;
+	FLOAT						mLeading;
+	FLOAT						mScaling;
+	FLOAT						mRise;
 	CHE_ByteString					mFontName;
 	CHE_PDF_Font *					mpFont;
 	GRAPHICS_STATE_TEXTRENDERMODE	mRMode;
@@ -82,12 +82,12 @@ private:
 class CHE_PDF_ClipStateItem : public CHE_Object
 {
 public:
-	CHE_PDF_ClipStateItem( CHE_Allocator * pAllocator = NULL ) : CHE_Object(pAllocator) {}
+	CHE_PDF_ClipStateItem( CHE_Allocator * pAllocator = nullptr ) : CHE_Object(pAllocator) {}
 	~CHE_PDF_ClipStateItem();
 
 	CHE_PDF_ContentObject * GetElement() const { return mpClipElement; }
 
-	HE_BOOL SetElement( CHE_PDF_ContentObject * pElement );
+	bool SetElement( CHE_PDF_ContentObject * pElement );
 
 
 	CHE_PDF_ClipStateItem * Clone() const;
@@ -99,10 +99,10 @@ private:
 class CHE_PDF_ClipState : public CHE_Object
 {
 public:
-	CHE_PDF_ClipState( CHE_Allocator * pAllocator = NULL ) : CHE_Object(pAllocator) {}
+	CHE_PDF_ClipState( CHE_Allocator * pAllocator = nullptr ) : CHE_Object(pAllocator) {}
 	~CHE_PDF_ClipState();
 
-	HE_BOOL Append( CHE_PDF_ClipStateItem * pElement );
+	bool Append( CHE_PDF_ClipStateItem * pElement );
 
 	CHE_PDF_ClipState * Clone() const;
 
@@ -114,14 +114,14 @@ private:
 class CHE_PDF_ExtGStateStack : public CHE_Object
 {
 public:
-	CHE_PDF_ExtGStateStack( CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_ExtGStateStack( CHE_Allocator * pAllocator = nullptr )
 		: CHE_Object(pAllocator), mStrokeAlpha(1), mFillAlpha(1), mBlendMode(BlendMode_Normal) {}
 
-	HE_BOOL PushExtStateName( const CHE_ByteString & name, const CHE_PDF_ExtGStatePtr & extgstate );
+	bool PushExtStateName( const CHE_ByteString & name, const CHE_PDF_ExtGStatePtr & extgstate );
 
-	HE_FLOAT GetStrokeAlpha() const { return mStrokeAlpha; }
+	FLOAT GetStrokeAlpha() const { return mStrokeAlpha; }
 
-	HE_FLOAT GetFillAlpha() const { return mFillAlpha; }
+	FLOAT GetFillAlpha() const { return mFillAlpha; }
 
 	GRAPHICS_STATE_BLENDMODE GetBlendMode() const { return mBlendMode; }
     
@@ -137,8 +137,8 @@ public:
 	std::list<CHE_PDF_ExtGStatePtr>		mExtGStateStack;
 
 private:
-	HE_FLOAT							mStrokeAlpha;
-	HE_FLOAT							mFillAlpha;
+	FLOAT							mStrokeAlpha;
+	FLOAT							mFillAlpha;
 	GRAPHICS_STATE_BLENDMODE			mBlendMode;
     CHE_PDF_DictionaryPtr               mSMask;
 };
@@ -168,9 +168,9 @@ private:
 class CHE_PDF_GState : public CHE_Object
 {
 public:
-	CHE_PDF_GState( CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_GState( CHE_Allocator * pAllocator = nullptr )
 		: CHE_Object(pAllocator), mFlag(0), mRenderIntents(RI_AbsoluteColorimetric), mFlatness(0),
-		mpStrokeState(NULL), mpTextState(NULL), mpClipState(NULL), mpExtState(NULL) {}
+		mpStrokeState(nullptr), mpTextState(nullptr), mpClipState(nullptr), mpExtState(nullptr) {}
 
 	~CHE_PDF_GState();
 
@@ -178,60 +178,60 @@ public:
 
 	CHE_Matrix GetMatrix() const { return mMatrix; }; 
 	GRAPHICS_STATE_RENDERINTENTS GetRenderIntents() const { return mRenderIntents; }
-	HE_FLOAT GetFlatness() const { return mFlatness; }
+	FLOAT GetFlatness() const { return mFlatness; }
 
 	/*
 	*	@breif	获取图形状态的填充颜色
 	*	@param	用于接收返回值的颜色对象的引用
-	*	@return HE_VOID
+	*	@return void
 	*	@remark	如果该图形状态中没有包含填充颜色的信息，则返回一个当前颜色空间下面的默认颜色
 	*/
-	HE_VOID	GetFillColor( CHE_PDF_Color & colorRet ) const;
-	HE_VOID GetStrokeColor( CHE_PDF_Color & colorRet ) const;
-	HE_VOID GetFillColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const;
-	HE_VOID GetStrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const;
-	HE_VOID	GetLineWidth( HE_FLOAT & lineWidthRet ) const;
-	HE_VOID GetMiterLimit( HE_FLOAT & miterLimitRet ) const;
-	HE_VOID GetLineCap( GRAPHICS_STATE_LINECAP & lineCapRet ) const;
-	HE_VOID GetLineJoin( GRAPHICS_STATE_LINEJOIN & lineJoinRet ) const;
-	HE_VOID GetLineDash( GRAPHICS_STATE_DASHPATTERN & lineDash ) const;
-	HE_VOID GetTextMatrix( CHE_Matrix & matrixRet ) const;
-	HE_VOID GetTextFontSize( HE_FLOAT & fontSizeRet ) const;
-	HE_VOID GetTextCharSpace( HE_FLOAT & charSpaceRet ) const;
-	HE_VOID GetTextWordSpace( HE_FLOAT & wordSpaceRet ) const;
-	HE_VOID GetTextScaling( HE_FLOAT & scalingRet ) const;
-	HE_VOID GetTextRise( HE_FLOAT & riseRet ) const;
+	void	GetFillColor( CHE_PDF_Color & colorRet ) const;
+	void GetStrokeColor( CHE_PDF_Color & colorRet ) const;
+	void GetFillColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const;
+	void GetStrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const;
+	void	GetLineWidth( FLOAT & lineWidthRet ) const;
+	void GetMiterLimit( FLOAT & miterLimitRet ) const;
+	void GetLineCap( GRAPHICS_STATE_LINECAP & lineCapRet ) const;
+	void GetLineJoin( GRAPHICS_STATE_LINEJOIN & lineJoinRet ) const;
+	void GetLineDash( GRAPHICS_STATE_DASHPATTERN & lineDash ) const;
+	void GetTextMatrix( CHE_Matrix & matrixRet ) const;
+	void GetTextFontSize( FLOAT & fontSizeRet ) const;
+	void GetTextCharSpace( FLOAT & charSpaceRet ) const;
+	void GetTextWordSpace( FLOAT & wordSpaceRet ) const;
+	void GetTextScaling( FLOAT & scalingRet ) const;
+	void GetTextRise( FLOAT & riseRet ) const;
 	CHE_PDF_Font * GetTextFont() const;
-	HE_VOID GetTextFontResName( CHE_ByteString & resNameRet ) const;
-	HE_VOID GetTextRenderMode( GRAPHICS_STATE_TEXTRENDERMODE & rm ) const;
+	void GetTextFontResName( CHE_ByteString & resNameRet ) const;
+	void GetTextRenderMode( GRAPHICS_STATE_TEXTRENDERMODE & rm ) const;
 	CHE_PDF_ClipState * GetClipState() const { return mpClipState; }
 	CHE_PDF_ExtGStateStack * GetExtGState() const { return mpExtState; }
 
-	HE_VOID SetMatrix( const CHE_Matrix & matirx );
-	HE_VOID SetRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri );
-	HE_VOID SetFlatness( const HE_FLOAT & flatness );
-	HE_BOOL SetFillColor( const CHE_PDF_Color & color );
-	HE_BOOL SetStrokeColor( const CHE_PDF_Color & color );
-	HE_BOOL SetFillColorSpace( CHE_PDF_ColorSpacePtr ColorSpace );
-	HE_BOOL SetStrokeColorSpace( CHE_PDF_ColorSpacePtr ColorSpace );
-	HE_VOID	SetLineWidth( const HE_FLOAT & lineWidth );
-	HE_VOID	SetMiterLimit( const HE_FLOAT & miterLimit );
-	HE_VOID	SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
-	HE_VOID	SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
-	HE_VOID	SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
-	HE_VOID SetTextMatrix( const CHE_Matrix & matrix );
-	HE_VOID SetTextFontSize( const HE_FLOAT & size );
-	HE_VOID SetTextFont( CHE_PDF_Font * pFont );
-	HE_VOID SetTextFontResName( const CHE_ByteString & resName );
-	HE_VOID SetTextCharSpace( const HE_FLOAT & charSpace );
-	HE_VOID SetTextWordSpace( const HE_FLOAT & wordSpace );
-	HE_VOID SetTextScaling( const HE_FLOAT & scaling );
-	HE_VOID SetTextRise( const HE_FLOAT & rise );
-	HE_VOID SetTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm );
-	HE_BOOL PushClipElement( CHE_PDF_ContentObject * pElement );
-	HE_BOOL PushExtGState( const CHE_ByteString & resName, const CHE_PDF_ExtGStatePtr & extgstate );
+	void SetMatrix( const CHE_Matrix & matirx );
+	void SetRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri );
+	void SetFlatness( const FLOAT & flatness );
+	bool SetFillColor( const CHE_PDF_Color & color );
+	bool SetStrokeColor( const CHE_PDF_Color & color );
+	bool SetFillColorSpace( CHE_PDF_ColorSpacePtr ColorSpace );
+	bool SetStrokeColorSpace( CHE_PDF_ColorSpacePtr ColorSpace );
+	void	SetLineWidth( const FLOAT & lineWidth );
+	void	SetMiterLimit( const FLOAT & miterLimit );
+	void	SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
+	void	SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
+	void	SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
+	void SetTextMatrix( const CHE_Matrix & matrix );
+	void SetTextFontSize( const FLOAT & size );
+	void SetTextFont( CHE_PDF_Font * pFont );
+	void SetTextFontResName( const CHE_ByteString & resName );
+	void SetTextCharSpace( const FLOAT & charSpace );
+	void SetTextWordSpace( const FLOAT & wordSpace );
+	void SetTextScaling( const FLOAT & scaling );
+	void SetTextRise( const FLOAT & rise );
+	void SetTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm );
+	bool PushClipElement( CHE_PDF_ContentObject * pElement );
+	bool PushExtGState( const CHE_ByteString & resName, const CHE_PDF_ExtGStatePtr & extgstate );
 
-	HE_VOID	CopyTextState( CHE_PDF_GState * pGState );
+	void	CopyTextState( CHE_PDF_GState * pGState );
 
 private:
 	CHE_PDF_StrokeState *			MakeStrokeState();
@@ -239,8 +239,8 @@ private:
 	CHE_PDF_ClipState *				MakeClipState();
 	CHE_PDF_ExtGStateStack *		MakeExtGState();
 
-	HE_UINT32						mFlag;
-	HE_FLOAT						mFlatness;
+	uint32						mFlag;
+	FLOAT						mFlatness;
 	GRAPHICS_STATE_RENDERINTENTS	mRenderIntents;
 	CHE_Matrix						mMatrix;
 	CHE_PDF_Color					mFillColor;
@@ -253,35 +253,35 @@ private:
 	CHE_PDF_ExtGStateStack *		mpExtState;
 };
 
-HE_BOOL	IsFloatEqual( const HE_FLOAT &, const HE_FLOAT & );
+bool	IsFloatEqual( const FLOAT &, const FLOAT & );
 
-HE_BOOL IsDefLineWidth( const HE_FLOAT & lineWidth );
-HE_BOOL IsDefLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
-HE_BOOL IsDefLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJoin );
-HE_BOOL IsDefMiterLimit( const HE_FLOAT & miterLimit );
-HE_BOOL IsDefLineDash( const GRAPHICS_STATE_DASHPATTERN & lineDash );
+bool IsDefLineWidth( const FLOAT & lineWidth );
+bool IsDefLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
+bool IsDefLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJoin );
+bool IsDefMiterLimit( const FLOAT & miterLimit );
+bool IsDefLineDash( const GRAPHICS_STATE_DASHPATTERN & lineDash );
 
-HE_BOOL IsDefMatrix( const CHE_Matrix & textMatrix );
+bool IsDefMatrix( const CHE_Matrix & textMatrix );
 
-HE_BOOL IsDefTextCharSpace( const HE_FLOAT & charSpace );
-HE_BOOL IsDefTextWrodSpace( const HE_FLOAT & wordSpace );
-HE_BOOL IsDefTextRise( const HE_FLOAT & textRise );
-HE_BOOL IsDefTextScaling( const HE_FLOAT & textScaling );
-HE_BOOL IsDefTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm );
+bool IsDefTextCharSpace( const FLOAT & charSpace );
+bool IsDefTextWrodSpace( const FLOAT & wordSpace );
+bool IsDefTextRise( const FLOAT & textRise );
+bool IsDefTextScaling( const FLOAT & textScaling );
+bool IsDefTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm );
 
-HE_BOOL IsDefFlatness( const HE_FLOAT & flatness );
-HE_BOOL IsDefRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri );
+bool IsDefFlatness( const FLOAT & flatness );
+bool IsDefRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri );
 
-HE_BOOL IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace );
-HE_BOOL IsDefColor( const CHE_PDF_Color & color );
+bool IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace );
+bool IsDefColor( const CHE_PDF_Color & color );
 
-HE_BOOL	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 );
-HE_BOOL IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 );
+bool	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 );
+bool IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 );
 
-HE_BOOL IsExtGStateEqual( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 );
-HE_BOOL IsExtGStateContinue( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 );
+bool IsExtGStateEqual( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 );
+bool IsExtGStateContinue( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 );
 
-HE_BOOL IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 );
-HE_BOOL IsClipStateContinue( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 );
+bool IsClipStateEqual( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 );
+bool IsClipStateContinue( const CHE_PDF_ClipState * pClipGS1, const CHE_PDF_ClipState * pClipGS2 );
 
 #endif

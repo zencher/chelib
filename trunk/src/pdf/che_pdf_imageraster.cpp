@@ -1,7 +1,7 @@
 #include "../../include/pdf/che_pdf_imageraster.h"
 
 
-CHE_PDF_ImageRaster::CHE_PDF_ImageRaster( CHE_Allocator * pAllocator/*= NULL*/ )
+CHE_PDF_ImageRaster::CHE_PDF_ImageRaster( CHE_Allocator * pAllocator/*= nullptr*/ )
 	: CHE_Object( pAllocator ) {}
 
 CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmap( const CHE_PDF_ImageXObjectPtr & imgPtr )
@@ -12,12 +12,12 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmap( const CHE_PDF_ImageXObjectPtr & img
 CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapImp( const CHE_PDF_ImageXObjectPtr & imgPtr )
 {
 	//todo
-	return NULL;
+	return nullptr;
 }
 
 CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapSimpleImp( const CHE_PDF_ImageXObjectPtr & imgPtr )
 {
-	CHE_Bitmap * pBitmapRet = NULL;
+	CHE_Bitmap * pBitmapRet = nullptr;
 	if ( imgPtr )
 	{
 		if ( imgPtr->IsMask() )
@@ -36,13 +36,13 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapSimpleImp( const CHE_PDF_ImageXObject
 
 		CHE_PDF_Color color;
 		CHE_PDF_ColorSpacePtr csPtr = imgPtr->GetColorspace();
-		HE_ULONG width = imgPtr->GetWidth();
-		HE_ULONG height = imgPtr->GetHeight();
-		HE_ULONG bpc = imgPtr->GetBPC();
-		HE_LPBYTE pByte = imgPtr->GetData();
-		HE_ULONG byteSize = imgPtr->GetSize();
+		size_t width = imgPtr->GetWidth();
+		size_t height = imgPtr->GetHeight();
+		size_t bpc = imgPtr->GetBPC();
+		PBYTE pByte = imgPtr->GetData();
+		size_t byteSize = imgPtr->GetSize();
 
-		HE_ULONG cscc = 0;
+		size_t cscc = 0;
 		PDF_COLORSPACE_TYPE type = COLORSPACE_DEVICE_GRAY;
 		if ( !csPtr )
 		{
@@ -77,17 +77,17 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapSimpleImp( const CHE_PDF_ImageXObject
 		pBitmapRet = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
 		pBitmapRet->Create( width, height, BITMAP_DEPTH_32BPP, BITMAP_DIRECTION_DOWN );
 		
-		HE_ULONG stride = (width * cscc * bpc + 7)/8;
-		HE_ULONG x = 0;
-		HE_ULONG y = 0;
-		HE_ULONG lineOffset = 0;
-		HE_ULONG byteOffset = 0;
-		HE_ULONG bitOffset = 0;
-		HE_BYTE byte = 0;
-		HE_BYTE tmpByte = 0;
-		HE_BYTE crange = ((1<<bpc) - 1);
-		HE_FLOAT cf = 0.0f;
-		HE_ARGB argb = 0;
+		size_t stride = (width * cscc * bpc + 7)/8;
+		size_t x = 0;
+		size_t y = 0;
+		size_t lineOffset = 0;
+		size_t byteOffset = 0;
+		size_t bitOffset = 0;
+		BYTE byte = 0;
+		BYTE tmpByte = 0;
+		BYTE crange = ((1<<bpc) - 1);
+		FLOAT cf = 0.0f;
+		ARGB argb = 0;
 
 		for ( y = 0; y < height; ++y )
 		{
@@ -125,18 +125,18 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapSimpleImp( const CHE_PDF_ImageXObject
 
 CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapNoMask( const CHE_PDF_ImageXObjectPtr & imgPtr )
 {
-	CHE_Bitmap * pBitmapRet = NULL;
+	CHE_Bitmap * pBitmapRet = nullptr;
 	if ( imgPtr )
 	{
 		CHE_PDF_Color color;
 		CHE_PDF_ColorSpacePtr csPtr = imgPtr->GetColorspace();
-		HE_ULONG width = imgPtr->GetWidth();
-		HE_ULONG height = imgPtr->GetHeight();
-		HE_ULONG bpc = imgPtr->GetBPC();
-		HE_LPBYTE pByte = imgPtr->GetData();
-		HE_ULONG byteSize = imgPtr->GetSize();
+		size_t width = imgPtr->GetWidth();
+		size_t height = imgPtr->GetHeight();
+		size_t bpc = imgPtr->GetBPC();
+		PBYTE pByte = imgPtr->GetData();
+		size_t byteSize = imgPtr->GetSize();
 
-		HE_ULONG cscc = 0;
+		size_t cscc = 0;
 		PDF_COLORSPACE_TYPE type = COLORSPACE_DEVICE_GRAY;
 		if ( !csPtr )
 		{
@@ -167,17 +167,17 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapNoMask( const CHE_PDF_ImageXObjectPtr
 		pBitmapRet = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
 		pBitmapRet->Create( width, height, BITMAP_DEPTH_32BPP, BITMAP_DIRECTION_DOWN );
 
-		HE_ULONG stride = (width * cscc * bpc + 7)/8;
-		HE_ULONG x = 0;
-		HE_ULONG y = 0;
-		HE_ULONG lineOffset = 0;
-		HE_ULONG byteOffset = 0;
-		HE_ULONG bitOffset = 0;
-		HE_BYTE byte = 0;
-		HE_BYTE tmpByte = 0;
-		HE_BYTE crange = ((1<<bpc) - 1);
-		HE_FLOAT cf = 0.0f;
-		HE_ARGB argb = 0;
+		size_t stride = (width * cscc * bpc + 7)/8;
+		size_t x = 0;
+		size_t y = 0;
+		size_t lineOffset = 0;
+		size_t byteOffset = 0;
+		size_t bitOffset = 0;
+		BYTE byte = 0;
+		BYTE tmpByte = 0;
+		BYTE crange = ((1<<bpc) - 1);
+		FLOAT cf = 0.0f;
+		ARGB argb = 0;
 
 		for ( y = 0; y < height; ++y )
 		{
@@ -215,7 +215,7 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapNoMask( const CHE_PDF_ImageXObjectPtr
 
 CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapAsMask( const CHE_PDF_ImageXObjectPtr & imgPtr )
 {
-	CHE_Bitmap * pBitmapRet = NULL;
+	CHE_Bitmap * pBitmapRet = nullptr;
 	if ( imgPtr )
 	{
 		if ( ! imgPtr->IsMask() )
@@ -225,15 +225,15 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapAsMask( const CHE_PDF_ImageXObjectPtr
 
 		CHE_PDF_Color color;
 		CHE_PDF_ColorSpacePtr csPtr = imgPtr->GetColorspace();
-		HE_ULONG width = imgPtr->GetWidth();
-		HE_ULONG height = imgPtr->GetHeight();
-		HE_ULONG bpc = imgPtr->GetBPC();
-		HE_LPBYTE pByte = imgPtr->GetData();
-		HE_ULONG byteSize = imgPtr->GetSize();
-		HE_ULONG stride = (width * bpc + 7)/8;
-		HE_ARGB	colorARGB1 = 0xFF000000;
-		HE_ARGB	colorARGB2 = 0xFF000000;
-		BOOL bMaskDecode = FALSE;
+		size_t width = imgPtr->GetWidth();
+		size_t height = imgPtr->GetHeight();
+		size_t bpc = imgPtr->GetBPC();
+		PBYTE pByte = imgPtr->GetData();
+		size_t byteSize = imgPtr->GetSize();
+		size_t stride = (width * bpc + 7)/8;
+		ARGB	colorARGB1 = 0xFF000000;
+		ARGB	colorARGB2 = 0xFF000000;
+		BOOL bMaskDecode = false;
 		if ( imgPtr->GetDecodeArray() )
 		{
 			CHE_PDF_ObjectPtr objPtr;
@@ -266,14 +266,14 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapAsMask( const CHE_PDF_ImageXObjectPtr
 		pBitmapRet = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
 		pBitmapRet->Create( width, height, BITMAP_DEPTH_32BPP, BITMAP_DIRECTION_DOWN );
 
-		HE_ULONG x = 0;
-		HE_ULONG y = 0;
-		HE_ULONG lineOffset = 0;
-		HE_ULONG byteOffset = 0;
-		HE_ULONG bitOffset = 0;
-		HE_BYTE byte = 0;
-		HE_BYTE crange = ((1<<bpc) - 1);
-		HE_ARGB * pColors = GetAllocator()->NewArray<HE_ARGB>( width );
+		size_t x = 0;
+		size_t y = 0;
+		size_t lineOffset = 0;
+		size_t byteOffset = 0;
+		size_t bitOffset = 0;
+		BYTE byte = 0;
+		BYTE crange = ((1<<bpc) - 1);
+		ARGB * pColors = GetAllocator()->NewArray<ARGB>( width );
 
 		if ( bpc == 8 )
 		{
@@ -336,13 +336,13 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapAsMask( const CHE_PDF_ImageXObjectPtr
 	return pBitmapRet;
 }
 
-CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr, HE_BOOL bExplicit/*= false*/)
+CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr, bool bExplicit/*= false*/)
 {
-	CHE_Bitmap * pBitmapRet = NULL;
+	CHE_Bitmap * pBitmapRet = nullptr;
 	if ( imgPtr && maskPtr )
 	{
 		CHE_Bitmap * pBitmapS = GetBitmapNoMask( imgPtr );
-		if ( pBitmapS == NULL )
+		if ( pBitmapS == nullptr )
 		{
 			return pBitmapRet;
 		}else{
@@ -351,8 +351,8 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObj
 
 		
 		//获得maskPtr的数据并作为bitmaps的alpha通道
-		HE_ULONG width = maskPtr->GetWidth();
-		HE_ULONG height = maskPtr->GetHeight();
+		size_t width = maskPtr->GetWidth();
+		size_t height = maskPtr->GetHeight();
 
 		if ( width != imgPtr->GetWidth() || height != imgPtr->GetHeight() )
 		{
@@ -361,13 +361,13 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObj
 			pBitmapRet = pBitmapS;
 		}
 
-		HE_ULONG bpc = maskPtr->GetBPC();
-		HE_LPBYTE pByte = maskPtr->GetData();
-		HE_ULONG byteSize = maskPtr->GetSize();
-		HE_ULONG stride = (width * bpc + 7)/8;
-		HE_ARGB * pColors = GetAllocator()->NewArray<HE_ARGB>( width );
+		size_t bpc = maskPtr->GetBPC();
+		PBYTE pByte = maskPtr->GetData();
+		size_t byteSize = maskPtr->GetSize();
+		size_t stride = (width * bpc + 7)/8;
+		ARGB * pColors = GetAllocator()->NewArray<ARGB>( width );
 
-		BOOL bMaskDecode = FALSE;
+		BOOL bMaskDecode = false;
 		if ( maskPtr->GetDecodeArray() )
 		{
 			CHE_PDF_ObjectPtr objPtr;
@@ -382,21 +382,21 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObj
 			}
 		}
 
-		if ( bExplicit == FALSE )
+		if ( bExplicit == false )
 		{
 			bMaskDecode = !bMaskDecode;
 		}
 
-		HE_ULONG x = 0;
-		HE_ULONG y = 0;
-		HE_ULONG lineOffset = 0;
-		HE_ULONG byteOffset = 0;
-		HE_ULONG bitOffset = 0;
-		HE_BYTE byte = 0;
-		HE_BYTE tmpByte = 0;
-		HE_BYTE crange = ((1<<bpc) - 1);
-		HE_ARGB argb = 0xFF000000;
-		HE_ARGB tmpArgb = 0xFF000000;
+		size_t x = 0;
+		size_t y = 0;
+		size_t lineOffset = 0;
+		size_t byteOffset = 0;
+		size_t bitOffset = 0;
+		BYTE byte = 0;
+		BYTE tmpByte = 0;
+		BYTE crange = ((1<<bpc) - 1);
+		ARGB argb = 0xFF000000;
+		ARGB tmpArgb = 0xFF000000;
 
 		if ( bpc == 8 )
 		{
@@ -429,7 +429,7 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObj
 				for ( byteOffset = 0; byteOffset < stride; ++byteOffset )
 				{
 					byte = *(pByte + lineOffset + byteOffset);
-					for ( HE_ULONG j = 0; j < 2; ++j )
+					for ( size_t j = 0; j < 2; ++j )
 					{
 						tmpByte = ((byte>>(1-j)*4)&0x0F)*255.0f;
 						if ( bMaskDecode )
@@ -459,7 +459,7 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObj
 				for ( byteOffset = 0; byteOffset < stride; ++byteOffset )
 				{
 					byte = *(pByte + lineOffset + byteOffset);
-					for ( HE_ULONG j = 0; j < 4; ++j )
+					for ( size_t j = 0; j < 4; ++j )
 					{	
 						tmpByte = ((byte>>((3-j)*2))&0x03)*255.0f;
 						if ( bMaskDecode )
@@ -489,7 +489,7 @@ CHE_Bitmap * CHE_PDF_ImageRaster::GetBitmapWithImageMask(const CHE_PDF_ImageXObj
 				for ( byteOffset = 0; byteOffset < stride; ++byteOffset )
 				{
 					byte = *(pByte + lineOffset + byteOffset);
-					for ( HE_ULONG j = 0; j < 8; ++j )
+					for ( size_t j = 0; j < 8; ++j )
 					{
 						tmpByte = ((byte>>(7-j)) & 0x01) * 0xFF;
 						if ( bMaskDecode )

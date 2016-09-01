@@ -2,7 +2,7 @@
 
 using namespace std;
 
-CHE_PDF_ObjectPtr CHE_PDF_NumberTree::GetObject(HE_INT32 num)
+CHE_PDF_ObjectPtr CHE_PDF_NumberTree::GetObject(int32 num)
 {
 	CHE_PDF_ObjectPtr objRet;
 	if (!mDictPtr)
@@ -10,7 +10,7 @@ CHE_PDF_ObjectPtr CHE_PDF_NumberTree::GetObject(HE_INT32 num)
 		return objRet;
 	}
 
-	map<HE_INT32, CHE_PDF_ObjectPtr>::iterator it;
+	map<int32, CHE_PDF_ObjectPtr>::iterator it;
 	it = mMap.find(num);
 	if (it != mMap.end())
 	{
@@ -22,11 +22,11 @@ CHE_PDF_ObjectPtr CHE_PDF_NumberTree::GetObject(HE_INT32 num)
 	return objRet;
 }
 
-HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet)
+bool CHE_PDF_NumberTree::Find(int32 num, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet)
 {
 	CHE_PDF_ObjectPtr obj;
 	CHE_PDF_ArrayPtr arr;
-	HE_INT32 num1, num2;
+	int32 num1, num2;
 	obj = dict->GetElement( "Limits", OBJ_TYPE_ARRAY );
 	if ( obj )
 	{
@@ -41,7 +41,7 @@ HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dic
 			if ( obj )
 			{
 				arr = obj->GetArrayPtr();
-				for ( HE_UINT32 i = 0; i < arr->GetCount(); ++i )
+				for ( uint32 i = 0; i < arr->GetCount(); ++i )
 				{
 					obj = arr->GetElement( i, OBJ_TYPE_DICTIONARY );
 					if ( obj )
@@ -58,7 +58,7 @@ HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dic
 			if ( obj )
 			{
 				arr = obj->GetArrayPtr();
-				for ( HE_UINT32 i = 0; i < arr->GetCount(); i+=2 )
+				for ( uint32 i = 0; i < arr->GetCount(); i+=2 )
 				{
 					obj = arr->GetElement( i, OBJ_TYPE_NUMBER );
 					if ( obj )
@@ -72,7 +72,7 @@ HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dic
 					}
 				}
 			}
-			map<HE_INT32,CHE_PDF_ObjectPtr>::iterator it;
+			map<int32,CHE_PDF_ObjectPtr>::iterator it;
 			it = mMap.find( num );
 			if ( it != mMap.end() )
 			{
@@ -80,14 +80,14 @@ HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dic
 				return TRUE;
 			}
 		}
-		return FALSE;
+		return false;
 	}
 		
 	obj = dict->GetElement( "Kids", OBJ_TYPE_ARRAY );
 	if ( obj )
 	{
 		arr = obj->GetArrayPtr();
-		for ( HE_UINT32 i = 0; i < arr->GetCount(); ++i )
+		for ( uint32 i = 0; i < arr->GetCount(); ++i )
 		{
 			obj = arr->GetElement( i, OBJ_TYPE_DICTIONARY );
 			if ( obj )
@@ -99,12 +99,12 @@ HE_BOOL CHE_PDF_NumberTree::Find(HE_INT32 num, const CHE_PDF_DictionaryPtr & dic
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_NumberTree::Parse(const CHE_PDF_DictionaryPtr & dict)
+bool CHE_PDF_NumberTree::Parse(const CHE_PDF_DictionaryPtr & dict)
 {
-	HE_INT32 num;
+	int32 num;
 	CHE_PDF_ObjectPtr obj;
 	CHE_PDF_ArrayPtr arr;
 	
@@ -112,7 +112,7 @@ HE_BOOL CHE_PDF_NumberTree::Parse(const CHE_PDF_DictionaryPtr & dict)
 	if (obj)
 	{
 		arr = obj->GetArrayPtr();
-		for (HE_UINT32 i = 0; i < arr->GetCount(); i += 2)
+		for (uint32 i = 0; i < arr->GetCount(); i += 2)
 		{
 			obj = arr->GetElement(i, OBJ_TYPE_NUMBER);
 			if (obj)
@@ -130,7 +130,7 @@ HE_BOOL CHE_PDF_NumberTree::Parse(const CHE_PDF_DictionaryPtr & dict)
 	if (obj)
 	{
 		arr = obj->GetArrayPtr();
-		for (HE_UINT32 i = 0; i < arr->GetCount(); ++i)
+		for (uint32 i = 0; i < arr->GetCount(); ++i)
 		{
 			obj = arr->GetElement(i, OBJ_TYPE_DICTIONARY);
 			if (obj)
@@ -142,7 +142,7 @@ HE_BOOL CHE_PDF_NumberTree::Parse(const CHE_PDF_DictionaryPtr & dict)
 	return true;
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_NumberTree::First(HE_INT32 & ret)
+CHE_PDF_ObjectPtr CHE_PDF_NumberTree::First(int32 & ret)
 {
 	CHE_PDF_ObjectPtr obj;
 	mIt = mMap.begin();
@@ -154,7 +154,7 @@ CHE_PDF_ObjectPtr CHE_PDF_NumberTree::First(HE_INT32 & ret)
 	return obj;
 }
 
-CHE_PDF_ObjectPtr CHE_PDF_NumberTree::Next(HE_INT32 & ret)
+CHE_PDF_ObjectPtr CHE_PDF_NumberTree::Next(int32 & ret)
 {
 	CHE_PDF_ObjectPtr obj;
 	++mIt;

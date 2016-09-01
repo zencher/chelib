@@ -1,12 +1,12 @@
 #include "../../include/pdf/che_pdf_image.h"
 
-CHE_PDF_ReferencePtr CHE_PDF_Image::InsertImageToFile(	CHE_PDF_File * pFile, PDF_IMAGE_TYPE type, HE_ULONG bpc,
-														HE_ULONG width, HE_ULONG height, HE_LPBYTE pData, HE_ULONG size,
+CHE_PDF_ReferencePtr CHE_PDF_Image::InsertImageToFile(	CHE_PDF_File * pFile, PDF_IMAGE_TYPE type, size_t bpc,
+														size_t width, size_t height, PBYTE pData, size_t size,
 														CHE_PDF_ReferencePtr mask )
 {
 	CHE_PDF_ReferencePtr refPtrRet;
 
-	if ( pFile == NULL )
+	if ( pFile == nullptr )
 	{
 		return refPtrRet;
 	}
@@ -28,21 +28,21 @@ CHE_PDF_ReferencePtr CHE_PDF_Image::InsertImageToFile(	CHE_PDF_File * pFile, PDF
 
 	dictPtr = streamPtr->GetDictPtr();
 
-	dictPtr->SetAtName( "Type", "XObject" );
-	dictPtr->SetAtName( "Subtype", "Image" );
-	dictPtr->SetAtInteger( "Width", (HE_INT32)width );
-	dictPtr->SetAtInteger( "Height", (HE_INT32)height );
-	dictPtr->SetAtInteger( "BitsPerComponent", (HE_INT32)bpc );
-	dictPtr->SetAtName( "ColorSpace", "DeviceRGB" );
+	dictPtr->SetName( "Type", "XObject" );
+	dictPtr->SetName( "Subtype", "Image" );
+	dictPtr->SetInteger( "Width", (int32)width );
+	dictPtr->SetInteger( "Height", (int32)height );
+	dictPtr->SetInteger( "BitsPerComponent", (int32)bpc );
+	dictPtr->SetName( "ColorSpace", "DeviceRGB" );
 
 	if ( mask )
 	{
-		dictPtr->SetAtReference( "SoftMask", mask->GetRefNum(), mask->GetGenNum(), pFile );
+		dictPtr->SetReference( "SoftMask", mask->GetRefNum(), mask->GetGenNum(), pFile );
 	}
 	switch ( type )
 	{
 	case IMAGE_JPEG:
-		dictPtr->SetAtName( "Filter", "DCTDecode" );
+		dictPtr->SetName( "Filter", "DCTDecode" );
 		streamPtr->SetRawData( pData, size );
 		break;
 	case IMAGE_BMP:

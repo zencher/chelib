@@ -9,19 +9,19 @@ CHE_PDF_ContentObject::~CHE_PDF_ContentObject()
 	}
 }
 
-HE_BOOL CHE_PDF_ContentObject::SetGState( CHE_PDF_GState * pGSatae )
+bool CHE_PDF_ContentObject::SetGState( CHE_PDF_GState * pGSatae )
 {
 	if ( mpGState )
 	{
 		mpGState->GetAllocator()->Delete( mpGState );
-		mpGState = NULL;
+		mpGState = nullptr;
 	}
 	if ( pGSatae )
 	{
 		mpGState = pGSatae;
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
 
@@ -42,7 +42,7 @@ CHE_PDF_ContentObject * CHE_PDF_Text::Clone() const
 	return pTextRet;
 }
 
-HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
+bool CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 {
 	if ( pObj )
 	{
@@ -50,9 +50,9 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 
 		//获取字体
 		CHE_PDF_Font * pFont = GetGState()->GetTextFont();
-		if ( pFont == NULL )
+		if ( pFont == nullptr )
 		{
-			return FALSE;
+			return false;
 		}
 
 		std::vector<CHE_PDF_ObjectPtr> tmpArray; 
@@ -64,7 +64,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		{
 			CHE_PDF_ArrayPtr pArray = pObj->GetArrayPtr();
 			CHE_PDF_ObjectPtr pObj;
-			for ( HE_ULONG i = 0; i < pArray->GetCount(); ++i )
+			for ( size_t i = 0; i < pArray->GetCount(); ++i )
 			{
 				pObj = pArray->GetElement( i );
 				if ( pObj && ( pObj->GetType() == OBJ_TYPE_STRING || pObj->GetType() == OBJ_TYPE_NUMBER ) )
@@ -74,18 +74,18 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 			}
 		}
 		CHE_ByteString tmpStr;
-		HE_INT32 kerning = 0;
+		int32 kerning = 0;
 		CHE_PDF_TextItem item;
 		if ( pFont->GetFontType() != FONT_TYPE0 )
 		{
-			for ( HE_ULONG i = 0; i < tmpArray.size(); ++i )
+			for ( size_t i = 0; i < tmpArray.size(); ++i )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
 					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
-					for ( HE_ULONG index = 0; index < tmpStr.GetLength(); ++index )
+					for ( size_t index = 0; index < tmpStr.GetLength(); ++index )
 					{
-						item.charCode = HE_BYTE( tmpStr[index] );
+						item.charCode = BYTE( tmpStr[index] );
 						item.gid = 0;
 						item.cid = 0;
 						item.ucs = 0;
@@ -110,20 +110,20 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		else
 		{
 			CHE_PDF_Type0_Font * pType0Font = (CHE_PDF_Type0_Font *)( pFont );
-			for ( HE_ULONG i = 0; i < tmpArray.size(); ++i )
+			for ( size_t i = 0; i < tmpArray.size(); ++i )
 			{
 				if ( tmpArray[i]->GetType() == OBJ_TYPE_STRING )
 				{
 					tmpStr = tmpArray[i]->GetStringPtr()->GetString();
 					item.charCode = 0;
-					HE_BYTE byteCount = 0;
-					for ( HE_ULONG index = 0; index < tmpStr.GetLength(); ++index )
+					BYTE byteCount = 0;
+					for ( size_t index = 0; index < tmpStr.GetLength(); ++index )
 					{
 						++byteCount;
-						item.charCode = ( item.charCode << 8 ) + HE_BYTE( tmpStr[index] );
+						item.charCode = ( item.charCode << 8 ) + BYTE( tmpStr[index] );
 						if ( pFont->GetEncodingType() == FONT_ENCODING_BUILDINCMAP )
 						{
-							if ( pType0Font->IsCode( item.charCode, byteCount ) == FALSE )
+							if ( pType0Font->IsCode( item.charCode, byteCount ) == false )
 							{
 								continue;
 							}
@@ -158,7 +158,7 @@ HE_BOOL CHE_PDF_Text::SetTextObject( const CHE_PDF_ObjectPtr & pObj )
 		}
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
 CHE_Matrix CHE_PDF_Text::GetTextMatrix() const
@@ -169,9 +169,9 @@ CHE_Matrix CHE_PDF_Text::GetTextMatrix() const
 		CHE_Matrix textMatrix;
 		CHE_Matrix ctm;
 		CHE_Matrix tmpMatrix;
-		HE_FLOAT fontSize = 1;
-		HE_FLOAT fontScaling = 100;
-		HE_FLOAT fontRise = 0;
+		FLOAT fontSize = 1;
+		FLOAT fontScaling = 100;
+		FLOAT fontRise = 0;
 		pGState->GetTextMatrix( textMatrix );
 		ctm = pGState->GetMatrix();
 		pGState->GetTextFontSize( fontSize );
@@ -191,7 +191,7 @@ CHE_Matrix CHE_PDF_Text::GetTextMatrix() const
 }
 
 
-CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_ULONG index ) const
+CHE_Matrix CHE_PDF_Text::GetCharMatrix( size_t index ) const
 {
 	if ( index >= mItems.size() )
 	{
@@ -201,17 +201,17 @@ CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_ULONG index ) const
 	if ( pGState )
 	{
 		CHE_PDF_Font * pFont = pGState->GetTextFont();
-		HE_ULONG wMode = 0;
+		size_t wMode = 0;
 		if ( pFont )
 		{
 			wMode = pFont->GetWMode();
 		}
 
-		HE_FLOAT fontCharSpace = 0;
-		HE_FLOAT fontWordSpace = 0;
-		HE_FLOAT fontScaling = 100;
-		HE_FLOAT fontSize = 1;
-		HE_FLOAT fontRise = 0;
+		FLOAT fontCharSpace = 0;
+		FLOAT fontWordSpace = 0;
+		FLOAT fontScaling = 100;
+		FLOAT fontSize = 1;
+		FLOAT fontRise = 0;
 		
 		pGState->GetTextCharSpace( fontCharSpace );
 		pGState->GetTextWordSpace( fontWordSpace );
@@ -220,9 +220,9 @@ CHE_Matrix CHE_PDF_Text::GetCharMatrix( HE_ULONG index ) const
 		pGState->GetTextFontSize( fontSize );
 		pGState->GetTextRise( fontRise );
 
-		HE_FLOAT offset = 0;
-		HE_FLOAT kerning = 0;
-		HE_ULONG i = 0;
+		FLOAT offset = 0;
+		FLOAT kerning = 0;
+		size_t i = 0;
 		for (; i < index; ++i )
 		{
 			offset += mItems[i].width * fontSize + fontCharSpace;	//wMode==1的时候，是不是还加width？
@@ -275,7 +275,7 @@ CHE_Rect CHE_PDF_Text::GetTextRect() const
 {
 	CHE_Rect rect;
 	CHE_Rect tmpRect;
-	for ( HE_ULONG i = 0; i < mItems.size(); ++i )
+	for ( size_t i = 0; i < mItems.size(); ++i )
 	{
 		tmpRect = GetCharRect( i );
 		rect.Union( tmpRect );
@@ -284,12 +284,12 @@ CHE_Rect CHE_PDF_Text::GetTextRect() const
 }
 
 
-CHE_Rect CHE_PDF_Text::GetCharRect( HE_ULONG index ) const
+CHE_Rect CHE_PDF_Text::GetCharRect( size_t index ) const
 {
 	CHE_Rect rect;
 	if (index < mItems.size())
 	{
-        CHE_PDF_Font * pfont = NULL;
+        CHE_PDF_Font * pfont = nullptr;
 		CHE_PDF_GState * pGState = GetGState();
 		if (pGState)
 		{
@@ -311,16 +311,16 @@ CHE_Rect CHE_PDF_Text::GetCharRect( HE_ULONG index ) const
 
 //获得这个字符串对象中包括kerning和字符宽度，间隔等所有数据说产生的offset
 //这个offset还没有被外部的tm、ctm矩阵进行运行。而在使用该offset的地方要进行这个运算。可以直接加在tm里面
-HE_FLOAT CHE_PDF_Text::GetOffSet() const
+FLOAT CHE_PDF_Text::GetOffSet() const
 {
 	CHE_PDF_GState * pGState = GetGState();
 	if ( pGState )
 	{
-		HE_FLOAT fontCharSpace = 0;
-		HE_FLOAT fontWordSpace = 0;
-		HE_FLOAT fontScaling = 100;
-		HE_FLOAT fontSize = 1;
-		HE_FLOAT fontRise = 0;
+		FLOAT fontCharSpace = 0;
+		FLOAT fontWordSpace = 0;
+		FLOAT fontScaling = 100;
+		FLOAT fontSize = 1;
+		FLOAT fontRise = 0;
 		pGState->GetTextCharSpace( fontCharSpace );
 		pGState->GetTextWordSpace( fontWordSpace );
 		pGState->GetTextFontSize( fontSize );
@@ -331,9 +331,9 @@ HE_FLOAT CHE_PDF_Text::GetOffSet() const
 		//这里之所以可以忽略fontSize，fontScaling，fontRise等信息的矩阵的原因是
 		//这些信息所组成的矩阵在乘以offset的矩阵的时候不会影响offset的值（不受放大系数影响）
 
-		HE_FLOAT offset = 0;
-		HE_FLOAT kerning = 0;
-		for ( HE_ULONG i = 0; i < mItems.size(); ++i )
+		FLOAT offset = 0;
+		FLOAT kerning = 0;
+		for ( size_t i = 0; i < mItems.size(); ++i )
 		{
 			offset += mItems[i].width * fontSize + fontCharSpace;
 			if ( mItems[i].ucs == L' ' || mItems[i].charCode == ' ' )
@@ -347,9 +347,9 @@ HE_FLOAT CHE_PDF_Text::GetOffSet() const
 	return 0;
 }
 
-CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( HE_ULONG index )
+CHE_PDF_Path * CHE_PDF_Text::GetGraphPath( size_t index )
 {
-    return NULL;
+    return nullptr;
 }
 
 CHE_PDF_ContentObject * CHE_PDF_Path::Clone() const
@@ -358,7 +358,7 @@ CHE_PDF_ContentObject * CHE_PDF_Path::Clone() const
 	pTmpPath->mType = mType;
 	pTmpPath->mFillMode = mFillMode;
 	pTmpPath->mItems = mItems;
-	pTmpPath->mpGState = NULL;
+	pTmpPath->mpGState = nullptr;
 	if ( mpGState )
 	{
 		pTmpPath->mpGState = mpGState->Clone();
@@ -371,16 +371,16 @@ CHE_PDF_Path::~CHE_PDF_Path()
 	mItems.clear();
 }
 
-CHE_PDF_InlineImage::CHE_PDF_InlineImage( HE_BOOL bMask, HE_ULONG width, HE_ULONG hight, HE_ULONG bpc,
-    HE_LPBYTE pBytes, HE_ULONG size, CHE_PDF_ObjectPtr objPtr, CHE_PDF_ColorSpacePtr colorspace,
-    GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator/*= NULL*/ )
+CHE_PDF_InlineImage::CHE_PDF_InlineImage( bool bMask, size_t width, size_t hight, size_t bpc,
+    PBYTE pBytes, size_t size, CHE_PDF_ObjectPtr objPtr, CHE_PDF_ColorSpacePtr colorspace,
+    GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator/*= nullptr*/ )
 	: CHE_PDF_ContentObject( ContentType_InlineImage, pAllocator ), mbMask( bMask ), mWidth( width ), mHeight( hight ), 
-	mBpc( bpc ), mpData( NULL), mDataSize( 0 ), mDecodeObjPtr( objPtr ), mColorspace(colorspace), mRI(ri)
+	mBpc( bpc ), mpData( nullptr), mDataSize( 0 ), mDecodeObjPtr( objPtr ), mColorspace(colorspace), mRI(ri)
 {
 	if ( pBytes )
 	{
 		mDataSize = size;
-		mpData = GetAllocator()->NewArray<HE_BYTE>( mDataSize );
+		mpData = GetAllocator()->NewArray<BYTE>( mDataSize );
 		memcpy( mpData, pBytes, mDataSize );
 	}
 }
@@ -395,7 +395,7 @@ CHE_PDF_InlineImage::~CHE_PDF_InlineImage()
 
 CHE_PDF_ContentObject * CHE_PDF_InlineImage::Clone() const
 {
-	// 		CHE_PDF_ColorSpace * pTmpColorSpace = NULL;
+	// 		CHE_PDF_ColorSpace * pTmpColorSpace = nullptr;
 	// 		if ( mpColorspace )
 	// 		{
 	// 			pTmpColorSpace = mpColorspace->Clone();
@@ -412,25 +412,25 @@ CHE_PDF_ContentObject * CHE_PDF_InlineImage::Clone() const
 
 CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 {
-	CHE_Bitmap * pBitmapRet = NULL;
+	CHE_Bitmap * pBitmapRet = nullptr;
 	if ( !mColorspace )
 	{
 		return pBitmapRet;
 	}
-	HE_LPBYTE pData = mpData;
-	HE_LPBYTE pTmpByte = NULL;
-	HE_BYTE	tmpByte = 0;
-	HE_ARGB colorARGB = 0xFF000000;
+	PBYTE pData = mpData;
+	PBYTE pTmpByte = nullptr;
+	BYTE	tmpByte = 0;
+	ARGB colorARGB = 0xFF000000;
 	CHE_PDF_Color color;
-	HE_ARGB * pColors = GetAllocator()->NewArray<HE_ARGB>( mWidth );
-	HE_ULONG colorsIndex = 0;
+	ARGB * pColors = GetAllocator()->NewArray<ARGB>( mWidth );
+	size_t colorsIndex = 0;
 	
-	HE_ULONG component = mColorspace->GetComponentCount();
+	size_t component = mColorspace->GetComponentCount();
 	if ( mColorspace->GetColorSpaceType() == COLORSPACE_SPECIAL_INDEXED )
 	{
 		component = 1;
 	}
-	HE_ULONG stride = (mWidth * component * mBpc + 7)/8;
+	size_t stride = (mWidth * component * mBpc + 7)/8;
 
 	pBitmapRet = GetAllocator()->New<CHE_Bitmap>( GetAllocator() );
 	pBitmapRet->Create( mWidth, mHeight, BITMAP_DEPTH_24BPP, BITMAP_DIRECTION_DOWN );
@@ -438,13 +438,13 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 	if ( mBpc == 8 )
 	{
 		color.Clear();
-		for ( HE_ULONG y = 0; y < mHeight; ++y )
+		for ( size_t y = 0; y < mHeight; ++y )
 		{
 			colorsIndex = 0;
-			for ( HE_ULONG x = 0 ; x < mWidth; ++x )
+			for ( size_t x = 0 ; x < mWidth; ++x )
 			{
 				pTmpByte = pData + ( ( y * mWidth + x ) * component );
-				for ( HE_ULONG i = 0; i < component; ++i )
+				for ( size_t i = 0; i < component; ++i )
 				{
 					if ( mColorspace->GetColorSpaceType() == COLORSPACE_SPECIAL_INDEXED )
 					{
@@ -463,15 +463,15 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 	}else if ( mBpc == 4 )
 	{
 		color.Clear();
-		for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
+		for ( size_t y = 0, x = 0; y < mHeight; ++y )
 		{
 			pTmpByte = pData + ( y * stride );
 			colorsIndex = 0;
 			x = 0;
-			for ( HE_ULONG i = 0; i < stride; ++i )
+			for ( size_t i = 0; i < stride; ++i )
 			{
 				tmpByte = *(pTmpByte + i);
-				for ( HE_ULONG j = 0; j < 2; ++j )
+				for ( size_t j = 0; j < 2; ++j )
 				{
 					if ( mColorspace->GetColorSpaceType() == COLORSPACE_SPECIAL_INDEXED )
 					{
@@ -497,15 +497,15 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 	}else if ( mBpc == 2 )
 	{
 		color.Clear();
-		for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
+		for ( size_t y = 0, x = 0; y < mHeight; ++y )
 		{
 			colorsIndex = 0;
 			pTmpByte = pData + ( y * stride );
 			x = 0;
-			for ( HE_ULONG i = 0; i < stride; ++i )
+			for ( size_t i = 0; i < stride; ++i )
 			{
 				tmpByte = *(pTmpByte + i);
-				for ( HE_ULONG j = 0; j < 4; ++j )
+				for ( size_t j = 0; j < 4; ++j )
 				{
 					if ( mColorspace->GetColorSpaceType() == COLORSPACE_SPECIAL_INDEXED )
 					{
@@ -531,15 +531,15 @@ CHE_Bitmap * CHE_PDF_InlineImage::GetBitmap()
 	}else if ( mBpc == 1 )
 	{
 		color.Clear();
-		for ( HE_ULONG y = 0, x = 0; y < mHeight; ++y )
+		for ( size_t y = 0, x = 0; y < mHeight; ++y )
 		{
 			colorsIndex = 0;
 			pTmpByte = pData + ( y * stride );
 			x = 0;
-			for ( HE_ULONG i = 0; i < stride; ++i )
+			for ( size_t i = 0; i < stride; ++i )
 			{
 				tmpByte = *(pTmpByte + i);
-				for ( HE_ULONG j = 0; j < 8; ++j )
+				for ( size_t j = 0; j < 8; ++j )
 				{
 					color.Push( ( tmpByte >> (7-j) ) & 0x01  );
 					if ( color.GetComponentCount() == component )

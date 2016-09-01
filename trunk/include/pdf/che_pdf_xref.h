@@ -22,51 +22,51 @@ class CHE_PDF_XRefEntry
 {
 public:
 	CHE_PDF_XRefEntry();
-	CHE_PDF_XRefEntry( PDF_XREF_ENTRY_TYPE type, HE_ULONG objNum, HE_ULONG f1, HE_ULONG f2 );
+	CHE_PDF_XRefEntry( PDF_XREF_ENTRY_TYPE type, size_t objNum, size_t f1, size_t f2 );
 
 	PDF_XREF_ENTRY_TYPE		GetType() const { return Type; }
-	HE_ULONG				GetObjNum() const { return ObjNum; }
-	HE_ULONG				GetOffset() const { return Field1; }
-	HE_ULONG				GetGenNum() const { return Field2; }
-	HE_ULONG				GetParentObjNum() const { return Field1; }
-	HE_ULONG				GetIndex() const { return Field2; }
+	size_t                  GetObjNum() const { return ObjNum; }
+	size_t                  GetOffset() const { return Field1; }
+	size_t                  GetGenNum() const { return Field2; }
+	size_t                  GetParentObjNum() const { return Field1; }
+	size_t                  GetIndex() const { return Field2; }
 
 	PDF_XREF_ENTRY_TYPE		Type;
-	HE_ULONG				ObjNum;
-	HE_ULONG				Field1;
-	HE_ULONG				Field2;
+	size_t                  ObjNum;
+	size_t                  Field1;
+	size_t                  Field2;
 };
 
 
 class CHE_PDF_XRefTable : public CHE_Object
 {
 public:
-	CHE_PDF_XRefTable( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_XRefTable( CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_XRefTable();
 
-	HE_BOOL					Add( const CHE_PDF_XRefEntry & entry );
-	HE_VOID					AddNewEntry( CHE_PDF_XRefEntry & entryRet );
-	HE_BOOL					AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict );
+	bool					Add( const CHE_PDF_XRefEntry & entry );
+	void					AddNewEntry( CHE_PDF_XRefEntry & entryRet );
+	bool					AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict );
 
-	HE_VOID					Clear();
+	void					Clear();
 
-	HE_BOOL					Get( HE_ULONG objNum, CHE_PDF_XRefEntry & entryRet );
-	HE_ULONG				GetTrailerCount() const { return mTrailerDict.size(); }
-	CHE_PDF_DictionaryPtr	GetTrailer( HE_ULONG index = 0 ) const;
-	HE_ULONG				GetMaxObjNum() const { return mMaxObjNum; }
+	bool					Get( size_t objNum, CHE_PDF_XRefEntry & entryRet );
+	size_t                  GetTrailerCount() const { return mTrailerDict.size(); }
+	CHE_PDF_DictionaryPtr	GetTrailer( size_t index = 0 ) const;
+	size_t                  GetMaxObjNum() const { return mMaxObjNum; }
 
-	HE_BOOL					IsEOF() { return mIt == mMap.end(); }
-	HE_VOID					MoveFirst() { mIt = mMap.begin(); }
-	HE_VOID					MoveNext() { ++mIt; }
+	bool					IsEOF() { return mIt == mMap.end(); }
+	void					MoveFirst() { mIt = mMap.begin(); }
+	void					MoveNext() { ++mIt; }
 
-	HE_BOOL					GetCurNode( CHE_PDF_XRefEntry & entryRet );
-	HE_BOOL					Update( HE_ULONG objNum, const CHE_PDF_XRefEntry & entryRet );
+	bool					GetCurNode( CHE_PDF_XRefEntry & entryRet );
+	bool					Update( size_t objNum, const CHE_PDF_XRefEntry & entryRet );
 
 private:
-	HE_ULONG											mMaxObjNum;
-	std::vector<CHE_PDF_DictionaryPtr>					mTrailerDict;
-	map<HE_ULONG,CHE_PDF_XRefEntry>                     mMap;
-	map<HE_ULONG,CHE_PDF_XRefEntry>::iterator           mIt;
+	size_t                                          mMaxObjNum;
+	std::vector<CHE_PDF_DictionaryPtr>				mTrailerDict;
+	map<size_t,CHE_PDF_XRefEntry>                   mMap;
+	map<size_t,CHE_PDF_XRefEntry>::iterator         mIt;
 };
 
 #endif

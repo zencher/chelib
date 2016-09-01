@@ -63,41 +63,41 @@ class CHE_PDF_DictionaryPtr;
 class CHE_PDF_StreamPtr;
 
 
-HE_BOOL IsPdfNull( CHE_PDF_Object * pObj );
+bool IsPdfNull( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfBoolean( CHE_PDF_Object * pObj );
+bool IsPdfBoolean( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfNumber( CHE_PDF_Object * pObj );
+bool IsPdfNumber( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfName( CHE_PDF_Object * pObj );
+bool IsPdfName( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfString( CHE_PDF_Object * pObj );
+bool IsPdfString( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfDict( CHE_PDF_Object * pObj );
+bool IsPdfDict( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfArray( CHE_PDF_Object * pObj );
+bool IsPdfArray( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfRef( CHE_PDF_Object * pObj );
+bool IsPdfRef( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfStream( CHE_PDF_Object * pObj );
+bool IsPdfStream( CHE_PDF_Object * pObj );
 
-HE_BOOL IsPdfNullPtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfNullPtr( const CHE_PDF_ObjectPtr & objPtr );
 
-HE_BOOL IsPdfBooleanPtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfBooleanPtr( const CHE_PDF_ObjectPtr & objPtr );
 
-HE_BOOL IsPdfNumberPtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfNumberPtr( const CHE_PDF_ObjectPtr & objPtr );
 
-HE_BOOL IsPdfNamePtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfNamePtr( const CHE_PDF_ObjectPtr & objPtr );
 
-HE_BOOL IsPdfStringPtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfStringPtr( const CHE_PDF_ObjectPtr & objPtr );
 
-HE_BOOL IsPdfDictPtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfDictPtr( const CHE_PDF_ObjectPtr & objPtr );
 
-HE_BOOL IsPdfArrayPtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfArrayPtr( const CHE_PDF_ObjectPtr & objPtr );
 
-HE_BOOL IsPdfRefPtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfRefPtr( const CHE_PDF_ObjectPtr & objPtr );
 
-HE_BOOL IsPdfStreamPtr( const CHE_PDF_ObjectPtr & objPtr );
+bool IsPdfStreamPtr( const CHE_PDF_ObjectPtr & objPtr );
 
 
 class CHE_PDF_Object : public CHE_Object
@@ -108,11 +108,11 @@ public:
     
     CHE_PDF_ObjectPtr		Clone();
     
-    HE_VOID					Release();
+    void					Release();
     
-    HE_VOID					SetModified( HE_BOOL );
+    void					SetModified( bool );
     
-    virtual	HE_BOOL			IsModified();
+    virtual	bool			IsModified();
     
     CHE_PDF_NullPtr         GetNullPtr() const;
     
@@ -134,9 +134,9 @@ public:
     
 protected:
     
-    CHE_PDF_Object( PDF_OBJ_TYPE type, CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_Object( PDF_OBJ_TYPE type, CHE_Allocator * pAllocator = nullptr );
     
-    HE_BOOL							mModified;
+    bool							mModified;
     
     PDF_OBJ_TYPE					mType;
     
@@ -150,7 +150,7 @@ protected:
 class CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_ObjectPtr() : mpObj( NULL ) {}
+    CHE_PDF_ObjectPtr() : mpObj( nullptr ) {}
     
     CHE_PDF_ObjectPtr( const CHE_PDF_ObjectPtr & ptr );
     
@@ -158,13 +158,13 @@ public:
     
     CHE_PDF_ObjectPtr operator = ( const CHE_PDF_ObjectPtr & ptr );
     
-    bool operator!() const { return mpObj ? FALSE : TRUE ; }
+    bool operator!() const { return mpObj ? false : TRUE ; }
     
-    operator HE_BOOL() const { return mpObj ? TRUE : FALSE ; }
+    operator bool() const { return mpObj ? TRUE : false ; }
     
     CHE_PDF_Object * operator->() const { return mpObj; }
     
-    HE_VOID	Reset( CHE_PDF_Object * pObj = NULL );
+    void	Reset( CHE_PDF_Object * pObj = nullptr );
     
 protected:
     
@@ -174,68 +174,68 @@ protected:
 class CHE_PDF_NullPtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_Null * operator->() const { return /*IsPdfNull( mpObj ) ?*/ (CHE_PDF_Null*)( mpObj ) /* : NULL*/ ; }
+    CHE_PDF_Null * operator->() const { return /*IsPdfNull( mpObj ) ?*/ (CHE_PDF_Null*)( mpObj ) /* : nullptr*/ ; }
 };
 
 class CHE_PDF_BooleanPtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_Boolean * operator->() const { return /*IsPdfBoolean( mpObj ) ?*/ (CHE_PDF_Boolean*)( mpObj ) /*: NULL*/ ; }
+    CHE_PDF_Boolean * operator->() const { return /*IsPdfBoolean( mpObj ) ?*/ (CHE_PDF_Boolean*)( mpObj ) /*: nullptr*/ ; }
 };
 
 class CHE_PDF_NumberPtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_Number * operator->() const { return /*IsPdfNumber( mpObj ) ?*/ (CHE_PDF_Number*)( mpObj ) /*: NULL*/ ; }
+    CHE_PDF_Number * operator->() const { return /*IsPdfNumber( mpObj ) ?*/ (CHE_PDF_Number*)( mpObj ) /*: nullptr*/ ; }
 };
 
 class CHE_PDF_StringPtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_String * operator->() const { return /*IsPdfString( mpObj ) ?*/ (CHE_PDF_String*)( mpObj ) /*: NULL*/ ; }
+    CHE_PDF_String * operator->() const { return /*IsPdfString( mpObj ) ?*/ (CHE_PDF_String*)( mpObj ) /*: nullptr*/ ; }
 };
 
 class CHE_PDF_NamePtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_Name * operator->() const { return /*IsPdfName( mpObj ) ?*/ (CHE_PDF_Name*)( mpObj ) /*: NULL*/ ; }
+    CHE_PDF_Name * operator->() const { return /*IsPdfName( mpObj ) ?*/ (CHE_PDF_Name*)( mpObj ) /*: nullptr*/ ; }
 };
 
 class CHE_PDF_ReferencePtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_Reference * operator->() const { return /*IsPdfRef( mpObj ) ?*/ (CHE_PDF_Reference*)( mpObj ) /*: NULL*/ ; }
+    CHE_PDF_Reference * operator->() const { return /*IsPdfRef( mpObj ) ?*/ (CHE_PDF_Reference*)( mpObj ) /*: nullptr*/ ; }
 };
 
 class CHE_PDF_ArrayPtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_Array * operator->() const { return /*IsPdfArray( mpObj ) ?*/ (CHE_PDF_Array*)( mpObj ) /*: NULL*/ ; }
+    CHE_PDF_Array * operator->() const { return /*IsPdfArray( mpObj ) ?*/ (CHE_PDF_Array*)( mpObj ) /*: nullptr*/ ; }
 };
 
 class CHE_PDF_DictionaryPtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_Dictionary * operator->() const { return /*IsPdfDict( mpObj ) ?*/ (CHE_PDF_Dictionary*)( mpObj ) /*: NULL*/ ; }
+    CHE_PDF_Dictionary * operator->() const { return /*IsPdfDict( mpObj ) ?*/ (CHE_PDF_Dictionary*)( mpObj ) /*: nullptr*/ ; }
 };
 
 class CHE_PDF_StreamPtr : public CHE_PDF_ObjectPtr
 {
 public:
-    CHE_PDF_Stream * operator->() const { return /*IsPdfStream( mpObj ) ?*/ (CHE_PDF_Stream*)( mpObj ) /*: NULL*/ ; }
+    CHE_PDF_Stream * operator->() const { return /*IsPdfStream( mpObj ) ?*/ (CHE_PDF_Stream*)( mpObj ) /*: nullptr*/ ; }
 };
 
 class CHE_PDF_Null	: public CHE_PDF_Object
 {
 public:
     
-    static CHE_PDF_NullPtr			Create( CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_NullPtr			Create( CHE_Allocator * pAllocator = nullptr );
     
     CHE_PDF_NullPtr					Clone();
     
 private:
     
-    CHE_PDF_Null( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object( OBJ_TYPE_NULL, pAllocator ) {}
+    CHE_PDF_Null( CHE_Allocator * pAllocator = nullptr ) : CHE_PDF_Object( OBJ_TYPE_NULL, pAllocator ) {}
     
     friend class CHE_Allocator;
     friend class CHE_PDF_Object;
@@ -245,23 +245,23 @@ class CHE_PDF_Boolean : public CHE_PDF_Object
 {
 public:
     
-    static CHE_PDF_BooleanPtr		Create( HE_BOOL value, CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_BooleanPtr		Create( bool value, CHE_Allocator * pAllocator = nullptr );
     
-    HE_BOOL							GetValue() { return mbValue; }
+    bool							GetValue() { return mbValue; }
     
-    HE_VOID							SetValue( HE_BOOL value ) { mbValue = value; SetModified( TRUE ); }
+    void							SetValue( bool value ) { mbValue = value; SetModified( TRUE ); }
     
     CHE_PDF_BooleanPtr				Clone();
     
 private:
     
-    CHE_PDF_Boolean( CHE_Allocator * pAllocator = NULL )
-    : CHE_PDF_Object( OBJ_TYPE_BOOLEAN, pAllocator ), mbValue( FALSE ) {}
+    CHE_PDF_Boolean( CHE_Allocator * pAllocator = nullptr )
+    : CHE_PDF_Object( OBJ_TYPE_BOOLEAN, pAllocator ), mbValue( false ) {}
     
-    CHE_PDF_Boolean( HE_BOOL value, CHE_Allocator * pAllocator = NULL )
+    CHE_PDF_Boolean( bool value, CHE_Allocator * pAllocator = nullptr )
     : CHE_PDF_Object( OBJ_TYPE_BOOLEAN, pAllocator ), mbValue( value ) {}
     
-    HE_BOOL							mbValue;
+    bool							mbValue;
     
     friend class CHE_Allocator;
     friend class CHE_PDF_Object;
@@ -271,34 +271,34 @@ class CHE_PDF_Number : public CHE_PDF_Object
 {
 public:
     
-    static CHE_PDF_NumberPtr		Create( HE_INT32 value,  CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_NumberPtr		Create( int32 value,  CHE_Allocator * pAllocator = nullptr );
     
-    static CHE_PDF_NumberPtr		Create( HE_FLOAT value, CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_NumberPtr		Create( FLOAT value, CHE_Allocator * pAllocator = nullptr );
     
-    HE_BOOL							IsInteger() const { return mbInteger; }
+    bool							IsInteger() const { return mbInteger; }
     
-    HE_INT32						GetInteger() const { return mbInteger ? mInteger : (HE_INT32)mFloat; }
+    int32						GetInteger() const { return mbInteger ? mInteger : (int32)mFloat; }
     
-    HE_FLOAT						GetFloat() const { return mbInteger ? (HE_FLOAT)mInteger : mFloat; }
+    FLOAT						GetFloat() const { return mbInteger ? (FLOAT)mInteger : mFloat; }
     
-    HE_VOID							SetValue( HE_INT32 value ) { mbInteger = TRUE; mInteger = value; SetModified( TRUE ); }
+    void							SetValue( int32 value ) { mbInteger = TRUE; mInteger = value; SetModified( TRUE ); }
     
-    HE_VOID							SetValue( HE_FLOAT value ) { mbInteger = FALSE; mFloat = value; SetModified( TRUE ); }
+    void							SetValue( FLOAT value ) { mbInteger = false; mFloat = value; SetModified( TRUE ); }
     
     CHE_PDF_NumberPtr				Clone();
     
 private:
     
-    CHE_PDF_Number( HE_INT32 value, CHE_Allocator * pAllocator = NULL )
+    CHE_PDF_Number( int32 value, CHE_Allocator * pAllocator = nullptr )
     : CHE_PDF_Object( OBJ_TYPE_NUMBER, pAllocator ), mbInteger( TRUE ), mInteger( value ) {}
     
-    CHE_PDF_Number( HE_FLOAT value, CHE_Allocator * pAllocator = NULL )
-    : CHE_PDF_Object( OBJ_TYPE_NUMBER, pAllocator ), mbInteger( FALSE ), mFloat( value ) {}
+    CHE_PDF_Number( FLOAT value, CHE_Allocator * pAllocator = nullptr )
+    : CHE_PDF_Object( OBJ_TYPE_NUMBER, pAllocator ), mbInteger( false ), mFloat( value ) {}
     
-    HE_BOOL							mbInteger;
+    bool							mbInteger;
     union {
-        HE_INT32					mInteger;
-        HE_FLOAT					mFloat;
+        int32					mInteger;
+        FLOAT					mFloat;
     };
     
     friend class CHE_Allocator;
@@ -309,20 +309,20 @@ class CHE_PDF_String : public CHE_PDF_Object
 {
 public:
     
-    static CHE_PDF_StringPtr		Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_StringPtr		Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = nullptr );
     
     CHE_ByteString &				GetString();
     
-    HE_VOID							SetString( CHE_ByteString & name );
+    void							SetString( CHE_ByteString & name );
     
     CHE_PDF_StringPtr				Clone();
     
 private:
     
-    CHE_PDF_String( CHE_Allocator * pAllocator = NULL )
+    CHE_PDF_String( CHE_Allocator * pAllocator = nullptr )
     : CHE_PDF_Object( OBJ_TYPE_STRING, pAllocator ), mString( pAllocator ) {};
     
-    CHE_PDF_String( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL )
+    CHE_PDF_String( const CHE_ByteString & str, CHE_Allocator * pAllocator = nullptr )
     : CHE_PDF_Object( OBJ_TYPE_STRING, pAllocator ), mString( str ) {}
     
     CHE_ByteString					mString;
@@ -335,17 +335,17 @@ class CHE_PDF_Name : public CHE_PDF_Object
 {
 public:
     
-    static CHE_PDF_NamePtr			Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_NamePtr			Create( const CHE_ByteString & str, CHE_Allocator * pAllocator = nullptr );
     
     CHE_ByteString					GetString() const { return mName; }
     
-    HE_VOID							SetString( CHE_ByteString & name ) { mName = name; SetModified( TRUE ); }
+    void							SetString( CHE_ByteString & name ) { mName = name; SetModified( TRUE ); }
     
     CHE_PDF_NamePtr					Clone();
     
 private:
     
-    CHE_PDF_Name( const CHE_ByteString& str,  CHE_Allocator * pAllocator = NULL )
+    CHE_PDF_Name( const CHE_ByteString& str,  CHE_Allocator * pAllocator = nullptr )
     : CHE_PDF_Object( OBJ_TYPE_NAME, pAllocator ), mName(str) {}
     
     CHE_ByteString					mName;
@@ -356,27 +356,27 @@ private:
 
 struct PDF_RefInfo
 {
-    HE_ULONG objNum;
-    HE_ULONG genNum;
+    size_t objNum;
+    size_t genNum;
 };
 
 class CHE_PDF_Reference : public CHE_PDF_Object
 {
 public:
     
-    static CHE_PDF_ReferencePtr		Create( HE_ULONG refNum, HE_ULONG genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_ReferencePtr		Create( size_t refNum, size_t genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = nullptr );
     
-    HE_ULONG						GetRefNum() const { return mRefObjNum; }
+    size_t						GetRefNum() const { return mRefObjNum; }
     
-    HE_VOID							SetRefNum( HE_ULONG objNum ) { mRefObjNum = objNum; SetModified( TRUE ); }
+    void							SetRefNum( size_t objNum ) { mRefObjNum = objNum; SetModified( TRUE ); }
     
-    HE_ULONG						GetGenNum() const { return mRefGenNum; }
+    size_t						GetGenNum() const { return mRefGenNum; }
     
-    HE_VOID							SetGenNum( HE_ULONG genNum ) { mRefGenNum = genNum; SetModified( TRUE ); }
+    void							SetGenNum( size_t genNum ) { mRefGenNum = genNum; SetModified( TRUE ); }
     
     PDF_RefInfo						GetRefInfo() { PDF_RefInfo refInfo; refInfo.objNum = mRefObjNum; refInfo.genNum = mRefGenNum; return refInfo; }
     
-    HE_VOID							SetRefInfo( PDF_RefInfo refInfo )  { mRefObjNum = refInfo.objNum; mRefGenNum = refInfo.genNum; SetModified( TRUE ); }
+    void							SetRefInfo( PDF_RefInfo refInfo )  { mRefObjNum = refInfo.objNum; mRefGenNum = refInfo.genNum; SetModified( TRUE ); }
     
     CHE_PDF_ObjectPtr				GetRefObj();
     
@@ -388,12 +388,12 @@ public:
     
 private:
     
-    CHE_PDF_Reference( HE_ULONG refNum, HE_ULONG genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = NULL )
+    CHE_PDF_Reference( size_t refNum, size_t genNum, CHE_PDF_File * pFile, CHE_Allocator * pAllocator = nullptr )
     : CHE_PDF_Object( OBJ_TYPE_REFERENCE, pAllocator ), mRefObjNum( refNum ), mRefGenNum( genNum ), mpFile( pFile ) {}
     
-    HE_ULONG						mRefObjNum;
+    size_t						mRefObjNum;
     
-    HE_ULONG						mRefGenNum;
+    size_t						mRefGenNum;
     
     CHE_PDF_File *					mpFile;
     
@@ -404,17 +404,17 @@ private:
 class CHE_PDF_Array : public CHE_PDF_Object
 {
 public:
-    static CHE_PDF_ArrayPtr			Create( CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_ArrayPtr			Create( CHE_Allocator * pAllocator = nullptr );
     
-    HE_BOOL							Append( const CHE_PDF_ObjectPtr & pObj );
+    bool							Append( const CHE_PDF_ObjectPtr & pObj );
     
     CHE_PDF_NullPtr                 AppendNull();
     
-    CHE_PDF_BooleanPtr              AppendBoolean(HE_BOOL val = FALSE);
+    CHE_PDF_BooleanPtr              AppendBoolean(bool val = false);
     
     CHE_PDF_NumberPtr               AppendNumber();
-    CHE_PDF_NumberPtr               AppendNumber(HE_INT32 val);
-    CHE_PDF_NumberPtr               AppendNumber(HE_FLOAT val);
+    CHE_PDF_NumberPtr               AppendNumber(int32 val);
+    CHE_PDF_NumberPtr               AppendNumber(FLOAT val);
     
     CHE_PDF_NamePtr                 AppendName();
     CHE_PDF_NamePtr                 AppendName(CHE_ByteString & str);
@@ -426,35 +426,35 @@ public:
     CHE_PDF_DictionaryPtr           AppendDictionary();
     
     CHE_PDF_ReferencePtr            AppendReference(PDF_RefInfo info, CHE_PDF_File * pFile);
-    CHE_PDF_ReferencePtr            AppendReference(HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_File * pFile);
+    CHE_PDF_ReferencePtr            AppendReference(size_t objNum, size_t genNum, CHE_PDF_File * pFile);
     CHE_PDF_ReferencePtr            AppendReference(CHE_PDF_ReferencePtr & ref);
     CHE_PDF_ReferencePtr            AppendReference(CHE_PDF_File * pFile);
     
-    HE_BOOL                         Replace( HE_ULONG index, const CHE_PDF_ObjectPtr & pObj );
-    CHE_PDF_NullPtr                 ReplaceNull( HE_ULONG index );
-    CHE_PDF_BooleanPtr              ReplaceBoolean( HE_ULONG index );
-    CHE_PDF_NumberPtr               ReplaceNumber( HE_ULONG index );
-    CHE_PDF_NamePtr                 ReplaceName( HE_ULONG index );
-    CHE_PDF_StringPtr               ReplaceString( HE_ULONG index );
-    CHE_PDF_ArrayPtr                ReplaceArray( HE_ULONG index );
-    CHE_PDF_DictionaryPtr           ReplaceDictionary( HE_ULONG index );
-    CHE_PDF_ReferencePtr            ReplaceReference( HE_ULONG index, CHE_PDF_File * pFile );
+    bool                         Replace( size_t index, const CHE_PDF_ObjectPtr & pObj );
+    CHE_PDF_NullPtr                 ReplaceNull( size_t index );
+    CHE_PDF_BooleanPtr              ReplaceBoolean( size_t index );
+    CHE_PDF_NumberPtr               ReplaceNumber( size_t index );
+    CHE_PDF_NamePtr                 ReplaceName( size_t index );
+    CHE_PDF_StringPtr               ReplaceString( size_t index );
+    CHE_PDF_ArrayPtr                ReplaceArray( size_t index );
+    CHE_PDF_DictionaryPtr           ReplaceDictionary( size_t index );
+    CHE_PDF_ReferencePtr            ReplaceReference( size_t index, CHE_PDF_File * pFile );
     
-    HE_ULONG						GetCount() const { return mArray.size(); }
-    CHE_PDF_ObjectPtr				GetElement( HE_ULONG index ) const;
-    CHE_PDF_ObjectPtr				GetElement( HE_ULONG index, PDF_OBJ_TYPE Type ) const;
+    size_t						GetCount() const { return mArray.size(); }
+    CHE_PDF_ObjectPtr				GetElement( size_t index ) const;
+    CHE_PDF_ObjectPtr				GetElement( size_t index, PDF_OBJ_TYPE Type ) const;
     CHE_PDF_ObjectPtr				GetElementByType( PDF_OBJ_TYPE Type );
     
     CHE_PDF_ArrayPtr				Clone();
-    HE_VOID                         Clear();
+    void                         Clear();
     
-    HE_BOOL							IsModified();
+    bool							IsModified();
     
-    HE_BOOL							GetRect( CHE_Rect & rect ) const;
-    HE_BOOL							GetMatrix( CHE_Matrix & maxtrix ) const;
+    bool							GetRect( CHE_Rect & rect ) const;
+    bool							GetMatrix( CHE_Matrix & maxtrix ) const;
     
 private:
-    CHE_PDF_Array( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object( OBJ_TYPE_ARRAY, pAllocator ) {}
+    CHE_PDF_Array( CHE_Allocator * pAllocator = nullptr ) : CHE_PDF_Object( OBJ_TYPE_ARRAY, pAllocator ) {}
     
     std::vector<CHE_PDF_ObjectPtr>	mArray;
     
@@ -466,38 +466,38 @@ class CHE_PDF_Dictionary : public CHE_PDF_Object
 {
 public:
     
-    static CHE_PDF_DictionaryPtr	Create( CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_DictionaryPtr	Create( CHE_Allocator * pAllocator = nullptr );
     
-    HE_BOOL                         SetObject( const CHE_ByteString & key, const CHE_PDF_ObjectPtr & ptr );
+    bool                         SetObject( const CHE_ByteString & key, const CHE_PDF_ObjectPtr & ptr );
     CHE_PDF_NullPtr                 SetNull( const CHE_ByteString & key );
-    CHE_PDF_BooleanPtr              SetBoolean( const CHE_ByteString & key, HE_BOOL value );
-    CHE_PDF_NumberPtr               SetInteger( const CHE_ByteString & key, HE_INT32 value );
-    CHE_PDF_NumberPtr               SetFloatNumber( const CHE_ByteString & key, HE_FLOAT value );
+    CHE_PDF_BooleanPtr              SetBoolean( const CHE_ByteString & key, bool value );
+    CHE_PDF_NumberPtr               SetInteger( const CHE_ByteString & key, int32 value );
+    CHE_PDF_NumberPtr               SetFloatNumber( const CHE_ByteString & key, FLOAT value );
     CHE_PDF_StringPtr               SetString( const CHE_ByteString & key, const CHE_ByteString & string );
     CHE_PDF_NamePtr                 SetName( const CHE_ByteString & key, const CHE_ByteString & name );
-    HE_BOOL                         SetArray( const CHE_ByteString & key, const CHE_PDF_ArrayPtr & pArray );
+    bool                         SetArray( const CHE_ByteString & key, const CHE_PDF_ArrayPtr & pArray );
     CHE_PDF_ArrayPtr                SetArray( const CHE_ByteString & key );
-    HE_BOOL                         SetDictionary( const CHE_ByteString & key, const CHE_PDF_DictionaryPtr & pDict );
+    bool                         SetDictionary( const CHE_ByteString & key, const CHE_PDF_DictionaryPtr & pDict );
     CHE_PDF_DictionaryPtr           SetDictionary( const CHE_ByteString & key );
-    CHE_PDF_ReferencePtr            SetReference( const CHE_ByteString & key, HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_File * pFile );
+    CHE_PDF_ReferencePtr            SetReference( const CHE_ByteString & key, size_t objNum, size_t genNum, CHE_PDF_File * pFile );
     
-    HE_BOOL                         Remove( const CHE_ByteString & key );
+    bool                         Remove( const CHE_ByteString & key );
     
-    HE_ULONG						GetCount() { return mMap.size(); }
+    size_t						GetCount() { return mMap.size(); }
     CHE_PDF_ObjectPtr				GetElement( const CHE_ByteString & key ) const;
     CHE_PDF_ObjectPtr				GetElement( const CHE_ByteString & key, PDF_OBJ_TYPE type );
     
     CHE_PDF_DictionaryPtr			Clone();
-    HE_VOID                         Clear();
+    void                         Clear();
     
-    HE_BOOL							IsModified();
+    bool							IsModified();
     
-    HE_VOID							MoveToFirst();
-    HE_BOOL							GetKeyAndElement( CHE_ByteString & key, CHE_PDF_ObjectPtr & objPtr );
-    HE_BOOL							CheckName( const CHE_ByteString & key, const CHE_ByteString & name, HE_BOOL bRequired = TRUE );
+    void							MoveToFirst();
+    bool							GetKeyAndElement( CHE_ByteString & key, CHE_PDF_ObjectPtr & objPtr );
+    bool							CheckName( const CHE_ByteString & key, const CHE_ByteString & name, bool bRequired = TRUE );
     
 private:
-    CHE_PDF_Dictionary( CHE_Allocator * pAllocator = NULL ) : CHE_PDF_Object( OBJ_TYPE_DICTIONARY, pAllocator ) {}
+    CHE_PDF_Dictionary( CHE_Allocator * pAllocator = nullptr ) : CHE_PDF_Object( OBJ_TYPE_DICTIONARY, pAllocator ) {}
     
     unordered_map<string,CHE_PDF_ObjectPtr>::iterator mIt;
     unordered_map<string,CHE_PDF_ObjectPtr> mMap;
@@ -509,64 +509,64 @@ private:
 class CHE_PDF_Stream : public CHE_PDF_Object
 {
 public:
-    static CHE_PDF_StreamPtr		Create( HE_ULONG objNum, HE_ULONG genNum,
-                                           CHE_PDF_Encrypt * pEncrypt = NULL,
-                                           CHE_Allocator * pAllocator = NULL );
+    static CHE_PDF_StreamPtr		Create( size_t objNum, size_t genNum,
+                                           CHE_PDF_Encrypt * pEncrypt = nullptr,
+                                           CHE_Allocator * pAllocator = nullptr );
     
-    static CHE_PDF_StreamPtr		Create( HE_LPBYTE pData, HE_ULONG size,
+    static CHE_PDF_StreamPtr		Create( PBYTE pData, size_t size,
                                            const CHE_PDF_DictionaryPtr & pDict,
-                                           HE_ULONG objNum, HE_ULONG genNum,
-                                           CHE_PDF_Encrypt * pEncrypt = NULL,
-                                           CHE_Allocator * pAllocator = NULL );
+                                           size_t objNum, size_t genNum,
+                                           CHE_PDF_Encrypt * pEncrypt = nullptr,
+                                           CHE_Allocator * pAllocator = nullptr );
     
-    static CHE_PDF_StreamPtr		Create( IHE_Read* pFile, HE_ULONG offset, HE_ULONG size,
+    static CHE_PDF_StreamPtr		Create( IHE_Read* pFile, size_t offset, size_t size,
                                            const CHE_PDF_DictionaryPtr pDict,
-                                           HE_ULONG objNum, HE_ULONG genNum,
-                                           CHE_PDF_Encrypt * pEncrypt = NULL,
-                                           CHE_Allocator * pAllocator = NULL );
+                                           size_t objNum, size_t genNum,
+                                           CHE_PDF_Encrypt * pEncrypt = nullptr,
+                                           CHE_Allocator * pAllocator = nullptr );
     
-    HE_ULONG						GetObjNum() const { return m_dwObjNum; }
+    size_t						GetObjNum() const { return m_dwObjNum; }
     
-    HE_ULONG						GetGenNum() const { return m_dwGenNum; }
+    size_t						GetGenNum() const { return m_dwGenNum; }
     
-    HE_VOID							SetDictPtr( const CHE_PDF_DictionaryPtr & ptr );
+    void							SetDictPtr( const CHE_PDF_DictionaryPtr & ptr );
     
     CHE_PDF_DictionaryPtr			GetDictPtr() const { return mDictPtr; }
     
-    HE_ULONG						GetRawSize() const { return m_dwSize; }
+    size_t						GetRawSize() const { return m_dwSize; }
     
-    HE_ULONG						GetRawData( HE_ULONG offset, HE_LPBYTE pBuf, HE_ULONG buf_size ) const;
+    size_t						GetRawData( size_t offset, PBYTE pBuf, size_t buf_size ) const;
     
-    HE_BOOL							SetRawData( HE_LPBYTE pData, HE_ULONG dwDataSize, HE_BYTE filter = STREAM_FILTER_NULL );
+    bool							SetRawData( PBYTE pData, size_t dwDataSize, BYTE filter = STREAM_FILTER_NULL );
     
     CHE_PDF_StreamPtr				Clone();
     
-    HE_BOOL							IsModified();
+    bool							IsModified();
     
 private:
-    CHE_PDF_Stream(	HE_LPBYTE pData, HE_ULONG size, const CHE_PDF_DictionaryPtr & pDict, HE_ULONG objNum, HE_ULONG genNum,
-                   CHE_PDF_Encrypt * pEncrypt = NULL, CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_Stream(	PBYTE pData, size_t size, const CHE_PDF_DictionaryPtr & pDict, size_t objNum, size_t genNum,
+                   CHE_PDF_Encrypt * pEncrypt = nullptr, CHE_Allocator * pAllocator = nullptr );
     
-    CHE_PDF_Stream( IHE_Read* pFile, HE_ULONG offset, HE_ULONG size, const CHE_PDF_DictionaryPtr & pDict, HE_ULONG objNum, HE_ULONG genNum,
-                   CHE_PDF_Encrypt * pEncrypt = NULL, CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_Stream( IHE_Read* pFile, size_t offset, size_t size, const CHE_PDF_DictionaryPtr & pDict, size_t objNum, size_t genNum,
+                   CHE_PDF_Encrypt * pEncrypt = nullptr, CHE_Allocator * pAllocator = nullptr );
     
-    CHE_PDF_Stream(	HE_ULONG objNum, HE_ULONG genNum, CHE_PDF_Encrypt * pEncrypt = NULL, CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_Stream(	size_t objNum, size_t genNum, CHE_PDF_Encrypt * pEncrypt = nullptr, CHE_Allocator * pAllocator = nullptr );
     
     ~CHE_PDF_Stream();
     
     CHE_PDF_Encrypt *				m_pEncrypt;
     
     CHE_PDF_DictionaryPtr			mDictPtr;
-    HE_ULONG						m_dwSize;
-    HE_BOOL							m_bMem;
+    size_t						m_dwSize;
+    bool							m_bMem;
     union {
-        HE_LPBYTE					m_pDataBuf;
+        PBYTE					m_pDataBuf;
         IHE_Read*					m_pFile;
     };
-    HE_ULONG						m_FileOffset;
+    size_t						m_FileOffset;
     
-    HE_ULONG						m_dwObjNum;
-    HE_ULONG						m_dwGenNum;
+    size_t						m_dwObjNum;
+    size_t						m_dwGenNum;
     
     friend class CHE_Allocator;
     friend class CHE_PDF_Object;
@@ -582,22 +582,22 @@ enum PDF_STREAM_DECODE_MODE
 class CHE_PDF_StreamAcc : public CHE_Object
 {
 public:
-    CHE_PDF_StreamAcc( CHE_Allocator * pAllocator = NULL );
+    CHE_PDF_StreamAcc( CHE_Allocator * pAllocator = nullptr );
     ~CHE_PDF_StreamAcc();
     
-    HE_BOOL							Attach( const CHE_PDF_StreamPtr & streamPtr, PDF_STREAM_DECODE_MODE mode = STREAM_DECODE_NORMAL );
+    bool							Attach( const CHE_PDF_StreamPtr & streamPtr, PDF_STREAM_DECODE_MODE mode = STREAM_DECODE_NORMAL );
     
-    HE_VOID							Detach();
+    void							Detach();
     
     CHE_PDF_StreamPtr				GetStream() const { return mStreamPtr; }
     
-    HE_LPBYTE						GetData() const { return m_pDataBuf; }
+    PBYTE						GetData() const { return m_pDataBuf; }
     
-    HE_ULONG						GetSize() const { return m_dwSize; }
+    size_t						GetSize() const { return m_dwSize; }
     
 private:
-    HE_LPBYTE						m_pDataBuf;
-    HE_ULONG						m_dwSize;;
+    PBYTE						m_pDataBuf;
+    size_t						m_dwSize;;
     
     CHE_PDF_StreamPtr				mStreamPtr;
 };

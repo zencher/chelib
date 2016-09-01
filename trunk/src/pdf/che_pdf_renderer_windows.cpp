@@ -3,9 +3,9 @@
 #include "../../include/pdf/che_pdf_xobject.h"
 #include "../../include/pdf/che_pdf_imageraster.h"
 
-inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
+inline void OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState * pGState )
 {
-	static HE_FLOAT val = 0;
+	static FLOAT val = 0;
 	static CHE_Matrix matrix;
 	static GRAPHICS_STATE_LINECAP linCap = LineCap_Butt;
 	static GRAPHICS_STATE_LINEJOIN lineJoin = LineJoin_Miter;
@@ -15,10 +15,10 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	static CHE_PDF_Color strokeColor;
 	static CHE_PDF_ColorSpacePtr fillColorSpace;
 	static CHE_PDF_ColorSpacePtr strokeColorSpace;
-	static HE_ULONG fillColorVal = 0xFF000000;
-	static HE_ULONG strokeColorVal = 0xFF000000;
-	static HE_FLOAT fillAlpha = 1.0f;
-	static HE_FLOAT strokeAlpha = 1.0f;
+	static size_t fillColorVal = 0xFF000000;
+	static size_t strokeColorVal = 0xFF000000;
+	static FLOAT fillAlpha = 1.0f;
+	static FLOAT strokeAlpha = 1.0f;
 
 	pGState->GetLineWidth( val );
 	drawer.SetLineWidth( val );
@@ -69,10 +69,10 @@ inline HE_VOID OutputCommonGSatae( CHE_GraphicsDrawer & drawer, CHE_PDF_GState *
 	drawer.SetStrokeAlpha( strokeAlpha );
 }
 
-inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState * pClipState )
+inline void OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState * pClipState )
 {
-	CHE_PDF_ContentObject * pObj = NULL;
-	CHE_PDF_GState * pGState = NULL;
+	CHE_PDF_ContentObject * pObj = nullptr;
+	CHE_PDF_GState * pGState = nullptr;
 	std::list<CHE_PDF_ClipStateItem*>::iterator it = pClipState->mClipElementList.begin();
 	for ( ; it != pClipState->mClipElementList.end(); it++ )
 	{
@@ -153,12 +153,12 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 			{
 				drawer.SetMatrix( CHE_Matrix() );
 				CHE_PDF_Text * pText = (CHE_PDF_Text*)(pObj);
-				for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
+				for ( size_t j = 0; j < pText->mItems.size(); ++j )
 				{
 					CHE_PDF_Path * pPath = pText->GetGraphPath( j );
 					if ( pPath )
 					{
-						for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
+						for ( size_t i = 0; i < pPath->mItems.size(); ++i )
 						{
 							switch ( pPath->mItems[i].type )
 							{
@@ -216,7 +216,7 @@ inline HE_VOID OutputClipState( CHE_GraphicsDrawer & drawer, CHE_PDF_ClipState *
 	drawer.ClipPath();
 }
 
-inline HE_VOID OutputPath( CHE_PDF_Path * pPath, CHE_GraphicsDrawer & drawer )
+inline void OutputPath( CHE_PDF_Path * pPath, CHE_GraphicsDrawer & drawer )
 {
     if ( pPath->GetFillMode() == Mode_Nonzero )
     {
@@ -296,7 +296,7 @@ inline HE_VOID OutputPath( CHE_PDF_Path * pPath, CHE_GraphicsDrawer & drawer )
     }
 }
 
-inline HE_VOID OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
+inline void OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
 {
     GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
     CHE_PDF_GState * pGState = pText->GetGState();
@@ -314,12 +314,12 @@ inline HE_VOID OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
         case TextRenderMode_FillStrokeClip:
         {
             drawer.SetMatrix( CHE_Matrix() );
-            for ( HE_ULONG j = 0; j < pText->mItems.size(); ++j )
+            for ( size_t j = 0; j < pText->mItems.size(); ++j )
             {
                 CHE_PDF_Path * pPath = pText->GetGraphPath( j );
                 if ( pPath )
                 {
-                    for ( HE_ULONG i = 0; i < pPath->mItems.size(); ++i )
+                    for ( size_t i = 0; i < pPath->mItems.size(); ++i )
                     {
                         switch ( pPath->mItems[i].type )
                         {
@@ -399,7 +399,7 @@ inline HE_VOID OutputText( CHE_PDF_Text * pText, CHE_GraphicsDrawer & drawer )
     }
 }
 
-inline HE_VOID OutputInlineImage( CHE_PDF_InlineImage * pImage, CHE_GraphicsDrawer & drawer )
+inline void OutputInlineImage( CHE_PDF_InlineImage * pImage, CHE_GraphicsDrawer & drawer )
 {
 	CHE_Bitmap * pBitmap = pImage->GetBitmap();
 	if ( pBitmap )
@@ -409,7 +409,7 @@ inline HE_VOID OutputInlineImage( CHE_PDF_InlineImage * pImage, CHE_GraphicsDraw
 	}
 }
 
-inline HE_VOID OutputRefImage( CHE_Matrix & matrix, const CHE_PDF_ImageXObjectPtr & image, CHE_GraphicsDrawer & drawer )
+inline void OutputRefImage( CHE_Matrix & matrix, const CHE_PDF_ImageXObjectPtr & image, CHE_GraphicsDrawer & drawer )
 {
 	CHE_PDF_ImageRaster raster;
 	if ( image->IsInterpolate() == TRUE )
@@ -433,7 +433,7 @@ inline HE_VOID OutputRefImage( CHE_Matrix & matrix, const CHE_PDF_ImageXObjectPt
 
 			if ( rect.width > pBitmap->Width() || rect.height > pBitmap->Height() )
 			{
-				CHE_Bitmap * pNew = pBitmap->StretchTo( rect.width, rect.height, 0, NULL );
+				CHE_Bitmap * pNew = pBitmap->StretchTo( rect.width, rect.height, 0, nullptr );
 				if ( pNew )
 				{
 					drawer.DrawBitmap( pNew );
@@ -448,12 +448,12 @@ inline HE_VOID OutputRefImage( CHE_Matrix & matrix, const CHE_PDF_ImageXObjectPt
 	}
 }
 
-inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_Matrix & matrix, CHE_GraphicsDrawer & drawer );
+inline void OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_Matrix & matrix, CHE_GraphicsDrawer & drawer );
 
-inline HE_VOID OutputForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix, CHE_GraphicsDrawer & drawer )
+inline void OutputForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix & extMatrix, CHE_GraphicsDrawer & drawer )
 {
- 	CHE_PDF_GState * pGState = NULL;
- 	CHE_PDF_ClipState * pClipState = NULL;
+ 	CHE_PDF_GState * pGState = nullptr;
+ 	CHE_PDF_ClipState * pClipState = nullptr;
  	CHE_PDF_ContentObjectList & content = form->GetList();
  	ContentObjectList::iterator it = content.Begin();
 
@@ -499,14 +499,14 @@ inline HE_VOID OutputForm( const CHE_PDF_FormXObjectPtr & form, const CHE_Matrix
 	}
 }
 
-inline HE_VOID OutputShading( const CHE_PDF_ShadingPtr shading, CHE_GraphicsDrawer & drawer )
-{
+// inline void OutputShading( const CHE_PDF_ShadingPtr shading, CHE_GraphicsDrawer & drawer )
+// {
+// 
+// }
 
-}
-
-inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_Matrix & extMatrix, CHE_GraphicsDrawer & drawer )
+inline void OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_Matrix & extMatrix, CHE_GraphicsDrawer & drawer )
 {
-	if ( pComponentRef == NULL )
+	if ( pComponentRef == nullptr )
 	{
 		return;
 	}
@@ -556,11 +556,11 @@ inline HE_VOID OutputComponent( CHE_PDF_ComponentRef * pComponentRef, const CHE_
 	}
 }
 
-HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
-									HE_UINT32 rotate, HE_FLOAT scale, HE_FLOAT dipx, HE_FLOAT dipy, CHE_Rect * pClipRect )
+void CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_GraphicsDrawer & drawer, CHE_Rect pageRect,
+									uint32 rotate, FLOAT scale, FLOAT dipx, FLOAT dipy, CHE_Rect * pClipRect )
 {
 	//设置好bitmap的大小
-	if ( pClipRect != NULL )
+	if ( pClipRect != nullptr )
 	{
 		drawer.Resize( pClipRect->width * scale * dipx / 72, pClipRect->height * scale * dipy / 72 );
 	}else{
@@ -576,7 +576,7 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 	extMatrix.e = 0;
 	extMatrix.f = 0;
 	CHE_Matrix tmpMatrix;
-	if ( pClipRect != NULL )
+	if ( pClipRect != nullptr )
 	{
 		tmpMatrix.e = - pClipRect->left * dipx * scale / 72;
 		tmpMatrix.f = ( pClipRect->height - + pClipRect->bottom ) * dipy * scale / 72;
@@ -599,8 +599,8 @@ HE_VOID CHE_PDF_Renderer::Render(	CHE_PDF_ContentObjectList & content, CHE_Graph
 
 	drawer.SetExtMatrix( extMatrix );
 
-	CHE_PDF_GState * pGState = NULL;
-	CHE_PDF_ClipState * pClipState = NULL;
+	CHE_PDF_GState * pGState = nullptr;
+	CHE_PDF_ClipState * pClipState = nullptr;
 	ContentObjectList::iterator it = content.Begin();
 	for ( ; it != content.End(); ++it )
 	{

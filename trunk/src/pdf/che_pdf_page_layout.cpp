@@ -18,7 +18,7 @@ CHE_PDF_ThumbnailPageLayout::~CHE_PDF_ThumbnailPageLayout()
     
 }
 
-void CHE_PDF_ThumbnailPageLayout::SetViewSize(HE_FLOAT width, HE_FLOAT height)
+void CHE_PDF_ThumbnailPageLayout::SetViewSize(FLOAT width, FLOAT height)
 {
     mViewWidth = width;
     mViewHeight = height;
@@ -29,7 +29,7 @@ void CHE_PDF_ThumbnailPageLayout::CleanPageSizeInfo()
     mPageSizes.clear();
 }
 
-void CHE_PDF_ThumbnailPageLayout::AddPageSize(HE_FLOAT width, HE_FLOAT height)
+void CHE_PDF_ThumbnailPageLayout::AddPageSize(FLOAT width, FLOAT height)
 {
     HE_PDF_PAGE_SIZE size;
     size.width = width;
@@ -51,8 +51,8 @@ void CHE_PDF_ThumbnailPageLayout::UpdatePageInViewRectInfo()
     mPageScaleInView.clear();
     
     CHE_Page_Rect bbox, page;
-    HE_FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = 1.0f;
-    /*HE_FLOAT width = mViewWidth, height = mViewHeight;
+    FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = 1.0f;
+    /*FLOAT width = mViewWidth, height = mViewHeight;
     if (mViewWidth >= 150) {
         width = 150;
         height =
@@ -78,19 +78,19 @@ void CHE_PDF_ThumbnailPageLayout::UpdatePageInViewRectInfo()
     FinalAdjuest(bbox);
 }
 
-CHE_Page_Rect CHE_PDF_ThumbnailPageLayout::GetPageRectInView(HE_ULONG pageIndex)
+CHE_Page_Rect CHE_PDF_ThumbnailPageLayout::GetPageRectInView(size_t pageIndex)
 {
     return mPageRectInView[pageIndex];
 }
 
-HE_FLOAT CHE_PDF_ThumbnailPageLayout::GetPageScaleInView(HE_ULONG pageIndex)
+FLOAT CHE_PDF_ThumbnailPageLayout::GetPageScaleInView(size_t pageIndex)
 {
     return mPageScaleInView[pageIndex];
 }
 
 void CHE_PDF_ThumbnailPageLayout::FinalAdjuest(const CHE_Page_Rect & bbox)
 {
-    HE_FLOAT offsetX = 0;
+    FLOAT offsetX = 0;
     mContentWidth = bbox.Width() + 2 * mSpaceX;
     mContentHeight = bbox.Height() + 2 * mSpaceY;
     if ( mContentWidth < mViewWidth )
@@ -108,17 +108,17 @@ void CHE_PDF_ThumbnailPageLayout::FinalAdjuest(const CHE_Page_Rect & bbox)
 
 CHE_PDF_PageLayout::CHE_PDF_PageLayout()
  :  mScale(1.0f), mSpaceX(10), mSpaceY(10), mMode(PAGE_SINGLE_SCROLL), mZoom(ZOOM_FIX),
-mRotate(ROTATE_0), mViewWidth(100), mViewHeight(100), mNeedUpdate(FALSE), mCurPageStart(0), mCurPageCountInView(1) { }
+mRotate(ROTATE_0), mViewWidth(100), mViewHeight(100), mNeedUpdate(false), mCurPageStart(0), mCurPageCountInView(1) { }
 
 CHE_PDF_PageLayout::~CHE_PDF_PageLayout() { }
 
-void CHE_PDF_PageLayout::SetScale( HE_FLOAT scale )
+void CHE_PDF_PageLayout::SetScale( FLOAT scale )
 {
     mScale = scale;
     mNeedUpdate = TRUE;
 }
 
-void CHE_PDF_PageLayout::SetSpace( HE_UINT32 xspace, HE_UINT32 yspace )
+void CHE_PDF_PageLayout::SetSpace( uint32 xspace, uint32 yspace )
 {
     mSpaceX = xspace;
     mSpaceY = yspace;
@@ -143,7 +143,7 @@ void CHE_PDF_PageLayout::SetRotateMode( HE_PDF_VIEW_ROTATE_MODE mode )
     mNeedUpdate = TRUE;
 }
 
-void CHE_PDF_PageLayout::SetViewSize( HE_FLOAT width, HE_FLOAT height )
+void CHE_PDF_PageLayout::SetViewSize( FLOAT width, FLOAT height )
 {
     mViewWidth = width;
     mViewHeight = height;
@@ -155,7 +155,7 @@ void CHE_PDF_PageLayout::CleanPageSizeInfo()
     mPageSizes.clear();
 }
 
-void CHE_PDF_PageLayout::AddPageSize( HE_FLOAT width, HE_FLOAT height )
+void CHE_PDF_PageLayout::AddPageSize( FLOAT width, FLOAT height )
 {
     HE_PDF_PAGE_SIZE size;
     size.width = width;
@@ -167,8 +167,8 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePage()
 {
     CHE_Page_Rect bbox;
     CHE_Page_Rect page;
-    HE_FLOAT offsetX = mSpaceX, offsetY = mSpaceY;
-    HE_FLOAT tmpScale = mScale;
+    FLOAT offsetX = mSpaceX, offsetY = mSpaceY;
+    FLOAT tmpScale = mScale;
     
     mCurPageCountInView = 1;
     if ( mZoom == ZOOM_FIT )
@@ -197,7 +197,7 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePage()
 void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
 {
     CHE_Page_Rect bbox, page;
-    HE_FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = mScale;
+    FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = mScale;
     
     mCurPageStart = 0;
     mCurPageCountInView = mPageSizes.size();
@@ -235,7 +235,7 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
 void CHE_PDF_PageLayout::UpdatePageInfoDoublePage()
 {
     CHE_Page_Rect bbox, pageLeft, pageRight;
-    HE_FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = mScale;
+    FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = mScale;
     
     mCurPageCountInView = 2;
     if ( mCurPageStart + mCurPageCountInView > mPageSizes.size() )
@@ -301,7 +301,7 @@ void CHE_PDF_PageLayout::UpdatePageInfoDoublePage()
 void CHE_PDF_PageLayout::UpdatePageInfoDoublePageScroll()
 {
     CHE_Page_Rect bbox, pageLeft, pageRight;
-    HE_FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = mScale;
+    FLOAT offsetX = mSpaceX, offsetY = mSpaceY, tmpScale = mScale;
     
     mCurPageStart = 0;
     mCurPageCountInView = mPageSizes.size();
@@ -399,17 +399,17 @@ HE_PDF_PAGE_SIZE CHE_PDF_PageLayout::GetContentSize()
     return size;
 }
 
-CHE_Page_Rect CHE_PDF_PageLayout::GetPageRectInView(HE_ULONG pageIndex)
+CHE_Page_Rect CHE_PDF_PageLayout::GetPageRectInView(size_t pageIndex)
 {
     return mPageRectInView[pageIndex-mCurPageStart];
 }
 
-HE_FLOAT CHE_PDF_PageLayout::GetPageScaleInView(HE_ULONG pageIndex)
+FLOAT CHE_PDF_PageLayout::GetPageScaleInView(size_t pageIndex)
 {
     return mPageScaleInView[pageIndex-mCurPageStart];
 }
 
-void CHE_PDF_PageLayout::SetCurPageRange( HE_ULONG pageIndex, HE_ULONG pageCount )
+void CHE_PDF_PageLayout::SetCurPageRange( size_t pageIndex, size_t pageCount )
 {
     mCurPageStart = pageIndex;
     mCurPageCountInView = pageCount;
@@ -423,7 +423,7 @@ HE_PDF_PAGE_RANGE CHE_PDF_PageLayout::GetCurPageRange()
     return range;
 }
 
-inline HE_FLOAT CHE_PDF_PageLayout::GetPageWidthForRotateMode(HE_ULONG pageIndex)
+inline FLOAT CHE_PDF_PageLayout::GetPageWidthForRotateMode(size_t pageIndex)
 {
     if ( mRotate == ROTATE_0 || mRotate == ROTATE_180 ) {
         return mPageSizes[pageIndex].width;
@@ -431,7 +431,7 @@ inline HE_FLOAT CHE_PDF_PageLayout::GetPageWidthForRotateMode(HE_ULONG pageIndex
     return mPageSizes[pageIndex].height;
 }
 
-inline HE_FLOAT CHE_PDF_PageLayout::GetPageHeightForRotateMode(HE_ULONG pageIndex)
+inline FLOAT CHE_PDF_PageLayout::GetPageHeightForRotateMode(size_t pageIndex)
 {
     if ( mRotate == ROTATE_0 || mRotate == ROTATE_180 ) {
         return mPageSizes[pageIndex].height;
@@ -441,7 +441,7 @@ inline HE_FLOAT CHE_PDF_PageLayout::GetPageHeightForRotateMode(HE_ULONG pageInde
 
 void CHE_PDF_PageLayout::FinalAdjuest(const CHE_Page_Rect & bbox)
 {
-    HE_FLOAT offsetX = 0, offsetY = 0;
+    FLOAT offsetX = 0, offsetY = 0;
     mContentWidth = bbox.Width() + 2 * mSpaceX;
     mContentHeight = bbox.Height() + 2 * mSpaceY;
     if ( mContentWidth < mViewWidth )

@@ -1,12 +1,12 @@
 #include "../../include/pdf/che_pdf_extgstate.h"
 
 
-CHE_PDF_ExtGStatePtr CHE_PDF_ExtGState::Create( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_ExtGStatePtr CHE_PDF_ExtGState::Create( const CHE_PDF_ObjectPtr & objPtr, CHE_Allocator * pAllocator /*= nullptr*/ )
 {
 	CHE_PDF_ExtGStatePtr ptr;
 	if ( objPtr )
 	{
-		if ( pAllocator == NULL )
+		if ( pAllocator == nullptr )
 		{
 			pAllocator = GetDefaultAllocator();
 		}
@@ -38,7 +38,7 @@ CHE_PDF_ExtGStatePtr CHE_PDF_ExtGState::Convert( const CHE_PDF_ComponentPtr & co
 }
 
 
-CHE_PDF_ExtGState::CHE_PDF_ExtGState( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_PDF_ExtGState::CHE_PDF_ExtGState( const CHE_PDF_ObjectPtr & rootObjPtr, CHE_Allocator * pAllocator /*= nullptr*/ )
 	:CHE_PDF_Component( COMPONENT_TYPE_ExtGState, rootObjPtr, pAllocator )
 {
 	CHE_PDF_ObjectPtr objPtr;

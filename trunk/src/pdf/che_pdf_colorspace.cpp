@@ -1,10 +1,12 @@
         #include "../../include/pdf/che_pdf_colorspace.h"
 #include "../../include/pdf/che_pdf_contentobjs.h"
 
+#include <cstdlib>
+
 CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceGray(CHE_Allocator * pAllocator)
 {
     CHE_PDF_ColorSpacePtr ptr;
-    if ( pAllocator == NULL )
+    if ( pAllocator == nullptr )
     {
         pAllocator = GetDefaultAllocator();
     }
@@ -15,7 +17,7 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceGray(CHE_Allocator * pAllo
 CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceRGB(CHE_Allocator * pAllocator)
 {
     CHE_PDF_ColorSpacePtr ptr;
-    if ( pAllocator == NULL )
+    if ( pAllocator == nullptr )
     {
         pAllocator = GetDefaultAllocator();
     }
@@ -26,7 +28,7 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceRGB(CHE_Allocator * pAlloc
 CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceCMYK(CHE_Allocator * pAllocator)
 {
     CHE_PDF_ColorSpacePtr ptr;
-    if ( pAllocator == NULL )
+    if ( pAllocator == nullptr )
     {
         pAllocator = GetDefaultAllocator();
     }
@@ -37,7 +39,7 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreateDeviceCMYK(CHE_Allocator * pAllo
 CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreatePattern(CHE_Allocator * pAllocator)
 {
     CHE_PDF_ColorSpacePtr ptr;
-    if ( pAllocator == NULL )
+    if ( pAllocator == nullptr )
     {
         pAllocator = GetDefaultAllocator();
     }
@@ -45,10 +47,10 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::CreatePattern(CHE_Allocator * pAllocat
     return ptr;
 }
 
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_ByteString & name, CHE_Allocator * pAllocator/*= NULL*/)
+CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_ByteString & name, CHE_Allocator * pAllocator/*= nullptr*/)
 {
 	CHE_PDF_ColorSpacePtr ptr;
-    if ( pAllocator == NULL )
+    if ( pAllocator == nullptr )
     {
         pAllocator = GetDefaultAllocator();
     }
@@ -68,14 +70,14 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_ByteString & name, CH
 	return ptr;
 }
 
-CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, CHE_Allocator * pAllocator/*= NULL*/)
+CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, CHE_Allocator * pAllocator/*= nullptr*/)
 {
 	CHE_PDF_ColorSpacePtr ptr;
 	if ( !obj )
 	{
 		return ptr;
 	}
-	if ( pAllocator == NULL )
+	if ( pAllocator == nullptr )
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -96,7 +98,7 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, 
         return CHE_PDF_ColorSpace::Create( objPtr->GetNamePtr()->GetString() );
     }
     
-    CHE_PDF_ColorSpace *  pColorSpace = NULL;
+    CHE_PDF_ColorSpace *  pColorSpace = nullptr;
     if ( objPtr->GetType() == OBJ_TYPE_ARRAY )
     {
         CHE_PDF_ArrayPtr arrayPtr = objPtr->GetArrayPtr();
@@ -176,7 +178,7 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Create(const CHE_PDF_ObjectPtr & obj, 
     if ( pColorSpace->IsError() )
     {
 		pAllocator->Delete(pColorSpace);
-		pColorSpace = NULL;
+		pColorSpace = nullptr;
 	}else{
 		ptr.Reset( pColorSpace );
 	}
@@ -193,13 +195,13 @@ CHE_PDF_ColorSpacePtr CHE_PDF_ColorSpace::Convert( const CHE_PDF_ComponentPtr & 
     return ptr;
 }
 
-CHE_PDF_ColorSpace::CHE_PDF_ColorSpace(PDF_COLORSPACE_TYPE type, HE_UINT32 componentCount, CHE_Allocator * pAllocator/* = NULL*/)
+CHE_PDF_ColorSpace::CHE_PDF_ColorSpace(PDF_COLORSPACE_TYPE type, uint32 componentCount, CHE_Allocator * pAllocator/* = nullptr*/)
  : CHE_PDF_Component(COMPONENT_TYPE_ColorSpace, pAllocator), mColorSpaceType(type), mComponentCount(componentCount) {}
 
 
 CHE_PDF_ColorSpace::~CHE_PDF_ColorSpace() {}
 
-// HE_BOOL CHE_PDF_ColorSpace::IsDeviceColorSpace() const
+// bool CHE_PDF_ColorSpace::IsDeviceColorSpace() const
 // {
 // 	switch ( GetType() )
 // 	{
@@ -211,7 +213,7 @@ CHE_PDF_ColorSpace::~CHE_PDF_ColorSpace() {}
 // 		break;
 // 	}
 // 
-// 	return FALSE;;
+// 	return false;;
 // }
 
 // CHE_ByteString CHE_PDF_ColorSpace::GetName() const
@@ -248,7 +250,7 @@ CHE_PDF_ColorSpace::~CHE_PDF_ColorSpace() {}
 // 	return "";
 // }
 
-HE_UINT32 CHE_PDF_ColorSpace::GetComponentCount() const
+uint32 CHE_PDF_ColorSpace::GetComponentCount() const
 {
 	return mComponentCount;
 }
@@ -356,7 +358,7 @@ CHE_PDF_CS_CalGray::CHE_PDF_CS_CalGray(const CHE_PDF_DictionaryPtr & dict, CHE_A
     mBlackPoint[2] = 0.0f;
     mGamma = 1.0f;
     
-    HE_ULONG count;
+    size_t count;
     CHE_PDF_ObjectPtr objPtr;
     CHE_PDF_ArrayPtr arrayPtr;
     objPtr = dict->GetElement("WhitePoint", OBJ_TYPE_ARRAY);
@@ -364,7 +366,7 @@ CHE_PDF_CS_CalGray::CHE_PDF_CS_CalGray(const CHE_PDF_DictionaryPtr & dict, CHE_A
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for ( HE_ULONG i = 0; i < count && i < 3; ++i )
+        for ( size_t i = 0; i < count && i < 3; ++i )
         {
             objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
             if ( objPtr )
@@ -379,7 +381,7 @@ CHE_PDF_CS_CalGray::CHE_PDF_CS_CalGray(const CHE_PDF_DictionaryPtr & dict, CHE_A
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for ( HE_ULONG i = 0; i < count && i < 3; ++i )
+        for ( size_t i = 0; i < count && i < 3; ++i )
         {
             objPtr = arrayPtr->GetElement( i, OBJ_TYPE_NUMBER );
             if ( objPtr )
@@ -441,7 +443,7 @@ CHE_PDF_CS_CalRGB::CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_All
     mMatrix[7] = 0.0f;
     mMatrix[8] = 1.0f;
     
-    HE_ULONG count;
+    size_t count;
     CHE_PDF_ObjectPtr objPtr;
     CHE_PDF_ArrayPtr arrayPtr;
     objPtr = dict->GetElement("WhitePoint", OBJ_TYPE_ARRAY);
@@ -449,7 +451,7 @@ CHE_PDF_CS_CalRGB::CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_All
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for (HE_ULONG i = 0; i < count && i < 3; ++i)
+        for (size_t i = 0; i < count && i < 3; ++i)
         {
             objPtr = arrayPtr->GetElement(i, OBJ_TYPE_NUMBER);
             if ( objPtr )
@@ -464,7 +466,7 @@ CHE_PDF_CS_CalRGB::CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_All
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for (HE_ULONG i = 0; i < count && i < 3; ++i)
+        for (size_t i = 0; i < count && i < 3; ++i)
         {
             objPtr = arrayPtr->GetElement(i, OBJ_TYPE_NUMBER);
             if ( objPtr )
@@ -479,7 +481,7 @@ CHE_PDF_CS_CalRGB::CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_All
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for (HE_ULONG i = 0; i < count && i < 3; ++i)
+        for (size_t i = 0; i < count && i < 3; ++i)
         {
             objPtr = arrayPtr->GetElement(i, OBJ_TYPE_NUMBER);
             if ( objPtr )
@@ -494,7 +496,7 @@ CHE_PDF_CS_CalRGB::CHE_PDF_CS_CalRGB(const CHE_PDF_DictionaryPtr & dict, CHE_All
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for (HE_ULONG i = 0; i < count && i < 9; ++i)
+        for (size_t i = 0; i < count && i < 9; ++i)
         {
             objPtr = arrayPtr->GetElement(i, OBJ_TYPE_NUMBER);
             if ( objPtr )
@@ -534,7 +536,7 @@ CHE_PDF_CS_CalLab::CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_All
     mRange[2] = -100;
     mRange[3] = 100;
     
-    HE_ULONG count;
+    size_t count;
     CHE_PDF_ObjectPtr objPtr;
     CHE_PDF_ArrayPtr arrayPtr;
     objPtr = dict->GetElement("WhitePoint", OBJ_TYPE_ARRAY);
@@ -542,7 +544,7 @@ CHE_PDF_CS_CalLab::CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_All
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for (HE_ULONG i = 0; i < count && i < 3; ++i)
+        for (size_t i = 0; i < count && i < 3; ++i)
         {
             objPtr = arrayPtr->GetElement(i, OBJ_TYPE_NUMBER);
             if ( objPtr )
@@ -557,7 +559,7 @@ CHE_PDF_CS_CalLab::CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_All
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for (HE_ULONG i = 0; i < count && i < 3; ++i)
+        for (size_t i = 0; i < count && i < 3; ++i)
         {
             objPtr = arrayPtr->GetElement(i, OBJ_TYPE_NUMBER);
             if ( objPtr )
@@ -572,7 +574,7 @@ CHE_PDF_CS_CalLab::CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_All
     {
         arrayPtr = objPtr->GetArrayPtr();
         count = arrayPtr->GetCount();
-        for (HE_ULONG i = 0; i < count && i < 4; ++i)
+        for (size_t i = 0; i < count && i < 4; ++i)
         {
             objPtr = arrayPtr->GetElement(i, OBJ_TYPE_NUMBER);
             if ( objPtr )
@@ -586,7 +588,7 @@ CHE_PDF_CS_CalLab::CHE_PDF_CS_CalLab(const CHE_PDF_DictionaryPtr & dict, CHE_All
 CHE_PDF_CS_ICCBased::CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_Allocator * pAllocator)
  : CHE_PDF_ColorSpace(COLORSPACE_CIEBASE_ICCBASED, 0, pAllocator)
 {
-    HE_ULONG count;
+    size_t count;
     CHE_PDF_ObjectPtr obj;
     CHE_PDF_ArrayPtr array;
     CHE_PDF_DictionaryPtr dict;
@@ -606,7 +608,7 @@ CHE_PDF_CS_ICCBased::CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_A
     {
         array = obj->GetArrayPtr();
         count = array->GetCount();
-        for (HE_ULONG i = 0; i < count && i < 8; ++i)
+        for (size_t i = 0; i < count && i < 8; ++i)
         {
             obj = array->GetElement(i, OBJ_TYPE_NUMBER);
             if (obj)
@@ -636,7 +638,7 @@ CHE_PDF_CS_ICCBased::CHE_PDF_CS_ICCBased(const CHE_PDF_StreamPtr & stream, CHE_A
 
 CHE_PDF_CS_Indexed::CHE_PDF_CS_Indexed(const CHE_PDF_ArrayPtr & array, CHE_Allocator * pAllocator)
  : CHE_PDF_ColorSpace(COLORSPACE_SPECIAL_INDEXED, 1, pAllocator), mIndexCount(0),
- mIndexTableSize(0), mpIndexTable(NULL), mNewTableSize(0), mpNewTable(NULL)
+ mIndexTableSize(0), mpIndexTable(nullptr), mNewTableSize(0), mpNewTable(nullptr)
 {
     if (array->GetCount() >= 4)
     {
@@ -656,7 +658,7 @@ CHE_PDF_CS_Indexed::CHE_PDF_CS_Indexed(const CHE_PDF_ArrayPtr & array, CHE_Alloc
             CHE_PDF_StreamAcc stmAcc(GetAllocator());
             if ( stmAcc.Attach( obj->GetStreamPtr() ) )
             {
-                mpIndexTable = GetAllocator()->NewArray<HE_BYTE>(stmAcc.GetSize());
+                mpIndexTable = GetAllocator()->NewArray<BYTE>(stmAcc.GetSize());
                 memcpy(mpIndexTable, stmAcc.GetData(), stmAcc.GetSize());
                 mIndexTableSize = stmAcc.GetSize();
                 stmAcc.Detach();
@@ -666,7 +668,7 @@ CHE_PDF_CS_Indexed::CHE_PDF_CS_Indexed(const CHE_PDF_ArrayPtr & array, CHE_Alloc
             if (obj)
             {
                 CHE_ByteString str = obj->GetStringPtr()->GetString();
-                mpIndexTable = GetAllocator()->NewArray<HE_BYTE>(str.GetLength());
+                mpIndexTable = GetAllocator()->NewArray<BYTE>(str.GetLength());
                 memcpy(mpIndexTable, str.GetData(), str.GetLength());
                 mIndexTableSize = str.GetLength();
             }
@@ -724,7 +726,7 @@ CHE_PDF_CS_DeviceN::CHE_PDF_CS_DeviceN(CHE_PDF_ArrayPtr & array, CHE_Allocator *
                 objPtr = array->GetElement(1, OBJ_TYPE_ARRAY);
                 if (objPtr)
                 {
-                    mComponentCount = (HE_UINT32)objPtr->GetArrayPtr()->GetCount();
+                    mComponentCount = (uint32)objPtr->GetArrayPtr()->GetCount();
                 }
                 objPtr = array->GetElement(2);
                 if (objPtr)
@@ -806,7 +808,7 @@ static inline float fz_clamp(float f, float min, float max)
 	return (f > min ? (f < max ? f : max) : min);
 }
 
-HE_ARGB	CHE_PDF_ColorSpace::GetARGBValue(const CHE_PDF_Color & color) const
+ARGB	CHE_PDF_ColorSpace::GetARGBValue(const CHE_PDF_Color & color) const
 {
 	if (color.GetComponentCount() == 0)
 	{
@@ -817,8 +819,8 @@ HE_ARGB	CHE_PDF_ColorSpace::GetARGBValue(const CHE_PDF_Color & color) const
 	case COLORSPACE_DEVICE_GRAY:
 	case COLORSPACE_CIEBASE_CALGRAY:
 		{
-			HE_ARGB valRet = 0xFF000000;
-			HE_BYTE tmpByte = 0x00;
+			ARGB valRet = 0xFF000000;
+			BYTE tmpByte = 0x00;
 			if (color.GetComponentCount() >= 1)
 			{
 				tmpByte = color.GetComponent(0) * 255;
@@ -829,10 +831,10 @@ HE_ARGB	CHE_PDF_ColorSpace::GetARGBValue(const CHE_PDF_Color & color) const
 	case COLORSPACE_DEVICE_RGB:
 	case COLORSPACE_CIEBASE_CALRGB:
 		{
-			HE_UINT32 valRet = 0xFF000000;
-			HE_BYTE tmpByte1 = 0x00;
-			HE_BYTE tmpByte2 = 0x00;
-			HE_BYTE tmpByte3 = 0x00;
+			uint32 valRet = 0xFF000000;
+			BYTE tmpByte1 = 0x00;
+			BYTE tmpByte2 = 0x00;
+			BYTE tmpByte3 = 0x00;
 			if (color.GetComponentCount() >= 3)
 			{
 				tmpByte1 = color.GetComponent(0) * 255;
@@ -846,12 +848,12 @@ HE_ARGB	CHE_PDF_ColorSpace::GetARGBValue(const CHE_PDF_Color & color) const
 		{
 			if (color.GetComponentCount() >= 4)
 			{
-				HE_FLOAT c = color.GetComponent(0), m = color.GetComponent(1), y = color.GetComponent(2), k = color.GetComponent(3);
-				HE_FLOAT c1 = 1 - c, m1 = 1 - m, y1 = 1 - y, k1 = 1 - k;
-				HE_FLOAT r, g, b, x;
-				HE_FLOAT rgb[3];
-				HE_BYTE br = 0, bg = 0, bb = 0;
-				HE_ARGB valRet = 0;
+				FLOAT c = color.GetComponent(0), m = color.GetComponent(1), y = color.GetComponent(2), k = color.GetComponent(3);
+				FLOAT c1 = 1 - c, m1 = 1 - m, y1 = 1 - y, k1 = 1 - k;
+				FLOAT r, g, b, x;
+				FLOAT rgb[3];
+				BYTE br = 0, bg = 0, bb = 0;
+				ARGB valRet = 0;
 
 				/* this is a matrix multiplication, unrolled for performance */
 				x = c1 * m1 * y1 * k1;	/* 0 0 0 0 */
@@ -917,12 +919,12 @@ HE_ARGB	CHE_PDF_ColorSpace::GetARGBValue(const CHE_PDF_Color & color) const
 	return 0xFF00000;
 }
 
-HE_ARGB	CHE_PDF_CS_CalLab::GetARGBValue(const CHE_PDF_Color & color) const
+ARGB	CHE_PDF_CS_CalLab::GetARGBValue(const CHE_PDF_Color & color) const
 {
-	HE_ARGB valRet = 0xFF000000;
+	ARGB valRet = 0xFF000000;
 	if (color.GetComponentCount() >= 3)
 	{
-		HE_FLOAT lstar, astar, bstar, l, m, n, x, y, z, r, g, b;
+		FLOAT lstar, astar, bstar, l, m, n, x, y, z, r, g, b;
 
 		lstar = color.GetComponent(0);
 		astar = color.GetComponent(1);
@@ -943,22 +945,22 @@ HE_ARGB	CHE_PDF_CS_CalLab::GetARGBValue(const CHE_PDF_Color & color) const
 		b = (0.055643f * x + -0.204026f * y + 1.057229f * z) * 1.1003f;
 
 
-		HE_BYTE tmpByte1 = sqrtf(fz_clamp(r, 0, 1)) * 255;
-		HE_BYTE tmpByte2 = sqrtf(fz_clamp(g, 0, 1)) * 255;
-		HE_BYTE tmpByte3 = sqrtf(fz_clamp(b, 0, 1)) * 255;
+		BYTE tmpByte1 = sqrtf(fz_clamp(r, 0, 1)) * 255;
+		BYTE tmpByte2 = sqrtf(fz_clamp(g, 0, 1)) * 255;
+		BYTE tmpByte3 = sqrtf(fz_clamp(b, 0, 1)) * 255;
 		valRet = valRet + (tmpByte1 << 16) + (tmpByte2 << 8) + tmpByte3;
 	}
 	return valRet;
 }
 
-HE_ARGB	CHE_PDF_CS_ICCBased::GetARGBValue(const CHE_PDF_Color & color) const
+ARGB	CHE_PDF_CS_ICCBased::GetARGBValue(const CHE_PDF_Color & color) const
 {
 	switch ( mComponentCount )
 	{
 	case 1:
 		{
-			HE_UINT32 valRet = 0xFF000000;
-			HE_BYTE tmpByte = 0x00;
+			uint32 valRet = 0xFF000000;
+			BYTE tmpByte = 0x00;
 			if (color.GetComponentCount() >= 1)
 			{
 				tmpByte = color.GetComponent(0) * 255;
@@ -968,10 +970,10 @@ HE_ARGB	CHE_PDF_CS_ICCBased::GetARGBValue(const CHE_PDF_Color & color) const
 		}
 	case 3:
 		{
-			HE_UINT32 valRet = 0xFF000000;
-			HE_BYTE tmpByte1 = 0x00;
-			HE_BYTE tmpByte2 = 0x00;
-			HE_BYTE tmpByte3 = 0x00;
+			uint32 valRet = 0xFF000000;
+			BYTE tmpByte1 = 0x00;
+			BYTE tmpByte2 = 0x00;
+			BYTE tmpByte3 = 0x00;
 			if (color.GetComponentCount() >= 3)
 			{
 				tmpByte1 = color.GetComponent(0) * 255;
@@ -985,12 +987,12 @@ HE_ARGB	CHE_PDF_CS_ICCBased::GetARGBValue(const CHE_PDF_Color & color) const
 		{
 			if (color.GetComponentCount() >= 4)
 			{
-				HE_FLOAT c = color.GetComponent(0), m = color.GetComponent(1), y = color.GetComponent(2), k = color.GetComponent(3);
-				HE_FLOAT c1 = 1 - c, m1 = 1 - m, y1 = 1 - y, k1 = 1 - k;
-				HE_FLOAT r, g, b, x;
-				HE_FLOAT rgb[3];
-				HE_BYTE br = 0, bg = 0, bb = 0;
-				HE_ARGB valRet = 0;
+				FLOAT c = color.GetComponent(0), m = color.GetComponent(1), y = color.GetComponent(2), k = color.GetComponent(3);
+				FLOAT c1 = 1 - c, m1 = 1 - m, y1 = 1 - y, k1 = 1 - k;
+				FLOAT r, g, b, x;
+				FLOAT rgb[3];
+				BYTE br = 0, bg = 0, bb = 0;
+				ARGB valRet = 0;
 
 				/* this is a matrix multiplication, unrolled for performance */
 				x = c1 * m1 * y1 * k1;	/* 0 0 0 0 */
@@ -1057,18 +1059,18 @@ HE_ARGB	CHE_PDF_CS_ICCBased::GetARGBValue(const CHE_PDF_Color & color) const
 	return 0xFF000000;
 }
 
-HE_ARGB	CHE_PDF_CS_Indexed::GetARGBValue(const CHE_PDF_Color & color) const
+ARGB	CHE_PDF_CS_Indexed::GetARGBValue(const CHE_PDF_Color & color) const
 {
 	if (mBaseColorSpace)
 	{
-		HE_BYTE index = (HE_BYTE)(color.GetComponent(0));
-		HE_ULONG componentCount = mBaseColorSpace->GetComponentCount();
+		BYTE index = (BYTE)(color.GetComponent(0));
+		size_t componentCount = mBaseColorSpace->GetComponentCount();
 		if (mpIndexTable && (index * componentCount < mIndexTableSize))
 		{
-			HE_BYTE component = 0;
+			BYTE component = 0;
 			CHE_PDF_Color newColor;
-			HE_LPBYTE p = mpIndexTable + (index * componentCount);
-			for (HE_ULONG i = 0; i < componentCount; ++i)
+			PBYTE p = mpIndexTable + (index * componentCount);
+			for (size_t i = 0; i < componentCount; ++i)
 			{
 				component = *(p + i);
 				newColor.Push(component / 255.0f);
@@ -1079,20 +1081,20 @@ HE_ARGB	CHE_PDF_CS_Indexed::GetARGBValue(const CHE_PDF_Color & color) const
 	return 0xFF000000;
 }
 
-HE_ARGB	CHE_PDF_CS_Separation::GetARGBValue(const CHE_PDF_Color & color) const
+ARGB	CHE_PDF_CS_Separation::GetARGBValue(const CHE_PDF_Color & color) const
 {
 	if (mBaseColorSpace && mFunction)
 	{
 		CHE_PDF_Color newColor;
-		std::vector<HE_FLOAT> input;
-		std::vector<HE_FLOAT> output;
-		for (HE_ULONG i = 0; i < color.GetComponentCount(); ++i)
+		std::vector<FLOAT> input;
+		std::vector<FLOAT> output;
+		for (size_t i = 0; i < color.GetComponentCount(); ++i)
 		{
 			input.push_back(color.GetComponent(i));
 		}
 		if (mFunction->Calculate(input, output))
 		{
-			for (HE_ULONG j = 0; j < output.size(); ++j)
+			for (size_t j = 0; j < output.size(); ++j)
 			{
 				newColor.Push(output[j]);
 			}
@@ -1102,7 +1104,7 @@ HE_ARGB	CHE_PDF_CS_Separation::GetARGBValue(const CHE_PDF_Color & color) const
 	return 0xFF000000;
 }
 
-HE_ARGB	CHE_PDF_CS_DeviceN::GetARGBValue(const CHE_PDF_Color & color) const
+ARGB	CHE_PDF_CS_DeviceN::GetARGBValue(const CHE_PDF_Color & color) const
 {
 	return 0xFF000000;
 }

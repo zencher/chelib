@@ -3,37 +3,37 @@
 
 struct PDF_CMAP_RANGE
 {
-	HE_UINT16 low;
+	uint16 low;
 	/* Next, we pack 2 fields into the same unsigned short. Top 14 bits
 	 * are the extent, bottom 2 bits are flags: single, range, table,
 	 * multi */
-	HE_UINT16 extent_flags;
-	HE_UINT16 offset;	/* range-delta or table-index */
+	uint16 extent_flags;
+	uint16 offset;	/* range-delta or table-index */
 };
 
 struct PDF_CMAP
 {
-	HE_INT32 refs;
-	HE_CHAR cmap_name[32];
+	int32 refs;
+	char cmap_name[32];
 
-	HE_CHAR usecmap_name[32];
+	char usecmap_name[32];
 	PDF_CMAP *usecmap;
 
-	HE_INT32 wmode;
+	int32 wmode;
 
-	HE_INT32 codespace_len;
+	int32 codespace_len;
 	struct
 	{
-		HE_UINT16 n;
-		HE_UINT16 low;
-		HE_UINT16 high;
+		uint16 n;
+		uint16 low;
+		uint16 high;
 	} codespace[40];
 
-	HE_INT32 rlen, rcap;
+	int32 rlen, rcap;
 	PDF_CMAP_RANGE *ranges;
 
-	HE_INT32 tlen, tcap;
-	HE_UINT16 *table;
+	int32 tlen, tcap;
+	uint16 *table;
 };
 
 enum PDF_CMAP_TYPE

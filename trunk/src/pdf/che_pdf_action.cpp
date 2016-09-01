@@ -1,10 +1,10 @@
 #include "../../include/pdf/che_pdf_action.h"
 
 
-CHE_PDF_ActionPtr CHE_PDF_Action::Create(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/)
+CHE_PDF_ActionPtr CHE_PDF_Action::Create(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict /*= nullptr*/, CHE_Allocator * pAllocator /*= nullptr*/)
 {
 	CHE_PDF_ActionPtr ptr;
-	if (pAllocator == NULL)
+	if (pAllocator == nullptr)
 	{
 		pAllocator = GetDefaultAllocator();
 	}
@@ -23,10 +23,10 @@ CHE_PDF_ActionPtr CHE_PDF_Action::Create(const CHE_PDF_DictionaryPtr & dict, CHE
 }
 
 
-CHE_PDF_Action::CHE_PDF_Action(PDF_ACTION_TYPE type, const CHE_PDF_ObjectPtr & obj, CHE_Allocator * pAllocator/* = NULL*/)
+CHE_PDF_Action::CHE_PDF_Action(PDF_ACTION_TYPE type, const CHE_PDF_ObjectPtr & obj, CHE_Allocator * pAllocator/* = nullptr*/)
 : CHE_PDF_Component(COMPONENT_TYPE_Action, obj, pAllocator), mActionType(type) {}
 
-CHE_PDF_GoToAction::CHE_PDF_GoToAction(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict /*= NULL*/, CHE_Allocator * pAllocator /*= NULL*/)
+CHE_PDF_GoToAction::CHE_PDF_GoToAction(const CHE_PDF_DictionaryPtr & dict, CHE_PDF_NameDict * pNameDict /*= nullptr*/, CHE_Allocator * pAllocator /*= nullptr*/)
 : CHE_PDF_Action( ACTION_GOTO, dict, pAllocator )
 {
 	CHE_PDF_ObjectPtr objPtr = dict->GetElement("D");

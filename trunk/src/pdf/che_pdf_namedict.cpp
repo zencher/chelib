@@ -1,10 +1,10 @@
 #include "../../include/pdf/che_pdf_namedict.h"
 
-CHE_PDF_NameDict::CHE_PDF_NameDict(CHE_Allocator * pAllocator /*= NULL*/)
-: CHE_Object(pAllocator), mpDestNameTree(NULL), mpAPNameTree(NULL),
-mpJSNameTree(NULL), mpPagesNameTree(NULL), mpTemplatesNameTree(NULL),
-mpIDSNameTree(NULL), mpURLSNameTree(NULL), mpEFNameTree(NULL),
-mpAlPrNameTree(NULL), mpRendNameTree(NULL) {}
+CHE_PDF_NameDict::CHE_PDF_NameDict(CHE_Allocator * pAllocator /*= nullptr*/)
+: CHE_Object(pAllocator), mpDestNameTree(nullptr), mpAPNameTree(nullptr),
+mpJSNameTree(nullptr), mpPagesNameTree(nullptr), mpTemplatesNameTree(nullptr),
+mpIDSNameTree(nullptr), mpURLSNameTree(nullptr), mpEFNameTree(nullptr),
+mpAlPrNameTree(nullptr), mpRendNameTree(nullptr) {}
 
 CHE_PDF_NameDict::~CHE_PDF_NameDict()
 {
@@ -50,7 +50,7 @@ CHE_PDF_NameDict::~CHE_PDF_NameDict()
 	}
 }
 
-HE_VOID CHE_PDF_NameDict::Parse(const CHE_PDF_DictionaryPtr & dict)
+void CHE_PDF_NameDict::Parse(const CHE_PDF_DictionaryPtr & dict)
 {
 	if (!dict)
 	{

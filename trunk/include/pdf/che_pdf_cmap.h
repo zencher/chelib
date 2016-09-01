@@ -8,19 +8,19 @@
 class CHE_PDF_CMap : public CHE_Object
 {
 public:
-	static CHE_PDF_CMap * LoadBuildinCMap( const CHE_ByteString & cmapName,  CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_CMap * LoadBuildinCMap( const CHE_ByteString & cmapName,  CHE_Allocator * pAllocator = nullptr );
 
 	~CHE_PDF_CMap();
 
-	HE_BOOL LookupCode( HE_ULONG cpt, HE_ULONG & codeRet ) const;
+	bool LookupCode( uint32 cpt, uint32 & codeRet ) const;
 
-	HE_BOOL IsCode( HE_ULONG cpt, HE_BYTE byteCount ) const;
+	bool IsCode( uint32 cpt, BYTE byteCount ) const;
 
 private:
-	CHE_PDF_CMap( PDF_CMAP * pCmap, HE_BOOL bNeedClear = FALSE, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mbNeedClear(FALSE) { mpCMap = pCmap; }
+	CHE_PDF_CMap( PDF_CMAP * pCmap, bool bNeedClear = false, CHE_Allocator * pAllocator = nullptr )
+		: CHE_Object(pAllocator), mbNeedClear(false) { mpCMap = pCmap; }
 
-	HE_BOOL		mbNeedClear; 
+	bool		mbNeedClear; 
 	PDF_CMAP *	mpCMap;
 
 	friend CHE_Allocator;

@@ -1,6 +1,6 @@
 #include "../../include/wdm/che_wdm_textbox.h"
 
-CHE_WDM_TextBox * CHE_WDM_TextBox::Create( HE_ULONG width, HE_ULONG height, IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator /*= NULL*/ )
+CHE_WDM_TextBox * CHE_WDM_TextBox::Create( size_t width, size_t height, IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator /*= NULL*/ )
 {
 	if ( pInterActive == NULL )
 	{

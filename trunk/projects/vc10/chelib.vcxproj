@@ -44,7 +44,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_file.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_filter.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_font.h" />
-    <ClInclude Include="..\..\include\pdf\che_pdf_fontmgr.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_function.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_gstate.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_image.h" />
@@ -55,8 +54,6 @@
     <ClInclude Include="..\..\include\pdf\che_pdf_parser.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_renderer_windows.h" />
     <ClInclude Include="..\..\include\pdf\che_pdf_xref.h" />
-    <ClInclude Include="..\..\include\wdm\che_wdm.h" />
-    <ClInclude Include="..\..\include\wdm\che_wdm_textbox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\extlib\freetype\src\autofit\autofit.c" />
@@ -176,6 +173,8 @@
     <ClCompile Include="..\..\src\crypt\che_crypt_aes.cpp" />
     <ClCompile Include="..\..\src\crypt\che_crypt_rc4.cpp" />
     <ClCompile Include="..\..\src\hash\che_hash_md5.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_action.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_annotation.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_cmap.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_colorspace.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_component.cpp" />
@@ -184,31 +183,37 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_contentlistbuilder.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentobjs.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_contentresmgr.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_creator.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_destination.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_document.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_encrypt.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_extgstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_file.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_filespec.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_function.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_image.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_imageraster.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_namedict.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_nametree.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_numbertree.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_objclone.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_objects.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_objectstring.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_outline.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_pagelabels.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pages.cpp" />
+    <ClCompile Include="..\..\src\pdf\che_pdf_page_layout.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_parser.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_pattern.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_renderer_windows.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_xobject.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_xref.cpp" />
-    <ClCompile Include="..\..\src\pdf\platform\windows\che_platform_font.cpp" />
-    <ClCompile Include="..\..\src\wdm\che_wdm.cpp" />
-    <ClCompile Include="..\..\src\wdm\che_wdm_textbox.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{93D59D50-47AB-4B6D-856D-4B5CD72E7E9F}</ProjectGuid>

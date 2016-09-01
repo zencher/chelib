@@ -11,33 +11,33 @@ using namespace std;
 class CHE_PDF_Collector : public CHE_Object
 {
 public:
-	CHE_PDF_Collector( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {}
+	CHE_PDF_Collector( CHE_Allocator * pAllocator = nullptr ) : CHE_Object( pAllocator ) {}
 	~CHE_PDF_Collector() { Clear(); }
 
-	HE_ULONG GetCount() { return mMap.size(); }
+	size_t GetCount() { return mMap.size(); }
 
-	HE_BOOL Add( HE_ULONG objNum, const CHE_PDF_ObjectPtr & ObjPtr )
+	bool Add( size_t objNum, const CHE_PDF_ObjectPtr & ObjPtr )
 	{
 		if ( ! ObjPtr )
 		{
-			return FALSE;
+			return false;
 		}
 		mMap[objNum] = ObjPtr;
 		return TRUE;
 	}
 
-	HE_BOOL IsExist( HE_ULONG objNum )
+	bool IsExist( size_t objNum )
 	{
 		if ( mMap.count( objNum ) )
 		{
 			return TRUE;
 		}
-		return FALSE;
+		return false;
 	}
 
-	CHE_PDF_ObjectPtr GetObj( HE_ULONG objNum )
+	CHE_PDF_ObjectPtr GetObj( size_t objNum )
 	{
-		unordered_map<HE_ULONG,CHE_PDF_ObjectPtr>::iterator it;
+		unordered_map<size_t,CHE_PDF_ObjectPtr>::iterator it;
 		it = mMap.find( objNum );
 		if ( it != mMap.end() )
 		{
@@ -46,13 +46,13 @@ public:
 		return CHE_PDF_ObjectPtr(); 
 	}
 
-	HE_VOID Clear()
+	void Clear()
 	{
 		mMap.clear();
 	}
 
 private:
-	unordered_map<HE_ULONG,CHE_PDF_ObjectPtr> mMap;
+	unordered_map<size_t,CHE_PDF_ObjectPtr> mMap;
 };
 
 #endif

@@ -23,26 +23,26 @@ class CHE_PDF_DestinationPtr;
 class CHE_PDF_Destination : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_DestinationPtr Create(const CHE_PDF_ArrayPtr & destArray, CHE_Allocator * pAllocator = NULL);
+	static CHE_PDF_DestinationPtr Create(const CHE_PDF_ArrayPtr & destArray, CHE_Allocator * pAllocator = nullptr);
 
 	PDF_DESTINATION_TYPE		GetDestType() const { return mDestType; }
-	HE_FLOAT					GetLeft() const { return mLeft; }
-	HE_FLOAT					GetRight() const { return mRight; }
-	HE_FLOAT					GetTop() const { return mTop; }
-	HE_FLOAT					GetBottom() const { return mBottom; }
-	HE_FLOAT					GetZoom() const { return mZoom; }
+	FLOAT					GetLeft() const { return mLeft; }
+	FLOAT					GetRight() const { return mRight; }
+	FLOAT					GetTop() const { return mTop; }
+	FLOAT					GetBottom() const { return mBottom; }
+	FLOAT					GetZoom() const { return mZoom; }
 
 private:
-	CHE_PDF_Destination(const CHE_PDF_ArrayPtr & arr, CHE_Allocator * pAllocator = NULL);
+	CHE_PDF_Destination(const CHE_PDF_ArrayPtr & arr, CHE_Allocator * pAllocator = nullptr);
 
 	PDF_DESTINATION_TYPE		mDestType;
 	CHE_PDF_ReferencePtr		mPageRef;
-	HE_UINT32					mPageIndex;
-	HE_FLOAT					mLeft;
-	HE_FLOAT					mRight;
-	HE_FLOAT					mTop;
-	HE_FLOAT					mBottom;
-	HE_FLOAT					mZoom;
+	uint32					mPageIndex;
+	FLOAT					mLeft;
+	FLOAT					mRight;
+	FLOAT					mTop;
+	FLOAT					mBottom;
+	FLOAT					mZoom;
 
 	friend class CHE_Allocator;
 };

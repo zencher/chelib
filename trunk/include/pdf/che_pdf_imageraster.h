@@ -7,7 +7,7 @@
 class CHE_PDF_ImageRaster : public CHE_Object
 {
 public:
-	CHE_PDF_ImageRaster( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_ImageRaster( CHE_Allocator * pAllocator = nullptr );
 
 	CHE_Bitmap * GetBitmap( const CHE_PDF_ImageXObjectPtr & imgPtr );
 
@@ -20,7 +20,7 @@ private:
 
 	CHE_Bitmap * GetBitmapAsMask( const CHE_PDF_ImageXObjectPtr & imgPtr );
 
-	CHE_Bitmap * GetBitmapWithImageMask( const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr, HE_BOOL bExplicit = false );
+	CHE_Bitmap * GetBitmapWithImageMask( const CHE_PDF_ImageXObjectPtr & imgPtr, const CHE_PDF_ImageXObjectPtr & maskPtr, bool bExplicit = false );
 };
 
 #endif

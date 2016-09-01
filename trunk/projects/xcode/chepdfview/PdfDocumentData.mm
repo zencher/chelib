@@ -17,13 +17,13 @@ public:
     
     ~IHE_NSDataRead();
     
-    HE_ULONG	GetSize();
+    size_t	GetSize();
     
-    HE_ULONG	ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size );
+    size_t	ReadBlock( void * buffer, size_t offset, size_t size );
     
-    HE_BYTE		ReadByte( HE_ULONG offset );
+    BYTE	ReadByte( size_t offset );
     
-    HE_VOID		Release();
+    void    Release();
     
 private:
     NSData *    mpData;
@@ -39,25 +39,25 @@ IHE_NSDataRead::~IHE_NSDataRead()
 {
 }
 
-HE_ULONG IHE_NSDataRead::GetSize()
+size_t IHE_NSDataRead::GetSize()
 {
     return [mpData length];
 }
 
-HE_ULONG IHE_NSDataRead::ReadBlock( HE_LPVOID buffer, HE_ULONG offset, HE_ULONG size )
+size_t IHE_NSDataRead::ReadBlock( void * buffer, size_t offset, size_t size )
 {
     [mpData getBytes:buffer range:NSMakeRange(offset, size)];
     return size;
 }
 
-HE_BYTE	IHE_NSDataRead::ReadByte( HE_ULONG offset )
+BYTE IHE_NSDataRead::ReadByte( size_t offset )
 {
-    HE_BYTE byte;
+    BYTE byte;
     [mpData getBytes:&byte range:NSMakeRange(offset, 1)];
     return byte;
 }
 
-HE_VOID	IHE_NSDataRead::Release()
+void IHE_NSDataRead::Release()
 {
 }
 
@@ -103,7 +103,7 @@ HE_VOID	IHE_NSDataRead::Release()
                                 if ( pdfPage )
                                 {
                                     CHE_Rect rect = pdfPage->GetPageRect();
-                                    HE_INT32 rotate = pdfPage->GetRotate() % 360;
+                                    uint32 rotate = pdfPage->GetRotate() % 360;
                                     if ( rotate == 90 || rotate == 270 )
                                     {
                                         pdfPageLayout->AddPageSize(rect.height, rect.width);
@@ -164,7 +164,7 @@ HE_VOID	IHE_NSDataRead::Release()
                                 if ( pdfPage )
                                 {
                                     CHE_Rect rect = pdfPage->GetPageRect();
-                                    HE_INT32 rotate = pdfPage->GetRotate() % 360;
+                                    uint32 rotate = pdfPage->GetRotate() % 360;
                                     if ( rotate == 90 || rotate == 270 )
                                     {
                                         pdfPageLayout->AddPageSize(rect.height, rect.width);
@@ -212,7 +212,7 @@ HE_VOID	IHE_NSDataRead::Release()
     }
 }
 
--(CHE_PDF_ContentObjectList*)getPageContent:(HE_ULONG)index
+-(CHE_PDF_ContentObjectList*)getPageContent:(size_t)index
 {
     CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
     if ( pdfPage )
@@ -224,14 +224,14 @@ HE_VOID	IHE_NSDataRead::Release()
     return NULL;
 }
 
--(HE_ULONG)getPageCount
+-(size_t)getPageCount
 {
     return pdfPageTree->GetPageCount();
 }
 
--(HE_INT32)getPageRotate:(HE_ULONG)index
+-(int32)getPageRotate:(size_t)index
 {
-    HE_INT32 rotate = 0;
+    uint32 rotate = 0;
     if ( index < pageCount )
     {
         CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
@@ -243,7 +243,7 @@ HE_VOID	IHE_NSDataRead::Release()
     return rotate;
 }
 
--(CHE_Rect)getPageRect:(HE_ULONG)index
+-(CHE_Rect)getPageRect:(size_t)index
 {
     CHE_Rect rect;
     if ( index < pageCount )
@@ -457,7 +457,7 @@ HE_VOID	IHE_NSDataRead::Release()
     return sizeRet;
 }
 
--(NSRect)getPageRectInView:(HE_ULONG)pageIndex
+-(NSRect)getPageRectInView:(size_t)pageIndex
 {
     NSRect rect;
     CHE_Page_Rect pageRect = pdfPageLayout->GetPageRectInView(pageIndex);
@@ -477,7 +477,7 @@ HE_VOID	IHE_NSDataRead::Release()
     return sizeRet;
 }
 
--(NSRect)getPageRectInThumbnailView:(HE_ULONG)pageIndex
+-(NSRect)getPageRectInThumbnailView:(size_t)pageIndex
 {
     NSRect rect;
     CHE_Page_Rect pageRect = pdfThumbnailLayout->GetPageRectInView(pageIndex);
@@ -488,12 +488,12 @@ HE_VOID	IHE_NSDataRead::Release()
     return rect;
 }
 
--(CGFloat)getPageScaleInThumbnailView:(HE_ULONG)pageIndex
+-(CGFloat)getPageScaleInThumbnailView:(size_t)pageIndex
 {
     return pdfThumbnailLayout->GetPageScaleInView(pageIndex);
 }
 
--(CGFloat)getPageScaleInViwe:(HE_ULONG)pageIndex
+-(CGFloat)getPageScaleInViwe:(size_t)pageIndex
 {
     return pdfPageLayout->GetPageScaleInView(pageIndex);
 }

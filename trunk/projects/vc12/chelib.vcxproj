@@ -206,7 +206,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_filespec.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_filter.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_font.cpp" />
-    <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_function.cpp" />
     <ClCompile Include="..\..\src\pdf\che_pdf_gstate.cpp" />

@@ -1,16 +1,16 @@
 #include "../../include/pdf/che_pdf_objclone.h"
 
-CHE_PDF_ArrayPtr CloneDirectArrayObj( const CHE_PDF_ArrayPtr & arrayPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr /*= NULL*/ )
+CHE_PDF_ArrayPtr CloneDirectArrayObj( const CHE_PDF_ArrayPtr & arrayPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr /*= nullptr*/ )
 {
-	if ( ! arrayPtr || pFile == NULL )
+	if ( ! arrayPtr || pFile == nullptr )
 	{
 		return CHE_PDF_ArrayPtr();
 	}
 
 	CHE_PDF_ObjectPtr objPtr;
 	CHE_PDF_ArrayPtr newArrayPtr = CHE_PDF_Array::Create( pFile->GetAllocator() );
-	HE_ULONG arraySize = arrayPtr->GetCount();
-	for ( HE_ULONG i = 0; i < arraySize; ++i )
+	size_t arraySize = arrayPtr->GetCount();
+	for ( size_t i = 0; i < arraySize; ++i )
 	{
 		objPtr = arrayPtr->GetElement( i );
 		switch (objPtr->GetType())
@@ -53,9 +53,9 @@ CHE_PDF_ArrayPtr CloneDirectArrayObj( const CHE_PDF_ArrayPtr & arrayPtr, CHE_PDF
 	return newArrayPtr;
 }
 
-CHE_PDF_DictionaryPtr CloneDirectDictObj( const CHE_PDF_DictionaryPtr & dictPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr /*= NULL*/ )
+CHE_PDF_DictionaryPtr CloneDirectDictObj( const CHE_PDF_DictionaryPtr & dictPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr /*= nullptr*/ )
 {
-	if ( !dictPtr || pFile == NULL )
+	if ( !dictPtr || pFile == nullptr )
 	{
 		return CHE_PDF_DictionaryPtr();
 	}
@@ -108,13 +108,13 @@ CHE_PDF_DictionaryPtr CloneDirectDictObj( const CHE_PDF_DictionaryPtr & dictPtr,
 	return newDictPtr;
 }
 
-PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr /* = NULL */ )
+PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File * pFile, IHE_ObjectCloneMgr * pMgr /* = nullptr */ )
 {
 	PDF_RefInfo refInfo;
 	refInfo.objNum = 0;
 	refInfo.genNum = 0;
 
-	if ( ! RefPtr || pFile == NULL )
+	if ( ! RefPtr || pFile == nullptr )
 	{
 		return refInfo;
 	}
@@ -217,8 +217,8 @@ PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File 
 			CHE_PDF_ObjectPtr tmpObjPtr;
 			CHE_PDF_ArrayPtr tmpArrayPtr = ObjPtr->GetArrayPtr();
 
-			HE_ULONG arraySize = tmpArrayPtr->GetCount();
-			for ( HE_ULONG i = 0; i < arraySize; i++ )
+			size_t arraySize = tmpArrayPtr->GetCount();
+			for ( size_t i = 0; i < arraySize; i++ )
 			{
 				tmpObjPtr = tmpArrayPtr->GetElement( i );
 				switch ( tmpObjPtr->GetType() )
@@ -328,13 +328,13 @@ PDF_RefInfo CloneIndirectObj( const CHE_PDF_ReferencePtr & RefPtr, CHE_PDF_File 
 			CHE_PDF_DictionaryPtr NewDictPtr = CloneDirectDictObj( ObjPtr->GetStreamPtr()->GetDictPtr(), pFile, pMgr );
 			NewStmPtr->SetDictPtr( NewDictPtr );
 
-			HE_LPBYTE pbuffer = GetDefaultAllocator()->NewArray<HE_BYTE>( ObjPtr->GetStreamPtr()->GetRawSize() );
+			PBYTE pbuffer = GetDefaultAllocator()->NewArray<BYTE>( ObjPtr->GetStreamPtr()->GetRawSize() );
 			ObjPtr->GetStreamPtr()->GetRawData( 0, pbuffer, ObjPtr->GetStreamPtr()->GetRawSize() );
 
 			NewStmPtr->SetRawData( pbuffer, ObjPtr->GetStreamPtr()->GetRawSize() );
 			GetDefaultAllocator()->DeleteArray( pbuffer );
 
-			pbuffer = NULL;
+			pbuffer = nullptr;
 			break;
 		}
 	case OBJ_TYPE_REFERENCE:

@@ -216,8 +216,8 @@ CHE_ByteString CHE_PDF_ContentResMgr::RequestName( const CHE_PDF_DictionaryPtr &
 		return name;
 	}else
 	{
-		HE_CHAR tmpStr[128];
-		HE_ULONG tmpInt = 0;
+		char tmpStr[128];
+		size_t tmpInt = 0;
 		bool bContinue = true;
 		while ( bContinue )
 		{
@@ -257,11 +257,11 @@ CHE_PDF_ComponentPtr CHE_PDF_ContentResMgr::GetComponent( const CHE_ByteString &
 	return ptr;
 }
 
-HE_BOOL	CHE_PDF_ContentResMgr::PushComponent( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & component )
+bool	CHE_PDF_ContentResMgr::PushComponent( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & component )
 {
 	if ( name.GetLength() == 0 || !component )
 	{
-		return FALSE;
+		return false;
 	}
 	mCompontentsMap.insert( pair<std::string,CHE_PDF_ComponentPtr>( std::string( name.GetData() ), component ) );
 	return TRUE;

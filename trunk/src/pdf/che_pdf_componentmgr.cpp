@@ -2,7 +2,7 @@
 #include "../../include/pdf/che_pdf_font.h"
 
 
-CHE_PDF_ComponentMgr::CHE_PDF_ComponentMgr( CHE_Allocator * pAllocator/*= NULL*/ )
+CHE_PDF_ComponentMgr::CHE_PDF_ComponentMgr( CHE_Allocator * pAllocator/*= nullptr*/ )
 	: CHE_Object(pAllocator) {}
 
 CHE_PDF_ComponentMgr::~CHE_PDF_ComponentMgr() {}
@@ -32,7 +32,7 @@ CHE_PDF_ComponentPtr CHE_PDF_ComponentMgr::GetComponent( const CHE_PDF_Reference
 	CHE_PDF_ComponentPtr ptr;
 	if ( refPtr )
 	{
-		std::unordered_map<HE_ULONG,CHE_PDF_ComponentPtr>::iterator it;
+		std::unordered_map<size_t,CHE_PDF_ComponentPtr>::iterator it;
 		it = mComponentsMap.find( refPtr->GetRefNum() );
 		if ( it != mComponentsMap.end() )
 		{
@@ -52,12 +52,12 @@ CHE_PDF_ComponentPtr CHE_PDF_ComponentMgr::GetComponent( const CHE_PDF_Reference
 	return CHE_PDF_ComponentPtr();
 }
 
-HE_BOOL	CHE_PDF_ComponentMgr::PushComponent( const CHE_PDF_ReferencePtr & refPtr, const CHE_PDF_ComponentPtr & component )
+bool	CHE_PDF_ComponentMgr::PushComponent( const CHE_PDF_ReferencePtr & refPtr, const CHE_PDF_ComponentPtr & component )
 {
 	if ( refPtr && component )
 	{
-		mComponentsMap.insert( pair<HE_ULONG,CHE_PDF_ComponentPtr>( refPtr->GetRefNum(), component ) );
+		mComponentsMap.insert( pair<size_t,CHE_PDF_ComponentPtr>( refPtr->GetRefNum(), component ) );
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }

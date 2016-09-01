@@ -49,7 +49,7 @@ enum PDFVIEW_ROTATE_MODE
     CHE_PDF_PageTree *                      pdfPageTree;
     CHE_PDF_PageLayout *                    pdfPageLayout;
     CHE_PDF_ThumbnailPageLayout *           pdfThumbnailLayout;
-    HE_ULONG                                pageCount;
+    size_t                                  pageCount;
     CHE_PDF_OutlineItem *                   pdfoutlineRoot;
 }
 
@@ -57,13 +57,13 @@ enum PDFVIEW_ROTATE_MODE
 
 -(id)initWithFilePath:(NSString*)path;
 
--(HE_ULONG)getPageCount;
+-(size_t)getPageCount;
 
--(HE_INT32)getPageRotate:(HE_ULONG)pageIndex;
+-(int32)getPageRotate:(size_t)pageIndex;
 
--(CHE_Rect)getPageRect:(HE_ULONG)pageIndex;
+-(CHE_Rect)getPageRect:(size_t)pageIndex;
 
--(CHE_PDF_ContentObjectList*)getPageContent:(HE_ULONG)pageIndex;
+-(CHE_PDF_ContentObjectList*)getPageContent:(size_t)pageIndex;
 
 
 
@@ -93,9 +93,9 @@ enum PDFVIEW_ROTATE_MODE
 
 -(CGSize)getContentSize;
 
--(NSRect)getPageRectInView:(HE_ULONG)pageIndex;
+-(NSRect)getPageRectInView:(size_t)pageIndex;
 
--(CGFloat)getPageScaleInViwe:(HE_ULONG)pageInde;
+-(CGFloat)getPageScaleInViwe:(size_t)pageInde;
 
 -(HE_PDF_PAGE_RANGE)getCurPageRange;
 
@@ -111,9 +111,9 @@ enum PDFVIEW_ROTATE_MODE
 
 -(CGSize)getThumbnailContentSize;
 
--(NSRect)getPageRectInThumbnailView:(HE_ULONG)pageIndex;
+-(NSRect)getPageRectInThumbnailView:(size_t)pageIndex;
 
--(CGFloat)getPageScaleInThumbnailView:(HE_ULONG)pageInde;
+-(CGFloat)getPageScaleInThumbnailView:(size_t)pageInde;
 
 
 @end

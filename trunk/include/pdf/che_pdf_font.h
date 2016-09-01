@@ -52,70 +52,70 @@ class CHE_PDF_TextItem;
 class CHE_PDF_Encoding : public CHE_Object
 {
 public:
-	CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Encoding( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_Encoding();
     
-    static HE_BOOL IsPredefinedCJKCMapNames(const CHE_ByteString & name);
+    static bool IsPredefinedCJKCMapNames(const CHE_ByteString & name);
 
 	PDF_FONT_ENCODING			GetType() const;
     PDF_FONT_ENCODING           GetBaseType() const;
-	HE_BOOL						GetUnicode(HE_BYTE charCode, HE_WCHAR & codeRet) const;
+	bool						GetUnicode(BYTE charCode, wchar_t & codeRet) const;
     
     static PDF_FONT_LANGUAGE    GetLanguage( const CHE_ByteString & encodingName );
 
 private:
 	PDF_FONT_ENCODING			mType;
     PDF_FONT_ENCODING           mBaseType;
-	HE_WCHAR*					mpCodeTable;
+	wchar_t*					mpCodeTable;
 };
 
 
 class CHE_PDF_FontDescriptor : public CHE_Object
 {
 public:
-	CHE_PDF_FontDescriptor( const CHE_PDF_DictionaryPtr & fontDesDict, CHE_Allocator * pAllocator = NULL ); 
+	CHE_PDF_FontDescriptor( const CHE_PDF_DictionaryPtr & fontDesDict, CHE_Allocator * pAllocator = nullptr ); 
 	~CHE_PDF_FontDescriptor();
 
-	//HE_BOOL					IsEmbedFont() const;
+	//bool					IsEmbedFont() const;
 	CHE_PDF_ReferencePtr	GetEmbeddedStream() const { return mEmbedFont; }
 
 	//Flags
-	HE_BOOL					IsFixedPitch() const;
-	HE_BOOL					IsSerif() const;
-	HE_BOOL					IsSymbolic() const;
-	HE_BOOL					IsScript() const;
-	HE_BOOL					IsNonsymbolic() const;
-	HE_BOOL					IsItalic() const;
-	HE_BOOL					IsAllCap() const;
-	HE_BOOL					IsSmallCap() const;
-	HE_BOOL					IsForceBold() const;
+	bool					IsFixedPitch() const;
+	bool					IsSerif() const;
+	bool					IsSymbolic() const;
+	bool					IsScript() const;
+	bool					IsNonsymbolic() const;
+	bool					IsItalic() const;
+	bool					IsAllCap() const;
+	bool					IsSmallCap() const;
+	bool					IsForceBold() const;
 
 	CHE_Rect				GetFontBBox() const { return mFontBBox; }
 
-	HE_ULONG				GetWMode() const { return mWMode; }
+	uint32				GetWMode() const { return mWMode; }
     
     
-    HE_FLOAT                GetItalicAngle() const { return mItalicAngle; }
-    HE_FLOAT                GetAscent() const { return mAscent; }
-    HE_FLOAT                GetDescent() const { return mDescent; }
-    HE_FLOAT                GetLeading() const { return mLeading; }
-    HE_FLOAT                GetCapHeight() const { return mCapHeight; }
-    HE_FLOAT                GetXHeight() const { return mXHeight; }
-    HE_FLOAT                GetStemV() const { return mStemV; }
-    HE_FLOAT                GetStemH() const { return mStemH; }
+    FLOAT                GetItalicAngle() const { return mItalicAngle; }
+    FLOAT                GetAscent() const { return mAscent; }
+    FLOAT                GetDescent() const { return mDescent; }
+    FLOAT                GetLeading() const { return mLeading; }
+    FLOAT                GetCapHeight() const { return mCapHeight; }
+    FLOAT                GetXHeight() const { return mXHeight; }
+    FLOAT                GetStemV() const { return mStemV; }
+    FLOAT                GetStemH() const { return mStemH; }
 private:
-	HE_INT32				mFlags;
-	HE_FLOAT				mItalicAngle;
-	HE_FLOAT				mAscent;
-	HE_FLOAT				mDescent;
-    HE_FLOAT                mLeading;
-	HE_FLOAT				mCapHeight;
-	HE_FLOAT				mXHeight;
-    HE_FLOAT                mStemV;
-    HE_FLOAT                mStemH;
-	HE_FLOAT				mMissingWidth;
-	HE_BOOL					mEmbedded;
-	HE_INT32 				mWMode;
+	int32				mFlags;
+	FLOAT				mItalicAngle;
+	FLOAT				mAscent;
+	FLOAT				mDescent;
+    FLOAT                mLeading;
+	FLOAT				mCapHeight;
+	FLOAT				mXHeight;
+    FLOAT                mStemV;
+    FLOAT                mStemH;
+	FLOAT				mMissingWidth;
+	bool					mEmbedded;
+	int32 				mWMode;
 	CHE_PDF_ReferencePtr	mEmbedFont;
 	CHE_Rect				mFontBBox;
 
@@ -129,21 +129,21 @@ private:
 class IHE_SystemFontMgr : public CHE_Object
 {
 public:
-    static IHE_SystemFontMgr *	Create( CHE_Allocator * pAllocator = NULL );
-    static HE_VOID				Destroy( IHE_SystemFontMgr * pSystemFontMgr );
+    static IHE_SystemFontMgr *	Create( CHE_Allocator * pAllocator = nullptr );
+    static void				Destroy( IHE_SystemFontMgr * pSystemFontMgr );
     
-    IHE_SystemFontMgr( CHE_Allocator * pAllocator = NULL ) : CHE_Object( pAllocator ) {};
+    IHE_SystemFontMgr( CHE_Allocator * pAllocator = nullptr ) : CHE_Object( pAllocator ) {};
     
     virtual ~IHE_SystemFontMgr() {};
     
     virtual CHE_ByteString GetFontFilePath( const CHE_ByteString & fontName ) = 0;
     
-    virtual CHE_ByteString GetFontFilePath( HE_FLOAT ascent, HE_FLOAT descent ) = 0;
+    virtual CHE_ByteString GetFontFilePath( FLOAT ascent, FLOAT descent ) = 0;
     
     virtual CHE_ByteString GetFontFilePath( CHE_PDF_FontDescriptor * pFontDes ) = 0;
 };
 
-IHE_SystemFontMgr * HE_GetSystemFontMgr( CHE_Allocator * pAllocator = NULL );
+IHE_SystemFontMgr * HE_GetSystemFontMgr( CHE_Allocator * pAllocator = nullptr );
 
 
 
@@ -155,7 +155,7 @@ public:
     CHE_PDF_Font * operator->() const;
 };
 
-typedef HE_VOID (*PlatformFontInfoCleanCallBack)(HE_LPVOID);
+typedef void (*PlatformFontInfoCleanCallBack)(void *);
 
 
 
@@ -164,7 +164,7 @@ typedef HE_VOID (*PlatformFontInfoCleanCallBack)(HE_LPVOID);
 class CHE_PDF_Font : public CHE_PDF_Component
 {
 public:
-	static CHE_PDF_FontPtr 	Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
+	static CHE_PDF_FontPtr 	Create( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = nullptr );
 
 	PDF_FONT_TYPE			GetFontType() const;
 	CHE_ByteString			GetBaseFont() const;
@@ -176,29 +176,29 @@ public:
 	CHE_PDF_DictionaryPtr	GetFontDict() const;
 	CHE_PDF_DictionaryPtr	GetFontDescDict() const;
 
-	HE_ULONG				GetWMode() const;
+	uint32				GetWMode() const;
 
 
-	virtual HE_BOOL         Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid) const = 0;
-	virtual HE_FLOAT		GetWidth(const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix()) = 0;
+	virtual bool         Decode(wchar_t charCode, wchar_t & ucs, uint32 & gid, uint32 & cid) const = 0;
+	virtual FLOAT		GetWidth(const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix()) = 0;
 
-	HE_VOID					Lock();
-	HE_VOID					UnLock();
+	void					Lock();
+	void					UnLock();
     
-    HE_ULONG                GetFontDesender();
-    HE_ULONG                GetFontAscender();
+    uint32                GetFontDesender();
+    uint32                GetFontAscender();
     
     
 
-    HE_LPBYTE               GetEmbededFont() { return mpEmbeddedFontFile; }
-    HE_ULONG                GetEmbededFontSize() { return mFontFileSize; }
+    PBYTE               GetEmbededFont() { return mpEmbeddedFontFile; }
+    size_t                GetEmbededFontSize() { return mFontFileSize; }
     
-    HE_LPVOID               GetPlatformFontInfo() { return mPlatformFontInfo; }
-    HE_VOID                 SetPlatformFontInfo( HE_LPVOID pInfo ) { mPlatformFontInfo = pInfo; }
-    HE_VOID                 SetPlatformFontInfoCleanCallBack( PlatformFontInfoCleanCallBack fun ) { mCleanCallBack = fun; }
+    void *               GetPlatformFontInfo() { return mPlatformFontInfo; }
+    void                 SetPlatformFontInfo( void * pInfo ) { mPlatformFontInfo = pInfo; }
+    void                 SetPlatformFontInfoCleanCallBack( PlatformFontInfoCleanCallBack fun ) { mCleanCallBack = fun; }
 	
 protected:
-	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = nullptr );
 	virtual ~CHE_PDF_Font();
 
 	void 					ParseToUnicodeStream( const CHE_PDF_StreamPtr & stm );
@@ -213,20 +213,20 @@ protected:
 	CHE_PDF_DictionaryPtr           mFontDict;
 	CHE_PDF_DictionaryPtr           mFontDescDict;
 
-	HE_LPBYTE                       mpEmbeddedFontFile;
-	HE_ULONG                        mFontFileSize;
+	PBYTE                       mpEmbeddedFontFile;
+	size_t                        mFontFileSize;
 
 	
-    HE_LPVOID                       mPlatformFontInfo;
+    void *                       mPlatformFontInfo;
     PlatformFontInfoCleanCallBack   mCleanCallBack;
 	
 	CHE_Lock                        mLock;
     
-    HE_BOOL                         mbBase14Font;
+    bool                         mbBase14Font;
     
-    HE_LPVOID                       mFTFace;
+    void *                       mFTFace;
 
-	std::unordered_map<HE_UINT32, HE_UINT32> mToUnicode;
+	std::unordered_map<uint32, uint32> mToUnicode;
 
 	friend class CHE_Allocator;
 };
@@ -235,21 +235,21 @@ protected:
 class CHE_PDF_Type0_Font : public CHE_PDF_Font
 {
 public:
-    HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
-	HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() );
-	HE_BOOL IsCode( HE_ULONG cpt, HE_BYTE byteCount );
+    bool Decode( wchar_t charCode, wchar_t & ucs, uint32 & gid, uint32 & cid ) const;
+	FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() );
+	bool IsCode( uint32 cpt, BYTE byteCount );
 
 protected:
-	CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Type0_Font( const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_Type0_Font();
 
 	CHE_PDF_DictionaryPtr	mDescdtFontDict;
 	CHE_PDF_CMap *			mpCIDMap;
 	CHE_PDF_CMap *			mpUnicodeMap;
-	HE_WCHAR *				mCIDTOGID;
-	HE_ULONG				mCIDTOGIDLength;
-    unordered_map<HE_ULONG, HE_ULONG> mWidths;
-    HE_UINT32               mDefaultWidth;
+	wchar_t *				mCIDTOGID;
+	size_t				mCIDTOGIDLength;
+    unordered_map<size_t, size_t> mWidths;
+    uint32               mDefaultWidth;
 
 	friend class CHE_Allocator;
 };
@@ -257,12 +257,12 @@ protected:
 class CHE_PDF_SimpleFont : public CHE_PDF_Font
 {
 protected:
-	CHE_PDF_SimpleFont(const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = NULL);
+	CHE_PDF_SimpleFont(const CHE_PDF_DictionaryPtr & fontDict, CHE_Allocator * pAllocator = nullptr);
 
-	HE_BYTE					mFirstChar;
-	HE_BYTE					mLastChar;
-	HE_INT32				mCharWidths[256];
-	HE_WCHAR				mGlyphId[256];
+	BYTE					mFirstChar;
+	BYTE					mLastChar;
+	int32				mCharWidths[256];
+	wchar_t				mGlyphId[256];
 	CHE_ByteString			mGlyphNames[256];
 };
 
@@ -270,13 +270,13 @@ protected:
 class CHE_PDF_Type1_Font : public CHE_PDF_SimpleFont
 {
 public:
-	virtual HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
+	virtual bool Decode( wchar_t charCode, wchar_t & ucs, uint32 & gid, uint32 & cid ) const;
 	
-	virtual HE_FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() );
+	virtual FLOAT GetWidth( const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix() );
 
 protected:
-	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );
-	CHE_PDF_Type1_Font( int noType1Handle, const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Type1_Font( const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = nullptr );
+	CHE_PDF_Type1_Font( int noType1Handle, const CHE_PDF_DictionaryPtr & pFontDcit, CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_Type1_Font();
 
 	friend class CHE_Allocator;
@@ -286,10 +286,10 @@ protected:
 class CHE_PDF_MMType1_Font : public CHE_PDF_Type1_Font
 {
 public:
-//    virtual HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
+//    virtual bool Decode( wchar_t charCode, wchar_t & ucs, size_t & gid, size_t & cid ) const;
     
 private:
-	CHE_PDF_MMType1_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_MMType1_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_MMType1_Font();
 
 	friend class CHE_Allocator;
@@ -299,10 +299,10 @@ private:
 class CHE_PDF_TrueType_Font : public CHE_PDF_Type1_Font
 {
 public:
-    virtual HE_BOOL Decode( HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid ) const;
+    virtual bool Decode( wchar_t charCode, wchar_t & ucs, uint32 & gid, uint32 & cid ) const;
     
 private:
-	CHE_PDF_TrueType_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_TrueType_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_TrueType_Font();
 
 	friend class CHE_Allocator;
@@ -315,12 +315,12 @@ public:
 	CHE_PDF_ArrayPtr				GetFontBBox() const;
 	CHE_Matrix						GetFontMatrix() const;
 	CHE_PDF_DictionaryPtr			GetResDict() const;
-	CHE_PDF_ContentObjectList*		GetGlyph(HE_BYTE charCode);
-	HE_BOOL							Decode(HE_WCHAR charCode, HE_WCHAR & ucs, HE_ULONG & gid, HE_ULONG & cid) const;
-	HE_FLOAT						GetWidth(const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix());
+	CHE_PDF_ContentObjectList*		GetGlyph(BYTE charCode);
+	bool							Decode(wchar_t charCode, wchar_t & ucs, uint32 & gid, uint32 & cid) const;
+	FLOAT						GetWidth(const CHE_PDF_TextItem & item, const CHE_Matrix & matrix = CHE_Matrix());
 
 private:
-	CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_Type3_Font( const CHE_PDF_DictionaryPtr & pFontDict, CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_Type3_Font();
 
 	CHE_Matrix				mFontMatrix;
@@ -328,18 +328,18 @@ private:
 	CHE_PDF_DictionaryPtr	mResDict;
 	CHE_PDF_DictionaryPtr	mCharProcsDict;
 	
-	HE_BYTE														mFirstChar;
-	HE_BYTE														mLastChar;
+	BYTE														mFirstChar;
+	BYTE														mLastChar;
 	std::vector<CHE_PDF_ReferencePtr>                           mCharCodeToRef;
-	std::unordered_map<HE_ULONG, CHE_PDF_ContentObjectList*>	mGlyphMap;
+    std::unordered_map<uint32, CHE_PDF_ContentObjectList*>      mGlyphMap;
 
 	friend class CHE_Allocator;
 };
 
 
-HE_BOOL HE_GetType1BaseFontFile( const CHE_ByteString & fontName, HE_LPBYTE & pFileBufRet, HE_ULONG & fileSizeRet );
+bool HE_GetType1BaseFontFile( const CHE_ByteString & fontName, PBYTE & pFileBufRet, size_t & fileSizeRet );
 
-HE_BOOL HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, HE_LPBYTE & pFileBufRet, HE_ULONG & fileSizeRet );
+bool HE_GetType1BaseFontFile( CHE_PDF_FontDescriptor & fontDescriptor, PBYTE & pFileBufRet, size_t & fileSizeRet );
 
 
 

@@ -649,9 +649,6 @@
     <ClCompile Include="..\..\src\pdf\che_pdf_font_type1base14.cpp">
       <Filter>src\pdf\component</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\pdf\che_pdf_fontmgr.cpp">
-      <Filter>src\pdf\component</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\pdf\che_pdf_function.cpp">
       <Filter>src\pdf\component</Filter>
     </ClCompile>

@@ -12,8 +12,8 @@ enum PDF_IMAGE_TYPE
 class CHE_PDF_Image
 {
 public:
-	static CHE_PDF_ReferencePtr InsertImageToFile(	CHE_PDF_File * pFile, PDF_IMAGE_TYPE type, HE_ULONG bpc,
-													HE_ULONG width, HE_ULONG hight, HE_LPBYTE pData, HE_ULONG size,
+	static CHE_PDF_ReferencePtr InsertImageToFile(	CHE_PDF_File * pFile, PDF_IMAGE_TYPE type, size_t bpc,
+													size_t width, size_t hight, PBYTE pData, size_t size,
 													CHE_PDF_ReferencePtr mask = CHE_PDF_ReferencePtr() );
 };
 

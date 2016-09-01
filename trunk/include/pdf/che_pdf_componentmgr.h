@@ -8,7 +8,7 @@
 class CHE_PDF_ComponentMgr : public CHE_Object
 {
 public:
-	CHE_PDF_ComponentMgr( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_ComponentMgr( CHE_Allocator * pAllocator = nullptr );
 
 	~CHE_PDF_ComponentMgr();
 
@@ -18,11 +18,11 @@ public:
 
 	CHE_PDF_ComponentPtr GetComponent( const CHE_PDF_ReferencePtr & refPtr, PDF_COMPONENT_TYPE type );
 
-	HE_BOOL	PushComponent( const CHE_PDF_ReferencePtr & refPtr, const CHE_PDF_ComponentPtr & component );
+	bool	PushComponent( const CHE_PDF_ReferencePtr & refPtr, const CHE_PDF_ComponentPtr & component );
 
 private:
 	//CHE_PDF_FontMgr	mFontMgr;
-	std::unordered_map<HE_ULONG,CHE_PDF_ComponentPtr> mComponentsMap;
+	std::unordered_map<size_t,CHE_PDF_ComponentPtr> mComponentsMap;
 };
 
 #endif

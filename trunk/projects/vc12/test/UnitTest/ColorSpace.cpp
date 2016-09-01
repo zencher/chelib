@@ -19,8 +19,8 @@ namespace ColorSpace
 			PDF_COLORSPACE_TYPE type = cs->GetColorSpaceType();
 			Assert::IsTrue(COLORSPACE_DEVICE_GRAY == type, L"ColorSpace Type Return Error!");
 
-			HE_UINT32 c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(1, c, L"DeviceRGB ColorSpace Component Count Error!");
+			uint32 c = cs->GetComponentCount();
+			Assert::AreEqual<uint32>(1, c, L"DeviceRGB ColorSpace Component Count Error!");
 		}
 
 		TEST_METHOD(CreateDeviceRGB)
@@ -31,8 +31,8 @@ namespace ColorSpace
 			PDF_COLORSPACE_TYPE type = cs->GetColorSpaceType();
 			Assert::IsTrue(COLORSPACE_DEVICE_RGB == type, L"ColorSpace Type Return Error!");
 
-			HE_UINT32 c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(3, c, L"DeviceRGB ColorSpace Component Count Error!");
+			uint32 c = cs->GetComponentCount();
+			Assert::AreEqual<uint32>(3, c, L"DeviceRGB ColorSpace Component Count Error!");
 		}
 
 		TEST_METHOD(CreateDeviceCMYK)
@@ -43,8 +43,8 @@ namespace ColorSpace
 			PDF_COLORSPACE_TYPE type = cs->GetColorSpaceType();
 			Assert::IsTrue(COLORSPACE_DEVICE_CMYK == type, L"ColorSpace Type Return Error!");
 
-			HE_UINT32 c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(4, c, L"DeviceRGB ColorSpace Component Count Error!");
+			uint32 c = cs->GetComponentCount();
+			Assert::AreEqual<uint32>(4, c, L"DeviceRGB ColorSpace Component Count Error!");
 		}
 
 		TEST_METHOD(Create)
@@ -55,8 +55,8 @@ namespace ColorSpace
 			PDF_COLORSPACE_TYPE type = cs->GetColorSpaceType();
 			Assert::IsTrue(COLORSPACE_DEVICE_GRAY == type, L"ColorSpace Type Return Error!");
 
-			HE_UINT32 c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(1, c, L"DeviceGray ColorSpace Component Count Error!");
+			uint32 c = cs->GetComponentCount();
+			Assert::AreEqual<uint32>(1, c, L"DeviceGray ColorSpace Component Count Error!");
 
 			cs = CHE_PDF_ColorSpace::Create("DeviceRGB");
 			Assert::IsTrue(cs.operator bool(), L"Create with DeviceRGB Failed!");
@@ -65,7 +65,7 @@ namespace ColorSpace
 			Assert::IsTrue(COLORSPACE_DEVICE_RGB == type, L"ColorSpace Type Return Error!");
 
 			c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(3, c, L"DeviceRGB ColorSpace Component Count Error!");
+			Assert::AreEqual<uint32>(3, c, L"DeviceRGB ColorSpace Component Count Error!");
 
 			cs = CHE_PDF_ColorSpace::Create("DeviceCMYK");
 			Assert::IsTrue(cs.operator bool(), L"Create with DeviceCMYK Failed!");
@@ -74,7 +74,7 @@ namespace ColorSpace
 			Assert::IsTrue(COLORSPACE_DEVICE_CMYK == type, L"ColorSpace Type Return Error!");
 
 			c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(4, c, L"DeviceCMYK ColorSpace Component Count Error!");
+			Assert::AreEqual<uint32>(4, c, L"DeviceCMYK ColorSpace Component Count Error!");
 
 			cs = CHE_PDF_ColorSpace::Create("G");
 			Assert::IsTrue(cs.operator bool(), L"Create with G Failed!");
@@ -83,7 +83,7 @@ namespace ColorSpace
 			Assert::IsTrue(COLORSPACE_DEVICE_GRAY == type, L"ColorSpace Type Return Error!");
 
 			c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(1, c, L"DeviceGray ColorSpace Component Count Error!");
+			Assert::AreEqual<uint32>(1, c, L"DeviceGray ColorSpace Component Count Error!");
 
 			cs = CHE_PDF_ColorSpace::Create("RGB");
 			Assert::IsTrue(cs.operator bool(), L"Create with RGB Failed!");
@@ -92,7 +92,7 @@ namespace ColorSpace
 			Assert::IsTrue(COLORSPACE_DEVICE_RGB == type, L"ColorSpace Type Return Error!");
 
 			c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(3, c, L"DeviceRGB ColorSpace Component Count Error!");
+			Assert::AreEqual<uint32>(3, c, L"DeviceRGB ColorSpace Component Count Error!");
 
 			cs = CHE_PDF_ColorSpace::Create("CMYK");
 			Assert::IsTrue(cs.operator bool(), L"Create with CMYK Failed!");
@@ -101,7 +101,7 @@ namespace ColorSpace
 			Assert::IsTrue(COLORSPACE_DEVICE_CMYK == type, L"ColorSpace Type Return Error!");
 
 			c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(4, c, L"DeviceCMYK ColorSpace Component Count Error!");
+			Assert::AreEqual<uint32>(4, c, L"DeviceCMYK ColorSpace Component Count Error!");
 
 			cs = CHE_PDF_ColorSpace::Create("CalCMYK");
 			Assert::IsTrue(cs.operator bool(), L"Create with CalCMYK Failed!");
@@ -110,7 +110,7 @@ namespace ColorSpace
 			Assert::IsTrue(COLORSPACE_DEVICE_CMYK == type, L"ColorSpace Type Return Error!");
 
 			c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(4, c, L"DeviceCMYK ColorSpace Component Count Error!");
+			Assert::AreEqual<uint32>(4, c, L"DeviceCMYK ColorSpace Component Count Error!");
 
 			cs = CHE_PDF_ColorSpace::Create("Pattern");
 			Assert::IsTrue(cs.operator bool(), L"Create with Pattern Failed!");
@@ -119,7 +119,7 @@ namespace ColorSpace
 			Assert::IsTrue(COLORSPACE_SPECIAL_PATTERN == type, L"ColorSpace Type Return Error!");
 
 			c = cs->GetComponentCount();
-			Assert::AreEqual<HE_UINT32>(0, c, L"Pattern ColorSpace Component Count Error!");
+			Assert::AreEqual<uint32>(0, c, L"Pattern ColorSpace Component Count Error!");
 		}
 	};
 }

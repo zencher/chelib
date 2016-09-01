@@ -214,14 +214,14 @@ HE_BOOL CHE_PDF_ContentString::PathToBuf( const CHE_PDF_Path * pPath, CHE_DynBuf
 
 
 
-HE_VOID CHE_PDF_ContentString::TextBlockBeginToBuf( CHE_DynBuffer & buf )
+void CHE_PDF_ContentString::TextBlockBeginToBuf( CHE_DynBuffer & buf )
 {
 	CHE_PDF_ObjectString::StringToBuf( "BT\n", buf );
 }
 
 
 
-HE_VOID CHE_PDF_ContentString::TextBlockEndToBuf( CHE_DynBuffer & buf )
+void CHE_PDF_ContentString::TextBlockEndToBuf( CHE_DynBuffer & buf )
 {
 	CHE_PDF_ObjectString::StringToBuf( "ET\n", buf );
 }

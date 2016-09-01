@@ -21,8 +21,8 @@ class CHE_PDF_GState;
 class CHE_PDF_ContentObject : public CHE_Object
 {
 public:
-	CHE_PDF_ContentObject( PDF_CONTENTOBJ_TYPE type, CHE_Allocator * pAllocator = NULL )
-		: CHE_Object(pAllocator), mType(type), mpGState(NULL) {}
+	CHE_PDF_ContentObject( PDF_CONTENTOBJ_TYPE type, CHE_Allocator * pAllocator = nullptr )
+		: CHE_Object(pAllocator), mType(type), mpGState(nullptr) {}
 
 	virtual ~CHE_PDF_ContentObject();
 
@@ -32,28 +32,28 @@ public:
 
 	CHE_PDF_GState * GetGState() const { return mpGState; }
 
-	HE_BOOL SetGState( CHE_PDF_GState * pGSatae );
+	bool SetGState( CHE_PDF_GState * pGSatae );
 
 	// 	CHE_Matrix GetExtMatrix() { return mExtMatrixl; }
-	// 	HE_VOID	SetExtMatrix( const CHE_Matrix & matrx ) { mExtMatrixl = matrx; }
+	// 	void	SetExtMatrix( const CHE_Matrix & matrx ) { mExtMatrixl = matrx; }
 
-	// 	HE_BOOL	IsModified() const
+	// 	bool	IsModified() const
 	// 	{
 	// 		return (mFlag & CONTENTOBJ_FLAG_MODIFIED);
 	// 	}
 protected:
-	// 	HE_VOID	SetFlag( HE_ULONG flag )
+	// 	void	SetFlag( size_t flag )
 	// 	{
 	// 		mFlag = flag;
 	// 	}
 	// 
-	// 	HE_VOID CombineFlag( HE_ULONG flag )
+	// 	void CombineFlag( size_t flag )
 	// 	{
 	// 		mFlag |= flag;
 	// 	}
 
 protected:
-	//	HE_ULONG			mFlag;
+	//	size_t			mFlag;
 	//	CHE_Matrix			mExtMatrixl;
 
 	PDF_CONTENTOBJ_TYPE		mType;
@@ -66,7 +66,7 @@ typedef std::list<CHE_PDF_ContentObject*> ContentObjectList;
 class CHE_PDF_ContentObjectList : public CHE_Object
 {
 public:
-	CHE_PDF_ContentObjectList( CHE_Allocator * pAllocator = NULL )
+	CHE_PDF_ContentObjectList( CHE_Allocator * pAllocator = nullptr )
 		: CHE_Object( pAllocator ), mResMgr(pAllocator) {}
 
 	~CHE_PDF_ContentObjectList();
@@ -79,16 +79,16 @@ public:
 
 	//CHE_PDF_ContentObjectList * Clone();
 
-	HE_VOID Clear();
+	void Clear();
 
 	CHE_PDF_ContentResMgr & GetResMgr() { return mResMgr; }
 
-	HE_VOID SetType3BBox( const HE_INT32 type, std::vector<HE_FLOAT> & param );
-	HE_BOOL GetType3BBox( HE_INT32 & type, std::vector<HE_FLOAT> & param );
+	void SetType3BBox( const int32 type, std::vector<FLOAT> & param );
+	bool GetType3BBox( int32 & type, std::vector<FLOAT> & param );
 
 private:
-	HE_INT32				mType3DType;
-	std::vector<HE_FLOAT>	mType3Param;
+	int32				mType3DType;
+	std::vector<FLOAT>	mType3Param;
 	ContentObjectList		mList;
 	CHE_PDF_ContentResMgr	mResMgr;
 };

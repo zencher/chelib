@@ -2,7 +2,7 @@
 
 using namespace std;
 
-HE_BOOL CHE_PDF_NameTree::Find( const string & name, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet )
+bool CHE_PDF_NameTree::Find( const string & name, const CHE_PDF_DictionaryPtr & dict, CHE_PDF_ObjectPtr & objRet )
 {
 	CHE_PDF_ObjectPtr obj;
 	CHE_PDF_ArrayPtr arr;
@@ -22,7 +22,7 @@ HE_BOOL CHE_PDF_NameTree::Find( const string & name, const CHE_PDF_DictionaryPtr
 			if ( obj )
 			{
 				arr = obj->GetArrayPtr();
-				for ( HE_UINT32 i = 0; i < arr->GetCount(); ++i )
+				for ( uint32 i = 0; i < arr->GetCount(); ++i )
 				{
 					obj = arr->GetElement( i, OBJ_TYPE_DICTIONARY );
 					if ( obj )
@@ -39,7 +39,7 @@ HE_BOOL CHE_PDF_NameTree::Find( const string & name, const CHE_PDF_DictionaryPtr
 			if ( obj )
 			{
 				arr = obj->GetArrayPtr();
-				for ( HE_UINT32 i = 0; i < arr->GetCount(); i+=2 )
+				for ( uint32 i = 0; i < arr->GetCount(); i+=2 )
 				{
 					obj = arr->GetElement( i, OBJ_TYPE_STRING );
 					if ( obj )
@@ -61,14 +61,14 @@ HE_BOOL CHE_PDF_NameTree::Find( const string & name, const CHE_PDF_DictionaryPtr
 				return TRUE;
 			}
 		}
-		return FALSE;
+		return false;
 	}
 		
 	obj = dict->GetElement( "Kids", OBJ_TYPE_ARRAY );
 	if ( obj )
 	{
 		arr = obj->GetArrayPtr();
-		for ( HE_UINT32 i = 0; i < arr->GetCount(); ++i )
+		for ( uint32 i = 0; i < arr->GetCount(); ++i )
 		{
 			obj = arr->GetElement( i, OBJ_TYPE_DICTIONARY );
 			if ( obj )
@@ -80,7 +80,7 @@ HE_BOOL CHE_PDF_NameTree::Find( const string & name, const CHE_PDF_DictionaryPtr
 			}
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 CHE_PDF_ObjectPtr CHE_PDF_NameTree::GetObject( const CHE_ByteString & name )

@@ -20,9 +20,9 @@ enum PDF_CONTENTRES_TYPE
 class CHE_PDF_ContentResMgr : public CHE_Object
 {
 public:
-	CHE_PDF_ContentResMgr( CHE_Allocator * pAllocator = NULL ) : CHE_Object(pAllocator) {}
+	CHE_PDF_ContentResMgr( CHE_Allocator * pAllocator = nullptr ) : CHE_Object(pAllocator) {}
 
-	HE_VOID SetDict( const CHE_PDF_DictionaryPtr & pDict ) { mpResDict = pDict; }
+	void SetDict( const CHE_PDF_DictionaryPtr & pDict ) { mpResDict = pDict; }
 
 	CHE_PDF_DictionaryPtr GetDictPtr() const { return mpResDict; }
 
@@ -30,7 +30,7 @@ public:
 
 	CHE_ByteString CreateName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name, const CHE_PDF_ObjectPtr & pObj );
 
-	HE_BOOL	DeleteName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
+	bool	DeleteName( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
 
 	CHE_PDF_ObjectPtr GetResObj( PDF_CONTENTRES_TYPE type, const CHE_ByteString & name );
 
@@ -41,7 +41,7 @@ public:
 
 	CHE_PDF_ComponentPtr GetComponent( const CHE_ByteString & name, PDF_COMPONENT_TYPE type );
 
-	HE_BOOL	PushComponent( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & component );
+	bool	PushComponent( const CHE_ByteString & name, const CHE_PDF_ComponentPtr & component );
 
 private:
 	CHE_PDF_DictionaryPtr GetSubDict( PDF_CONTENTRES_TYPE type );

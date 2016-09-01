@@ -90,9 +90,9 @@
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
     if ( context )
     {
-        HE_UINT32 rotate = 0;
+        uint32 rotate = 0;
         HE_PDF_PAGE_RANGE range = [pdfDocData getCurPageRange];
-        for ( HE_ULONG i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
+        for ( size_t i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
         {
             pageRectInView = [pdfDocData getPageRectInThumbnailView:i];
             pageRectWithShadowInView = pageRectInView;

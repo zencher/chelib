@@ -23,15 +23,15 @@ enum PDF_DOCUMENT_INFO
 class CHE_PDF_File : public CHE_Object
 {
 public:
-	CHE_PDF_File( CHE_Allocator * pAllocator = NULL );
+	CHE_PDF_File( CHE_Allocator * pAllocator = nullptr );
 	~CHE_PDF_File();
 
-	HE_BOOL					Open( IHE_Read * pRead );
-	HE_VOID					Close();
+	bool					Open( IHE_Read * pRead );
+	void					Close();
 
-	HE_BOOL					Authenticate( const CHE_ByteString & password ) const;
+	bool					Authenticate( const CHE_ByteString & password ) const;
 	
-	HE_ULONG				GetFileSize() const;
+	size_t                  GetFileSize() const;
 	PDF_VERSION				GetPDFVersion() const;
 	CHE_PDF_DictionaryPtr	GetTrailerDict() const;
 	CHE_PDF_DictionaryPtr	GetRootDict();
@@ -40,15 +40,15 @@ public:
 	CHE_PDF_XRefTable *		GetXRefTable() { return &mXRefTable; }
 	CHE_PDF_ObjectPtr		GetObject( const PDF_RefInfo & refInfo );
 
-	HE_VOID					SetPDFVersion( PDF_VERSION version );
-	HE_BOOL					SetInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str );
+	void					SetPDFVersion( PDF_VERSION version );
+	bool					SetInfo( PDF_DOCUMENT_INFO infoType, const CHE_ByteString & str );
 
-	HE_BOOL					Save( IHE_Write * pWrite, HE_BOOL bCompress = TRUE );
-	HE_BOOL					SaveCompact( IHE_Write * pWrite );
-	HE_BOOL					SaveUpdate( IHE_Write * pWrite );
+	bool					Save( IHE_Write * pWrite, bool bCompress = TRUE );
+	bool					SaveCompact( IHE_Write * pWrite );
+	bool					SaveUpdate( IHE_Write * pWrite );
 
-	HE_VOID					CreateTrailerDict();
-	HE_VOID					CreateCatalogDict();
+	void					CreateTrailerDict();
+	void					CreateCatalogDict();
 	PDF_RefInfo				CreateNullObject( CHE_PDF_NullPtr & ptrRet );
 	PDF_RefInfo				CreateBooleanObject( CHE_PDF_BooleanPtr & ptrRet );
 	PDF_RefInfo				CreateNumberObject( CHE_PDF_NumberPtr & ptrRet );

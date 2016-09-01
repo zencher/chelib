@@ -6,9 +6,9 @@
 class CHE_WDM_TextBox : public CHE_WDM_Area
 {
 public:
-	static CHE_WDM_TextBox * Create( HE_ULONG width, HE_ULONG height, IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
+	static CHE_WDM_TextBox * Create( size_t width, size_t height, IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL );
 
-	HE_BOOL	OnKeyDown( HE_INT32 keyCode )
+	bool	OnKeyDown( int32 keyCode )
 	{
 		switch ( keyCode )
 		{
@@ -55,7 +55,7 @@ public:
 		return TRUE;
 	}
 
-	HE_BOOL OnKeyUp( HE_INT32 keycode )
+	bool OnKeyUp( int32 keycode )
 	{
 		switch ( keycode )
 		{
@@ -69,7 +69,7 @@ public:
 		return TRUE;
 	}
 
-	HE_BOOL	OnChar( HE_WCHAR charCode )
+	bool	OnChar( WCHAR charCode )
 	{
 		if ( mCaretPosi == mText.size() )
 		{
@@ -88,7 +88,7 @@ public:
 		return TRUE;
 	}
 
-	HE_BOOL	OnTimer()
+	bool	OnTimer()
 	{
 		if ( ! mbFocus )
 		{
@@ -104,7 +104,7 @@ public:
 		return TRUE;
 	}
 
-	HE_BOOL OnMouseLBDown( HE_INT32 x, HE_INT32 y )
+	bool OnMouseLBDown( int32 x, int32 y )
 	{
 		mbFocus = TRUE;
 		mbMouseLBDown = TRUE;
@@ -117,13 +117,13 @@ public:
 		return TRUE;
 	}
 
-	HE_BOOL OnMouseLBUp( HE_INT32 x, HE_INT32 y )
+	bool OnMouseLBUp( int32 x, int32 y )
 	{
 		mbMouseLBDown = FALSE;
 		return TRUE;
 	}
 
-	HE_BOOL OnMouseMove( HE_INT32 x, HE_INT32 y )
+	bool OnMouseMove( int32 x, int32 y )
 	{
 		if ( mbMouseLBDown )
 		{
@@ -134,13 +134,13 @@ public:
 		return TRUE;
 	}
 
-	HE_BOOL OnMouseLDBClick( HE_INT32 x, HE_INT32 y )
+	bool OnMouseLDBClick( int32 x, int32 y )
 	{
 		mbFocus = TRUE;
 		return TRUE;
 	}
 
-	HE_BOOL	OnDraw()
+	bool	OnDraw()
 	{
 		CHE_WDM_Area::OnDraw();
 		if ( IsClipEnable() )
@@ -151,14 +151,14 @@ public:
 		{
 			if ( mbHighlight )
 			{
-				HE_ULONG width1 = 0, width2 = 0;
-				HE_ULONG height1 = 0, height2 = 0;
+				size_t width1 = 0, width2 = 0;
+				size_t height1 = 0, height2 = 0;
 				GetInterActive()->MeasureChars( mTextAppearPtr, mHighListPosi, width1, height1 );
 				GetInterActive()->MeasureChars( mTextAppearPtr, mCaretPosi, width2, height2 );
 
-				HE_FLOAT left = (width1>width2) ? width2+1 : width1+1;
-				HE_FLOAT width = (width1>width2) ? (width1-width2)+1 : (width2-width1)+1;
-				HE_FLOAT height = GetInterActive()->GetFontHeight( mTextAppearPtr );
+				FLOAT left = (width1>width2) ? width2+1 : width1+1;
+				FLOAT width = (width1>width2) ? (width1-width2)+1 : (width2-width1)+1;
+				FLOAT height = GetInterActive()->GetFontHeight( mTextAppearPtr );
 				mHighlightPtr = CHE_WDM_AppearPath::Create();
 				mHighlightPtr->AddRect( left, 0, width, height );
 				mHighlightPtr->SetOperator( APPEAR_PATH_FILL );
@@ -170,9 +170,9 @@ public:
 			GetInterActive()->Draw( this, mTextAppearPtr );
 			if ( mbCaret || mbKeyDown )
 			{
-				static HE_ULONG width = 0;
-				static HE_ULONG height = 0;
-				static HE_ULONG count = mCaretPosi;
+				static size_t width = 0;
+				static size_t height = 0;
+				static size_t count = mCaretPosi;
 				GetInterActive()->MeasureChars( mTextAppearPtr, count, width, height );
 				mCaretPtr->SetPosiX( width + 1 ); 
 				GetInterActive()->Draw( this, mCaretPtr );
@@ -189,7 +189,7 @@ public:
 		return TRUE;
 	}
 
-	HE_BOOL	OnDraw( HE_INT32 left, HE_INT32 top, HE_INT32 right, HE_INT32 bottom )
+	bool	OnDraw( int32 left, int32 top, int32 right, int32 bottom )
 	{
 		CHE_WDM_Area::OnDraw( left, top, right, bottom );
 		GetInterActive()->SetClip( left, top, right, bottom );
@@ -201,14 +201,14 @@ public:
 		{
 			if ( mbHighlight )
 			{
-				HE_ULONG width1 = 0, width2 = 0;
-				HE_ULONG height1 = 0, height2 = 0;
+				size_t width1 = 0, width2 = 0;
+				size_t height1 = 0, height2 = 0;
 				GetInterActive()->MeasureChars( mTextAppearPtr, mHighListPosi, width1, height1 );
 				GetInterActive()->MeasureChars( mTextAppearPtr, mCaretPosi, width2, height2 );
 
-				HE_FLOAT left = (width1>width2) ? width2+1 : width1+1;
-				HE_FLOAT width = (width1>width2) ? (width1-width2)+1 : (width2-width1)+1;
-				HE_FLOAT height = GetInterActive()->GetFontHeight( mTextAppearPtr );
+				FLOAT left = (width1>width2) ? width2+1 : width1+1;
+				FLOAT width = (width1>width2) ? (width1-width2)+1 : (width2-width1)+1;
+				FLOAT height = GetInterActive()->GetFontHeight( mTextAppearPtr );
 				mHighlightPtr = CHE_WDM_AppearPath::Create();
 				mHighlightPtr->AddRect( left, 0, width, height );
 				mHighlightPtr->SetOperator( APPEAR_PATH_FILL );
@@ -220,9 +220,9 @@ public:
 			GetInterActive()->Draw( this, mTextAppearPtr );
 			if ( mbCaret || mbKeyDown )
 			{
-				static HE_ULONG width = 0;
-				static HE_ULONG height = 0;
-				static HE_ULONG count = 0;
+				static size_t width = 0;
+				static size_t height = 0;
+				static size_t count = 0;
 				count = mCaretPosi;
 				GetInterActive()->MeasureChars( mTextAppearPtr, count, width, height );
 				mCaretPtr->SetPosiX( width + 1 );
@@ -243,7 +243,7 @@ public:
 	}
 
 private:
-	CHE_WDM_TextBox( HE_ULONG width, HE_ULONG height, IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL )
+	CHE_WDM_TextBox( size_t width, size_t height, IHE_WDM_InterActive * pInterActive, CHE_Allocator * pAllocator = NULL )
 		: CHE_WDM_Area( pInterActive, pAllocator )
 	{
 		SetWidth( width );
@@ -281,20 +281,20 @@ private:
 		pInterActive->SetTimer( this, 500 );
 	}
 
-	HE_ULONG GetCharIndexByPosi( HE_INT32 x, HE_INT32 y )
+	size_t GetCharIndexByPosi( int32 x, int32 y )
 	{
-		HE_INT32 realPosiX = x - GetPosiX();
-		HE_INT32 realPosiY = y - GetPosiY();
+		int32 realPosiX = x - GetPosiX();
+		int32 realPosiY = y - GetPosiY();
 		if ( GetInterActive() && mTextAppearPtr->GetText() )
 		{
-			HE_ULONG index = 1;
-			HE_ULONG count = wcslen( mTextAppearPtr->GetText() );
-			HE_ULONG width = 0, height = 0;
+			size_t index = 1;
+			size_t count = wcslen( mTextAppearPtr->GetText() );
+			size_t width = 0, height = 0;
 			for ( ; index <= count; ++index )
 			{
 				if ( GetInterActive()->MeasureChars( mTextAppearPtr, index, width, height ) )
 				{
-					if ( (HE_INT32)width > realPosiX )
+					if ( (int32)width > realPosiX )
 					{
 						return index-1;
 					}
@@ -312,16 +312,16 @@ private:
 	CHE_WDM_AppearPathPtr	mHighlightPtr;
 	CHE_WDM_AppearPathPtr	mBorderPtr;
 
-	HE_ULONG				mCaretPosi;
-	HE_ULONG				mHighListPosi;
+	size_t				mCaretPosi;
+	size_t				mHighListPosi;
 
-	HE_BOOL					mbFocus;
-	HE_BOOL					mbCaret;
-	HE_BOOL					mbBorder;
-	HE_BOOL					mbHighlight;
+	bool					mbFocus;
+	bool					mbCaret;
+	bool					mbBorder;
+	bool					mbHighlight;
 
-	HE_BOOL					mbKeyDown;
-	HE_BOOL					mbMouseLBDown;
+	bool					mbKeyDown;
+	bool					mbMouseLBDown;
 	
 	friend class CHE_Allocator;
 };

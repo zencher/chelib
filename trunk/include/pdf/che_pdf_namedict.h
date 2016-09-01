@@ -9,11 +9,11 @@
 class CHE_PDF_NameDict : public CHE_Object
 {
 public:
-	CHE_PDF_NameDict(CHE_Allocator * pAllocator = NULL);
+	CHE_PDF_NameDict(CHE_Allocator * pAllocator = nullptr);
 
 	~CHE_PDF_NameDict();
 
-	HE_VOID Parse(const CHE_PDF_DictionaryPtr & dict);
+	void Parse(const CHE_PDF_DictionaryPtr & dict);
 
 	CHE_PDF_ObjectPtr GetDest(const CHE_ByteString & name);
 

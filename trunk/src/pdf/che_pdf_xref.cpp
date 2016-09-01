@@ -9,7 +9,7 @@ CHE_PDF_XRefEntry::CHE_PDF_XRefEntry()
 	Field2 = 0;
 }
 
-CHE_PDF_XRefEntry::CHE_PDF_XRefEntry( PDF_XREF_ENTRY_TYPE type, HE_ULONG num, HE_ULONG f1, HE_ULONG f2 )
+CHE_PDF_XRefEntry::CHE_PDF_XRefEntry( PDF_XREF_ENTRY_TYPE type, size_t num, size_t f1, size_t f2 )
 {
 	Type = type;
 	ObjNum = num;
@@ -25,13 +25,13 @@ CHE_PDF_XRefTable::~CHE_PDF_XRefTable()
 	Clear();
 }
 
-HE_VOID CHE_PDF_XRefTable::Clear()
+void CHE_PDF_XRefTable::Clear()
 {
 	mTrailerDict.clear();
 	mMap.clear();
 }
 
-HE_BOOL CHE_PDF_XRefTable::Add( const CHE_PDF_XRefEntry & entry )
+bool CHE_PDF_XRefTable::Add( const CHE_PDF_XRefEntry & entry )
 {
 	mMap[entry.ObjNum] = entry;
 	if ( entry.ObjNum > mMaxObjNum )
@@ -39,10 +39,10 @@ HE_BOOL CHE_PDF_XRefTable::Add( const CHE_PDF_XRefEntry & entry )
 		mMaxObjNum = entry.ObjNum;
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_VOID CHE_PDF_XRefTable::AddNewEntry( CHE_PDF_XRefEntry & entryRet )
+void CHE_PDF_XRefTable::AddNewEntry( CHE_PDF_XRefEntry & entryRet )
 {
 	entryRet.ObjNum = ++mMaxObjNum;
 	entryRet.Type = XREF_ENTRY_TYPE_NEW;
@@ -51,17 +51,17 @@ HE_VOID CHE_PDF_XRefTable::AddNewEntry( CHE_PDF_XRefEntry & entryRet )
 	mMap[entryRet.ObjNum] = entryRet;
 }
 
-HE_BOOL CHE_PDF_XRefTable::AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict )
+bool CHE_PDF_XRefTable::AddTrailerDict( const CHE_PDF_DictionaryPtr & pDict )
 {
 	if ( pDict )
 	{
 		mTrailerDict.push_back( pDict );
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-CHE_PDF_DictionaryPtr CHE_PDF_XRefTable::GetTrailer( HE_ULONG index /*= 0*/ ) const
+CHE_PDF_DictionaryPtr CHE_PDF_XRefTable::GetTrailer( size_t index /*= 0*/ ) const
 {
 	if ( index >= mTrailerDict.size() )
 	{
@@ -70,36 +70,36 @@ CHE_PDF_DictionaryPtr CHE_PDF_XRefTable::GetTrailer( HE_ULONG index /*= 0*/ ) co
 	return mTrailerDict[index];
 }
 
-HE_BOOL CHE_PDF_XRefTable::Get( HE_ULONG objNum, CHE_PDF_XRefEntry & entryRet )
+bool CHE_PDF_XRefTable::Get( size_t objNum, CHE_PDF_XRefEntry & entryRet )
 {
-	map<HE_ULONG,CHE_PDF_XRefEntry>::iterator it;
+	map<size_t,CHE_PDF_XRefEntry>::iterator it;
 	it = mMap.find( objNum );
 	if ( it != mMap.end() )
 	{
 		entryRet = it->second;
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_XRefTable::GetCurNode( CHE_PDF_XRefEntry & entryRet )
+bool CHE_PDF_XRefTable::GetCurNode( CHE_PDF_XRefEntry & entryRet )
 {
 	if ( mIt != mMap.end() )
 	{
 		entryRet = mIt->second;
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }
 
-HE_BOOL CHE_PDF_XRefTable::Update( HE_ULONG objNum, const CHE_PDF_XRefEntry & entry )
+bool CHE_PDF_XRefTable::Update( size_t objNum, const CHE_PDF_XRefEntry & entry )
 {
-	map<HE_ULONG,CHE_PDF_XRefEntry>::iterator it;
+	map<size_t,CHE_PDF_XRefEntry>::iterator it;
 	it = mMap.find( objNum );
 	if ( it != mMap.end() )
 	{
 		it->second = entry;
 		return TRUE;
 	}
-	return FALSE;
+	return false;
 }

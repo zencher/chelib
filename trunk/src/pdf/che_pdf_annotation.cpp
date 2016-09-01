@@ -11,7 +11,7 @@
 #define ANNOT_FLAG_TOGGLENOVIEW     0x00000100
 #define ANNOT_FLAG_LOCKEDCONTENTS   0x00000200
 
-CHE_PDF_Annotation::CHE_PDF_Annotation(CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator/*= NULL*/)
+CHE_PDF_Annotation::CHE_PDF_Annotation(CHE_PDF_DictionaryPtr & dictPtr, CHE_Allocator * pAllocator/*= nullptr*/)
  :CHE_Object(pAllocator), mDictPtr(dictPtr), mType(ANNOT_TYPE_Unknown), mFlag(0)
 {
     if (!dictPtr)
@@ -119,52 +119,52 @@ CHE_PDF_Annotation::CHE_PDF_Annotation(CHE_PDF_DictionaryPtr & dictPtr, CHE_Allo
     }
 }
 
-HE_BOOL CHE_PDF_Annotation::IsInvisable() const
+bool CHE_PDF_Annotation::IsInvisable() const
 {
-    return mFlag & ANNOT_FLAG_INVISIABLE;
+    return (mFlag & ANNOT_FLAG_INVISIABLE) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::IsHidden() const
+bool CHE_PDF_Annotation::IsHidden() const
 {
-    return mFlag & ANNOT_FLAG_HIDDEN;
+    return (mFlag & ANNOT_FLAG_HIDDEN) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::IsPrint() const
+bool CHE_PDF_Annotation::IsPrint() const
 {
-    return mFlag & ANNOT_FLAG_PRINT;
+    return (mFlag & ANNOT_FLAG_PRINT) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::IsNoZoom() const
+bool CHE_PDF_Annotation::IsNoZoom() const
 {
-    return mFlag & ANNOT_FLAG_NOZOOM;
+    return (mFlag & ANNOT_FLAG_NOZOOM) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::IsNoRotate() const
+bool CHE_PDF_Annotation::IsNoRotate() const
 {
-    return mFlag & ANNOT_FLAG_NOROTATE;
+    return (mFlag & ANNOT_FLAG_NOROTATE) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::IsNoView() const
+bool CHE_PDF_Annotation::IsNoView() const
 {
-    return mFlag & ANNOT_FLAG_NOVIEW;
+    return (mFlag & ANNOT_FLAG_NOVIEW) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::IsReadOnly() const
+bool CHE_PDF_Annotation::IsReadOnly() const
 {
-    return mFlag & ANNOT_FLAG_READONLY;
+    return (mFlag & ANNOT_FLAG_READONLY) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::Locked() const
+bool CHE_PDF_Annotation::Locked() const
 {
-    return mFlag & ANNOT_FLAG_LOCKED;
+    return (mFlag & ANNOT_FLAG_LOCKED) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::ToggleNoView() const
+bool CHE_PDF_Annotation::ToggleNoView() const
 {
-    return mFlag & ANNOT_FLAG_TOGGLENOVIEW;
+    return (mFlag & ANNOT_FLAG_TOGGLENOVIEW) != 0;
 }
 
-HE_BOOL CHE_PDF_Annotation::LockedContents() const
+bool CHE_PDF_Annotation::LockedContents() const
 {
-    return mFlag & ANNOT_FLAG_LOCKEDCONTENTS;
+    return (mFlag & ANNOT_FLAG_LOCKEDCONTENTS) != 0;
 }

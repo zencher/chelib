@@ -10,8 +10,10 @@
 #define che_pdf_page_layout_h
 
 #include "../che_base.h"
-#include "../che_graphics.h"
+//#include "../che_graphics.h"
 #include <vector>
+#include <cfloat>
+#include <cmath>
 
 enum HE_PDF_VIEW_PAGE_MODE
 {
@@ -63,11 +65,11 @@ public:
     
     bool IsUnion( const CHE_Page_Rect & rect )
     {
-        CHE_Point p;
-        p.x = (rect.left + rect.right) / 2;
-        p.y = (rect.top + rect.bottom) / 2;
+        FLOAT x = 0, y = 0;
+        x = (rect.left + rect.right) / 2;
+        y = (rect.top + rect.bottom) / 2;
       
-        if ( p.x > left && p.x < right && p.y > top && p.y < bottom )
+        if ( x > left && x < right && y > top && y < bottom )
         {
             return true;
         }

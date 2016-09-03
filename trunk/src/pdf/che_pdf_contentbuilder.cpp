@@ -1,22 +1,24 @@
-#include <cassert>
+/*#include <cassert>
+#include <stack>
+using namespace std;
+
 #include "../../include/pdf/che_pdf_filter.h"
-#include "../../include/pdf/che_pdf_objectstring.h"
 #include "../../include/pdf/che_pdf_contentstring.h"
 #include "../../include/pdf/che_pdf_contentbuilder.h"
 
-HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList, CHE_DynBuffer & buf )
 {
 	if ( pList == NULL )
 	{
 		return FALSE;
 	}
 
-	HE_BOOL bTextBlock = FALSE;
+	bool bTextBlock = FALSE;
 	PDF_CONTENTOBJ_TYPE itemType;
 	ContentObjectList::iterator it;
 	CHE_PDF_GState * pCurGState = NULL;
 	CHE_PDF_GState * pItemGState = NULL;
-	CHE_Stack<CHE_PDF_GState*> gstateStack;
+	stack<CHE_PDF_GState*> gstateStack;
 
 	for ( it = pList->Begin(); it != pList->End(); ++it )
 	{
@@ -122,4 +124,4 @@ HE_BOOL CHE_PDF_ContentBuilder::ContentToBuf( CHE_PDF_ContentObjectList * pList,
 	}
 
 	return TRUE;
-}
+}*/

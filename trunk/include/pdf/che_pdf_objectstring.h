@@ -11,9 +11,9 @@ public:
 
 	static bool FloatToBuf( FLOAT val, CHE_DynBuffer & buf );
 
-	static bool IntegerToBuf( INT32 val, CHE_DynBuffer & buf );
+	static bool IntegerToBuf( uint32 val, CHE_DynBuffer & buf );
 
-	static bool DWORDToBuf( size_t val, CHE_DynBuffer & buf );
+	//static bool DWORDToBuf( size_t val, CHE_DynBuffer & buf );
 
 	static bool SpaceToBuf( CHE_DynBuffer & buf );
 

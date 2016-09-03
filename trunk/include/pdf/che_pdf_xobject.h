@@ -1,8 +1,9 @@
 #ifndef _CHE_PDF_XOBJECT_H_
 #define _CHE_PDF_XOBJECT_H_
 
-#include "../che_bitmap.h"
-#include "../che_graphics.h"
+//#include "../che_bitmap.h"
+//#include "../che_graphics.h"
+#include "che_pdf_gstate.h"
 #include "che_pdf_contentlist.h"
 #include "che_pdf_colorspace.h"
 #include "che_pdf_componentmgr.h"

@@ -969,7 +969,7 @@ bool IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 )
 	{
 		return false;
 	}
-	for ( size_t i = 0; i < c1.GetComponentCount(); ++i )
+	for ( uint32 i = 0; i < c1.GetComponentCount(); ++i )
 	{
 		if ( c1.GetComponent(i) != c2.GetComponent(i) )
 		{

@@ -1078,7 +1078,7 @@ void CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, bool bColor, b
                 {
                     std::vector<FLOAT> input;
                     std::vector<FLOAT> output;
-                    for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
+                    for ( uint32 i = 0 ; i < fillColor.GetComponentCount(); ++i )
                     {
                         input.push_back( fillColor.GetComponent( i ) );
                     }
@@ -1101,7 +1101,7 @@ void CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, bool bColor, b
                 {
                     std::vector<FLOAT> input;
                     std::vector<FLOAT> output;
-                    for ( size_t i = 0 ; i < fillColor.GetComponentCount(); ++i )
+                    for ( uint32 i = 0 ; i < fillColor.GetComponentCount(); ++i )
                     {
                         input.push_back( fillColor.GetComponent( i ) );
                     }
@@ -1128,7 +1128,7 @@ void CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, bool bColor, b
                 {
                     std::vector<FLOAT> input;
                     std::vector<FLOAT> output;
-                    for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
+                    for ( uint32 i = 0 ; i < strokeColor.GetComponentCount(); ++i )
                     {
                         input.push_back( strokeColor.GetComponent( i ) );
                     }
@@ -1151,7 +1151,7 @@ void CHE_PDF_Renderer::SetCommonGState( CHE_PDF_GState * pGState, bool bColor, b
                 {
                     std::vector<FLOAT> input;
                     std::vector<FLOAT> output;
-                    for ( size_t i = 0 ; i < strokeColor.GetComponentCount(); ++i )
+                    for ( uint32 i = 0 ; i < strokeColor.GetComponentCount(); ++i )
                     {
                         input.push_back( strokeColor.GetComponent( i ) );
                     }

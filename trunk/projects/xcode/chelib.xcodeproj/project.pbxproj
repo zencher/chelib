@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		900953FA1D79BB5100EB104C /* che_pdf_objectstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 900953F91D79BB5100EB104C /* che_pdf_objectstring.h */; };
+		900953FE1D79BB7300EB104C /* che_pdf_contentbuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 900953FB1D79BB7300EB104C /* che_pdf_contentbuilder.cpp */; };
+		900953FF1D79BB7300EB104C /* che_pdf_contentstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 900953FC1D79BB7300EB104C /* che_pdf_contentstring.cpp */; };
+		900954001D79BB7300EB104C /* che_pdf_objectstring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 900953FD1D79BB7300EB104C /* che_pdf_objectstring.cpp */; };
 		9009BC871CACE75A00724823 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 90C5373D17587FF20014AC65 /* AppKit.framework */; };
 		9013760F1CA0417F005C4059 /* che_pdf_annotation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9013760E1CA0417F005C4059 /* che_pdf_annotation.cpp */; };
 		901376111CA0419D005C4059 /* che_pdf_annotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 901376101CA0419D005C4059 /* che_pdf_annotation.h */; };
@@ -475,6 +479,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		900953F91D79BB5100EB104C /* che_pdf_objectstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_objectstring.h; path = ../../include/pdf/che_pdf_objectstring.h; sourceTree = "<group>"; };
+		900953FB1D79BB7300EB104C /* che_pdf_contentbuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_contentbuilder.cpp; path = ../../src/pdf/che_pdf_contentbuilder.cpp; sourceTree = "<group>"; };
+		900953FC1D79BB7300EB104C /* che_pdf_contentstring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_contentstring.cpp; path = ../../src/pdf/che_pdf_contentstring.cpp; sourceTree = "<group>"; };
+		900953FD1D79BB7300EB104C /* che_pdf_objectstring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_objectstring.cpp; path = ../../src/pdf/che_pdf_objectstring.cpp; sourceTree = "<group>"; };
 		9013760E1CA0417F005C4059 /* che_pdf_annotation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = che_pdf_annotation.cpp; path = ../../src/pdf/che_pdf_annotation.cpp; sourceTree = "<group>"; };
 		901376101CA0419D005C4059 /* che_pdf_annotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = che_pdf_annotation.h; path = ../../include/pdf/che_pdf_annotation.h; sourceTree = "<group>"; };
 		901421EA1C4E1ABE00BDD6D3 /* function.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = function.mm; sourceTree = "<group>"; };
@@ -1018,10 +1026,13 @@
 		90332F211A52CF3B00629EB5 /* content */ = {
 			isa = PBXGroup;
 			children = (
+				900953FB1D79BB7300EB104C /* che_pdf_contentbuilder.cpp */,
 				90500C9418BF8E330025BB8D /* che_pdf_contentlist.cpp */,
 				90500C9518BF8E330025BB8D /* che_pdf_contentlistbuilder.cpp */,
 				90A01AFA1754EC65009DCBD9 /* che_pdf_contentobjs.cpp */,
 				90A01AFB1754EC65009DCBD9 /* che_pdf_contentresmgr.cpp */,
+				900953FC1D79BB7300EB104C /* che_pdf_contentstring.cpp */,
+				900953FD1D79BB7300EB104C /* che_pdf_objectstring.cpp */,
 			);
 			name = content;
 			sourceTree = "<group>";
@@ -1085,11 +1096,12 @@
 			isa = PBXGroup;
 			children = (
 				90A01AD21754EC43009DCBD9 /* che_pdf_contentbuilder.h */,
+				90D8011818E7185F008455A7 /* che_pdf_contentlist.h */,
+				90D8011918E7185F008455A7 /* che_pdf_contentlistbuilder.h */,
 				90A01AD31754EC43009DCBD9 /* che_pdf_contentobjs.h */,
 				90A01AD41754EC43009DCBD9 /* che_pdf_contentresmgr.h */,
 				90A01AD61754EC43009DCBD9 /* che_pdf_contentstring.h */,
-				90D8011818E7185F008455A7 /* che_pdf_contentlist.h */,
-				90D8011918E7185F008455A7 /* che_pdf_contentlistbuilder.h */,
+				900953F91D79BB5100EB104C /* che_pdf_objectstring.h */,
 			);
 			name = content;
 			sourceTree = "<group>";
@@ -1669,6 +1681,7 @@
 				909E11961754532800540539 /* crc32.h in Headers */,
 				909E11981754532800540539 /* deflate.h in Headers */,
 				909E11991754532800540539 /* gzguts.h in Headers */,
+				900953FA1D79BB5100EB104C /* che_pdf_objectstring.h in Headers */,
 				90332F311A52D0B600629EB5 /* che_pdf_namedict.h in Headers */,
 				909E119B1754532800540539 /* inffast.h in Headers */,
 				909E119C1754532800540539 /* inffixed.h in Headers */,
@@ -2193,6 +2206,7 @@
 				909E119D1754532800540539 /* inflate.c in Sources */,
 				909E119F1754532800540539 /* inftrees.c in Sources */,
 				909E11A11754532800540539 /* trees.c in Sources */,
+				900954001D79BB7300EB104C /* che_pdf_objectstring.cpp in Sources */,
 				909E11A31754532800540539 /* uncompr.c in Sources */,
 				909E11A61754532800540539 /* zutil.c in Sources */,
 				909E121217546C3700540539 /* cff.c in Sources */,
@@ -2225,6 +2239,7 @@
 				909E124C1754831B00540539 /* ftlzw.c in Sources */,
 				90D800F018E71830008455A7 /* che_pdf_extgstate.cpp in Sources */,
 				909E124E1754832C00540539 /* pcf.c in Sources */,
+				900953FE1D79BB7300EB104C /* che_pdf_contentbuilder.cpp in Sources */,
 				909E12501754833800540539 /* pfr.c in Sources */,
 				909E12521754834700540539 /* type42.c in Sources */,
 				909E12541754835300540539 /* winfnt.c in Sources */,
@@ -2264,6 +2279,7 @@
 				90C6FB0B17866CC500C50AA5 /* t1.c in Sources */,
 				90C6FB0D17866CC500C50AA5 /* t2.c in Sources */,
 				90C6FB0F17866CC500C50AA5 /* tcd.c in Sources */,
+				900953FF1D79BB7300EB104C /* che_pdf_contentstring.cpp in Sources */,
 				90C6FB1117866CC500C50AA5 /* tgt.c in Sources */,
 				90C6FB3517866CD200C50AA5 /* jbig2_arith_iaid.c in Sources */,
 				90C6FB3717866CD200C50AA5 /* jbig2_arith_int.c in Sources */,

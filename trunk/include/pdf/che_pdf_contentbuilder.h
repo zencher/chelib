@@ -9,7 +9,7 @@ class CHE_PDF_ContentBuilder : public CHE_Object
 public:
 	CHE_PDF_ContentBuilder() : CHE_Object( NULL ), mpCurGState( NULL ) {}
 
-	HE_BOOL ContentToBuf( CHE_PDF_ContentObjectList * pList, CHE_DynBuffer & buf );
+	bool ContentToBuf( CHE_PDF_ContentObjectList * pList, CHE_DynBuffer & buf );
 
 private:
 	CHE_PDF_GState * mpCurGState;

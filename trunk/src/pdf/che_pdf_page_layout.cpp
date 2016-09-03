@@ -188,7 +188,7 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePage()
         page.top = page.bottom = offsetY;
         page.bottom += GetPageHeightForRotateMode(mCurPageStart) * mScale;
         mPageRectInView.push_back( page );
-        mPageScaleInView.push_back( mScale );
+        mPageScaleInView.push_back( tmpScale );
         bbox.Union( page );
     }
     FinalAdjuest(bbox);
@@ -220,12 +220,12 @@ void CHE_PDF_PageLayout::UpdatePageInfoSinglePageScroll()
         for ( size_t index = 0; index < mPageSizes.size(); ++index )
         {
             page.left = page.right = offsetX;
-            page.right += GetPageWidthForRotateMode(index) * mScale;
+            page.right += GetPageWidthForRotateMode(index) * tmpScale;
             page.top = page.bottom = offsetY;
-            page.bottom += GetPageHeightForRotateMode(index) * mScale;
+            page.bottom += GetPageHeightForRotateMode(index) * tmpScale;
             offsetY = page.bottom + mSpaceY;
             mPageRectInView.push_back( page );
-            mPageScaleInView.push_back( mScale );
+            mPageScaleInView.push_back( tmpScale );
             bbox.Union( page );
         }
     }
@@ -277,20 +277,20 @@ void CHE_PDF_PageLayout::UpdatePageInfoDoublePage()
             if ( index % 2 == 0 )
             {
                 pageLeft.left = pageLeft.right = offsetX;
-                pageLeft.right += GetPageWidthForRotateMode(index) * mScale;
+                pageLeft.right += GetPageWidthForRotateMode(index) * tmpScale;
                 pageLeft.top = pageLeft.bottom = offsetY;
-                pageLeft.bottom += GetPageHeightForRotateMode(index) * mScale;
+                pageLeft.bottom += GetPageHeightForRotateMode(index) * tmpScale;
                 mPageRectInView.push_back( pageLeft );
                 mPageScaleInView.push_back( mScale );
                 bbox.Union( pageLeft );
                 offsetX = pageLeft.right + mSpaceX;
             }else{
                 pageRight.left = pageRight.right = offsetX;
-                pageRight.right += GetPageWidthForRotateMode(index) * mScale;
+                pageRight.right += GetPageWidthForRotateMode(index) * tmpScale;
                 pageRight.top = pageRight.bottom = offsetY;
-                pageRight.bottom += GetPageHeightForRotateMode(index) * mScale;
+                pageRight.bottom += GetPageHeightForRotateMode(index) * tmpScale;
                 mPageRectInView.push_back( pageRight );
-                mPageScaleInView.push_back( mScale );
+                mPageScaleInView.push_back( tmpScale );
                 bbox.Union( pageRight );
             }
         }
@@ -340,11 +340,11 @@ void CHE_PDF_PageLayout::UpdatePageInfoDoublePageScroll()
             if ( index % 2 == 0 )
             {
                 pageLeft.left = pageLeft.right = offsetX;
-                pageLeft.right += GetPageWidthForRotateMode(index) * mScale;
+                pageLeft.right += GetPageWidthForRotateMode(index) * tmpScale;
                 pageLeft.top = pageLeft.bottom = offsetY;
-                pageLeft.bottom += GetPageHeightForRotateMode(index) * mScale;
+                pageLeft.bottom += GetPageHeightForRotateMode(index) * tmpScale;
                 mPageRectInView.push_back( pageLeft );
-                mPageScaleInView.push_back( mScale );
+                mPageScaleInView.push_back( tmpScale );
                 bbox.Union( pageLeft );
                 offsetX = pageLeft.right + mSpaceX;
             }else{
@@ -353,7 +353,7 @@ void CHE_PDF_PageLayout::UpdatePageInfoDoublePageScroll()
                 pageRight.top = pageRight.bottom = offsetY;
                 pageRight.bottom += GetPageHeightForRotateMode(index) * mScale;
                 mPageRectInView.push_back( pageRight );
-                mPageScaleInView.push_back( mScale );
+                mPageScaleInView.push_back( tmpScale );
                 bbox.Union( pageRight );
                 offsetX = mSpaceX;
                 offsetY = ( ( pageRight.bottom > pageLeft.bottom ) ? pageRight.bottom : pageLeft.bottom ) + mSpaceY;

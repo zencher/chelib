@@ -935,9 +935,9 @@ bool IsDefRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri )
 	return false;
 }
 
-bool IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace )
+bool IsDefColorSpace( const CHE_PDF_ColorSpacePtr & colorSpace )
 {
-	if ( colorSpace.GetColorSpaceType() == COLORSPACE_DEVICE_GRAY )
+	if ( colorSpace->GetColorSpaceType() == COLORSPACE_DEVICE_GRAY )
 	{
 		return TRUE;
 	}
@@ -953,10 +953,10 @@ bool IsDefColor( const CHE_PDF_Color & color )
 	return false;
 }
 
-bool	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 )
+bool	IsColorSpaceEqual( const CHE_PDF_ColorSpacePtr & cs1, const CHE_PDF_ColorSpacePtr & cs2 )
 {
 	//zctodo
-	if ( cs1.GetType() == cs2.GetType() /*&& cs1.GetResName() == cs2.GetResName()*/ )
+	if ( cs1->GetColorSpaceType() == cs2->GetColorSpaceType() /*&& cs1.GetResName() == cs2.GetResName()*/ )
 	{
 		return TRUE;
 	}

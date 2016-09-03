@@ -72,14 +72,14 @@ public:
     template <class Type, typename... Args>
     inline Type * New(Args... args )
     {
-        void * obj =Alloc( sizeof(Type) );
+        void * obj = Alloc( sizeof(Type) );
         return new(obj) Type(args...);
     }
 #else
 	template <class Type, class Arg1>
 	inline Type * New( Arg1 arg1 )
 	{
-		void * obj =Alloc( sizeof(Type) );
+		void * obj = Alloc( sizeof(Type) );
 		return new(obj) Type(arg1);
 	}
 

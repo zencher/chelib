@@ -62,7 +62,7 @@ public:
 		}
 	}
 
-	size_t GetComponentCount() const
+	uint32 GetComponentCount() const
 	{
 		return mIndex;
 	}
@@ -84,7 +84,7 @@ public:
 
 private:
 	FLOAT				mComponent[4];
-	size_t				mIndex;
+	uint32				mIndex;
 };
 
 
@@ -175,7 +175,7 @@ public:
 
 	PDF_COLORSPACE_TYPE         GetColorSpaceType() const { return mColorSpaceType; }
 
-	uint32                   GetComponentCount() const;
+	uint32                      GetComponentCount() const;
     
     CHE_PDF_CS_CalGrayPtr       GetCalGrayPtr() const;
 
@@ -194,14 +194,14 @@ public:
     CHE_PDF_CS_DeviceNPtr       GetDeviceNPtr() const;
 
 #ifdef WIN32
-	virtual ARGB	GetARGBValue(const CHE_PDF_Color & color) const;
+	virtual ARGB GetARGBValue(const CHE_PDF_Color & color) const;
 #endif
 
 protected:
 	CHE_PDF_ColorSpace(PDF_COLORSPACE_TYPE type, uint32 componentCount, CHE_Allocator * pAllocator = nullptr);
 
 	PDF_COLORSPACE_TYPE		mColorSpaceType;
-	uint32				mComponentCount;
+	uint32                  mComponentCount;
 
 	friend class CHE_Allocator;
 };

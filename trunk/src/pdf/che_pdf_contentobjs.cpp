@@ -371,7 +371,7 @@ CHE_PDF_Path::~CHE_PDF_Path()
 	mItems.clear();
 }
 
-CHE_PDF_InlineImage::CHE_PDF_InlineImage( bool bMask, size_t width, size_t hight, size_t bpc,
+CHE_PDF_InlineImage::CHE_PDF_InlineImage( bool bMask, uint32 width, uint32 hight, uint32 bpc,
     PBYTE pBytes, size_t size, CHE_PDF_ObjectPtr objPtr, CHE_PDF_ColorSpacePtr colorspace,
     GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator/*= nullptr*/ )
 	: CHE_PDF_ContentObject( ContentType_InlineImage, pAllocator ), mbMask( bMask ), mWidth( width ), mHeight( hight ), 

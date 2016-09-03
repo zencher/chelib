@@ -59,7 +59,7 @@ public:
 
 private:
 	CHE_PDF_ObjectPtr	mpObj;
-	FLOAT			mpLastKerning;
+	FLOAT               mpLastKerning;
 };
 
 
@@ -79,7 +79,7 @@ public:
 	union
 	{
 		PDF_PATHITEM_TYPE	type;
-		FLOAT			value;
+		FLOAT               value;
 	};
 };
 
@@ -179,17 +179,17 @@ private:
 class CHE_PDF_InlineImage : public CHE_PDF_ContentObject
 {
 public:
-	CHE_PDF_InlineImage(	bool bMask, size_t width, size_t hight, size_t bpc, PBYTE pBytes, size_t size, CHE_PDF_ObjectPtr objPtr,
-                            CHE_PDF_ColorSpacePtr colorspace, GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator = nullptr );
+	CHE_PDF_InlineImage( bool bMask, uint32 width, uint32 hight, uint32 bpc, PBYTE pBytes, size_t size, CHE_PDF_ObjectPtr objPtr,
+                         CHE_PDF_ColorSpacePtr colorspace, GRAPHICS_STATE_RENDERINTENTS ri, CHE_Allocator * pAllocator = nullptr );
 
 	~CHE_PDF_InlineImage();
 
 	CHE_PDF_ContentObject * Clone() const;
 
-	bool	IsMask() const { return mbMask; }
-	size_t GetWidth() const { return mWidth; }
-	size_t GetHeight() const { return mHeight; }
-	size_t GetBpc() const { return mBpc; }
+	bool IsMask() const { return mbMask; }
+	uint32 GetWidth() const { return mWidth; }
+	uint32 GetHeight() const { return mHeight; }
+	uint32 GetBpc() const { return mBpc; }
 	CHE_PDF_ColorSpacePtr GetColorspace() const { return mColorspace; }
 	CHE_PDF_ObjectPtr GetDecode() const { return mDecodeObjPtr; }
     GRAPHICS_STATE_RENDERINTENTS GetRenderIntent() const { return mRI; }
@@ -203,11 +203,11 @@ public:
 
 private:
 	bool					mbMask;
-	size_t				mWidth;
-	size_t				mHeight;
-	size_t				mBpc;
-	PBYTE				mpData;
-	size_t				mDataSize;
+	uint32                  mWidth;
+	uint32                  mHeight;
+	uint32                  mBpc;
+	PBYTE                   mpData;
+	size_t                  mDataSize;
 	CHE_PDF_ColorSpacePtr	mColorspace;
 	CHE_PDF_ObjectPtr		mDecodeObjPtr;
     GRAPHICS_STATE_RENDERINTENTS    mRI;

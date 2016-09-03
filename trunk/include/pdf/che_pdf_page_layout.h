@@ -157,8 +157,8 @@ private:
     FLOAT                            mContentWidth;
     FLOAT                            mContentHeight;
     
-    std::vector<HE_PDF_PAGE_SIZE>       mPageSizes;
-    std::vector<CHE_Page_Rect>          mPageRectInView;
+    std::vector<HE_PDF_PAGE_SIZE>    mPageSizes;
+    std::vector<CHE_Page_Rect>       mPageRectInView;
     std::vector<FLOAT>               mPageScaleInView;
 };
 
@@ -205,19 +205,19 @@ private:
     void UpdatePageInfoDoublePage();
     void UpdatePageInfoDoublePageScroll();
     
-    FLOAT                mScale;
-    uint32               mSpaceX;
-    uint32               mSpaceY;
+    FLOAT                   mScale;
+    uint32                  mSpaceX;
+    uint32                  mSpaceY;
     HE_PDF_VIEW_PAGE_MODE   mMode;
     HE_PDF_VIEW_ZOOM_MODE   mZoom;
     HE_PDF_VIEW_ROTATE_MODE mRotate;
-    FLOAT                mViewWidth;
-    FLOAT                mViewHeight;
-    FLOAT                mContentWidth;
-    FLOAT                mContentHeight;
-    std::vector<HE_PDF_PAGE_SIZE>       mPageSizes;
+    FLOAT                   mViewWidth;
+    FLOAT                   mViewHeight;
+    FLOAT                   mContentWidth;
+    FLOAT                   mContentHeight;
+    std::vector<HE_PDF_PAGE_SIZE>    mPageSizes;
     bool                             mNeedUpdate;
-    std::vector<CHE_Page_Rect>          mPageRectInView;
+    std::vector<CHE_Page_Rect>       mPageRectInView;
     std::vector<FLOAT>               mPageScaleInView;
     
     size_t                   mCurPageStart;

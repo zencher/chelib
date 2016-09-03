@@ -5,23 +5,22 @@
 
 
 
-HE_BOOL CHE_PDF_ContentString::ColorToBuf( const CHE_PDF_Color & color, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::ColorToBuf( const CHE_PDF_Color & color, CHE_DynBuffer & buf )
 {
-	HE_ULONG count = color.GetComponentCount();
-	for ( size_t i = 0; i < count; ++i )
+	uint32 count = color.GetComponentCount();
+	for ( uint32 i = 0; i < count; ++i )
 	{
 		CHE_PDF_ObjectString::FloatToBuf( color.GetComponent(i), buf );
 		CHE_PDF_ObjectString::StringToBuf( " ", buf );
 	}
-
-	return TRUE;
+	return true;
 }
 
 
 
-HE_BOOL CHE_PDF_ContentString::ColorSpaceToBuf( const CHE_PDF_ColorSpace & colorSpace, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::ColorSpaceToBuf( const CHE_PDF_ColorSpace & colorSpace, CHE_DynBuffer & buf )
 {
-	switch ( colorSpace.GetType() )
+	switch ( colorSpace.GetColorSpaceType() )
 	{
 	case COLORSPACE_DEVICE_GRAY:
 		CHE_PDF_ObjectString::StringToBuf( "/DeviceGray", buf );
@@ -34,34 +33,24 @@ HE_BOOL CHE_PDF_ContentString::ColorSpaceToBuf( const CHE_PDF_ColorSpace & color
 		break;
 	case COLORSPACE_CIEBASE_CALGRAY:
 	case COLORSPACE_CIEBASE_CALRGB:
-	case COLORSPACE_CIEBASE_CALCMYK:
 	case COLORSPACE_CIEBASE_CALLAB:
 	case COLORSPACE_CIEBASE_ICCBASED:
 	case COLORSPACE_SPECIAL_INDEXED:
 	case COLORSPACE_SPECIAL_SEPARATION:
 	case COLORSPACE_SPECIAL_DEVICEN:
-		{
-			CHE_ByteString resName = colorSpace.GetResName();
-			if ( resName.GetLength() != 0 )
-			{
-				CHE_PDF_ObjectString::StringToBuf( "/", buf );
-				CHE_PDF_ObjectString::StringToBuf( resName, buf );
-			}
-			break;
-		}
 	case COLORSPACE_SPECIAL_PATTERN:
-		CHE_PDF_ObjectString::StringToBuf( "/Pattern", buf );
+		//zctodo
+        return false;
 		break;
 	default:
 		break;
 	}
-
-	return TRUE;
+	return true;
 }
 
 
 
-HE_BOOL CHE_PDF_ContentString::PdfMatrixToBuf( const CHE_Matrix & matrix, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::PdfMatrixToBuf( const CHE_Matrix & matrix, CHE_DynBuffer & buf )
 {
 	CHE_PDF_ObjectString::FloatToBuf( matrix.a, buf );
 	CHE_PDF_ObjectString::SpaceToBuf( buf );
@@ -85,7 +74,7 @@ HE_BOOL CHE_PDF_ContentString::PdfMatrixToBuf( const CHE_Matrix & matrix, CHE_Dy
 
 
 
-HE_BOOL CHE_PDF_ContentString::PathDataToBuf( const CHE_PDF_Path * pPath, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::PathDataToBuf( const CHE_PDF_Path * pPath, CHE_DynBuffer & buf )
 {
 	if ( pPath == NULL )
 	{
@@ -164,7 +153,7 @@ HE_BOOL CHE_PDF_ContentString::PathDataToBuf( const CHE_PDF_Path * pPath, CHE_Dy
 
 
 
-HE_BOOL CHE_PDF_ContentString::PathToBuf( const CHE_PDF_Path * pPath, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::PathToBuf( const CHE_PDF_Path * pPath, CHE_DynBuffer & buf )
 {
 	if ( pPath == NULL )
 	{
@@ -228,7 +217,7 @@ void CHE_PDF_ContentString::TextBlockEndToBuf( CHE_DynBuffer & buf )
 
 
 
-HE_BOOL CHE_PDF_ContentString::TextToBuf( const CHE_PDF_Text * pText, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::TextToBuf( const CHE_PDF_Text * pText, CHE_DynBuffer & buf )
 {
 	if ( pText == NULL )
 	{
@@ -239,12 +228,12 @@ HE_BOOL CHE_PDF_ContentString::TextToBuf( const CHE_PDF_Text * pText, CHE_DynBuf
 
 	if ( IsPdfStringPtr( objPtr ) )
 	{
-		CHE_PDF_ObjectString::PdfObjPtrToBuf( objPtr, buf );
+		CHE_PDF_ObjectString::ObjectToBuf( objPtr, buf );
 		CHE_PDF_ObjectString::StringToBuf( " Tj\n", buf );
 	}
 	else if ( IsPdfArrayPtr( objPtr ) )
 	{
-		CHE_PDF_ObjectString::PdfObjPtrToBuf( objPtr, buf );
+		CHE_PDF_ObjectString::ObjectToBuf( objPtr, buf );
 		CHE_PDF_ObjectString::StringToBuf( " TJ\n", buf );
 	}else{
 		return FALSE;
@@ -255,7 +244,7 @@ HE_BOOL CHE_PDF_ContentString::TextToBuf( const CHE_PDF_Text * pText, CHE_DynBuf
 
 
 
-HE_BOOL CHE_PDF_ContentString::RefImageToBuf( const CHE_PDF_RefImage * pImage, CHE_DynBuffer & buf )
+/*bool CHE_PDF_ContentString::RefImageToBuf( const CHE_PDF_RefImage * pImage, CHE_DynBuffer & buf )
 {
 	if ( pImage == NULL )
 	{
@@ -274,11 +263,11 @@ HE_BOOL CHE_PDF_ContentString::RefImageToBuf( const CHE_PDF_RefImage * pImage, C
 	CHE_PDF_ObjectString::StringToBuf( " Do\n", buf );
 
 	return TRUE;
-}
+}*/
 
 
 
-HE_BOOL CHE_PDF_ContentString::InlineImageToBuf( const CHE_PDF_InlineImage * pImage, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::InlineImageToBuf( const CHE_PDF_InlineImage * pImage, CHE_DynBuffer & buf )
 {
 	if ( pImage == NULL )
 	{
@@ -288,15 +277,15 @@ HE_BOOL CHE_PDF_ContentString::InlineImageToBuf( const CHE_PDF_InlineImage * pIm
 	CHE_PDF_ObjectString::StringToBuf( "BI\n", buf );
 
 	CHE_PDF_ObjectString::StringToBuf( "/W ", buf );
-	CHE_PDF_ObjectString::DWORDToBuf( pImage->GetWidth(), buf );
+	CHE_PDF_ObjectString::IntegerToBuf( pImage->GetWidth(), buf );
 	CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 
 	CHE_PDF_ObjectString::StringToBuf( "/H ", buf );
-	CHE_PDF_ObjectString::DWORDToBuf( pImage->GetHeight(), buf );
+	CHE_PDF_ObjectString::IntegerToBuf( pImage->GetHeight(), buf );
 	CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 
 	CHE_PDF_ObjectString::StringToBuf( "/BPC ", buf );
-	CHE_PDF_ObjectString::DWORDToBuf( pImage->GetBpc(), buf );
+	CHE_PDF_ObjectString::IntegerToBuf( pImage->GetBpc(), buf );
 	CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 
 	if ( pImage->IsMask() )
@@ -306,20 +295,21 @@ HE_BOOL CHE_PDF_ContentString::InlineImageToBuf( const CHE_PDF_InlineImage * pIm
 
 	if ( pImage->GetColorspace() )
 	{
+        //zctodo
 		CHE_PDF_ObjectString::StringToBuf( "/CS /", buf );
-		if ( pImage->GetColorspace()->GetResName().GetLength() > 0 )
+		/*if ( pImage->GetColorspace()->GetResName().GetLength() > 0 )
 		{
 			CHE_PDF_ObjectString::StringToBuf( pImage->GetColorspace()->GetResName(), buf );
 		}else{
 			CHE_PDF_ObjectString::StringToBuf( pImage->GetColorspace()->GetName(), buf );
-		}
+		}*/
 		CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 	}
 
 	if ( pImage->GetDecode() )
 	{
 		CHE_PDF_ObjectString::StringToBuf( "/D ", buf );
-		CHE_PDF_ObjectString::PdfObjPtrToBuf( pImage->GetDecode(), buf );
+		CHE_PDF_ObjectString::ObjectToBuf( pImage->GetDecode(), buf );
 		CHE_PDF_ObjectString::StringToBuf( "\n", buf );
 	}
 
@@ -342,24 +332,7 @@ HE_BOOL CHE_PDF_ContentString::InlineImageToBuf( const CHE_PDF_InlineImage * pIm
 }
 
 
-
-HE_BOOL CHE_PDF_ContentString::ShadingToBuf( const CHE_PDF_Shading * pShading, CHE_DynBuffer & buf )
-{
-	if ( pShading == NULL || pShading->GetName().GetLength() == 0 )
-	{
-		return FALSE;
-	}
-
-	CHE_PDF_ObjectString::StringToBuf( "/", buf );
-	CHE_PDF_ObjectString::StringToBuf( pShading->GetName(), buf );
-	CHE_PDF_ObjectString::StringToBuf( " sh\n", buf );
-
-	return TRUE;
-}
-
-
-
-HE_BOOL CHE_PDF_ContentString::MarkToBuf( const CHE_PDF_Mark * pMark, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::MarkToBuf( const CHE_PDF_Mark * pMark, CHE_DynBuffer & buf )
 {
 	if ( pMark == NULL )
 	{
@@ -384,7 +357,7 @@ HE_BOOL CHE_PDF_ContentString::MarkToBuf( const CHE_PDF_Mark * pMark, CHE_DynBuf
 			{
 				CHE_PDF_ObjectString::StringToBuf( pMark->GetPropertyResName(), buf );
 			}else{
-				CHE_PDF_ObjectString::PdfObjPtrToBuf( pMark->GetProperty(), buf );
+				CHE_PDF_ObjectString::ObjectToBuf( pMark->GetProperty(), buf );
 			}
 			CHE_PDF_ObjectString::StringToBuf( " DP\n", buf );
 			break;
@@ -405,7 +378,7 @@ HE_BOOL CHE_PDF_ContentString::MarkToBuf( const CHE_PDF_Mark * pMark, CHE_DynBuf
 			{
 				CHE_PDF_ObjectString::StringToBuf( pMark->GetPropertyResName(), buf );
 			}else{
-				CHE_PDF_ObjectString::PdfObjPtrToBuf( pMark->GetProperty(), buf );
+				CHE_PDF_ObjectString::ObjectToBuf( pMark->GetProperty(), buf );
 			}
 			CHE_PDF_ObjectString::StringToBuf( " BDC\n", buf );
 			break;
@@ -424,7 +397,7 @@ HE_BOOL CHE_PDF_ContentString::MarkToBuf( const CHE_PDF_Mark * pMark, CHE_DynBuf
 
 
 
-HE_BOOL CHE_PDF_ContentString::FormToBuf( const CHE_PDF_Form * pForm, CHE_DynBuffer & buf )
+/*bool CHE_PDF_ContentString::FormToBuf( const CHE_PDF_Form * pForm, CHE_DynBuffer & buf )
 {
 	if ( pForm == NULL )
 	{
@@ -440,22 +413,21 @@ HE_BOOL CHE_PDF_ContentString::FormToBuf( const CHE_PDF_Form * pForm, CHE_DynBuf
 
 		return TRUE;
 	}
-
 	return FALSE;
-}
+}*/
 
 
 
-HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pTextState, CHE_DynBuffer & buf, HE_BOOL bNewBlock )
+bool CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pTextState, CHE_DynBuffer & buf, bool bNewBlock )
 {
 	if ( pTextState == NULL )
 	{
 		return FALSE;
 	}
 
-	HE_FLOAT					val = 0;
-	CHE_ByteString				name;
-	CHE_Matrix				textMatrix;
+	FLOAT                           val = 0;
+	CHE_ByteString                  name;
+	CHE_Matrix                      textMatrix;
 	GRAPHICS_STATE_TEXTRENDERMODE	textRenderMode = TextRenderMode_Fill;
 
 	pTextState->GetTextCharSpace( val );
@@ -514,15 +486,15 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pTextState
 
 	if ( ! IsDefTextRenderMode( textRenderMode ) )
 	{
-		HE_ULONG tmpVal = (HE_ULONG)( textRenderMode );
-		CHE_PDF_ObjectString::DWORDToBuf( tmpVal, buf );
+		uint32 tmpVal = (uint32)( textRenderMode );
+		CHE_PDF_ObjectString::IntegerToBuf( tmpVal, buf );
 		CHE_PDF_ObjectString::StringToBuf( " Tr\n", buf );
 	}
 
 	return TRUE;
 }
 
-HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pCurTextState, const CHE_PDF_GState * pTargetTextState, CHE_DynBuffer & buf, HE_BOOL bNewBlock )
+bool CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pCurTextState, const CHE_PDF_GState * pTargetTextState, CHE_DynBuffer & buf, bool bNewBlock )
 {
 	if ( pCurTextState == NULL )
 	{
@@ -535,9 +507,9 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pCurTextSt
 		return FALSE;
 	}
 
-	HE_FLOAT					curVal = 0, targetVal = 0;
-	CHE_ByteString				curName, targetName;
-	CHE_Matrix				curMatrix, targetMatrix;
+	FLOAT                           curVal = 0, targetVal = 0;
+	CHE_ByteString                  curName, targetName;
+	CHE_Matrix                      curMatrix, targetMatrix;
 	GRAPHICS_STATE_TEXTRENDERMODE	curRM = TextRenderMode_Fill, targetRM = TextRenderMode_Fill;
 
 	pCurTextState->GetTextCharSpace( curVal );
@@ -604,8 +576,8 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pCurTextSt
 
 	if ( curRM != targetRM )
 	{
-		HE_ULONG tmpVal = (HE_ULONG)( targetRM );
-		CHE_PDF_ObjectString::DWORDToBuf( tmpVal, buf );
+		uint32 tmpVal = (uint32)( targetRM );
+		CHE_PDF_ObjectString::IntegerToBuf( tmpVal, buf );
 		CHE_PDF_ObjectString::StringToBuf( " Tr\n", buf );
 	}
 
@@ -614,27 +586,28 @@ HE_BOOL CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pCurTextSt
 
 
 
-HE_BOOL CHE_PDF_ContentString::ExtGStateToBuf( const CHE_PDF_ExtGState * pExtGState, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::ExtGStateToBuf( const CHE_PDF_ExtGState * pExtGState, CHE_DynBuffer & buf )
 {
 	if ( pExtGState == NULL )
 	{
 		return FALSE;
 	}
 
-	std::list<CHE_ByteString>::const_iterator it = pExtGState->mExtDictNameList.begin();
+    //zctodo
+	/*std::list<CHE_ByteString>::const_iterator it = pExtGState->mExtDictNameList.begin();
 	for ( ; it != pExtGState->mExtDictNameList.end(); ++it )
 	{
 		CHE_PDF_ObjectString::StringToBuf( "/", buf );
 		CHE_PDF_ObjectString::StringToBuf( *it, buf );
 		CHE_PDF_ObjectString::StringToBuf( " gs\n", buf );
-	}
+	}*/
 
 	return TRUE;
 }
 
 
 
-HE_BOOL CHE_PDF_ContentString::ExtGStateToBuf( const CHE_PDF_ExtGState * pCurExtGState, const CHE_PDF_ExtGState * pTargetExtGState, CHE_DynBuffer & buf )
+bool CHE_PDF_ContentString::ExtGStateToBuf( const CHE_PDF_ExtGState * pCurExtGState, const CHE_PDF_ExtGState * pTargetExtGState, CHE_DynBuffer & buf )
 {
 	if ( pCurExtGState == NULL && pTargetExtGState == NULL )
 	{
@@ -651,7 +624,8 @@ HE_BOOL CHE_PDF_ContentString::ExtGStateToBuf( const CHE_PDF_ExtGState * pCurExt
 		return ExtGStateToBuf( pTargetExtGState, buf );
 	}
 
-	if ( pCurExtGState->mExtDictNameList.size() >= pTargetExtGState->mExtDictNameList.size() )
+    //zctodo
+	/*if ( pCurExtGState->mExtDictNameList.size() >= pTargetExtGState->mExtDictNameList.size() )
  	{
 		return FALSE;
 	}
@@ -668,14 +642,14 @@ HE_BOOL CHE_PDF_ContentString::ExtGStateToBuf( const CHE_PDF_ExtGState * pCurExt
 		CHE_PDF_ObjectString::StringToBuf( "/", buf );
 		CHE_PDF_ObjectString::StringToBuf( *it2, buf );
 		CHE_PDF_ObjectString::StringToBuf( " gs\n", buf );
-	}
+	}*/
 
 	return TRUE;
 }
 
 
 
-HE_BOOL CHE_PDF_ContentString::ClipStateToBuf( CHE_Matrix & curMatrix, CHE_PDF_ClipState * pClipState, CHE_DynBuffer & buf, HE_BOOL bInTextBlock )
+bool CHE_PDF_ContentString::ClipStateToBuf( CHE_Matrix & curMatrix, CHE_PDF_ClipState * pClipState, CHE_DynBuffer & buf, bool bInTextBlock )
 {
 	if ( pClipState == NULL )
 	{
@@ -740,8 +714,8 @@ HE_BOOL CHE_PDF_ContentString::ClipStateToBuf( CHE_Matrix & curMatrix, CHE_PDF_C
 
 
 
-HE_BOOL CHE_PDF_ContentString::ClipStateToBuf(	CHE_Matrix & curMatrix, CHE_PDF_ClipState * pCurClipState,
-												const CHE_PDF_ClipState * pTargetClipState, CHE_DynBuffer & buf, HE_BOOL bInTextBlock )
+bool CHE_PDF_ContentString::ClipStateToBuf(	CHE_Matrix & curMatrix, CHE_PDF_ClipState * pCurClipState,
+												const CHE_PDF_ClipState * pTargetClipState, CHE_DynBuffer & buf, bool bInTextBlock )
 {
 // 	if ( pClipState1 == NULL && pClipState2 == NULL )
 // 	{
@@ -787,16 +761,16 @@ HE_BOOL CHE_PDF_ContentString::ClipStateToBuf(	CHE_Matrix & curMatrix, CHE_PDF_C
 
 
 
-HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & gstack, HE_BOOL bInTextBlock )
+bool CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynBuffer & buf, stack<CHE_PDF_GState*> & gstack, bool bInTextBlock )
 {
 	if ( ! pGSData )
 	{
 		pGSData = GetDefaultAllocator()->New<CHE_PDF_GState>( GetDefaultAllocator() );
 	}
 
-	HE_BOOL						bNewTextBlock = FALSE;
-	HE_BOOL						bNeedStackPush = FALSE;
-	HE_FLOAT					floatVal = 0;
+	bool                            bNewTextBlock = FALSE;
+	bool                            bNeedStackPush = FALSE;
+	FLOAT                           floatVal = 0;
 	GRAPHICS_STATE_LINECAP			lineCap = LineCap_Butt;
 	GRAPHICS_STATE_LINEJOIN			lineJoin = LineJoin_Miter;
 	GRAPHICS_STATE_DASHPATTERN		lineDash;
@@ -808,11 +782,12 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 		bNeedStackPush = TRUE;
 	}
 
-	CHE_PDF_ExtGState * pExtState = pGSData->GetExtGState();
+    //zctodo
+	/*CHE_PDF_ExtGState * pExtState = pGSData->GetExtGState();
 	if ( pExtState && pExtState->mExtDictNameList.size() > 0 )
 	{
 		bNeedStackPush = TRUE;
-	}
+	}*/
 
 	if ( bNeedStackPush )
 	{
@@ -823,7 +798,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 		}
 
 		CHE_PDF_ObjectString::StringToBuf( "q\n", buf );
-		gstack.Push( NULL );
+		gstack.push( NULL );
 	}
 
 	CHE_Matrix curMatrix;
@@ -860,7 +835,8 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 		CHE_PDF_ObjectString::StringToBuf( " cm\n", buf );
 	}
 
-	ExtGStateToBuf( pExtState, buf );
+    //zctodo
+	//ExtGStateToBuf( pExtState, buf );
 
 	pGSData->GetLineWidth( floatVal );
 
@@ -969,25 +945,27 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 		CHE_PDF_ObjectString::FloatToBuf( floatVal, buf );
 		CHE_PDF_ObjectString::StringToBuf( " i\n", buf );
 	}
+    
+    CHE_PDF_ColorSpacePtr fillColorSpace;// = CHE_PDF_ColorSpace::CreateDeviceGray();
 	
-	CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );
+	//CHE_PDF_ColorSpace fillColorSpace( COLORSPACE_DEVICE_GRAY );
 	CHE_PDF_Color fillColor;
 	pGSData->GetFillColorSpace( fillColorSpace );
 	pGSData->GetFillColor( fillColor );
 
 	if ( ! IsDefColorSpace( fillColorSpace ) || ! IsDefColor( fillColor ) )
 	{
-		if ( ! fillColorSpace.IsDeviceColorSpace() )
+		/*if ( ! fillColorSpace.IsDeviceColorSpace() )
 		{
 			ColorSpaceToBuf( fillColorSpace, buf );
 			CHE_PDF_ObjectString::StringToBuf( " cs\n", buf );
-		}
+		}*/
 
-		if ( fillColor.GetComponentCount() > 0 )
+		//if ( fillColor.GetComponentCount() > 0 )
 		{
 			ColorToBuf( fillColor,  buf );
 
-			switch (  fillColorSpace.GetType() )
+			switch ( fillColorSpace->GetColorSpaceType() )
 			{
 			case COLORSPACE_DEVICE_GRAY:
 				CHE_PDF_ObjectString::StringToBuf( "g\n", buf );
@@ -1000,7 +978,6 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 				break;
 			case COLORSPACE_CIEBASE_CALGRAY:
 			case COLORSPACE_CIEBASE_CALRGB:
-			case COLORSPACE_CIEBASE_CALCMYK:
 			case COLORSPACE_CIEBASE_CALLAB:
 				CHE_PDF_ObjectString::StringToBuf( "sc\n", buf );
 				break;
@@ -1009,34 +986,38 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 			case COLORSPACE_SPECIAL_SEPARATION:
 			case COLORSPACE_SPECIAL_DEVICEN:
 				CHE_PDF_ObjectString::StringToBuf( "scn\n", buf );
+                break;
+            case COLORSPACE_SPECIAL_PATTERN:
+                CHE_PDF_ObjectString::StringToBuf( "scn\n", buf );
 				break;
 			}
-		}else if ( fillColorSpace.GetType() == COLORSPACE_SPECIAL_PATTERN )
-		{
-			CHE_PDF_ObjectString::StringToBuf( "/", buf );
-			CHE_PDF_ObjectString::StringToBuf( fillColorSpace.GetResName(), buf );
-			CHE_PDF_ObjectString::StringToBuf( " scn\n", buf );
 		}
+        //else if ( fillColorSpace->GetColorSpaceType() == COLORSPACE_SPECIAL_PATTERN )
+		//{
+		//	CHE_PDF_ObjectString::StringToBuf( "/", buf );
+		//	//CHE_PDF_ObjectString::StringToBuf( fillColorSpace.GetResName(), buf );
+		//	CHE_PDF_ObjectString::StringToBuf( " scn\n", buf );
+		//}
 	}
 
-	CHE_PDF_ColorSpace strokeColorSpace( COLORSPACE_DEVICE_GRAY );
+    CHE_PDF_ColorSpacePtr strokeColorSpace;
 	CHE_PDF_Color strokeColor;
 	pGSData->GetStrokeColorSpace( strokeColorSpace );
 	pGSData->GetStrokeColor( strokeColor );
 
 	if ( ! IsDefColorSpace( strokeColorSpace ) || ! IsDefColor( strokeColor ) )
 	{
-		if ( ! strokeColorSpace.IsDeviceColorSpace() )
+		/*if ( ! strokeColorSpace.IsDeviceColorSpace() )
 		{
 			ColorSpaceToBuf( strokeColorSpace, buf );
 			CHE_PDF_ObjectString::StringToBuf( " CS\n", buf );
-		}
+		}*/
 
 		if ( strokeColor.GetComponentCount() > 0 )
 		{
 			ColorToBuf( strokeColor,  buf );
 
-			switch (  strokeColorSpace.GetType() )
+			switch (  strokeColorSpace->GetColorSpaceType() )
 			{
 			case COLORSPACE_DEVICE_GRAY:
 				CHE_PDF_ObjectString::StringToBuf( "G\n", buf );
@@ -1049,13 +1030,12 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 				break;
 			case COLORSPACE_CIEBASE_CALGRAY:
 			case COLORSPACE_CIEBASE_CALRGB:
-			case COLORSPACE_CIEBASE_CALCMYK:
 			case COLORSPACE_CIEBASE_CALLAB:
 				CHE_PDF_ObjectString::StringToBuf( "SC\n", buf );
 				break;
 			case COLORSPACE_SPECIAL_PATTERN:
 				CHE_PDF_ObjectString::StringToBuf( "/", buf );
-				CHE_PDF_ObjectString::StringToBuf( strokeColorSpace.GetResName(), buf );
+				//CHE_PDF_ObjectString::StringToBuf( strokeColorSpace.GetResName(), buf );
 				CHE_PDF_ObjectString::SpaceToBuf( buf );
 			case COLORSPACE_CIEBASE_ICCBASED:
 			case COLORSPACE_SPECIAL_INDEXED:
@@ -1076,13 +1056,13 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynB
 		TextStateToBuf( pGSData, buf, bNewTextBlock );
 	}
 
-	return TRUE; 
+	return true;
 }
 
-HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_PDF_GState * & pTargetGSData,
-											CHE_DynBuffer & buf, CHE_Stack<CHE_PDF_GState*> & stack, HE_BOOL bInTextBlock )
+bool CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_PDF_GState * & pTargetGSData,
+											CHE_DynBuffer & buf, stack<CHE_PDF_GState*> & stack, bool bInTextBlock )
 {
-	if ( ! pTargetGSData )
+	/*if ( ! pTargetGSData )
 	{
 		pTargetGSData = GetDefaultAllocator()->New<CHE_PDF_GState>( GetDefaultAllocator() );
 	}
@@ -1092,8 +1072,8 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 		return GStateToBuf( pTargetGSData, buf, stack, bInTextBlock );
 	}
 
-	HE_BOOL						bNewTextBlock = FALSE;
-	HE_FLOAT					curVal = 0, targetVal = 0;
+	bool                            bNewTextBlock = FALSE;
+	FLOAT                           curVal = 0, targetVal = 0;
 	GRAPHICS_STATE_LINECAP			curLineCap = LineCap_Butt, targetLineCap = LineCap_Butt;
 	GRAPHICS_STATE_LINEJOIN			curLineJoin = LineJoin_Miter, targetLineJoin = LineJoin_Miter;
 	GRAPHICS_STATE_DASHPATTERN		curLineDash, targetLineDash;
@@ -1117,7 +1097,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 			}
 			CHE_PDF_ObjectString::StringToBuf( "q\n", buf );
 		}else{
-			HE_BOOL	bRet = TRUE;
+			bool	bRet = TRUE;
 			CHE_PDF_GState * pTmpGSData = NULL;
 			while( bRet )
 			{
@@ -1177,7 +1157,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 		{
 			//zctodo
 		}else{
-			HE_BOOL	bRet = TRUE;
+			bool	bRet = TRUE;
 			CHE_PDF_GState * pTmpGSData = NULL;
 			while( bRet )
 			{
@@ -1335,7 +1315,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 		CHE_PDF_ObjectString::FloatToBuf( targetLineDash.dashPhase, buf );
 		CHE_PDF_ObjectString::StringToBuf( " d\n", buf );
 	}else{
-		HE_BOOL bSame = TRUE;
+		bool bSame = TRUE;
 		for ( HE_ULONG i = 0; i < targetLineDash.dashArray.size(); ++i )
 		{
 			if ( ! IsFloatEqual( curLineDash.dashArray[i], targetLineDash.dashArray[i] ) )
@@ -1506,7 +1486,7 @@ HE_BOOL CHE_PDF_ContentString::GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_P
 			TextBlockBeginToBuf( buf );
 		}
 		TextStateToBuf( pCurGSData, pTargetGSData, buf, bNewTextBlock );
-	}
+	}*/
 
-	return TRUE;
+	return true;
 }

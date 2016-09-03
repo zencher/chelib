@@ -366,11 +366,6 @@ private:
 };
 
 
-
-
-
-
-
 class CHE_PDF_ContentsParser : public CHE_Object
 {
 public:
@@ -485,19 +480,19 @@ private:
     
     CHE_PDF_Path *			mpPath;
     CHE_PDF_Path *			mpClipPath;
-    FLOAT				mBeginX;
-    FLOAT				mBeginY;
-    FLOAT				mCurX;
-    FLOAT				mCurY;
+    FLOAT                   mBeginX;
+    FLOAT                   mBeginY;
+    FLOAT                   mCurX;
+    FLOAT                   mCurY;
     
     //inline image
     BYTE					mParamFalg;
     bool					mbInlineImage;
     bool					mbInterpolate;
     bool					mbMask;
-    size_t				mWidth;
-    size_t				mHeight;
-    size_t				mBpc;
+    uint32                  mWidth;
+    uint32                  mHeight;
+    uint32                  mBpc;
     CHE_PDF_ObjectPtr		mpColorSpace;
     CHE_PDF_ObjectPtr		mpFilter;
     CHE_PDF_ObjectPtr		mpDecode;
@@ -507,10 +502,6 @@ private:
     CHE_PDF_ContentResMgr * mpContentResMgr;
     CHE_PDF_ContentListConstructor * mpConstructor;
 };
-
-
-
-
 
 
 bool CHE_PDF_ContentsParser::Parse( const CHE_PDF_StreamPtr & pContents )
@@ -528,7 +519,7 @@ bool CHE_PDF_ContentsParser::Parse( const CHE_PDF_StreamPtr & pContents )
     
     ParseImp( &buf );
     
-    return TRUE;
+    return true;
 }
 
 bool CHE_PDF_ContentsParser::Parse( const CHE_PDF_ArrayPtr & pContentArray )
@@ -555,7 +546,7 @@ bool CHE_PDF_ContentsParser::Parse( const CHE_PDF_ArrayPtr & pContentArray )
     {
         ParseImp( &buf );
     }
-    return TRUE;
+    return true;
 }
 
 void CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
@@ -582,15 +573,15 @@ void CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
     CHE_PDF_ParseWordDes wordDes;
     CHE_PDF_ObjectPtr pTmpNode;
     FLOAT tmpValue = 0;
-    bool	bOpd = TRUE;
-    while( sParser.GetWord( wordDes ) == TRUE )
+    bool	bOpd = true;
+    while( sParser.GetWord( wordDes ) == true )
     {
-        bOpd = TRUE;
+        bOpd = true;
         switch ( wordDes.type )
         {
             case PARSE_WORD_INTEGER:
             {
-                tmpValue = (FLOAT)( sParser.GetInteger()/*wordDes.str.GetInteger()*/ );
+                tmpValue = (FLOAT)( sParser.GetInteger() );
                 mOpdFloatStack.push_back( tmpValue );
                 
                 if ( mbInlineImage && mParamFalg > 0 )
@@ -598,13 +589,13 @@ void CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
                     switch ( mParamFalg )
                     {
                         case 1:
-                            mBpc = sParser.GetInteger();//wordDes.str.GetInteger();
+                            mBpc = sParser.GetInteger();
                             break;
                         case 6:
-                            mHeight = sParser.GetInteger();//wordDes.str.GetInteger();
+                            mHeight = sParser.GetInteger();
                             break;
                         case 9:
-                            mWidth = sParser.GetInteger();//wordDes.str.GetInteger();
+                            mWidth = sParser.GetInteger();
                             break;
                         default:
                             break;
@@ -615,7 +606,7 @@ void CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
             }
             case PARSE_WORD_FLOAT:
             {
-                tmpValue = sParser.GetFloat();//wordDes.str.GetFloat();
+                tmpValue = sParser.GetFloat();
                 mOpdFloatStack.push_back( tmpValue );
                 break;
             }
@@ -623,11 +614,11 @@ void CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
             {
                 if ( mName.GetLength() > 0 )
                 {
-                    mString = sParser.GetString()/*wordDes.str*/;
+                    mString = sParser.GetString();
                 }
                 else
                 {
-                    mName = sParser.GetString()/*wordDes.str*/;
+                    mName = sParser.GetString();
                 }
                 if ( mbInlineImage )
                 {
@@ -636,16 +627,16 @@ void CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
                         switch ( mParamFalg )
                         {
                             case 2:
-                                mpColorSpace = CHE_PDF_Name::Create( sParser.GetString()/*wordDes.str*/, GetAllocator() );
+                                mpColorSpace = CHE_PDF_Name::Create( sParser.GetString(), GetAllocator() );
                                 break;
                             case 3:
-                                mpDecode = CHE_PDF_Name::Create( sParser.GetString()/*wordDes.str*/, GetAllocator() );
+                                mpDecode = CHE_PDF_Name::Create( sParser.GetString(), GetAllocator() );
                                 break;
                             case 4:
-                                mpDecodeParam = CHE_PDF_Name::Create( sParser.GetString()/*wordDes.str*/, GetAllocator() );
+                                mpDecodeParam = CHE_PDF_Name::Create( sParser.GetString(), GetAllocator() );
                                 break;
                             case 5:
-                                mpFilter = CHE_PDF_Name::Create( sParser.GetString()/*wordDes.str*/, GetAllocator() );
+                                mpFilter = CHE_PDF_Name::Create( sParser.GetString(), GetAllocator() );
                                 break;
                             default:
                                 break;
@@ -715,11 +706,11 @@ void CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
             {
                 if ( mbInlineImage && mParamFalg == 7 )
                 {
-                    if ( sParser.IsWord( "true" )/*wordDes.str == "true"*/ )
+                    if ( sParser.IsWord( "true" ) )
                     {
                         mbMask = true;
                     }
-                    else if ( sParser.IsWord( "false" )/*wordDes.str == "false"*/ )
+                    else if ( sParser.IsWord( "false" ) )
                     {
                         mbMask = false;
                     }
@@ -730,7 +721,7 @@ void CHE_PDF_ContentsParser::ParseImp( CHE_DynBuffer * pStream )
                 break;
             }
         }
-        if ( bOpd == TRUE )
+        if ( bOpd == true )
         {
             continue;
         }
@@ -834,7 +825,7 @@ bool CHE_PDF_ContentsParser::CheckOpdCount( size_t count )
 {
     if ( mOpdFloatStack.size() >= count )
     {
-        return TRUE;
+        return true;
     }
     return false;
 }
@@ -931,7 +922,7 @@ void CHE_PDF_ContentsParser::Handle_BDC()
 
 void CHE_PDF_ContentsParser::Handle_BI()
 {
-    mbInlineImage = TRUE;
+    mbInlineImage = true;
 }
 
 void CHE_PDF_ContentsParser::Handle_BMC()
@@ -2259,7 +2250,7 @@ bool CHE_PDF_ContentListBuilder::ParsePageContent( const CHE_PDF_DictionaryPtr &
     pConstructor->GetAllocator()->Delete( pConstructor );
     pConstructor = nullptr;
     
-    return TRUE;
+    return true;
 }
 
 bool CHE_PDF_ContentListBuilder::ParseContentStream( const CHE_PDF_StreamPtr & stmPtr, CHE_PDF_ContentObjectList & contentList, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator /*= nullptr*/ )
@@ -2297,7 +2288,7 @@ bool CHE_PDF_ContentListBuilder::ParseContentStream( const CHE_PDF_StreamPtr & s
     CHE_PDF_ContentsParser contentsParser( &( contentList.GetResMgr() ), pComponentMgr, pConstructor );
     contentsParser.Parse( stmPtr );
     pConstructor->GetAllocator()->Delete( pConstructor );
-    return TRUE;
+    return true;
 }
 
 bool	CHE_PDF_ContentListBuilder::ParseContentStream( const CHE_PDF_ReferencePtr & refPtr, CHE_PDF_ContentObjectList & contentList, CHE_PDF_ComponentMgr * pComponentMgr, CHE_Allocator * pAllocator /*= nullptr*/ )

@@ -15,8 +15,8 @@ public:
 	CHE_PDF_StrokeState( CHE_Allocator * pAllocator = nullptr )
 		: CHE_Object( pAllocator ), mLineCap(LineCap_Butt), mLineJoin(LineJoin_Miter), mLineWidth(1), mMiterLimit(10) {}
 
-	FLOAT					GetLineWidth() const { return mLineWidth; }
-	FLOAT					GetMiterLimit() const { return mMiterLimit; }
+	FLOAT                       GetLineWidth() const { return mLineWidth; }
+	FLOAT                       GetMiterLimit() const { return mMiterLimit; }
 	GRAPHICS_STATE_LINECAP		GetLineCap() const { return mLineCap; }
 	GRAPHICS_STATE_LINEJOIN		GetLineJoin() const { return mLineJoin; }
 	GRAPHICS_STATE_DASHPATTERN	GetLineDash() const { return mLineDash; }
@@ -30,8 +30,8 @@ public:
 	CHE_PDF_StrokeState *		Clone() const;
 
 private:
-	FLOAT					mLineWidth;
-	FLOAT					mMiterLimit;
+	FLOAT                       mLineWidth;
+	FLOAT                       mMiterLimit;
 	GRAPHICS_STATE_LINECAP		mLineCap;
 	GRAPHICS_STATE_LINEJOIN		mLineJoin;
 	GRAPHICS_STATE_DASHPATTERN	mLineDash;
@@ -68,12 +68,12 @@ public:
 
 private:
 	CHE_Matrix						mMatrix;
-	FLOAT						mFontSize;
-	FLOAT						mCharSpace;
-	FLOAT						mWordSpace;
-	FLOAT						mLeading;
-	FLOAT						mScaling;
-	FLOAT						mRise;
+	FLOAT                           mFontSize;
+	FLOAT                           mCharSpace;
+	FLOAT                           mWordSpace;
+	FLOAT                           mLeading;
+	FLOAT                           mScaling;
+	FLOAT                           mRise;
 	CHE_ByteString					mFontName;
 	CHE_PDF_Font *					mpFont;
 	GRAPHICS_STATE_TEXTRENDERMODE	mRMode;
@@ -129,16 +129,16 @@ public:
 
 	CHE_PDF_ExtGStateStack * Clone() const;
 
-	bool operator == ( const CHE_PDF_ExtGStateStack & gs ) const;
+	bool operator==( const CHE_PDF_ExtGStateStack & gs ) const;
 
-	bool operator != ( const CHE_PDF_ExtGStateStack & gs ) const;
+	bool operator!=( const CHE_PDF_ExtGStateStack & gs ) const;
 
 	std::list<CHE_ByteString>			mExtGStateName;
 	std::list<CHE_PDF_ExtGStatePtr>		mExtGStateStack;
 
 private:
-	FLOAT							mStrokeAlpha;
-	FLOAT							mFillAlpha;
+	FLOAT                               mStrokeAlpha;
+	FLOAT                               mFillAlpha;
 	GRAPHICS_STATE_BLENDMODE			mBlendMode;
     CHE_PDF_DictionaryPtr               mSMask;
 };
@@ -180,17 +180,11 @@ public:
 	GRAPHICS_STATE_RENDERINTENTS GetRenderIntents() const { return mRenderIntents; }
 	FLOAT GetFlatness() const { return mFlatness; }
 
-	/*
-	*	@breif	获取图形状态的填充颜色
-	*	@param	用于接收返回值的颜色对象的引用
-	*	@return void
-	*	@remark	如果该图形状态中没有包含填充颜色的信息，则返回一个当前颜色空间下面的默认颜色
-	*/
-	void	GetFillColor( CHE_PDF_Color & colorRet ) const;
+	void GetFillColor( CHE_PDF_Color & colorRet ) const;
 	void GetStrokeColor( CHE_PDF_Color & colorRet ) const;
 	void GetFillColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const;
 	void GetStrokeColorSpace( CHE_PDF_ColorSpacePtr & colorSpaceRet ) const;
-	void	GetLineWidth( FLOAT & lineWidthRet ) const;
+	void GetLineWidth( FLOAT & lineWidthRet ) const;
 	void GetMiterLimit( FLOAT & miterLimitRet ) const;
 	void GetLineCap( GRAPHICS_STATE_LINECAP & lineCapRet ) const;
 	void GetLineJoin( GRAPHICS_STATE_LINEJOIN & lineJoinRet ) const;
@@ -214,11 +208,11 @@ public:
 	bool SetStrokeColor( const CHE_PDF_Color & color );
 	bool SetFillColorSpace( CHE_PDF_ColorSpacePtr ColorSpace );
 	bool SetStrokeColorSpace( CHE_PDF_ColorSpacePtr ColorSpace );
-	void	SetLineWidth( const FLOAT & lineWidth );
-	void	SetMiterLimit( const FLOAT & miterLimit );
-	void	SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
-	void	SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
-	void	SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
+	void SetLineWidth( const FLOAT & lineWidth );
+	void SetMiterLimit( const FLOAT & miterLimit );
+	void SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
+	void SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion );
+	void SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern );
 	void SetTextMatrix( const CHE_Matrix & matrix );
 	void SetTextFontSize( const FLOAT & size );
 	void SetTextFont( CHE_PDF_Font * pFont );
@@ -239,8 +233,8 @@ private:
 	CHE_PDF_ClipState *				MakeClipState();
 	CHE_PDF_ExtGStateStack *		MakeExtGState();
 
-	uint32						mFlag;
-	FLOAT						mFlatness;
+    uint32                          mFlag;
+	FLOAT                           mFlatness;
 	GRAPHICS_STATE_RENDERINTENTS	mRenderIntents;
 	CHE_Matrix						mMatrix;
 	CHE_PDF_Color					mFillColor;
@@ -253,7 +247,7 @@ private:
 	CHE_PDF_ExtGStateStack *		mpExtState;
 };
 
-bool	IsFloatEqual( const FLOAT &, const FLOAT & );
+bool IsFloatEqual( const FLOAT &, const FLOAT & );
 
 bool IsDefLineWidth( const FLOAT & lineWidth );
 bool IsDefLineCap( const GRAPHICS_STATE_LINECAP & lineCap );
@@ -272,10 +266,10 @@ bool IsDefTextRenderMode( const GRAPHICS_STATE_TEXTRENDERMODE & rm );
 bool IsDefFlatness( const FLOAT & flatness );
 bool IsDefRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri );
 
-bool IsDefColorSpace( const CHE_PDF_ColorSpace & colorSpace );
+bool IsDefColorSpace( const CHE_PDF_ColorSpacePtr & colorSpace );
 bool IsDefColor( const CHE_PDF_Color & color );
 
-bool	IsColorSpaceEqual( const CHE_PDF_ColorSpace & cs1, const CHE_PDF_ColorSpace & cs2 );
+bool IsColorSpaceEqual( const CHE_PDF_ColorSpacePtr & cs1, const CHE_PDF_ColorSpacePtr & cs2 );
 bool IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 );
 
 bool IsExtGStateEqual( const CHE_PDF_ExtGStateStack * pExtGS1, const CHE_PDF_ExtGStateStack * pExtGS2 );

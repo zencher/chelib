@@ -4,7 +4,7 @@
 #include <list>
 
 #include "../che_bitmap.h"
-/*#include "che_pdf_gstate.h"*/
+#include "che_pdf_gstate.h"
 #include "che_pdf_contentlist.h"
 //#include "che_pdf_contentresmgr.h"
 //#include "che_pdf_components.h"

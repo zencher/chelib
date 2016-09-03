@@ -1,11 +1,80 @@
 #ifndef _CHE_PDF_GSTATE_H_
 #define _CHE_PDF_GSTATE_H_
 
-#include "../che_graphics.h"
 #include "che_pdf_colorspace.h"
 #include "che_pdf_extgstate.h"
 #include "che_pdf_font.h"
 #include <list>
+
+enum GRAPHICS_STATE_LINECAP
+{
+    LineCap_Butt = 0,
+    LineCap_Round = 1,
+    LineCap_Square = 2
+};
+
+enum GRAPHICS_STATE_LINEJOIN
+{
+    LineJoin_Miter = 0,
+    LineJoin_Round = 1,
+    LineJoin_Bevel = 2
+};
+
+struct GRAPHICS_STATE_DASHPATTERN
+{
+    GRAPHICS_STATE_DASHPATTERN()
+    {
+        dashPhase = 0;
+    }
+    FLOAT dashPhase;
+    std::vector<float> dashArray;
+};
+
+enum GRAPHICS_STATE_RENDERINTENTS
+{
+    RI_AbsoluteColorimetric = 0,
+    RI_RelativeColorimetric = 1,
+    RI_Saturation = 2,
+    RI_Perceptual = 3
+};
+
+enum GRAPHICS_STATE_TEXTRENDERMODE
+{
+    TextRenderMode_Fill = 0,
+    TextRenderMode_Stroke = 1,
+    TextRenderMode_FillStroke = 2,
+    TextRenderMode_Invisible = 3,
+    TextRenderMode_FillClip = 4,
+    TextRenderMode_StrokeClip = 5,
+    TextRenderMode_FillStrokeClip = 6,
+    TextRenderMode_Clip = 7
+};
+
+enum GRAPHICS_STATE_BLENDMODE
+{
+    BlendMode_Normal		= 0,
+    BlendMode_Multiply		= 1,
+    BlendMode_Screen		= 2,
+    BlendMode_Overlay		= 3,
+    BlendMode_Darken		= 4,
+    BlendMode_Lighten		= 5,
+    BlendMode_ColorDodge	= 6,
+    BlendMode_ColorBurn		= 7,
+    BlendMode_HardLight		= 8,
+    BlendMode_SoftLight		= 9,
+    BlendMode_Difference	= 10,
+    BlendMode_Exclusion		= 11,
+    BlendMode_Hue           = 12,
+    BlendMode_Saturation    = 13,
+    BlendMode_Color         = 14,
+    BlendMode_Luminosity    = 15
+};
+
+enum GRAPHICS_STATE_FILLMODE
+{
+    FillMode_Nonzero = 0,
+    FillMode_EvenOdd = 1
+};
 
 class CHE_PDF_ContentObject;
 
@@ -132,7 +201,7 @@ public:
 	bool operator==( const CHE_PDF_ExtGStateStack & gs ) const;
 
 	bool operator!=( const CHE_PDF_ExtGStateStack & gs ) const;
-
+    
 	std::list<CHE_ByteString>			mExtGStateName;
 	std::list<CHE_PDF_ExtGStatePtr>		mExtGStateStack;
 
@@ -247,6 +316,7 @@ private:
 	CHE_PDF_ExtGStateStack *		mpExtState;
 };
 
+
 bool IsFloatEqual( const FLOAT &, const FLOAT & );
 
 bool IsDefLineWidth( const FLOAT & lineWidth );
@@ -268,7 +338,6 @@ bool IsDefRenderIntents( const GRAPHICS_STATE_RENDERINTENTS & ri );
 
 bool IsDefColorSpace( const CHE_PDF_ColorSpacePtr & colorSpace );
 bool IsDefColor( const CHE_PDF_Color & color );
-
 bool IsColorSpaceEqual( const CHE_PDF_ColorSpacePtr & cs1, const CHE_PDF_ColorSpacePtr & cs2 );
 bool IsColorEqual( const CHE_PDF_Color & c1, const CHE_PDF_Color & c2 );
 

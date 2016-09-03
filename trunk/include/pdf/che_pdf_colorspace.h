@@ -27,7 +27,7 @@ public:
 	CHE_PDF_Color( CHE_Allocator * pAllocator = nullptr ) 
 		: CHE_Object( pAllocator ), mIndex(0)
 	{
-		for ( size_t i = 0; i < 4; ++i )
+		for ( uint32 i = 0; i < 4; ++i )
 		{
 			mComponent[i] = 0.0f;
 		}
@@ -67,7 +67,7 @@ public:
 		return mIndex;
 	}
 
-	FLOAT GetComponent( size_t index ) const
+	FLOAT GetComponent( uint32 index ) const
 	{
 		if ( index < mIndex )
 		{

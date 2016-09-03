@@ -50,6 +50,6 @@ public:
 	static bool GStateToBuf( CHE_PDF_GState * & pGSData, CHE_DynBuffer & buf, stack<CHE_PDF_GState*> & gstack, bool bInTextBlock = false );
 
 	static bool GStateToBuf( CHE_PDF_GState * & pCurGSData, CHE_PDF_GState * & pTargetGSData, CHE_DynBuffer & buf, stack<CHE_PDF_GState*> & gstack, bool bInTextBlock = false );
-}; 
+};
 
 #endif

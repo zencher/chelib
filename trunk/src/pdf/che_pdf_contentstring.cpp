@@ -593,8 +593,8 @@ bool CHE_PDF_ContentString::TextStateToBuf( const CHE_PDF_GState * pCurTextState
 
 	if ( curRM != targetRM )
 	{
-		HE_ULONG tmpVal = (HE_ULONG)( targetRM );
-		CHE_PDF_ObjectString::DWORDToBuf( tmpVal, buf );
+		uint32 tmpVal = (uint32)( targetRM );
+		CHE_PDF_ObjectString::IntegerToBuf( tmpVal, buf );
 		CHE_PDF_ObjectString::StringToBuf( " Tr\n", buf );
 	}
 

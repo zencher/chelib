@@ -7,11 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "CHEPDFEditView.h"
+#import "CPDFEditView.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
-    CHEPDFEditView * pdfEditView;
+    CPDFEditView * pdfEditView;
 }
 
 @property (assign) IBOutlet NSWindow *window;

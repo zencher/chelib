@@ -8,15 +8,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "../../../include/pdf/che_pdf_file.h"
-#import "../../../include/pdf/che_pdf_document.h"
-#import "../../../include/pdf/che_pdf_contentlistbuilder.h"
-#import "../../../include/pdf/che_pdf_componentmgr.h"
-#import "../../../include/pdf/che_pdf_contentobjs.h"
-#import "../../../include/pdf/che_pdf_renderer_macosx.h"
-#import "../../../include/pdf/che_pdf_page_layout.h"
-#import "../../../include/pdf/che_pdf_outline.h"
+#import "../../../include/pdf/pdf_file.h"
+#import "../../../include/pdf/pdf_document.h"
+#import "../../../include/pdf/pdf_contentlistbuilder.h"
+#import "../../../include/pdf/pdf_componentmgr.h"
+#import "../../../include/pdf/pdf_contentobjs.h"
+#import "../../../include/pdf/pdf_renderer_macosx.h"
+#import "../../../include/pdf/pdf_page_layout.h"
+#import "../../../include/pdf/pdf_outline.h"
 
+using namespace chelib;
 
 enum PDFVIEW_PAGE_MODE
 {
@@ -42,15 +43,15 @@ enum PDFVIEW_ROTATE_MODE
 
 @interface PdfDocumentData : NSObject
 {
-    IHE_Read *                              fileReadInf;
-    CHE_Allocator *                         allocator;
-    CHE_PDF_File *                          pdfFile;
-    CHE_PDF_Document *                      pdfDocument;
-    CHE_PDF_PageTree *                      pdfPageTree;
-    CHE_PDF_PageLayout *                    pdfPageLayout;
-    CHE_PDF_ThumbnailPageLayout *           pdfThumbnailLayout;
+    IRead *                              fileReadInf;
+    CAllocator *                         allocator;
+    CPDF_File *                          pdfFile;
+    CPDF_Document *                      pdfDocument;
+    CPDF_PageTree *                      pdfPageTree;
+    CPDF_PageLayout *                    pdfPageLayout;
+    CPDF_ThumbnailPageLayout *           pdfThumbnailLayout;
     size_t                                  pageCount;
-    CHE_PDF_OutlineItem *                   pdfoutlineRoot;
+    CPDF_OutlineItem *                   pdfoutlineRoot;
 }
 
 -(id)initWithNSData:(NSData*)data;
@@ -61,9 +62,9 @@ enum PDFVIEW_ROTATE_MODE
 
 -(int32)getPageRotate:(size_t)pageIndex;
 
--(CHE_Rect)getPageRect:(size_t)pageIndex;
+-(CRect)getPageRect:(size_t)pageIndex;
 
--(CHE_PDF_ContentObjectList*)getPageContent:(size_t)pageIndex;
+-(CPDF_ContentObjectList*)getPageContent:(size_t)pageIndex;
 
 
 
@@ -97,11 +98,11 @@ enum PDFVIEW_ROTATE_MODE
 
 -(CGFloat)getPageScaleInViwe:(size_t)pageInde;
 
--(HE_PDF_PAGE_RANGE)getCurPageRange;
+-(PDF_PAGE_RANGE)getCurPageRange;
 
--(CHE_PDF_Outline*)getOutline;
+-(CPDF_Outline*)getOutline;
 
--(CHE_PDF_OutlineItem*)getOutlineRoot;
+-(CPDF_OutlineItem*)getOutlineRoot;
 
 
 //pdf page layout for thumbnail view

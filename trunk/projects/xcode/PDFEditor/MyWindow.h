@@ -7,15 +7,15 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "CHEPDFEditView.h"
+#import "CPDFEditView.h"
 #import "Document.h"
 
 @interface MyWindow : NSWindow
 {
-    CHEPDFEditView * pdfView;
+    CPDFEditView * pdfView;
 }
 
-- (void) load:(PdfDocumentData*)data;
+- (void)load:(PdfDocumentData*)data;
 
 - (IBAction)onRotate:(id)sender;
 - (IBAction)showThumbnail:(id)sender;

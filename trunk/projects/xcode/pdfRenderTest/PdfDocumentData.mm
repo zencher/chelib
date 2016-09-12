@@ -23,13 +23,13 @@
         
         allocator = GetDefaultAllocator();
         
-        fileReadInf = HE_CreateFileRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
+        fileReadInf = CreateFileIRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
         if ( fileReadInf )
         {
-            pdfFile = allocator->New<CHE_PDF_File>( allocator );
+            pdfFile = allocator->New<CPDF_File>( allocator );
             if ( pdfFile && pdfFile->Open( fileReadInf ) )
             {
-                pdfDocument = CHE_PDF_Document::CreateDocument( pdfFile );
+                pdfDocument = CPDF_Document::CreateDocument( pdfFile );
                 if ( pdfDocument )
                 {
                     pdfPageTree = pdfDocument->GetPageTree();
@@ -37,16 +37,16 @@
                     {
                         pageCount = pdfPageTree->GetPageCount();
                         
-                        pdfPageLayout = new CHE_PDF_PageLayout;
+                        pdfPageLayout = new CPDF_PageLayout;
                         
                         if ( pdfPageLayout )
                         {
                             for ( int i = 0; i < pdfPageTree->GetPageCount(); ++i)
                             {
-                                CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( i );
+                                CPDF_Page * pdfPage = pdfPageTree->GetPage( i );
                                 if ( pdfPage )
                                 {
-                                    CHE_Rect rect = pdfPage->GetPageRect();
+                                    CRect rect = pdfPage->GetPageRect();
                                     pdfPageLayout->AddPageSize( rect.width, rect.height );
                                     
                                 }
@@ -57,7 +57,7 @@
             }
         }
         
-        pdfoutlineRoot = allocator->New<CHE_PDF_OutlineItem>(allocator);
+        pdfoutlineRoot = allocator->New<CPDF_OutlineItem>(allocator);
         pdfoutlineRoot->mpFirst = NULL;
         pdfoutlineRoot->mpLast = NULL;
     }
@@ -79,34 +79,34 @@
         pdfFile = NULL;
     }
     if (fileReadInf) {
-        HE_DestoryIHERead(fileReadInf);
+        DestoryIRead(fileReadInf);
         fileReadInf = NULL;
     }
 }
 
--(CHE_PDF_ContentObjectList*)getPageContent:(HE_ULONG)index
+-(CPDF_ContentObjectList*)getPageContent:(size_t)index
 {
-    CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
+    CPDF_Page * pdfPage = pdfPageTree->GetPage( index );
     if ( pdfPage )
     {
         pdfPage->ParsePageContent( pdfDocument->GetComponentMgr() );
-        CHE_PDF_ContentObjectList & list = pdfPage->GetPageContentList();
+        CPDF_ContentObjectList & list = pdfPage->GetPageContentList();
         return & list;
     }
     return NULL;
 }
 
--(HE_ULONG)getPageCount
+-(size_t)getPageCount
 {
     return pdfPageTree->GetPageCount();
 }
 
--(CHE_Rect)getPageRect:(HE_ULONG)index
+-(CRect)getPageRect:(size_t)index
 {
-    CHE_Rect rect;
+    CRect rect;
     if ( index < pageCount )
     {
-        CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
+        CPDF_Page * pdfPage = pdfPageTree->GetPage( index );
         if ( pdfPage )
         {
             rect = pdfPage->GetPageRect();
@@ -137,7 +137,7 @@
 
 -(PDFVIEW_PAGE_MODE)getPageMode
 {
-    HE_PDF_VIEW_PAGE_MODE mode = pdfPageLayout->GetPageMode();
+    PDF_VIEW_PAGE_MODE mode = pdfPageLayout->GetPageMode();
     switch ( mode ) {
         case PAGE_SINGLE:
             return PAGE_MODE_SINGLE;
@@ -169,7 +169,7 @@
 
 -(PDFVIEW_ZOOM_MODE)getZoomMode
 {
-    HE_PDF_VIEW_ZOOM_MODE mode = pdfPageLayout->GetZoomMode();
+    PDF_VIEW_ZOOM_MODE mode = pdfPageLayout->GetZoomMode();
     switch ( mode ) {
         case ZOOM_FIX:
             return ZOOM_MODE_FIX;
@@ -204,7 +204,7 @@
 
 -(PDFVIEW_ROTATE_MODE)getRotateMode
 {
-    HE_PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
+    PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
     switch ( mode ) {
         case ROTATE_0:
             return ROTATE_MODE_0;
@@ -242,7 +242,7 @@
 
 -(void)nextPage
 {
-    HE_PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
+    PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
     if ( pdfPageLayout->GetPageMode() == PAGE_SINGLE )
     {
         if ( range.pageStart + 1 < pdfPageTree->GetPageCount() )
@@ -263,7 +263,7 @@
 
 -(void)prePage
 {
-    HE_PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
+    PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
     if ( pdfPageLayout->GetPageMode() == PAGE_SINGLE )
     {
         if ( range.pageStart != 0 )
@@ -281,7 +281,7 @@
 
 -(void)rotate
 {
-    HE_PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
+    PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
     if ( mode == ROTATE_0 )
     {
         pdfPageLayout->SetRotateMode( ROTATE_90 );
@@ -298,17 +298,17 @@
 
 -(CGSize)getContentSize
 {
-    HE_PDF_PAGE_SIZE size = pdfPageLayout->GetContentSize();
+    PDF_PAGE_SIZE size = pdfPageLayout->GetContentSize();
     CGSize sizeRet;
     sizeRet.width = size.width;
     sizeRet.height = size.height;
     return sizeRet;
 }
 
--(NSRect)getPageRectInView:(HE_ULONG)pageIndex
+-(NSRect)getPageRectInView:(size_t)pageIndex
 {
     NSRect rect;
-    CHE_Page_Rect pageRect = pdfPageLayout->GetPageRectInView(pageIndex);
+    CPage_Rect pageRect = pdfPageLayout->GetPageRectInView(pageIndex);
     
     rect.origin.x = pageRect.left;
     rect.origin.y = pageRect.top;
@@ -318,24 +318,24 @@
     return rect;
 }
 
--(CGFloat)getPageScaleInViwe:(HE_ULONG)pageIndex
+-(CGFloat)getPageScaleInViwe:(size_t)pageIndex
 {
     return pdfPageLayout->GetPageScaleInView(pageIndex);
 }
 
--(HE_PDF_PAGE_RANGE)getCurPageRange
+-(PDF_PAGE_RANGE)getCurPageRange
 {
     return pdfPageLayout->GetCurPageRange();
 }
 
--(CHE_PDF_Outline*)getOutline
+-(CPDF_Outline*)getOutline
 {
     return pdfDocument->GetOutline();
 }
 
--(CHE_PDF_OutlineItem*)getOutlineRoot
+-(CPDF_OutlineItem*)getOutlineRoot
 {
-    CHE_PDF_Outline * outline = pdfDocument->GetOutline();
+    CPDF_Outline * outline = pdfDocument->GetOutline();
     if (outline) {
         pdfoutlineRoot->mpFirst = outline->First();
         pdfoutlineRoot->mpLast = outline->Last();

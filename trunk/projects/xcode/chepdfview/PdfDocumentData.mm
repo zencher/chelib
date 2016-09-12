@@ -10,12 +10,12 @@
 
 
 
-class IHE_NSDataRead : public IHE_Read
+class INSDataRead : public IRead
 {
 public:
-    IHE_NSDataRead(NSData * data, CHE_Allocator * pAllocator = NULL);
+    INSDataRead(NSData * data, CAllocator * pAllocator = NULL);
     
-    ~IHE_NSDataRead();
+    INSDataRead();
     
     size_t	GetSize();
     
@@ -29,35 +29,35 @@ private:
     NSData *    mpData;
 };
 
-IHE_NSDataRead::IHE_NSDataRead(NSData * data, CHE_Allocator * pAllocator)
- :IHE_Read(pAllocator)
+INSDataRead::INSDataRead(NSData * data, CAllocator * pAllocator)
+  : IRead(pAllocator)
 {
     mpData = data;
 }
 
-IHE_NSDataRead::~IHE_NSDataRead()
+INSDataRead::INSDataRead()
 {
 }
 
-size_t IHE_NSDataRead::GetSize()
+size_t INSDataRead::GetSize()
 {
     return [mpData length];
 }
 
-size_t IHE_NSDataRead::ReadBlock( void * buffer, size_t offset, size_t size )
+size_t INSDataRead::ReadBlock( void * buffer, size_t offset, size_t size )
 {
     [mpData getBytes:buffer range:NSMakeRange(offset, size)];
     return size;
 }
 
-BYTE IHE_NSDataRead::ReadByte( size_t offset )
+BYTE INSDataRead::ReadByte( size_t offset )
 {
     BYTE byte;
     [mpData getBytes:&byte range:NSMakeRange(offset, 1)];
     return byte;
 }
 
-void IHE_NSDataRead::Release()
+void INSDataRead::Release()
 {
 }
 
@@ -77,13 +77,13 @@ void IHE_NSDataRead::Release()
         
         allocator = GetDefaultAllocator();
         
-        fileReadInf = allocator->New<IHE_NSDataRead>(data, allocator);// HE_CreateFileRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
+        fileReadInf = allocator->New<INSDataRead>(data, allocator);// HE_CreateFileRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
         if ( fileReadInf )
         {
-            pdfFile = allocator->New<CHE_PDF_File>( allocator );
+            pdfFile = allocator->New<CPDF_File>( allocator );
             if ( pdfFile && pdfFile->Open( fileReadInf ) )
             {
-                pdfDocument = CHE_PDF_Document::CreateDocument( pdfFile );
+                pdfDocument = CPDF_Document::CreateDocument( pdfFile );
                 if ( pdfDocument )
                 {
                     pdfPageTree = pdfDocument->GetPageTree();
@@ -91,18 +91,18 @@ void IHE_NSDataRead::Release()
                     {
                         pageCount = pdfPageTree->GetPageCount();
                         
-                        pdfPageLayout = new CHE_PDF_PageLayout;
+                        pdfPageLayout = new CPDF_PageLayout;
                         
-                        pdfThumbnailLayout = new CHE_PDF_ThumbnailPageLayout;
+                        pdfThumbnailLayout = new CPDF_ThumbnailPageLayout;
                         
                         if ( pdfPageLayout )
                         {
                             for ( int i = 0; i < pdfPageTree->GetPageCount(); ++i)
                             {
-                                CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( i );
+                                CPDF_Page * pdfPage = pdfPageTree->GetPage( i );
                                 if ( pdfPage )
                                 {
-                                    CHE_Rect rect = pdfPage->GetPageRect();
+                                    CRect rect = pdfPage->GetPageRect();
                                     uint32 rotate = pdfPage->GetRotate() % 360;
                                     if ( rotate == 90 || rotate == 270 )
                                     {
@@ -120,7 +120,7 @@ void IHE_NSDataRead::Release()
             }
         }
         
-        pdfoutlineRoot = allocator->New<CHE_PDF_OutlineItem>(allocator);
+        pdfoutlineRoot = allocator->New<CPDF_OutlineItem>(allocator);
         pdfoutlineRoot->mpFirst = NULL;
         pdfoutlineRoot->mpLast = NULL;
     }
@@ -140,13 +140,13 @@ void IHE_NSDataRead::Release()
         
         allocator = GetDefaultAllocator();
         
-        fileReadInf = HE_CreateFileRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
+        fileReadInf = CreateFileIRead( [path cStringUsingEncoding:NSUTF8StringEncoding] );
         if ( fileReadInf )
         {
-            pdfFile = allocator->New<CHE_PDF_File>( allocator );
+            pdfFile = allocator->New<CPDF_File>( allocator );
             if ( pdfFile && pdfFile->Open( fileReadInf ) )
             {
-                pdfDocument = CHE_PDF_Document::CreateDocument( pdfFile );
+                pdfDocument = CPDF_Document::CreateDocument( pdfFile );
                 if ( pdfDocument )
                 {
                     pdfPageTree = pdfDocument->GetPageTree();
@@ -154,16 +154,16 @@ void IHE_NSDataRead::Release()
                     {
                         pageCount = pdfPageTree->GetPageCount();
                         
-                        pdfPageLayout = new CHE_PDF_PageLayout;
+                        pdfPageLayout = new CPDF_PageLayout;
                         
                         if ( pdfPageLayout )
                         {
                             for ( int i = 0; i < pdfPageTree->GetPageCount(); ++i)
                             {
-                                CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( i );
+                                CPDF_Page * pdfPage = pdfPageTree->GetPage( i );
                                 if ( pdfPage )
                                 {
-                                    CHE_Rect rect = pdfPage->GetPageRect();
+                                    CRect rect = pdfPage->GetPageRect();
                                     uint32 rotate = pdfPage->GetRotate() % 360;
                                     if ( rotate == 90 || rotate == 270 )
                                     {
@@ -181,7 +181,7 @@ void IHE_NSDataRead::Release()
             }
         }
         
-        pdfoutlineRoot = allocator->New<CHE_PDF_OutlineItem>(allocator);
+        pdfoutlineRoot = allocator->New<CPDF_OutlineItem>(allocator);
         pdfoutlineRoot->mpFirst = NULL;
         pdfoutlineRoot->mpLast = NULL;
     }
@@ -207,18 +207,18 @@ void IHE_NSDataRead::Release()
         pdfFile = NULL;
     }
     if (fileReadInf) {
-        HE_DestoryIHERead(fileReadInf);
+        DestoryIRead(fileReadInf);
         fileReadInf = NULL;
     }
 }
 
--(CHE_PDF_ContentObjectList*)getPageContent:(size_t)index
+-(CPDF_ContentObjectList*)getPageContent:(size_t)index
 {
-    CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
+    CPDF_Page * pdfPage = pdfPageTree->GetPage( index );
     if ( pdfPage )
     {
         pdfPage->ParsePageContent( pdfDocument->GetComponentMgr() );
-        CHE_PDF_ContentObjectList & list = pdfPage->GetPageContentList();
+        CPDF_ContentObjectList & list = pdfPage->GetPageContentList();
         return & list;
     }
     return NULL;
@@ -234,7 +234,7 @@ void IHE_NSDataRead::Release()
     uint32 rotate = 0;
     if ( index < pageCount )
     {
-        CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
+        CPDF_Page * pdfPage = pdfPageTree->GetPage( index );
         if ( pdfPage )
         {
             rotate = pdfPage->GetRotate();
@@ -243,12 +243,12 @@ void IHE_NSDataRead::Release()
     return rotate;
 }
 
--(CHE_Rect)getPageRect:(size_t)index
+-(CRect)getPageRect:(size_t)index
 {
-    CHE_Rect rect;
+    CRect rect;
     if ( index < pageCount )
     {
-        CHE_PDF_Page * pdfPage = pdfPageTree->GetPage( index );
+        CPDF_Page * pdfPage = pdfPageTree->GetPage( index );
         if ( pdfPage )
         {
             rect = pdfPage->GetPageRect();
@@ -279,7 +279,7 @@ void IHE_NSDataRead::Release()
 
 -(PDFVIEW_PAGE_MODE)getPageMode
 {
-    HE_PDF_VIEW_PAGE_MODE mode = pdfPageLayout->GetPageMode();
+    PDF_VIEW_PAGE_MODE mode = pdfPageLayout->GetPageMode();
     switch ( mode ) {
         case PAGE_SINGLE:
             return PAGE_MODE_SINGLE;
@@ -311,7 +311,7 @@ void IHE_NSDataRead::Release()
 
 -(PDFVIEW_ZOOM_MODE)getZoomMode
 {
-    HE_PDF_VIEW_ZOOM_MODE mode = pdfPageLayout->GetZoomMode();
+    PDF_VIEW_ZOOM_MODE mode = pdfPageLayout->GetZoomMode();
     switch ( mode ) {
         case ZOOM_FIX:
             return ZOOM_MODE_FIX;
@@ -346,7 +346,7 @@ void IHE_NSDataRead::Release()
 
 -(PDFVIEW_ROTATE_MODE)getRotateMode
 {
-    HE_PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
+    PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
     switch ( mode ) {
         case ROTATE_0:
             return ROTATE_MODE_0;
@@ -394,7 +394,7 @@ void IHE_NSDataRead::Release()
 
 -(void)nextPage
 {
-    HE_PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
+    PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
     if ( pdfPageLayout->GetPageMode() == PAGE_SINGLE )
     {
         if ( range.pageStart + 1 < pdfPageTree->GetPageCount() )
@@ -415,7 +415,7 @@ void IHE_NSDataRead::Release()
 
 -(void)prePage
 {
-    HE_PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
+    PDF_PAGE_RANGE range = pdfPageLayout->GetCurPageRange();
     if ( pdfPageLayout->GetPageMode() == PAGE_SINGLE )
     {
         if ( range.pageStart != 0 )
@@ -433,7 +433,7 @@ void IHE_NSDataRead::Release()
 
 -(void)rotate
 {
-    HE_PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
+    PDF_VIEW_ROTATE_MODE mode = pdfPageLayout->GetRotateMode();
     if ( mode == ROTATE_0 )
     {
         pdfPageLayout->SetRotateMode( ROTATE_90 );
@@ -450,7 +450,7 @@ void IHE_NSDataRead::Release()
 
 -(CGSize)getContentSize
 {
-    HE_PDF_PAGE_SIZE size = pdfPageLayout->GetContentSize();
+    PDF_PAGE_SIZE size = pdfPageLayout->GetContentSize();
     CGSize sizeRet;
     sizeRet.width = size.width;
     sizeRet.height = size.height;
@@ -460,7 +460,7 @@ void IHE_NSDataRead::Release()
 -(NSRect)getPageRectInView:(size_t)pageIndex
 {
     NSRect rect;
-    CHE_Page_Rect pageRect = pdfPageLayout->GetPageRectInView(pageIndex);
+    CPage_Rect pageRect = pdfPageLayout->GetPageRectInView(pageIndex);
     rect.origin.x = pageRect.left;
     rect.origin.y = pageRect.top;
     rect.size.width = pageRect.Width();
@@ -470,7 +470,7 @@ void IHE_NSDataRead::Release()
 
 -(CGSize)getThumbnailContentSize
 {
-    HE_PDF_PAGE_SIZE size = pdfThumbnailLayout->GetContentSize();
+    PDF_PAGE_SIZE size = pdfThumbnailLayout->GetContentSize();
     CGSize sizeRet;
     sizeRet.width = size.width;
     sizeRet.height = size.height;
@@ -480,7 +480,7 @@ void IHE_NSDataRead::Release()
 -(NSRect)getPageRectInThumbnailView:(size_t)pageIndex
 {
     NSRect rect;
-    CHE_Page_Rect pageRect = pdfThumbnailLayout->GetPageRectInView(pageIndex);
+    CPage_Rect pageRect = pdfThumbnailLayout->GetPageRectInView(pageIndex);
     rect.origin.x = pageRect.left;
     rect.origin.y = pageRect.top;
     rect.size.width = pageRect.Width();
@@ -498,19 +498,19 @@ void IHE_NSDataRead::Release()
     return pdfPageLayout->GetPageScaleInView(pageIndex);
 }
 
--(HE_PDF_PAGE_RANGE)getCurPageRange
+-(PDF_PAGE_RANGE)getCurPageRange
 {
     return pdfPageLayout->GetCurPageRange();
 }
 
--(CHE_PDF_Outline*)getOutline
+-(CPDF_Outline*)getOutline
 {
     return pdfDocument->GetOutline();
 }
 
--(CHE_PDF_OutlineItem*)getOutlineRoot
+-(CPDF_OutlineItem*)getOutlineRoot
 {
-    CHE_PDF_Outline * outline = pdfDocument->GetOutline();
+    CPDF_Outline * outline = pdfDocument->GetOutline();
     if (outline) {
         pdfoutlineRoot->mpFirst = outline->First();
         pdfoutlineRoot->mpLast = outline->Last();

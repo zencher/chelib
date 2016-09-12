@@ -14,7 +14,7 @@
 {
     self = [super initWithContentRect:contentRect styleMask:aStyle backing:bufferingType defer:false];
     if (self) {
-        pdfView = [[CHEPDFEditView alloc] initWithFrame:contentRect];
+        pdfView = [[CPDFEditView alloc] initWithFrame:contentRect];
         [self setContentView:pdfView];
         [self setAllowsConcurrentViewDrawing:YES];
     }
@@ -25,7 +25,7 @@
 {
     self = [super initWithContentRect:contentRect styleMask:aStyle backing:bufferingType defer:flag screen:screen];
     if (self) {
-        pdfView = [[CHEPDFEditView alloc] init];
+        pdfView = [[CPDFEditView alloc] init];
         [self setContentView:pdfView];
         [self setAllowsConcurrentViewDrawing:YES];
     }

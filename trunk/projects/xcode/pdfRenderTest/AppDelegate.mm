@@ -14,7 +14,7 @@
 {
     NSRect rect = [[_window contentView] frame];
     
-    pdfEditView = [[CHEPDFEditView alloc] initWithFrame:rect];
+    pdfEditView = [[CPDFEditView alloc] initWithFrame:rect];
     [_window setContentView:pdfEditView];
 }
 

@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "CPDFEditView.h"
+#import "../chepdfview/CPDFEditView.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {

@@ -8,13 +8,15 @@
 
 #import <XCTest/XCTest.h>
 
-#include "che_pdf_file.h"
-#include "che_pdf_pattern.h"
-#include "che_pdf_colorspace.h"
-#include "che_pdf_componentmgr.h"
-#include "Che_pdf_colorspace.h"
-#include "che_pdf_contentlist.h"
-#include "che_pdf_gstate.h"
+#include "pdf_file.h"
+#include "pdf_pattern.h"
+#include "pdf_colorspace.h"
+#include "pdf_componentmgr.h"
+#include "pdf_colorspace.h"
+#include "pdf_contentlist.h"
+#include "pdf_gstate.h"
+
+using namespace chelib;
 
 @interface pattern : XCTestCase
 
@@ -33,29 +35,29 @@
 }
 
 - (void)test000 {
-    IHE_Read * pRead = HE_CreateFileRead( "/Users/zencher/testfiles/patternUnitTest000.pdf" );
-    CHE_PDF_File file;
+    IRead * pRead = CreateFileIRead( "/Users/zencher/testfiles/patternUnitTest000.pdf" );
+    CPDF_File file;
     file.Open( pRead );
 
-    CHE_PDF_ComponentMgr mgr;
-    CHE_PDF_ColorSpacePtr cs;
+    CPDF_ComponentMgr mgr;
+    CPDF_ColorSpacePtr cs;
     
-    CHE_PDF_ReferencePtr refPtr = CHE_PDF_Reference::Create( 40, 0, &file);
+    CPDF_ReferencePtr refPtr = CPDF_Reference::Create( 40, 0, &file);
     
     bool bFound = false;
-    CHE_PDF_TilingPtr tiling = CHE_PDF_Tiling::Create( refPtr, &mgr);
+    CPDF_TilingPtr tiling = CPDF_Tiling::Create( refPtr, &mgr);
     if ( tiling )
     {
-        CHE_PDF_ContentObjectList & content = tiling->GetList();
+        CPDF_ContentObjectList & content = tiling->GetList();
         
         ContentObjectList::iterator it;
         for ( it = content.Begin(); it != content.End(); ++it )
         {
-            CHE_PDF_GState * pState = (*it)->GetGState();
+            CPDF_GState * pState = (*it)->GetGState();
             pState->GetFillColorSpace( cs );
             if ( cs->GetColorSpaceType() == COLORSPACE_CIEBASE_ICCBASED )
             {
-                CHE_PDF_CS_ICCBasedPtr icc = cs->GetICCBasedPtr();
+                CPDF_CS_ICCBasedPtr icc = cs->GetICCBasedPtr();
                 if ( icc->mAlternate->GetColorSpaceType() == COLORSPACE_DEVICE_RGB )
                 {
                     bFound = true;

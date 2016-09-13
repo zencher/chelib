@@ -1,6 +1,6 @@
 #include "../../include/pdf/pdf_font.h"
 #include "../../include/pdf/pdf_parser.h"
-#include "../../include/pdf/pdf_contentobjs.h"
+#include "../../include/pdf/pdf_contentobject.h"
 #include "../../include/pdf/pdf_contentlistbuilder.h"
 
 //先去掉所有的freetype的调用，转向cocoa的ctfont

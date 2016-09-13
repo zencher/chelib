@@ -2,7 +2,7 @@
 #define _CHELIB_PDF_CONTENTSTRING_H_
 
 #include "pdf_gstate.h"
-#include "pdf_contentobjs.h"
+#include "pdf_contentobject.h"
 #include "pdf_contentlist.h"
 
 #include <stack>

@@ -7,29 +7,31 @@
 //
 
 #include <iostream>
-#include "che_pdf_document.h"
+#include "pdf_document.h"
+
+using namespace chelib;
 
 int main(int argc, const char * argv[])
 {
     if ( argv[1] )
     {
-        std::cout << argv[1] << endl;
+        std::cout << argv[1] << std::endl;
     }
     
-    IHE_Read * pRead = HE_CreateFileRead( argv[1] );
+    IRead * pRead = CreateFileIRead( argv[1] );
     if ( pRead )
     {
-        CHE_PDF_File file( GetDefaultAllocator() );
+        CPDF_File file( GetDefaultAllocator() );
         if ( file.Open( pRead ) )
         {
-            CHE_PDF_XRefTable * xtable = file.GetXRefTable();
+            CPDF_XRefTable * xtable = file.GetXRefTable();
             if ( xtable )
             {
-                HE_ULONG maxObjNum = xtable->GetMaxObjNum();
+                size_t maxObjNum = xtable->GetMaxObjNum();
                 PDF_RefInfo refInfo;
-                CHE_PDF_ObjectPtr objptr;
-                CHE_PDF_DictionaryPtr dictPtr;
-                for ( HE_ULONG i = 0; i < maxObjNum; ++i )
+                CPDF_ObjectPtr objptr;
+                CPDF_DictionaryPtr dictPtr;
+                for ( size_t i = 0; i < maxObjNum; ++i )
                 {
                     refInfo.objNum = i;
                     refInfo.genNum = 0;
@@ -43,7 +45,7 @@ int main(int argc, const char * argv[])
                             {
                                 if ( objptr->GetNamePtr()->GetString() == "DeviceN" )
                                 {
-                                    std::cout << "DeviceN found at " << refInfo.objNum << " " << refInfo.genNum << " obj" <<endl;
+                                    std::cout << "DeviceN found at " << refInfo.objNum << " " << refInfo.genNum << " obj" << std::endl;
                                 }
                             }
                         }
@@ -52,7 +54,7 @@ int main(int argc, const char * argv[])
             }
         }
         file.Close();
-        HE_DestoryIHERead( pRead );
+        DestoryIRead( pRead );
         pRead = NULL;
     }
     return 0;

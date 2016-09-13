@@ -1,7 +1,7 @@
 #ifndef _CHELIB_PDF_CONTENTBUILDER_H_
 #define _CHELIB_PDF_CONTENTBUILDER_H_
 
-#include "pdf_contentobjs.h"
+#include "pdf_contentobject.h"
 
 namespace chelib {
 

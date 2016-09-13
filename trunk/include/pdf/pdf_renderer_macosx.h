@@ -1,7 +1,7 @@
 #ifndef _CHELIB_PDF_RENDERER_H_
 #define _CHELIB_PDF_RENDERER_H_
 
-#include "pdf_contentobjs.h"
+#include "pdf_contentobject.h"
 #include "pdf_xobject.h"
 #include "pdf_pattern.h"
 #include "pdf_gstate.h"

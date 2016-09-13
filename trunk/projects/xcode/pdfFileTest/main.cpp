@@ -9,16 +9,18 @@
 #include <iostream>
 using namespace std;
 
-#include "../../../include/pdf/che_pdf_file.h"
+#include "../../../include/pdf/pdf_file.h"
+
+using namespace chelib;
 
 int main(int argc, const char * argv[])
 {
-    IHE_Read * pFileRead = HE_CreateFileRead( "/Users/zencher/Desktop/test1.pdf" );
+    IRead * pFileRead = CreateFileIRead( "/Users/zencher/Desktop/test1.pdf" );
     if ( !pFileRead ) {
         cout << "IHE_Read object create failed!" << endl;
     }
     
-    CHE_PDF_File pdfFile;
+    CPDF_File pdfFile;
     if ( pdfFile.Open( pFileRead ) == FALSE )
     {
         cout << "Open file failed!" << endl;

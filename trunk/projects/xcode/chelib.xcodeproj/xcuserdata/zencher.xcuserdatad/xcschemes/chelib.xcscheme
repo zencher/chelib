@@ -24,27 +24,17 @@
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
-      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      selectedDebuggerIdentifier = ""
+      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "90289F6D1C7964EE005F8310"
-               BuildableName = "CPDFEditViewTests.xctest"
-               BlueprintName = "CPDFEditViewTests"
-               ReferencedContainer = "container:chelib.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90C5373717587FF10014AC65"
-            BuildableName = "pdfRenderTest.app"
-            BlueprintName = "pdfRenderTest"
+            BlueprintIdentifier = "90C37C8D17534E58005D9C8A"
+            BuildableName = "libchelib.a"
+            BlueprintName = "chelib"
             ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -61,16 +51,15 @@
       debugDocumentVersioning = "NO"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "90C5373717587FF10014AC65"
-            BuildableName = "pdfRenderTest.app"
-            BlueprintName = "pdfRenderTest"
+            BlueprintIdentifier = "90C37C8D17534E58005D9C8A"
+            BuildableName = "libchelib.a"
+            BlueprintName = "chelib"
             ReferencedContainer = "container:chelib.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

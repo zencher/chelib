@@ -8,8 +8,10 @@
 
 #import <XCTest/XCTest.h>
 
-#include "che_pdf_file.h"
-#include "che_pdf_document.h"
+#include "pdf_file.h"
+#include "pdf_document.h"
+
+using namespace chelib;
 
 @interface annotation : XCTestCase
 
@@ -29,24 +31,24 @@
 
 - (void)createAnnot {
     
-    char * pFilePath = "pdffilepath";
+    char const * pFilePath = "pdffilepath";
     char tmp[1024];
-    IHE_Read * pfile = HE_CreateFileRead( pFilePath );
+    IRead * pfile = CreateFileIRead( pFilePath );
     if ( pfile )
     {
-        CHE_PDF_File file;
+        CPDF_File file;
         if ( file.Open( pfile ) )
         {
-            CHE_PDF_Document * pdoc = CHE_PDF_Document::CreateDocument(&file);
-            CHE_PDF_Page * pPage = pdoc->GetPage(0);
-            CHE_PDF_DictionaryPtr pageDict = pPage->GetPageDict();
-            CHE_PDF_DictionaryPtr highligthDict;
-            CHE_PDF_DictionaryPtr popupDict;
+            CPDF_Document * pdoc = CPDF_Document::CreateDocument(&file);
+            CPDF_Page * pPage = pdoc->GetPage(0);
+            CPDF_DictionaryPtr pageDict = pPage->GetPageDict();
+            CPDF_DictionaryPtr highligthDict;
+            CPDF_DictionaryPtr popupDict;
             PDF_RefInfo refinfo = file.CreateDictObject(highligthDict);
             PDF_RefInfo popupRef = file.CreateDictObject(popupDict);
             
-            CHE_PDF_ArrayPtr arrayPtr = pageDict->SetArray("Annots");
-            CHE_PDF_ReferencePtr refPtr = arrayPtr->AppendReference(&file);
+            CPDF_ArrayPtr arrayPtr = pageDict->SetArray("Annots");
+            CPDF_ReferencePtr refPtr = arrayPtr->AppendReference(&file);
             refPtr->SetRefInfo(refinfo);
             
             highligthDict->SetName("Type", "Annot");
@@ -95,7 +97,7 @@
             popupDict->SetReference("Parent", refinfo.objNum, refinfo.genNum, &file);
             
             sprintf( tmp, "%s.uncompressd.pdf", pFilePath);
-            IHE_Write * pWrite = HE_CreateFileWrite(tmp);
+            IWrite * pWrite = CreateFileIWrite(tmp);
             if ( pWrite )
             {
                 file.Save( pWrite, FALSE );

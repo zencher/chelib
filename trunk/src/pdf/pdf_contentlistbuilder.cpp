@@ -1,5 +1,5 @@
 #include "../../include/pdf/pdf_contentlistbuilder.h"
-#include "../../include/pdf/pdf_contentobjs.h"
+#include "../../include/pdf/pdf_contentobject.h"
 #include "../../include/pdf/pdf_parser.h"
 #include "../../include/pdf/pdf_extgstate.h"
 #include "../../include/pdf/pdf_gstate.h"

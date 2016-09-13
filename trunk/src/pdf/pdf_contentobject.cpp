@@ -1,4 +1,4 @@
-#include "../../include/pdf/pdf_contentobjs.h"
+#include "../../include/pdf/pdf_contentobject.h"
 #include "../../include/pdf/pdf_gstate.h"
 
 namespace chelib {

@@ -8,7 +8,9 @@
 
 #include <iostream>
 
-#include "che_pdf_file.h"
+#include "pdf_file.h"
+
+using namespace chelib;
 
 int main(int argc, const char * argv[]) {
     
@@ -18,14 +20,14 @@ int main(int argc, const char * argv[]) {
     }
     
     char tmp[1024];
-    IHE_Read * pfile = HE_CreateFileRead(argv[1]);
+    IRead * pfile = CreateFileIRead(argv[1]);
     if ( pfile )
     {
-        CHE_PDF_File file;
+        CPDF_File file;
         if ( file.Open( pfile ) )
         {
             sprintf( tmp, "%s.uncompressd.pdf", argv[1]);
-            IHE_Write * pWrite = HE_CreateFileWrite(tmp);
+            IWrite * pWrite = CreateFileIWrite(tmp);
             if ( pWrite )
             {
                 file.Save( pWrite, FALSE );

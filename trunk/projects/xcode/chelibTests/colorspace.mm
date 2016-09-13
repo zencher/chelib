@@ -9,7 +9,9 @@
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 
-#include "che_pdf_colorspace.h"
+#include "pdf_colorspace.h"
+
+using namespace chelib;
 
 @interface colorspace : XCTestCase
 
@@ -29,47 +31,47 @@
 
 - (void)testCreateDeviceGray
 {
-    CHE_PDF_ColorSpacePtr cs = CHE_PDF_ColorSpace::CreateDeviceGray();
+    CPDF_ColorSpacePtr cs = CPDF_ColorSpace::CreateDeviceGray();
     
-    XCTAssertTrue( cs, @"CHE_PDF_ColorSpace::CreateDeviceCMYK return null" );
+    XCTAssertTrue( cs, @"CPDF_ColorSpace::CreateDeviceCMYK return null" );
     
     PDF_COLORSPACE_TYPE type = cs->GetColorSpaceType();
     
-    XCTAssertTrue( type == COLORSPACE_DEVICE_GRAY, @"CHE_PDF_ColorSpace::GetColorSpaceType return not right" );
+    XCTAssertTrue( type == COLORSPACE_DEVICE_GRAY, @"CPDF_ColorSpace::GetColorSpaceType return not right" );
     
-    HE_UINT32 c = cs->GetComponentCount();
+    uint32 c = cs->GetComponentCount();
     
-    XCTAssertTrue( c == 1, @"CHE_PDF_ColorSpace::GetComponentCount return not right" );
+    XCTAssertTrue( c == 1, @"CPDF_ColorSpace::GetComponentCount return not right" );
 }
 
 - (void)testCreateDeviceRGB
 {
-    CHE_PDF_ColorSpacePtr cs = CHE_PDF_ColorSpace::CreateDeviceRGB();
+    CPDF_ColorSpacePtr cs = CPDF_ColorSpace::CreateDeviceRGB();
    
-    XCTAssertTrue( cs, @"CHE_PDF_ColorSpace::CreateDeviceRGB return null" );
+    XCTAssertTrue( cs, @"CPDF_ColorSpace::CreateDeviceRGB return null" );
     
     PDF_COLORSPACE_TYPE type = cs->GetColorSpaceType();
     
-    XCTAssertTrue( type == COLORSPACE_DEVICE_RGB, @"CHE_PDF_ColorSpace::GetColorSpaceType return not right" );
+    XCTAssertTrue( type == COLORSPACE_DEVICE_RGB, @"CPDF_ColorSpace::GetColorSpaceType return not right" );
     
-    HE_UINT32 c = cs->GetComponentCount();
+    uint32 c = cs->GetComponentCount();
     
-    XCTAssertTrue( c == 3, @"CHE_PDF_ColorSpace::GetComponentCount return not right" );
+    XCTAssertTrue( c == 3, @"CPDF_ColorSpace::GetComponentCount return not right" );
 }
 
 - (void)testCreateDeviceCMYK
 {
-    CHE_PDF_ColorSpacePtr cs = CHE_PDF_ColorSpace::CreateDeviceCMYK();
+    CPDF_ColorSpacePtr cs = CPDF_ColorSpace::CreateDeviceCMYK();
     
-    XCTAssertTrue( cs, @"CHE_PDF_ColorSpace::CreateDeviceCMYK return null" );
+    XCTAssertTrue( cs, @"CPDF_ColorSpace::CreateDeviceCMYK return null" );
     
     PDF_COLORSPACE_TYPE type = cs->GetColorSpaceType();
     
-    XCTAssertTrue( type == COLORSPACE_DEVICE_CMYK, @"CHE_PDF_ColorSpace::GetColorSpaceType return not right" );
+    XCTAssertTrue( type == COLORSPACE_DEVICE_CMYK, @"CPDF_ColorSpace::GetColorSpaceType return not right" );
     
-    HE_UINT32 c = cs->GetComponentCount();
+    uint32 c = cs->GetComponentCount();
     
-    XCTAssertTrue( c == 4, @"CHE_PDF_ColorSpace::GetComponentCount return not right" );
+    XCTAssertTrue( c == 4, @"CPDF_ColorSpace::GetComponentCount return not right" );
 }
 
 - (void)testPerformanceExample {

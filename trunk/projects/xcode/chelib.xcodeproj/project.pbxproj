@@ -150,7 +150,7 @@
 		90A01AE61754EC43009DCBD9 /* pdf_cmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD01754EC43009DCBD9 /* pdf_cmap.h */; };
 		90A01AE71754EC43009DCBD9 /* pdf_colorspace.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD11754EC43009DCBD9 /* pdf_colorspace.h */; };
 		90A01AE81754EC43009DCBD9 /* pdf_contentbuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD21754EC43009DCBD9 /* pdf_contentbuilder.h */; };
-		90A01AE91754EC43009DCBD9 /* pdf_contentobjs.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD31754EC43009DCBD9 /* pdf_contentobjs.h */; };
+		90A01AE91754EC43009DCBD9 /* pdf_contentobject.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD31754EC43009DCBD9 /* pdf_contentobject.h */; };
 		90A01AEA1754EC43009DCBD9 /* pdf_contentresmgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD41754EC43009DCBD9 /* pdf_contentresmgr.h */; };
 		90A01AEC1754EC43009DCBD9 /* pdf_contentstring.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD61754EC43009DCBD9 /* pdf_contentstring.h */; };
 		90A01AED1754EC43009DCBD9 /* pdf_destination.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AD71754EC43009DCBD9 /* pdf_destination.h */; };
@@ -159,7 +159,7 @@
 		90A01AF61754EC43009DCBD9 /* pdf_outline.h in Headers */ = {isa = PBXBuildFile; fileRef = 90A01AE01754EC43009DCBD9 /* pdf_outline.h */; };
 		90A01B0A1754EC65009DCBD9 /* pdf_cmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AF71754EC65009DCBD9 /* pdf_cmap.cpp */; };
 		90A01B0B1754EC65009DCBD9 /* pdf_colorspace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AF81754EC65009DCBD9 /* pdf_colorspace.cpp */; };
-		90A01B0D1754EC65009DCBD9 /* pdf_contentobjs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AFA1754EC65009DCBD9 /* pdf_contentobjs.cpp */; };
+		90A01B0D1754EC65009DCBD9 /* pdf_contentobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AFA1754EC65009DCBD9 /* pdf_contentobject.cpp */; };
 		90A01B0E1754EC65009DCBD9 /* pdf_contentresmgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AFB1754EC65009DCBD9 /* pdf_contentresmgr.cpp */; };
 		90A01B111754EC65009DCBD9 /* pdf_destination.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AFE1754EC65009DCBD9 /* pdf_destination.cpp */; };
 		90A01B121754EC65009DCBD9 /* pdf_document.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90A01AFF1754EC65009DCBD9 /* pdf_document.cpp */; };
@@ -626,7 +626,7 @@
 		90A01AD01754EC43009DCBD9 /* pdf_cmap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_cmap.h; path = ../../include/pdf/pdf_cmap.h; sourceTree = "<group>"; };
 		90A01AD11754EC43009DCBD9 /* pdf_colorspace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_colorspace.h; path = ../../include/pdf/pdf_colorspace.h; sourceTree = "<group>"; };
 		90A01AD21754EC43009DCBD9 /* pdf_contentbuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_contentbuilder.h; path = ../../include/pdf/pdf_contentbuilder.h; sourceTree = "<group>"; };
-		90A01AD31754EC43009DCBD9 /* pdf_contentobjs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_contentobjs.h; path = ../../include/pdf/pdf_contentobjs.h; sourceTree = "<group>"; };
+		90A01AD31754EC43009DCBD9 /* pdf_contentobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_contentobject.h; path = ../../include/pdf/pdf_contentobject.h; sourceTree = "<group>"; };
 		90A01AD41754EC43009DCBD9 /* pdf_contentresmgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_contentresmgr.h; path = ../../include/pdf/pdf_contentresmgr.h; sourceTree = "<group>"; };
 		90A01AD61754EC43009DCBD9 /* pdf_contentstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_contentstring.h; path = ../../include/pdf/pdf_contentstring.h; sourceTree = "<group>"; };
 		90A01AD71754EC43009DCBD9 /* pdf_destination.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_destination.h; path = ../../include/pdf/pdf_destination.h; sourceTree = "<group>"; };
@@ -635,7 +635,7 @@
 		90A01AE01754EC43009DCBD9 /* pdf_outline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pdf_outline.h; path = ../../include/pdf/pdf_outline.h; sourceTree = "<group>"; };
 		90A01AF71754EC65009DCBD9 /* pdf_cmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pdf_cmap.cpp; path = ../../src/pdf/pdf_cmap.cpp; sourceTree = "<group>"; };
 		90A01AF81754EC65009DCBD9 /* pdf_colorspace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pdf_colorspace.cpp; path = ../../src/pdf/pdf_colorspace.cpp; sourceTree = "<group>"; };
-		90A01AFA1754EC65009DCBD9 /* pdf_contentobjs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pdf_contentobjs.cpp; path = ../../src/pdf/pdf_contentobjs.cpp; sourceTree = "<group>"; };
+		90A01AFA1754EC65009DCBD9 /* pdf_contentobject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pdf_contentobject.cpp; path = ../../src/pdf/pdf_contentobject.cpp; sourceTree = "<group>"; };
 		90A01AFB1754EC65009DCBD9 /* pdf_contentresmgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pdf_contentresmgr.cpp; path = ../../src/pdf/pdf_contentresmgr.cpp; sourceTree = "<group>"; };
 		90A01AFE1754EC65009DCBD9 /* pdf_destination.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pdf_destination.cpp; path = ../../src/pdf/pdf_destination.cpp; sourceTree = "<group>"; };
 		90A01AFF1754EC65009DCBD9 /* pdf_document.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pdf_document.cpp; path = ../../src/pdf/pdf_document.cpp; sourceTree = "<group>"; };
@@ -1028,7 +1028,7 @@
 				900953FB1D79BB7300EB104C /* pdf_contentbuilder.cpp */,
 				90500C9418BF8E330025BB8D /* pdf_contentlist.cpp */,
 				90500C9518BF8E330025BB8D /* pdf_contentlistbuilder.cpp */,
-				90A01AFA1754EC65009DCBD9 /* pdf_contentobjs.cpp */,
+				90A01AFA1754EC65009DCBD9 /* pdf_contentobject.cpp */,
 				90A01AFB1754EC65009DCBD9 /* pdf_contentresmgr.cpp */,
 				900953FC1D79BB7300EB104C /* pdf_contentstring.cpp */,
 				900953FD1D79BB7300EB104C /* pdf_objectstring.cpp */,
@@ -1097,7 +1097,7 @@
 				90A01AD21754EC43009DCBD9 /* pdf_contentbuilder.h */,
 				90D8011818E7185F008455A7 /* pdf_contentlist.h */,
 				90D8011918E7185F008455A7 /* pdf_contentlistbuilder.h */,
-				90A01AD31754EC43009DCBD9 /* pdf_contentobjs.h */,
+				90A01AD31754EC43009DCBD9 /* pdf_contentobject.h */,
 				90A01AD41754EC43009DCBD9 /* pdf_contentresmgr.h */,
 				90A01AD61754EC43009DCBD9 /* pdf_contentstring.h */,
 				900953F91D79BB5100EB104C /* pdf_objectstring.h */,
@@ -1692,7 +1692,7 @@
 				90A01AE61754EC43009DCBD9 /* pdf_cmap.h in Headers */,
 				90A01AE71754EC43009DCBD9 /* pdf_colorspace.h in Headers */,
 				90A01AE81754EC43009DCBD9 /* pdf_contentbuilder.h in Headers */,
-				90A01AE91754EC43009DCBD9 /* pdf_contentobjs.h in Headers */,
+				90A01AE91754EC43009DCBD9 /* pdf_contentobject.h in Headers */,
 				90A01AEA1754EC43009DCBD9 /* pdf_contentresmgr.h in Headers */,
 				90A01AEC1754EC43009DCBD9 /* pdf_contentstring.h in Headers */,
 				90A01AED1754EC43009DCBD9 /* pdf_destination.h in Headers */,
@@ -2243,7 +2243,7 @@
 				909E12541754835300540539 /* winfnt.c in Sources */,
 				90A01B0A1754EC65009DCBD9 /* pdf_cmap.cpp in Sources */,
 				90A01B0B1754EC65009DCBD9 /* pdf_colorspace.cpp in Sources */,
-				90A01B0D1754EC65009DCBD9 /* pdf_contentobjs.cpp in Sources */,
+				90A01B0D1754EC65009DCBD9 /* pdf_contentobject.cpp in Sources */,
 				90A01B0E1754EC65009DCBD9 /* pdf_contentresmgr.cpp in Sources */,
 				90A01B111754EC65009DCBD9 /* pdf_destination.cpp in Sources */,
 				90A01B121754EC65009DCBD9 /* pdf_document.cpp in Sources */,

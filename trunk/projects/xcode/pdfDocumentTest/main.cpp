@@ -9,21 +9,23 @@
 #include <iostream>
 using namespace std;
 
-#include "../../../include/pdf/che_pdf_file.h"
-#include "../../../include/pdf/che_pdf_document.h"
-#include "../../../include/pdf/che_pdf_contents.h"
-#include "../../../include/pdf/che_pdf_contentobjs.h"
-#include "../../../include/pdf/che_pdf_renderer_macosx.h"
+#include "../../../include/pdf/pdf_file.h"
+#include "../../../include/pdf/pdf_document.h"
+#include "../../../include/pdf/pdf_contentlist.h"
+#include "../../../include/pdf/pdf_contentobject.h"
+#include "../../../include/pdf/pdf_renderer_macosx.h"
+
+using namespace chelib;
 
 int main(int argc, const char * argv[])
 {
-    IHE_Read * pFileRead = HE_CreateFileRead( "/Users/zencher/Desktop/test/test11.pdf" );
+    IRead * pFileRead = CreateFileIRead( "/Users/zencher/Desktop/test/test11.pdf" );
     if ( !pFileRead ) {
         cout << "IHE_Read object create failed!" << endl;
         return -1;
     }
     
-    CHE_PDF_File pdfFile;
+    CPDF_File pdfFile;
     if ( pdfFile.Open( pFileRead ) == FALSE )
     {
         cout << "Open file failed!" << endl;
@@ -33,7 +35,7 @@ int main(int argc, const char * argv[])
     cout << "Open file successed." << endl;
     cout << "File version " << pdfFile.GetPDFVersion() << endl;
 
-    CHE_PDF_Document * pDocument = CHE_PDF_Document::CreateDocument( &pdfFile );
+    CPDF_Document * pDocument = CPDF_Document::CreateDocument( &pdfFile );
     if ( pDocument ) {
         cout << "Create document object successed." << endl;
     }else{
@@ -41,7 +43,7 @@ int main(int argc, const char * argv[])
         return -3;
     }
     
-    CHE_PDF_PageTree * pPageTree = pDocument->GetPageTree();
+    CPDF_PageTree * pPageTree = pDocument->GetPageTree();
     if ( pPageTree ) {
         cout << "Parse page tree successed." << endl;
     }else{
@@ -49,31 +51,31 @@ int main(int argc, const char * argv[])
         return -4;
     }
     
-    CHE_PDF_FontMgr fontMgr;
-    CHE_GraphicsDrawer drawer( 1, 1 );
+    /*CPDF_FontMgr fontMgr;
+    CGraphicsDrawer drawer( 1, 1 );
     char pathStr[1024];
     
     cout << "Page count : " << pPageTree->GetPageCount() << endl;
     for( size_t i = 0; i < pPageTree->GetPageCount(); ++i )
     {
-        CHE_PDF_Page * pPage = pPageTree->GetPage( i );
+        CPDF_Page * pPage = pPageTree->GetPage( i );
         if ( pPage )
         {
-            CHE_Rect rect = pPage->GetMediaBox();
+            CRect rect = pPage->GetMediaBox();
             cout << "page " << i << " size :" << rect.width << " X " << rect.height << endl;
         }
         
-        CHE_PDF_DictionaryPtr pageDict = pPage->GetPageDict();
-        CHE_PDF_ContentObjectList contentList;
+        CPDF_DictionaryPtr pageDict = pPage->GetPageDict();
+        CPDF_ContentObjectList contentList;
         
         GetPageContent( pageDict, &contentList, &fontMgr );
         
-        CHE_Rect rect = pPage->GetMediaBox();
-        CHE_PDF_Renderer::Render( contentList, drawer, rect );
+        CRect rect = pPage->GetMediaBox();
+        CPDF_Renderer::Render( contentList, drawer, rect );
         
         sprintf( pathStr , "/Users/zencher/page%03d.png", i+1 );
         drawer.SaveToFile( pathStr );
-    }
+    }*/
     
     return 0;
 }

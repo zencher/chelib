@@ -1,5 +1,5 @@
-#ifndef _CHELIB_PDF_CONTENTOBJS_H_
-#define _CHELIB_PDF_CONTENTOBJS_H_
+#ifndef _CHELIB_PDF_CONTENTOBJECT_H_
+#define _CHELIB_PDF_CONTENTOBJECT_H_
 
 #include "pdf_gstate.h"
 #include "pdf_contentlist.h"

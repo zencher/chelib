@@ -8,9 +8,11 @@
 
 #include <iostream>
 
-#include "che_pdf_file.h"
-#include "che_pdf_document.h"
-#include "che_pdf_objclone.h"
+#include "pdf_file.h"
+#include "pdf_document.h"
+#include "pdf_objclone.h"
+
+using namespace chelib;
 
 int main(int argc, const char * argv[])
 {
@@ -19,43 +21,43 @@ int main(int argc, const char * argv[])
         return 0;
     }
 
-    IHE_Read * pfile = HE_CreateFileRead(argv[1]);
+    IRead * pfile = CreateFileIRead(argv[1]);
     if (!pfile)
     {
         return 0;
     }
     
-    HE_INT32 pageIndex = atoi(argv[2]);
+    int32 pageIndex = atoi(argv[2]);
     
-    CHE_PDF_File file;
-    CHE_PDF_Document * pDoc = NULL;
-    CHE_PDF_PageTree * pPageTree = NULL;
-    CHE_PDF_Page * pPage = NULL;
-    CHE_PDF_DictionaryPtr pageDict;
+    CPDF_File file;
+    CPDF_Document * pDoc = NULL;
+    CPDF_PageTree * pPageTree = NULL;
+    CPDF_Page * pPage = NULL;
+    CPDF_DictionaryPtr pageDict;
     if (file.Open(pfile))
     {
-        pDoc = CHE_PDF_Document::CreateDocument(&file);
+        pDoc = CPDF_Document::CreateDocument(&file);
         pPageTree = pDoc->GetPageTree();
         pPage = pPageTree->GetPage(pageIndex);
         pageDict = pPage->GetPageDict();
     }
 
     
-    CHE_ObjectCloneMgr ObjCloneMgr;
+    CObjectCloneMgr ObjCloneMgr;
     
-    CHE_PDF_File newFile;
-    CHE_PDF_Document * pNewDoc = CHE_PDF_Document::CreateDocument(&newFile);
-    CHE_PDF_PageTree * pNewPageTree = pNewDoc->GetPageTree();
-    CHE_PDF_Page * pNewPage = NULL;
-    CHE_PDF_DictionaryPtr newPageDict;
+    CPDF_File newFile;
+    CPDF_Document * pNewDoc = CPDF_Document::CreateDocument(&newFile);
+    CPDF_PageTree * pNewPageTree = pNewDoc->GetPageTree();
+    CPDF_Page * pNewPage = NULL;
+    CPDF_DictionaryPtr newPageDict;
     
     newFile.SetPDFVersion(file.GetPDFVersion());
     pNewPageTree->AppendPage( 0, 0 );
     pNewPage = pNewPageTree->GetPage( pNewPageTree->GetPageCount() - 1 );
     newPageDict = pNewPage->GetPageDict();
     
-    CHE_ByteString key;
-    CHE_PDF_ObjectPtr tmpObjPtr;
+    CByteString key;
+    CPDF_ObjectPtr tmpObjPtr;
     
     pageDict->MoveToFirst();
     while (pageDict->GetKeyAndElement(key, tmpObjPtr))
@@ -103,25 +105,25 @@ int main(int argc, const char * argv[])
         }
     }
 
-    CHE_PDF_DictionaryPtr tmpDict = CloneDirectDictObj(pPage->GetResourcesDict(), &newFile, &ObjCloneMgr);
+    CPDF_DictionaryPtr tmpDict = CloneDirectDictObj(pPage->GetResourcesDict(), &newFile, &ObjCloneMgr);
     newPageDict->SetDictionary("Resources", tmpDict);
     
-    CHE_PDF_ArrayPtr tmpArray = CloneDirectArrayObj(pPage->GetMediaBoxArray(), &newFile, &ObjCloneMgr);
+    CPDF_ArrayPtr tmpArray = CloneDirectArrayObj(pPage->GetMediaBoxArray(), &newFile, &ObjCloneMgr);
     newPageDict->SetArray("MediaBox", tmpArray);
     
-    HE_INT32 rotate = pPage->GetRotate();
+    int32 rotate = pPage->GetRotate();
     newPageDict->SetInteger("Rotate", rotate);
     
-    CHE_PDF_Page::ReleasePage(pPage);
-    CHE_PDF_Page::ReleasePage(pNewPage);
+    CPDF_Page::ReleasePage(pPage);
+    CPDF_Page::ReleasePage(pNewPage);
 
     char tmpStr[1024];
     sprintf( tmpStr, "%s.page%04d.pdf", argv[1], pageIndex);
     
-    IHE_Write * pWrite = HE_CreateFileWrite( tmpStr );
+    IWrite * pWrite = CreateFileIWrite( tmpStr );
     
     newFile.Save( pWrite, FALSE );
     
-    HE_DestoryIHEWrite( pWrite );
+    DestoryIWrite( pWrite );
     return 0;
 }

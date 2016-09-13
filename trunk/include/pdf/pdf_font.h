@@ -1,9 +1,7 @@
 #ifndef _CHELIB_PDF_NEWFONT_H_
 #define _CHELIB_PDF_NEWFONT_H_
 
-#include "../base.h"
 #include "pdf_cmap.h"
-#include "pdf_objects.h"
 #include "pdf_component.h"
 #include "pdf_contentlist.h"
 

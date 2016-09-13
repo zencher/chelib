@@ -1,12 +1,11 @@
 #ifndef _CHELIB_PDF_DOCUMENT_H_
 #define _CHELIB_PDF_DOCUMENT_H_
 
-#include "../base.h"
 #include "pdf_file.h"
-#include "pdf_pages.h"
+#include "pdf_page.h"
 #include "pdf_outline.h"
 #include "pdf_nametree.h"
-#include "pdf_pagelabels.h"
+#include "pdf_pagelabel.h"
 #include "pdf_componentmgr.h"
 
 namespace chelib {

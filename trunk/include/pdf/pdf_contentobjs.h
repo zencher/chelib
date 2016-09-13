@@ -1,7 +1,6 @@
 #ifndef _CHELIB_PDF_CONTENTOBJS_H_
 #define _CHELIB_PDF_CONTENTOBJS_H_
 
-#include "../bitmap.h"
 #include "pdf_gstate.h"
 #include "pdf_contentlist.h"
 #include "pdf_colorspace.h"

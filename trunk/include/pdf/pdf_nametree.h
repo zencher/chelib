@@ -1,8 +1,7 @@
 #ifndef _CHELIB_PDF_NAMETREE_H_
 #define _CHELIB_PDF_NAMETREE_H_
 
-#include "../base.h"
-#include "pdf_objects.h"
+#include "pdf_object.h"
 
 #include <string>
 #include <unordered_map>

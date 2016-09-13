@@ -1,5 +1,5 @@
-#ifndef _CHELIB_DEFINE_
-#define _CHELIB_DEFINE_
+#ifndef _CHELIB_BASE_DEFINE_
+#define _CHELIB_BASE_DEFINE_
 
 #include <stdint.h>
 

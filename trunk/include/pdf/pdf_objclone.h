@@ -1,7 +1,7 @@
 #ifndef _CHELIB_PDF_OBJCLONE_H_
 #define _CHELIB_PDF_OBJCLONE_H_
 
-#include "../../include/pdf/pdf_file.h"
+#include "pdf_file.h"
 
 #include <unordered_map>
 

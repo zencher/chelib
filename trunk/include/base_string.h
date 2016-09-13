@@ -1,7 +1,7 @@
-#ifndef _CHELIB_STRING_
-#define _CHELIB_STRING_
+#ifndef _CHELIB_BASE_STRING_
+#define _CHELIB_BASE_STRING_
 
-#include "base.h"
+#include "base_object.h"
 
 namespace chelib {
 

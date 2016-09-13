@@ -1,7 +1,7 @@
 #ifndef _CHELIB_PDF_FILE_H_
 #define _CHELIB_PDF_FILE_H_
 
-#include "../base.h"
+#include "../base_object.h"
 #include "pdf_parser.h"
 #include "pdf_collector.h"
 

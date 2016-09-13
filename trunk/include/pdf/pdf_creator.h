@@ -1,8 +1,6 @@
 #ifndef _CHELIB_PDF_CREATOR_H_
 #define _CHELIB_PDF_CREATOR_H_
 
-#include "../base.h"
-#include "pdf_objects.h"
 #include "pdf_parser.h"
 #include "pdf_collector.h"
 

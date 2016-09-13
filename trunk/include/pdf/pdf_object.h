@@ -1,8 +1,6 @@
-#ifndef _CHELIB_PDF_OBJECTS_H_
-#define _CHELIB_PDF_OBJECTS_H_
+#ifndef _CHELIB_PDF_OBJECT_H_
+#define _CHELIB_PDF_OBJECT_H_
 
-#include "../base.h"
-#include "../sstring.h"
 #include "pdf_encrypt.h"
 
 #include <string>

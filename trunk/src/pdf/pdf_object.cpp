@@ -1,4 +1,4 @@
-#include "../../include/pdf/pdf_objects.h"
+#include "../../include/pdf/pdf_object.h"
 #include "../../include/pdf/pdf_filter.h"
 #include "../../include/pdf/pdf_parser.h"
 #include "../../include/pdf/pdf_file.h"

@@ -1,8 +1,7 @@
 #ifndef _CHELIB_PDF_COLLECTOR_H_
 #define _CHELIB_PDF_COLLECTOR_H_
 
-#include "../base.h"
-#include "pdf_objects.h"
+#include "pdf_object.h"
 
 #include <unordered_map>
 

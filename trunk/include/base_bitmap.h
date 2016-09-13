@@ -1,5 +1,5 @@
-#ifndef _CHELIB_BITMAP_H_
-#define _CHELIB_BITMAP_H_
+#ifndef _CHELIB_BASE_BITMAP_H_
+#define _CHELIB_BASE_BITMAP_H_
 
 /*******************************************************************
  *  A simple bitmap class in CHELIB
@@ -21,7 +21,7 @@
  ******************************************************************/
 
 
-#include "base.h"
+#include "base_object.h"
 
 #include <vector>
 

@@ -1,7 +1,7 @@
 #ifndef _CHELIB_PDF_COMPONENT_H_
 #define _CHELIB_PDF_COMPONENT_H_
 
-#include "pdf_objects.h"
+#include "pdf_object.h"
 
 namespace chelib {
 

@@ -1,8 +1,7 @@
-#ifndef _CHELIB_PDF_PAGES_H_
-#define _CHELIB_PDF_PAGES_H_
+#ifndef _CHELIB_PDF_PAGE_H_
+#define _CHELIB_PDF_PAGE_H_
 
-#include "../base.h"
-#include "pdf_objects.h"
+#include "pdf_object.h"
 #include "pdf_file.h"
 #include "pdf_contentlist.h"
 #include "pdf_componentmgr.h"

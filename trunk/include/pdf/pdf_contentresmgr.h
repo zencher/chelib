@@ -1,7 +1,6 @@
 #ifndef _CHELIB_PDF_CONTENTRESMGR_H_
 #define _CHELIB_PDF_CONTENTRESMGR_H_
 
-#include "pdf_objects.h"
 #include "pdf_component.h"
 
 #include <unordered_map>

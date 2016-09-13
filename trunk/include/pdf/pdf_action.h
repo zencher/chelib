@@ -1,7 +1,7 @@
 #ifndef _CHELIB_PDF_ACTION_H_
 #define _CHELIB_PDF_ACTION_H_
 
-#include "pdf_objects.h"
+#include "pdf_object.h"
 #include "pdf_destination.h"
 #include "pdf_filespec.h"
 #include "pdf_namedict.h"

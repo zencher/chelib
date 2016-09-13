@@ -1,9 +1,7 @@
 #ifndef _CHELIB_PDF_FILESPEC_H_
 #define _CHELIB_PDF_FILESPEC_H_
 
-#include "base.h"
-#include "string.h"
-#include "pdf_objects.h"
+#include "pdf_object.h"
 
 namespace chelib {
 

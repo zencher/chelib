@@ -1,8 +1,7 @@
 #ifndef _CHELIB_PDF_OUTLINE_H_
 #define _CHELIB_PDF_OUTLINE_H_
 
-#include "../base.h"
-#include "pdf_objects.h"
+#include "pdf_object.h"
 #include "pdf_file.h"
 #include "pdf_destination.h"
 #include "pdf_nametree.h"

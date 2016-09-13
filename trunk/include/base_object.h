@@ -1,5 +1,5 @@
-#ifndef _CHELIB_BASE_H_
-#define _CHELIB_BASE_H_
+#ifndef _CHELIB_BASE_OBJECT_H_
+#define _CHELIB_BASE_OBJECT_H_
 
 #ifdef _MAC_OS_X_
 #include <malloc/malloc.h>
@@ -15,7 +15,7 @@
 
 #include <new>
 
-#include "define.h"
+#include "base_define.h"
 
 namespace chelib {
 

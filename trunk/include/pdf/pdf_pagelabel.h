@@ -1,7 +1,6 @@
-#ifndef _CHELIB_PDF_LABELS_H_
-#define _CHELIB_PDF_LABELS_H_
+#ifndef _CHELIB_PDF_LABEL_H_
+#define _CHELIB_PDF_LABEL_H_
 
-#include "../base.h"
 #include "pdf_numbertree.h"
 
 #include <unordered_map>

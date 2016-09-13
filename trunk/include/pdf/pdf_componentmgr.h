@@ -2,6 +2,7 @@
 #define _CPDF_COMPONENTMGR_H_
 
 #include "pdf_component.h"
+
 #include <unordered_map>
 
 namespace chelib {

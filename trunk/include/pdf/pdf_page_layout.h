@@ -9,7 +9,7 @@
 #ifndef _CHELIB_PDF_PAGE_LAYOUT_H_
 #define _CHELIB_PDF_PAGE_LAYOUT_H_
 
-#include "../base.h"
+#include "../base_object.h"
 
 #include <vector>
 #include <cfloat>

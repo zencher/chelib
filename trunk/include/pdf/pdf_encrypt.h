@@ -1,7 +1,7 @@
 #ifndef _CHELIB_PDF_ENCRYPT_H_
 #define _CHELIB_PDF_ENCRYPT_H_
 
-#include "../sstring.h"
+#include "../base_string.h"
 
 namespace chelib {
 

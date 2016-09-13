@@ -7,7 +7,7 @@
 //
 
 #include <iostream>
-#include "pdf_document.h"
+#include "che_pdf_document.h"
 
 using namespace chelib;
 

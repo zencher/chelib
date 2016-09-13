@@ -9,7 +9,7 @@
 #include <iostream>
 using namespace std;
 
-#include "../../../include/pdf/pdf_file.h"
+#include "../../../include/pdf/che_pdf_file.h"
 
 using namespace chelib;
 

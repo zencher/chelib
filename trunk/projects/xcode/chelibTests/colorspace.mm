@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <XCTest/XCTest.h>
 
-#include "pdf_colorspace.h"
+#include "che_pdf_colorspace.h"
 
 using namespace chelib;
 

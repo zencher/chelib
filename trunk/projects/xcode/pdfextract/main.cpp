@@ -8,9 +8,9 @@
 
 #include <iostream>
 
-#include "pdf_file.h"
-#include "pdf_document.h"
-#include "pdf_objclone.h"
+#include "che_pdf_file.h"
+#include "che_pdf_document.h"
+#include "che_pdf_objclone.h"
 
 using namespace chelib;
 

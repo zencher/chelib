@@ -8,14 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-#import "../../../include/pdf/pdf_file.h"
-#import "../../../include/pdf/pdf_document.h"
-#import "../../../include/pdf/pdf_contentlistbuilder.h"
-#import "../../../include/pdf/pdf_componentmgr.h"
-#import "../../../include/pdf/pdf_contentobjs.h"
-#import "../../../include/pdf/pdf_renderer_macosx.h"
-#import "../../../include/pdf/pdf_page_layout.h"
-#import "../../../include/pdf/pdf_outline.h"
+#import "../../../include/pdf/che_pdf_file.h"
+#import "../../../include/pdf/che_pdf_document.h"
+#import "../../../include/pdf/che_pdf_contentlistbuilder.h"
+#import "../../../include/pdf/che_pdf_componentmgr.h"
+#import "../../../include/pdf/che_pdf_contentobject.h"
+#import "../../../include/pdf/che_pdf_renderer_macosx.h"
+#import "../../../include/pdf/che_pdf_page_layout.h"
+#import "../../../include/pdf/che_pdf_outline.h"
 
 using namespace chelib;
 

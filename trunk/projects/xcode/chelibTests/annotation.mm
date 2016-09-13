@@ -8,8 +8,8 @@
 
 #import <XCTest/XCTest.h>
 
-#include "pdf_file.h"
-#include "pdf_document.h"
+#include "che_pdf_file.h"
+#include "che_pdf_document.h"
 
 using namespace chelib;
 

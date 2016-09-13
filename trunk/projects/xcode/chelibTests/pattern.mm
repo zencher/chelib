@@ -8,13 +8,13 @@
 
 #import <XCTest/XCTest.h>
 
-#include "pdf_file.h"
-#include "pdf_pattern.h"
-#include "pdf_colorspace.h"
-#include "pdf_componentmgr.h"
-#include "pdf_colorspace.h"
-#include "pdf_contentlist.h"
-#include "pdf_gstate.h"
+#include "che_pdf_file.h"
+#include "che_pdf_pattern.h"
+#include "che_pdf_colorspace.h"
+#include "che_pdf_componentmgr.h"
+#include "che_pdf_colorspace.h"
+#include "che_pdf_contentlist.h"
+#include "che_pdf_gstate.h"
 
 using namespace chelib;
 

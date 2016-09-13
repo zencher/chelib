@@ -9,11 +9,11 @@
 #include <iostream>
 using namespace std;
 
-#include "../../../include/pdf/pdf_file.h"
-#include "../../../include/pdf/pdf_document.h"
-#include "../../../include/pdf/pdf_contentlist.h"
-#include "../../../include/pdf/pdf_contentobject.h"
-#include "../../../include/pdf/pdf_renderer_macosx.h"
+#include "../../../include/pdf/che_pdf_file.h"
+#include "../../../include/pdf/che_pdf_document.h"
+#include "../../../include/pdf/che_pdf_contentlist.h"
+#include "../../../include/pdf/che_pdf_contentobject.h"
+#include "../../../include/pdf/che_pdf_renderer_macosx.h"
 
 using namespace chelib;
 

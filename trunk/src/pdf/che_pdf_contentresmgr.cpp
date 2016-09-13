@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_contentresmgr.h"
+#include "../../include/che_pdf_contentresmgr.h"
 
 namespace chelib {
 

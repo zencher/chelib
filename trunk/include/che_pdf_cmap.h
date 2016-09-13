@@ -1,7 +1,7 @@
 #ifndef _CHELIB_PDF_CMAP_H_
 #define _CHELIB_PDF_CMAP_H_
 
-#include "../che_base_string.h"
+#include "che_base_string.h"
 #include "che_pdf_cmap_res.h"
 
 namespace chelib {

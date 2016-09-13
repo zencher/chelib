@@ -1,4 +1,4 @@
-#include "../../include/hash/che_hash_md5.h"
+#include "../../include/che_hash_md5.h"
 #include <memory>
 
 namespace chelib {

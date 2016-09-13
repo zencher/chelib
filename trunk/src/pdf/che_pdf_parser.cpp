@@ -1,5 +1,5 @@
-#include "../../include/pdf/che_pdf_parser.h"
-#include "../../include/pdf/che_pdf_encrypt.h"
+#include "../../include/che_pdf_parser.h"
+#include "../../include/che_pdf_encrypt.h"
 
 #include <unordered_set>
 #include <cstdlib>

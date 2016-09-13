@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_filter.h"
+#include "../../include/che_pdf_filter.h"
 
 #include <setjmp.h>
 

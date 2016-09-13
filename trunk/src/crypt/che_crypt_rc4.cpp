@@ -1,4 +1,4 @@
-#include "../../include/crypt/che_crypt_rc4.h"
+#include "../../include/che_crypt_rc4.h"
 
 namespace chelib {
 

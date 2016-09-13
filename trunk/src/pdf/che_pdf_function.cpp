@@ -1,5 +1,5 @@
-#include "../../include/pdf/che_pdf_function.h"
-#include "../../include/pdf/che_pdf_parser.h"
+#include "../../include/che_pdf_function.h"
+#include "../../include/che_pdf_parser.h"
 
 #include <math.h>
 #include <float.h>

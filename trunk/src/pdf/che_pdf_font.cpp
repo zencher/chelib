@@ -1,7 +1,7 @@
-#include "../../include/pdf/che_pdf_font.h"
-#include "../../include/pdf/che_pdf_parser.h"
-#include "../../include/pdf/che_pdf_contentobject.h"
-#include "../../include/pdf/che_pdf_contentlistbuilder.h"
+#include "../../include/che_pdf_font.h"
+#include "../../include/che_pdf_parser.h"
+#include "../../include/che_pdf_contentobject.h"
+#include "../../include/che_pdf_contentlistbuilder.h"
 
 //先去掉所有的freetype的调用，转向cocoa的ctfont
 #include "../../extlib/freetype/include/ft2build.h"

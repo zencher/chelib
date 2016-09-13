@@ -1,7 +1,7 @@
 #ifndef _CHE_CRYPT_AES_H_
 #define _CHE_CRYPT_AES_H_
 
-#include "../../include/che_base_object.h"
+#include "che_base_object.h"
 
 namespace chelib {
 

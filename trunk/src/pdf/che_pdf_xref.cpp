@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_xref.h"
+#include "../../include/che_pdf_xref.h"
 #include <memory.h>
 
 namespace chelib {

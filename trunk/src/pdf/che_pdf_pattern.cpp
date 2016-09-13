@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_pattern.h"
+#include "../../include/che_pdf_pattern.h"
 
 namespace chelib {
 

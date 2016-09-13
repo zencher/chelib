@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_document.h"
+#include "../../include/che_pdf_document.h"
 #include <cassert>
 
 namespace chelib {

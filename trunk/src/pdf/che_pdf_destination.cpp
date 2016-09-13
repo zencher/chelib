@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_destination.h"
+#include "../../include/che_pdf_destination.h"
 
 namespace chelib {
 

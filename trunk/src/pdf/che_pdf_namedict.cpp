@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_namedict.h"
+#include "../../include/che_pdf_namedict.h"
 
 namespace chelib {
 

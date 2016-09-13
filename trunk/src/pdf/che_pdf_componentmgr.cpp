@@ -1,5 +1,5 @@
-#include "../../include/pdf/che_pdf_componentmgr.h"
-#include "../../include/pdf/che_pdf_font.h"
+#include "../../include/che_pdf_componentmgr.h"
+#include "../../include/che_pdf_font.h"
 
 namespace chelib {
 

@@ -1,5 +1,5 @@
-#include "../../include/pdf/che_pdf_colorspace.h"
-#include "../../include/pdf/che_pdf_contentobject.h"
+#include "../../include/che_pdf_colorspace.h"
+#include "../../include/che_pdf_contentobject.h"
 
 #include <cstdlib>
 

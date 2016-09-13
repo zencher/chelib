@@ -1,5 +1,5 @@
-#include "../../include/pdf/che_pdf_file.h"
-#include "../../include/pdf/che_pdf_creator.h"
+#include "../../include/che_pdf_file.h"
+#include "../../include/che_pdf_creator.h"
 
 namespace chelib {
 

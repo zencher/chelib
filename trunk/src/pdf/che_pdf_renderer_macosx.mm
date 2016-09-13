@@ -1,4 +1,4 @@
-#include "../../include/pdf/che_pdf_renderer_macosx.h"
+#include "../../include/che_pdf_renderer_macosx.h"
 
 #include <CoreGraphics/CGPattern.h>
 #include <CoreText/CoreText.h>

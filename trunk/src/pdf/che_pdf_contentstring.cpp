@@ -1,6 +1,6 @@
-#include "../../include/pdf/che_pdf_filter.h"
-#include "../../include/pdf/che_pdf_objectstring.h"
-#include "../../include/pdf/che_pdf_contentstring.h"
+#include "../../include/che_pdf_filter.h"
+#include "../../include/che_pdf_objectstring.h"
+#include "../../include/che_pdf_contentstring.h"
 
 #include <cassert>
 

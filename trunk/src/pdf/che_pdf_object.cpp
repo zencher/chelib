@@ -1,7 +1,7 @@
-#include "../../include/pdf/che_pdf_object.h"
-#include "../../include/pdf/che_pdf_filter.h"
-#include "../../include/pdf/che_pdf_parser.h"
-#include "../../include/pdf/che_pdf_file.h"
+#include "../../include/che_pdf_object.h"
+#include "../../include/che_pdf_filter.h"
+#include "../../include/che_pdf_parser.h"
+#include "../../include/che_pdf_file.h"
 #include <memory.h>
 
 namespace chelib {

@@ -1,5 +1,5 @@
-#include "../../include/pdf/che_pdf_xobject.h"
-#include "../../include/pdf/che_pdf_contentlistbuilder.h"
+#include "../../include/che_pdf_xobject.h"
+#include "../../include/che_pdf_contentlistbuilder.h"
 
 namespace chelib {
 

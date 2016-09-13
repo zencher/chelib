@@ -1,8 +1,8 @@
-#include "../../include/pdf/che_pdf_encrypt.h"
+#include "../../include/che_pdf_encrypt.h"
 
-#include "../../include/hash/che_hash_md5.h"
-#include "../../include/crypt/che_crypt_rc4.h"
-#include "../../include/crypt/che_crypt_aes.h"
+#include "../../include/che_hash_md5.h"
+#include "../../include/che_crypt_rc4.h"
+#include "../../include/che_crypt_aes.h"
 
 #include <cstdlib>
 #include <cstdio>

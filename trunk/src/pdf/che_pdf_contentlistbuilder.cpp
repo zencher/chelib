@@ -1,11 +1,11 @@
-#include "../../include/pdf/che_pdf_contentlistbuilder.h"
-#include "../../include/pdf/che_pdf_contentobject.h"
-#include "../../include/pdf/che_pdf_parser.h"
-#include "../../include/pdf/che_pdf_extgstate.h"
-#include "../../include/pdf/che_pdf_gstate.h"
-#include "../../include/pdf/che_pdf_xobject.h"
-#include "../../include/pdf/che_pdf_pattern.h"
-#include "../../include/pdf/che_pdf_componentmgr.h"
+#include "../../include/che_pdf_contentlistbuilder.h"
+#include "../../include/che_pdf_contentobject.h"
+#include "../../include/che_pdf_parser.h"
+#include "../../include/che_pdf_extgstate.h"
+#include "../../include/che_pdf_gstate.h"
+#include "../../include/che_pdf_xobject.h"
+#include "../../include/che_pdf_pattern.h"
+#include "../../include/che_pdf_componentmgr.h"
 
 namespace chelib {
 

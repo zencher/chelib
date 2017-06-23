@@ -35,6 +35,8 @@
 
 -(void)rotate;
 
+-(void)renderThread;
+
 @end
 
 

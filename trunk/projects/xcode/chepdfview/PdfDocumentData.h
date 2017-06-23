@@ -14,6 +14,7 @@
 #import "che_pdf_componentmgr.h"
 #import "che_pdf_contentobject.h"
 #import "che_pdf_renderer_macosx.h"
+#import "che_pdf_offscreen_renderer_macosx.h"
 #import "che_pdf_page_layout.h"
 #import "che_pdf_outline.h"
 
@@ -41,6 +42,16 @@ enum PDFVIEW_ROTATE_MODE
     ROTATE_MODE_270
 };
 
+struct RENDER_INFO
+{
+    size_t pageIndex;
+    uint32 rotate;
+    FLOAT scale;
+    FLOAT dpix;
+    FLOAT dpiy;
+    CPDF_Offscreen_Renderer * render;
+};
+
 @interface PdfDocumentData : NSObject
 {
     IRead *                              fileReadInf;
@@ -50,8 +61,9 @@ enum PDFVIEW_ROTATE_MODE
     CPDF_PageTree *                      pdfPageTree;
     CPDF_PageLayout *                    pdfPageLayout;
     CPDF_ThumbnailPageLayout *           pdfThumbnailLayout;
-    size_t                                  pageCount;
+    size_t                               pageCount;
     CPDF_OutlineItem *                   pdfoutlineRoot;
+    std::vector<RENDER_INFO*>            renders;
 }
 
 -(id)initWithNSData:(NSData*)data;
@@ -115,6 +127,23 @@ enum PDFVIEW_ROTATE_MODE
 -(NSRect)getPageRectInThumbnailView:(size_t)pageIndex;
 
 -(CGFloat)getPageScaleInThumbnailView:(size_t)pageInde;
+
+//render page
+
+-(CGLayerRef)renderPage:(size_t)pageIndex
+                  cgctx:(CGContextRef)ctx
+                   dpix:(FLOAT)dpix
+                   dpiy:(FLOAT)dpiy;
+
+-(CPDF_Offscreen_Renderer*)requestRenderForPage:(size_t)pageIndex
+                                          cgctx:(CGContextRef)ctx
+                                       pageRect:(CRect)pageRect
+                                          scale:(FLOAT)scale
+                                         rotate:(uint32)rotate
+                                           dpix:(FLOAT)dpix
+                                           dpiy:(FLOAT)dpiy;
+
+
 
 
 @end

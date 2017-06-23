@@ -1,4 +1,4 @@
-#include "../../include/che_pdf_renderer_macosx.h"
+#include "../../include/che_pdf_offscreen_renderer_macosx.h"
 
 #include <CoreGraphics/CGPattern.h>
 #include <CoreText/CoreText.h>
@@ -18,17 +18,94 @@ namespace chelib {
         CPDF_Tiling * pTiling = (CPDF_Tiling*)( info );
         if ( pTiling )
         {
-            CPDF_Renderer render( c );
+            CPDF_Offscreen_Renderer render(c);
             render.RenderTiling( pTiling->GetList(), pTiling->IsColored() );
         }
     }
     
+    CPDF_Offscreen_Renderer::CPDF_Offscreen_Renderer( CGContextRef cgContext )
+    : mFillMode(FillMode_Nonzero),mContextRef(cgContext), mLayerRef(NULL),  mPathRef(NULL), mFillColorSpace(NULL),
+    mStrokeColorSpace(NULL), mImageColorSpace(NULL), mFillAlpha(1), mStrokeAlpha(1)
+    {
+    }
     
-    CPDF_Renderer::CPDF_Renderer( CGContextRef cgContext )
-    : mFillMode(FillMode_Nonzero),mContextRef(cgContext), mPathRef(NULL), mFillColorSpace(NULL),
-    mStrokeColorSpace(NULL), mImageColorSpace(NULL), mPosiX(0), mPosiY(0),mFillAlpha(1), mStrokeAlpha(1) {}
+    CPDF_Offscreen_Renderer::CPDF_Offscreen_Renderer( CGContextRef cgContext,
+                                                      CRect pageRect, uint32 rotate,
+                                                      FLOAT scale, FLOAT dpix, FLOAT dpiy )
+    : mFillMode(FillMode_Nonzero),mContextRef(NULL), mLayerRef(NULL), mPathRef(NULL), mFillColorSpace(NULL),
+    mStrokeColorSpace(NULL), mImageColorSpace(NULL), mFillAlpha(1), mStrokeAlpha(1)
+    {
+        mbNoColor = FALSE;
+        mDpix = dpix;
+        mDpiy = dpiy;
+        mScale = scale;
+        mRotate = rotate;
+        mPageRect = pageRect;
+        
+        //计算extMatrix
+        CMatrix matrix;
+        if ( rotate == 90 )
+        {
+            CMatrix rotateMatrix = CMatrix::RotateMatrix( rotate );
+            CMatrix transformMatrix = CMatrix::TranslateMatrix( pageRect.height, 0 );
+            rotateMatrix.Concat( transformMatrix );
+            matrix.Concat( rotateMatrix );
+        }else if ( rotate == 180 )
+        {
+            CMatrix rotateMatrix = CMatrix::RotateMatrix( rotate );
+            CMatrix transformMatrix = CMatrix::TranslateMatrix( pageRect.width, pageRect.height );
+            rotateMatrix.Concat( transformMatrix );
+            matrix.Concat( rotateMatrix );
+        }else if ( rotate == 270 )
+        {
+            CMatrix rotateMatrix = CMatrix::RotateMatrix( rotate );
+            CMatrix transformMatrix = CMatrix::TranslateMatrix( 0, pageRect.width );
+            rotateMatrix.Concat( transformMatrix );
+            matrix.Concat( rotateMatrix );
+        }
+        
+        CRect newPageRect = matrix.Transform( pageRect );
+        
+        CMatrix bboxClipMatrix;
+        bboxClipMatrix.a = 1;
+        bboxClipMatrix.b = 0;
+        bboxClipMatrix.c = 0;
+        bboxClipMatrix.d = 1;
+        bboxClipMatrix.e = -newPageRect.left;
+        bboxClipMatrix.f = -newPageRect.bottom;
+        matrix.Concat( bboxClipMatrix );
+        
+        CMatrix flipMatrix;
+        flipMatrix.a = 1;
+        flipMatrix.b = 0;
+        flipMatrix.c = 0;
+        flipMatrix.d = -1;
+        flipMatrix.e = 0;
+        flipMatrix.f = newPageRect.height;
+        matrix.Concat( flipMatrix );
+        
+        CMatrix scaletMatrix;
+        scaletMatrix.a = dpix * scale / 72;
+        scaletMatrix.b = 0;
+        scaletMatrix.c = 0;
+        scaletMatrix.d = dpiy * scale / 72;
+        scaletMatrix.e = 0;
+        scaletMatrix.f = 0;
+        matrix.Concat( scaletMatrix );
+        
+        SetExtMatrix( matrix );
+        
+        newPageRect = matrix.Transform( pageRect );
+        
+        CGSize layerSize;
+        layerSize.width = newPageRect.width;
+        layerSize.height = newPageRect.height;
+        
+        mLayerRef = CGLayerCreateWithContext (cgContext, layerSize, NULL);
+        mContextRef = CGLayerGetContext (mLayerRef);
+    }
     
-    CPDF_Renderer::~CPDF_Renderer()
+    CPDF_Offscreen_Renderer::~CPDF_Offscreen_Renderer()
     {
         if ( mPathRef )
         {
@@ -50,25 +127,24 @@ namespace chelib {
             CGColorSpaceRelease( mImageColorSpace );
             mImageColorSpace = NULL;
         }
+        if ( mLayerRef )
+        {
+            CGLayerRelease( mLayerRef );
+            mLayerRef = NULL;
+        }
     }
     
-    void CPDF_Renderer::SetPosition( FLOAT x, FLOAT y )
-    {
-        mPosiX = x;
-        mPosiY = y;
-    }
-    
-    void	CPDF_Renderer::SetMatrix( const CMatrix & matrix )
+    void CPDF_Offscreen_Renderer::SetMatrix( const CMatrix & matrix )
     {
         mMatrix = matrix;
     }
     
-    void	CPDF_Renderer::SetExtMatrix( const CMatrix & matrix )
+    void CPDF_Offscreen_Renderer::SetExtMatrix( const CMatrix & matrix )
     {
         mExtMatrix = matrix;
     }
     
-    void	CPDF_Renderer::SetLineWidth( const FLOAT & lineWidth )
+    void CPDF_Offscreen_Renderer::SetLineWidth( const FLOAT & lineWidth )
     {
         if ( mContextRef )
         {
@@ -76,7 +152,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::SetMiterLimit( const FLOAT & miterLimit )
+    void CPDF_Offscreen_Renderer::SetMiterLimit( const FLOAT & miterLimit )
     {
         if ( mContextRef )
         {
@@ -84,7 +160,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
+    void CPDF_Offscreen_Renderer::SetLineCap( const GRAPHICS_STATE_LINECAP & lineCap )
     {
         if ( mContextRef )
         {
@@ -106,7 +182,7 @@ namespace chelib {
         
     }
     
-    void	CPDF_Renderer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
+    void CPDF_Offscreen_Renderer::SetLineJoin( const GRAPHICS_STATE_LINEJOIN & lineJion )
     {
         if ( mContextRef )
         {
@@ -127,7 +203,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
+    void CPDF_Offscreen_Renderer::SetLineDash( const GRAPHICS_STATE_DASHPATTERN & dashPattern )
     {
         if ( dashPattern.dashArray.size() > 0 )
         {
@@ -144,12 +220,12 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
+    void CPDF_Offscreen_Renderer::SetFillMode( GRAPHICS_STATE_FILLMODE mode )
     {
         mFillMode = mode;
     }
     
-    void CPDF_Renderer::SetBlendMode( GRAPHICS_STATE_BLENDMODE mode )
+    void CPDF_Offscreen_Renderer::SetBlendMode( GRAPHICS_STATE_BLENDMODE mode )
     {
         switch ( mode )
         {
@@ -206,7 +282,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::SetTextFont( CGFontRef font )
+    void CPDF_Offscreen_Renderer::SetTextFont( CGFontRef font )
     {
         if ( mContextRef )
         {
@@ -214,12 +290,12 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::SetTextMatrix( CMatrix textMatrix )
+    void CPDF_Offscreen_Renderer::SetTextMatrix( CMatrix textMatrix )
     {
         mTextMatrix = textMatrix;
     }
     
-    void	CPDF_Renderer::SetFillColor( const ARGB & color )
+    void CPDF_Offscreen_Renderer::SetFillColor( const ARGB & color )
     {
         if ( mContextRef )
         {
@@ -227,7 +303,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::SetStrokeColor( const ARGB & color )
+    void CPDF_Offscreen_Renderer::SetStrokeColor( const ARGB & color )
     {
         if ( mContextRef )
         {
@@ -235,7 +311,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::SetFillColor( const CPDF_Color & color )
+    void CPDF_Offscreen_Renderer::SetFillColor( const CPDF_Color & color )
     {
         // why i do this?
         /*if (mShading)
@@ -263,7 +339,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::SetStrokeColor( const CPDF_Color & color )
+    void CPDF_Offscreen_Renderer::SetStrokeColor( const CPDF_Color & color )
     {
         CGFloat val[5];
         int i = 0;
@@ -276,7 +352,7 @@ namespace chelib {
         CGContextSetStrokeColor( mContextRef, val );
     }
     
-    void CPDF_Renderer::SetFillColorSpace( const CPDF_ColorSpacePtr & cs )
+    void CPDF_Offscreen_Renderer::SetFillColorSpace( const CPDF_ColorSpacePtr & cs )
     {
         mFillPattern = NULL;
         if ( mFillColorSpace )
@@ -349,14 +425,6 @@ namespace chelib {
                         scaletMatrix.f = 0;
                         matrix.Concat( scaletMatrix );
                         
-                        CMatrix offsetMatrix;
-                        offsetMatrix.a = 1;
-                        offsetMatrix.b = 0;
-                        offsetMatrix.c = 0;
-                        offsetMatrix.d = 1;
-                        offsetMatrix.e = mPosiX + mPatternOffsetX;
-                        offsetMatrix.f = mPosiY + mPatternOffsetY;
-                        matrix.Concat( offsetMatrix );
                         
                         tilingMatrix.Concat( matrix );
                         CGAffineTransform m = CGAffineTransformMake( tilingMatrix.a, tilingMatrix.b, tilingMatrix.c, tilingMatrix.d, tilingMatrix.e, tilingMatrix.f );
@@ -401,7 +469,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::SetStrokeColorSpace( const CPDF_ColorSpacePtr & cs )
+    void CPDF_Offscreen_Renderer::SetStrokeColorSpace( const CPDF_ColorSpacePtr & cs )
     {
         if ( mStrokeColorSpace )
         {
@@ -413,7 +481,7 @@ namespace chelib {
         CGContextSetStrokeColorSpace( mContextRef , mStrokeColorSpace );
     }
     
-    CGColorSpaceRef CPDF_Renderer::CreateColorSpace( const CPDF_ColorSpacePtr & cs )
+    CGColorSpaceRef CPDF_Offscreen_Renderer::CreateColorSpace( const CPDF_ColorSpacePtr & cs )
     {
         CGColorSpaceRef csRef = NULL;
         if ( cs )
@@ -578,7 +646,7 @@ namespace chelib {
         return csRef;
     }
     
-    CGImageRef CPDF_Renderer::CreateImage( const CPDF_ImageXObjectPtr & imagePtr )
+    CGImageRef CPDF_Offscreen_Renderer::CreateImage( const CPDF_ImageXObjectPtr & imagePtr )
     {
         CGImageRef imgRef = NULL;
         if ( imagePtr )
@@ -668,7 +736,7 @@ namespace chelib {
         return imgRef;
     }
     
-    CGImageRef CPDF_Renderer::CreateImage( CPDF_InlineImage * image )
+    CGImageRef CPDF_Offscreen_Renderer::CreateImage( CPDF_InlineImage * image )
     {
         CGImageRef imgRef = NULL;
         if ( image )
@@ -749,7 +817,7 @@ namespace chelib {
         return imgRef;
     }
     
-    void CPDF_Renderer::SetImageColorSpace( const CPDF_ColorSpacePtr & cs )
+    void CPDF_Offscreen_Renderer::SetImageColorSpace( const CPDF_ColorSpacePtr & cs )
     {
         if ( mImageColorSpace )
         {
@@ -759,7 +827,7 @@ namespace chelib {
         mImageColorSpace = CreateColorSpace( cs );
     }
     
-    void CPDF_Renderer::ResetPath()
+    void CPDF_Offscreen_Renderer::ResetPath()
     {
         if ( mPathRef )
         {
@@ -768,7 +836,7 @@ namespace chelib {
         mPathRef = CGPathCreateMutable();
     }
     
-    void	CPDF_Renderer::MoveTo( FLOAT x, FLOAT y )
+    void CPDF_Offscreen_Renderer::MoveTo( FLOAT x, FLOAT y )
     {
         if ( mPathRef == NULL )
         {
@@ -778,7 +846,7 @@ namespace chelib {
         CGPathMoveToPoint( mPathRef, &affine, x, y );
     }
     
-    void	CPDF_Renderer::LineTo( FLOAT x, FLOAT y )
+    void CPDF_Offscreen_Renderer::LineTo( FLOAT x, FLOAT y )
     {
         if ( mPathRef )
         {
@@ -787,7 +855,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::CurveTo( FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2, FLOAT x3, FLOAT y3 )
+    void CPDF_Offscreen_Renderer::CurveTo( FLOAT x1, FLOAT y1, FLOAT x2, FLOAT y2, FLOAT x3, FLOAT y3 )
     {
         if ( mPathRef )
         {
@@ -796,7 +864,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::Rectangle( FLOAT x, FLOAT y, FLOAT width, FLOAT height )
+    void CPDF_Offscreen_Renderer::Rectangle( FLOAT x, FLOAT y, FLOAT width, FLOAT height )
     {
         if ( mPathRef == NULL )
         {
@@ -809,7 +877,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::ClosePath()
+    void CPDF_Offscreen_Renderer::ClosePath()
     {
         if ( mPathRef && !CGPathIsEmpty( mPathRef ) )
         {
@@ -817,7 +885,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::FillPath()
+    void CPDF_Offscreen_Renderer::FillPath()
     {
         if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
         {
@@ -883,7 +951,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::StrokePath()
+    void CPDF_Offscreen_Renderer::StrokePath()
     {
         if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
         {
@@ -893,7 +961,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::FillStrokePath()
+    void CPDF_Offscreen_Renderer::FillStrokePath()
     {
         if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
         {
@@ -923,7 +991,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::ClipPath()
+    void CPDF_Offscreen_Renderer::ClipPath()
     {
         if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
         {
@@ -933,51 +1001,7 @@ namespace chelib {
         }
     }
     
-    void	CPDF_Renderer::FillClipPath()
-    {
-        if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
-        {
-            if (mShading)
-            {
-                StoreGState();
-                
-                CGContextAddPath( mContextRef, mPathRef );
-                CGContextClip( mContextRef );
-                CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
-                DrawShading(mShading);
-                mShading.Reset();
-                
-                RestoreGState();
-                
-            }else{
-                CGContextAddPath( mContextRef, mPathRef );
-                if ( mFillMode == FillMode_Nonzero )
-                {
-                    CGContextFillPath( mContextRef );
-                }else{
-                    CGContextEOFillPath( mContextRef );
-                }
-            }
-            
-            CGContextAddPath( mContextRef, mPathRef );
-            CGContextClip( mContextRef );
-            ResetPath();
-        }
-    }
-    
-    void	CPDF_Renderer::StrokeClipPath()
-    {
-        if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
-        {
-            CGContextAddPath( mContextRef, mPathRef );
-            CGContextStrokePath( mContextRef );
-            CGContextAddPath( mContextRef, mPathRef );
-            CGContextClip( mContextRef );
-            ResetPath();
-        }
-    }
-    
-    void	CPDF_Renderer::FillStrokeClipPath()
+    void CPDF_Offscreen_Renderer::FillClipPath()
     {
         if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
         {
@@ -1004,6 +1028,16 @@ namespace chelib {
             }
             
             CGContextAddPath( mContextRef, mPathRef );
+            CGContextClip( mContextRef );
+            ResetPath();
+        }
+    }
+    
+    void CPDF_Offscreen_Renderer::StrokeClipPath()
+    {
+        if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
+        {
+            CGContextAddPath( mContextRef, mPathRef );
             CGContextStrokePath( mContextRef );
             CGContextAddPath( mContextRef, mPathRef );
             CGContextClip( mContextRef );
@@ -1011,17 +1045,51 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::StoreGState()
+    void CPDF_Offscreen_Renderer::FillStrokeClipPath()
+    {
+        if ( mContextRef && mPathRef && !CGPathIsEmpty( mPathRef ) )
+        {
+            if (mShading)
+            {
+                StoreGState();
+                
+                CGContextAddPath( mContextRef, mPathRef );
+                CGContextClip( mContextRef );
+                CGContextConcatCTM(mContextRef, CGAffineTransformMake(mShadingMatrix.a, mShadingMatrix.b, mShadingMatrix.c, mShadingMatrix.d, mShadingMatrix.e, mShadingMatrix.f));
+                DrawShading(mShading);
+                mShading.Reset();
+                
+                RestoreGState();
+                
+            }else{
+                CGContextAddPath( mContextRef, mPathRef );
+                if ( mFillMode == FillMode_Nonzero )
+                {
+                    CGContextFillPath( mContextRef );
+                }else{
+                    CGContextEOFillPath( mContextRef );
+                }
+            }
+            
+            CGContextAddPath( mContextRef, mPathRef );
+            CGContextStrokePath( mContextRef );
+            CGContextAddPath( mContextRef, mPathRef );
+            CGContextClip( mContextRef );
+            ResetPath();
+        }
+    }
+    
+    void CPDF_Offscreen_Renderer::StoreGState()
     {
         CGContextSaveGState( mContextRef );
     }
     
-    void CPDF_Renderer::RestoreGState()
+    void CPDF_Offscreen_Renderer::RestoreGState()
     {
         CGContextRestoreGState( mContextRef );
     }
     
-    void CPDF_Renderer::SetCommonGState( CPDF_GState * pGState, bool bColor, bool bMatrix )
+    void CPDF_Offscreen_Renderer::SetCommonGState( CPDF_GState * pGState, bool bColor, bool bMatrix )
     {
         if ( pGState == NULL )
         {
@@ -1174,7 +1242,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::SetExtGState( CPDF_ExtGStateStack * pExtGState )
+    void CPDF_Offscreen_Renderer::SetExtGState( CPDF_ExtGStateStack * pExtGState )
     {
         if ( pExtGState )
         {
@@ -1197,7 +1265,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::SetClipState( CPDF_ClipState * pClipState )
+    void CPDF_Offscreen_Renderer::SetClipState( CPDF_ClipState * pClipState )
     {
         if ( pClipState == NULL )
         {
@@ -1304,7 +1372,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::DrawPath( CPDF_Path * pPath )
+    void CPDF_Offscreen_Renderer::DrawPath( CPDF_Path * pPath )
     {
         if ( pPath->GetFillMode() == Mode_Nonzero )
         {
@@ -1373,7 +1441,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::DrawTextGlyph( CGGlyph gid )
+    void CPDF_Offscreen_Renderer::DrawTextGlyph( CGGlyph gid )
     {
         StoreGState();
         CGPoint position;
@@ -1388,7 +1456,7 @@ namespace chelib {
     
     
     
-    void CPDF_Renderer::DrawText( CPDF_Text * pText )
+    void CPDF_Offscreen_Renderer::DrawText( CPDF_Text * pText )
     {
         GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
         CPDF_GState * pGState = pText->GetGState();
@@ -1519,7 +1587,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::DrawTextAsPath( CPDF_Text * pText )
+    void CPDF_Offscreen_Renderer::DrawTextAsPath( CPDF_Text * pText )
     {
         GRAPHICS_STATE_TEXTRENDERMODE rm = TextRenderMode_Fill;
         CPDF_GState * pGState = pText->GetGState();
@@ -1610,7 +1678,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::DrawComponentRef( CPDF_ComponentRef * cmptRef )
+    void CPDF_Offscreen_Renderer::DrawComponentRef( CPDF_ComponentRef * cmptRef )
     {
         if ( cmptRef == NULL )
         {
@@ -1684,7 +1752,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::DrawRefImage( const CPDF_ImageXObjectPtr & image )
+    void CPDF_Offscreen_Renderer::DrawRefImage( const CPDF_ImageXObjectPtr & image )
     {
         if ( image )
         {
@@ -1712,7 +1780,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::DrawInlineImage( CPDF_InlineImage * pImage )
+    void CPDF_Offscreen_Renderer::DrawInlineImage( CPDF_InlineImage * pImage )
     {
         CGImageRef imgRef = CreateImage( pImage );
         if ( imgRef )
@@ -1724,7 +1792,7 @@ namespace chelib {
     
     void FunctionEvaluateCallback(void * __nullable info, const CGFloat *  in, CGFloat *  out)
     {
-        CPDF_Renderer * pRender = (CPDF_Renderer*)info;
+        CPDF_Offscreen_Renderer * pRender = (CPDF_Offscreen_Renderer*)info;
         std::vector<FLOAT> input;
         std::vector<FLOAT> output;
         input.push_back( in[0] );
@@ -1755,7 +1823,7 @@ namespace chelib {
         
     }
     
-    void CPDF_Renderer::DrawShading( const CPDF_ShadingPtr & shading )
+    void CPDF_Offscreen_Renderer::DrawShading( const CPDF_ShadingPtr & shading )
     {
         /*CGRect rc = CGContextGetClipBoundingBox(mContextRef);
          CGContextSetRGBFillColor(mContextRef, 0.5, 0.5, 0, 1);
@@ -1890,7 +1958,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::DrawForm( const CPDF_FormXObjectPtr & form )
+    void CPDF_Offscreen_Renderer::DrawForm( const CPDF_FormXObjectPtr & form )
     {
         
         CPDF_ContentObjectList & list = form->GetList();
@@ -1947,7 +2015,7 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::DrawContentObjectList( CPDF_ContentObjectList & list )
+    void CPDF_Offscreen_Renderer::DrawContentObjectList( CPDF_ContentObjectList & list )
     {
         ContentObjectList::iterator it = list.Begin();
         CPDF_GState * pGState = NULL;
@@ -2001,80 +2069,16 @@ namespace chelib {
         }
     }
     
-    void CPDF_Renderer::Render( CPDF_ContentObjectList & content, CRect pageRect, uint32 rotate, FLOAT scale, FLOAT dpix, FLOAT dpiy )
+    void CPDF_Offscreen_Renderer::Render( CPDF_ContentObjectList & content )
     {
-        mbNoColor = FALSE;
-        mDpix = dpix;
-        mDpiy = dpiy;
-        mScale = scale;
-        mRotate = rotate;
-        mPageRect = pageRect;
-        
-        //计算extMatrix
-        CMatrix matrix;
-        if ( rotate == 90 )
-        {
-            CMatrix rotateMatrix = CMatrix::RotateMatrix( rotate );
-            CMatrix transformMatrix = CMatrix::TranslateMatrix( pageRect.height, 0 );
-            rotateMatrix.Concat( transformMatrix );
-            matrix.Concat( rotateMatrix );
-        }else if ( rotate == 180 )
-        {
-            CMatrix rotateMatrix = CMatrix::RotateMatrix( rotate );
-            CMatrix transformMatrix = CMatrix::TranslateMatrix( pageRect.width, pageRect.height );
-            rotateMatrix.Concat( transformMatrix );
-            matrix.Concat( rotateMatrix );
-        }else if ( rotate == 270 )
-        {
-            CMatrix rotateMatrix = CMatrix::RotateMatrix( rotate );
-            CMatrix transformMatrix = CMatrix::TranslateMatrix( 0, pageRect.width );
-            rotateMatrix.Concat( transformMatrix );
-            matrix.Concat( rotateMatrix );
-        }
-        
-        CRect newPageRect = matrix.Transform( pageRect );
-        
-        CMatrix bboxClipMatrix;
-        bboxClipMatrix.a = 1;
-        bboxClipMatrix.b = 0;
-        bboxClipMatrix.c = 0;
-        bboxClipMatrix.d = 1;
-        bboxClipMatrix.e = -newPageRect.left;
-        bboxClipMatrix.f = -newPageRect.bottom;
-        matrix.Concat( bboxClipMatrix );
-        
-        CMatrix flipMatrix;
-        flipMatrix.a = 1;
-        flipMatrix.b = 0;
-        flipMatrix.c = 0;
-        flipMatrix.d = -1;
-        flipMatrix.e = 0;
-        flipMatrix.f = newPageRect.height;
-        matrix.Concat( flipMatrix );
-        
-        CMatrix scaletMatrix;
-        scaletMatrix.a = dpix * scale / 72;
-        scaletMatrix.b = 0;
-        scaletMatrix.c = 0;
-        scaletMatrix.d = dpiy * scale / 72;
-        scaletMatrix.e = 0;
-        scaletMatrix.f = 0;
-        matrix.Concat( scaletMatrix );
-        
-        CMatrix offsetMatrix;
-        offsetMatrix.e = mPosiX;
-        offsetMatrix.f = mPosiY;
-        
-        matrix.Concat( offsetMatrix );
-        SetExtMatrix( matrix );
-        
+    
         StoreGState();
         CGContextBeginTransparencyLayer(mContextRef, NULL);
         
         //clip当前页面绘制的区域
-        newPageRect = matrix.Transform( pageRect );
-        CGContextAddRect( mContextRef, CGRectMake( newPageRect.left, newPageRect.bottom, newPageRect.width, newPageRect.height ) );
-        CGContextClip( mContextRef );
+        //newPageRect = matrix.Transform( pageRect );
+        //CGContextAddRect( mContextRef, CGRectMake( newPageRect.left, newPageRect.bottom, newPageRect.width, newPageRect.height ) );
+        //CGContextClip( mContextRef );
         
         CPDF_GState * pGState = NULL;
         CPDF_ClipState * pClipState = NULL;
@@ -2124,7 +2128,7 @@ namespace chelib {
         CGContextEndTransparencyLayer(mContextRef);
     }
     
-    void CPDF_Renderer::RenderTiling( CPDF_ContentObjectList & content, bool bColored )
+    void CPDF_Offscreen_Renderer::RenderTiling( CPDF_ContentObjectList & content, bool bColored )
     {
         CPDF_GState * pGState = NULL;
         CPDF_ClipState * pClipState = NULL;

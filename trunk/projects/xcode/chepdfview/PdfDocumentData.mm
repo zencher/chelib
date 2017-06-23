@@ -168,10 +168,10 @@ void INSDataRead::Release()
                                     if ( rotate == 90 || rotate == 270 )
                                     {
                                         pdfPageLayout->AddPageSize(rect.height, rect.width);
-                                        pdfThumbnailLayout->AddPageSize(rect.height, rect.width);
+                                        //pdfThumbnailLayout->AddPageSize(rect.height, rect.width);
                                     }else{
                                         pdfPageLayout->AddPageSize(rect.width, rect.height);
-                                        pdfThumbnailLayout->AddPageSize(rect.width, rect.height);
+                                        //pdfThumbnailLayout->AddPageSize(rect.width, rect.height);
                                     }
                                 }
                             }
@@ -520,6 +520,68 @@ void INSDataRead::Release()
         pdfoutlineRoot->mpLast = NULL;
     }
     return pdfoutlineRoot;
+}
+
+-(CGLayerRef)renderPage:(size_t)pageIndex
+                  cgctx:(CGContextRef)ctx
+                   dpix:(FLOAT)dpix
+                   dpiy:(FLOAT)dpiy
+{
+    CRect pageRect = [self getPageRect:pageIndex];
+    uint32 rotate = 0, tmpRotate = 0;
+    switch ( [self getRotateMode] )
+    {
+        case ROTATE_MODE_0:
+            rotate = 0;
+            break;
+        case ROTATE_MODE_90:
+            rotate = 270;
+            break;
+        case ROTATE_MODE_180:
+            rotate = 180;
+            break;
+        case ROTATE_MODE_270:
+            rotate = 90;
+        default:
+            break;
+    }
+    tmpRotate = [self getPageRotate:pageIndex] % 360;
+    tmpRotate = 360 - tmpRotate;
+    tmpRotate += rotate;
+    tmpRotate %= 360;
+    
+    CPDF_Offscreen_Renderer * render = [self requestRenderForPage:pageIndex cgctx:ctx pageRect:pageRect scale:[self getPageScaleInViwe:pageIndex] rotate:tmpRotate dpix:dpix dpiy:dpiy];
+    return render->GetLayer();
+}
+
+-(CPDF_Offscreen_Renderer*)requestRenderForPage:(size_t)pageIndex
+                                          cgctx:(CGContextRef)ctx
+                                       pageRect:(CRect)pageRect
+                                          scale:(FLOAT)scale
+                                         rotate:(uint32)rotate
+                                           dpix:(FLOAT)dpix
+                                           dpiy:(FLOAT)dpiy
+{
+    for (int i = 0; i< renders.size(); ++i) {
+        RENDER_INFO * info = renders[i];
+        if (info->pageIndex == pageIndex &&
+            info->dpix == dpix &&
+            info->dpiy == dpiy &&
+            info->rotate == rotate &&
+            info->scale == scale) {
+            return info->render;
+        }
+    }
+    RENDER_INFO * newInfo = allocator->New<RENDER_INFO>();
+    newInfo->dpix = dpix;
+    newInfo->dpiy = dpiy;
+    newInfo->pageIndex = pageIndex;
+    newInfo->rotate = rotate;
+    newInfo->scale = scale;
+    newInfo->render = allocator->New<CPDF_Offscreen_Renderer>(ctx, pageRect, rotate, [self getPageScaleInViwe:pageIndex], dpix, dpiy);
+    newInfo->render->Render(*[self getPageContent:pageIndex]);
+    renders.push_back(newInfo);
+    return newInfo->render;
 }
 
 @end

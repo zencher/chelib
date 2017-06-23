@@ -39,6 +39,11 @@
     return YES;
 }
 
+-(void)renderThread
+{
+    
+}
+
 - (void)drawRect:(NSRect)dirtyRect
 {
     [[NSColor lightGrayColor] set];
@@ -141,35 +146,23 @@
     NSRect visableRect;
     NSRect pageRectInView;
     NSRect pageRectWithShadowInView;
-    NSRect frame = [self frame];
     
+    //NSRect frame = [self frame];
     //NSRect leftFrame = [leftView frame];
+    Boolean bFlag = false;
+    Boolean bOver = false;
     
     visableRect = [parentScrollView documentVisibleRect];
     CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
     if ( context )
     {
-        uint32 rotate = 0, tmpRotate = 0;
-        switch ( [pdfDocData getRotateMode] )
-        {
-            case ROTATE_MODE_0:
-                rotate = 0;
-                break;
-            case ROTATE_MODE_90:
-                rotate = 270;
-                break;
-            case ROTATE_MODE_180:
-                rotate = 180;
-                break;
-            case ROTATE_MODE_270:
-                rotate = 90;
-            default:
-                break;
-        }
-
         PDF_PAGE_RANGE range = [pdfDocData getCurPageRange];
         for ( size_t i = range.pageStart ; i < range.pageStart + range.pageCount; ++i )
         {
+            if(bOver)
+            {
+                break;
+            }
             CGContextSaveGState( context );
             
             pageRectInView = [pdfDocData getPageRectInView:i];
@@ -180,32 +173,19 @@
             pageRectWithShadowInView.size.height += 10;
             if ( CGRectIntersectsRect( rect, pageRectWithShadowInView ) )
             {
+                bFlag = true;
                 [self drawPageBorderAndShadow:context bound:pageRectInView];
                 CGContextAddRect( context, rect );
                 CGContextClip( context );
-                
-                tmpRotate = [pdfDocData getPageRotate:i] % 360;
-                tmpRotate = 360 - tmpRotate;
-                tmpRotate += rotate;
-                tmpRotate %= 360;
-                
-                CRect pageRect = [pdfDocData getPageRect:i];
-                CPDF_Renderer render( context );
-                render.SetPosition( pageRectInView.origin.x, pageRectInView.origin.y );
-                render.SetPatternOffset( 0/*leftFrame.size.width + 1*/,  visableRect.size.height - frame.size.height );
-                
-                /*NSLog(@"visable(%f, %f, %f, %f)", visableRect.origin.x, visableRect.origin.y,
-                 visableRect.origin.x + visableRect.size.width,
-                 visableRect.origin.y + visableRect.size.height);
-                 NSLog(@"page(%f, %f, %f, %f)", pageRectInView.origin.x, pageRectInView.origin.y,
-                 pageRectInView.origin.x + pageRectInView.size.width,
-                 pageRectInView.origin.y + pageRectInView.size.height);
-                 NSLog(@"frame(%f, %f, %f, %f)", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
-                 NSLog(@"offsetX %f, offsetY %f", 0.0f, visableRect.size.height - frame.size.height);*/
-
-                render.Render( *[pdfDocData getPageContent:i], pageRect, tmpRotate, [pdfDocData getPageScaleInViwe:i], 72, 72 );
+                CGLayerRef layer = [pdfDocData renderPage:i cgctx:context dpix:72.0 dpiy:72.0];
+                CGPoint pt;
+                pt.x = pageRectInView.origin.x;
+                pt.y = pageRectInView.origin.y;
+                CGContextDrawLayerAtPoint (context, pt, layer);
+            }else if(bFlag)
+            {
+                bOver = true;
             }
-            
             CGContextRestoreGState( context );
         }
     }
